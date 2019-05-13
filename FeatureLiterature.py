@@ -29,11 +29,15 @@ def calc_IEDB_immunogenicity(props, mhc):
     except ValueError:
         return "NA"
 
-def dai(props, mhc):
-    '''Calculates DAI: Returns difference between wt and mut MHC binding score'''
+def dai(props, mhc, multiple_binding=False):
+    '''Calculates DAI: Returns difference between wt and mut MHC binding score. If multiple_binding= true, harmonic means of MHC scores of top10 epitope candidates related to a mps is used '''
     if mhc == "mhcI":
-        sc_mut = props["MHC_I_score_.best_prediction."]
-        sc_wt = props["MHC_I_score_.WT."]
+        if multiple_binding:
+            sc_mut = props["MB_score_top10_harmonic"]
+            sc_wt = props["MB_score_WT_top10_harmonic"]
+        else:
+            sc_mut = props["MHC_I_score_.best_prediction."]
+            sc_wt = props["MHC_I_score_.WT."]
     elif mhc == "mhcII":
         sc_mut = props["MHC_II_score_.best_prediction."]
         sc_wt = props["MHC_II_score_.WT."]
@@ -42,9 +46,31 @@ def dai(props, mhc):
     except ValueError:
         return "NA"
 
+def diff_number_binders(props, threshold):
+    ''' returns absolute difference of potential candidate epitopes between mutated and wt epitope
+    '''
+    num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
+    num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+    try:
+        return str(float(num_mut) - float(num_wt))
+    except ValueError:
+        return "NA"
+
+def ratio_number_binders(props, threshold):
+    ''' returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
+    '''
+    num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
+    num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+    try:
+        return str(float(num_mut) / float(num_wt))
+    except ZeroDivisionError:
+        return str(num_mut)
+    except ValueError:
+        return "NA"
+
 def rna_expression_mutation(props):
     '''
-    This function calculated the product of VAF in RNA and transcript expression
+    This function calculates the product of VAF in RNA and transcript expression
     to reflect the expression of the mutated transcript
     '''
     transcript_expression = props["transcript_expression"]
@@ -92,7 +118,7 @@ def calc_logistic_function(mhc_score):
     except (OverflowError, ValueError) as e:
         return "NA"
 
-def calc_priority_score(props):
+def calc_priority_score(props, multiple_binding=False):
     '''
     This function calculates the Priority Score using parameters for mhc I.
     '''
@@ -100,8 +126,12 @@ def calc_priority_score(props):
     vaf_rna = props["VAF_in_RNA"]
     transcript_expr = props["transcript_expression"]
     no_mismatch = props["Number_of_mismatches_mhcI"]
-    score_mut = props["MHC_I_score_.best_prediction."]
-    score_wt = props["MHC_I_score_.WT."]
+    if multiple_binding:
+        score_mut = props["MB_score_top10_harmonic"]
+        score_wt = props["MB_score_WT_top10_harmonic"]
+    else:
+        score_mut = props["MHC_I_score_.best_prediction."]
+        score_wt = props["MHC_I_score_.WT."]
     mut_in_prot = props["mutation_found_in_proteome"]
     mut_in_prot = "0" if mut_in_prot == "True" else "1" if mut_in_prot == "False" else mut_in_prot
     L_mut = calc_logistic_function(score_mut)
