@@ -1,0 +1,53 @@
+
+Class I Immunogenicity tool
+===========================
+
+Introduction:
+-------------
+The distributions 'IEDB_Immunogenicity-1.1.tar.gz' contains Class I Immunogenicity tool. This tool uses amino acid properties 
+as well as their position within the peptide to predict the immunogenicity of a peptide MHC (pMHC) complex.
+
+Prerequisites:
+--------------
++ Modern Linux/UNIX OS
+
++ Python 2.5 or higher
+  * http://www.python.org/
+    - Under ubuntu: sudo apt-get install python2.5
+
+Installation:
+-------------
+Unpack the tar.gz files (IEDB_Immunogenicity-1.1.tar.gz)
+
+  $ tar -zxvf IEDB_Immunogenicity-1.1.tar.gz
+  $ cd immunogenicity
+  
+Available commands: 
+-------------------
+python predict_immunogenicity.py [input-file]
+python predict_immunogenicity.py [options] [input-file]
+
+* Available options:
+--------------------
+custom_mask or allele
+
+1) Example with default parameters:
+-----------------------------------
+python predict_immunogenicity.py example/test.txt
+ 
+2) Example with custom_mask option:
+-------------------------------------------
+python predict_immunogenicity.py --custom_mask=2,3,9 example/test.txt
+
+3) Example with allele option:
+--------------------------------------
+python predict_immunogenicity.py --allele=HLA-A0101 example/test.txt
+
+4) To list all available alleles:
+---------------------------------
+python predict_immunogenicity.py --allele_list
+
+Use help (-h or --help) for more information:
+-----------------------------------------------------------------
+python predict_immunogenicity.py --help
+
