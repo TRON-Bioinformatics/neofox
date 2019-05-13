@@ -126,6 +126,12 @@ class Epitope:
             self.add_features(sc, "MB_score_WT_best_per_alelle_" + mn)
         self.add_features(pred.MHC_number_strong_binders_WT, "MB_number_pep_WT_MHCscore<1")
         self.add_features(pred.MHC_number_weak_binders_WT, "MB_number_pep_WT_MHCscore<2")
+        self.add_features(FeatureLiterature.dai(self.properties, "mhcI", True), "DAI_mhcI_MB")
+        self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
+        self.add_features(FeatureLiterature.diff_number_binders(self.properties, "1"), "Diff_numb_epis_<1")
+        self.add_features(FeatureLiterature.diff_number_binders(self.properties, "2"), "Diff_numb_epis_<2")
+        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, "1"), "Ratio_numb_epis_<1")
+        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, "2"), "Ratio_numb_epis_<2")
         # priority score using multiplexed representation score
 
 
