@@ -7,3 +7,5 @@ pre-requisites:
 
 
 descriptors:
+IEDB immunogenicity
+self-similarity
