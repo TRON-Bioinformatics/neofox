@@ -74,7 +74,10 @@ def rna_expression_mutation(props):
     to reflect the expression of the mutated transcript
     '''
     transcript_expression = props["transcript_expression"]
-    vaf_rna = props["VAF_in_RNA"]
+    try:
+        vaf_rna = props["VAF_in_RNA"]
+    except KeyError:
+        vaf_rna = props["VAF_in_tumor"]
     try:
         return str(float(transcript_expression) * float(vaf_rna))
     except ValueError:
@@ -123,7 +126,10 @@ def calc_priority_score(props, multiple_binding=False):
     This function calculates the Priority Score using parameters for mhc I.
     '''
     vaf_tumor = props["VAF_in_tumor"]
-    vaf_rna = props["VAF_in_RNA"]
+    try:
+        vaf_rna = props["VAF_in_RNA"]
+    except KeyError:
+        vaf_tumor = props["VAF_in_tumor"]
     transcript_expr = props["transcript_expression"]
     no_mismatch = props["Number_of_mismatches_mhcI"]
     if multiple_binding:
