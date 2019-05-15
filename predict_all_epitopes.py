@@ -188,9 +188,12 @@ class Bunchepitopes:
             dat = data_import.change_col_names(dat)
         if "mutation_found_in_proteome" not in dat[0]:
             self.proteome_dictionary =self.build_proteome_dict(db)
-        # add patient id if _mut_set.txt.transcript.squish.somatic.freq is used 
+        # add patient id if _mut_set.txt.transcript.squish.somatic.freq is used
         if "patient.id" not in dat[0]:
-            patient = file.split("/")[-3]
+            try:
+                patient = file.split("/")[-3]
+            except IndexError:
+                patient = file.split("/")[-1].split(".")[0]
             dat[0].append("patient.id")
             for ii,i in enumerate(dat[1]):
                 dat[1][ii].append(str(patient))
