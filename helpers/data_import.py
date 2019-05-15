@@ -15,7 +15,7 @@ def import_dat_icam(in_file, indel):
     cx = 0
     c = 0
     # ceck format of file
-    if "txt" in in_file:
+    if "txt" in in_file or "transcript" in in_file:
         file_format = "txt"
     elif "csv" in in_file:
         file_format = "csv"
@@ -27,6 +27,7 @@ def import_dat_icam(in_file, indel):
             for line in f:
                 c += 1
                 w = line.replace('"',"").replace(",", ".").strip("\n").split(";")
+                print w
                 if c==1:
                     header = w
                     #print w
@@ -50,6 +51,7 @@ def import_dat_icam(in_file, indel):
                     continue
                 c += 1
                 w = [x.replace('"','').replace(",", ".") for x in line.strip("\n").split("\t")]
+                print w
                 if c == 1:
                     header = w
                     subst_col = header.index("substitution")
@@ -63,8 +65,6 @@ def import_dat_icam(in_file, indel):
                         pass
                     else:
                         data.append(w)
-
-
 
 
     print >> sys.stderr, "reading input done", len(data), "items", ";", len(data[1]), "columns"
