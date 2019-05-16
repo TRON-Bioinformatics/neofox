@@ -167,6 +167,7 @@ class Bunchepitopes:
         self.hla_available_alleles = self.add_available_hla_alleles()
         self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
+        print >> sys.stderr, self.patient_hla_II_allels
         startTime1 = datetime.now()
         print >> sys.stderr, data[0]
         print >> sys.stderr, data[0].index("UCSC_transcript")
@@ -180,7 +181,7 @@ class Bunchepitopes:
     def wrapper_table_add_feature_annotation(self, file, indel, db, rna_reference_file, path_to_hla_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
-        write to csv file
+        write to txt file
         """
         # import epitope data
         dat = data_import.import_dat_icam(file, indel)
@@ -192,6 +193,8 @@ class Bunchepitopes:
         if "patient.id" not in dat[0]:
             try:
                 patient = file.split("/")[-3]
+                if "Pt" no in patient:
+                    patient = file.split("/")[-1].split(".")[0]
             except IndexError:
                 patient = file.split("/")[-1].split(".")[0]
             dat[0].append("patient.id")
