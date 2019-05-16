@@ -27,7 +27,6 @@ def import_dat_icam(in_file, indel):
             for line in f:
                 c += 1
                 w = line.replace('"',"").replace(",", ".").strip("\n").split(";")
-                print w
                 if c==1:
                     header = w
                     #print w
@@ -51,7 +50,6 @@ def import_dat_icam(in_file, indel):
                     continue
                 c += 1
                 w = [x.replace('"','').replace(",", ".") for x in line.strip("\n").split("\t")]
-                print w
                 if c == 1:
                     header = w
                     subst_col = header.index("substitution")
@@ -67,7 +65,7 @@ def import_dat_icam(in_file, indel):
                         data.append(w)
 
 
-    print >> sys.stderr, "reading input done", len(data), "items", ";", len(data[1]), "columns"
+    print >> sys.stderr, "reading input done", len(data), "items", ";", len(data[0]), "columns"
     cx = c - 1
     # print header
     header = [x.strip('"').strip("\r").strip('"') for x in header]
