@@ -55,13 +55,17 @@ def wrap_pathogensimilarity(props, mhc, fastafile):
     return str(pathsim) if pathsim != "NA" else "0"
 
 
-def amplitude_mhc(props, mhc):
+def amplitude_mhc(props, mhc, multiple_binding=False):
     '''
     This function calculates the amplitude between mutated and wt epitope according to Balachandran et al.
     '''
     if mhc == "mhcI":
-        sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
-        sc_wt = props["MHC_I_score_.WT."].replace(",",".")
+        if multiple_binding:
+            sc_mut = props["MB_score_top10_harmonic"].replace(",",".")
+            sc_wt = props["MB_score_WT_top10_harmonic"].replace(",",".")
+        else:
+            sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
+            sc_wt = props["MHC_I_score_.WT."].replace(",",".")
     elif mhc == "mhcII":
         sc_mut = props["MHC_II_score_.best_prediction."].replace(",",".")
         sc_wt = props["MHC_II_score_.WT."].replace(",",".")
