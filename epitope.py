@@ -132,6 +132,7 @@ class Epitope:
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, "2"), "Diff_numb_epis_<2")
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, "1"), "Ratio_numb_epis_<1")
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, "2"), "Ratio_numb_epis_<2")
+        self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcI", multiple_binding=True), "Amplitude_mhcI_MB")
         # priority score using multiplexed representation score
 
 
