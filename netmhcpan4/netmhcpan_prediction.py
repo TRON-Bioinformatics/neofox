@@ -41,12 +41,12 @@ class NetmhcpanBestPrediction:
     def get_hla_allels(self, props, hla_patient_dict):
         ''' returns hla allele of patients given in hla_file
         '''
-        try:
-            patientid = props["patient"]
-        except KeyError:
-            if "patient.id" in props:
-                patientid = props["patient.id"]
-            else:
+        if "patient.id" in props:
+            patientid = props["patient.id"]
+        else:
+            try:
+                patientid = props["patient"]
+            except KeyError:
                 patientid = props["patient.x"]
         return hla_patient_dict[patientid]
 
@@ -62,7 +62,10 @@ class NetmhcpanBestPrediction:
         hla_allele = ",".join(allels_for_prediction)
         cmd = "/code/netMHCpan-4.0/netMHCpan -a " + hla_allele + " -f " + tmpfasta
         p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-        lines = p.stdout
+        lines = lines = p.stdout
+        #stdoutdata, stderrdata = p.communicate()
+        #lines = stdoutdata
+        #print >> sys.stderr, "NETMHCPAN ERROR: ",stderrdata
         #fileout = my_path + "/netmhcpan_out.csv"
         counter = 0
         with open(tmppred,"w") as f:
