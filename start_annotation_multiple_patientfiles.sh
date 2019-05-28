@@ -29,6 +29,7 @@ do
     echo $outfile
     echo $output
     echo $error
-    sbatch -p CentOS --job-name INPuT_"$4"_$pat -c 1 --time=30-00:00:00 --mem 2G --output=$output --error=$error --wrap="python /projects/SUMMIT/WP1.2/input/productive/addannot1.0/predict_all_epitopes.py -i $file2 -a $3 > $outfile"
+    module load anaconda/2/2018
+    sbatch -p CentOS --job-name INPuT_"$4"_$pat -c 1 --time=30-00:00:00 --mem 2G --output=$output --error=$error --wrap="python /projects/SUMMIT/WP1.2/input/development/predict_all_epitopes.py -i $file2 -a $3 > $outfile"
   fi;
 done
