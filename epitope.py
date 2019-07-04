@@ -3,6 +3,8 @@
 import os
 import sys
 import tempfile
+import subprocess
+import argparse
 
 from helpers import data_import
 import FeatureLiterature
@@ -13,6 +15,7 @@ from new_features import amino_acid_frequency_scores as freq_score
 from new_features import conservation_scores
 from aa_index import aa_index
 from netmhcpan4 import combine_netmhcpan_pred_multiple_binders as mhcprediction
+from Tcell_predictor import tcellpredictor_wrapper as tcr_pred
 
 
 
@@ -127,15 +130,16 @@ class Epitope:
         self.add_features(pred.MHC_number_strong_binders_WT, "MB_number_pep_WT_MHCscore<1")
         self.add_features(pred.MHC_number_weak_binders_WT, "MB_number_pep_WT_MHCscore<2")
         self.add_features(FeatureLiterature.dai(self.properties, "mhcI", True), "DAI_mhcI_MB")
+        # priority score using multiplexed representation score
         self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, "1"), "Diff_numb_epis_<1")
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, "2"), "Diff_numb_epis_<2")
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, "1"), "Ratio_numb_epis_<1")
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, "2"), "Ratio_numb_epis_<2")
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcI", multiple_binding=True), "Amplitude_mhcI_MB")
-        # priority score using multiplexed representation score
-
-
+        tcellpredict = tcr_pred.Tcellprediction()
+        tcellpredict.main(self.properties)
+        self.add_features(tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
         return self.properties
 
 
@@ -146,16 +150,22 @@ if __name__ == '__main__':
 
     startTime = datetime.now()
     #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/test_SD.csv"
-    file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/test_fulldat.txt"
+    #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/test_fulldat.txt"
     indel = False
     fasta_proteome = "/projects/data/human/2018_uniprot_with_isoforms/uniprot_human_with_isoforms.fasta"
     ref_file = "/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv"
+    file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
+    hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
 
     #predfeatallBunchepitopes
+    predictAll = predfeatall.Bunchepitopes()
+    #args = parser.parse_args()
+    subprocess.call(["predict_all_epitopes", '-i', file, '-a',hla_file])
 
-    z = Epitope().main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.patient_hla_I_allels)
 
-    Bunchepitopes().main(file, indel, fasta_proteome, ref_file)
+    #z = Epitope().main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.patient_hla_I_allels)
+
+    predictAll.main() -i
     endTime = datetime.now()
     print >> sys.stderr, "start: "+ str(startTime) + "\nend: "+ str(endTime) + "\nneeded: " + str(endTime - startTime)
     #print dat
