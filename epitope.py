@@ -112,6 +112,8 @@ class Epitope:
             self.add_features(sc, "MB_score_top10_" + mn)
         for sc, mn in zip(pred.MHC_score_best_per_alelle, pred.mean_type):
             self.add_features(sc, "MB_score_best_per_alelle_" + mn)
+        # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
+        self.properties["PHBR-I"] = self.properties.pop("MB_score_best_per_alelle_harmonic")
         self.add_features(pred.MHC_epitope_scores, "MB_epitope_scores")
         self.add_features(pred.MHC_epitope_seqs, "MB_epitope_sequences")
         self.add_features(pred.MHC_epitope_alleles, "MB_alleles")
