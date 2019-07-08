@@ -114,7 +114,7 @@ def import_dat_general(in_file):
                     continue
                 else:
                     data.append(w)
-    print >> sys.stderr, "reading input done", len(data), "items", ";", len(data[1]), "columns"
+    print >> sys.stderr, "reading input done", len(data), "items", ";", len(data[0]), "columns"
     cx = c - 1
     # print header
     header = [x.strip('"').strip("\r").strip('"') for x in header]
