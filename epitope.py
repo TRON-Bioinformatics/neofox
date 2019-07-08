@@ -100,11 +100,16 @@ class Epitope:
         self.add_features(conservation_scores.add_provean_score_from_matrix(self.properties, prov_matrix), "PROVEAN_score")
         pred = mhcprediction.Bestandmultiplebinder()
         pred.main(self.properties, patient_hlaI, set_available_mhc)
-        # netmhcpan4 MUT
+        # netmhcpan4 MUT rank score
         self.add_features(pred.best4_mhc_score, "best%Rank_netmhcpan4")
         self.add_features(pred.best4_mhc_epitope, "best_epitope_netmhcpan4")
         self.add_features(pred.best4_mhc_allele, "bestHLA_allele_netmhcpan4")
         self.add_features(pred.directed_to_TCR, "directed_to_TCR")
+        # netmhcpan4 mut affinity
+        self.add_features(pred.best4_affinity, "best_affinity_netmhcpan4")
+        self.add_features(pred.best4_affinity_epitope, "best_affinity_epitope_netmhcpan4")
+        self.add_features(pred.best4_affinity_allele, "bestHLA_allele_affinity_netmhcpan4")
+        self.add_features(pred.best4_affinity_directed_to_TCR, "affinity_directed_to_TCR")
         # multiplexed representation MUT
         for sc, mn in zip(pred.MHC_score_all_epitopes, pred.mean_type):
             self.add_features(sc, "MB_score_all_epitopes_" + mn)
@@ -132,6 +137,10 @@ class Epitope:
         self.add_features(pred.MHC_number_strong_binders_WT, "MB_number_pep_WT_MHCscore<1")
         self.add_features(pred.MHC_number_weak_binders_WT, "MB_number_pep_WT_MHCscore<2")
         self.add_features(FeatureLiterature.dai(self.properties, "mhcI", True), "DAI_mhcI_MB")
+        # netmhcpan4 wt affinity
+        self.add_features(pred.best4_affinity_WT, "best_affinity_netmhcpan4_WT")
+        self.add_features(pred.best4_affinity_epitope_WT, "best_affinity_epitope_netmhcpan4_WT")
+        self.add_features(pred.best4_affinity_allele_WT, "bestHLA_allele_affinity_netmhcpan4_WT")    
         # priority score using multiplexed representation score
         self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, "1"), "Diff_numb_epis_<1")
