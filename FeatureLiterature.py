@@ -36,8 +36,9 @@ def dai(props, mhc, multiple_binding=False, affinity = False):
             sc_mut = props["MB_score_top10_harmonic"]
             sc_wt = props["MB_score_WT_top10_harmonic"]
         elif affinity:
-            sc_mut = props["best_affinity_epitope_netmhcpan4"]
+            sc_mut = props["best_affinity_netmhcpan4"]
             sc_wt = props["best_affinity_netmhcpan4_WT"]
+            print >> sys.stderr, sc_mut, sc_wt
         else:
             sc_mut = props["MHC_I_score_.best_prediction."]
             sc_wt = props["MHC_I_score_.WT."]
