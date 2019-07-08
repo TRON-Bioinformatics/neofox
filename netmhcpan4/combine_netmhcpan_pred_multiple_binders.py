@@ -29,6 +29,10 @@ class Bestandmultiplebinder:
         self.best4_mhc_epitope = "NA"
         self.best4_mhc_allele = "NA"
         self.directed_to_TCR = "NA"
+        self.best4_affinity = "NA"
+        self.best4_affinity_epitope = "NA"
+        self.best4_affinity_allele = "NA"
+        self.best4_affinity_directed_to_TCR = "NA"
         self.MHC_epitope_scores_WT = ""
         self.MHC_epitope_seqs_WT = ""
         self.MHC_epitope_alleles_WT = []
@@ -37,13 +41,20 @@ class Bestandmultiplebinder:
         self.MHC_score_best_per_alelle_WT = []
         self.MHC_number_strong_binders_WT = ""
         self.MHC_number_weak_binders_WT = ""
+        self.best4_mhc_score_WT = "NA"
+        self.best4_mhc_epitope_WT = "NA"
+        self.best4_mhc_allele_WT = "NA"
+        self.best4_affinity_WT = "NA"
+        self.best4_affinity_epitope_WT = "NA"
+        self.best4_affinity_allele_WT = "NA"
+
 
 
 
     def main(self, epi_dict, patient_hlaI, set_available_mhc):
         '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         '''
-        # PREDICTION FOR MUTATED SEQUENCE
+        ### PREDICTION FOR MUTATED SEQUENCE
         xmer_mut = epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         print >> sys.stderr, "MUT seq: " + xmer_mut
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
@@ -57,6 +68,8 @@ class Bestandmultiplebinder:
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+        #print >> sys.stderr, preds
+        # multiple binding
         list_tups = mb.generate_epi_tuple(preds)
         self.MHC_epitope_scores = "/".join([tup[0] for tup in list_tups])
         self.MHC_epitope_seqs = "/".join([tup[1] for tup in list_tups])
@@ -71,15 +84,21 @@ class Bestandmultiplebinder:
         self.MHC_score_best_per_alelle = mb.wrapper_mean_calculation(best_per_alelle)
         self.MHC_number_strong_binders = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders = mb.determine_number_of_binders(all, 2)
+        # best prediction
         best_epi =  np.minimal_binding_score(preds)
         self.best4_mhc_score =np.add_best_epitope_info(best_epi, "%Rank")
         self.best4_mhc_epitope = np.add_best_epitope_info(best_epi, "Icore")
         self.best4_mhc_allele = np.add_best_epitope_info(best_epi, "HLA")
         self.directed_to_TCR = np.mutation_in_loop(epi_dict, best_epi)
+        best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
+        self.best4_affinity = np.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
+        self.best4_affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Icore")
+        self.best4_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "HLA")
+        self.best4_affinity_directed_to_TCR =  np.mutation_in_loop(epi_dict, best_epi_affinity)
 
-        # PREDICTION FOR WT SEQUENCE
+        ### PREDICTION FOR WT SEQUENCE
         xmer_wt = epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        print >> sys.stderr, "WT seq: " + xmer_wt
+        #print >> sys.stderr, "WT seq: " + xmer_wt
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
@@ -89,6 +108,7 @@ class Bestandmultiplebinder:
         np.generate_fasta(epi_dict, tmp_fasta, mut = False)
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+        # multiple binding
         list_tups = mb.generate_epi_tuple(preds)
         self.MHC_epitope_scores_WT = "/".join([tup[0] for tup in list_tups])
         self.MHC_epitope_seqs_WT = "/".join([tup[1] for tup in list_tups])
@@ -103,6 +123,15 @@ class Bestandmultiplebinder:
         self.MHC_score_best_per_alelle_WT = mb.wrapper_mean_calculation(best_per_alelle)
         self.MHC_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
+        # best prediction
+        best_epi =  np.minimal_binding_score(preds)
+        self.best4_mhc_score_WT =np.add_best_epitope_info(best_epi, "%Rank")
+        self.best4_mhc_epitope_WT = np.add_best_epitope_info(best_epi, "Icore")
+        self.best4_mhc_allele_WT = np.add_best_epitope_info(best_epi, "HLA")
+        best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
+        self.best4_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
+        self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Icore")
+        self.best4_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "HLA")
 
 
 
@@ -113,11 +142,13 @@ if __name__ == '__main__':
     from helpers import data_import
 
     #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
-    file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/test.txt"
+    #file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/test.txt"
     #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/20170713_IS_IM_data.complete.update_Dv10.csv.annotation.csv_v2.csv"
     #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
     #hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
-    hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/alleles.csv"
+    #hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/alleles.csv"
+    file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
+    hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
     dat = data_import.import_dat_icam(file, False)
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
         dat = data_import.change_col_names(dat)
@@ -135,9 +166,11 @@ if __name__ == '__main__':
             dict_epi.init_properties(dat[0], dat[1][ii])
             x =  Bestandmultiplebinder()
             x.main(dict_epi.properties, patient_hlaI, set_available_mhc)
-            print x.MHC_epitope_scores_WT
-            print x.MHC_epitope_seqs_WT
-            print x.MHC_epitope_seqs
+            #print x.MHC_epitope_scores_WT
+            #print x.MHC_epitope_seqs_WT
+            #print x.MHC_epitope_seqs
+            attrs = vars(x)
+            print attrs
             '''
             for sc, mn in zip(x.MHC_score_all_epitopes, x.mean_type):
                 dict_epi.add_features(sc, "MB_score_all_epitopes_" + mn)
@@ -161,4 +194,4 @@ if __name__ == '__main__':
                 else:
                     Allepit[key].append(z[key])
             '''
-    predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)
+    #predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)
