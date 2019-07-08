@@ -37,10 +37,10 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
             sc_wt = props["MB_score_WT_top10_harmonic"]
         elif affinity:
             sc_mut = props["best_affinity_netmhcpan4"]
-            sc_wt = props["best%Rank_netmhcpan4_WT"]
+            sc_wt = props["best_affinity_netmhcpan4_WT"]
         elif netmhcscore:
             sc_mut = props["best%Rank_netmhcpan4"]
-            sc_wt = props["best_affinity_netmhcpan4_WT"]
+            sc_wt = props["best%Rank_netmhcpan4_WT"]            
         else:
             sc_mut = props["MHC_I_score_.best_prediction."]
             sc_wt = props["MHC_I_score_.WT."]
