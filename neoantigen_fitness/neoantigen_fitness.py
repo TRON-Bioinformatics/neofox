@@ -55,7 +55,7 @@ def wrap_pathogensimilarity(props, mhc, fastafile):
     return str(pathsim) if pathsim != "NA" else "0"
 
 
-def amplitude_mhc(props, mhc, multiple_binding=False):
+def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False):
     '''
     This function calculates the amplitude between mutated and wt epitope according to Balachandran et al.
     '''
@@ -63,6 +63,12 @@ def amplitude_mhc(props, mhc, multiple_binding=False):
         if multiple_binding:
             sc_mut = props["MB_score_top10_harmonic"].replace(",",".")
             sc_wt = props["MB_score_WT_top10_harmonic"].replace(",",".")
+        elif affinity:
+            sc_mut = props["best_affinity_netmhcpan4"].replace(",",".")
+            sc_wt = props["best_affinity_netmhcpan4_WT"].replace(",",".")
+        elif netmhcscore:
+            sc_mut = props["best%Rank_netmhcpan4"].replace(",",".")
+            sc_wt = props["best%Rank_netmhcpan4_WT"].replace(",",".")
         else:
             sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
             sc_wt = props["MHC_I_score_.WT."].replace(",",".")
@@ -75,7 +81,7 @@ def amplitude_mhc(props, mhc, multiple_binding=False):
         return "NA"
 
 
-def recognition_potential(props, mhc):
+def recognition_potential(props, mhc, affinity = False,  netmhcscore = False):
     '''
     This function calculates the recognition potential, defined by the product of amplitude and pathogensimiliarity of an epitope according to Balachandran et al.
     F_alpha = - max (A_i x R_i)
@@ -83,7 +89,12 @@ def recognition_potential(props, mhc):
     Returns (A_i x R_i) value only for nonanchor mutation and epitopes of length 9; only considered by Balachandran
     '''
     if mhc == "mhcI":
-        amp = props["Amplitude_mhcI"]
+        if affinity:
+            amp = props["Amplitude_mhcI_affinity"]
+        elif netmhcscore:
+            amp = props["Amplitude_mhcI_rank_netmhcpan4"]
+        else:
+            amp = props["Amplitude_mhcI"]
         pathsim = props["Pathogensimiliarity_mhcI"]
     elif mhc == "mhcII":
         amp = props["Amplitude_mhcII"]
