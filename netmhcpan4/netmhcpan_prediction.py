@@ -122,7 +122,7 @@ class NetmhcpanBestPrediction:
         pos_xmer = props["Position_Xmer_Seq"]
         #prediction_file = "/".join([my_path, "netmhcpan_out.csv"])
         dat_prediction = data_import.import_dat_general(tmppred)
-        print >> sys.stderr, dat_prediction
+        #print >> sys.stderr, dat_prediction
         #print >> sys.stderr, dat_prediction
         #os.remove(prediction_file)
         dat = dat_prediction[1]
@@ -144,7 +144,7 @@ class NetmhcpanBestPrediction:
             mhc_sc = dat_head.index("%Rank")
         else:
             mhc_sc = dat_head.index("Aff(nM)")
-        print >> sys.stderr, mhc_sc
+        #print >> sys.stderr, mhc_sc
         epi = dat_head.index("Icore")
         hla_allele = dat_head.index("HLA")
         max_score = float(999)
