@@ -72,7 +72,7 @@ class MultipleBinding:
         pred_data = prediction_out[1]
         list_of_tuples = []
         for ii,i in enumerate(pred_data):
-            list_of_tuples.append((i[-1], i[-4], i[1]))
+            list_of_tuples.append((i[-1], i[-5], i[1]))
         return list_of_tuples
 
     def extract_top10_epis(self, tuple_epis):
