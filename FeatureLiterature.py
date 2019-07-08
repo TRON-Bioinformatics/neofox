@@ -29,7 +29,7 @@ def calc_IEDB_immunogenicity(props, mhc):
     except ValueError:
         return "NA"
 
-def dai(props, mhc, multiple_binding=False, affinity = False):
+def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False):
     '''Calculates DAI: Returns difference between wt and mut MHC binding score. If multiple_binding= true, harmonic means of MHC scores of top10 epitope candidates related to a mps is used '''
     if mhc == "mhcI":
         if multiple_binding:
@@ -37,6 +37,9 @@ def dai(props, mhc, multiple_binding=False, affinity = False):
             sc_wt = props["MB_score_WT_top10_harmonic"]
         elif affinity:
             sc_mut = props["best_affinity_netmhcpan4"]
+            sc_wt = props["best%Rank_netmhcpan4_WT"]
+        elif netmhcscore:
+            sc_mut = props["best%Rank_netmhcpan4"]
             sc_wt = props["best_affinity_netmhcpan4_WT"]
         else:
             sc_mut = props["MHC_I_score_.best_prediction."]
