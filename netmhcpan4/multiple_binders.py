@@ -23,6 +23,8 @@ class MultipleBinding:
         self.epitope_seqs = ""
         self.epitope_scores = ""
         self.epitope_alleles = ""
+        self.epitope_affinities = ""
+        self.generator_rate = ""
 
     def calc_arimetric_mean(self, list_numbers):
         '''Calculates the arithmetic mean from a list of numbers
@@ -72,7 +74,7 @@ class MultipleBinding:
         pred_data = prediction_out[1]
         list_of_tuples = []
         for ii,i in enumerate(pred_data):
-            list_of_tuples.append((i[-1], i[-5], i[1]))
+            list_of_tuples.append((i[-1],i[-2], i[-5], i[1]))
         return list_of_tuples
 
     def extract_top10_epis(self, tuple_epis):
@@ -106,6 +108,14 @@ class MultipleBinding:
             list_score.append(epi[0])
         return list_score
 
+    def affinities_to_list(self, tuple_epis):
+        '''Takes list of epitope tuple as input and returns a list of mhc rank scores of these tuples
+        '''
+        list_score = []
+        for epi in tuple_epis:
+            list_score.append(epi[1])
+        return list_score
+
     def determine_number_of_binders(self, list_scores, threshold = 2):
         '''Determines the number of HLA binders per mutation based on a threshold. Default is set to 2, which is threshold for weak binding using netmhcpan4.
         '''
@@ -125,11 +135,13 @@ class MultipleBinding:
         preds = netmhcpan_prediction.NetmhcpanBestPrediction().filter_binding_predictions(epi_dict)
         list_tups = MultipleBinding().generate_epi_tuple(preds)
         self.epitope_scores = "/".join([tup[0] for tup in list_tups])
-        self.epitope_seqs = "/".join([tup[1] for tup in list_tups])
-        self.epitope_alleles = "/".join([tup[2] for tup in list_tups])
+        self.epitope_affinities = "/".join([tup[1] for tup in list_tups])
+        self.epitope_seqs = "/".join([tup[2] for tup in list_tups])
+        self.epitope_alleles = "/".join([tup[3] for tup in list_tups])
         top10 = self.extract_top10_epis(list_tups)
         best_per_alelle = self.extract_best_epi_per_alelle(list_tups, alleles)
         all = self.scores_to_list(list_tups)
+        all_affinities = self.affinities_to_list(list_tups)
         top10 = self.scores_to_list(top10)
         self.score_top10 = self.wrapper_mean_calculation(top10)
         best_per_alelle = self.scores_to_list(best_per_alelle)
@@ -137,6 +149,7 @@ class MultipleBinding:
         self.score_best_per_alelle = self.wrapper_mean_calculation(best_per_alelle)
         self.number_strong_binders = self.determine_number_of_binders(all, 0.5)
         self.number_weak_binders = self.determine_number_of_binders(all, 2)
+        self.generator_rate = self.determine_number_of_binders(list_scores = all_affinities, threshold = 50)
 
 
 if __name__ == '__main__':
