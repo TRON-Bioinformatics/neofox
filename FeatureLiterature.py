@@ -40,7 +40,7 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
             sc_wt = props["best_affinity_netmhcpan4_WT"]
         elif netmhcscore:
             sc_mut = props["best%Rank_netmhcpan4"]
-            sc_wt = props["best%Rank_netmhcpan4_WT"]            
+            sc_wt = props["best%Rank_netmhcpan4_WT"]
         else:
             sc_mut = props["MHC_I_score_.best_prediction."]
             sc_wt = props["MHC_I_score_.WT."]
@@ -206,6 +206,38 @@ def write_ouptut_to_file(epitope_data):
           print ";".join(i)
 
 
+def catgorise_adn_cdn(props, mhc, category):
+    '''returns if an epitope belongs to classically and alternatively defined neoepitopes (CDN vs ADN) (indicate which category to examine by category)--> Rech et al, 2018
+    grouping is based on affinity and affinitiy foldchange between wt and mut
+    '''
+    group = "NA"
+    if mhc == "mhcI":
+        score_mut = props["best_affinity_netmhcpan4"]
+        amplitude = props["Amplitude_mhcI_affinity"]
+        bdg_cutoff_classical = 50
+        bdg_cutoff_alternative = 5000
+        amplitude_cutoff = 10
+    elif mhc == "mhcII":
+        score_mut = props["MHC_II_score_.best_prediction."]
+        amplitude = props["Amplitude_mhcII"]
+        bdg_cutoff_classical = 1
+        bdg_cutoff_alternative = 4
+        amplitude_cutoff = 4
+    print >> sys.stderr, score_mut, props["best_affinity_netmhcpan4_WT"], amplitude
+    if category == "CDN":
+        print >> sys.stderr, float(score_mut), float(bdg_cutoff_classical)
+        #print >> sys.stderr, float(score_mut) < float(bdg_cutoff_classical)
+        if float(score_mut) < float(bdg_cutoff_classical):
+            group = "True"
+        elif float(score_mut) > float(bdg_cutoff_classical):
+            group = "False"
+    elif category == "ADN":
+        if float(score_mut) < float(bdg_cutoff_alternative) and float(amplitude) > float(amplitude_cutoff):
+            group = "True"
+        elif float(score_mut) > float(bdg_cutoff_alternative) or float(amplitude) < float(amplitude_cutoff):
+            group = "False"
+    print >> sys.stderr, category + ": "+group
+    return group
 
 
 
