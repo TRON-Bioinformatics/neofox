@@ -206,7 +206,7 @@ def write_ouptut_to_file(epitope_data):
           print ";".join(i)
 
 
-def catgorise_adn_cdn(props, mhc, category):
+def classify_adn_cdn(props, mhc, category):
     '''returns if an epitope belongs to classically and alternatively defined neoepitopes (CDN vs ADN) (indicate which category to examine by category)--> Rech et al, 2018
     grouping is based on affinity and affinitiy foldchange between wt and mut
     '''
