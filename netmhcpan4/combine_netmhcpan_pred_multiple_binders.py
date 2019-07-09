@@ -33,6 +33,9 @@ class Bestandmultiplebinder:
         self.best4_affinity_epitope = "NA"
         self.best4_affinity_allele = "NA"
         self.best4_affinity_directed_to_TCR = "NA"
+        self.epitope_affinities = ""
+        self.generator_rate = ""
+        # WT features
         self.MHC_epitope_scores_WT = ""
         self.MHC_epitope_seqs_WT = ""
         self.MHC_epitope_alleles_WT = []
@@ -47,6 +50,8 @@ class Bestandmultiplebinder:
         self.best4_affinity_WT = "NA"
         self.best4_affinity_epitope_WT = "NA"
         self.best4_affinity_allele_WT = "NA"
+        self.epitope_affinities_WT = ""
+        self.generator_rate_WT = ""
 
 
 
@@ -72,11 +77,13 @@ class Bestandmultiplebinder:
         # multiple binding
         list_tups = mb.generate_epi_tuple(preds)
         self.MHC_epitope_scores = "/".join([tup[0] for tup in list_tups])
-        self.MHC_epitope_seqs = "/".join([tup[1] for tup in list_tups])
-        self.MHC_epitope_alleles = "/".join([tup[2] for tup in list_tups])
+        self.epitope_affinities = "/".join([tup[1] for tup in list_tups])
+        self.MHC_epitope_seqs = "/".join([tup[2] for tup in list_tups])
+        self.MHC_epitope_alleles = "/".join([tup[3] for tup in list_tups])
         top10 = mb.extract_top10_epis(list_tups)
         best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles)
         all = mb.scores_to_list(list_tups)
+        all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
         self.MHC_score_top10 = mb.wrapper_mean_calculation(top10)
         best_per_alelle = mb.scores_to_list(best_per_alelle)
@@ -95,6 +102,8 @@ class Bestandmultiplebinder:
         self.best4_affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Icore")
         self.best4_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "HLA")
         self.best4_affinity_directed_to_TCR =  np.mutation_in_loop(epi_dict, best_epi_affinity)
+        # multiple binding based on affinity
+        self.generator_rate = mb.determine_number_of_binders(list_scores = all_affinities, threshold = 50)
 
         ### PREDICTION FOR WT SEQUENCE
         xmer_wt = epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
@@ -111,11 +120,13 @@ class Bestandmultiplebinder:
         # multiple binding
         list_tups = mb.generate_epi_tuple(preds)
         self.MHC_epitope_scores_WT = "/".join([tup[0] for tup in list_tups])
-        self.MHC_epitope_seqs_WT = "/".join([tup[1] for tup in list_tups])
-        self.MHC_epitope_alleles_WT = "/".join([tup[2] for tup in list_tups])
+        self.epitope_affinities_WT = "/".join([tup[1] for tup in list_tups])
+        self.MHC_epitope_seqs_WT = "/".join([tup[2] for tup in list_tups])
+        self.MHC_epitope_alleles_WT = "/".join([tup[3] for tup in list_tups])
         top10 = mb.extract_top10_epis(list_tups)
         best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles)
         all = mb.scores_to_list(list_tups)
+        all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
         self.MHC_score_top10_WT = mb.wrapper_mean_calculation(top10)
         best_per_alelle = mb.scores_to_list(best_per_alelle)
@@ -132,6 +143,9 @@ class Bestandmultiplebinder:
         self.best4_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
         self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Icore")
         self.best4_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "HLA")
+        self.generator_rate_WT = mb.determine_number_of_binders(list_scores = all_affinities, threshold = 50)
+        print >> sys.stderr, "WT: " + self.generator_rate_WT +"; MUT: "+ self.generator_rate
+
 
 
 
