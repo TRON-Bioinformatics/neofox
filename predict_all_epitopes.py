@@ -29,6 +29,7 @@ class Bunchepitopes:
         self.ucsc_ids = set([])
         self.provean_matrix = {}
         self.hla_available_alleles = set()
+        self.hlaII_available_alleles = set()
         self.patient_hla_I_alleles = {}
         self.patient_hla_II_alleles = {}
 
@@ -95,10 +96,13 @@ class Bunchepitopes:
         print >> sys.stderr, "attach prov matrix"
         return provean_matrix
 
-    def add_available_hla_alleles(self):
+    def add_available_hla_alleles(self, mhc="mhcI"):
         '''loads file with available hla alllels for netmhcpan4 prediction, returns set
         '''
-        fileMHC = os.path.join(my_path, "./netmhcpan4/MHC_available.csv")
+        if mhc == "mhcII":
+            fileMHC = os.path.join(my_path, "./netmhcIIpan/avail_mhcII.txt")
+        else:
+            fileMHC = os.path.join(my_path, "./netmhcpan4/MHC_available.csv")
         set_available_mhc = set()
         with open(fileMHC) as f:
             for line in f:
@@ -165,6 +169,7 @@ class Bunchepitopes:
         self.aa_index2_dict = aa_index.parse_aaindex2(os.path.join(my_path, "aa_index/aaindex2"))
         prov_file = os.path.join(my_path, "./new_features/PROV_scores_mapped3.csv")
         self.hla_available_alleles = self.add_available_hla_alleles()
+        self.hlaII_available_alleles = self.hla_available_alleles = self.add_available_hla_alleles(mhc == "mhcII")
         self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
         print >> sys.stderr, self.patient_hla_II_allels
@@ -193,7 +198,7 @@ class Bunchepitopes:
         if "patient.id" not in dat[0]:
             try:
                 patient = file.split("/")[-3]
-                if "Pt" no in patient:
+                if "Pt" not in patient:
                     patient = file.split("/")[-1].split(".")[0]
             except IndexError:
                 patient = file.split("/")[-1].split(".")[0]
