@@ -45,18 +45,32 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
             sc_mut = props["MHC_I_score_.best_prediction."]
             sc_wt = props["MHC_I_score_.WT."]
     elif mhc == "mhcII":
-        sc_mut = props["MHC_II_score_.best_prediction."]
-        sc_wt = props["MHC_II_score_.WT."]
+        if multiple_binding:
+            sc_mut = props["MB_score_MHCII_top10_harmonic"]
+            sc_wt = props["MB_score_MHCII_top10_WT_harmonic"]
+        elif affinity:
+            sc_mut = props["best_affinity_netmhcIIpan"]
+            sc_wt = props["best_affinity_netmhcIIpan_WT"]
+        elif netmhcscore:
+            sc_mut = props["best_affinity_netmhcIIpan"]
+            sc_wt = props["best_affinity_netmhcIIpan_WT"]
+        else:
+            sc_mut = props["MHC_II_score_.best_prediction."]
+            sc_wt = props["MHC_II_score_.WT."]
     try:
         return str(float(sc_wt) - float(sc_mut))
     except ValueError:
         return "NA"
 
-def diff_number_binders(props, threshold):
+def diff_number_binders(props, mhc = "mhcI", threshold):
     ''' returns absolute difference of potential candidate epitopes between mutated and wt epitope
     '''
-    num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
-    num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+    if mhc =="mhcII":
+        num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
+        num_wt =  props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
+    else:
+        num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
+        num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
     try:
         return str(float(num_mut) - float(num_wt))
     except ValueError:
@@ -65,8 +79,12 @@ def diff_number_binders(props, threshold):
 def ratio_number_binders(props, threshold):
     ''' returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
     '''
-    num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
-    num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+    if mhc =="mhcII":
+        num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
+        num_wt =  props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
+    else:
+        num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
+        num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
     try:
         return str(float(num_mut) / float(num_wt))
     except ZeroDivisionError:
