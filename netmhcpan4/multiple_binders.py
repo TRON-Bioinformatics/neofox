@@ -94,8 +94,6 @@ class MultipleBinding:
         dict_allels = {}
         for allele in alleles:
             for epi in tuple_epis:
-                print epi
-                print allele
                 if allele == epi[-1]:
                     if allele not in dict_allels:
                         dict_allels[allele] = [epi]
