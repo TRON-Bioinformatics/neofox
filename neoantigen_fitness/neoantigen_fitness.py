@@ -73,8 +73,18 @@ def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcsc
             sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
             sc_wt = props["MHC_I_score_.WT."].replace(",",".")
     elif mhc == "mhcII":
-        sc_mut = props["MHC_II_score_.best_prediction."].replace(",",".")
-        sc_wt = props["MHC_II_score_.WT."].replace(",",".")
+        if multiple_binding:
+            sc_mut = props["MB_score_MHCII_top10_harmonic"].replace(",",".")
+            sc_wt = props["MB_score_MHCII_top10_WT_harmonic"].replace(",",".")
+        elif affinity:
+            sc_mut = props["best_affinity_netmhcIIpan"].replace(",",".")
+            sc_wt = props["best_affinity_netmhcIIpan_WT"].replace(",",".")
+        elif netmhcscore:
+            sc_mut = props["best%Rank_netmhcIIpan"].replace(",",".")
+            sc_wt = props["best%Rank_netmhcIIpan_WT"].replace(",",".")
+        else:
+            sc_mut = props["MHC_II_score_.best_prediction."].replace(",",".")
+            sc_wt = props["MHC_II_score_.WT."].replace(",",".")
     try:
         return str(float(sc_wt) / float(sc_mut))
     except(ZeroDivisionError, ValueError) as e:
