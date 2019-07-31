@@ -31,7 +31,6 @@ class BestandmultiplebindermhcII:
         self.best_mhcII_pan_affinity = "NA"
         self.best_mhcII_pan_affinity_epitope = "NA"
         self.best_mhcII_pan_affinity_allele = "NA"
-        self.epitope_affinities_mhcII_pan = ""
         # WT features
         self.MHCII_epitope_scores_WT = ""
         self.MHCII_epitope_seqs_WT = ""
@@ -47,7 +46,6 @@ class BestandmultiplebindermhcII:
         self.best_mhcII_affinity_WT = "NA"
         self.best_mhcII_affinity_epitope_WT = "NA"
         self.best_mhcII_affinity_allele_WT = "NA"
-        self.epitope_affinities_mhcII_pan_WT = ""
 
 
     def MHCII_MB_score_best_per_allele(self,tuple_best_per_allele):
@@ -91,7 +89,6 @@ class BestandmultiplebindermhcII:
         list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
         #print >> sys.stderr, list_tups
         self.MHCII_epitope_scores = "/".join([tup[0] for tup in list_tups])
-        self.epitope_affinities_mhcII_pan = "/".join([tup[1] for tup in list_tups])
         self.MHCII_epitope_seqs = "/".join([tup[2] for tup in list_tups])
         self.MHCII_epitope_alleles = "/".join([tup[3] for tup in list_tups])
         top10 = mb.extract_top10_epis(list_tups)
@@ -103,8 +100,8 @@ class BestandmultiplebindermhcII:
         self.MHCII_score_all_epitopes = mb.wrapper_mean_calculation(all)
         self.MHCII_score_best_per_alelle = self.MHCII_MB_score_best_per_allele(best_per_alelle)
         #print >> sys.stderr, self.MHCII_score_best_per_alelle
-        self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 1)
-        self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 2)
+        self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 2)
+        self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 10)
         # best prediction
         best_epi =  np.minimal_binding_score(preds)
         self.best_mhcII_pan_score =np.add_best_epitope_info(best_epi, "%Rank")
