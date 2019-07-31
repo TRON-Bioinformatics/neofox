@@ -169,7 +169,7 @@ class Bunchepitopes:
         self.aa_index2_dict = aa_index.parse_aaindex2(os.path.join(my_path, "aa_index/aaindex2"))
         prov_file = os.path.join(my_path, "./new_features/PROV_scores_mapped3.csv")
         self.hla_available_alleles = self.add_available_hla_alleles()
-        self.hlaII_available_alleles = self.hla_available_alleles = self.add_available_hla_alleles(mhc == "mhcII")
+        self.hlaII_available_alleles = self.add_available_hla_alleles(mhc = "mhcII")
         self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
         print >> sys.stderr, self.patient_hla_II_allels
