@@ -32,7 +32,6 @@ class BestandmultiplebindermhcII:
         self.best_mhcII_pan_affinity_epitope = "NA"
         self.best_mhcII_pan_affinity_allele = "NA"
         self.epitope_affinities_mhcII_pan = ""
-        self.PHBR_II = ""
         # WT features
         self.MHCII_epitope_scores_WT = ""
         self.MHCII_epitope_seqs_WT = ""
@@ -49,11 +48,11 @@ class BestandmultiplebindermhcII:
         self.best_mhcII_affinity_epitope_WT = "NA"
         self.best_mhcII_affinity_allele_WT = "NA"
         self.epitope_affinities_mhcII_pan_WT = ""
-        self.PHBR_II_WT = ""
 
 
-    def calculate_PHBR_II(self,tuple_best_per_allele):
-        '''
+    def MHCII_MB_score_best_per_allele(self,tuple_best_per_allele):
+        '''returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
+        2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         '''
         number_alleles = len(tuple_best_per_allele)
         multbind = multiple_binders.MultipleBinding()
@@ -61,12 +60,13 @@ class BestandmultiplebindermhcII:
         for best_epi in tuple_best_per_allele:
             if best_epi[-1].startswith("DRB1"):
                 tuple_best_per_allele_new.append(best_epi)
+        #print tuple_best_per_allele_new
         if len(tuple_best_per_allele_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
             best_scores_allele = multbind.scores_to_list(tuple_best_per_allele_new)
-            return multbind.calc_harmonic_mean(best_scores_allele)
+            return multbind.wrapper_mean_calculation(best_scores_allele)
         else:
-            return "NA"
+            return []
 
 
     def main(self, epi_dict, patient_hlaII, set_available_mhc):
@@ -100,10 +100,9 @@ class BestandmultiplebindermhcII:
         all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
         self.MHCII_score_top10 = mb.wrapper_mean_calculation(top10)
-        best_per_alelle_scores = mb.scores_to_list(best_per_alelle)
         self.MHCII_score_all_epitopes = mb.wrapper_mean_calculation(all)
-        self.MHCII_score_best_per_alelle = mb.wrapper_mean_calculation(best_per_alelle_scores)
-        self.PHBR_II = self.calculate_PHBR_II(best_per_alelle)
+        self.MHCII_score_best_per_alelle = self.MHCII_MB_score_best_per_allele(best_per_alelle)
+        #print >> sys.stderr, self.MHCII_score_best_per_alelle
         self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 1)
         self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 2)
         # best prediction
@@ -141,10 +140,8 @@ class BestandmultiplebindermhcII:
         all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
         self.MHCII_score_top10_WT = mb.wrapper_mean_calculation(top10)
-        best_per_alelle_score = mb.scores_to_list(best_per_alelle)
         self.MHCII_score_all_epitopes_WT = mb.wrapper_mean_calculation(all)
-        self.MHCII_score_best_per_alelle_WT = mb.wrapper_mean_calculation(best_per_alelle_score)
-        self.PHBR_II_WT = self.calculate_PHBR_II(best_per_alelle)
+        self.MHCII_score_best_per_alelle_WT = self.MHCII_MB_score_best_per_allele(best_per_alelle)
         self.MHCII_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
         self.MHCII_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
         # best prediction
