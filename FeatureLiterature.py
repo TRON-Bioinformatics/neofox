@@ -62,7 +62,7 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
     except ValueError:
         return "NA"
 
-def diff_number_binders(props, mhc = "mhcI", threshold):
+def diff_number_binders(props, mhc = "mhcI", threshold = 1):
     ''' returns absolute difference of potential candidate epitopes between mutated and wt epitope
     '''
     if mhc =="mhcII":
@@ -76,7 +76,7 @@ def diff_number_binders(props, mhc = "mhcI", threshold):
     except ValueError:
         return "NA"
 
-def ratio_number_binders(props, threshold):
+def ratio_number_binders(props, mhc = "mhcI", threshold = 1):
     ''' returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
     '''
     if mhc =="mhcII":
