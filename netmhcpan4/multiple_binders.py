@@ -67,14 +67,19 @@ class MultipleBinding:
         '''
         return [self.calc_arimetric_mean(list_numbers), self.calc_harmonic_mean(list_numbers), self.calc_geometric_mean(list_numbers)]
 
-    def generate_epi_tuple(self, prediction_out):
-        '''Takes netmhcpan4 output as input (parsed with NetmhcpanBestPrediction().filter_binding_predictions) and
+    def generate_epi_tuple(self, prediction_out, mhc = "mhcI"):
+        '''Takes netmhcpan4 output or netmhcpanII output as input (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
         returns tuple of mhc binding rank scores, epitope and HLA allele for all predicted epitopes as list
         '''
         pred_data = prediction_out[1]
         list_of_tuples = []
         for ii,i in enumerate(pred_data):
-            list_of_tuples.append((i[-1],i[-2], i[-5], i[1]))
+            if mhc == "mhcII":
+                # rank, affinity, epitope sequence, allele
+                list_of_tuples.append((i[-2],i[-3], i[2], i[1]))
+            else:
+                # rank, affinity, epitope sequence, allele
+                list_of_tuples.append((i[-1],i[-2], i[-5], i[1]))
         return list_of_tuples
 
     def extract_top10_epis(self, tuple_epis):
@@ -89,6 +94,8 @@ class MultipleBinding:
         dict_allels = {}
         for allele in alleles:
             for epi in tuple_epis:
+                print epi
+                print allele
                 if allele == epi[-1]:
                     if allele not in dict_allels:
                         dict_allels[allele] = [epi]
