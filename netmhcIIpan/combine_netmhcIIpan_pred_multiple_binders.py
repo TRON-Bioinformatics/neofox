@@ -87,7 +87,6 @@ class BestandmultiplebindermhcII:
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
         # multiple binding
         list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
-        #print >> sys.stderr, list_tups
         self.MHCII_epitope_scores = "/".join([tup[0] for tup in list_tups])
         self.MHCII_epitope_seqs = "/".join([tup[2] for tup in list_tups])
         self.MHCII_epitope_alleles = "/".join([tup[3] for tup in list_tups])
