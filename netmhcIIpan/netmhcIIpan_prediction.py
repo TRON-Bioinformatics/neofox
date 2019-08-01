@@ -96,6 +96,7 @@ class NetmhcIIpanBestPrediction:
         with open(tmppred,"w") as f:
             for line in lines:
                 line = line.rstrip().lstrip()
+                print >> sys.stderr, line
                 if line:
                     if line.startswith(("#", "-", "Number")):
                         continue
@@ -123,11 +124,11 @@ class NetmhcIIpanBestPrediction:
         return str(p1)
 
     def epitope_covers_mutation(self, position_mutation, position_epitope, length_epitope):
-        '''checks if predicted epitope covers mutation
+        '''checks if predicted peptide (15mer) covers mutation
         '''
         cover = False
         if position_mutation != "-1":
-            start = int(position_epitope)
+            start = int(position_epitope) - 1
             end = start + int(length_epitope) - 1
             if int(position_mutation) >= start and int(position_mutation) <= end:
                 cover = True
@@ -141,7 +142,7 @@ class NetmhcIIpanBestPrediction:
         dat = dat_prediction[1]
         dat_head = dat_prediction[0]
         dat_fil = []
-        pos_epi = dat_head.index("Pos")
+        pos_epi = dat_head.index("Seq")
         epi = dat_head.index("Peptide")
         for ii,i in enumerate(dat):
             if self.epitope_covers_mutation(pos_xmer, i[pos_epi], len(i[epi])):
