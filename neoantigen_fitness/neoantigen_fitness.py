@@ -23,7 +23,7 @@ def calc_pathogensimilarity(fasta_file, mhc_allele, n):
     # short sequence blast
     #cmd = "/code/ncbi-blast-2.7.1+/bin/blastp -word_size 2 -gapopen 11 -threshold 11 -comp_based_stats 0 -window_size 15 -outfmt 5 -query " + fasta_file + " -out "  + outfile + " -db " + os.path.join(my_path,"scratch","iedb_blast_db") + " -evalue 100000000000000000000000000"
     # parameters used in publication
-    cmd = "/code/ncbi-blast-2.7.1+/bin/blastp -gapopen 11 -gapextend 1 -outfmt 5 -query " + fasta_file + " -out "  + outfile + " -db " + os.path.join(my_path,"iedb","iedb_blast_db") + " -evalue 100000000"
+    cmd = "/code/ncbi-blast/2.8.1+/bin/blastp -gapopen 11 -gapextend 1 -outfmt 5 -query " + fasta_file + " -out "  + outfile + " -db " + os.path.join(my_path,"iedb","iedb_blast_db") + " -evalue 100000000"
     #cmd = "/code/ncbi-blast-2.7.1+/bin/blastp -gapopen -11 -gapextend -1 -outfmt 5 -query " + fasta_file + " -out "  + outfile + " -db " + os.path.join(my_path,"iedb","iedb_blast_db") + " -evalue 100000000"
     p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
     p_return = p.communicate()
