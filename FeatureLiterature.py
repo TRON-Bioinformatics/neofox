@@ -242,18 +242,21 @@ def classify_adn_cdn(props, mhc, category):
         bdg_cutoff_alternative = 4
         amplitude_cutoff = 4
     #print >> sys.stderr, score_mut, props["best_affinity_netmhcpan4_WT"], amplitude
-    if category == "CDN":
-        #print >> sys.stderr, float(score_mut), float(bdg_cutoff_classical)
-        #print >> sys.stderr, float(score_mut) < float(bdg_cutoff_classical)
-        if float(score_mut) < float(bdg_cutoff_classical):
-            group = "True"
-        elif float(score_mut) > float(bdg_cutoff_classical):
-            group = "False"
-    elif category == "ADN":
-        if float(score_mut) < float(bdg_cutoff_alternative) and float(amplitude) > float(amplitude_cutoff):
-            group = "True"
-        elif float(score_mut) > float(bdg_cutoff_alternative) or float(amplitude) < float(amplitude_cutoff):
-            group = "False"
+    try:
+        if category == "CDN":
+            #print >> sys.stderr, float(score_mut), float(bdg_cutoff_classical)
+            #print >> sys.stderr, float(score_mut) < float(bdg_cutoff_classical)
+            if float(score_mut) < float(bdg_cutoff_classical):
+                group = "True"
+            elif float(score_mut) > float(bdg_cutoff_classical):
+                group = "False"
+        elif category == "ADN":
+            if float(score_mut) < float(bdg_cutoff_alternative) and float(amplitude) > float(amplitude_cutoff):
+                group = "True"
+            elif float(score_mut) > float(bdg_cutoff_alternative) or float(amplitude) < float(amplitude_cutoff):
+                group = "False"
+    except ValueError:
+        group = "NA"      
     #print >> sys.stderr, category + ": "+group
     return group
 
