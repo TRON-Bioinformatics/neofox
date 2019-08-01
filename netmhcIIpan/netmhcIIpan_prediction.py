@@ -96,7 +96,6 @@ class NetmhcIIpanBestPrediction:
         with open(tmppred,"w") as f:
             for line in lines:
                 line = line.rstrip().lstrip()
-                print >> sys.stderr, line
                 if line:
                     if line.startswith(("#", "-", "Number")):
                         continue
