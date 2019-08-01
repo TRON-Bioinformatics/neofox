@@ -197,6 +197,7 @@ class Epitope:
         for sc, mn in zip(predII.MHCII_score_best_per_alelle, predII.mean_type):
             self.add_features(sc, "MB_score_MHCII_best_per_alelle_" + mn)
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
+        #print >> sys.stderr, self.properties
         self.properties["PHBR-II"] = self.properties.pop("MB_score_MHCII_best_per_alelle_harmonic")
         self.add_features(predII.MHCII_epitope_scores, "MB_epitope_scores")
         self.add_features(predII.MHCII_epitope_seqs, "MB_epitope_sequences")
@@ -219,7 +220,8 @@ class Epitope:
         for sc, mn in zip(predII.MHCII_score_best_per_alelle_WT, predII.mean_type):
             self.add_features(sc, "MB_score_MHCII_best_per_alelle_WT_" + mn)
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
-        self.properties["PHBR-II_WT"] = self.properties.pop("MB_score_MHCII_best_per_alelle_WT_harmonic")
+        if "MB_score_MHCII_best_per_alelle_WT_harmonic" in self.properties:
+            self.properties["PHBR-II_WT"] = self.properties.pop("MB_score_MHCII_best_per_alelle_WT_harmonic")
         self.add_features(predII.MHCII_epitope_scores_WT, "MB_epitope_scores_WT")
         self.add_features(predII.MHCII_epitope_seqs_WT, "MB_epitope_sequences_WT")
         self.add_features(predII.MHCII_epitope_alleles_WT, "MB_alleles_WT")
