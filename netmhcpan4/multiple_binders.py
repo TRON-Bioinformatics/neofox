@@ -60,7 +60,6 @@ class MultipleBinding:
     def calc_geometric_mean(self, list_numbers):
         '''Calculates the geometric mean from a list of numbers; avoids product --> suitable for larger list of number
         '''
-        print >> sys.stderr, list_numbers
         sm = 0
         for num in list_numbers:
             num_log = math.log(float(num))
