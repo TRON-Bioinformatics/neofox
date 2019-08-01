@@ -138,6 +138,7 @@ class Epitope:
             self.add_features(sc, "MB_score_WT_all_epitopes_" + mn)
         for sc, mn in zip(pred.MHC_score_best_per_alelle_WT, pred.mean_type):
             self.add_features(sc, "MB_score_WT_best_per_alelle_" + mn)
+        self.properties["PHBR-I_WT"] = self.properties.pop("MB_score_WT_best_per_alelle_harmonic")
         self.add_features(pred.MHC_number_strong_binders_WT, "MB_number_pep_WT_MHCscore<1")
         self.add_features(pred.MHC_number_weak_binders_WT, "MB_number_pep_WT_MHCscore<2")
         # generator rate
