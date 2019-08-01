@@ -93,9 +93,12 @@ class NetmhcIIpanBestPrediction:
         p = subprocess.Popen(cmd, stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
         lines = p.stdout
         counter = 0
+        #print >> sys.stderr, tmppred
         with open(tmppred,"w") as f:
             for line in lines:
                 line = line.rstrip().lstrip()
+                #
+                #print >> sys.stderr, line
                 if line:
                     if line.startswith(("#", "-", "Number")):
                         continue
