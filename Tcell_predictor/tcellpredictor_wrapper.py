@@ -132,6 +132,7 @@ class Tcellprediction:
         tmp_tcellPredIN = tmp_tcellPredIN_file.name
         tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicOUT_", suffix = ".txt", delete = False)
         tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
+        # returns score for all epitopes --> no filtering based on mhc affinity here!
         self.TcellPrdictionScore = self.wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT, path_to_Tcell_predictor)
 
 
