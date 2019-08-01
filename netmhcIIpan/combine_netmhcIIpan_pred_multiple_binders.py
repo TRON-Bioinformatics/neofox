@@ -64,7 +64,7 @@ class BestandmultiplebindermhcII:
             best_scores_allele = multbind.scores_to_list(tuple_best_per_allele_new)
             return multbind.wrapper_mean_calculation(best_scores_allele)
         else:
-            return []
+            return ["NA", "NA", "NA"]
 
 
     def main(self, epi_dict, patient_hlaII, set_available_mhc):
@@ -113,6 +113,7 @@ class BestandmultiplebindermhcII:
         self.best_mhcII_pan_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "Allele")
 
 
+
         ### PREDICTION FOR WT SEQUENCE
         xmer_wt = epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         #print >> sys.stderr, "WT seq: " + xmer_wt
@@ -150,6 +151,7 @@ class BestandmultiplebindermhcII:
         self.best_mhcII_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
         self.best4_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Peptide")
         self.best4_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "Allele")
+
 
 
 
