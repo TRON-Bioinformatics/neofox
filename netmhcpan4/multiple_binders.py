@@ -32,7 +32,10 @@ class MultipleBinding:
         sm = 0
         for num in list_numbers:
             sm = sm + float(num)
-        return str(float(sm/len(list_numbers)))
+        try:
+            return str(float(sm/len(list_numbers)))
+        except ZeroDivisionError:
+            return "NA"
 
     def calc_harmonic_mean(self, list_numbers):
         '''Calculates the harmonic mean from a list of numbers
@@ -41,7 +44,10 @@ class MultipleBinding:
         sm = 0
         for num in nums:
             sm = sm + num
-        return str(float(len(nums)/sm))
+        try:
+            return str(float(len(nums)/sm))
+        except ZeroDivisionError:
+            return "NA"
 
     def calc_geometric_mean_inefficient(self, list_numbers):
         '''Calculates the geometric mean from a list of numbers
@@ -54,6 +60,7 @@ class MultipleBinding:
     def calc_geometric_mean(self, list_numbers):
         '''Calculates the geometric mean from a list of numbers; avoids product --> suitable for larger list of number
         '''
+        print >> sys.stderr, list_numbers
         sm = 0
         for num in list_numbers:
             num_log = math.log(float(num))
