@@ -17,14 +17,14 @@ from netmhcpan4 import multiple_binders
 class BestandmultiplebindermhcII:
     def __init__(self):
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
-        self.MHCII_score_all_epitopes = []
-        self.MHCII_score_top10 = []
-        self.MHCII_score_best_per_alelle = []
-        self.MHCII_number_strong_binders = ""
-        self.MHCII_number_weak_binders = ""
-        self.MHCII_epitope_seqs = ""
-        self.MHCII_epitope_scores = ""
-        self.MHCII_epitope_alleles = ""
+        self.MHCII_score_all_epitopes = ["NA", "NA", "NA"]
+        self.MHCII_score_top10 = ["NA", "NA", "NA"]
+        self.MHCII_score_best_per_alelle = ["NA", "NA", "NA"]
+        self.MHCII_number_strong_binders = "NA"
+        self.MHCII_number_weak_binders = "NA"
+        self.MHCII_epitope_seqs = "NA"
+        self.MHCII_epitope_scores = "NA"
+        self.MHCII_epitope_alleles = "NA"
         self.best_mhcII_pan_score = "NA"
         self.best_mhcII_pan_epitope = "NA"
         self.best_mhcII_pan_allele = "NA"
@@ -32,14 +32,14 @@ class BestandmultiplebindermhcII:
         self.best_mhcII_pan_affinity_epitope = "NA"
         self.best_mhcII_pan_affinity_allele = "NA"
         # WT features
-        self.MHCII_epitope_scores_WT = ""
-        self.MHCII_epitope_seqs_WT = ""
-        self.MHCII_epitope_alleles_WT = []
-        self.MHCII_score_top10_WT = []
-        self.MHCII_score_all_epitopes_WT = []
-        self.MHCII_score_best_per_alelle_WT = []
-        self.MHCII_number_strong_binders_WT = ""
-        self.MHCII_number_weak_binders_WT = ""
+        self.MHCII_epitope_scores_WT = "Na"
+        self.MHCII_epitope_seqs_WT = "NA"
+        self.MHCII_epitope_alleles_WT = "NA"
+        self.MHCII_score_top10_WT = ["NA", "NA", "NA"]
+        self.MHCII_score_all_epitopes_WT = ["NA", "NA", "NA"]
+        self.MHCII_score_best_per_alelle_WT = ["NA", "NA", "NA"]
+        self.MHCII_number_strong_binders_WT = "NA"
+        self.MHCII_number_weak_binders_WT = "NA"
         self.best_mhcII_pan_score_WT = "NA"
         self.best_mhcII_pan_epitope_WT = "NA"
         self.best_mhcII_pan_allele_WT = "NA"
@@ -84,34 +84,36 @@ class BestandmultiplebindermhcII:
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
-        preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
-        # multiple binding
-        list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
-        self.MHCII_epitope_scores = "/".join([tup[0] for tup in list_tups])
-        self.MHCII_epitope_seqs = "/".join([tup[2] for tup in list_tups])
-        self.MHCII_epitope_alleles = "/".join([tup[3] for tup in list_tups])
-        top10 = mb.extract_top10_epis(list_tups)
-        best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles_formated)
-        all = mb.scores_to_list(list_tups)
-        all_affinities = mb.affinities_to_list(list_tups)
-        top10 = mb.scores_to_list(top10)
-        self.MHCII_score_top10 = mb.wrapper_mean_calculation(top10)
-        self.MHCII_score_all_epitopes = mb.wrapper_mean_calculation(all)
-        self.MHCII_score_best_per_alelle = self.MHCII_MB_score_best_per_allele(best_per_alelle)
-        #print >> sys.stderr, self.MHCII_score_best_per_alelle
-        self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 2)
-        self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 10)
-        # best prediction
-        best_epi =  np.minimal_binding_score(preds)
-        self.best_mhcII_pan_score =np.add_best_epitope_info(best_epi, "%Rank")
-        self.best_mhcII_pan_epitope = np.add_best_epitope_info(best_epi, "Peptide")
-        self.best_mhcII_pan_allele = np.add_best_epitope_info(best_epi, "Allele")
-        best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
-        self.best_mhcII_pan__affinity = np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
-        self.best_mhcII_pan__affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Peptide")
-        self.best_mhcII_pan_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "Allele")
-
-
+        try:
+            preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+            # multiple binding
+            list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
+            self.MHCII_epitope_scores = "/".join([tup[0] for tup in list_tups])
+            self.MHCII_epitope_seqs = "/".join([tup[2] for tup in list_tups])
+            self.MHCII_epitope_alleles = "/".join([tup[3] for tup in list_tups])
+            top10 = mb.extract_top10_epis(list_tups)
+            best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles_formated)
+            all = mb.scores_to_list(list_tups)
+            all_affinities = mb.affinities_to_list(list_tups)
+            top10 = mb.scores_to_list(top10)
+            self.MHCII_score_top10 = mb.wrapper_mean_calculation(top10)
+            self.MHCII_score_all_epitopes = mb.wrapper_mean_calculation(all)
+            self.MHCII_score_best_per_alelle = self.MHCII_MB_score_best_per_allele(best_per_alelle)
+            #print >> sys.stderr, self.MHCII_score_best_per_alelle
+            self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 2)
+            self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 10)
+            # best prediction
+            best_epi =  np.minimal_binding_score(preds)
+            self.best_mhcII_pan_score =np.add_best_epitope_info(best_epi, "%Rank")
+            self.best_mhcII_pan_epitope = np.add_best_epitope_info(best_epi, "Peptide")
+            self.best_mhcII_pan_allele = np.add_best_epitope_info(best_epi, "Allele")
+            best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
+            self.best_mhcII_pan__affinity = np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
+            self.best_mhcII_pan__affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Peptide")
+            self.best_mhcII_pan_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "Allele")
+        except IndexError:
+            # if input sequence shorter than 15 aa
+            pass
 
         ### PREDICTION FOR WT SEQUENCE
         xmer_wt = epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
@@ -124,32 +126,39 @@ class BestandmultiplebindermhcII:
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = False)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
-        # multiple binding
-        list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
-        self.MHCII_epitope_scores_WT = "/".join([tup[0] for tup in list_tups])
-        self.epitope_affinities__mhcII_pan_WT = "/".join([tup[1] for tup in list_tups])
-        self.MHCII_epitope_seqs_WT = "/".join([tup[2] for tup in list_tups])
-        self.MHCII_epitope_alleles_WT = "/".join([tup[3] for tup in list_tups])
-        top10 = mb.extract_top10_epis(list_tups)
-        best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles_formated)
-        all = mb.scores_to_list(list_tups)
-        all_affinities = mb.affinities_to_list(list_tups)
-        top10 = mb.scores_to_list(top10)
-        self.MHCII_score_top10_WT = mb.wrapper_mean_calculation(top10)
-        self.MHCII_score_all_epitopes_WT = mb.wrapper_mean_calculation(all)
-        self.MHCII_score_best_per_alelle_WT = self.MHCII_MB_score_best_per_allele(best_per_alelle)
-        self.MHCII_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
-        self.MHCII_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
-        # best prediction
-        best_epi =  np.minimal_binding_score(preds)
-        self.best_mhcII_pan_mhc_score_WT =np.add_best_epitope_info(best_epi, "%Rank")
-        self.best_mhcII_pan_epitope_WT = np.add_best_epitope_info(best_epi, "Peptide")
-        self.best_mhcII_pan_allele_WT = np.add_best_epitope_info(best_epi, "Allele")
-        best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
-        self.best_mhcII_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
-        self.best4_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Peptide")
-        self.best4_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "Allele")
+        try:
+            preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+            # multiple binding
+            list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
+            self.MHCII_epitope_scores_WT = "/".join([tup[0] for tup in list_tups])
+            self.epitope_affinities__mhcII_pan_WT = "/".join([tup[1] for tup in list_tups])
+            self.MHCII_epitope_seqs_WT = "/".join([tup[2] for tup in list_tups])
+            self.MHCII_epitope_alleles_WT = "/".join([tup[3] for tup in list_tups])
+            top10 = mb.extract_top10_epis(list_tups)
+            best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles_formated)
+            all = mb.scores_to_list(list_tups)
+            all_affinities = mb.affinities_to_list(list_tups)
+            top10 = mb.scores_to_list(top10)
+            self.MHCII_score_top10_WT = mb.wrapper_mean_calculation(top10)
+            self.MHCII_score_all_epitopes_WT = mb.wrapper_mean_calculation(all)
+            self.MHCII_score_best_per_alelle_WT = self.MHCII_MB_score_best_per_allele(best_per_alelle)
+            self.MHCII_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
+            self.MHCII_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
+            # best prediction
+            best_epi =  np.minimal_binding_score(preds)
+            self.best_mhcII_pan_mhc_score_WT =np.add_best_epitope_info(best_epi, "%Rank")
+            self.best_mhcII_pan_epitope_WT = np.add_best_epitope_info(best_epi, "Peptide")
+            self.best_mhcII_pan_allele_WT = np.add_best_epitope_info(best_epi, "Allele")
+            best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
+            self.best_mhcII_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
+            self.best4_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Peptide")
+            self.best4_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "Allele")
+        except IndexError:
+            # if input sequence shorter than 15 aa
+            pass
+
+
+
 
 
 
