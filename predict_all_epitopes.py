@@ -41,19 +41,21 @@ class Bunchepitopes:
             proteome_dict[record.seq] = record.id
         return proteome_dict
 
-    def add_rna_reference(self, rna_reference_file):
-        """Loads RNA reference file and returns dictionary with mean, standard deviation and sum of expression
+    def add_rna_reference(self, rna_reference_file, tissue):
+        """Loads RNA reference file and returns dictionary with mean, standard deviation and sum of expression for each gene
         """
         rna_dict = {}
         ref_tuple = data_import.import_dat_general(rna_reference_file)
         ref = data_import.get_data_from_tuple(ref_tuple)
         ref_head = data_import.get_header_from_tuple(ref_tuple)
+        tissue = tissue.lower()
+        head_cols = [col for col in ref_head if col.startswith(tissue)]
+        cols_expr = [ref_head.index(col) for col in head_cols]
+        gen_col = ref_head.index("gene")
         for ii,i in enumerate(ref):
-            gene_name = i[0]
-            expr_values = i[1:len(i)]
-            expr_values = [e.replace(",",".") for e in expr_values]
-            expr_values = [float(e) for e in expr_values]
-            rna_dict[gene_name] = (differential_expression.mean_of_list(expr_values), differential_expression.sd_of_list(expr_values), sum(expr_values))
+            gene_name = i[gen_col]
+            expr_values = tuple(float(i[elem]) for elem in cols_expr)
+            rna_dict[gene_name] = expr_values
         return rna_dict
 
     def add_nmer_frequency(self, frequency_file):
@@ -157,10 +159,10 @@ class Bunchepitopes:
             print "\t".join(z)
 
 
-    def initialise_properties(self, data, db, rna_reference_file, path_to_hla_file):
+    def initialise_properties(self, data, db, rna_reference_file, path_to_hla_file, tissue):
         '''adds information to Bunchepitopes class that are needed for mutated peptide sequence annotation
         '''
-        self.rna_reference = self.add_rna_reference(rna_reference_file)
+        self.rna_reference = self.add_rna_reference(rna_reference_file, tissue)
         freq_file1 = os.path.join(my_path, "./new_features/20181108_AA_freq_prot.csv")
         freq_file2 = os.path.join(my_path, "./new_features/20181108_4mer_freq.csv")
         self.aa_frequency = self.add_nmer_frequency(freq_file1)
@@ -183,7 +185,7 @@ class Bunchepitopes:
         print >> sys.stderr, "ADD PROVEAN....start: "+ str(startTime1) + "\nend: "+ str(endTime1) + "\nneeded: " + str(endTime1 - startTime1)
 
 
-    def wrapper_table_add_feature_annotation(self, file, indel, db, rna_reference_file, path_to_hla_file):
+    def wrapper_table_add_feature_annotation(self, file, indel, db, rna_reference_file, path_to_hla_file, tissue):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
         write to txt file
@@ -206,7 +208,7 @@ class Bunchepitopes:
             for ii,i in enumerate(dat[1]):
                 dat[1][ii].append(str(patient))
         # initialise information needed for feature calculation
-        self.initialise_properties(dat, db,  rna_reference_file, path_to_hla_file)
+        self.initialise_properties(dat, db,  rna_reference_file, path_to_hla_file, tissue)
         # feature calculation for each epitope
         for ii,i in enumerate(dat[1]):
             # dict for each epitope
@@ -226,19 +228,22 @@ class Bunchepitopes:
         parser = ArgumentParser(description='adds patient information given in sample file of a cohort to merged icam file')
         parser.add_argument('-i', '--icam_file', dest='icam_file', help='define iCaM file which should be annotated', required=True )
         parser.add_argument('-a', '--allele_file', dest='allele_file', help='define file with hla alleles of patients', required=True )
-        parser.add_argument('-r', '--reference_transcriptome', dest='ref_file', help='define suitable RNA expression reference file', default="/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv" )
+        #parser.add_argument('-r', '--reference_transcriptome', dest='ref_file', help='define suitable RNA expression reference file', default="/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv" )
+        parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origion', default="skin" )
         parser.add_argument('-f', '--frameshift', dest='frameshift', help='indicate by true or false if frameshift mutations or SNVs are to be considered', default=False)
         args = parser.parse_args()
 
         icam_file = args.icam_file
         allele_file = args.allele_file
-        rna_ref = args.ref_file
+        #rna_ref = args.ref_file
+        tissue = args.tissue
         indel =args.frameshift
 
         indel = False
         db = "/projects/data/human/2018_uniprot_with_isoforms/uniprot_human_with_isoforms.fasta"
+        rna_ref = "/projects/SUMMIT/WP1.2/gtex_reference/gtex_combined.csv"
 
-        self.wrapper_table_add_feature_annotation(icam_file, indel, db, rna_ref, allele_file)
+        self.wrapper_table_add_feature_annotation(icam_file, indel, db, rna_ref, allele_file, tissue)
 
 
 
