@@ -36,10 +36,10 @@ def import_dat_icam(in_file, indel):
                 indel_inf = w[subst_col]
                 #print indel_inf
                 if indel:
-                    if((indel_inf == "") | ("-" in indel_inf)):
+                    if((indel_inf == "") | ("-" in indel_inf) | ("NA" in indel_inf)):
                         data.append(w)
                 else:
-                    if((indel_inf == "") | ("-" in indel_inf)):
+                    if((indel_inf == "") | ("-" in indel_inf) | ("NA" in indel_inf)):
                         pass
                     else:
                         #print indel_inf, indel_inf != "", indel_inf != "" or "-" not in indel_inf
@@ -52,14 +52,15 @@ def import_dat_icam(in_file, indel):
                 w = [x.replace('"','').replace(",", ".") for x in line.strip("\n").split("\t")]
                 if c == 1:
                     header = w
+                    #print w
                     subst_col = header.index("substitution")
                     continue
                 indel_inf = w[subst_col]
                 if indel:
-                    if((indel_inf == "") | ("-" in indel_inf)):
+                    if((indel_inf == "") | ("-" in indel_inf) | ("NA" in indel_inf)):
                         data.append(w)
                 else:
-                    if((indel_inf == "") | ("-" in indel_inf)):
+                    if((indel_inf == "") | ("-" in indel_inf)| ("NA" in indel_inf)):
                         pass
                     else:
                         data.append(w)
