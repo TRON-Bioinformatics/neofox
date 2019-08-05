@@ -66,16 +66,16 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 
 ## **Usage**  
 
-**Singel iCaM File**  
+**Single iCaM File**  
 ```
 python predict_all_epitopes.py --icam_file testseq_head.txt  -allele_file alleles.csv [-tissue skin --frameshift False]> test07.txt
 ```  
 
 --> annotation of one iCaM file
 
-**Singel iCaM File**  
+**Multiple iCaM Files**  
 ```
 sh start_annotation_multiple_patientfiles.sh cohort_folder_with_patient_icam_folders output_folder allele_table cohort_name
 ```  
 
---> parallel mps annotation of patients of a cohort, iCaM files stored in cohort_folder_with_patient_icam_folders
+--> eg. parallel mps annotation of patients of a cohort, iCaM files stored in cohort_folder_with_patient_icam_folders
