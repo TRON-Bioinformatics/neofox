@@ -30,7 +30,7 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 
 
 **Required Columns of iCaM Table:**  
-- MHC_I_epitope_.best_prediction.  
+-   MHC_I_epitope_.best_prediction.  
 - 	MHC_I_epitope_.WT.  
 -   MHC_II_epitope_.best_prediction.  
 - 	MHC_II_epitope_.WT.  
@@ -44,7 +44,9 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - 	transcript_expression  
 - 	VAF_in_RNA  
 - 	VAF_in_tumor  
-- 	X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL.  
+- 	X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL.
+-   substitution  
+-   patient.id (e.g Pt1, Ptx)    
 
 **Required Additional Files:**  
 - RNA reference *(/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv, predict_all_epitopes.py)*  
