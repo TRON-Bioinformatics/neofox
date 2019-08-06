@@ -89,7 +89,10 @@ class NetmhcIIpanBestPrediction:
         allels_for_prediction = self.generate_mhcII_alelles_combination_list(hla_alleles, set_available_mhc)
         #print allels_for_prediction
         hla_allele = ",".join(allels_for_prediction)
-        cmd = "/code/net/MHCIIpan/3.2/netMHCIIpan -a " + hla_allele + " -f " + tmpfasta + " -tdir /flash/home/franlang/tmp_netmhcIIpan"
+        tmp_folder = tempfile.mkdtemp(prefix ="tmp_netmhcIIpan_")
+        #tmp_folder_name = tmp_folder[1]
+        print >> sys.stderr, tmp_folder
+        cmd = "/code/net/MHCIIpan/3.2/netMHCIIpan -a " + hla_allele + " -f " + tmpfasta + " -tdir "+ tmp_folder + " -dirty"
         p = subprocess.Popen(cmd, stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
         lines = p.stdout
         counter = 0
@@ -100,7 +103,7 @@ class NetmhcIIpanBestPrediction:
                 #
                 #print >> sys.stderr, line
                 if line:
-                    if line.startswith(("#", "-", "Number")):
+                    if line.startswith(("#", "-", "Number", "Temporary")):
                         continue
                     if counter == 0 and line.startswith("Seq"):
                         counter += 1
@@ -192,6 +195,7 @@ class NetmhcIIpanBestPrediction:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
+        #print tmp_prediction
         self.generate_fasta(props_dict, tmp_fasta)
         alleles = self.get_hla_allels(props_dict, dict_patient_hla)
         self.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
@@ -216,6 +220,8 @@ if __name__ == '__main__':
 
     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
     hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190730_alleles.csv"
+    #file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
+    #hla_file ="/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
     dat = data_import.import_dat_icam(file, False)
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
         dat = data_import.change_col_names(dat)
