@@ -64,9 +64,14 @@ class MultipleBinding:
         for num in list_numbers:
             num_log = math.log(float(num))
             sm = float(num_log) + sm
-        num_log_mean = sm/len(list_numbers)
-        num_log_mean_exp = math.exp(num_log_mean)
-        return str(num_log_mean_exp)
+        try:
+            num_log_mean = sm/len(list_numbers)
+            num_log_mean_exp = math.exp(num_log_mean)
+            return str(num_log_mean_exp)
+        except ZeroDivisionError:
+            return "NA"
+
+
 
     def wrapper_mean_calculation(self, list_numbers):
         '''returns list of arithmetic, harmonic and geometric mean from a list of numbers
