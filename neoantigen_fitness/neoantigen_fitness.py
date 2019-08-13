@@ -70,10 +70,10 @@ def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcsc
             sc_mut = props["best%Rank_netmhcpan4"].replace(",",".")
             sc_wt = props["best%Rank_netmhcpan4_WT"].replace(",",".")
         elif nine_mer:
-            sc_mut = props["best_affinity_epitope_netmhcpan4_9mer"].replace(",",".")
+            sc_mut = props["best_affinity_netmhcpan4_9mer"].replace(",",".")
             sc_wt = props["best_affinity_netmhcpan4_9mer_WT"].replace(",",".")
         else:
-            sc_mut = props["best_affinity_netmhcpan4_9mer"].replace(",",".")
+            sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
             sc_wt = props["MHC_I_score_.WT."].replace(",",".")
     elif mhc == "mhcII":
         if multiple_binding:
