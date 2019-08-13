@@ -212,6 +212,32 @@ class NetmhcpanBestPrediction:
                 dat_9mers.append(i)
         return((dat_head, dat_9mers))
 
+    def Hamming_check_0_or_1(self, seq1, seq2):
+        '''returns number of mismatches between 2 sequences
+        '''
+        errors = 0
+        for i in xrange(len(seq1)):
+            if seq1[i] != seq2[i]:
+                errors += 1
+                if errors >= 2:
+                    return errors
+        return errors
+
+    def filter_for_WT_epitope(self, prediction_tuple, mut_seq):
+        '''returns wt epitope info for given mutated sequence
+        '''
+        dat_head = prediction_tuple[0]
+        dat = prediction_tuple[1]
+        seq_col = dat_head.index("Peptide")
+        wt_epi = "NA"
+        for ii,i in enumerate(dat):
+            seq = i[seq_col]
+            numb_mismatch = self.Hamming_check_0_or_1(mut_seq, seq)
+            if  numb_mismatch == 1:
+                wt_epi = i
+        return(dat_head, wt_epi)
+
+
     def main(self, props_dict, set_available_mhc, dict_patient_hla):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
@@ -246,6 +272,9 @@ class NetmhcpanBestPrediction:
         self.mhcI_affinity_9mer = self.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
         self.mhcI_affinity_allele_9mer = self.add_best_epitope_info(best_9mer_affinity, "HLA")
         self.mhcI_affinity_epitope_9mer = self.add_best_epitope_info(best_9mer_affinity, "Icore")
+        print "mismatch"
+        print self.Hamming_check_0_or_1("lsdcd", "lddcd")
+        print self.Hamming_check_0_or_1("lddcd", "lddcd")
 
 
 if __name__ == '__main__':
