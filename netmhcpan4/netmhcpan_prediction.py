@@ -231,10 +231,11 @@ class NetmhcpanBestPrediction:
         seq_col = dat_head.index("Peptide")
         wt_epi = "NA"
         for ii,i in enumerate(dat):
-            seq = i[seq_col]
-            numb_mismatch = self.Hamming_check_0_or_1(mut_seq, seq)
-            if  numb_mismatch == 1:
-                wt_epi = i
+            wt_seq = i[seq_col]
+            if len(wt_seq) == len(mut_seq):
+                numb_mismatch = self.Hamming_check_0_or_1(mut_seq, wt_seq)
+                if  numb_mismatch == 1:
+                    wt_epi = i
         return(dat_head, wt_epi)
 
 
