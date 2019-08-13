@@ -111,6 +111,14 @@ class Epitope:
         self.add_features(pred.best4_affinity_epitope, "best_affinity_epitope_netmhcpan4")
         self.add_features(pred.best4_affinity_allele, "bestHLA_allele_affinity_netmhcpan4")
         self.add_features(pred.best4_affinity_directed_to_TCR, "affinity_directed_to_TCR")
+        # netMHCpan MUT best 9mer score
+        self.add_features(pred.mhcI_score_9mer, "best%Rank_netmhcpan4_9mer")
+        self.add_features(pred.mhcI_score_epitope_9mer, "best_epitope_netmhcpan4_9mer")
+        self.add_features(pred.mhcI_score_allele_9mer, "bestHLA_allele_netmhcpan4_9mer")
+        # netmhcpan4 mut best 9mer affinity
+        self.add_features(pred.mhcI_affinity_9mer, "best_affinity_netmhcpan4_9mer")
+        self.add_features(pred.mhcI_affinity_allele_9mer, "bestHLA_allele_affinity_netmhcpan4_9mer")
+        self.add_features(pred.mhcI_affinity_epitope_9mer, "best_affinity_epitope_netmhcpan4_9mer")
         # multiplexed representation MUT
         for sc, mn in zip(pred.MHC_score_all_epitopes, pred.mean_type):
             self.add_features(sc, "MB_score_all_epitopes_" + mn)
@@ -153,6 +161,14 @@ class Epitope:
         self.add_features(pred.best4_mhc_score_WT, "best%Rank_netmhcpan4_WT")
         self.add_features(pred.best4_mhc_epitope_WT, "best_epitope_netmhcpan4_WT")
         self.add_features(pred.best4_mhc_allele_WT, "bestHLA_allele_netmhcpan4_WT")
+        # netMHCpan MUT best 9mer score
+        self.add_features(pred.mhcI_score_9mer_WT, "best%Rank_netmhcpan4_9mer_WT")
+        self.add_features(pred.mhcI_score_epitope_9mer_WT, "best_epitope_netmhcpan4_9mer_WT")
+        self.add_features(pred.mhcI_score_allele_9mer_WT, "bestHLA_allele_netmhcpan4_9mer_Wt")
+        # netmhcpan4 mut best 9mer affinity
+        self.add_features(pred.mhcI_affinity_9mer_WT, "best_affinity_netmhcpan4_9mer_WT")
+        self.add_features(pred.mhcI_affinity_allele_9mer_WT, "bestHLA_allele_affinity_netmhcpan4_9mer_WT")
+        self.add_features(pred.mhcI_affinity_epitope_9mer_WT, "best_affinity_epitope_netmhcpan4_9mer_WT")
         # priority score using multiplexed representation score
         self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc = "mhcI", threshold = "1"), "Diff_numb_epis_<1")
@@ -163,6 +179,7 @@ class Epitope:
         tcellpredict = tcr_pred.Tcellprediction()
         tcellpredict.main(self.properties)
         self.add_features(tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
+        self.add_features(tcellpredict.TcellPrdictionScore_9merPred, "Tcell_predictor_score_9mersPredict")
         # DAI with affinity values
         self.add_features(FeatureLiterature.dai(self.properties, "mhcI", multiple_binding = False, affinity = True), "DAI_affinity")
         # DAI wiht rank scores by netmhcpan4
@@ -171,9 +188,13 @@ class Epitope:
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcI", False, True), "Amplitude_mhcI_affinity")
         # Amplitude with rank by netmhcpan4
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcI", multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcI_rank_netmhcpan4")
+        # Amplitude with rank by netmhcpan4
+        self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcI", multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
         # recogntion potential with amplitude by affinity and netmhcpan4 score
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", affinity = True), "Recognition_Potential_mhcI_affinity")
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", affinity = False, netmhcscore = True), "Recognition_Potential_mhcI_rank_netmhcpan4")
+        # recogntion potential with amplitude by affinity and only 9mers considered
+        self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", nine_mer = True), "Recognition_Potential_mhcI_9mer_affinity")
         self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc = "mhcI", category = "CDN"), "CDN_mhcI")
         self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc = "mhcII", category = "CDN"), "CDN_mhcII")
         self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc = "mhcI", category = "ADN"), "ADN_mhcI")
