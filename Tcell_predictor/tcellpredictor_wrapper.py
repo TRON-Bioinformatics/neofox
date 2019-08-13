@@ -21,8 +21,9 @@ from helpers import data_import
 class Tcellprediction:
     def __init__(self):
         self.TcellPrdictionScore = "NA"
+        self.TcellPrdictionScore_9merPred = "NA"
 
-    def triple_gen_seq_subst_for_prediction(self, props, all = False):
+    def triple_gen_seq_subst_for_prediction(self, props, all = True, affinity = False):
         """ extracts gene id, epitope sequence and substitution from epitope dictionary
         Tcell predictor works with 9mers only! --> extract for 9mers only
         """
@@ -30,21 +31,31 @@ class Tcellprediction:
             gene = props["gene.x"]
         else:
             gene = props["gene"]
-        epi = props["MHC_I_epitope_.best_prediction."]
         subst = props["substitution"]
-        length = props["MHC_I_peptide_length_.best_prediction."]
-        score = props["MHC_I_score_.best_prediction."]
+        if affinity:
+            epi = props["best_affinity_epitope_netmhcpan4_9mer"]
+            score = props["MHC_I_score_.best_prediction."]
+        else:
+            epi = props["MHC_I_epitope_.best_prediction."]
+            score = props["best_affinity_netmhcpan4_9mer"]
         #print gene, epi, subst, length, score
-        if length == str(9):
+        if len(epi) == str(9):
             if all:
                 z = [gene.replace(" ", ""), epi, subst]
                 return(z)
             else:
-                if float(score < 2):
-                    z = [gene.replace(" ", ""), epi, subst]
-                    return(z)
+                if(affinity):
+                    if float(score < 50):
+                        z = [gene.replace(" ", ""), epi, subst]
+                        return(z)
+                    else:
+                        return(["NA", "NA", "NA"])
                 else:
-                    return(["NA", "NA", "NA"])
+                    if float(score < 2):
+                        z = [gene.replace(" ", ""), epi, subst]
+                        return(z)
+                    else:
+                        return(["NA", "NA", "NA"])
         else:
             return(["NA", "NA", "NA"])
 
@@ -78,10 +89,10 @@ class Tcellprediction:
 
         return(score)
 
-    def wrapper_tcellpredictor(self, props, tmpfile_in, tmpfile_out, path_to_Tcell_predictor):
+    def wrapper_tcellpredictor(self, props, tmpfile_in, tmpfile_out, path_to_Tcell_predictor, all = True, affinity = False):
         '''wrapper function to determine
         '''
-        trp = self.triple_gen_seq_subst_for_prediction(props, all = True)
+        trp = self.triple_gen_seq_subst_for_prediction(props, all, affinity)
         #print trp
         if "NA" not in trp:
             self.write_triple_to_file(trp, tmpfile_in)
@@ -134,6 +145,12 @@ class Tcellprediction:
         tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
         # returns score for all epitopes --> no filtering based on mhc affinity here!
         self.TcellPrdictionScore = self.wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT, path_to_Tcell_predictor)
+        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicIN_", suffix = ".txt", delete = False)
+        tmp_tcellPredIN = tmp_tcellPredIN_file.name
+        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicOUT_", suffix = ".txt", delete = False)
+        tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
+        # returns score for all epitopes --> no filtering based on mhc affinity here!
+        self.TcellPrdictionScore_9merPred = self.wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT, path_to_Tcell_predictor, all = False, affinity = True)
 
 
 
@@ -171,3 +188,4 @@ if __name__ == '__main__':
 
             tcellpred.main(dict_epi.properties)
             print tcellpred.TcellPrdictionScore
+            print tcellpred.TcellPrdictionScore_9merPred
