@@ -77,6 +77,7 @@ class BestandmultiplebindermhcII:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
+        print >> sys.stderr, tmp_prediction
         np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = True)
@@ -108,8 +109,9 @@ class BestandmultiplebindermhcII:
             self.best_mhcII_pan_epitope = np.add_best_epitope_info(best_epi, "Peptide")
             self.best_mhcII_pan_allele = np.add_best_epitope_info(best_epi, "Allele")
             best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
-            self.best_mhcII_pan__affinity = np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
-            self.best_mhcII_pan__affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Peptide")
+            #print best_epi_affinity
+            self.best_mhcII_pan_affinity = np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
+            self.best_mhcII_pan_affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Peptide")
             self.best_mhcII_pan_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "Allele")
         except IndexError:
             # if input sequence shorter than 15 aa
@@ -122,6 +124,7 @@ class BestandmultiplebindermhcII:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
+        print >> sys.stderr, tmp_prediction
         np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = False)
@@ -145,14 +148,15 @@ class BestandmultiplebindermhcII:
             self.MHCII_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
             self.MHCII_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
             # best prediction
-            best_epi =  np.minimal_binding_score(preds)
+            best_epi = np.filter_for_WT_epitope(preds, self.best_mhcII_pan_epitope )
             self.best_mhcII_pan_mhc_score_WT =np.add_best_epitope_info(best_epi, "%Rank")
             self.best_mhcII_pan_epitope_WT = np.add_best_epitope_info(best_epi, "Peptide")
             self.best_mhcII_pan_allele_WT = np.add_best_epitope_info(best_epi, "Allele")
-            best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
+            best_epi_affinity = np.filter_for_WT_epitope(preds, self.best_mhcII_pan_affinity_epitope )
+            #print best_epi_affinity
             self.best_mhcII_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
-            self.best4_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Peptide")
-            self.best4_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "Allele")
+            self.best_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Peptide")
+            self.best_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "Allele")
         except IndexError:
             # if input sequence shorter than 15 aa
             pass
@@ -193,4 +197,10 @@ if __name__ == '__main__':
             #print x.MHC_epitope_seqs_WT
             #print x.MHC_epitope_seqs
             attrs = vars(x)
+            print "score"
+            print x.best_mhcII_pan_epitope
+            print x.best_mhcII_pan_epitope_WT
+            print "affinity"
+            print x.best_mhcII_pan_affinity_epitope
+            print x.best_mhcII_affinity_epitope_WT
             #print attrs
