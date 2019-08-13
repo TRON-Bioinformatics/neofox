@@ -55,7 +55,7 @@ def wrap_pathogensimilarity(props, mhc, fastafile):
     return str(pathsim) if pathsim != "NA" else "0"
 
 
-def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False):
+def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False, nine_mer= False):
     '''
     This function calculates the amplitude between mutated and wt epitope according to Balachandran et al.
     '''
@@ -69,8 +69,11 @@ def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcsc
         elif netmhcscore:
             sc_mut = props["best%Rank_netmhcpan4"].replace(",",".")
             sc_wt = props["best%Rank_netmhcpan4_WT"].replace(",",".")
+        elif nine_mer:
+            sc_mut = props["best_affinity_epitope_netmhcpan4_9mer"].replace(",",".")
+            sc_wt = props["best_affinity_netmhcpan4_9mer_WT"].replace(",",".")
         else:
-            sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
+            sc_mut = props["best_affinity_netmhcpan4_9mer"].replace(",",".")
             sc_wt = props["MHC_I_score_.WT."].replace(",",".")
     elif mhc == "mhcII":
         if multiple_binding:
@@ -91,7 +94,7 @@ def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcsc
         return "NA"
 
 
-def recognition_potential(props, mhc, affinity = False,  netmhcscore = False):
+def recognition_potential(props, mhc, affinity = False,  netmhcscore = False, nine_mer= False ):
     '''
     This function calculates the recognition potential, defined by the product of amplitude and pathogensimiliarity of an epitope according to Balachandran et al.
     F_alpha = - max (A_i x R_i)
@@ -103,6 +106,8 @@ def recognition_potential(props, mhc, affinity = False,  netmhcscore = False):
             amp = props["Amplitude_mhcI_affinity"]
         elif netmhcscore:
             amp = props["Amplitude_mhcI_rank_netmhcpan4"]
+        elif nine_mer:
+            amp = props["Amplitude_mhcI_affinity_9mer_netmhcpan4"]
         else:
             amp = props["Amplitude_mhcI"]
         pathsim = props["Pathogensimiliarity_mhcI"]
@@ -110,7 +115,11 @@ def recognition_potential(props, mhc, affinity = False,  netmhcscore = False):
         amp = props["Amplitude_mhcII"]
         pathsim = props["Pathogensimiliarity_mhcII"]
     try:
-        recog = str(float(amp) * float(pathsim)) if props["Mutation_in_anchor"] == "0" else "NA"
+        if nine_mer:
+            mhc_affinity_mut = props["best_affinity_netmhcpan4_9mer"]
+            recog = str(float(amp) * float(pathsim)) if (props["Mutation_in_anchor"] == "0") & (float(mhc_affinity_mut) < 500) else "NA"
+        else:
+            recog = str(float(amp) * float(pathsim)) if props["Mutation_in_anchor"] == "0" else "NA"
     except ValueError:
         recog = "NA"
     #print >> sys.stderr, props["Mutation_in_anchor"], str(recog)
