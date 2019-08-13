@@ -188,6 +188,53 @@ class NetmhcIIpanBestPrediction:
         except IndexError:
             return "NA"
 
+    def Hamming_check_0_or_1(self, seq1, seq2):
+        '''returns number of mismatches between 2 sequences
+        '''
+        errors = 0
+        for i in xrange(len(seq1)):
+            if seq1[i] != seq2[i]:
+                errors += 1
+                if errors >= 2:
+                    return errors
+        return errors
+
+    def filter_for_WT_epitope_same_allele(self, prediction_tuple, mut_seq, mut_allele):
+        '''returns wt epitope info for given mutated sequence. here best wt for same allele as mutated sequences
+        '''
+        dat_head = prediction_tuple[0]
+        dat = prediction_tuple[1]
+        seq_col = dat_head.index("Peptide")
+        allele_col = dat_head.index("Allele")
+        wt_epi = "NA"
+        for ii,i in enumerate(dat):
+            wt_seq = i[seq_col]
+            wt_allele = i[allele_col]
+            if (len(wt_seq) == len(mut_seq)) and wt_allele == mut_allele:
+                numb_mismatch = self.Hamming_check_0_or_1(mut_seq, wt_seq)
+                if  numb_mismatch == 1:
+                    wt_epi = i
+        return(dat_head, wt_epi)
+
+    def filter_for_WT_epitope(self, prediction_tuple, mut_seq):
+        '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
+        '''
+        dat_head = prediction_tuple[0]
+        dat = prediction_tuple[1]
+        seq_col = dat_head.index("Peptide")
+        allele_col = dat_head.index("Allele")
+        wt_epi = []
+        for ii,i in enumerate(dat):
+            wt_seq = i[seq_col]
+            wt_allele = i[allele_col]
+            if (len(wt_seq) == len(mut_seq)):
+                numb_mismatch = self.Hamming_check_0_or_1(mut_seq, wt_seq)
+                if  numb_mismatch == 1:
+                    wt_epi.append(i)
+        dt = (dat_head, wt_epi)
+        min = self.minimal_binding_score(dt)
+        return(min)
+
     def main(self, props_dict, set_available_mhc, dict_patient_hla):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
