@@ -24,6 +24,12 @@ class NetmhcpanBestPrediction:
         self.affinity_epitope = "NA"
         self.affinity_allele = "NA"
         self.affinity_directed_to_TCR = "NA"
+        self.mhcI_score_9mer = "NA"
+        self.mhcI_score_allele_9mer = "NA"
+        self.mhcI_score_epitope_9mer = "NA"
+        self.mhcI_affinity_9mer = "NA"
+        self.mhcI_affinity_allele_9mer = "NA"
+        self.mhcI_affinity_epitope_9mer = "NA"
 
     def mhc_allele_in_netmhcpan_available(self, allele, set_available_mhc):
         '''checks if mhc prediction is possible for given hla allele
@@ -193,6 +199,19 @@ class NetmhcpanBestPrediction:
         except IndexError:
             return "NA"
 
+    def filter_for_9mers(self, prediction_tuple):
+        '''returns only predicted 9mers
+        '''
+        dat_head = prediction_tuple[0]
+        dat = prediction_tuple[1]
+        seq_col = dat_head.index("Peptide")
+        dat_9mers = []
+        for ii,i in enumerate(dat):
+            seq = i[seq_col]
+            if  len(seq) == 9:
+                dat_9mers.append(i)
+        return((dat_head, dat_9mers))
+
     def main(self, props_dict, set_available_mhc, dict_patient_hla):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
@@ -207,8 +226,12 @@ class NetmhcpanBestPrediction:
         self.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)
         preds = self.filter_binding_predictions(props_dict, tmp_prediction)
+        #print preds
         best_epi =  self.minimal_binding_score(preds)
         best_epi_affinity =  self.minimal_binding_score(preds, rank = False)
+        preds_9mer =  self.filter_for_9mers(preds)
+        best_9mer = self.minimal_binding_score(preds_9mer)
+        best_9mer_affinity = self.minimal_binding_score(preds_9mer, rank = False)
         self.mhc_score = self.add_best_epitope_info(best_epi, "%Rank")
         self.epitope = self.add_best_epitope_info(best_epi, "Icore")
         self.allele = self.add_best_epitope_info(best_epi, "HLA")
@@ -217,6 +240,12 @@ class NetmhcpanBestPrediction:
         self.affinity_epitope = self.add_best_epitope_info(best_epi_affinity, "Icore")
         self.affinity_allele = self.add_best_epitope_info(best_epi_affinity, "HLA")
         self.affinity_directed_to_TCR =  self.mutation_in_loop(props_dict, best_epi_affinity)
+        self.mhcI_score_9mer = self.add_best_epitope_info(best_9mer, "%Rank")
+        self.mhcI_score_allele_9mer = self.add_best_epitope_info(best_9mer, "HLA")
+        self.mhcI_score_epitope_9mer = self.add_best_epitope_info(best_9mer, "Icore")
+        self.mhcI_affinity_9mer = self.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
+        self.mhcI_affinity_allele_9mer = self.add_best_epitope_info(best_9mer_affinity, "HLA")
+        self.mhcI_affinity_epitope_9mer = self.add_best_epitope_info(best_9mer_affinity, "Icore")
 
 
 if __name__ == '__main__':
