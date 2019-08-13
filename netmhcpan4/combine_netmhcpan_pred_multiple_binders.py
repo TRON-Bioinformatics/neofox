@@ -160,11 +160,13 @@ class Bestandmultiplebinder:
         self.MHC_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
         # best prediction
-        best_epi =  np.minimal_binding_score(preds)
+        #best_epi =  np.minimal_binding_score(preds)
+        best_epi = np.filter_for_WT_epitope(preds, self.best4_mhc_epitope )
+        #print best_epi
         self.best4_mhc_score_WT =np.add_best_epitope_info(best_epi, "%Rank")
         self.best4_mhc_epitope_WT = np.add_best_epitope_info(best_epi, "Icore")
         self.best4_mhc_allele_WT = np.add_best_epitope_info(best_epi, "HLA")
-        best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
+        best_epi_affinity = np.filter_for_WT_epitope(preds, self.best4_affinity_epitope )
         self.best4_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
         self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Icore")
         self.best4_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "HLA")
@@ -172,8 +174,10 @@ class Bestandmultiplebinder:
         print >> sys.stderr, "WT: " + self.generator_rate_WT +"; MUT: "+ self.generator_rate
         # best predicted epitope of length 9
         preds_9mer =  np.filter_for_9mers(preds)
-        best_9mer = np.minimal_binding_score(preds_9mer)
-        best_9mer_affinity = np.minimal_binding_score(preds_9mer, rank = False)
+        #best_9mer = np.minimal_binding_score(preds_9mer)
+        #best_9mer_affinity = np.minimal_binding_score(preds_9mer, rank = False)
+        best_9mer = np.filter_for_WT_epitope(preds_9mer, self.mhcI_score_epitope_9mer )
+        best_9mer_affinity = np.filter_for_WT_epitope(preds_9mer, self.mhcI_affinity_epitope_9mer )
         self.mhcI_score_9mer_WT = np.add_best_epitope_info(best_9mer, "%Rank")
         self.mhcI_score_allele_9mer_WT = np.add_best_epitope_info(best_9mer, "HLA")
         self.mhcI_score_epitope_9mer_WT = np.add_best_epitope_info(best_9mer, "Icore")
@@ -219,7 +223,18 @@ if __name__ == '__main__':
             #print x.MHC_epitope_seqs_WT
             #print x.MHC_epitope_seqs
             attrs = vars(x)
-            print attrs
+            #print attrs
+            print x.mhcI_affinity_epitope_9mer
+            print x.mhcI_affinity_epitope_9mer_WT
+            print "score"
+            print x.best4_affinity_epitope
+            print x.best4_affinity_epitope_WT
+            print "affinity"
+            print x.best4_mhc_epitope
+            print x.best4_mhc_epitope_WT
+
+
+
             '''
             for sc, mn in zip(x.MHC_score_all_epitopes, x.mean_type):
                 dict_epi.add_features(sc, "MB_score_all_epitopes_" + mn)
