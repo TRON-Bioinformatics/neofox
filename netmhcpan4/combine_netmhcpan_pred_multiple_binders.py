@@ -35,6 +35,12 @@ class Bestandmultiplebinder:
         self.best4_affinity_directed_to_TCR = "NA"
         self.epitope_affinities = ""
         self.generator_rate = ""
+        self.mhcI_score_9mer = "NA"
+        self.mhcI_score_allele_9mer = "NA"
+        self.mhcI_score_epitope_9mer = "NA"
+        self.mhcI_affinity_9mer = "NA"
+        self.mhcI_affinity_allele_9mer = "NA"
+        self.mhcI_affinity_epitope_9mer = "NA"
         # WT features
         self.MHC_epitope_scores_WT = ""
         self.MHC_epitope_seqs_WT = ""
@@ -52,6 +58,12 @@ class Bestandmultiplebinder:
         self.best4_affinity_allele_WT = "NA"
         self.epitope_affinities_WT = ""
         self.generator_rate_WT = ""
+        self.mhcI_score_9mer_WT = "NA"
+        self.mhcI_score_allele_9mer_WT = "NA"
+        self.mhcI_score_epitope_9mer_WT = "NA"
+        self.mhcI_affinity_9mer_WT = "NA"
+        self.mhcI_affinity_allele_9mer_WT = "NA"
+        self.mhcI_affinity_epitope_9mer_WT = "NA"
 
 
 
@@ -66,6 +78,7 @@ class Bestandmultiplebinder:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
+        print >> sys.stderr, tmp_prediction
         np = netmhcpan_prediction.NetmhcpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = True)
@@ -73,6 +86,7 @@ class Bestandmultiplebinder:
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+
         #print >> sys.stderr, preds
         # multiple binding
         list_tups = mb.generate_epi_tuple(preds)
@@ -104,6 +118,16 @@ class Bestandmultiplebinder:
         self.best4_affinity_directed_to_TCR =  np.mutation_in_loop(epi_dict, best_epi_affinity)
         # multiple binding based on affinity
         self.generator_rate = mb.determine_number_of_binders(list_scores = all_affinities, threshold = 50)
+        # best predicted epitope of length 9
+        preds_9mer =  np.filter_for_9mers(preds)
+        best_9mer = np.minimal_binding_score(preds_9mer)
+        best_9mer_affinity = np.minimal_binding_score(preds_9mer, rank = False)
+        self.mhcI_score_9mer = np.add_best_epitope_info(best_9mer, "%Rank")
+        self.mhcI_score_allele_9mer = np.add_best_epitope_info(best_9mer, "HLA")
+        self.mhcI_score_epitope_9mer = np.add_best_epitope_info(best_9mer, "Icore")
+        self.mhcI_affinity_9mer = np.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
+        self.mhcI_affinity_allele_9mer = np.add_best_epitope_info(best_9mer_affinity, "HLA")
+        self.mhcI_affinity_epitope_9mer = np.add_best_epitope_info(best_9mer_affinity, "Icore")
 
         ### PREDICTION FOR WT SEQUENCE
         xmer_wt = epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
@@ -112,6 +136,7 @@ class Bestandmultiplebinder:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
+        print >> sys.stderr, tmp_prediction
         np = netmhcpan_prediction.NetmhcpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = False)
@@ -145,6 +170,16 @@ class Bestandmultiplebinder:
         self.best4_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "HLA")
         self.generator_rate_WT = mb.determine_number_of_binders(list_scores = all_affinities, threshold = 50)
         print >> sys.stderr, "WT: " + self.generator_rate_WT +"; MUT: "+ self.generator_rate
+        # best predicted epitope of length 9
+        preds_9mer =  np.filter_for_9mers(preds)
+        best_9mer = np.minimal_binding_score(preds_9mer)
+        best_9mer_affinity = np.minimal_binding_score(preds_9mer, rank = False)
+        self.mhcI_score_9mer_WT = np.add_best_epitope_info(best_9mer, "%Rank")
+        self.mhcI_score_allele_9mer_WT = np.add_best_epitope_info(best_9mer, "HLA")
+        self.mhcI_score_epitope_9mer_WT = np.add_best_epitope_info(best_9mer, "Icore")
+        self.mhcI_affinity_9mer_WT = np.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
+        self.mhcI_affinity_allele_9mer_WT = np.add_best_epitope_info(best_9mer_affinity, "HLA")
+        self.mhcI_affinity_epitope_9mer_WT = np.add_best_epitope_info(best_9mer_affinity, "Icore")
 
 
 
