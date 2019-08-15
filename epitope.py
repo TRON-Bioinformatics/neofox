@@ -221,9 +221,9 @@ class Epitope:
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
         #print >> sys.stderr, self.properties
         self.properties["PHBR-II"] = self.properties.pop("MB_score_MHCII_best_per_alelle_harmonic")
-        self.add_features(predII.MHCII_epitope_scores, "MB_epitope_scores")
-        self.add_features(predII.MHCII_epitope_seqs, "MB_epitope_sequences")
-        self.add_features(predII.MHCII_epitope_alleles, "MB_alleles")
+        self.add_features(predII.MHCII_epitope_scores, "MB_mhcII_epitope_scores")
+        self.add_features(predII.MHCII_epitope_seqs, "MB_mhcII_epitope_sequences")
+        self.add_features(predII.MHCII_epitope_alleles, "MB_mhcII_alleles")
         self.add_features(predII.MHCII_number_strong_binders, "MB_number_pep_MHCIIscore<2")
         self.add_features(predII.MHCII_number_weak_binders, "MB_number_pep_MHCIIscore<10")
         # netmhcIIpan WT scores
