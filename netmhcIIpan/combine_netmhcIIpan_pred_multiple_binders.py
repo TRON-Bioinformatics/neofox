@@ -149,7 +149,7 @@ class BestandmultiplebindermhcII:
             self.MHCII_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
             # best prediction
             best_epi = np.filter_for_WT_epitope(preds, self.best_mhcII_pan_epitope )
-            self.best_mhcII_pan_mhc_score_WT =np.add_best_epitope_info(best_epi, "%Rank")
+            self.best_mhcII_pan_score_WT =np.add_best_epitope_info(best_epi, "%Rank")
             self.best_mhcII_pan_epitope_WT = np.add_best_epitope_info(best_epi, "Peptide")
             self.best_mhcII_pan_allele_WT = np.add_best_epitope_info(best_epi, "Allele")
             best_epi_affinity = np.filter_for_WT_epitope(preds, self.best_mhcII_pan_affinity_epitope )
