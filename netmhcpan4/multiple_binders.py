@@ -99,9 +99,18 @@ class MultipleBinding:
         tuple_epis.sort(key=lambda x: float(x[0]))
         return tuple_epis[0:9]
 
+    def check_for_homozygosity(self, patient_alleles):
+        """ returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles. Otherwise retunrs empty list
+        """
+        homozygos_alleles = []
+        [homozygos_alleles.append(allele) for allele in patient_alleles if patient_alleles.count(allele) > 1]
+        return homozygos_alleles
+
+
     def extract_best_epi_per_alelle(self, tuple_epis, alleles):
         '''this function returns the predicted epitope with the lowest binding score for each patient allele
         '''
+        homo_alleles = self.check_for_homozygosity(alleles)
         dict_allels = {}
         for allele in alleles:
             for epi in tuple_epis:
@@ -114,6 +123,9 @@ class MultipleBinding:
         for allele in dict_allels:
             dict_allels[allele].sort(key=lambda x: float(x[0]))
             best_epis_per_allele.append(dict_allels[allele][0])
+            if allele in homo_alleles:
+                # append homozygous allleles two times
+                best_epis_per_allele.append(dict_allels[allele][0])
         return best_epis_per_allele
 
     def scores_to_list(self, tuple_epis):
@@ -155,10 +167,12 @@ class MultipleBinding:
         self.epitope_seqs = "/".join([tup[2] for tup in list_tups])
         self.epitope_alleles = "/".join([tup[3] for tup in list_tups])
         top10 = self.extract_top10_epis(list_tups)
+        #print top10
         best_per_alelle = self.extract_best_epi_per_alelle(list_tups, alleles)
         all = self.scores_to_list(list_tups)
         all_affinities = self.affinities_to_list(list_tups)
         top10 = self.scores_to_list(top10)
+        #print top10
         self.score_top10 = self.wrapper_mean_calculation(top10)
         best_per_alelle = self.scores_to_list(best_per_alelle)
         self.score_all_epitopes = self.wrapper_mean_calculation(all)
