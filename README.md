@@ -26,8 +26,15 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 
 **Specific Input:**  
 - icam_output.txt --> icam output file; either patient-specific, or several patients combineds
-- allele.csv --> ";" separated file with mhc I and mhc II alleles for all patients of a cohort  
+- allele.csv --> ";" separated file with mhc I and mhc II alleles for all patients of a cohort. If a gene is homozygous, give the allele twice
+  e.g.  
+```
+Pt1;mhc_I_selection;HLA-A*03:01;HLA-A*11:01;HLA-B*55:01;HLA-B*51:01;HLA-C*01:02;HLA-C*03:03;
+Pt1;mhc_II_selection;HLA-DRB1*13:01;HLA-DRB1*11:01;HLA-DQA1*01:03;HLA-DQA1*05:05;HLA-DQB1*06:03;HLA-DQB1*03:01;HLA-DPA1*01:03;HLA-DPB1*02:01;HLA-DPB1*04:02;
+Pt2;mhc_I_selection;HLA-A*02:01;HLA-A*26:01;HLA-B*27:05;HLA-B*57:01;HLA-C*01:85;HLA-C*06:02;
+Pt2;mhc_II_selection;HLA-DRB1*01:01;HLA-DRB1*07:01;HLA-DQA1*01:01;HLA-DQA1*02:01;HLA-DQB1*05:01;HLA-DQB1*03:03;HLA-DPA1*01:03;HLA-DPB1*02:01;HLA-DPB1*04:02;
 
+```  
 
 **Required Columns of iCaM Table:**  
 -   MHC_I_epitope_.best_prediction.  
