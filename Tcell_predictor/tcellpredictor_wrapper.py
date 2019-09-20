@@ -34,24 +34,27 @@ class Tcellprediction:
         subst = props["substitution"]
         if affinity:
             epi = props["best_affinity_epitope_netmhcpan4_9mer"]
-            score = props["MHC_I_score_.best_prediction."]
+            score = props["best_affinity_netmhcpan4_9mer"]
         else:
             epi = props["MHC_I_epitope_.best_prediction."]
-            score = props["best_affinity_netmhcpan4_9mer"]
-        #print gene, epi, subst, length, score
-        if len(epi) == str(9):
+            score = props["MHC_I_score_.best_prediction."]
+        print >> sys.stderr, gene, epi, subst, score, str(len(epi))
+        if str(len(epi)) == str(9):
+            z = [gene.replace(" ", ""), epi, subst]
+            #return(z)
+            #print("hal")
             if all:
                 z = [gene.replace(" ", ""), epi, subst]
                 return(z)
             else:
                 if(affinity):
-                    if float(score < 50):
+                    if float(score) < 50:
                         z = [gene.replace(" ", ""), epi, subst]
                         return(z)
                     else:
                         return(["NA", "NA", "NA"])
                 else:
-                    if float(score < 2):
+                    if float(score) < 2:
                         z = [gene.replace(" ", ""), epi, subst]
                         return(z)
                     else:
@@ -93,6 +96,7 @@ class Tcellprediction:
         '''wrapper function to determine
         '''
         trp = self.triple_gen_seq_subst_for_prediction(props, all, affinity)
+        print >> sys.stderr, trp
         #print trp
         if "NA" not in trp:
             self.write_triple_to_file(trp, tmpfile_in)
@@ -150,7 +154,7 @@ class Tcellprediction:
         tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicOUT_", suffix = ".txt", delete = False)
         tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
         # returns score for all epitopes --> no filtering based on mhc affinity here!
-        self.TcellPrdictionScore_9merPred = self.wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT, path_to_Tcell_predictor, all = False, affinity = True)
+        self.TcellPrdictionScore_9merPred = self.wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT, path_to_Tcell_predictor, all = True, affinity = True)
 
 
 
