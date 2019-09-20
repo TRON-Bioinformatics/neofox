@@ -256,7 +256,7 @@ def classify_adn_cdn(props, mhc, category):
             elif float(score_mut) > float(bdg_cutoff_alternative) or float(amplitude) < float(amplitude_cutoff):
                 group = "False"
     except ValueError:
-        group = "NA"      
+        group = "NA"
     #print >> sys.stderr, category + ": "+group
     return group
 
