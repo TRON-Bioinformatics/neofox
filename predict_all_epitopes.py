@@ -175,6 +175,7 @@ class Bunchepitopes:
         self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
         print >> sys.stderr, self.patient_hla_II_allels
+        print >> sys.stderr, self.patient_hla_I_allels
         startTime1 = datetime.now()
         print >> sys.stderr, data[0]
         print >> sys.stderr, data[0].index("UCSC_transcript")
@@ -197,7 +198,7 @@ class Bunchepitopes:
         if "mutation_found_in_proteome" not in dat[0]:
             self.proteome_dictionary =self.build_proteome_dict(db)
         # add patient id if _mut_set.txt.transcript.squish.somatic.freq is used
-        if "patient.id" not in dat[0]:
+        if "patient" not in dat[0]:
             try:
                 patient = file.split("/")[-3]
                 if "Pt" not in patient:
