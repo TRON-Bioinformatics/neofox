@@ -42,6 +42,7 @@ class Epitope:
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
+        print >> sys.stderr, self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         # selfsimilarity
         self.add_features(self_similarity.selfsimilarity(self.properties,"mhcI"), "Selfsimilarity_mhcI")
         self.add_features(self_similarity.selfsimilarity(self.properties,"mhcII"), "Selfsimilarity_mhcII")
@@ -266,6 +267,7 @@ class Epitope:
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcII", True, False), "Amplitude_mhcII_mb")
         # amplitude rank score mhc II
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcII", multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcII_rank_netmhcpan4")
+        print >> sys.stderr, "amplitude mhc II: "+ self.properties["Amplitude_mhcII_rank_netmhcpan4"]
 
 
         return self.properties
