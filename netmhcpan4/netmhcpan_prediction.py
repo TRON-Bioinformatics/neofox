@@ -74,8 +74,9 @@ class NetmhcpanBestPrediction:
         #cmd = "/code/net/MHCpan/4.0/Linux_x86_64/bin/netMHCpan -a " + hla_allele + " -f " + tmpfasta + " -BA"
         cmd = "netMHCpan -a " + hla_allele + " -f " + tmpfasta + " -BA"
         #cmd = "/code/netMHCpan-4.0/netMHCpan -a " + hla_allele + " -f " + tmpfasta + " -BA"
+        #p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell = True)
         p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-        lines = lines = p.stdout
+        lines = p.stdout
         #print >> sys.stderr, lines
         #stdoutdata, stderrdata = p.communicate()
         #lines = stdoutdata
