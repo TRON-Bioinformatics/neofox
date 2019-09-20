@@ -111,7 +111,7 @@ class MultipleBinding:
         '''this function returns the predicted epitope with the lowest binding score for each patient allele, considering homozyogosity
         '''
         homo_alleles = self.check_for_homozygosity(alleles)
-        #print >> sys.stderr, homo_alleles
+        print >> sys.stderr, homo_alleles
         dict_allels = {}
         for allele in alleles:
             for epi in tuple_epis:
@@ -127,6 +127,8 @@ class MultipleBinding:
             if allele in homo_alleles:
                 # append homozygous allleles two times
                 homo_numbers = homo_alleles.count(allele)
+                print >> sys.stderr, allele
+                print >> sys.stderr, homo_numbers
                 if homo_numbers == 1:
                     best_epis_per_allele.append(dict_allels[allele][0])
                 else:
