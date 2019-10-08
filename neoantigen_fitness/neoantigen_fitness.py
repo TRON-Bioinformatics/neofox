@@ -61,6 +61,7 @@ def wrap_pathogensimilarity(props, mhc, fastafile, nine_mer = False):
 def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False, nine_mer= False):
     '''
     This function calculates the amplitude between mutated and wt epitope according to Balachandran et al.
+    when affinity is used, use correction from Luksza et al. *1/(1+0.0003*aff_wt)
     '''
     if mhc == "mhcI":
         if multiple_binding:
@@ -92,7 +93,10 @@ def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcsc
             sc_mut = props["MHC_II_score_.best_prediction."].replace(",",".")
             sc_wt = props["MHC_II_score_.WT."].replace(",",".")
     try:
-        return str(float(sc_wt) / float(sc_mut))
+        if nine_mer or affinity:
+            return str(float(sc_wt) / float(sc_mut) * (1 / (1 + 0.0003 * sc_wt)))
+        else:
+            return str(float(sc_wt) / float(sc_mut))
     except(ZeroDivisionError, ValueError) as e:
         return "NA"
 
