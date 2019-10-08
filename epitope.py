@@ -48,6 +48,7 @@ class Epitope:
         self.add_features(self_similarity.selfsimilarity(self.properties,"mhcII"), "Selfsimilarity_mhcII")
         self.add_features(self_similarity.improved_binder(self.properties,"mhcI"), "ImprovedBinding_mhcI")
         self.add_features(self_similarity.improved_binder(self.properties,"mhcII"), "ImprovedBinding_mhcII")
+        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties), "Selfsimilarity_mhcI_conserved_binder")
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties,"mhcI"), "pos_MUT_MHCI")
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties,"mhcII"), "pos_MUT_MHCII")
         self.add_features(self_similarity.position_in_anchor_position(self.properties), "Mutation_in_anchor")
