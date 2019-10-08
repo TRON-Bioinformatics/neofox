@@ -178,6 +178,7 @@ class Epitope:
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc = "mhcI", threshold = "1"), "Ratio_numb_epis_<1")
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc = "mhcI", threshold = "2"), "Ratio_numb_epis_<2")
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcI", multiple_binding=True), "Amplitude_mhcI_MB")
+        # T cell predictor
         tcellpredict = tcr_pred.Tcellprediction()
         tcellpredict.main(self.properties)
         self.add_features(tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
@@ -190,12 +191,13 @@ class Epitope:
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcI", False, True), "Amplitude_mhcI_affinity")
         # Amplitude with rank by netmhcpan4
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcI", multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcI_rank_netmhcpan4")
-        # Amplitude with rank by netmhcpan4
-        self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcI", multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
+        # Amplitude based on best affinity prediction restricted to 9mers
+        self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcI", multiple_binding=False, nine_mer= True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
+        self.add_features(neoantigen_fitness.wrap_pathogensimilarity(self.properties, "mhcI", tmp_fasta, nine_mer= True), "Pathogensimiliarity_mhcI_9mer")
         # recogntion potential with amplitude by affinity and netmhcpan4 score
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", affinity = True), "Recognition_Potential_mhcI_affinity")
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", affinity = False, netmhcscore = True), "Recognition_Potential_mhcI_rank_netmhcpan4")
-        # recogntion potential with amplitude by affinity and only 9mers considered
+        # recogntion potential with amplitude by affinity and only 9mers considered --> value as published!!
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", nine_mer = True), "Recognition_Potential_mhcI_9mer_affinity")
         self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc = "mhcI", category = "CDN"), "CDN_mhcI")
         self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc = "mhcII", category = "CDN"), "CDN_mhcII")
