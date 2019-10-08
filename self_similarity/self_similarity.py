@@ -42,6 +42,20 @@ def improved_binder(props, mhc):
         return "NA"
 
 
+def selfsimilarity_of_conserved_binder_only(props):
+    '''this function returns selfsimilarity for conserved binder but not for improved binder
+    '''
+    conserved_binder = props["ImprovedBinding_mhcI"]
+    similiarity = props["Selfsimilarity_mhcI"]
+    try:
+        if conserved_binder == str(0):
+            return similiarity
+        else:
+            return "NA"
+    except (ZeroDivisionError, ValueError) as e:
+        return "NA"
+
+
 
 
 def position_of_mutation_epitope(props, mhc):
