@@ -94,7 +94,7 @@ def amplitude_mhc(props, mhc, multiple_binding=False, affinity = False, netmhcsc
             sc_wt = props["MHC_II_score_.WT."].replace(",",".")
     try:
         if nine_mer or affinity:
-            return str(float(sc_wt) / float(sc_mut) * (1 / (1 + 0.0003 * sc_wt)))
+            return str(float(sc_wt) / float(sc_mut) * (1 / (1 + 0.0003 * float(sc_wt))))
         else:
             return str(float(sc_wt) / float(sc_mut))
     except(ZeroDivisionError, ValueError) as e:
