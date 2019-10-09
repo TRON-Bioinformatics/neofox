@@ -17,6 +17,7 @@ from aa_index import aa_index
 from netmhcpan4 import combine_netmhcpan_pred_multiple_binders as mhcprediction
 from Tcell_predictor import tcellpredictor_wrapper as tcr_pred
 from netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
+from neoag import neoag_gbm_model as neoag
 
 
 
@@ -178,6 +179,11 @@ class Epitope:
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc = "mhcI", threshold = "1"), "Ratio_numb_epis_<1")
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc = "mhcI", threshold = "2"), "Ratio_numb_epis_<2")
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcI", multiple_binding=True), "Amplitude_mhcI_MB")
+        # position of mutation
+        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties), "pos_MUT_MHCI_affinity_epi")
+        # position of mutation
+        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer = True), "pos_MUT_MHCI_affinity_epi_9mer")
+
         # T cell predictor
         tcellpredict = tcr_pred.Tcellprediction()
         tcellpredict.main(self.properties)
@@ -194,6 +200,7 @@ class Epitope:
         # Amplitude based on best affinity prediction restricted to 9mers
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcI", multiple_binding=False, nine_mer= True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
         self.add_features(neoantigen_fitness.wrap_pathogensimilarity(self.properties, "mhcI", tmp_fasta, nine_mer= True), "Pathogensimiliarity_mhcI_9mer")
+        self.add_features(neoantigen_fitness.wrap_pathogensimilarity(self.properties, "mhcI", tmp_fasta, affinity= True), "Pathogensimiliarity_mhcI_affinity_nmers")
         # recogntion potential with amplitude by affinity and netmhcpan4 score
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", affinity = True), "Recognition_Potential_mhcI_affinity")
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI", affinity = False, netmhcscore = True), "Recognition_Potential_mhcI_rank_netmhcpan4")
@@ -271,6 +278,9 @@ class Epitope:
         # amplitude rank score mhc II
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties,mhc = "mhcII", multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcII_rank_netmhcpan4")
         print >> sys.stderr, "amplitude mhc II: "+ self.properties["Amplitude_mhcII_rank_netmhcpan4"]
+
+        # neoag immunogenicity model
+        self.add_features(neoag.wrapper_neoag(self.properties), "neoag_immunogencity")
 
 
         return self.properties
