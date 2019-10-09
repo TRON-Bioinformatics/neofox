@@ -30,6 +30,8 @@ do
     echo $output
     echo $error
     module load anaconda/2/2018
-    sbatch -p CentOS --job-name INPuT_"$4"_$pat -c 1 --time=30-00:00:00 --mem 2G --output=$output --error=$error --wrap="python /projects/SUMMIT/WP1.2/input/development/predict_all_epitopes.py -i $file2 -a $3 > $outfile"
+    module load R/3.6.0
+    module load bioinf/netMHCpan/4.0
+    sbatch -p Compute --job-name INPuT_"$4"_$pat -c 1 --time=30-00:00:00 --mem 2G --output=$output --error=$error --wrap="python /projects/SUMMIT/WP1.2/input/development/predict_all_epitopes.py -i $file2 -a $3 > $outfile"
   fi;
 done
