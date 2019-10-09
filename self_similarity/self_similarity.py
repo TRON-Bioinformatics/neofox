@@ -57,7 +57,6 @@ def selfsimilarity_of_conserved_binder_only(props):
 
 
 
-
 def position_of_mutation_epitope(props, mhc):
     '''
     This function determines the position of the mutation within the epitope sequence.
@@ -68,6 +67,26 @@ def position_of_mutation_epitope(props, mhc):
     elif mhc == "mhcII":
         mhc_mut = props["MHC_II_epitope_.best_prediction."]
         mhc_wt = props["MHC_II_epitope_.WT."]
+    p1 = -1
+    try:
+        for i,aa in enumerate(mhc_mut):
+            if aa != mhc_wt[i]:
+                p1 = i + 1
+        return str(p1)
+    except:
+        return "NA"
+
+
+def position_of_mutation_epitope_affinity(props, nine_mer = False):
+    '''
+    This function determines the position of the mutation within the epitope sequence.
+    '''
+    if nine_mer:
+        mhc_mut = props["best_affinity_epitope_netmhcpan4_9mer"]
+        mhc_wt = props["best_epitope_netmhcpan4_9mer_WT"]
+    else:
+        mhc_mut = props["best_affinity_epitope_netmhcpan4"]
+        mhc_wt = props["best_affinity_epitope_netmhcpan4_WT"]
     p1 = -1
     try:
         for i,aa in enumerate(mhc_mut):
