@@ -93,6 +93,7 @@ class Bestandmultiplebinder:
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = True)
         alleles = np.get_hla_allels(epi_dict, patient_hlaI)
+        #print alleles
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
@@ -106,6 +107,8 @@ class Bestandmultiplebinder:
         self.MHC_epitope_alleles = "/".join([tup[3] for tup in list_tups])
         top10 = mb.extract_top10_epis(list_tups)
         best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles)
+        print >> sys.stderr, "sdfsd"
+        print >> sys.stderr, alleles
         all = mb.scores_to_list(list_tups)
         all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
@@ -200,6 +203,8 @@ class Bestandmultiplebinder:
 
 
 
+
+
 if __name__ == '__main__':
 
     import epitope
@@ -212,14 +217,26 @@ if __name__ == '__main__':
     #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
     #hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
     #hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/alleles.csv"
-    file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/test_ott_head_pt10.txt"
+    #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/test_ott_head_pt10.txt"
     #hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
-    hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190819_alleles_extended.csv"
+    #hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190819_alleles_extended.csv"
+    hla_file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/20190822_alleles.csv"
+    file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/in_files/PtBI000048T_1PEB.transcript"
     #hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/20190816_alleles_extended.csv"
     #file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/Pt12/scratch/Pt12_mut_set.txt.transcript.squish.somatic.freq"
     dat = data_import.import_dat_icam(file, False)
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
         dat = data_import.change_col_names(dat)
+    if "patient.id" not in dat[0]:
+        try:
+            patient = file.split("/")[-3]
+            if "Pt" not in patient:
+                patient = file.split("/")[-1].split(".")[0]
+        except IndexError:
+            patient = file.split("/")[-1].split(".")[0]
+        dat[0].append("patient.id")
+        for ii,i in enumerate(dat[1]):
+            dat[1][ii].append(str(patient))
     # available MHC alleles
     set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
     # hla allele of patients
