@@ -40,10 +40,12 @@ def calc_pathogensimilarity(fasta_file, mhc_allele, n):
     return x if x != None else "NA"
 
 
-def wrap_pathogensimilarity(props, mhc, fastafile, nine_mer = False):
+def wrap_pathogensimilarity(props, mhc, fastafile, affinity = False, nine_mer = False):
     if mhc == "mhcI":
         if nine_mer:
-            mhc_mut = props["best_epitope_netmhcpan4"]
+            mhc_mut = props["best_affinity_epitope_netmhcpan4_9mer"]
+        elif affinity:
+            mhc_mut = props["best_affinity_epitope_netmhcpan4"]
         else:
             mhc_mut = props["MHC_I_epitope_.best_prediction."]
     elif mhc == "mhcII":
@@ -111,7 +113,7 @@ def recognition_potential(props, mhc, affinity = False,  netmhcscore = False, ni
     if mhc == "mhcI":
         if affinity:
             amp = props["Amplitude_mhcI_affinity"]
-
+            pathsim = props["Pathogensimiliarity_mhcI_affinity_nmers"]
         elif netmhcscore:
             amp = props["Amplitude_mhcI_rank_netmhcpan4"]
             pathsim = props["Pathogensimiliarity_mhcI"]
