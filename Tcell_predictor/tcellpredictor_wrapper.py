@@ -48,7 +48,7 @@ class Tcellprediction:
                 return(z)
             else:
                 if(affinity):
-                    if float(score) < 50:
+                    if float(score) < 500:
                         z = [gene.replace(" ", ""), epi, subst]
                         return(z)
                     else:
@@ -153,8 +153,8 @@ class Tcellprediction:
         tmp_tcellPredIN = tmp_tcellPredIN_file.name
         tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicOUT_", suffix = ".txt", delete = False)
         tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
-        # returns score for all epitopes --> no filtering based on mhc affinity here!
-        self.TcellPrdictionScore_9merPred = self.wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT, path_to_Tcell_predictor, all = True, affinity = True)
+        # returns score for all epitopes --> do filtering based on mhc affinity here (threshold 500 nM)!
+        self.TcellPrdictionScore_9merPred = self.wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT, path_to_Tcell_predictor, all = False, affinity = True)
 
 
 
