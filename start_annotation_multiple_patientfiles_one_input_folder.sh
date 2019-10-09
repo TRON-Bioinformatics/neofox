@@ -7,13 +7,14 @@
 # $3 = allele file
 # $4 = cohort name
 
-for icamfile in $1/*;
+for icamfile in $1/*.txt;
 do
   # extract patient id from path
   echo $icamfile
-  patfil="$(cut -d'/' -f12 <<<$icamfile)"
+  patfil=${icamfile##*/}
+  #patfil="$(cut -d'/' -f12 <<<$icamfile)"
   echo $patfil
-  pat="$(cut -d'.' -f5 <<<$patfil)"
+  pat="$(cut -d'.' -f1 <<<$patfil)"
   echo $pat
     #file=$dir/scratch/$pat
   file2=$icamfile
@@ -25,5 +26,7 @@ do
   echo $output
   echo $error
   module load anaconda/2/2018
-  sbatch -p CentOS --job-name INPuT_"$4"_$pat -c 1 --time=30-00:00:00 --mem 2G --output=$output --error=$error --wrap="python /projects/SUMMIT/WP1.2/input/development/predict_all_epitopes.py -i $file2 -a $3 > $outfile"
+  module load bioinf/netMHCpan/4.0
+  module load R/3.6.0
+  sbatch -p Compute --job-name INPuT_"$4"_$pat -c 1 --time=30-00:00:00 --mem 2G --output=$output --error=$error --wrap="python /projects/SUMMIT/WP1.2/input/development/predict_all_epitopes.py -i $file2 -a $3 > $outfile"
 done
