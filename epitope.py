@@ -64,7 +64,8 @@ class Epitope:
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcII"), "Recognition_Potential_mhcII")
         # IEDB immunogenicity
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcII"), "IEDB_Immunogenicity_mhcII")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", , affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
         # differential agretopicity index
         self.add_features(FeatureLiterature.dai(self.properties, "mhcI"), "DAI_mhcI")
         self.add_features(FeatureLiterature.dai(self.properties, "mhcII"), "DAI_mhcII")
@@ -262,6 +263,7 @@ class Epitope:
         self.add_features(predII.MHCII_number_weak_binders_WT, "MB_number_pep_MHCIIscore<10_WT")
         # dai mhc II affinity
         self.add_features(FeatureLiterature.dai(self.properties, "mhcII", multiple_binding = False, affinity = True), "DAI_mhcII_affinity")
+        self.add_features(FeatureLiterature.dai(self.properties, "mhcII", multiple_binding = False, affinity = True, affin_filtering = True), "DAI_mhcII_affinity_aff_filtered")
         # dai mhc II netMHCIIpan score
         self.add_features(FeatureLiterature.dai(self.properties, "mhcII", multiple_binding = False, affinity = False), "DAI_mhcII_netmhcIIpan")
         # dai multiple binding mhc II
