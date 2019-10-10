@@ -107,7 +107,7 @@ def ratio_number_binders(props, mhc = "mhcI", threshold = 1):
     except ValueError:
         return "NA"
 
-def rna_expression_mutation(props):
+def rna_expression_mutation(props, consider_tc = False, tumour_content = 1):
     '''
     This function calculates the product of VAF in RNA and transcript expression
     to reflect the expression of the mutated transcript
@@ -118,7 +118,11 @@ def rna_expression_mutation(props):
     except KeyError:
         vaf_rna = props["VAF_in_tumor"]
     try:
-        return str(float(transcript_expression) * float(vaf_rna))
+        if consider_tc:
+            tumour_content = float(tumour_content)
+            return str(float(transcript_expression) * float(vaf_rna) / tumour_content)
+        else:
+            return str(float(transcript_expression) * float(vaf_rna))          
     except ValueError:
         return "NA"
 
