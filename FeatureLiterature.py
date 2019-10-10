@@ -14,22 +14,31 @@ from Bio import SeqIO
 from aa_index import aa_index
 from IEDB_Immunogenicity import predict_immunogenicity_simple
 
-def calc_IEDB_immunogenicity(props, mhc):
+def calc_IEDB_immunogenicity(props, mhc, affin_filtering = False):
     '''
     This function determines the IEDB immunogenicity score
     '''
     if mhc == "mhcI":
-        mhc_mut = props["MHC_I_epitope_.best_prediction."]
-        mhc_allele = props["MHC_I_allele_.best_prediction."]
+        #mhc_mut = props["MHC_I_epitope_.best_prediction."]
+        #mhc_allele = props["MHC_I_allele_.best_prediction."]
+        mhc_mut = props["best_affinity_epitope_netmhcpan4"]
+        mhc_allele = props["bestHLA_allele_affinity_netmhcpan4"]
+        mhc_score = props["best_affinity_netmhcpan4"]
     elif mhc == "mhcII":
         mhc_mut = props["MHC_II_epitope_.best_prediction."]
         mhc_allele = props["MHC_II_allele_.best_prediction."]
     try:
-        return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut,mhc_allele.replace("*","").replace(":","")))
+        if affin_filtering:
+            if float(mhc_score) < 500:
+                return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut,mhc_allele.replace("*","").replace(":","")))
+            else:
+                return "NA"
+        else:
+            return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut,mhc_allele.replace("*","").replace(":","")))
     except ValueError:
         return "NA"
 
-def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False):
+def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False, affin_filtering = False):
     '''Calculates DAI: Returns difference between wt and mut MHC binding score. If multiple_binding= true, harmonic means of MHC scores of top10 epitope candidates related to a mps is used '''
     if mhc == "mhcI":
         if multiple_binding:
@@ -58,7 +67,13 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
             sc_mut = props["MHC_II_score_.best_prediction."]
             sc_wt = props["MHC_II_score_.WT."]
     try:
-        return str(float(sc_wt) - float(sc_mut))
+        if affin_filtering:
+            if float(sc_mut) < 500:
+                return str(float(sc_wt) - float(sc_mut))
+            else:
+                return "NA"
+        else:
+            return str(float(sc_wt) - float(sc_mut))
     except ValueError:
         return "NA"
 
