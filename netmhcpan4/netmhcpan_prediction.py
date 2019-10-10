@@ -156,7 +156,7 @@ class NetmhcpanBestPrediction:
         #print >> sys.stderr, mhc_sc
         epi = dat_head.index("Icore")
         hla_allele = dat_head.index("HLA")
-        max_score = float(999)
+        max_score = float(1000000000000)
         allele = "NA"
         epitope = "NA"
         row = []
