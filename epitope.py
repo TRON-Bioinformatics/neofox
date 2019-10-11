@@ -62,10 +62,6 @@ class Epitope:
         self.add_features(neoantigen_fitness.amplitude_mhc(self.properties, "mhcII"), "Amplitude_mhcII")
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcI"), "Recognition_Potential_mhcI")
         self.add_features(neoantigen_fitness.recognition_potential(self.properties, "mhcII"), "Recognition_Potential_mhcII")
-        # IEDB immunogenicity
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
         # differential agretopicity index
         self.add_features(FeatureLiterature.dai(self.properties, "mhcI"), "DAI_mhcI")
         self.add_features(FeatureLiterature.dai(self.properties, "mhcII"), "DAI_mhcII")
@@ -284,6 +280,10 @@ class Epitope:
 
         # neoag immunogenicity model
         self.add_features(neoag.wrapper_neoag(self.properties), "neoag_immunogencity")
+        # IEDB immunogenicity only for epitopes with affinity < 500 nM (predicted with netMHCpan) --> in publications
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcII"), "IEDB_Immunogenicity_mhcII")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
 
 
         return self.properties
