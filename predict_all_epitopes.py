@@ -32,6 +32,7 @@ class Bunchepitopes:
         self.hlaII_available_alleles = set()
         self.patient_hla_I_alleles = {}
         self.patient_hla_II_alleles = {}
+        self.tumour_content = {}
 
     def build_proteome_dict(self, fasta_proteome):
         """Loads proteome in fasta format into dictionary
@@ -134,6 +135,23 @@ class Bunchepitopes:
         return patient_alleles_dict
 
 
+    def add_patient_overview(self, path_to_patient_overview):
+        ''' adds tumor content of patients as dictionary
+        '''
+        tumour_content_dict = {}
+        with open(pat_overview) as f:
+            header = next(f)
+            tc_col = header.index("est. Tumor content")
+            for line in f:
+                w = line.rstrip().split(";")
+                #ucsc_id = w[-2]
+                patient = w[0]
+                patient = patient.rstrip("/")
+                tumour_content = w[tc_col]
+                tumour_content_dict[patient] = tumour_content
+        return tumour_content_dict
+
+
     def write_to_file(self, d):
         """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
         and printed ';' separated."""
@@ -159,7 +177,7 @@ class Bunchepitopes:
             print "\t".join(z)
 
 
-    def initialise_properties(self, data, db, rna_reference_file, path_to_hla_file, tissue):
+    def initialise_properties(self, data, db, rna_reference_file, path_to_hla_file, tissue, tumour_content_file):
         '''adds information to Bunchepitopes class that are needed for mutated peptide sequence annotation
         '''
         self.rna_reference = self.add_rna_reference(rna_reference_file, tissue)
@@ -176,6 +194,9 @@ class Bunchepitopes:
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
         print >> sys.stderr, self.patient_hla_II_allels
         print >> sys.stderr, self.patient_hla_I_allels
+        # tumour content
+        if tumour_content_file != "":
+            self.tumour_content = self.add_patient_overview(tumour_content_file)
         startTime1 = datetime.now()
         print >> sys.stderr, data[0]
         print >> sys.stderr, data[0].index("UCSC_transcript")
@@ -186,7 +207,7 @@ class Bunchepitopes:
         print >> sys.stderr, "ADD PROVEAN....start: "+ str(startTime1) + "\nend: "+ str(endTime1) + "\nneeded: " + str(endTime1 - startTime1)
 
 
-    def wrapper_table_add_feature_annotation(self, file, indel, db, rna_reference_file, path_to_hla_file, tissue):
+    def wrapper_table_add_feature_annotation(self, file, indel, db, rna_reference_file, path_to_hla_file, tissue, tumour_content_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
         write to txt file
@@ -209,11 +230,11 @@ class Bunchepitopes:
             for ii,i in enumerate(dat[1]):
                 dat[1][ii].append(str(patient))
         # initialise information needed for feature calculation
-        self.initialise_properties(dat, db,  rna_reference_file, path_to_hla_file, tissue)
+        self.initialise_properties(dat, db,  rna_reference_file, path_to_hla_file, tissue, tumour_content_file)
         # feature calculation for each epitope
         for ii,i in enumerate(dat[1]):
             # dict for each epitope
-            z = epitope.Epitope().main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels, self.patient_hla_II_allels)
+            z = epitope.Epitope().main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels, self.patient_hla_II_allels, self.tumour_content)
             for key in z:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
@@ -230,21 +251,26 @@ class Bunchepitopes:
         parser.add_argument('-i', '--icam_file', dest='icam_file', help='define iCaM file which should be annotated', required=True )
         parser.add_argument('-a', '--allele_file', dest='allele_file', help='define file with hla alleles of patients', required=True )
         #parser.add_argument('-r', '--reference_transcriptome', dest='ref_file', help='define suitable RNA expression reference file', default="/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv" )
-        parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origion', default="skin" )
+        parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origin', default="skin" )
         parser.add_argument('-f', '--frameshift', dest='frameshift', help='indicate by true or false if frameshift mutations or SNVs are to be considered', default=False)
+        parser.add_argument('-tc', '--tumour_content', dest='tumour_content', help='pass csv file with tumour content of patient; e.g. patient_overview file ', default=False)
         args = parser.parse_args()
 
         icam_file = args.icam_file
         allele_file = args.allele_file
         #rna_ref = args.ref_file
         tissue = args.tissue
-        indel =args.frameshift
+        indel = args.frameshift
+        if args.tumour_content:
+            tumour_content_file = args.tumour_content
+        else:
+            tumour_content_file = ""
 
         indel = False
         db = "/projects/data/human/2018_uniprot_with_isoforms/uniprot_human_with_isoforms.fasta"
         rna_ref = "/projects/SUMMIT/WP1.2/gtex_reference/gtex_combined.csv"
 
-        self.wrapper_table_add_feature_annotation(icam_file, indel, db, rna_ref, allele_file, tissue)
+        self.wrapper_table_add_feature_annotation(icam_file, indel, db, rna_ref, allele_file, tissue, tumour_content_file)
 
 
 
