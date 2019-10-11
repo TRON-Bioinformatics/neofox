@@ -39,7 +39,7 @@ class Epitope:
     def write_to_file(self):
         print ";".join([self.properties[key] for key in self.properties])
 
-    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII):
+    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
@@ -65,12 +65,13 @@ class Epitope:
         # IEDB immunogenicity
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", , affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
         # differential agretopicity index
         self.add_features(FeatureLiterature.dai(self.properties, "mhcI"), "DAI_mhcI")
         self.add_features(FeatureLiterature.dai(self.properties, "mhcII"), "DAI_mhcII")
         # priority score
         self.add_features(FeatureLiterature.rna_expression_mutation(self.properties), "Expression_Mutated_Transcript")
+        self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content = tumour_content), "Expression_Mutated_Transcript_tumor_content")
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, "mhcI"), "Number_of_mismatches_mhcI")
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, "mhcII"), "Number_of_mismatches_mhcII")
         if "mutation_found_in_proteome" not in self.properties:
