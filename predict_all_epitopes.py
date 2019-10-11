@@ -139,9 +139,11 @@ class Bunchepitopes:
         ''' adds tumor content of patients as dictionary
         '''
         tumour_content_dict = {}
-        with open(pat_overview) as f:
+        with open(path_to_patient_overview) as f:
             header = next(f)
+            header = header.rstrip().split(";")
             tc_col = header.index("est. Tumor content")
+            print >> sys.stderr,tc_col
             for line in f:
                 w = line.rstrip().split(";")
                 #ucsc_id = w[-2]
@@ -149,6 +151,7 @@ class Bunchepitopes:
                 patient = patient.rstrip("/")
                 tumour_content = w[tc_col]
                 tumour_content_dict[patient] = tumour_content
+        print >> sys.stderr,tumour_content_dict
         return tumour_content_dict
 
 
@@ -253,7 +256,7 @@ class Bunchepitopes:
         #parser.add_argument('-r', '--reference_transcriptome', dest='ref_file', help='define suitable RNA expression reference file', default="/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv" )
         parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origin', default="skin" )
         parser.add_argument('-f', '--frameshift', dest='frameshift', help='indicate by true or false if frameshift mutations or SNVs are to be considered', default=False)
-        parser.add_argument('-tc', '--tumour_content', dest='tumour_content', help='pass csv file with tumour content of patient; e.g. patient_overview file ', default=False)
+        parser.add_argument('-tc', '--tumour_content', dest='tumour_content', help='pass csv file with tumour content [%] of patient; e.g. patient_overview file ', default=False)
         args = parser.parse_args()
 
         icam_file = args.icam_file
