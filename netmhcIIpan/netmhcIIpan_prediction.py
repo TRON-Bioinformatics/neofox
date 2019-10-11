@@ -166,7 +166,7 @@ class NetmhcIIpanBestPrediction:
             mhc_sc = dat_head.index("Affinity(nM)")
         epi = dat_head.index("Peptide")
         hla_allele = dat_head.index("Allele")
-        max_score = float(999)
+        max_score = float(1000000000)
         allele = "NA"
         epitope = "NA"
         row = []
