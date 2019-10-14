@@ -190,8 +190,10 @@ def calc_priority_score(props, multiple_binding=False):
         score_mut = props["MB_score_top10_harmonic"]
         score_wt = props["MB_score_WT_top10_harmonic"]
     else:
-        score_mut = props["MHC_I_score_.best_prediction."]
-        score_wt = props["MHC_I_score_.WT."]
+        #score_mut = props["MHC_I_score_.best_prediction."]
+        #score_wt = props["MHC_I_score_.WT."]
+        score_mut = props["best%Rank_netmhcpan4"]
+        score_wt = props["best%Rank_netmhcpan4_WT"]
     mut_in_prot = props["mutation_found_in_proteome"]
     mut_in_prot = "0" if mut_in_prot == "True" else "1" if mut_in_prot == "False" else mut_in_prot
     L_mut = calc_logistic_function(score_mut)
