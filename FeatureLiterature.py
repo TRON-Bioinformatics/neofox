@@ -118,7 +118,7 @@ def rna_expression_mutation(props):
     except KeyError:
         vaf_rna = props["VAF_in_tumor"]
     try:
-        return str(float(transcript_expression) * float(vaf_rna)) if float(vaf_rna) > 0 else str(0)
+        return str(float(transcript_expression) * float(vaf_rna)) if float(vaf_rna) > 0 else "NA"
     except ValueError:
         return "NA"
 
