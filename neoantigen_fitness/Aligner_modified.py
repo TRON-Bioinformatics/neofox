@@ -80,7 +80,7 @@ class Aligner(object):
             pass
         f.close()
 
-    def computeR(self,a=26,k=1):
+    def computeR(self,a=26,k=4.87):
         '''
         Compute TCR-recognition probabilities for each neoantigen.
         '''
