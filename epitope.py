@@ -45,12 +45,7 @@ class Epitope:
         """
         self.init_properties(col_nam, prop_list)
         print >> sys.stderr, self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        # selfsimilarity
-        self.add_features(self_similarity.selfsimilarity(self.properties,"mhcI"), "Selfsimilarity_mhcI")
-        self.add_features(self_similarity.selfsimilarity(self.properties,"mhcII"), "Selfsimilarity_mhcII")
-        self.add_features(self_similarity.improved_binder(self.properties,"mhcI"), "ImprovedBinding_mhcI")
-        self.add_features(self_similarity.improved_binder(self.properties,"mhcII"), "ImprovedBinding_mhcII")
-        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties), "Selfsimilarity_mhcI_conserved_binder")
+
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties,"mhcI"), "pos_MUT_MHCI")
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties,"mhcII"), "pos_MUT_MHCII")
         self.add_features(self_similarity.position_in_anchor_position(self.properties), "Mutation_in_anchor")
@@ -73,7 +68,6 @@ class Epitope:
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, "mhcII"), "Number_of_mismatches_mhcII")
         if "mutation_found_in_proteome" not in self.properties:
             self.add_features(FeatureLiterature.match_in_proteome(self.properties, db), "mutation_found_in_proteome")
-        self.add_features(FeatureLiterature.calc_priority_score(self.properties), "Priority_score")
         self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "mut"), "MUT_AA")
         self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "wt"), "WT_AA")
         # differential expression
@@ -171,6 +165,8 @@ class Epitope:
         self.add_features(pred.mhcI_affinity_9mer_WT, "best_affinity_netmhcpan4_9mer_WT")
         self.add_features(pred.mhcI_affinity_allele_9mer_WT, "bestHLA_allele_affinity_netmhcpan4_9mer_WT")
         self.add_features(pred.mhcI_affinity_epitope_9mer_WT, "best_affinity_epitope_netmhcpan4_9mer_WT")
+        # priority score
+        self.add_features(FeatureLiterature.calc_priority_score(self.properties), "Priority_score")
         # priority score using multiplexed representation score
         self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc = "mhcI", threshold = "1"), "Diff_numb_epis_<1")
@@ -182,7 +178,12 @@ class Epitope:
         self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties), "pos_MUT_MHCI_affinity_epi")
         # position of mutation
         self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer = True), "pos_MUT_MHCI_affinity_epi_9mer")
-
+        # selfsimilarity
+        self.add_features(self_similarity.selfsimilarity(self.properties,"mhcI"), "Selfsimilarity_mhcI")
+        self.add_features(self_similarity.selfsimilarity(self.properties,"mhcII"), "Selfsimilarity_mhcII")
+        self.add_features(self_similarity.improved_binder(self.properties,"mhcI"), "ImprovedBinding_mhcI")
+        self.add_features(self_similarity.improved_binder(self.properties,"mhcII"), "ImprovedBinding_mhcII")
+        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties), "Selfsimilarity_mhcI_conserved_binder")
         # T cell predictor
         tcellpredict = tcr_pred.Tcellprediction()
         tcellpredict.main(self.properties)
@@ -298,7 +299,6 @@ class Epitope:
         self.add_features(predpresentation.best_peptide_wt, "MixMHCpred_best_peptide_wt")
         self.add_features(predpresentation.best_score_wt, "MixMHCpred_best_score_wt")
         self.add_features(predpresentation.best_rank_wt, "MixMHCpred_best_rank_wt")
-        self.add_features(predpresentation.best_allele_wt, "MixMHCpred_best_allele_wt")
         self.add_features(predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
 
         return self.properties
