@@ -12,6 +12,7 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - Residue-centric presentation score (best_rank) & Patient harmonic Best Rank (PHBR-I/II) *(Marty et al, 2017, Cell; Marty et al, 2018, Cell)*  
 - Classically vs Alternatively Defined Neopitopes & Generator Rate *(Rech et al., 2018, Cancer Immunology Research)*  
 - Tcell_predictor *(Besser et al, 2019, Journal for ImmunoTherapy of Cancer)*  
+- neoag *(Smith et al, 2019, Cancer Immunology Research)*
 
 
 **Novel Potential Descriptors:**  
@@ -35,6 +36,20 @@ Pt2;mhc_I_selection;HLA-A*02:01;HLA-A*26:01;HLA-B*27:05;HLA-B*57:01;HLA-C*01:85;
 Pt2;mhc_II_selection;HLA-DRB1*01:01;HLA-DRB1*07:01;HLA-DQA1*01:01;HLA-DQA1*02:01;HLA-DQB1*05:01;HLA-DQB1*03:03;HLA-DPA1*01:03;HLA-DPB1*02:01;HLA-DPB1*04:02;
 
 ```  
+- *OPTIONAL!!*:";" separated file with tumor content (e.g. patient_overview file for each cohort)
+```
+Patient;est. Tumor content;number of mutations; number of SNVs;number of Indels;unique_peptides;number_of_expressed_ge
+Pt10/;62.0;463;437;26;180;16200
+Pt11/;;;;;;
+Pt12/;66.0;120;104;16;38;15147
+Pt13/;49.0;863;843;20;327;15707
+Pt14/;55.0;2375;2336;39;909;16107
+Pt15/;50.0;1227;1174;53;433;15029
+Pt16/;24.0;948;940;8;368;15562
+Pt17/;;;;;;
+```
+
+
 
 **Required Columns of iCaM Table:**  
 -   MHC_I_epitope_.best_prediction.  
@@ -71,13 +86,16 @@ Pt2;mhc_II_selection;HLA-DRB1*01:01;HLA-DRB1*07:01;HLA-DQA1*01:01;HLA-DQA1*02:01
 - BLAST *(/code/ncbi-blast/2.8.1+/bin/blastp, neoantigen_fitness.py)*  
 - netmhcpan *(/code/netMHCpan-4.0/netMHCpan, netmhcpan_prediction.py)*  
 - netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
+- netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
+- MixMHCpred *(/code/MixMHCpred/2.0.2/MixMHCpred, mixmhcpred.py)*
 - Tcell_predictor: python3 + scripts/pickle/mat files of Tcell_predictor tool *(/code/Anaconda/3/2018/bin/python + tool under ./Tcell_predictor, tcellpredictor_wrapper.py )*  
+- Neoag: Neoag R-module *(./neoag-master, neoag_gbm_model.py)*
 
 ## **Usage**  
 
 **Single iCaM File**  
 ```
-python predict_all_epitopes.py --icam_file testseq_head.txt  -allele_file alleles.csv [-tissue skin --frameshift False]> test07.txt
+python predict_all_epitopes.py --icam_file testseq_head.txt  --allele_file alleles.csv [--tissue skin --frameshift False --tumour_content]> test07.txt
 ```  
 
 --> annotation of one iCaM file
