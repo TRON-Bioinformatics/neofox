@@ -256,7 +256,7 @@ class Bunchepitopes:
         #parser.add_argument('-r', '--reference_transcriptome', dest='ref_file', help='define suitable RNA expression reference file', default="/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv" )
         parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origin', default="skin" )
         parser.add_argument('-f', '--frameshift', dest='frameshift', help='indicate by true or false if frameshift mutations or SNVs are to be considered', default=False)
-        parser.add_argument('-tc', '--tumour_content', dest='tumour_content', help='pass csv file with tumour content [%] of patient; e.g. patient_overview file ', default=False)
+        parser.add_argument('-tc', '--tumour_content', dest='tumour_content', help='pass csv file with tumour content of patient; e.g. patient_overview file ', default=False)
         args = parser.parse_args()
 
         icam_file = args.icam_file
