@@ -18,6 +18,7 @@ from netmhcpan4 import combine_netmhcpan_pred_multiple_binders as mhcprediction
 from Tcell_predictor import tcellpredictor_wrapper as tcr_pred
 from netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
 from neoag import neoag_gbm_model as neoag
+from MixMHCpred import mixmhcpred
 
 
 
@@ -284,7 +285,21 @@ class Epitope:
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcII"), "IEDB_Immunogenicity_mhcII")
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
-
+        predpresentation = mixmhcpred.MixMHCpred()
+        predpresentation.main(self.properties, patient_hlaI)
+        self.add_features(predpresentation.all_peptides, "MixMHCpred_all_peptides")
+        self.add_features(predpresentation.all_scores, "MixMHCpred_all_scores")
+        self.add_features(predpresentation.all_ranks, "MixMHCpred_all_ranks")
+        self.add_features(predpresentation.all_alleles, "MixMHCpred_all_alleles")
+        self.add_features(predpresentation.best_peptide, "MixMHCpred_best_peptide")
+        self.add_features(predpresentation.best_score, "MixMHCpred_best_score")
+        self.add_features(predpresentation.best_rank, "MixMHCpred_best_rank")
+        self.add_features(predpresentation.best_allele, "MixMHCpred_best_allele")
+        self.add_features(predpresentation.best_peptide_wt, "MixMHCpred_best_peptide_wt")
+        self.add_features(predpresentation.best_score_wt, "MixMHCpred_best_score_wt")
+        self.add_features(predpresentation.best_rank_wt, "MixMHCpred_best_rank_wt")
+        self.add_features(predpresentation.best_allele_wt, "MixMHCpred_best_allele_wt")
+        self.add_features(predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
 
         return self.properties
 
