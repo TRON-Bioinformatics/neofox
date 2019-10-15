@@ -31,8 +31,8 @@ def improved_binder(props, mhc):
     if mhc == "mhcI":
         #sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
         #sc_wt = props["MHC_I_score_.WT."].replace(",",".")
-        score_mut = props["best%Rank_netmhcpan4"]
-        score_wt = props["best%Rank_netmhcpan4_WT"]
+        sc_mut = props["best%Rank_netmhcpan4"]
+        sc_wt = props["best%Rank_netmhcpan4_WT"]
     elif mhc == "mhcII":
         sc_mut = props["MHC_II_score_.best_prediction."].replace(",",".")
         sc_wt = props["MHC_II_score_.WT."].replace(",",".")
