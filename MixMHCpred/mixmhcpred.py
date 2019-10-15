@@ -27,7 +27,6 @@ class MixMHCpred:
         self.best_peptide_wt = "NA"
         self.best_score_wt = "NA"
         self.best_rank_wt = "NA"
-        self.best_allele_wt = "NA"
         self.difference_score_mut_wt = "NA"
 
     def mut_position_xmer_seq(self, props):
@@ -190,6 +189,17 @@ class MixMHCpred:
         wt_epi = xmer_wt[start:(start+l)]
         return(wt_epi)
 
+    def extract_WT_info(self, epitope_tuple, column_name):
+        '''
+        '''
+        dat_head = epitope_tuple[0]
+        dat = epitope_tuple[1][0]
+        val = dat_head.index(column_name)
+        try:
+            return dat[val]
+        except IndexError:
+            return "NA"
+
     def difference_score(self, mut_score, wt_score):
         ''' calcualated difference in MixMHCpred scores between mutated and wt
         '''
@@ -232,11 +242,12 @@ class MixMHCpred:
         self.generate_fasta(wt_list, tmp_fasta)
         self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
         pred_wt = self.read_mixmhcpred(tmp_prediction)
-        pred_best_wt = self.extract_best_peptide_per_mutation(pred_wt)
-        self.best_peptide_wt = self.add_best_epitope_info(pred_best_wt, "Peptide")
-        self.best_score_wt = self.add_best_epitope_info(pred_best_wt, "Score_bestAllele")
-        self.best_rank_wt = self.add_best_epitope_info(pred_best_wt, "%Rank_bestAllele")
-        self.best_allele_wt = self.add_best_epitope_info(pred_best_wt, "BestAllele")
+        print >> sys.stderr, pred_wt
+        self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
+        score_wt_of_interest = "_".join(["Score",self.best_allele])
+        rank_wt_of_interest = "_".join(["%Rank",self.best_allele])
+        self.best_score_wt = self.extract_WT_info(pred_wt, score_wt_of_interest)
+        self.best_rank_wt = self.extract_WT_info(pred_wt, rank_wt_of_interest)
         # difference in scores between mut and wt
         self.difference_score_mut_wt = self.difference_score(self.best_score,self.best_score_wt)
 
@@ -275,7 +286,7 @@ if __name__ == '__main__':
             #print ii
             #print dict_epi.properties
 
-            prediction.main(dict_epi.properties, set_available_mhc, patient_hlaI)
+            prediction.main(dict_epi.properties,  patient_hlaI)
             attrs = vars(prediction)
             print attrs
 
