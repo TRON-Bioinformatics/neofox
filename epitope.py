@@ -19,6 +19,7 @@ from Tcell_predictor import tcellpredictor_wrapper as tcr_pred
 from netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
 from neoag import neoag_gbm_model as neoag
 from MixMHCpred import mixmhcpred
+from dissimilarity_garnish import dissimilarity
 
 
 
@@ -301,6 +302,12 @@ class Epitope:
         self.add_features(predpresentation.best_rank_wt, "MixMHCpred_best_rank_wt")
         self.add_features(predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
 
+        # dissimilarity to self-proteome
+        # neoantigen fitness
+        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmpseq", suffix = ".fasta", delete = False)
+        tmp_fasta = tmp_fasta_file.name
+        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta), "dissimilarity")
+        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta, filter_binder =True), "dissimilarity_filter500")
         return self.properties
 
 
