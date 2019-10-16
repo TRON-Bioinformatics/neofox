@@ -13,6 +13,7 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - Classically vs Alternatively Defined Neopitopes & Generator Rate *(Rech et al., 2018, Cancer Immunology Research)*  
 - Tcell_predictor *(Besser et al, 2019, Journal for ImmunoTherapy of Cancer)*  
 - neoag *(Smith et al, 2019, Cancer Immunology Research)*
+- neoantigen dissimilarity *(Richman et al, 2019, Cell Systems)*
 
 
 **Novel Potential Descriptors:**  
@@ -95,7 +96,7 @@ Pt17/;;;;;;
 
 **Single iCaM File**  
 ```
-python predict_all_epitopes.py --icam_file testseq_head.txt  --allele_file alleles.csv [--tissue skin --frameshift False --tumour_content]> test07.txt
+python predict_all_epitopes.py --icam_file testseq_head.txt  --allele_file alleles.csv [--tissue skin --frameshift False --tumour_content file_with_tumor_content]> test07.txt
 ```  
 
 --> annotation of one iCaM file
