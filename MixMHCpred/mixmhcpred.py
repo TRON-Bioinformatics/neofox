@@ -217,39 +217,45 @@ class MixMHCpred:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="mixmhcpred", suffix = ".txt", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        seqs = self.generate_nmers(props_dict, [8,9,10,11,12])
+        seqs = self.generate_nmers(props_dict, [8,9,10,11])
         self.generate_fasta(seqs, tmp_fasta)
         alleles = self.get_hla_allels(props_dict, dict_patient_hla)
         self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
         pred = self.read_mixmhcpred(tmp_prediction)
-        pred_all = self.extract_best_per_pep(pred)
-        pred_best = self.extract_best_peptide_per_mutation(pred)
-        self.best_peptide = self.add_best_epitope_info(pred_best, "Peptide")
-        self.best_score = self.add_best_epitope_info(pred_best, "Score_bestAllele")
-        self.best_rank = self.add_best_epitope_info(pred_best, "%Rank_bestAllele")
-        self.best_allele = self.add_best_epitope_info(pred_best, "BestAllele")
-        self.all_peptides = "|".join(pred_all["Peptide"])
-        self.all_scores = "|".join(pred_all["Score_bestAllele"])
-        self.all_ranks = "|".join(pred_all["%Rank_bestAllele"])
-        self.all_alleles = "|".join(pred_all["BestAllele"])
-        # prediction of for wt epitope that correspond to best epitope
-        wt = self.extract_WT_for_best(props_dict, self.best_peptide)
-        wt_list = [wt]
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_sequence_wt_", suffix = ".fasta", delete = False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="mixmhcpred_wt_", suffix = ".txt", delete = False)
-        tmp_prediction = tmp_prediction_file.name
-        self.generate_fasta(wt_list, tmp_fasta)
-        self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
-        pred_wt = self.read_mixmhcpred(tmp_prediction)
-        print >> sys.stderr, pred_wt
-        self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
-        score_wt_of_interest = "_".join(["Score",self.best_allele])
-        rank_wt_of_interest = "_".join(["%Rank",self.best_allele])
-        self.best_score_wt = self.extract_WT_info(pred_wt, score_wt_of_interest)
-        self.best_rank_wt = self.extract_WT_info(pred_wt, rank_wt_of_interest)
-        # difference in scores between mut and wt
-        self.difference_score_mut_wt = self.difference_score(self.best_score,self.best_score_wt)
+        try:
+            pred_all = self.extract_best_per_pep(pred)
+        except ValueError:
+            pred_all ={}
+        if len(pred_all) > 0:
+            pred_best = self.extract_best_peptide_per_mutation(pred)
+            self.best_peptide = self.add_best_epitope_info(pred_best, "Peptide")
+            self.best_score = self.add_best_epitope_info(pred_best, "Score_bestAllele")
+            self.best_rank = self.add_best_epitope_info(pred_best, "%Rank_bestAllele")
+            self.best_allele = self.add_best_epitope_info(pred_best, "BestAllele")
+            self.best_allele = self.add_best_epitope_info(pred_best, "BestAllele")
+            self.all_peptides = "|".join(pred_all["Peptide"])
+            self.all_scores = "|".join(pred_all["Score_bestAllele"])
+            self.all_ranks = "|".join(pred_all["%Rank_bestAllele"])
+            self.all_alleles = "|".join(pred_all["BestAllele"])
+            # prediction of for wt epitope that correspond to best epitope
+            wt = self.extract_WT_for_best(props_dict, self.best_peptide)
+            wt_list = [wt]
+            tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_sequence_wt_", suffix = ".fasta", delete = False)
+            tmp_fasta = tmp_fasta_file.name
+            tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="mixmhcpred_wt_", suffix = ".txt", delete = False)
+            tmp_prediction = tmp_prediction_file.name
+            self.generate_fasta(wt_list, tmp_fasta)
+            self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
+            pred_wt = self.read_mixmhcpred(tmp_prediction)
+            print >> sys.stderr, pred_wt
+            self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
+            score_wt_of_interest = "_".join(["Score",self.best_allele])
+            rank_wt_of_interest = "_".join(["%Rank",self.best_allele])
+            self.best_score_wt = self.extract_WT_info(pred_wt, score_wt_of_interest)
+            self.best_rank_wt = self.extract_WT_info(pred_wt, rank_wt_of_interest)
+            # difference in scores between mut and wt
+            self.difference_score_mut_wt = self.difference_score(self.best_score,self.best_score_wt)
+
 
 
 
