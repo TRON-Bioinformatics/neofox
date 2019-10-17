@@ -126,7 +126,10 @@ def expression_mutation_tc(props, tumour_content):
     '''calculated expression of mutation corrected by tumour content
     '''
     transcript_expression = props["Expression_Mutated_Transcript"]
-    patid = props["patient.id"]
+    if "patient.id" in props:
+        patid = props["patient.id"]
+    else:
+        patid = props["patient"]
     try:
         tumour_content =  float(tumour_content[patid])/100
     except KeyError:
