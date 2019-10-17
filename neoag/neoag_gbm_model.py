@@ -32,7 +32,10 @@ def prepare_tmp_for_neoag(props, tmp_file_name):
     ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with affinity < 500 nM
     '''
     header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
-    sample_id = props["patient.id"]
+    if "patient.id" in props:
+        sample_id = props["patient.id"]
+    else:
+        sample_id = props["patient"]
     #mut_peptide = props["MHC_I_epitope_.best_prediction."]
     #ref_peptide = props["MHC_I_epitope_.WT."]
     #peptide_variant_position = props["pos_MUT_MHCI"]
