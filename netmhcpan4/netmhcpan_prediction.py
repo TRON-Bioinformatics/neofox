@@ -108,10 +108,17 @@ class NetmhcpanBestPrediction:
         '''
         xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        p1 = -1
-        for i,aa in enumerate(xmer_mut):
-            if aa != xmer_wt[i]:
-                p1 = i + 1
+        if len(xmer_wt) == len(xmer_mut):
+            p1 = -1
+            for i,aa in enumerate(xmer_mut):
+                if aa != xmer_wt[i]:
+                    p1 = i + 1
+        else:
+            p1 = 0
+            # in case sequences do not have same length 
+            for a1, a2 in zip(xmer_wt, xmer_mut):
+                if a1 == a2:
+                    p1 += 1
         return str(p1)
 
     def epitope_covers_mutation(self, position_mutation, position_epitope, length_epitope):
