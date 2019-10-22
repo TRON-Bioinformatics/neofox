@@ -21,7 +21,7 @@ def calc_dissimilarity(fasta_file, n):
     '''
     outfile_file = tempfile.NamedTemporaryFile(prefix ="tmp_prot_", suffix = ".xml", delete = False)
     outfile = outfile_file.name
-    cmd = "/code/ncbi-blast/2.8.1+/bin/blastp -gapopen 11 -gapextend 1 -outfmt 5 -query " + fasta_file + " -out "  + outfile + " -db " + os.path.join(my_path,"proteome_db","homo_sapiens") + " -evalue 100000000"
+    cmd = "/code/ncbi-blast/2.8.1+/bin/blastp -gapopen 11 -gapextend 1 -outfmt 5 -query " + fasta_file + " -out "  + outfile + " -db " + os.path.join(my_path,"proteome_db","homo_sapiens.mod") + " -evalue 100000000"
     p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
     p_return = p.communicate()
     a = Aligner_modified.Aligner()
