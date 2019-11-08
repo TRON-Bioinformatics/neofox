@@ -132,7 +132,7 @@ def expression_mutation_tc(props, tumour_content):
         patid = props["patient"]
     try:
         tumour_content =  float(tumour_content[patid])/100
-    except KeyError:
+    except (KeyError, ValueError) as e:
         tumour_content = "NA"
     try:
         return str(float(transcript_expression) / float(tumour_content))
