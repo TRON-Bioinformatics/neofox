@@ -3,7 +3,9 @@
 
 Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope descriptors
 
-**Published Descriptors:**  
+**Published Descriptors:**
+- netMHCpan *(Jurtz et al, 2017, The Journal of Immunology )*  
+- netMHCIIpan *(Jensen et al, 2018, Immunology )*  
 - IEDB immunogenicity *(Calis et al, 2013, PLoS Comput Biol.)*  
 - Self-similarity, Conserved vs. Improved Binding  *(Bjerregaard et al, 2017, Front Immunol.)*  
 - Priority Score *(Bjerregaard et al, 2017, Cancer Immunol Immunother.)*  
@@ -14,6 +16,8 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - Tcell_predictor *(Besser et al, 2019, Journal for ImmunoTherapy of Cancer)*  
 - neoag *(Smith et al, 2019, Cancer Immunology Research)*
 - neoantigen dissimilarity *(Richman et al, 2019, Cell Systems)*
+- MixMHCpred *(Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018; J Immunol.)*
+- MixMHC2pred *(Racle et al, 2019, Nat. Biotech. 2019)*
 
 
 **Novel Potential Descriptors:**  
@@ -81,8 +85,9 @@ Pt17/;;;;;;
 - available HLA II alleles for netmhcIIpan3.2 *(./netmhcIIpan/avail_mhcII.txt, predict_all_epitopes.py)*  
 - aaindex1 *("aa_index/aaindex1", predict_all_epitopes.py)*  
 - aanindex2 *("aa_index/aaindex1", predict_all_epitopes.py)*  
+- available HLA II alleles for MixMHC2pred *("/projects/SUMMIT/WP1.2/input/development/MixMHCpred/Alleles_list_pred2.txt")*
 
-**Required Software/Tools:**  
+**Required Software/Tools/Dependencies:**  
 - python2 *(anaconda/2/2018)*
 - BLAST *(/code/ncbi-blast/2.8.1+/bin/blastp, neoantigen_fitness.py)*  
 - netmhcpan *(/code/netMHCpan-4.0/netMHCpan, netmhcpan_prediction.py)*  
@@ -90,7 +95,9 @@ Pt17/;;;;;;
 - netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
 - MixMHCpred *(/code/MixMHCpred/2.0.2/MixMHCpred, mixmhcpred.py)*
 - Tcell_predictor: python3 + scripts/pickle/mat files of Tcell_predictor tool *(/code/Anaconda/3/2018/bin/python + tool under ./Tcell_predictor, tcellpredictor_wrapper.py )*  
-- Neoag: Neoag R-module *(./neoag-master, neoag_gbm_model.py)*
+- Neoag: Neoag R-module *(./neoag-master, neoag_gbm_model.py)* + R *(/code/R/3.6.0/bin/Rscript)*
+- MixMHCpred *(/code/MixMHCpred/2.0.2/)*
+- MixMHC2pred *(/code/net/MixMHC2pred/1.1)*
 
 ## **Usage**  
 
