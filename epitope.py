@@ -305,7 +305,7 @@ class Epitope:
         self.add_features(predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
         # MixMHC2pred
         predpresentation2 = mixmhc2pred.MixMHC2pred()
-        predpresentation2.main(self.properties, patient_hlaI, list_HLAII_MixMHC2pred)
+        predpresentation2.main(self.properties, patient_hlaII, list_HLAII_MixMHC2pred)
         self.add_features(predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
         self.add_features(predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
         self.add_features(predpresentation2.all_alleles, "MixMHC2pred_all_alleles")
