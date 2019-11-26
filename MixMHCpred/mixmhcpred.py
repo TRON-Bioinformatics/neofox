@@ -168,7 +168,7 @@ class MixMHCpred:
         for ii,i in enumerate(dat):
             col_of_interest = [str(i[pepcol]),str(i[scorecol]), str(i[rankcol]), str(i[allelecol])]
             # best ligand per mutation
-            if i[scorecol] > min_value:
+            if float(i[scorecol]) > float(min_value):
                 min_value = i[scorecol]
                 min_pep = col_of_interest
         head_new = ["Peptide", "Score_bestAllele", "%Rank_bestAllele", "BestAllele" ]
