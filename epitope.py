@@ -19,6 +19,7 @@ from Tcell_predictor import tcellpredictor_wrapper as tcr_pred
 from netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
 from neoag import neoag_gbm_model as neoag
 from MixMHCpred import mixmhcpred
+from MixMHCpred import mixmhc2pred
 from dissimilarity_garnish import dissimilarity
 
 
@@ -41,7 +42,7 @@ class Epitope:
     def write_to_file(self):
         print ";".join([self.properties[key] for key in self.properties])
 
-    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content):
+    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, list_HLAII_MixMHC2pred):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
@@ -287,7 +288,8 @@ class Epitope:
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI"), "IEDB_Immunogenicity_mhcI")
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcII"), "IEDB_Immunogenicity_mhcII")
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
-        predpresentation = mixmhcpred.MixMHCpred()
+        # MixMHCpred
+        predpresentation = mixmhc2pred.MixMHCpred()
         predpresentation.main(self.properties, patient_hlaI)
         self.add_features(predpresentation.all_peptides, "MixMHCpred_all_peptides")
         self.add_features(predpresentation.all_scores, "MixMHCpred_all_scores")
@@ -301,6 +303,18 @@ class Epitope:
         self.add_features(predpresentation.best_score_wt, "MixMHCpred_best_score_wt")
         self.add_features(predpresentation.best_rank_wt, "MixMHCpred_best_rank_wt")
         self.add_features(predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
+        # MixMHC2pred
+        predpresentation2 = mixmhcpred.MixMHC2pred()
+        predpresentation2.main(self.properties, patient_hlaI, list_HLAII_MixMHC2pred)
+        self.add_features(predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
+        self.add_features(predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
+        self.add_features(predpresentation2.all_alleles, "MixMHC2pred_all_alleles")
+        self.add_features(predpresentation2.best_peptide, "MixMHC2pred_best_peptide")
+        self.add_features(predpresentation2.best_rank, "MixMHC2pred_best_rank")
+        self.add_features(predpresentation2.best_allele, "MixMHC2pred_best_allele")
+        self.add_features(predpresentation2.best_peptide_wt, "MixMHC2pred_best_peptide_wt")
+        self.add_features(predpresentation2.best_rank_wt, "MixMHC2pred_best_rank_wt")
+        self.add_features(predpresentation2.difference_score_mut_wt, "MixMHC2pred_difference_rank_mut_wt")
 
         # dissimilarity to self-proteome
         # neoantigen fitness
