@@ -289,7 +289,7 @@ class Epitope:
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcII"), "IEDB_Immunogenicity_mhcII")
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, "mhcI", affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
         # MixMHCpred
-        predpresentation = mixmhc2pred.MixMHCpred()
+        predpresentation = mixmhcpred.MixMHCpred()
         predpresentation.main(self.properties, patient_hlaI)
         self.add_features(predpresentation.all_peptides, "MixMHCpred_all_peptides")
         self.add_features(predpresentation.all_scores, "MixMHCpred_all_scores")
@@ -304,7 +304,7 @@ class Epitope:
         self.add_features(predpresentation.best_rank_wt, "MixMHCpred_best_rank_wt")
         self.add_features(predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
         # MixMHC2pred
-        predpresentation2 = mixmhcpred.MixMHC2pred()
+        predpresentation2 = mixmhc2pred.MixMHC2pred()
         predpresentation2.main(self.properties, patient_hlaI, list_HLAII_MixMHC2pred)
         self.add_features(predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
         self.add_features(predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
