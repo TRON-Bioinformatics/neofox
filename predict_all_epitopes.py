@@ -33,6 +33,7 @@ class Bunchepitopes:
         self.patient_hla_I_alleles = {}
         self.patient_hla_II_alleles = {}
         self.tumour_content = {}
+        self.hlaII_available_MixMHC2pred = []
 
     def build_proteome_dict(self, fasta_proteome):
         """Loads proteome in fasta format into dictionary
@@ -100,7 +101,7 @@ class Bunchepitopes:
         return provean_matrix
 
     def add_available_hla_alleles(self, mhc="mhcI"):
-        '''loads file with available hla alllels for netmhcpan4 prediction, returns set
+        '''loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
         '''
         if mhc == "mhcII":
             fileMHC = os.path.join(my_path, "./netmhcIIpan/avail_mhcII.txt")
@@ -111,6 +112,23 @@ class Bunchepitopes:
             for line in f:
                 set_available_mhc.add(line.strip())
         return set_available_mhc
+
+    def add_available_allelles_mixMHC2pred(self):
+        '''loads file with available hla alllels for MixMHC2pred prediction, returns set
+        '''
+        path_to_HLAII_file = os.path.join(my_path, "./MixMHCpred/Alleles_list_pred2.txt")
+        avail_alleles = []
+        with open(path_to_HLAII_file) as f:
+            for line in f:
+                line = line.rstrip().lstrip()
+                if line:
+                    if line.startswith(("L", "A")):
+                        continue
+                    line1 = line.split()[0]
+                    #print line
+                    if line1 is not None:
+                        avail_alleles.append(line1)
+        return avail_alleles
 
     def add_patient_hla_I_allels(self, path_to_hla_file):
         '''adds hla I alleles of patients as dictionary
@@ -193,6 +211,7 @@ class Bunchepitopes:
         prov_file = os.path.join(my_path, "./new_features/PROV_scores_mapped3.csv")
         self.hla_available_alleles = self.add_available_hla_alleles()
         self.hlaII_available_alleles = self.add_available_hla_alleles(mhc = "mhcII")
+        self.hlaII_available_MixMHC2pred = self.add_available_allelles_mixMHC2pred()
         self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
         print >> sys.stderr, self.patient_hla_II_allels
@@ -237,7 +256,7 @@ class Bunchepitopes:
         # feature calculation for each epitope
         for ii,i in enumerate(dat[1]):
             # dict for each epitope
-            z = epitope.Epitope().main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels, self.patient_hla_II_allels, self.tumour_content)
+            z = epitope.Epitope().main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels, self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred)
             for key in z:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
