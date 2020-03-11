@@ -21,6 +21,7 @@ from neoag import neoag_gbm_model as neoag
 from MixMHCpred import mixmhcpred
 from MixMHCpred import mixmhc2pred
 from dissimilarity_garnish import dissimilarity
+from vaxrank import vaxrank
 
 
 
@@ -322,6 +323,13 @@ class Epitope:
         tmp_fasta = tmp_fasta_file.name
         self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta), "dissimilarity")
         self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta, filter_binder =True), "dissimilarity_filter500")
+
+        # vaxrank
+        vaxrankscore = vaxrank.VaxRank()
+        vaxrankscore.main(self.properties)
+        self.add_features(vaxrankscore.total_binding_score, "vaxrank_binding_score")
+        self.add_features(vaxrankscore.ranking_score, "vaxrank_total_score")
+
         return self.properties
 
 
