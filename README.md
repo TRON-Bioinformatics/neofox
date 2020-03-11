@@ -18,6 +18,7 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - neoantigen dissimilarity *(Richman et al, 2019, Cell Systems)*
 - MixMHCpred *(Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018; J Immunol.)*
 - MixMHC2pred *(Racle et al, 2019, Nat. Biotech. 2019)*
+- Vaxrank *(Rubinsteyn, 2017, Front Immunol;Wang, 2019, Bioinformatics)*
 
 
 **Novel Potential Descriptors:**  
