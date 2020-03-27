@@ -1,5 +1,6 @@
 import os
 import input
+import logging
 from input.exceptions import INPuTConfigurationException
 
 
@@ -8,11 +9,9 @@ class ReferenceFolder(object):
     def __init__(self):
         self.reference_genome_folder = self._check_reference_genome_folder()
         # sets the right file names for the resources
-        # TODO: where are these two files???
         self.alleles_list_pred = self._get_reference_file_name('Alleles_list_pred2.txt')
-        self.avail_mhc_ii = self._get_reference_file_name('avail_mhcII.txt')
-        ##
-        self.mhc_available = self._get_reference_file_name('MHC_available.csv')
+        self.available_mhc_ii = self._get_reference_file_name('avail_mhcII.txt')
+        self.available_mhc_i = self._get_reference_file_name('MHC_available.csv')
         self.aa_freq_prot = self._get_reference_file_name('20181108_AA_freq_prot.csv')
         self.four_mer_freq = self._get_reference_file_name('20181108_4mer_freq.csv')
         self.aaindex1 = self._get_reference_file_name('aaindex1')
@@ -20,7 +19,7 @@ class ReferenceFolder(object):
         self.prov_scores_mapped3 = self._get_reference_file_name('PROV_scores_mapped3.csv')
 
         # TODO: add this files self.alleles_list_pred, self.avail_mhc_ii
-        self.resources = [self.mhc_available, self.aa_freq_prot,
+        self.resources = [self.alleles_list_pred, self.available_mhc_ii, self.available_mhc_i, self.aa_freq_prot,
                           self.four_mer_freq, self.aaindex1, self.aaindex2, self.prov_scores_mapped3]
         self._check_resources(self.resources)
         self._log_configuration()
@@ -47,11 +46,11 @@ class ReferenceFolder(object):
             raise INPuTConfigurationException(
                 "Missing resources in the reference folder: {}".format(str(missing_resources)))
 
-    def _log_configuration(self, logger):
-        logger.info("Reference genome folder: {}".format(self.reference_genome_folder))
-        logger.info("Resources")
+    def _log_configuration(self):
+        logging.info("Reference genome folder: {}".format(self.reference_genome_folder))
+        logging.info("Resources")
         for r in self.resources:
-            logger.info(r)
+            logging.info(r)
 
     def _get_reference_file_name(self, file_name_suffix):
         return os.path.join(self.reference_genome_folder, file_name_suffix)

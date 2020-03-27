@@ -95,9 +95,9 @@ class Bunchepitopes:
         '''loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
         '''
         if mhc == "mhcII":
-            fileMHC = self.references.avail_mhc_ii
+            fileMHC = self.references.available_mhc_ii
         else:
-            fileMHC = self.references.mhc_available
+            fileMHC = self.references.available_mhc_i
         set_available_mhc = set()
         with open(fileMHC) as f:
             for line in f:
