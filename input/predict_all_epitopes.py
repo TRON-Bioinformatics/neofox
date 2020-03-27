@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+import sys
+from datetime import datetime
 from Bio import SeqIO
 from input.helpers import data_import
 from input import epitope
 from input.new_features import conservation_scores
 from input.references import ReferenceFolder
+import input.aa_index.aa_index as aa_index
 
 
 class Bunchepitopes:
@@ -197,8 +200,8 @@ class Bunchepitopes:
         freq_file2 = self.references.four_mer_freq
         self.aa_frequency = self.add_nmer_frequency(freq_file1)
         self.fourmer_frequency = self.add_nmer_frequency(freq_file2)
-        self.aa_index1_dict = self.references.aaindex1
-        self.aa_index2_dict = self.references.aaindex2
+        self.aa_index1_dict = aa_index.parse_aaindex1(self.references.aaindex1)
+        self.aa_index2_dict = aa_index.parse_aaindex2(self.references.aaindex2)
         prov_file = self.references.prov_scores_mapped3
         self.hla_available_alleles = self.add_available_hla_alleles()
         self.hlaII_available_alleles = self.add_available_hla_alleles(mhc = "mhcII")

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import sys
 import tempfile
 from input import FeatureLiterature
 from input.self_similarity import self_similarity
