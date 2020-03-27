@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 
-import os
 from Bio import SeqIO
-
 from input.helpers import data_import
 from input import epitope
 from input.new_features import conservation_scores
-from input.aa_index import aa_index
+from input.references import ReferenceFolder
 
-my_path = os.path.abspath(os.path.dirname(__file__))
 
 class Bunchepitopes:
     def __init__(self):
+        self.references = ReferenceFolder()
         self.Allepit = {}
         self.proteome_dictionary = {}
         self.rna_reference = {}
@@ -97,9 +95,9 @@ class Bunchepitopes:
         '''loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
         '''
         if mhc == "mhcII":
-            fileMHC = os.path.join(my_path, "./netmhcIIpan/avail_mhcII.txt")
+            fileMHC = self.references.avail_mhc_ii
         else:
-            fileMHC = os.path.join(my_path, "./netmhcpan4/MHC_available.csv")
+            fileMHC = self.references.mhc_available
         set_available_mhc = set()
         with open(fileMHC) as f:
             for line in f:
@@ -109,7 +107,7 @@ class Bunchepitopes:
     def add_available_allelles_mixMHC2pred(self):
         '''loads file with available hla alllels for MixMHC2pred prediction, returns set
         '''
-        path_to_HLAII_file = os.path.join(my_path, "./MixMHCpred/Alleles_list_pred2.txt")
+        path_to_HLAII_file = self.references.alleles_list_pred
         avail_alleles = []
         with open(path_to_HLAII_file) as f:
             for line in f:
@@ -195,13 +193,13 @@ class Bunchepitopes:
         '''adds information to Bunchepitopes class that are needed for mutated peptide sequence annotation
         '''
         self.rna_reference = self.add_rna_reference(rna_reference_file, tissue)
-        freq_file1 = os.path.join(my_path, "./new_features/20181108_AA_freq_prot.csv")
-        freq_file2 = os.path.join(my_path, "./new_features/20181108_4mer_freq.csv")
+        freq_file1 = self.references.aa_freq_prot
+        freq_file2 = self.references.four_mer_freq
         self.aa_frequency = self.add_nmer_frequency(freq_file1)
         self.fourmer_frequency = self.add_nmer_frequency(freq_file2)
-        self.aa_index1_dict = aa_index.parse_aaindex1(os.path.join(my_path, "aa_index/aaindex1"))
-        self.aa_index2_dict = aa_index.parse_aaindex2(os.path.join(my_path, "aa_index/aaindex2"))
-        prov_file = os.path.join(my_path, "./new_features/PROV_scores_mapped3.csv")
+        self.aa_index1_dict = self.references.aaindex1
+        self.aa_index2_dict = self.references.aaindex2
+        prov_file = self.references.prov_scores_mapped3
         self.hla_available_alleles = self.add_available_hla_alleles()
         self.hlaII_available_alleles = self.add_available_hla_alleles(mhc = "mhcII")
         self.hlaII_available_MixMHC2pred = self.add_available_allelles_mixMHC2pred()
