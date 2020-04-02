@@ -1,5 +1,4 @@
 from unittest import TestCase
-import tempfile
 from collections import defaultdict
 import input.neoantigen_fitness.neoantigen_fitness as neoantigen_fitness
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
@@ -10,9 +9,7 @@ class TestNeoantigenFitness(TestCase):
 
     def setUp(self):
         self.references = integration_test_tools.load_references()
-        self.fastafile = tempfile.NamedTemporaryFile(mode='w', delete=False)
-        with self.fastafile as f:
-            f.write("LSTTSSALGALGALTSSSVAASTPNSTAGAA")
+        self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
 
     def test_pathogen_similarity_mhcI(self):
         result = neoantigen_fitness.wrap_pathogensimilarity(
