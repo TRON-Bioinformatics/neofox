@@ -9,19 +9,19 @@ This script takes as input table from iCAM pipeline and calculates Literature fe
 import math
 
 from input.IEDB_Immunogenicity import predict_immunogenicity_simple
-
+from input import MHC_I, MHC_II
 
 def calc_IEDB_immunogenicity(props, mhc, affin_filtering = False):
     '''
     This function determines the IEDB immunogenicity score
     '''
-    if mhc == "mhcI":
+    if mhc == MHC_I:
         #mhc_mut = props["MHC_I_epitope_.best_prediction."]
         #mhc_allele = props["MHC_I_allele_.best_prediction."]
         mhc_mut = props["best_affinity_epitope_netmhcpan4"]
         mhc_allele = props["bestHLA_allele_affinity_netmhcpan4"]
         mhc_score = props["best_affinity_netmhcpan4"]
-    elif mhc == "mhcII":
+    elif mhc == MHC_II:
         mhc_mut = props["MHC_II_epitope_.best_prediction."]
         mhc_allele = props["MHC_II_allele_.best_prediction."]
     try:
@@ -37,7 +37,7 @@ def calc_IEDB_immunogenicity(props, mhc, affin_filtering = False):
 
 def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False, affin_filtering = False):
     '''Calculates DAI: Returns difference between wt and mut MHC binding score. If multiple_binding= true, harmonic means of MHC scores of top10 epitope candidates related to a mps is used '''
-    if mhc == "mhcI":
+    if mhc == MHC_I:
         if multiple_binding:
             sc_mut = props["MB_score_top10_harmonic"]
             sc_wt = props["MB_score_WT_top10_harmonic"]
@@ -50,7 +50,7 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
         else:
             sc_mut = props["MHC_I_score_.best_prediction."]
             sc_wt = props["MHC_I_score_.WT."]
-    elif mhc == "mhcII":
+    elif mhc == MHC_II:
         if multiple_binding:
             sc_mut = props["MB_score_MHCII_top10_harmonic"]
             sc_wt = props["MB_score_MHCII_top10_WT_harmonic"]
@@ -74,10 +74,10 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
     except ValueError:
         return "NA"
 
-def diff_number_binders(props, mhc = "mhcI", threshold = 1):
+def diff_number_binders(props, mhc = MHC_I, threshold = 1):
     ''' returns absolute difference of potential candidate epitopes between mutated and wt epitope
     '''
-    if mhc =="mhcII":
+    if mhc ==MHC_II:
         num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
         num_wt =  props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
     else:
@@ -88,10 +88,10 @@ def diff_number_binders(props, mhc = "mhcI", threshold = 1):
     except ValueError:
         return "NA"
 
-def ratio_number_binders(props, mhc = "mhcI", threshold = 1):
+def ratio_number_binders(props, mhc = MHC_I, threshold = 1):
     ''' returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
     '''
-    if mhc =="mhcII":
+    if mhc ==MHC_II:
         num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
         num_wt =  props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
     else:
@@ -141,10 +141,10 @@ def number_of_mismatches(props, mhc):
     '''
     This function calculates the number of mismatches between the wt and the mutated epitope
     '''
-    if mhc == "mhcI":
+    if mhc == MHC_I:
         mhc_epitope_mut = props["MHC_I_epitope_.best_prediction."]
         mhc_epitope_wt = props["MHC_I_epitope_.WT."]
-    elif mhc == "mhcII":
+    elif mhc == MHC_II:
         mhc_epitope_mut = props["MHC_II_epitope_.best_prediction."]
         mhc_epitope_wt = props["MHC_II_allele_.best_prediction."]
     p1 = 0
@@ -261,13 +261,13 @@ def classify_adn_cdn(props, mhc, category):
     grouping is based on affinity and affinitiy foldchange between wt and mut
     '''
     group = "NA"
-    if mhc == "mhcI":
+    if mhc == MHC_I:
         score_mut = props["best_affinity_netmhcpan4"]
         amplitude = props["Amplitude_mhcI_affinity"]
         bdg_cutoff_classical = 50
         bdg_cutoff_alternative = 5000
         amplitude_cutoff = 10
-    elif mhc == "mhcII":
+    elif mhc == MHC_II:
         score_mut = props["MHC_II_score_.best_prediction."]
         amplitude = props["Amplitude_mhcII"]
         bdg_cutoff_classical = 1
@@ -320,7 +320,7 @@ if __name__ == '__main__':
         z = epitope.Epitope()
         #print z
         z.init_properties(dat[0], dat[1][ii])
-        z.add_features(number_of_mismatches(z.properties, "mhcI"), "Number_of_mismatches_mhcI")
+        z.add_features(number_of_mismatches(z.properties, MHC_I), "Number_of_mismatches_mhcI")
         if "mutation_found_in_proteome" not in z.properties:
             z.add_features(match_in_proteome(z.properties, db), "mutation_found_in_proteome")
         z.add_features(calc_priority_score(z.properties), "Priority_score")

@@ -17,10 +17,11 @@ class ReferenceFolder(object):
         self.aaindex1 = self._get_reference_file_name('aaindex1')
         self.aaindex2 = self._get_reference_file_name('aaindex2')
         self.prov_scores_mapped3 = self._get_reference_file_name('PROV_scores_mapped3.csv')
+        self.iedb = self._get_reference_file_name('iedb')
 
         # TODO: add this files self.alleles_list_pred, self.avail_mhc_ii
         self.resources = [self.alleles_list_pred, self.available_mhc_ii, self.available_mhc_i, self.aa_freq_prot,
-                          self.four_mer_freq, self.aaindex1, self.aaindex2, self.prov_scores_mapped3]
+                          self.four_mer_freq, self.aaindex1, self.aaindex2, self.prov_scores_mapped3, self.iedb]
         self._check_resources(self.resources)
         self._log_configuration()
 

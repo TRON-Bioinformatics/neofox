@@ -3,6 +3,7 @@
 import sys
 import os.path
 import compute_self_similarity
+from input import MHC_I, MHC_II
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 
@@ -10,10 +11,10 @@ def selfsimilarity(props, mhc):
     """Returns self-similiarity between mutated and wt epitope according to Bjerregard et al.,
     Argument mhc indicates if determination for MHC I or MHC II epitopes
     """
-    if mhc == "mhcI":
+    if mhc == MHC_I:
         mhcI_mut = props["MHC_I_epitope_.best_prediction."]
         mhcI_wt = props["MHC_I_epitope_.WT."]
-    elif mhc == "mhcII":
+    elif mhc == MHC_II:
         mhcI_mut = props["MHC_II_epitope_.best_prediction."]
         mhcI_wt = props["MHC_II_epitope_.WT."]
     selfsim = compute_self_similarity.selfsim(os.path.join(my_path, "./BLOSUM62-2.matrix.txt"))
@@ -28,12 +29,12 @@ def improved_binder(props, mhc):
     '''
     This function checks if mutated epitope is improved binder according to Bjerregard et al.
     '''
-    if mhc == "mhcI":
+    if mhc == MHC_I:
         #sc_mut = props["MHC_I_score_.best_prediction."].replace(",",".")
         #sc_wt = props["MHC_I_score_.WT."].replace(",",".")
         sc_mut = props["best%Rank_netmhcpan4"]
         sc_wt = props["best%Rank_netmhcpan4_WT"]
-    elif mhc == "mhcII":
+    elif mhc == MHC_II:
         sc_mut = props["MHC_II_score_.best_prediction."].replace(",",".")
         sc_wt = props["MHC_II_score_.WT."].replace(",",".")
     imp_binder = 0
@@ -63,10 +64,10 @@ def position_of_mutation_epitope(props, mhc):
     '''
     This function determines the position of the mutation within the epitope sequence.
     '''
-    if mhc == "mhcI":
+    if mhc == MHC_I:
         mhc_mut = props["MHC_I_epitope_.best_prediction."]
         mhc_wt = props["MHC_I_epitope_.WT."]
-    elif mhc == "mhcII":
+    elif mhc == MHC_II:
         mhc_mut = props["MHC_II_epitope_.best_prediction."]
         mhc_wt = props["MHC_II_epitope_.WT."]
     p1 = -1
@@ -132,5 +133,5 @@ if __name__ == '__main__':
         properties[nam] = char
 
 
-    print selfsimilarity(properties, "mhcI")
-    print position_of_mutation_epitope(properties, "mhcI")
+    print selfsimilarity(properties, MHC_I)
+    print position_of_mutation_epitope(properties, MHC_I)
