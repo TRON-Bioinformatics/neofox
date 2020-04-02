@@ -180,10 +180,12 @@ class Epitope:
         # position of mutation
         self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer = True), "pos_MUT_MHCI_affinity_epi_9mer")
         # selfsimilarity
-        self.add_features(self_similarity.selfsimilarity(self.properties, MHC_I), "Selfsimilarity_mhcI")
-        self.add_features(self_similarity.selfsimilarity(self.properties, MHC_II), "Selfsimilarity_mhcII")
-        self.add_features(self_similarity.improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
-        self.add_features(self_similarity.improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
+        self.add_features(self_similarity.get_self_similarity(
+            props=self.properties, mhc=MHC_I, references=self.references), "Selfsimilarity_mhcI")
+        self.add_features(self_similarity.get_self_similarity(
+            props=self.properties, mhc=MHC_II, references=self.references), "Selfsimilarity_mhcII")
+        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
+        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
         self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties), "Selfsimilarity_mhcI_conserved_binder")
         # T cell predictor
         tcellpredict = tcr_pred.Tcellprediction()

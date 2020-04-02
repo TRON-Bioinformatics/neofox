@@ -1,15 +1,7 @@
 #!/usr/bin/env python
 
 import subprocess
-import os
-import sys
 import tempfile
-
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
-
 from input.helpers import data_import
 
 
@@ -38,7 +30,6 @@ class NetmhcpanBestPrediction:
     def generate_fasta(self, props, tmpfile, mut = True):
         ''' Writes 27mer to fasta file.
         '''
-        #fastafile = my_path + "/tmp.fasta"
         if mut == True:
             seq = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         elif mut == False:
@@ -64,7 +55,6 @@ class NetmhcpanBestPrediction:
         ''' Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         '''
         allels_for_prediction = []
-        #tmp_fasta = "/".join([my_path, "tmp.fasta"])
         for allele in hla_alleles:
             allele = allele.replace("*", "")
             if self.mhc_allele_in_netmhcpan_available(allele, set_available_mhc):
@@ -80,7 +70,6 @@ class NetmhcpanBestPrediction:
         #stdoutdata, stderrdata = p.communicate()
         #lines = stdoutdata
         #print >> sys.stderr, "NETMHCPAN ERROR: ",stderrdata
-        #fileout = my_path + "/netmhcpan_out.csv"
         counter = 0
         with open(tmppred,"w") as f:
             for line in lines:
@@ -135,11 +124,7 @@ class NetmhcpanBestPrediction:
         '''filters prediction file for predicted epitopes that cover mutations
         '''
         pos_xmer = props["Position_Xmer_Seq"]
-        #prediction_file = "/".join([my_path, "netmhcpan_out.csv"])
         dat_prediction = data_import.import_dat_general(tmppred)
-        #print >> sys.stderr, dat_prediction
-        #print >> sys.stderr, dat_prediction
-        #os.remove(prediction_file)
         dat = dat_prediction[1]
         dat_head = dat_prediction[0]
         dat_fil = []

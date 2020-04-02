@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 
 import subprocess
-import os
 import sys
 import tempfile
-
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
-
 from input.helpers import data_import
 from input import MHC_I, MHC_II
 

@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+import tempfile
 from input import MHC_I, MHC_II
 
 my_path = os.path.abspath(os.path.dirname(__file__))
