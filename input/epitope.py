@@ -329,8 +329,8 @@ class Epitope:
         # neoantigen fitness
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmpseq", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
-        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta), "dissimilarity")
-        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta, filter_binder =True), "dissimilarity_filter500")
+        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta, self.references), "dissimilarity")
+        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta, self.references, filter_binder =True), "dissimilarity_filter500")
 
         # vaxrank
         vaxrankscore = vaxrank.VaxRank()

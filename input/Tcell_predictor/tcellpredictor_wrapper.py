@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 
-import os
 import sys
 import tempfile
 import subprocess
-
-# my_path = os.path.abspath(os.path.dirname(__file__))
-# my_path2 = "/".join(my_path.split("/")[0:-1])
-# sys.path.insert(0, my_path2)
-# sys.path.insert(0, my_path)
 
 
 class Tcellprediction:
