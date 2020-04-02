@@ -4,14 +4,7 @@ import os
 import sys
 import math
 from input import MHC_I, MHC_II
-
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
-
-
-import netmhcpan_prediction
+import input.netmhcIIpan.netmhcIIpan_prediction as netmhcpan_prediction
 
 class MultipleBinding:
     def __init__(self):

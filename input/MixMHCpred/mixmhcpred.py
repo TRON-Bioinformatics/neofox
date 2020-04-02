@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 
 import subprocess
-import os
 import sys
 import tempfile
-
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
-
 from input.helpers import data_import
 
 
@@ -71,7 +64,6 @@ class MixMHCpred:
     def generate_fasta(self, seqs, tmpfile):
         ''' Writes seqs given in seqs list into fasta file
         '''
-        #fastafile = my_path + "/tmp.fasta"
         counter = 0
         with open(tmpfile,"w") as f:
             for seq in seqs:

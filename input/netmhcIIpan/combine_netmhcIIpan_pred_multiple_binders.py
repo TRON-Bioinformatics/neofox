@@ -1,16 +1,8 @@
 #!/usr/bin/env python
 
-import os
 import sys
 import tempfile
-
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
-
-
-import netmhcIIpan_prediction
+import input.netmhcIIpan.netmhcIIpan_prediction as netmhcIIpan_prediction
 from input.netmhcpan4 import multiple_binders
 from input import MHC_I, MHC_II
 

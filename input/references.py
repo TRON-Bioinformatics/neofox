@@ -19,11 +19,12 @@ class ReferenceFolder(object):
         self.prov_scores_mapped3 = self._get_reference_file_name('PROV_scores_mapped3.csv')
         self.iedb = self._get_reference_file_name('iedb')
         self.proteome_db = self._get_reference_file_name('proteome_db')
+        self.blosum62 = self._get_reference_file_name('BLOSUM62-2.matrix.txt')
 
         # TODO: add this files self.alleles_list_pred, self.avail_mhc_ii
         self.resources = [self.alleles_list_pred, self.available_mhc_ii, self.available_mhc_i, self.aa_freq_prot,
                           self.four_mer_freq, self.aaindex1, self.aaindex2, self.prov_scores_mapped3, self.iedb,
-                          self.proteome_db]
+                          self.proteome_db, self.blosum62]
         self._check_resources(self.resources)
         self._log_configuration()
 
