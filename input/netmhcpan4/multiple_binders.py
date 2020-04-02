@@ -3,6 +3,7 @@
 import os
 import sys
 import math
+from input import MHC_I, MHC_II
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 my_path2 = "/".join(my_path.split("/")[0:-1])
@@ -78,14 +79,14 @@ class MultipleBinding:
         '''
         return [self.calc_arimetric_mean(list_numbers), self.calc_harmonic_mean(list_numbers), self.calc_geometric_mean(list_numbers)]
 
-    def generate_epi_tuple(self, prediction_out, mhc = "mhcI"):
+    def generate_epi_tuple(self, prediction_out, mhc = MHC_I):
         '''Takes netmhcpan4 output or netmhcpanII output as input (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
         returns tuple of mhc binding rank scores, epitope and HLA allele for all predicted epitopes as list
         '''
         pred_data = prediction_out[1]
         list_of_tuples = []
         for ii,i in enumerate(pred_data):
-            if mhc == "mhcII":
+            if mhc == MHC_II:
                 # rank, affinity, epitope sequence, allele
                 list_of_tuples.append((i[-2],i[-3], i[2], i[1]))
             else:

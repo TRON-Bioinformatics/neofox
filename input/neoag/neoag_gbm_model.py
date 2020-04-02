@@ -3,6 +3,7 @@
 import os
 import sys
 import subprocess
+from input import MHC_I, MHC_II
 
 my_path = os.path.abspath(os.path.dirname(__file__))
 my_path2 = "/".join(my_path.split("/")[0:-1])
@@ -108,7 +109,7 @@ if __name__ == '__main__':
             print ii
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
-            dict_epi.add_features(self_similarity.position_of_mutation_epitope(dict_epi.properties, "mhcI"), "pos_MUT_MHCI")
+            dict_epi.add_features(self_similarity.position_of_mutation_epitope(dict_epi.properties, MHC_I), "pos_MUT_MHCI")
             np = netmhcpan_prediction.NetmhcpanBestPrediction()
             xmer_mut = dict_epi.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
             tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)

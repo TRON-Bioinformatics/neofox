@@ -5,6 +5,7 @@ import os.path
 import subprocess
 import sys
 import tempfile
+from input import MHC_I
 
 
 my_path = os.path.abspath(os.path.dirname(__file__))
@@ -76,6 +77,6 @@ if __name__ == '__main__':
         properties[nam] = char
 
 
-    print wrap_pathogensimilarity(properties, "mhcI")
-    print amplitude_mhc(properties, "mhcI")
-    #print position_of_mutation_epitope(properties, "mhcI")
+    print wrap_pathogensimilarity(properties, MHC_I)
+    print amplitude_mhc(properties, MHC_I)
+    #print position_of_mutation_epitope(properties, MHC_I)

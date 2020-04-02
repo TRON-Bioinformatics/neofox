@@ -11,6 +11,7 @@ sys.path.insert(0, my_path2)
 sys.path.insert(0, my_path)
 
 from input.helpers import data_import
+from input import MHC_I, MHC_II
 
 
 class NetmhcIIpanBestPrediction:
@@ -291,7 +292,7 @@ if __name__ == '__main__':
             dat[1][ii].append(str(patient))
     # available MHC alleles
     set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
-    set_available_mhcII = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles(mhc ="mhcII")
+    set_available_mhcII = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles(mhc=MHC_II)
     #print >> sys.stderr, set_available_mhcII
     # hla allele of patients
     patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
