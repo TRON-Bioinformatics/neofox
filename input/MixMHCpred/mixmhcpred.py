@@ -246,7 +246,7 @@ class MixMHCpred:
             self.generate_fasta(wt_list, tmp_fasta)
             self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
-            print >> sys.stderr, pred_wt
+            print(pred_wt, file=sys.stderr)
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
             score_wt_of_interest = "_".join(["Score",self.best_allele])
             rank_wt_of_interest = "_".join(["%Rank",self.best_allele])
@@ -277,12 +277,12 @@ if __name__ == '__main__':
     patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
     patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
 
-    print patient_hlaI
-    print patient_hlaII
+    print(patient_hlaI)
+    print(patient_hlaII)
 
     for ii,i in enumerate(dat[1]):
         if ii < 10:
-            print ii
+            print(ii)
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
             prediction = MixMHCpred()
@@ -291,7 +291,7 @@ if __name__ == '__main__':
 
             prediction.main(dict_epi.properties,  patient_hlaI)
             attrs = vars(prediction)
-            print attrs
+            print(attrs)
 
 
         #def wrapper(func, *args, **kwargs):

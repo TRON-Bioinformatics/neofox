@@ -1,3 +1,4 @@
+from functools import reduce
 #!/usr/bin/env python
 
 def freq_aa(props, dict_freq):
@@ -80,6 +81,6 @@ if __name__ == '__main__':
     freq_dict = build_frequency_dict(freq_file1, freq_dict )
     freq_dict_4mer = build_frequency_dict(freq_file2,freq_dict_4mer)
 
-    print freq_aa(properties, freq_dict)
-    print freq_prod_4mer(properties, freq_dict)
-    print freq_4mer(properties, freq_dict_4mer)
+    print(freq_aa(properties, freq_dict))
+    print(freq_prod_4mer(properties, freq_dict))
+    print(freq_4mer(properties, freq_dict_4mer))

@@ -22,7 +22,7 @@ def _calc_dissimilarity(fasta_file, n, references):
     aligner.readAllBlastAlignments(outfile)
     aligner.computeR(a = 32)
     kk = int(n.split("_")[1])
-    print(aligner.Ri)
+    print((aligner.Ri))
     x = aligner.Ri.get(kk)
     x_dis = "NA"
     if x is not None:

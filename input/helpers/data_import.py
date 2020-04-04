@@ -20,7 +20,7 @@ def import_dat_icam(in_file, indel):
     elif "csv" in in_file:
         file_format = "csv"
     else:
-        print >> sys.stderr, "Table should be in csv or txt format!!"
+        print("Table should be in csv or txt format!!", file=sys.stderr)
     # read input file
     with open(in_file) as f:
         if file_format == "csv":
@@ -66,7 +66,7 @@ def import_dat_icam(in_file, indel):
                         data.append(w)
 
 
-    print >> sys.stderr, "reading input done", len(data), "items", ";", len(data[0]), "columns"
+    print("reading input done", len(data), "items", ";", len(data[0]), "columns", file=sys.stderr)
     cx = c - 1
     # print header
     header = [x.strip('"').strip("\r").strip('"') for x in header]
@@ -91,7 +91,7 @@ def import_dat_general(in_file):
     elif "csv" in in_file:
         file_format = "csv"
     else:
-        print >> sys.stderr, "Table should be in csv or txt format!!"
+        print("Table should be in csv or txt format!!", file=sys.stderr)
     # read input file
     with open(in_file) as f:
         if file_format == "csv":
@@ -115,7 +115,7 @@ def import_dat_general(in_file):
                     continue
                 else:
                     data.append(w)
-    print >> sys.stderr, "reading input done", len(data), "items", ";", len(data[0]), "columns"
+    print("reading input done", len(data), "items", ";", len(data[0]), "columns", file=sys.stderr)
     cx = c - 1
     # print header
     header = [x.strip('"').strip("\r").strip('"') for x in header]
@@ -229,7 +229,7 @@ def subst_semicolon(tuple_dat_head):
             else:
                 new.append(element)
         data.append(new)
-    print >> sys.stderr, " ';' substituted by '_' "
+    print(" ';' substituted by '_' ", file=sys.stderr)
     return(head_new, data )
 
 
@@ -276,9 +276,9 @@ def write_ouptut_to_file(epitope_data):
     '''
     dat_new = epitope_data[1]
     head_new = epitope_data[0]
-    print "\t".join(head_new)
+    print("\t".join(head_new))
     for ii,i in enumerate(dat_new):
-          print "\t".join(i)
+          print("\t".join(i))
 
 
 def write_dict_to_file(epitope_data):
@@ -287,11 +287,11 @@ def write_dict_to_file(epitope_data):
     '''
     #dat_new = epitope_data[1]
     #head_new = epitope_data[0]
-    print ";".join(epitope_data.keys())
+    print(";".join(list(epitope_data.keys())))
     for i in range(len(epitope_data["mutation"])):
         z = []
         [z.append(epitope_data[key][i]) for key in epitope_data]
-        print ";".join(z)
+        print(";".join(z))
 
 def delete_temporary_files(path_to_temp):
     ''' Removes temporay files
@@ -307,7 +307,7 @@ if __name__ == '__main__':
     dat = import_dat(f)
     dat = change_col_names(dat)
     dat = append_patient(dat,f)
-    print subst_semicolon(dat)
+    print(subst_semicolon(dat))
     #write_ouptut_to_file(dat)
 else:
     import sys
