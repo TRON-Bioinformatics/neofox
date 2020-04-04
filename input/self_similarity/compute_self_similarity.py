@@ -31,9 +31,9 @@ def read_K1(mfile = "BLOSUM62-2.matrix.txt"):
   BLOSUM62_2 = bd
   K1 = {}
   beta = 0.11387
-  for i in BLOSUM62_2.keys():
+  for i in list(BLOSUM62_2.keys()):
     x = K1.get(i,{})
-    for j in BLOSUM62_2[i].keys():
+    for j in list(BLOSUM62_2[i].keys()):
       x[j] = math.pow(BLOSUM62_2[i][j], beta)
     K1[i] = x
   return K1
@@ -69,12 +69,12 @@ class selfsim():
 
 if __name__ == "__main__":
   K1 = read_K1()
-  print compute_K_hat_3("AAAAA","AAAAA",K1)
+  print(compute_K_hat_3("AAAAA","AAAAA",K1))
   for i in range(5):
-    print i, compute_K_hat_3("AAAAA","WWWWW"*(i+1),K1)
-  for i in K1.keys():
-    print i,  compute_K_hat_3("AAAAA","AA" + i + "AA",K1)
-  print
+    print(i, compute_K_hat_3("AAAAA","WWWWW"*(i+1),K1))
+  for i in list(K1.keys()):
+    print(i,  compute_K_hat_3("AAAAA","AA" + i + "AA",K1))
+  print()
   s = selfsim("BLOSUM62-2.matrix.txt")
-  print s.compute_K_hat_3("AAAAA","AAAAA")
+  print(s.compute_K_hat_3("AAAAA","AAAAA"))
 

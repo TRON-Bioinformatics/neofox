@@ -25,20 +25,20 @@ class Prediction():
         for peptide in sequence_text:
             for amino_acid in peptide.strip():
                 if not amino_acid.upper() in "ACDEFGHIKLMNPQRSTVWY":
-                    print("Sequence: '%s' contains an invalid character: '%c' at position %d." %(peptide, amino_acid, peptide.find(amino_acid)))
+                    print(("Sequence: '%s' contains an invalid character: '%c' at position %d." %(peptide, amino_acid, peptide.find(amino_acid))))
                     sys.exit(1)
 
         custom_mask = options.custom_mask
 
         if custom_mask:
-            custom_mask_list = map(int, custom_mask.split(","))
+            custom_mask_list = list(map(int, custom_mask.split(",")))
             if sum(n < 0 for n in custom_mask_list) > 0:
                 print("custom-mask should be greater then zero.")
                 sys.exit(1)
 
             max_length = max(custom_mask_list)
             if not all([len(sequence) >= max_length for sequence in sequence_text]):
-                print("custom length '{}' cannot be greater then the peptide length.".format(max_length))
+                print(("custom length '{}' cannot be greater then the peptide length.".format(max_length)))
                 sys.exit(1)
 
         if custom_mask:
@@ -51,7 +51,7 @@ class Prediction():
         
         # Check if both custom_mask and allele options given
         if custom_mask and allele:
-            print("* Allele {} has default value {}.\n* When both \'custom_mask\' and \'allele\' options are used, latter takes precedence over former.\n".format(allele, allele_dict[allele], '--custom_mask'))
+            print(("* Allele {} has default value {}.\n* When both \'custom_mask\' and \'allele\' options are used, latter takes precedence over former.\n".format(allele, allele_dict[allele], '--custom_mask')))
         
         # Check if allele is included in the available alleles
         if allele in allele_dict:
@@ -60,7 +60,7 @@ class Prediction():
         # Check if allele option is used and is in the available alleles
         if allele:
             if allele not in allele_dict:
-                print("Allele {} is not available.".format(allele))
+                print(("Allele {} is not available.".format(allele)))
                 sys.exit(1)
                 
         return sequence_text, custom_mask, allele
@@ -90,11 +90,11 @@ class Prediction():
             elif custom_mask:
                 try: 
                     mask_str = custom_mask.split(",")
-                    mask_num = map(int, mask_str)
-                    mask_num = map(lambda x: x - 1, mask_num)
-                    mask_out = map(lambda x: x + 1, mask_num)
+                    mask_num = list(map(int, mask_str))
+                    mask_num = [x - 1 for x in mask_num]
+                    mask_out = [x + 1 for x in mask_num]
                 except IOError as e:
-                    print "I/O error({0}): {1}".format(e.errno, e.strerror)
+                    print("I/O error({0}): {1}".format(e.errno, e.strerror))
             else:
                 self.mask_num = []
                 self.mask_out = [1,2, "cterm"]
@@ -106,7 +106,7 @@ class Prediction():
                 
             try:
                 for pos in peptide:
-                    if pos not in immunoscale.keys():
+                    if pos not in list(immunoscale.keys()):
                         raise KeyError()
                     elif count not in mask_num:
                         score += pepweight[count] * immunoscale[pos]
@@ -116,11 +116,11 @@ class Prediction():
                 result_list.append([peptide, len(peptide), round(score, 5)])
             
             except IOError as e:
-                print "I/O error({0}): {1}".format(e.errno, e.strerror)
+                print("I/O error({0}): {1}".format(e.errno, e.strerror))
 #                     shutil.rmtree(atemp_dir)  
 #                     raise ("Error: Please make sure you are entering in correct amino acids.")
             except:
-                print "Unexpected error:", sys.exc_info()[0]
+                print("Unexpected error:", sys.exc_info()[0])
                 raise
 
         # Sort by the last column value (score)       
@@ -131,14 +131,14 @@ class Prediction():
         result_list.insert(0, header_list)
         
         if allele:
-            print "allele: {}".format(allele)
-        print "masking: {0}".format('custom' if custom_mask else 'default')
-        print "masked variables: {0}\n".format(mask_out)
+            print("allele: {}".format(allele))
+        print("masking: {0}".format('custom' if custom_mask else 'default'))
+        print("masked variables: {0}\n".format(mask_out))
         
         # Print comma separate result
         for result in result_list:
-            result = map(str, result)
-            print ','.join(result)
+            result = list(map(str, result))
+            print(','.join(result))
         
     def create_csv(self, mask_choice, mask_out, data):
         import csv 
@@ -160,7 +160,7 @@ class Prediction():
     
     
     def commandline_help(self):
-        print """
+        print("""
 * Available options:
 --------------------
 custom_mask or allele
@@ -187,11 +187,11 @@ python predict_immunogenicity.py --allele_list
 You can also use help option (-h or --help) for more information:
 -----------------------------------------------------------------
 python predict_immunogenicity.py --help
-"""
+""")
 
     def commandline_allele(self):
         '''Return all available alleles.'''
-        print """
+        print("""
 ========================================================================= 
 | Alleles available for Class-I Immunogenicity:                         | 
 |-----------------------------------------------------------------------| 
@@ -204,7 +204,7 @@ python predict_immunogenicity.py --help
 | HLA-B4402 | HLA-B4403 | HLA-B4501 | HLA-B4601 | HLA-B5101 | HLA-B5301 | 
 | HLA-B5401 | HLA-B5701 | HLA-B5801                                     |
 -------------------------------------------------------------------------
-"""
+""")
     
     def main(self):
         parser = OptionParser(usage="usage: %prog [options] input", version="%prog 1.1")

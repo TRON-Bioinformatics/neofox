@@ -3,7 +3,7 @@ Created on Jul 27, 2017
 
 @author: Marta Luksza, mluksza@ias.edu
 '''
-from Aligner import Aligner
+from .Aligner import Aligner
 import sys
 
 def main():        
@@ -42,12 +42,12 @@ def main():
     aligner.computeR(a, k)    
     
     #Compute neoantigen quality
-    nids=Ai.keys()
+    nids=list(Ai.keys())
     nids.sort()
     header=["NeoantigenID","MT.Peptide.Form","NeoantigenQuality",
             "NeoantigenAlignment","IEDB_EpitopeAlignment","AlignmentScore","IEDB_Epitope"]
     header="\t".join(header)
-    print header
+    print(header)
     for i in nids:
         A=Ai[i]
         [R,species,alignment]=aligner.getR(i)
@@ -57,13 +57,13 @@ def main():
         score=alignment[2]
         
         l=[i, data[i], A*R, neoAlignment, epitopeAlignment, score, species]
-        l="\t".join(map(lambda s: str(s),l))
-        print l
+        l="\t".join([str(s) for s in l])
+        print(l)
 
 if __name__ == '__main__':
     if len(sys.argv)!=5:
-        print "Run as:"
-        print "python src/main.py <Neoantigen_file> <Alignment_directory> <a> <k>"
+        print("Run as:")
+        print("python src/main.py <Neoantigen_file> <Alignment_directory> <a> <k>")
     else:
         main()
         

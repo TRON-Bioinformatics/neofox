@@ -33,13 +33,13 @@ class Epitope:
         self.properties[new_feature_nam] = new_feature
 
     def write_to_file(self):
-        print ";".join([self.properties[key] for key in self.properties])
+        print(";".join([self.properties[key] for key in self.properties]))
 
     def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, list_HLAII_MixMHC2pred):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
-        print >> sys.stderr, self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        print(self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], file=sys.stderr)
 
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_I), "pos_MUT_MHCI")
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_II), "pos_MUT_MHCII")
@@ -92,7 +92,7 @@ class Epitope:
                 z = FeatureLiterature.add_aa_index2(self.properties, k, aaindex2_dict[k])
                 self.add_features(z[1],z[0])
             except:
-                print aaindex2_dict[k], wt, mut
+                print(aaindex2_dict[k], wt, mut)
         # PROVEAN score
         self.add_features(conservation_scores.add_ucsc_id_to_dict(self.properties), "UCSC_ID_position")
         self.add_features(conservation_scores.add_provean_score_from_matrix(self.properties, prov_matrix), "PROVEAN_score")
@@ -291,7 +291,7 @@ class Epitope:
         # amplitude rank score mhc II
         self.add_features(
             neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc =MHC_II, multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcII_rank_netmhcpan4")
-        print >> sys.stderr, "amplitude mhc II: "+ self.properties["Amplitude_mhcII_rank_netmhcpan4"]
+        print("amplitude mhc II: "+ self.properties["Amplitude_mhcII_rank_netmhcpan4"], file=sys.stderr)
 
         # neoag immunogenicity model
         self.add_features(neoag.wrapper_neoag(self.properties), "neoag_immunogencity")
@@ -339,5 +339,4 @@ class Epitope:
         vaxrankscore.main(self.properties)
         self.add_features(vaxrankscore.total_binding_score, "vaxrank_binding_score")
         self.add_features(vaxrankscore.ranking_score, "vaxrank_total_score")
-
         return self.properties

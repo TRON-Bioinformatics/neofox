@@ -84,18 +84,14 @@ class NetmhcIIpanBestPrediction:
         allels_for_prediction = self.generate_mhcII_alelles_combination_list(hla_alleles, set_available_mhc)
         hla_allele = ",".join(allels_for_prediction)
         tmp_folder = tempfile.mkdtemp(prefix ="tmp_netmhcIIpan_")
-        #tmp_folder_name = tmp_folder[1]
-        print >> sys.stderr, tmp_folder
+        print(tmp_folder, file=sys.stderr)
         cmd = "/code/net/MHCIIpan/3.2/netMHCIIpan -a " + hla_allele + " -f " + tmpfasta + " -tdir "+ tmp_folder + " -dirty"
         p = subprocess.Popen(cmd, stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
         lines = p.stdout
         counter = 0
-        #print >> sys.stderr, tmppred
-        with open(tmppred,"w") as f:
+        with open(tmppred, "w") as f:
             for line in lines:
-                line = line.rstrip().lstrip()
-                #
-                #print >> sys.stderr, line
+                line = line.decode('utf8').rstrip().lstrip()
                 if line:
                     if line.startswith(("#", "-", "Number", "Temporary")):
                         continue
@@ -193,7 +189,7 @@ class NetmhcIIpanBestPrediction:
         '''returns number of mismatches between 2 sequences
         '''
         errors = 0
-        for i in xrange(len(seq1)):
+        for i in range(len(seq1)):
             if seq1[i] != seq2[i]:
                 errors += 1
                 if errors >= 2:

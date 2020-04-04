@@ -11,23 +11,21 @@ my_path2 = "/".join(my_path.split("/")[0:-1])
 sys.path.insert(0, my_path2)
 sys.path.insert(0, my_path)
 
-def apply_gbm(tmp_in):
+def _apply_gbm(tmp_in):
     ''' this function calls NeoAg tool. this tool applys a gradient boosting machine based on biochemical features to epitopes (predicted seqs)
     '''
     model_path = "/".join([my_path, "neoag-master"])
     tool_path = "/".join([my_path, "neoag-master/NeoAg_immunogenicity_predicition_GBM.R"])
-    print >> sys.stderr, model_path
-    print >> sys.stderr, tmp_in
-    #print >> sys.stderr, tmp_out_name
+    print(model_path, file=sys.stderr)
+    print(tmp_in, file=sys.stderr)
     cmd = "/code/R/3.6.0/bin/Rscript " + tool_path + " "+ model_path + " " + tmp_in
-    p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     stdoutdata, stderrdata = p.communicate()
-    print >> sys.stderr, stderrdata
-    return(stdoutdata)
+    print(stderrdata, file=sys.stderr)
+    return stdoutdata.decode('utf-8')
 
 
-
-def prepare_tmp_for_neoag(props, tmp_file_name):
+def _prepare_tmp_for_neoag(props, tmp_file_name):
     ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with affinity < 500 nM
     '''
     header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
@@ -35,9 +33,6 @@ def prepare_tmp_for_neoag(props, tmp_file_name):
         sample_id = props["patient.id"]
     else:
         sample_id = props["patient"]
-    #mut_peptide = props["MHC_I_epitope_.best_prediction."]
-    #ref_peptide = props["MHC_I_epitope_.WT."]
-    #peptide_variant_position = props["pos_MUT_MHCI"]
     mut_peptide = props["best_affinity_epitope_netmhcpan4"]
     score_mut = props["best_affinity_netmhcpan4"]
     ref_peptide = props["best_affinity_epitope_netmhcpan4_WT"]
@@ -45,13 +40,12 @@ def prepare_tmp_for_neoag(props, tmp_file_name):
     try:
         if float(score_mut) < 500:
             epi_row = "\t".join([sample_id, mut_peptide, ref_peptide, peptide_variant_position])
-            #print >> sys.stderr, "NEOAG: " + epi_row
         else:
             epi_row = "\t".join(["NA", "NA", "NA", "NA"])
     except ValueError:
         epi_row = "\t".join(["NA", "NA", "NA", "NA"])
     with open(tmp_file_name, "w") as f:
-        print >> sys.stderr, "NEOAG: " + epi_row
+        print("NEOAG: " + epi_row, file=sys.stderr)
         f.write("\t".join(header) + "\n")
         f.write(epi_row + "\n")
 
@@ -59,14 +53,14 @@ def prepare_tmp_for_neoag(props, tmp_file_name):
 def wrapper_neoag(props):
     ''' wrapper function to determine neoag immunogenicity score for a mutated peptide sequence
     '''
-    tmp_file = tempfile.NamedTemporaryFile(prefix ="tmp_neoag_", suffix = ".txt", delete = False)
+    tmp_file = tempfile.NamedTemporaryFile(prefix="tmp_neoag_", suffix=".txt", delete=False)
     tmp_file_name = tmp_file.name
-    prepare_tmp_for_neoag(props, tmp_file_name)
-    neoag_score = apply_gbm(tmp_file_name)
+    _prepare_tmp_for_neoag(props, tmp_file_name)
+    neoag_score = _apply_gbm(tmp_file_name)
     with open(tmp_file_name) as f:
         for line in f:
-            print >> sys.stderr, "NEOAG: "+ line
-    print >> sys.stderr, "NEOAG: " + str(neoag_score)
+            print("NEOAG: " + line, file=sys.stderr)
+    print("NEOAG: " + str(neoag_score), file=sys.stderr)
     return neoag_score
 
 
@@ -102,12 +96,12 @@ if __name__ == '__main__':
     patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
     patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
 
-    print patient_hlaI
-    print patient_hlaII
+    print(patient_hlaI)
+    print(patient_hlaII)
 
     for ii,i in enumerate(dat[1]):
         if ii < 2:
-            print ii
+            print(ii)
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
             dict_epi.add_features(self_similarity.position_of_mutation_epitope(dict_epi.properties, MHC_I), "pos_MUT_MHCI")
@@ -115,10 +109,10 @@ if __name__ == '__main__':
             xmer_mut = dict_epi.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
             tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
             tmp_fasta = tmp_fasta_file.name
-            print >> sys.stderr, tmp_fasta
+            print(tmp_fasta, file=sys.stderr)
             tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
             tmp_prediction = tmp_prediction_file.name
-            print >> sys.stderr, tmp_prediction
+            print(tmp_prediction, file=sys.stderr)
             np.generate_fasta(dict_epi.properties, tmp_fasta, mut = True)
             alleles = np.get_hla_allels(dict_epi.properties, patient_hlaI)
             #print alleles
@@ -135,7 +129,7 @@ if __name__ == '__main__':
             tmp_fasta = tmp_fasta_file.name
             tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
             tmp_prediction = tmp_prediction_file.name
-            print >> sys.stderr, tmp_prediction
+            print(tmp_prediction, file=sys.stderr)
             np = netmhcpan_prediction.NetmhcpanBestPrediction()
             np.generate_fasta(dict_epi.properties, tmp_fasta, mut = False)
             np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
@@ -146,5 +140,5 @@ if __name__ == '__main__':
             dict_epi.add_features(self_similarity.position_of_mutation_epitope_affinity(dict_epi.properties), "pos_MUT_MHCI_affinity_epi")
 
             sc = wrapper_neoag(dict_epi.properties)
-            print >> sys.stderr, sc
-            print >> sys.stderr, type(sc)
+            print(sc, file=sys.stderr)
+            print(type(sc), file=sys.stderr)

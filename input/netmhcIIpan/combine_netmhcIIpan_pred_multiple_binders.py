@@ -48,18 +48,18 @@ class BestandmultiplebindermhcII:
         number_alleles = len(tuple_best_per_allele)
         multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
-        print >> sys.stderr, tuple_best_per_allele
-        print >> sys.stderr, len(tuple_best_per_allele)
+        print(tuple_best_per_allele, file=sys.stderr)
+        print(len(tuple_best_per_allele), file=sys.stderr)
         for best_epi in tuple_best_per_allele:
             if best_epi[-1].startswith("DRB1"):
                 tuple_best_per_allele_new.append(best_epi)
-        print >> sys.stderr, tuple_best_per_allele_new
-        print >> sys.stderr, len(tuple_best_per_allele_new)
+        print(tuple_best_per_allele_new, file=sys.stderr)
+        print(len(tuple_best_per_allele_new), file=sys.stderr)
         if len(tuple_best_per_allele_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
             best_scores_allele = multbind.scores_to_list(tuple_best_per_allele_new)
             return multbind.wrapper_mean_calculation(best_scores_allele)
-            print >> sys.stderr, tmp_prediction
+            print(tmp_prediction, file=sys.stderr)
         else:
             return ["NA", "NA", "NA"]
 
@@ -69,18 +69,18 @@ class BestandmultiplebindermhcII:
         '''
         ### PREDICTION FOR MUTATED SEQUENCE
         xmer_mut = epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        print >> sys.stderr, "MUT seq MHC II: " + xmer_mut
+        print("MUT seq MHC II: " + xmer_mut, file=sys.stderr)
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        print >> sys.stderr, tmp_prediction
+        print(tmp_prediction, file=sys.stderr)
         np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = True)
         alleles = np.get_hla_allels(epi_dict, patient_hlaII)
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
-        print >> sys.stderr, alleles_formated
+        print(alleles_formated, file=sys.stderr)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
         try:
@@ -101,7 +101,7 @@ class BestandmultiplebindermhcII:
             #print >> sys.stderr, self.MHCII_score_best_per_alelle
             self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 2)
             self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 10)
-            print >> sys.stderr, self.MHCII_number_weak_binders
+            print(self.MHCII_number_weak_binders, file=sys.stderr)
             # best prediction
             best_epi =  np.minimal_binding_score(preds)
             self.best_mhcII_pan_score =np.add_best_epitope_info(best_epi, "%Rank")
@@ -123,7 +123,7 @@ class BestandmultiplebindermhcII:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        print >> sys.stderr, tmp_prediction
+        print(tmp_prediction, file=sys.stderr)
         np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = False)
@@ -222,6 +222,6 @@ if __name__ == '__main__':
             #print x.best_mhcII_pan_affinity_epitope
             #print x.best_mhcII_affinity_epitope_WT
 
-            print "PHBR"
-            print x.MHCII_score_best_per_alelle
+            print("PHBR")
+            print(x.MHCII_score_best_per_alelle)
             #print attrs

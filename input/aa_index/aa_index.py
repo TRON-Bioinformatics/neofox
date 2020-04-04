@@ -147,12 +147,12 @@ def parse_aaindex2(fin):
 if __name__ == "__main__":
   d_aaindex1 = parse_aaindex1("aa_index/aaindex1")
   d_aaindex2 = parse_aaindex2("aa_index/aaindex2")
-  print len(d_aaindex1.keys())
-  print len(d_aaindex2.keys())
-  print d_aaindex2["VOGG950101"]
-  print d_aaindex2["KOSJ950101"]
-  print d_aaindex2["VOGG950101"]["A"]["C"], d_aaindex2["VOGG950101"]["C"]["A"]
-  print d_aaindex2["KOSJ950101"]["A"]["C"], d_aaindex2["KOSJ950101"]["C"]["A"]
+  print(len(list(d_aaindex1.keys())))
+  print(len(list(d_aaindex2.keys())))
+  print(d_aaindex2["VOGG950101"])
+  print(d_aaindex2["KOSJ950101"])
+  print(d_aaindex2["VOGG950101"]["A"]["C"], d_aaindex2["VOGG950101"]["C"]["A"])
+  print(d_aaindex2["KOSJ950101"]["A"]["C"], d_aaindex2["KOSJ950101"]["C"]["A"])
 
 # read trompapep
 # annotate peptides with:
