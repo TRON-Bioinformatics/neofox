@@ -128,7 +128,7 @@ class MixMHC2pred:
             hla_allele = hla_alleles[0]
         #
         cmd = "MixMHC2pred -a " + hla_allele + " -i " + tmpfasta + " -o " + outtmp
-        print >> sys.stderr, cmd
+        print(cmd, file=sys.stderr)
         p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
         p_return = p.communicate()
 
@@ -312,7 +312,7 @@ if __name__ == '__main__':
     # alleles available in MixMHC2pred
     path_to_HLAII_file = "/projects/SUMMIT/WP1.2/input/development/MixMHCpred/Alleles_list_pred2.txt"
     list_avail_hlaII = MixMHC2pred().import_available_HLAII_alleles(path_to_HLAII_file)
-    print list_avail_hlaII
+    print(list_avail_hlaII)
 
     # test with ott data set
     #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
@@ -341,12 +341,12 @@ if __name__ == '__main__':
     patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
     patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
 
-    print patient_hlaI
-    print patient_hlaII
+    print(patient_hlaI)
+    print(patient_hlaII)
 
     for ii,i in enumerate(dat[1]):
         if ii < 10:
-            print ii
+            print(ii)
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
             prediction = MixMHC2pred()
@@ -355,7 +355,7 @@ if __name__ == '__main__':
 
             prediction.main(dict_epi.properties,  patient_hlaII, list_avail_hlaII)
             attrs = vars(prediction)
-            print attrs
+            print(attrs)
 
 
         #def wrapper(func, *args, **kwargs):

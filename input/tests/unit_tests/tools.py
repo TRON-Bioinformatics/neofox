@@ -21,7 +21,7 @@ def head(file_name, n=10):
     with open(file_name) as myfile:
         try:
             for x in range(n):
-                print(next(myfile))
+                print((next(myfile)))
         except StopIteration:
             pass
 

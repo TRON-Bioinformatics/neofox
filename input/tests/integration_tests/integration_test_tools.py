@@ -13,6 +13,5 @@ def load_references():
 def create_temp_aminoacid_fasta_file():
     fastafile = tempfile.NamedTemporaryFile(mode='w', delete=False)
     with fastafile as f:
-        # TODO: change this to random.choices(k=25) once in Python 3
-        f.write("".join([random.choice(list(IUPACData.protein_letters)) for _ in range(25)]))
+        f.write("".join(random.choices(list(IUPACData.protein_letters), k=25)))
     return fastafile

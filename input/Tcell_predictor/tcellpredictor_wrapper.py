@@ -2,14 +2,15 @@
 
 import sys
 import tempfile
-import subprocess
+import input.Tcell_predictor.prediction as prediction
 
 
 class Tcellprediction:
 
-    def __init__(self):
+    def __init__(self, references):
         self.TcellPrdictionScore = "NA"
         self.TcellPrdictionScore_9merPred = "NA"
+        self.references = references
 
     def _triple_gen_seq_subst_for_prediction(self, props, all = True, affinity = False):
         """ extracts gene id, epitope sequence and substitution from epitope dictionary
@@ -26,7 +27,7 @@ class Tcellprediction:
         else:
             epi = props["MHC_I_epitope_.best_prediction."]
             score = props["MHC_I_score_.best_prediction."]
-        print >> sys.stderr, gene, epi, subst, score, str(len(epi))
+        print(gene, epi, subst, score, str(len(epi)), file=sys.stderr)
         if str(len(epi)) == str(9):
             z = [gene.replace(" ", ""), epi, subst]
             #return(z)
@@ -60,30 +61,25 @@ class Tcellprediction:
     def _prediction_single_mps(self, tmpfile_in, tmpfile_out):
         '''calls T cell predictor tool to perform predictions; returns
         '''
-        # TODO: refactor this so we call directly once Python 3 migration is done
-        pred_tool = "/".join([".", "prediction.py" ])
-        cmd = " ".join(["/code/Anaconda/3/2018/bin/python", pred_tool, tmpfile_in, tmpfile_out])
-        p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-
-        lines = p.stdout
-        stdoutdata, stderrdata = p.communicate()
-        print >> sys.stderr, stderrdata
-        print >> sys.stderr, tmpfile_out
+        # TODO: the interface for prediction needs to be simplified, it does not make sense to write a file to
+        # TODO: return a single score
+        prediction.main(tmpfile_in, tmpfile_out, self.references)
+        print(tmpfile_out, file=sys.stderr)
         with open(tmpfile_out, "r") as f:
-            l_prediction =  f.readlines(0)
-            print >> sys.stderr, l_prediction
+            l_prediction = f.readlines(0)
+            print(l_prediction, file=sys.stderr)
         try:
             score = l_prediction[-1].split(",")[-1].rstrip("\n")
         except IndexError:
             score = "indefinable_by_TcellPredictor"
 
-        return(score)
+        return score
 
     def _wrapper_tcellpredictor(self, props, tmpfile_in, tmpfile_out, all = True, affinity = False):
         '''wrapper function to determine
         '''
         trp = self._triple_gen_seq_subst_for_prediction(props, all, affinity)
-        print >> sys.stderr, trp
+        print(trp, file=sys.stderr)
         #print trp
         if "NA" not in trp:
             self._write_triple_to_file(trp, tmpfile_in)

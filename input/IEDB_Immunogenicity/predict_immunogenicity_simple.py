@@ -20,11 +20,11 @@ def predict_immunogenicity(pep,allele):
   elif custom_mask:
       try:
           mask_str = custom_mask.split(",")
-          mask_num = map(int, mask_str)
-          mask_num = map(lambda x: x - 1, mask_num)
-          mask_out = map(lambda x: x + 1, mask_num)
+          mask_num = list(map(int, mask_str))
+          mask_num = [x - 1 for x in mask_num]
+          mask_out = [x + 1 for x in mask_num]
       except IOError as e:
-          print "I/O error({0}): {1}".format(e.errno, e.strerror)
+          print("I/O error({0}): {1}".format(e.errno, e.strerror))
   else:
       self.mask_num = []
       self.mask_out = [1,2, "cterm"]
@@ -35,8 +35,8 @@ def predict_immunogenicity(pep,allele):
     pepweight = immunoweight
   try:
     for pos in peptide:
-      if pos not in immunoscale.keys():
-       print >> sys.stderr, pos, pep, allele
+      if pos not in list(immunoscale.keys()):
+       print(pos, pep, allele, file=sys.stderr)
        raise KeyError()
       elif count not in mask_num:
         score += pepweight[count] * immunoscale[pos]
@@ -44,6 +44,6 @@ def predict_immunogenicity(pep,allele):
       else:
         count += 1
   except:
-    print "Unexpected error:", sys.exc_info()[0]
+    print("Unexpected error:", sys.exc_info()[0])
     raise
   return score

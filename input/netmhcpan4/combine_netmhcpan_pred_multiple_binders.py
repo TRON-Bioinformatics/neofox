@@ -75,12 +75,12 @@ class Bestandmultiplebinder:
         '''
         ### PREDICTION FOR MUTATED SEQUENCE
         xmer_mut = epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        print >> sys.stderr, "MUT seq: " + xmer_mut
+        print("MUT seq: " + xmer_mut, file=sys.stderr)
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        print >> sys.stderr, tmp_prediction
+        print(tmp_prediction, file=sys.stderr)
         np = netmhcpan_prediction.NetmhcpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = True)
@@ -99,8 +99,8 @@ class Bestandmultiplebinder:
         self.MHC_epitope_alleles = "/".join([tup[3] for tup in list_tups])
         top10 = mb.extract_top10_epis(list_tups)
         best_per_alelle = mb.extract_best_epi_per_alelle(list_tups, alleles)
-        print >> sys.stderr, "sdfsd"
-        print >> sys.stderr, alleles
+        print("sdfsd", file=sys.stderr)
+        print(alleles, file=sys.stderr)
         all = mb.scores_to_list(list_tups)
         all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
@@ -144,7 +144,7 @@ class Bestandmultiplebinder:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        print >> sys.stderr, tmp_prediction
+        print(tmp_prediction, file=sys.stderr)
         np = netmhcpan_prediction.NetmhcpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = False)
@@ -179,7 +179,7 @@ class Bestandmultiplebinder:
         self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Icore")
         self.best4_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "HLA")
         self.generator_rate_WT = mb.determine_number_of_binders(list_scores = all_affinities, threshold = 50)
-        print >> sys.stderr, "WT: " + self.generator_rate_WT +"; MUT: "+ self.generator_rate
+        print("WT: " + self.generator_rate_WT +"; MUT: "+ self.generator_rate, file=sys.stderr)
         # best predicted epitope of length 9
         preds_9mer =  np.filter_for_9mers(preds)
         best_9mer = np.filter_for_WT_epitope(preds_9mer, self.mhcI_score_epitope_9mer, self.mhcI_score_allele_9mer )
@@ -242,14 +242,14 @@ if __name__ == '__main__':
             dict_epi.init_properties(dat[0], dat[1][ii])
             x =  Bestandmultiplebinder()
             x.main(dict_epi.properties, patient_hlaI, set_available_mhc)
-            print dict_epi.properties["patient.id"]
+            print(dict_epi.properties["patient.id"])
             #print x.MHC_epitope_scores_WT
             #print x.MHC_epitope_seqs_WT
             #print x.MHC_epitope_seqs
             attrs = vars(x)
             #print attrs
-            print x.mhcI_affinity_epitope_9mer
-            print x.MHC_score_best_per_alelle
+            print(x.mhcI_affinity_epitope_9mer)
+            print(x.MHC_score_best_per_alelle)
             #print "score"
             #print x.best4_affinity_epitope
             #print x.best4_affinity_epitope_WT

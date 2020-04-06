@@ -82,7 +82,7 @@ class Bunchepitopes:
     def add_provean_matrix(self, prov_matrix, epitope_ids):
         """Loads provean scores as dictionary, but only for ucsc ids that are in epitope list
         """
-        print >> sys.stderr, "attach " + prov_matrix
+        print("attach " + prov_matrix, file=sys.stderr)
         provean_matrix = {}
         with open(prov_matrix) as f:
             header = next(f)
@@ -93,7 +93,7 @@ class Bunchepitopes:
                 #if ucsc_id in epitope_ids:
                 if ucsc_id_pos in epitope_ids:
                     provean_matrix[ucsc_id_pos] = w
-        print >> sys.stderr, "attach prov matrix"
+        print("attach prov matrix", file=sys.stderr)
         return provean_matrix
 
     def add_available_hla_alleles(self, mhc=MHC_I):
@@ -157,7 +157,7 @@ class Bunchepitopes:
             header = next(f)
             header = header.rstrip().split(";")
             tc_col = header.index("est. Tumor content")
-            print >> sys.stderr,tc_col
+            print(tc_col, file=sys.stderr)
             for line in f:
                 w = line.rstrip().split(";")
                 #ucsc_id = w[-2]
@@ -165,18 +165,18 @@ class Bunchepitopes:
                 patient = patient.rstrip("/")
                 tumour_content = w[tc_col]
                 tumour_content_dict[patient] = tumour_content
-        print >> sys.stderr,tumour_content_dict
+        print(tumour_content_dict, file=sys.stderr)
         return tumour_content_dict
 
 
     def write_to_file(self, d):
         """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
         and printed ';' separated."""
-        print "\t".join(d.keys())
+        print("\t".join(list(d.keys())))
         for i in range(len(d["mutation"])):
             z = []
             [z.append(d[key][i]) for key in d]
-            print "\t".join(z)
+            print("\t".join(z))
 
     def write_to_file_sorted(self, d, header):
         """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
@@ -187,11 +187,10 @@ class Bunchepitopes:
                 features_names.append(key)
         features_names.sort()
         header.extend(features_names)
-        print "\t".join(header)
+        print("\t".join(header))
         for i in range(len(d["mutation"])):
-            z = []
-            [z.append(d[col][i]) for col in header]
-            print "\t".join(z)
+            z = [d[col][i] for col in header]
+            print("\t".join(z))
 
 
     def initialise_properties(self, data, db, rna_reference_file, path_to_hla_file, tissue, tumour_content_file):
@@ -210,19 +209,19 @@ class Bunchepitopes:
         self.hlaII_available_MixMHC2pred = self.add_available_allelles_mixMHC2pred()
         self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
-        print >> sys.stderr, self.patient_hla_II_allels
-        print >> sys.stderr, self.patient_hla_I_allels
+        print(self.patient_hla_II_allels, file=sys.stderr)
+        print(self.patient_hla_I_allels, file=sys.stderr)
         # tumour content
         if tumour_content_file != "":
             self.tumour_content = self.add_patient_overview(tumour_content_file)
         startTime1 = datetime.now()
-        print >> sys.stderr, data[0]
-        print >> sys.stderr, data[0].index("UCSC_transcript")
+        print(data[0], file=sys.stderr)
+        print(data[0].index("UCSC_transcript"), file=sys.stderr)
         self.ucsc_ids = self.add_ucsc_ids_epitopes(data[0], data[1])
         #print >> sys.stderr, self.ucsc_ids
         self.provean_matrix = self.add_provean_matrix(prov_file, self.ucsc_ids)
         endTime1 = datetime.now()
-        print >> sys.stderr, "ADD PROVEAN....start: "+ str(startTime1) + "\nend: "+ str(endTime1) + "\nneeded: " + str(endTime1 - startTime1)
+        print("ADD PROVEAN....start: "+ str(startTime1) + "\nend: "+ str(endTime1) + "\nneeded: " + str(endTime1 - startTime1), file=sys.stderr)
 
 
     def wrapper_table_add_feature_annotation(self, file, indel, db, rna_reference_file, path_to_hla_file, tissue, tumour_content_file):
@@ -250,9 +249,13 @@ class Bunchepitopes:
         # initialise information needed for feature calculation
         self.initialise_properties(dat, db,  rna_reference_file, path_to_hla_file, tissue, tumour_content_file)
         # feature calculation for each epitope
-        for ii,i in enumerate(dat[1]):
+        for ii, i in enumerate(dat[1]):
             # dict for each epitope
-            z = Epitope(self.references).main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels, self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred)
+            z = Epitope(self.references).main(
+                dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
+                self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix,
+                self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,
+                self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred)
             for key in z:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
