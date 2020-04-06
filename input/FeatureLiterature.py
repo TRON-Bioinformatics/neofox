@@ -251,9 +251,9 @@ def write_ouptut_to_file(epitope_data):
     '''
     dat_new = epitope_data[1]
     head_new = epitope_data[0]
-    print ";".join(head_new)
+    print(";".join(head_new))
     for ii,i in enumerate(dat_new):
-          print ";".join(i)
+          print(";".join(i))
 
 
 def classify_adn_cdn(props, mhc, category):
@@ -338,11 +338,11 @@ if __name__ == '__main__':
     header.append("Priority_score")
     #print header
 
-    print "\t".join(header)
+    print("\t".join(header))
     for i in range(len(dict_all["mutation"])):
         z = []
         [z.append(dict_all[col][i]) for col in header]
-        print "\t".join(z)
+        print("\t".join(z))
 
     #properties = {}
     #for nam,char in zip(dat[0], dat[1][1]):

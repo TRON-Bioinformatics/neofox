@@ -6,6 +6,7 @@ from input.helpers import data_import
 
 
 class NetmhcpanBestPrediction:
+
     def __init__(self):
         self.mhc_score = "NA"
         self.epitope = "NA"
@@ -30,9 +31,9 @@ class NetmhcpanBestPrediction:
     def generate_fasta(self, props, tmpfile, mut = True):
         ''' Writes 27mer to fasta file.
         '''
-        if mut == True:
+        if mut:
             seq = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        elif mut == False:
+        elif not mut:
             seq = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         id = ">seq1"
         with open(tmpfile,"w") as f:
@@ -60,20 +61,12 @@ class NetmhcpanBestPrediction:
             if self.mhc_allele_in_netmhcpan_available(allele, set_available_mhc):
                 allels_for_prediction.append(allele)
         hla_allele = ",".join(allels_for_prediction)
-        #cmd = "/code/net/MHCpan/4.0/Linux_x86_64/bin/netMHCpan -a " + hla_allele + " -f " + tmpfasta + " -BA"
         cmd = "netMHCpan -a " + hla_allele + " -f " + tmpfasta + " -BA"
-        #cmd = "/code/netMHCpan-4.0/netMHCpan -a " + hla_allele + " -f " + tmpfasta + " -BA"
-        #p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell = True)
-        p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-        lines = p.stdout
-        #print >> sys.stderr, lines
-        #stdoutdata, stderrdata = p.communicate()
-        #lines = stdoutdata
-        #print >> sys.stderr, "NETMHCPAN ERROR: ",stderrdata
+        p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         counter = 0
-        with open(tmppred,"w") as f:
-            for line in lines:
-                line = line.rstrip().lstrip()
+        with open(tmppred, "w") as f:
+            for line in p.stdout:
+                line = line.decode('utf8').rstrip().lstrip()
                 if line:
                     if line.startswith(("#", "-", "HLA", "Prot")):
                         continue
@@ -83,13 +76,12 @@ class NetmhcpanBestPrediction:
                         line = line[0:-1] if len(line) > 14 else line
                         f.write(";".join(line) + "\n")
                         continue
-                    elif counter >0 and line.startswith("Pos"):
+                    elif counter > 0 and line.startswith("Pos"):
                         continue
                     line = line.split()
                     line = line[0:-2] if len(line) > 14 else line
                     line = ";".join(line)
                     f.write(line + "\n")
-        #os.remove(tmp_fasta)
 
     def mut_position_xmer_seq(self, props):
         '''returns position of mutation in xmer sequence
@@ -185,7 +177,7 @@ class NetmhcpanBestPrediction:
                 pos = int(dat_epi[pos_epi])
                 start = pos + int(dat_epi[del_pos]) - 1
                 end = start + int(dat_epi[del_len])
-                if int(pos_xmer) > start and int(pos_xmer) <= end:
+                if start < int(pos_xmer) <= end:
                     directed_to_TCR = "yes"
             return directed_to_TCR
         except IndexError:
@@ -202,13 +194,13 @@ class NetmhcpanBestPrediction:
             seq = i[seq_col]
             if  len(seq) == 9:
                 dat_9mers.append(i)
-        return((dat_head, dat_9mers))
+        return dat_head, dat_9mers
 
     def Hamming_check_0_or_1(self, seq1, seq2):
         '''returns number of mismatches between 2 sequences
         '''
         errors = 0
-        for i in xrange(len(seq1)):
+        for i in range(len(seq1)):
             if seq1[i] != seq2[i]:
                 errors += 1
                 if errors >= 2:
@@ -230,7 +222,7 @@ class NetmhcpanBestPrediction:
                 numb_mismatch = self.Hamming_check_0_or_1(mut_seq, wt_seq)
                 if  numb_mismatch == 1:
                     wt_epi = i
-        return(dat_head, wt_epi)
+        return dat_head, wt_epi
 
     def filter_for_WT_epitope(self, prediction_tuple, mut_seq, mut_allele):
         '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
@@ -257,10 +249,10 @@ class NetmhcpanBestPrediction:
         '''
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
-        print tmp_fasta
+        print(tmp_fasta)
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        print tmp_prediction
+        print(tmp_prediction)
         self.generate_fasta(props_dict, tmp_fasta)
         alleles = self.get_hla_allels(props_dict, dict_patient_hla)
         self.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
@@ -286,9 +278,9 @@ class NetmhcpanBestPrediction:
         self.mhcI_affinity_9mer = self.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
         self.mhcI_affinity_allele_9mer = self.add_best_epitope_info(best_9mer_affinity, "HLA")
         self.mhcI_affinity_epitope_9mer = self.add_best_epitope_info(best_9mer_affinity, "Icore")
-        print "mismatch"
-        print self.Hamming_check_0_or_1("lsdcd", "lddcd")
-        print self.Hamming_check_0_or_1("lddcd", "lddcd")
+        print("mismatch")
+        print(self.Hamming_check_0_or_1("lsdcd", "lddcd"))
+        print(self.Hamming_check_0_or_1("lddcd", "lddcd"))
 
 
 if __name__ == '__main__':
@@ -310,12 +302,12 @@ if __name__ == '__main__':
     patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
     patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
 
-    print patient_hlaI
-    print patient_hlaII
+    print(patient_hlaI)
+    print(patient_hlaII)
 
     for ii,i in enumerate(dat[1]):
         if ii < 10:
-            print ii
+            print(ii)
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
             prediction = NetmhcpanBestPrediction()
@@ -324,7 +316,7 @@ if __name__ == '__main__':
 
             prediction.main(dict_epi.properties, set_available_mhc, patient_hlaI)
             attrs = vars(prediction)
-            print attrs
+            print(attrs)
 
 
         #def wrapper(func, *args, **kwargs):

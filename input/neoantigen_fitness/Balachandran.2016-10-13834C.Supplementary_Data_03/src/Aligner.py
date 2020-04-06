@@ -36,7 +36,7 @@ class Aligner(object):
         ma = max(v)
         if ma==-Aligner.INF:
             return -Aligner.INF
-        return log(sum(map(lambda x: exp(x-ma),v)))+ma
+        return log(sum([exp(x-ma) for x in v]))+ma
 
 
     def __init__(self):
@@ -86,7 +86,7 @@ class Aligner(object):
         #iterate over all neoantigens
         for i in self.alignments: 
             #energies of all bound states of neoantigen i
-            bindingEnergies=map(lambda el: -k*(a-el[2]), self.alignments[i].values())
+            bindingEnergies=[-k*(a-el[2]) for el in list(self.alignments[i].values())]
             #partition function, over all bound states and an unbound state
             lZ=Aligner.logSum(bindingEnergies+[0])         
             lGb=Aligner.logSum(bindingEnergies)

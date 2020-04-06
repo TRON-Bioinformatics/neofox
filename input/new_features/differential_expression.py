@@ -86,7 +86,7 @@ if __name__ == '__main__':
     f = sys.argv[2]
     data = data_import.import_dat_icam(f)
     dat_merged = merge_data_reference(data, ref_list )
-    print wrapper_diff_expr(dat_merged)[0]
+    print(wrapper_diff_expr(dat_merged)[0])
 
 
     #write_ouptut_to_file(dat_epi,header)

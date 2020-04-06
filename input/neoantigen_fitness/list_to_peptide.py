@@ -20,8 +20,8 @@ if __name__ == "__main__":
       if c==0:
         continue
       w = line.strip("\t").split(",")
-      print ">M_" + str(c)
-      print w[1]
+      print(">M_" + str(c))
+      print(w[1])
 
 
 

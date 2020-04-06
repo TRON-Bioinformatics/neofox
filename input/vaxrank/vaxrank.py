@@ -91,6 +91,6 @@ if __name__ == '__main__':
 
     p = VaxRank()
     p.main(epi_dict)
-    print "expression: " + p.expression_score
-    print "binding score: " + p.total_binding_score
-    print "total score: " + p.ranking_score
+    print("expression: " + p.expression_score)
+    print("binding score: " + p.total_binding_score)
+    print("total score: " + p.ranking_score)
