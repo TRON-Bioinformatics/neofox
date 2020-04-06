@@ -2,14 +2,15 @@
 
 import sys
 import tempfile
-import subprocess
+import input.Tcell_predictor.prediction as prediction
 
 
 class Tcellprediction:
 
-    def __init__(self):
+    def __init__(self, references):
         self.TcellPrdictionScore = "NA"
         self.TcellPrdictionScore_9merPred = "NA"
+        self.references = references
 
     def _triple_gen_seq_subst_for_prediction(self, props, all = True, affinity = False):
         """ extracts gene id, epitope sequence and substitution from epitope dictionary
@@ -60,13 +61,9 @@ class Tcellprediction:
     def _prediction_single_mps(self, tmpfile_in, tmpfile_out):
         '''calls T cell predictor tool to perform predictions; returns
         '''
-        # TODO: refactor this so we call directly once Python 3 migration is done
-        pred_tool = "/".join([".", "prediction.py" ])
-        cmd = " ".join(["/code/Anaconda/3/2018/bin/python", pred_tool, tmpfile_in, tmpfile_out])
-        p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-
-        _, stderr = p.communicate()
-        print(stderr, file=sys.stderr)
+        # TODO: the interface for prediction needs to be simplified, it does not make sense to write a file to
+        # TODO: return a single score
+        prediction.main(tmpfile_in, tmpfile_out, self.references)
         print(tmpfile_out, file=sys.stderr)
         with open(tmpfile_out, "r") as f:
             l_prediction = f.readlines(0)
@@ -76,7 +73,7 @@ class Tcellprediction:
         except IndexError:
             score = "indefinable_by_TcellPredictor"
 
-        return(score)
+        return score
 
     def _wrapper_tcellpredictor(self, props, tmpfile_in, tmpfile_out, all = True, affinity = False):
         '''wrapper function to determine

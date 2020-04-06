@@ -6,16 +6,13 @@ import subprocess
 import tempfile
 from input import MHC_I, MHC_II
 
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
 
 def _apply_gbm(tmp_in):
     ''' this function calls NeoAg tool. this tool applys a gradient boosting machine based on biochemical features to epitopes (predicted seqs)
     '''
-    model_path = "/".join([my_path, "neoag-master"])
-    tool_path = "/".join([my_path, "neoag-master/NeoAg_immunogenicity_predicition_GBM.R"])
+    my_path = os.path.abspath(os.path.dirname(__file__))
+    model_path = os.path.join(my_path, "neoag-master")
+    tool_path = os.path.join(my_path, "neoag-master/NeoAg_immunogenicity_predicition_GBM.R")
     print(model_path, file=sys.stderr)
     print(tmp_in, file=sys.stderr)
     cmd = "/code/R/3.6.0/bin/Rscript " + tool_path + " "+ model_path + " " + tmp_in

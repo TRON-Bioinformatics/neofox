@@ -188,7 +188,7 @@ class Epitope:
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
         self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties), "Selfsimilarity_mhcI_conserved_binder")
         # T cell predictor
-        tcellpredict = tcr_pred.Tcellprediction()
+        tcellpredict = tcr_pred.Tcellprediction(references=self.references)
         tcellpredict.main(self.properties)
         self.add_features(tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
         self.add_features(tcellpredict.TcellPrdictionScore_9merPred, "Tcell_predictor_score_9mersPredict")
