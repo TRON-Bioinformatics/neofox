@@ -3,3 +3,6 @@
 venv-win
 venv
 .env
+build
+dist
+input.egg-info/

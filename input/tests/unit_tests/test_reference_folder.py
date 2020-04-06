@@ -4,8 +4,8 @@ import os
 import input
 from input.references import ReferenceFolder
 from input.exceptions import INPuTConfigurationException
-from input.tests.fake_classes import FakeReferenceFolder
-import input.tests.tools as test_tools
+from input.tests.unit_tests.fake_classes import FakeReferenceFolder
+import input.tests.unit_tests.tools as test_tools
 
 
 class TestReferenceFolder(TestCase):

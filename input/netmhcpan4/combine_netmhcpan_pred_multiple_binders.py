@@ -1,17 +1,9 @@
 #!/usr/bin/env python
 
-import os
 import sys
 import tempfile
-
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
-
-
-import netmhcpan_prediction
-import multiple_binders
+import input.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
+import input.netmhcpan4.multiple_binders as multiple_binders
 
 
 class Bestandmultiplebinder:
