@@ -1,1 +1,2 @@
 include input/neoag/neoag-master/*
+include input/Tcell_predictor/Classifier.pickle
