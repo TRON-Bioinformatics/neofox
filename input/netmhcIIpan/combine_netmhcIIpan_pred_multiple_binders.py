@@ -1,17 +1,10 @@
 #!/usr/bin/env python
 
-import os
 import sys
 import tempfile
-
-my_path = os.path.abspath(os.path.dirname(__file__))
-my_path2 = "/".join(my_path.split("/")[0:-1])
-sys.path.insert(0, my_path2)
-sys.path.insert(0, my_path)
-
-
-import netmhcIIpan_prediction
+import input.netmhcIIpan.netmhcIIpan_prediction as netmhcIIpan_prediction
 from input.netmhcpan4 import multiple_binders
+from input import MHC_I, MHC_II
 
 
 class BestandmultiplebindermhcII:
@@ -93,7 +86,7 @@ class BestandmultiplebindermhcII:
         try:
             preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
             # multiple binding
-            list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
+            list_tups = mb.generate_epi_tuple(preds, mhc = MHC_II)
             self.MHCII_epitope_scores = "/".join([tup[0] for tup in list_tups])
             self.MHCII_epitope_seqs = "/".join([tup[2] for tup in list_tups])
             self.MHCII_epitope_alleles = "/".join([tup[3] for tup in list_tups])
@@ -138,7 +131,7 @@ class BestandmultiplebindermhcII:
         try:
             preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
             # multiple binding
-            list_tups = mb.generate_epi_tuple(preds, mhc = "mhcII")
+            list_tups = mb.generate_epi_tuple(preds, mhc = MHC_II)
             self.MHCII_epitope_scores_WT = "/".join([tup[0] for tup in list_tups])
             self.epitope_affinities__mhcII_pan_WT = "/".join([tup[1] for tup in list_tups])
             self.MHCII_epitope_seqs_WT = "/".join([tup[2] for tup in list_tups])
@@ -205,7 +198,7 @@ if __name__ == '__main__':
         for ii,i in enumerate(dat[1]):
             dat[1][ii].append(str(patient))
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles(mhc ="mhcII")
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles(mhc =MHC_II)
     # hla allele of patients
     patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
     patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)

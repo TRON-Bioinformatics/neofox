@@ -7,7 +7,9 @@ from input.helpers import data_import
 from input import epitope
 from input.new_features import conservation_scores
 from input.references import ReferenceFolder
+from input.epitope import Epitope
 import input.aa_index.aa_index as aa_index
+from input import MHC_I, MHC_II
 
 
 class Bunchepitopes:
@@ -94,10 +96,10 @@ class Bunchepitopes:
         print >> sys.stderr, "attach prov matrix"
         return provean_matrix
 
-    def add_available_hla_alleles(self, mhc="mhcI"):
+    def add_available_hla_alleles(self, mhc=MHC_I):
         '''loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
         '''
-        if mhc == "mhcII":
+        if mhc == MHC_II:
             fileMHC = self.references.available_mhc_ii
         else:
             fileMHC = self.references.available_mhc_i
@@ -204,7 +206,7 @@ class Bunchepitopes:
         self.aa_index2_dict = aa_index.parse_aaindex2(self.references.aaindex2)
         prov_file = self.references.prov_scores_mapped3
         self.hla_available_alleles = self.add_available_hla_alleles()
-        self.hlaII_available_alleles = self.add_available_hla_alleles(mhc = "mhcII")
+        self.hlaII_available_alleles = self.add_available_hla_alleles(mhc = MHC_II)
         self.hlaII_available_MixMHC2pred = self.add_available_allelles_mixMHC2pred()
         self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
@@ -250,7 +252,7 @@ class Bunchepitopes:
         # feature calculation for each epitope
         for ii,i in enumerate(dat[1]):
             # dict for each epitope
-            z = epitope.Epitope().main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels, self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred)
+            z = Epitope(self.references).main(dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency, self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix, self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels, self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred)
             for key in z:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
