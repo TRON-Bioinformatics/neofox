@@ -24,12 +24,10 @@ def input_cli():
         tumour_content_file = ""
 
     indel = False
-    db = "/projects/data/human/2018_uniprot_with_isoforms/uniprot_human_with_isoforms.fasta"
-    rna_ref = "/projects/SUMMIT/WP1.2/gtex_reference/gtex_combined.csv"
 
     bunchepitopes = Bunchepitopes()
     logging.info("Starting INPuT...")
-    bunchepitopes.wrapper_table_add_feature_annotation(icam_file, indel, db, rna_ref, allele_file, tissue, tumour_content_file)
+    bunchepitopes.wrapper_table_add_feature_annotation(icam_file, indel, allele_file, tissue, tumour_content_file)
     logging.info("Finished INPuT...")
     '''
     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
