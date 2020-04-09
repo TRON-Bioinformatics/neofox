@@ -193,10 +193,10 @@ class Bunchepitopes:
             print("\t".join(z))
 
 
-    def initialise_properties(self, data, db, rna_reference_file, path_to_hla_file, tissue, tumour_content_file):
+    def initialise_properties(self, data, path_to_hla_file, tissue, tumour_content_file):
         '''adds information to Bunchepitopes class that are needed for mutated peptide sequence annotation
         '''
-        self.rna_reference = self.add_rna_reference(rna_reference_file, tissue)
+        self.rna_reference = self.add_rna_reference(self.references.gtex, tissue)
         freq_file1 = self.references.aa_freq_prot
         freq_file2 = self.references.four_mer_freq
         self.aa_frequency = self.add_nmer_frequency(freq_file1)
@@ -224,7 +224,7 @@ class Bunchepitopes:
         print("ADD PROVEAN....start: "+ str(startTime1) + "\nend: "+ str(endTime1) + "\nneeded: " + str(endTime1 - startTime1), file=sys.stderr)
 
 
-    def wrapper_table_add_feature_annotation(self, file, indel, db, rna_reference_file, path_to_hla_file, tissue, tumour_content_file):
+    def wrapper_table_add_feature_annotation(self, file, indel, path_to_hla_file, tissue, tumour_content_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
         write to txt file
@@ -234,7 +234,7 @@ class Bunchepitopes:
         if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
             dat = data_import.change_col_names(dat)
         if "mutation_found_in_proteome" not in dat[0]:
-            self.proteome_dictionary =self.build_proteome_dict(db)
+            self.proteome_dictionary =self.build_proteome_dict(self.references.uniprot)
         # add patient id if _mut_set.txt.transcript.squish.somatic.freq is used
         if ("patient" not in dat[0]) and ("patient.id" not in dat[0]) :
             try:
@@ -247,7 +247,7 @@ class Bunchepitopes:
             for ii,i in enumerate(dat[1]):
                 dat[1][ii].append(str(patient))
         # initialise information needed for feature calculation
-        self.initialise_properties(dat, db,  rna_reference_file, path_to_hla_file, tissue, tumour_content_file)
+        self.initialise_properties(dat, path_to_hla_file, tissue, tumour_content_file)
         # feature calculation for each epitope
         for ii, i in enumerate(dat[1]):
             # dict for each epitope
