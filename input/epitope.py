@@ -35,7 +35,7 @@ class Epitope:
     def write_to_file(self):
         print(";".join([self.properties[key] for key in self.properties]))
 
-    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, list_HLAII_MixMHC2pred):
+    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, list_HLAII_MixMHC2pred, rna_avail):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
@@ -49,7 +49,7 @@ class Epitope:
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I), "DAI_mhcI")
         self.add_features(FeatureLiterature.dai(self.properties, MHC_II), "DAI_mhcII")
         # expression
-        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties), "Expression_Mutated_Transcript")
+        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail = rna_avail), "Expression_Mutated_Transcript")
         self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content = tumour_content), "Expression_Mutated_Transcript_tumor_content")
 
         # differential expression
