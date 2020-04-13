@@ -30,6 +30,7 @@ class Bunchepitopes:
         self.patient_hla_II_alleles = {}
         self.tumour_content = {}
         self.hlaII_available_MixMHC2pred = []
+        self.rna_avail = {}
 
     def build_proteome_dict(self, fasta_proteome):
         """Loads proteome in fasta format into dictionary
@@ -149,7 +150,7 @@ class Bunchepitopes:
         return patient_alleles_dict
 
 
-    def add_patient_overview(self, path_to_patient_overview):
+    def add_tumor_content_dict(self, path_to_patient_overview):
         ''' adds tumor content of patients as dictionary
         '''
         tumour_content_dict = {}
@@ -167,6 +168,24 @@ class Bunchepitopes:
                 tumour_content_dict[patient] = tumour_content
         print(tumour_content_dict, file=sys.stderr)
         return tumour_content_dict
+
+    def add_rna_seq_avail_dict(self, path_to_patient_overview):
+        ''' adds info if rna seq was available as dictionary
+        '''
+        rna_avail_dict = {}
+        with open(path_to_patient_overview) as f:
+            header = next(f)
+            header = header.rstrip().split(";")
+            rna_col = header.index("rna_avail")
+            for line in f:
+                w = line.rstrip().split(";")
+                #ucsc_id = w[-2]
+                patient = w[0]
+                patient = patient.rstrip("/")
+                rna_avail = w[rna_col]
+                rna_avail_dict[patient] = rna_avail
+        print(rna_avail_dict, file=sys.stderr)
+        return rna_avail_dict
 
 
     def write_to_file(self, d):
@@ -213,7 +232,8 @@ class Bunchepitopes:
         print(self.patient_hla_I_allels, file=sys.stderr)
         # tumour content
         if tumour_content_file != "":
-            self.tumour_content = self.add_patient_overview(tumour_content_file)
+            self.tumour_content = self.add_tumor_content_dict(tumour_content_file)
+            self.rna_avail = self.add_rna_seq_avail_dict(tumour_content_file)
         startTime1 = datetime.now()
         print(data[0], file=sys.stderr)
         print(data[0].index("UCSC_transcript"), file=sys.stderr)
@@ -255,7 +275,7 @@ class Bunchepitopes:
                 dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
                 self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,
-                self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred)
+                self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred, self.rna_avail)
             for key in z:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
