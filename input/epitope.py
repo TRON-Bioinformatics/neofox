@@ -44,21 +44,7 @@ class Epitope:
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_I), "pos_MUT_MHCI")
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_II), "pos_MUT_MHCII")
         self.add_features(self_similarity.position_in_anchor_position(self.properties), "Mutation_in_anchor")
-        # neoantigen fitness
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmpseq", suffix = ".fasta", delete = False)
-        tmp_fasta = tmp_fasta_file.name
-        self.add_features(
-            neoantigen_fitness.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb),
-            "Pathogensimiliarity_mhcI")
-        self.add_features(
-            neoantigen_fitness.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_II, fastafile=tmp_fasta, iedb=self.references.iedb),
-            "Pathogensimiliarity_mhcII")
-        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_I), "Amplitude_mhcI")
-        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_II), "Amplitude_mhcII")
-        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I), "Recognition_Potential_mhcI")
-        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_II), "Recognition_Potential_mhcII")
+
         # differential agretopicity index
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I), "DAI_mhcI")
         self.add_features(FeatureLiterature.dai(self.properties, MHC_II), "DAI_mhcII")
@@ -179,6 +165,8 @@ class Epitope:
         self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties), "pos_MUT_MHCI_affinity_epi")
         # position of mutation
         self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer = True), "pos_MUT_MHCI_affinity_epi_9mer")
+        self.add_features(self_similarity.position_in_anchor_position(self.properties, netMHCpan = True), "Mutation_in_anchor_netmhcpan")
+        self.add_features(self_similarity.position_in_anchor_position(self.properties, nine_mer = True), "Mutation_in_anchor_netmhcpan_9mer")
         # selfsimilarity
         self.add_features(self_similarity.get_self_similarity(
             props=self.properties, mhc=MHC_I, references=self.references), "Selfsimilarity_mhcI")
@@ -187,6 +175,21 @@ class Epitope:
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
         self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties), "Selfsimilarity_mhcI_conserved_binder")
+        # neoantigen fitness
+        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmpseq", suffix = ".fasta", delete = False)
+        tmp_fasta = tmp_fasta_file.name
+        self.add_features(
+            neoantigen_fitness.wrap_pathogensimilarity(
+                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb),
+            "Pathogensimiliarity_mhcI")
+        self.add_features(
+            neoantigen_fitness.wrap_pathogensimilarity(
+                props=self.properties, mhc=MHC_II, fastafile=tmp_fasta, iedb=self.references.iedb),
+            "Pathogensimiliarity_mhcII")
+        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_I), "Amplitude_mhcI")
+        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_II), "Amplitude_mhcII")
+        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I), "Recognition_Potential_mhcI")
+        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_II), "Recognition_Potential_mhcII")
         # T cell predictor
         tcellpredict = tcr_pred.Tcellprediction(references=self.references)
         tcellpredict.main(self.properties)
