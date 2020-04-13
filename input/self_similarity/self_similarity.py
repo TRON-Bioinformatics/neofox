@@ -97,13 +97,20 @@ def position_of_mutation_epitope_affinity(props, nine_mer = False):
 
 
 
-def position_in_anchor_position(props):
+def position_in_anchor_position(props, netMHCpan = False, nine_mer = False):
     '''
     This function determines if the mutation is located within an anchor position in mhc I.
     As an approximation, we assume that the second and the last position are anchor positions for all alleles.
     '''
-    pos_mhcI = props["pos_MUT_MHCI"]
-    pep_len = props["MHC_I_peptide_length_.best_prediction."]
+    if netMHCpan:
+        pos_mhcI = props["pos_MUT_MHCI_affinity_epi"]
+        pep_len = len(props["best_epitope_netmhcpan4"])
+    elif nine_mer:
+        pos_mhcI = props["pos_MUT_MHCI_affinity_epi_9mer"]
+        pep_len = 9
+    else:
+        pos_mhcI = props["pos_MUT_MHCI"]
+        pep_len = props["MHC_I_peptide_length_.best_prediction."]
 
     anchor = 0
     try:
