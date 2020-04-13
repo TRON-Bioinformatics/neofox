@@ -95,7 +95,7 @@ class NetmhcpanBestPrediction:
                     p1 = i + 1
         else:
             p1 = 0
-            # in case sequences do not have same length 
+            # in case sequences do not have same length
             for a1, a2 in zip(xmer_wt, xmer_mut):
                 if a1 == a2:
                     p1 += 1
@@ -121,7 +121,7 @@ class NetmhcpanBestPrediction:
         dat_head = dat_prediction[0]
         dat_fil = []
         pos_epi = dat_head.index("Pos")
-        epi = dat_head.index("Icore")
+        epi = dat_head.index("Peptide")
         for ii,i in enumerate(dat):
             if self.epitope_covers_mutation(pos_xmer, i[pos_epi], len(i[epi])):
                 dat_fil.append(dat[ii])
@@ -137,7 +137,7 @@ class NetmhcpanBestPrediction:
         else:
             mhc_sc = dat_head.index("Aff(nM)")
         #print >> sys.stderr, mhc_sc
-        epi = dat_head.index("Icore")
+        epi = dat_head.index("Peptide")
         hla_allele = dat_head.index("HLA")
         max_score = float(1000000000000)
         allele = "NA"
@@ -152,7 +152,7 @@ class NetmhcpanBestPrediction:
 
     def add_best_epitope_info(self, epitope_tuple, column_name):
         '''returns desired information of prediction of best epitope from netmhcpan output;
-        e.g. "%Rank": MHC I score, "HLA": HLA allele, "Icore": best epitope
+        e.g. "%Rank": MHC I score, "HLA": HLA allele, "Peptide": best epitope
         '''
         dat_head = epitope_tuple[0]
         dat = epitope_tuple[1]
@@ -265,19 +265,19 @@ class NetmhcpanBestPrediction:
         best_9mer = self.minimal_binding_score(preds_9mer)
         best_9mer_affinity = self.minimal_binding_score(preds_9mer, rank = False)
         self.mhc_score = self.add_best_epitope_info(best_epi, "%Rank")
-        self.epitope = self.add_best_epitope_info(best_epi, "Icore")
+        self.epitope = self.add_best_epitope_info(best_epi, "Peptide")
         self.allele = self.add_best_epitope_info(best_epi, "HLA")
         self.directed_to_TCR = self.mutation_in_loop(props_dict, best_epi)
         self.affinity = self.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
-        self.affinity_epitope = self.add_best_epitope_info(best_epi_affinity, "Icore")
+        self.affinity_epitope = self.add_best_epitope_info(best_epi_affinity, "Peptide")
         self.affinity_allele = self.add_best_epitope_info(best_epi_affinity, "HLA")
         self.affinity_directed_to_TCR =  self.mutation_in_loop(props_dict, best_epi_affinity)
         self.mhcI_score_9mer = self.add_best_epitope_info(best_9mer, "%Rank")
         self.mhcI_score_allele_9mer = self.add_best_epitope_info(best_9mer, "HLA")
-        self.mhcI_score_epitope_9mer = self.add_best_epitope_info(best_9mer, "Icore")
+        self.mhcI_score_epitope_9mer = self.add_best_epitope_info(best_9mer, "Peptide")
         self.mhcI_affinity_9mer = self.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
         self.mhcI_affinity_allele_9mer = self.add_best_epitope_info(best_9mer_affinity, "HLA")
-        self.mhcI_affinity_epitope_9mer = self.add_best_epitope_info(best_9mer_affinity, "Icore")
+        self.mhcI_affinity_epitope_9mer = self.add_best_epitope_info(best_9mer_affinity, "Peptide")
         print("mismatch")
         print(self.Hamming_check_0_or_1("lsdcd", "lddcd"))
         print(self.Hamming_check_0_or_1("lddcd", "lddcd"))
@@ -405,7 +405,7 @@ if __name__ == '__main__':
         NetmhcpanBestPrediction.mutation_in_loop(dict_epi.properties, best_epi)
         dict_epi.properties["%Rank_netmhcpan4"] = NetmhcpanBestPrediction.add_best_epitope_info(best_epi, "%Rank")
         dict_epi.properties["HLA_allele_netmhcpan4"] = NetmhcpanBestPrediction.add_best_epitope_info(best_epi, "HLA")
-        dict_epi.properties["Best_epitope_netmhcpan4"] = NetmhcpanBestPrediction.add_best_epitope_info(best_epi, "Icore")
+        dict_epi.properties["Best_epitope_netmhcpan4"] = NetmhcpanBestPrediction.add_best_epitope_info(best_epi, "Peptide")
         dict_epi.properties["directed_to_TCR"] = NetmhcpanBestPrediction.mutation_in_loop(dict_epi.properties, best_epi)
         #print dict_epi.properties
         print dict_epi.properties["Best_epitope_netmhcpan4"],dict_epi.properties["HLA_allele_netmhcpan4"], dict_epi.properties["%Rank_netmhcpan4"], dict_epi.properties["directed_to_TCR"]
