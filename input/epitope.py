@@ -265,9 +265,9 @@ class Epitope:
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
         if "MB_score_MHCII_best_per_alelle_WT_harmonic" in self.properties:
             self.properties["PHBR-II_WT"] = self.properties.pop("MB_score_MHCII_best_per_alelle_WT_harmonic")
-        self.add_features(predII.MHCII_epitope_scores_WT, "MB_epitope_scores_WT")
-        self.add_features(predII.MHCII_epitope_seqs_WT, "MB_epitope_sequences_WT")
-        self.add_features(predII.MHCII_epitope_alleles_WT, "MB_alleles_WT")
+        self.add_features(predII.MHCII_epitope_scores_WT, "MB_mhcII_epitope_scores_WT")
+        self.add_features(predII.MHCII_epitope_seqs_WT, "MB_mhcII_epitope_sequences_WT")
+        self.add_features(predII.MHCII_epitope_alleles_WT, "MB_mhcII_alleles_WT")
         self.add_features(predII.MHCII_number_strong_binders_WT, "MB_number_pep_MHCIIscore<2_WT")
         self.add_features(predII.MHCII_number_weak_binders_WT, "MB_number_pep_MHCIIscore<10_WT")
         # dai mhc II affinity
