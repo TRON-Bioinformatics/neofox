@@ -71,9 +71,7 @@ class Preprocessor(object):
             return 1
 
     def get_gene_expression(self, gene):
-        res = self.dict_expression.get(gene)
-        if res is None:
-            res = np.nan
+        res = self.dict_expression.get(gene, 0.0)
         return res
 
     def get_properties(self, amino_substitution):
