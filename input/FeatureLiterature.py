@@ -7,6 +7,7 @@ This script takes as input table from iCAM pipeline and calculates Literature fe
 
 # import modules
 import math
+import sys
 
 from input.IEDB_Immunogenicity import predict_immunogenicity_simple
 from input import MHC_I, MHC_II
@@ -162,8 +163,11 @@ def match_in_proteome(props, db):
     Returns 0 if mutation is present in proteome and 1 if it not present
     '''
     seq = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+    print(seq, file=sys.stderr)
+    print(db, file=sys.stderr)
     try:
-        return "0" if seq in db else "1"
+        seq_in_db = [seq in entry for entry in db]
+        return "0" if any(seq_in_db) else "1"
     except:
         return "NA"
 
