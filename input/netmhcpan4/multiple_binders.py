@@ -84,7 +84,7 @@ class MultipleBinding:
                 list_of_tuples.append((i[-2],i[-3], i[2], i[1]))
             else:
                 # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((i[-1],i[-2], i[-5], i[1]))
+                list_of_tuples.append((i[-1],i[-2], i[2], i[1]))
         return list_of_tuples
 
     def extract_top10_epis(self, tuple_epis):
