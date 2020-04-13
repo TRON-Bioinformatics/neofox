@@ -123,13 +123,15 @@ def calculate_recognition_potential(props, mhc, affinity = False, netmhcscore = 
 
     recognition_potential = "NA"
     try:
-        mutation_in_anchor = props["Mutation_in_anchor"]
+        #mutation_in_anchor = props["Mutation_in_anchor"]
         candidate_recognition_potential = str(float(amplitude) * float(pathogen_similarity))
         if nine_mer:
+            mutation_in_anchor = props["Mutation_in_anchor_netmhcpan_9mer"]
             mhc_affinity_mut = float(props["best_affinity_netmhcpan4_9mer"])
             if mutation_in_anchor == "0" and mhc_affinity_mut < 500:
                 recognition_potential = candidate_recognition_potential
         else:
+            mutation_in_anchor = props["Mutation_in_anchor_netmhcpan"]
             if mutation_in_anchor == "0":
                 recognition_potential = candidate_recognition_potential
     except ValueError:
