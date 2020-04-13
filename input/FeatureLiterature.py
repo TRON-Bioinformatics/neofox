@@ -119,13 +119,14 @@ def rna_expression_mutation(props, rna_avail):
         rna_avail =  rna_avail[patid]
     except (KeyError, ValueError) as e:
         rna_avail = "NA"
-    if rna_avail or rna_avail == "NA":
+    print("rna_avail: " + rna_avail, file=sys.stderr)
+    if rna_avail == "False":
+        vaf_rna = props["VAF_in_tumor"]
+    else:
         try:
             vaf_rna = props["VAF_in_RNA"]
         except KeyError:
             vaf_rna = props["VAF_in_tumor"]
-    elif rna_avail == False:
-        vaf_rna = props["VAF_in_tumor"]
     try:
         return str(float(transcript_expression) * float(vaf_rna)) if float(vaf_rna) > 0 else "NA"
     except ValueError:
