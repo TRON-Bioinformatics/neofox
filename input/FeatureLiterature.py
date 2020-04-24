@@ -105,16 +105,28 @@ def ratio_number_binders(props, mhc = MHC_I, threshold = 1):
     except ValueError:
         return "NA"
 
-def rna_expression_mutation(props):
+def rna_expression_mutation(props, rna_avail):
     '''
     This function calculates the product of VAF in RNA and transcript expression
     to reflect the expression of the mutated transcript
     '''
     transcript_expression = props["transcript_expression"]
+    if "patient.id" in props:
+        patid = props["patient.id"]
+    else:
+        patid = props["patient"]
     try:
-        vaf_rna = props["VAF_in_RNA"]
-    except KeyError:
+        rna_avail =  rna_avail[patid]
+    except (KeyError, ValueError) as e:
+        rna_avail = "NA"
+    print("rna_avail: " + rna_avail, file=sys.stderr)
+    if rna_avail == "False":
         vaf_rna = props["VAF_in_tumor"]
+    else:
+        try:
+            vaf_rna = props["VAF_in_RNA"]
+        except KeyError:
+            vaf_rna = props["VAF_in_tumor"]
     try:
         return str(float(transcript_expression) * float(vaf_rna)) if float(vaf_rna) > 0 else "NA"
     except ValueError:

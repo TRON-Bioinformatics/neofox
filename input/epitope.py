@@ -35,7 +35,7 @@ class Epitope:
     def write_to_file(self):
         print(";".join([self.properties[key] for key in self.properties]))
 
-    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, list_HLAII_MixMHC2pred):
+    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, list_HLAII_MixMHC2pred, rna_avail):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
@@ -49,7 +49,7 @@ class Epitope:
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I), "DAI_mhcI")
         self.add_features(FeatureLiterature.dai(self.properties, MHC_II), "DAI_mhcII")
         # expression
-        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties), "Expression_Mutated_Transcript")
+        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail = rna_avail), "Expression_Mutated_Transcript")
         self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content = tumour_content), "Expression_Mutated_Transcript_tumor_content")
 
         # differential expression
@@ -265,9 +265,9 @@ class Epitope:
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
         if "MB_score_MHCII_best_per_alelle_WT_harmonic" in self.properties:
             self.properties["PHBR-II_WT"] = self.properties.pop("MB_score_MHCII_best_per_alelle_WT_harmonic")
-        self.add_features(predII.MHCII_epitope_scores_WT, "MB_epitope_scores_WT")
-        self.add_features(predII.MHCII_epitope_seqs_WT, "MB_epitope_sequences_WT")
-        self.add_features(predII.MHCII_epitope_alleles_WT, "MB_alleles_WT")
+        self.add_features(predII.MHCII_epitope_scores_WT, "MB_mhcII_epitope_scores_WT")
+        self.add_features(predII.MHCII_epitope_seqs_WT, "MB_mhcII_epitope_sequences_WT")
+        self.add_features(predII.MHCII_epitope_alleles_WT, "MB_mhcII_alleles_WT")
         self.add_features(predII.MHCII_number_strong_binders_WT, "MB_number_pep_MHCIIscore<2_WT")
         self.add_features(predII.MHCII_number_weak_binders_WT, "MB_number_pep_MHCIIscore<10_WT")
         # dai mhc II affinity
