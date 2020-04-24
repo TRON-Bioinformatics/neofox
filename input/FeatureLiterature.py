@@ -7,6 +7,7 @@ This script takes as input table from iCAM pipeline and calculates Literature fe
 
 # import modules
 import math
+import sys
 
 from input.IEDB_Immunogenicity import predict_immunogenicity_simple
 from input import MHC_I, MHC_II
@@ -142,11 +143,11 @@ def number_of_mismatches(props, mhc):
     This function calculates the number of mismatches between the wt and the mutated epitope
     '''
     if mhc == MHC_I:
-        mhc_epitope_mut = props["MHC_I_epitope_.best_prediction."]
-        mhc_epitope_wt = props["MHC_I_epitope_.WT."]
+        mhc_epitope_mut = props["best_epitope_netmhcpan4"]
+        mhc_epitope_wt = props["best_epitope_netmhcpan4_WT"]
     elif mhc == MHC_II:
-        mhc_epitope_mut = props["MHC_II_epitope_.best_prediction."]
-        mhc_epitope_wt = props["MHC_II_allele_.best_prediction."]
+        mhc_epitope_mut = props["best_epitope_netmhcIIpan"]
+        mhc_epitope_wt = props["best_epitope_netmhcIIpan_WT"]
     p1 = 0
     try:
         for i,aa in enumerate(mhc_epitope_mut):
@@ -163,7 +164,8 @@ def match_in_proteome(props, db):
     '''
     seq = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
     try:
-        return "0" if seq in db else "1"
+        seq_in_db = [seq in entry for entry in db]
+        return "0" if any(seq_in_db) else "1"
     except:
         return "NA"
 
@@ -190,12 +192,9 @@ def calc_priority_score(props, multiple_binding=False):
         score_mut = props["MB_score_top10_harmonic"]
         score_wt = props["MB_score_WT_top10_harmonic"]
     else:
-        #score_mut = props["MHC_I_score_.best_prediction."]
-        #score_wt = props["MHC_I_score_.WT."]
         score_mut = props["best%Rank_netmhcpan4"]
         score_wt = props["best%Rank_netmhcpan4_WT"]
     mut_in_prot = props["mutation_found_in_proteome"]
-    mut_in_prot = "0" if mut_in_prot == "True" else "1" if mut_in_prot == "False" else mut_in_prot
     L_mut = calc_logistic_function(score_mut)
     L_wt = calc_logistic_function(score_wt)
     priority_score = 0.0
