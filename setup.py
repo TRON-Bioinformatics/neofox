@@ -36,7 +36,8 @@ setup(
         'numpy==1.16.2',
         'scipy==1.4.1',
         'pickle-mixin',
-        'scikit-learn==0.20.3'
+        'scikit-learn==0.20.3',
+        'logzero==1.5.0'
     ],
     setup_requires=[],
     classifiers=[

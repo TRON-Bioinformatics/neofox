@@ -5,6 +5,7 @@ import sys
 import tempfile
 from input.helpers import data_import
 from input import MHC_I, MHC_II
+from logzero import logger
 
 
 class NetmhcIIpanBestPrediction:
@@ -33,18 +34,16 @@ class NetmhcIIpanBestPrediction:
             f.write(id + "\n")
             f.write(seq + "\n")
 
-    def get_hla_allels(self, props, hla_patient_dict):
+    def get_hla_alleles(self, props, hla_patient_dict):
         ''' returns hla allele of patients given in hla_file
         '''
         if "patient.id" in props:
-            patientid = props["patient.id"]
-            #print >> sys.stderr, patientid
+            patient_id = props["patient.id"]
+        elif "patient" in props:
+            patient_id = props["patient"]
         else:
-            try:
-                patientid = props["patient"]
-            except KeyError:
-                patientid = props["patient.x"]
-        return hla_patient_dict[patientid]
+            patient_id = props["patient.x"]
+        return hla_patient_dict[patient_id]
 
     def generate_mhcII_alelles_combination_list(self, hla_alleles, set_available_mhc):
         ''' given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x) and HLA-DQA1/HLA-DPQ1 (4x)
@@ -72,7 +71,6 @@ class NetmhcIIpanBestPrediction:
         dp_alleles = [ "-".join([x,y.replace("HLA-","")]) for x in dpa_alleles for y in dpb_alleles]
         dq_alleles = [ "-".join([x,y.replace("HLA-","")]) for x in dqa_alleles for y in dqb_alleles]
         dp_dq_alleles = dp_alleles + dq_alleles
-        #print >> sys.stderr, dp_dq_alleles
         for allele in dp_dq_alleles:
             if self.mhc_allele_in_netmhcpan_available(allele, set_available_mhc):
                 allels_for_prediction.append(allele)
@@ -84,7 +82,7 @@ class NetmhcIIpanBestPrediction:
         allels_for_prediction = self.generate_mhcII_alelles_combination_list(hla_alleles, set_available_mhc)
         hla_allele = ",".join(allels_for_prediction)
         tmp_folder = tempfile.mkdtemp(prefix ="tmp_netmhcIIpan_")
-        print(tmp_folder, file=sys.stderr)
+        logger.debug(tmp_folder)
         cmd = "/code/net/MHCIIpan/3.2/netMHCIIpan -a " + hla_allele + " -f " + tmpfasta + " -tdir "+ tmp_folder + " -dirty"
         p = subprocess.Popen(cmd, stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
         lines = p.stdout
@@ -239,9 +237,8 @@ class NetmhcIIpanBestPrediction:
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        #print tmp_prediction
         self.generate_fasta(props_dict, tmp_fasta)
-        alleles = self.get_hla_allels(props_dict, dict_patient_hla)
+        alleles = self.get_hla_alleles(props_dict, dict_patient_hla)
         self.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)
         preds = self.filter_binding_predictions(props_dict, tmp_prediction)
@@ -280,25 +277,16 @@ if __name__ == '__main__':
         for ii,i in enumerate(dat[1]):
             dat[1][ii].append(str(patient))
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
-    set_available_mhcII = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles(mhc=MHC_II)
-    #print >> sys.stderr, set_available_mhcII
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
+    set_available_mhcII = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles(mhc=MHC_II)
     # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
-
-    #print patient_hlaI
-    #print patient_hlaII
+    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
     for ii,i in enumerate(dat[1]):
         if ii < 10:
-            #print ii
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
             prediction = NetmhcIIpanBestPrediction()
-            #print ii
-            #print dict_epi.properties
-
             prediction.main(dict_epi.properties, set_available_mhcII, patient_hlaII)
             attrs = vars(prediction)
-            #print attrs

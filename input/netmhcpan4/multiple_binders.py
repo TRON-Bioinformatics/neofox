@@ -5,6 +5,8 @@ import sys
 import math
 from input import MHC_I, MHC_II
 import input.netmhcIIpan.netmhcIIpan_prediction as netmhcpan_prediction
+from logzero import logger
+
 
 class MultipleBinding:
     def __init__(self):
@@ -105,7 +107,7 @@ class MultipleBinding:
         '''this function returns the predicted epitope with the lowest binding score for each patient allele, considering homozyogosity
         '''
         homo_alleles = self.check_for_homozygosity(alleles)
-        print(homo_alleles, file=sys.stderr)
+        logger.info(homo_alleles)
         dict_allels = {}
         for allele in alleles:
             for epi in tuple_epis:
@@ -121,8 +123,8 @@ class MultipleBinding:
             if allele in homo_alleles:
                 # append homozygous allleles two times
                 homo_numbers = homo_alleles.count(allele)
-                print(allele, file=sys.stderr)
-                print(homo_numbers, file=sys.stderr)
+                logger.debug(allele)
+                logger.debug(homo_numbers)
                 if homo_numbers == 1:
                     best_epis_per_allele.append(dict_allels[allele][0])
                 else:
@@ -131,7 +133,6 @@ class MultipleBinding:
                     # allele already one time represented in list --> add n-t times
                     [homo_best_epi_all.append(tuple(homo_best_epi)) for i in range(homo_numbers -1)]
                     best_epis_per_allele.extend(tuple(homo_best_epi_all))
-        #print >> sys.stderr, best_epis_per_allele
         return best_epis_per_allele
 
     def scores_to_list(self, tuple_epis):
@@ -163,7 +164,7 @@ class MultipleBinding:
         '''takes epitope dictionary as input and returns several scores that describe multiple binding.
         '''
         netmhcpan_prediction.NetmhcpanBestPrediction().generate_fasta(epi_dict)
-        alleles = netmhcpan_prediction.NetmhcpanBestPrediction().get_hla_allels(epi_dict, patient_hlaI)
+        alleles = netmhcpan_prediction.NetmhcpanBestPrediction().get_hla_alleles(epi_dict, patient_hlaI)
         netmhcpan_prediction.NetmhcpanBestPrediction().mhc_prediction(alleles, set_available_mhc)
         epi_dict["Position_Xmer_Seq"] = netmhcpan_prediction.NetmhcpanBestPrediction().mut_position_xmer_seq(epi_dict)
         preds = netmhcpan_prediction.NetmhcpanBestPrediction().filter_binding_predictions(epi_dict)
@@ -173,12 +174,10 @@ class MultipleBinding:
         self.epitope_seqs = "/".join([tup[2] for tup in list_tups])
         self.epitope_alleles = "/".join([tup[3] for tup in list_tups])
         top10 = self.extract_top10_epis(list_tups)
-        #print top10
         best_per_alelle = self.extract_best_epi_per_alelle(list_tups, alleles)
         all = self.scores_to_list(list_tups)
         all_affinities = self.affinities_to_list(list_tups)
         top10 = self.scores_to_list(top10)
-        #print top10
         self.score_top10 = self.wrapper_mean_calculation(top10)
         best_per_alelle = self.scores_to_list(best_per_alelle)
         self.score_all_epitopes = self.wrapper_mean_calculation(all)
@@ -199,11 +198,11 @@ if __name__ == '__main__':
     hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
     dat = data_import.import_dat_icam(file, False)
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
 
     # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
+    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
     Allepit = {}
     for ii,i in enumerate(dat[1]):
@@ -229,4 +228,5 @@ if __name__ == '__main__':
                 Allepit[key] = [z[key]]
             else:
                 Allepit[key].append(z[key])
-    predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)
+    # commented as this is test code which has to be placed elsewhere and it is the only bit using this write method
+    # predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)

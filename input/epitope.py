@@ -14,6 +14,7 @@ from input.MixMHCpred import mixmhcpred, mixmhc2pred
 from input.dissimilarity_garnish import dissimilarity
 from input.vaxrank import vaxrank
 from input import MHC_I, MHC_II
+from logzero import logger
 
 
 class Epitope:
@@ -39,7 +40,7 @@ class Epitope:
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
-        print(self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], file=sys.stderr)
+        logger.info(self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."])
 
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_I), "pos_MUT_MHCI")
         self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_II), "pos_MUT_MHCII")
@@ -240,7 +241,6 @@ class Epitope:
         for sc, mn in zip(predII.MHCII_score_best_per_alelle, predII.mean_type):
             self.add_features(sc, "MB_score_MHCII_best_per_alelle_" + mn)
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
-        #print >> sys.stderr, self.properties
         self.properties["PHBR-II"] = self.properties.pop("MB_score_MHCII_best_per_alelle_harmonic")
         self.add_features(predII.MHCII_epitope_scores, "MB_mhcII_epitope_scores")
         self.add_features(predII.MHCII_epitope_seqs, "MB_mhcII_epitope_sequences")
@@ -289,7 +289,7 @@ class Epitope:
         # amplitude rank score mhc II
         self.add_features(
             neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc =MHC_II, multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcII_rank_netmhcpan4")
-        print("amplitude mhc II: "+ self.properties["Amplitude_mhcII_rank_netmhcpan4"], file=sys.stderr)
+        logger.info("Amplitude mhc II: {}".format(self.properties["Amplitude_mhcII_rank_netmhcpan4"]))
         # priority score
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, MHC_I), "Number_of_mismatches_mhcI")
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, MHC_II), "Number_of_mismatches_mhcII")

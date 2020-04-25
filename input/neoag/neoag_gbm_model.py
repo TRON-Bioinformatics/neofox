@@ -5,6 +5,7 @@ import sys
 import subprocess
 import tempfile
 from input import MHC_I, MHC_II
+from logzero import logger
 
 
 def _apply_gbm(tmp_in):
@@ -13,12 +14,12 @@ def _apply_gbm(tmp_in):
     my_path = os.path.abspath(os.path.dirname(__file__))
     model_path = os.path.join(my_path, "neoag-master")
     tool_path = os.path.join(my_path, "neoag-master/NeoAg_immunogenicity_predicition_GBM.R")
-    print(model_path, file=sys.stderr)
-    print(tmp_in, file=sys.stderr)
+    logger.debug(model_path)
+    logger.debug(tmp_in)
     cmd = "/code/R/3.6.0/bin/Rscript " + tool_path + " "+ model_path + " " + tmp_in
     p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     stdoutdata, stderrdata = p.communicate()
-    print(stderrdata, file=sys.stderr)
+    logger.debug(stderrdata)
     return stdoutdata.decode('utf-8')
 
 
@@ -42,7 +43,7 @@ def _prepare_tmp_for_neoag(props, tmp_file_name):
     except ValueError:
         epi_row = "\t".join(["NA", "NA", "NA", "NA"])
     with open(tmp_file_name, "w") as f:
-        print("NEOAG: " + epi_row, file=sys.stderr)
+        logger.info("NEOAG: {}".format(epi_row))
         f.write("\t".join(header) + "\n")
         f.write(epi_row + "\n")
 
@@ -56,16 +57,12 @@ def wrapper_neoag(props):
     neoag_score = _apply_gbm(tmp_file_name)
     with open(tmp_file_name) as f:
         for line in f:
-            print("NEOAG: " + line, file=sys.stderr)
-    print("NEOAG: " + str(neoag_score), file=sys.stderr)
+            logger.info("NEOAG: {}".format(line))
+    logger.info("NEOAG: {}".format(str(neoag_score)))
     return neoag_score
 
 
-
-
-
 if __name__ == '__main__':
-
 
     #test_tcga = "/".join([my_path, "neoag-master", "TCGA_neoAg_example.txt"])
     #apply_gbm(test_tcga)
@@ -88,10 +85,10 @@ if __name__ == '__main__':
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
         dat = data_import.change_col_names(dat)
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
     # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
+    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
     print(patient_hlaI)
     print(patient_hlaII)

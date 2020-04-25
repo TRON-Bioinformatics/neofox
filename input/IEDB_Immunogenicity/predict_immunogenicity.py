@@ -7,6 +7,8 @@ Created on 08.10.2015
 
 import os, sys
 from optparse import OptionParser
+from logzero import logger
+
 
 class Prediction():
     
@@ -94,7 +96,7 @@ class Prediction():
                     mask_num = [x - 1 for x in mask_num]
                     mask_out = [x + 1 for x in mask_num]
                 except IOError as e:
-                    print("I/O error({0}): {1}".format(e.errno, e.strerror))
+                    logger.exception(e)
             else:
                 self.mask_num = []
                 self.mask_out = [1,2, "cterm"]
@@ -116,11 +118,9 @@ class Prediction():
                 result_list.append([peptide, len(peptide), round(score, 5)])
             
             except IOError as e:
-                print("I/O error({0}): {1}".format(e.errno, e.strerror))
-#                     shutil.rmtree(atemp_dir)  
-#                     raise ("Error: Please make sure you are entering in correct amino acids.")
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
+                logger.exception(e)
+            except Exception as e:
+                logger.exception(e)
                 raise
 
         # Sort by the last column value (score)       
