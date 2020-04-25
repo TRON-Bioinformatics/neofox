@@ -1,6 +1,6 @@
 import os
 import input
-import logging
+from logzero import logger
 from input.exceptions import INPuTConfigurationException
 
 
@@ -58,10 +58,10 @@ class ReferenceFolder(object):
                 "Missing resources in the reference folder: {}".format(str(missing_resources)))
 
     def _log_configuration(self):
-        logging.info("Reference genome folder: {}".format(self.reference_genome_folder))
-        logging.info("Resources")
+        logger.info("Reference genome folder: {}".format(self.reference_genome_folder))
+        logger.info("Resources")
         for r in self.resources:
-            logging.info(r)
+            logger.info(r)
 
     def _get_reference_file_name(self, file_name_suffix):
         return os.path.join(self.reference_genome_folder, file_name_suffix)

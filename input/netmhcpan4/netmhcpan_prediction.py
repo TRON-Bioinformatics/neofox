@@ -136,12 +136,7 @@ class NetmhcpanBestPrediction:
             mhc_sc = dat_head.index("%Rank")
         else:
             mhc_sc = dat_head.index("Aff(nM)")
-        #print >> sys.stderr, mhc_sc
-        epi = dat_head.index("Peptide")
-        hla_allele = dat_head.index("HLA")
         max_score = float(1000000000000)
-        allele = "NA"
-        epitope = "NA"
         row = []
         for ii,i in enumerate(dat):
             mhc_score = float(i[mhc_sc])
@@ -297,10 +292,10 @@ if __name__ == '__main__':
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
         dat = data_import.change_col_names(dat)
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
     # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
+    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
     print(patient_hlaI)
     print(patient_hlaII)

@@ -11,6 +11,8 @@ import sys
 
 from input.IEDB_Immunogenicity import predict_immunogenicity_simple
 from input import MHC_I, MHC_II
+from logzero import logger
+
 
 def calc_IEDB_immunogenicity(props, mhc, affin_filtering = False):
     '''
@@ -119,7 +121,7 @@ def rna_expression_mutation(props, rna_avail):
         rna_avail =  rna_avail[patid]
     except (KeyError, ValueError) as e:
         rna_avail = "NA"
-    print("rna_avail: " + rna_avail, file=sys.stderr)
+    logger.info("rna_avail: ".format(rna_avail))
     if rna_avail == "False":
         vaf_rna = props["VAF_in_tumor"]
     else:
@@ -284,11 +286,8 @@ def classify_adn_cdn(props, mhc, category):
         bdg_cutoff_classical = 1
         bdg_cutoff_alternative = 4
         amplitude_cutoff = 4
-    #print >> sys.stderr, score_mut, props["best_affinity_netmhcpan4_WT"], amplitude
     try:
         if category == "CDN":
-            #print >> sys.stderr, float(score_mut), float(bdg_cutoff_classical)
-            #print >> sys.stderr, float(score_mut) < float(bdg_cutoff_classical)
             if float(score_mut) < float(bdg_cutoff_classical):
                 group = "True"
             elif float(score_mut) > float(bdg_cutoff_classical):
@@ -300,9 +299,7 @@ def classify_adn_cdn(props, mhc, category):
                 group = "False"
     except ValueError:
         group = "NA"
-    #print >> sys.stderr, category + ": "+group
     return group
-
 
 
 if __name__ == '__main__':
@@ -321,21 +318,18 @@ if __name__ == '__main__':
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
             dat = data_import.change_col_names(dat)
     if "mutation_found_in_proteome" not in dat[0]:
-            db = predict_all_epitopes.Bunchepitopes().build_proteome_dict(db_uniprot)
+            db = predict_all_epitopes.Bunchepitopes().load_proteome(db_uniprot)
 
     dict_all = predict_all_epitopes.Bunchepitopes().Allepit
     ## add priority_score
     for ii,i in enumerate(dat[1]):
-        #print dat[1][ii]
         # dict for each epitope
         z = epitope.Epitope()
-        #print z
         z.init_properties(dat[0], dat[1][ii])
         z.add_features(number_of_mismatches(z.properties, MHC_I), "Number_of_mismatches_mhcI")
         if "mutation_found_in_proteome" not in z.properties:
             z.add_features(match_in_proteome(z.properties, db), "mutation_found_in_proteome")
         z.add_features(calc_priority_score(z.properties), "Priority_score")
-        #print z.properties
 
         for key in z.properties:
             if key not in dict_all:
@@ -343,21 +337,12 @@ if __name__ == '__main__':
                 dict_all[key] = [z.properties[key]]
             else:
                 dict_all[key].append(z.properties[key])
-    #print dict_all
 
     header = dat[0]
     header.append("Priority_score")
-    #print header
 
     print("\t".join(header))
     for i in range(len(dict_all["mutation"])):
         z = []
         [z.append(dict_all[col][i]) for col in header]
         print("\t".join(z))
-
-    #properties = {}
-    #for nam,char in zip(dat[0], dat[1][1]):
-    #    properties[nam] = char
-
-    #print apppend_aa_index1(properties)
-    #print apppend_aa_index2(properties)

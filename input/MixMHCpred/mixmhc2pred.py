@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 from input.helpers import data_import
+from logzero import logger
 
 
 class MixMHC2pred:
@@ -126,10 +127,9 @@ class MixMHC2pred:
         elif wt:
             # use best allele from mutated seq prediction
             hla_allele = hla_alleles[0]
-        #
         cmd = "MixMHC2pred -a " + hla_allele + " -i " + tmpfasta + " -o " + outtmp
-        print(cmd, file=sys.stderr)
-        p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
+        logger.info(cmd)
+        p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         p_return = p.communicate()
 
     def read_mixmhcpred(self, outtmp):
@@ -149,7 +149,6 @@ class MixMHC2pred:
                         header = line.split()
                         continue
                     line = line.split()
-                    #print line
                     dat.append(line)
         return header, dat
 
@@ -250,7 +249,6 @@ class MixMHC2pred:
                     if line.startswith(("L", "A")):
                         continue
                     line1 = line.split()[0]
-                    #print line
                     if line1 is not None:
                         avail_alleles.append(line1)
         return avail_alleles
@@ -259,7 +257,6 @@ class MixMHC2pred:
     def main(self, props_dict, dict_patient_hlaII, list_avail_hlaII):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        #list_avail_hlaII = self.import_available_HLAII_alleles(path_to_HLAII_file)
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_sequence_", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="mixmhc2pred", suffix = ".txt", delete = False)
@@ -279,7 +276,6 @@ class MixMHC2pred:
             self.best_peptide = self.add_best_epitope_info(pred_best, "Peptide")
             self.best_rank = self.add_best_epitope_info(pred_best, "%Rank")
             self.best_allele = self.add_best_epitope_info(pred_best, "BestAllele")
-            #print "best allele " + self.best_allele
             self.all_peptides = "|".join(pred_all["Peptide"])
             self.all_ranks = "|".join(pred_all["%Rank"])
             self.all_alleles = "|".join(pred_all["BestAllele"])
@@ -293,16 +289,10 @@ class MixMHC2pred:
             self.generate_fasta(wt_list, tmp_fasta)
             self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, list_avail_hlaII, wt = True)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
-            #print >> sys.stderr, pred_wt
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
-            #score_wt_of_interest = "_".join(["Score",self.best_allele])
-            #rank_wt_of_interest = "_".join(["%Rank",self.best_allele])
-            #self.best_score_wt = self.extract_WT_info(pred_wt, score_wt_of_interest)
             self.best_rank_wt = self.extract_WT_info(pred_wt, "%Rank")
             # difference in scores between mut and wt
             self.difference_score_mut_wt = self.difference_score(self.best_rank_wt, self.best_rank)
-
-
 
 
 if __name__ == '__main__':
@@ -336,10 +326,10 @@ if __name__ == '__main__':
         for ii,i in enumerate(dat[1]):
             dat[1][ii].append(str(patient))
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
     # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
+    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
     print(patient_hlaI)
     print(patient_hlaII)
@@ -350,24 +340,6 @@ if __name__ == '__main__':
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
             prediction = MixMHC2pred()
-            #print ii
-            #print dict_epi.properties
-
             prediction.main(dict_epi.properties,  patient_hlaII, list_avail_hlaII)
             attrs = vars(prediction)
             print(attrs)
-
-
-        #def wrapper(func, *args, **kwargs):
-        #    def wrapped():
-        #        return func(*args, **kwargs)
-        #    return wrapped
-        #wrapped = wrapper(prediction.main, dict_epi.properties, set_available_mhc, patient_hlaI)
-        #prediction.generate_fasta(dict_epi.properties)
-        #wrapped = wrapper(prediction.mhc_prediction, set_available_mhc, patient_hlaI)
-        #print timeit.timeit(wrapped, number=1)
-        #print timeit.timeit(wrapped, number=3)
-        #print prediction.mhc_score
-        #print prediction.epitope
-        #print prediction.allele
-        #print prediction.directed_to_TCR

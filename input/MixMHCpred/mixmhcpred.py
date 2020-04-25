@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tempfile
 from input.helpers import data_import
+from logzero import logger
 
 
 class MixMHCpred:
@@ -246,7 +247,7 @@ class MixMHCpred:
             self.generate_fasta(wt_list, tmp_fasta)
             self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
-            print(pred_wt, file=sys.stderr)
+            logger.debug(pred_wt)
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
             score_wt_of_interest = "_".join(["Score",self.best_allele])
             rank_wt_of_interest = "_".join(["%Rank",self.best_allele])
@@ -272,10 +273,10 @@ if __name__ == '__main__':
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
         dat = data_import.change_col_names(dat)
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
     # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
+    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
     print(patient_hlaI)
     print(patient_hlaII)

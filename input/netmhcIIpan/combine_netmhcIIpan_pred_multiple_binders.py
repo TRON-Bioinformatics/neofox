@@ -5,6 +5,7 @@ import tempfile
 import input.netmhcIIpan.netmhcIIpan_prediction as netmhcIIpan_prediction
 from input.netmhcpan4 import multiple_binders
 from input import MHC_I, MHC_II
+from logzero import logger
 
 
 class BestandmultiplebindermhcII:
@@ -48,39 +49,37 @@ class BestandmultiplebindermhcII:
         number_alleles = len(tuple_best_per_allele)
         multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
-        print(tuple_best_per_allele, file=sys.stderr)
-        print(len(tuple_best_per_allele), file=sys.stderr)
+        logger.debug(tuple_best_per_allele)
+        logger.debug(len(tuple_best_per_allele))
         for best_epi in tuple_best_per_allele:
             if best_epi[-1].startswith("DRB1"):
                 tuple_best_per_allele_new.append(best_epi)
-        print(tuple_best_per_allele_new, file=sys.stderr)
-        print(len(tuple_best_per_allele_new), file=sys.stderr)
+        logger.debug(tuple_best_per_allele_new)
+        logger.debug(len(tuple_best_per_allele_new))
         if len(tuple_best_per_allele_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
             best_scores_allele = multbind.scores_to_list(tuple_best_per_allele_new)
             return multbind.wrapper_mean_calculation(best_scores_allele)
-            print(tmp_prediction, file=sys.stderr)
         else:
             return ["NA", "NA", "NA"]
-
 
     def main(self, epi_dict, patient_hlaII, set_available_mhc):
         '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         '''
         ### PREDICTION FOR MUTATED SEQUENCE
         xmer_mut = epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        print("MUT seq MHC II: " + xmer_mut, file=sys.stderr)
+        logger.info("MUT seq MHC II: {}".format(xmer_mut))
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        print(tmp_prediction, file=sys.stderr)
+        logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = True)
-        alleles = np.get_hla_allels(epi_dict, patient_hlaII)
+        alleles = np.get_hla_alleles(epi_dict, patient_hlaII)
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
-        print(alleles_formated, file=sys.stderr)
+        logger.debug(alleles_formated)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
         try:
@@ -98,17 +97,15 @@ class BestandmultiplebindermhcII:
             self.MHCII_score_top10 = mb.wrapper_mean_calculation(top10)
             self.MHCII_score_all_epitopes = mb.wrapper_mean_calculation(all)
             self.MHCII_score_best_per_alelle = self.MHCII_MB_score_best_per_allele(best_per_alelle)
-            #print >> sys.stderr, self.MHCII_score_best_per_alelle
             self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 2)
             self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 10)
-            print(self.MHCII_number_weak_binders, file=sys.stderr)
+            logger.debug(self.MHCII_number_weak_binders)
             # best prediction
             best_epi =  np.minimal_binding_score(preds)
             self.best_mhcII_pan_score =np.add_best_epitope_info(best_epi, "%Rank")
             self.best_mhcII_pan_epitope = np.add_best_epitope_info(best_epi, "Peptide")
             self.best_mhcII_pan_allele = np.add_best_epitope_info(best_epi, "Allele")
             best_epi_affinity =  np.minimal_binding_score(preds, rank = False)
-            #print best_epi_affinity
             self.best_mhcII_pan_affinity = np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
             self.best_mhcII_pan_affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Peptide")
             self.best_mhcII_pan_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "Allele")
@@ -118,12 +115,11 @@ class BestandmultiplebindermhcII:
 
         ### PREDICTION FOR WT SEQUENCE
         xmer_wt = epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        #print >> sys.stderr, "WT seq: " + xmer_wt
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
         tmp_prediction = tmp_prediction_file.name
-        print(tmp_prediction, file=sys.stderr)
+        logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
         mb = multiple_binders.MultipleBinding()
         np.generate_fasta(epi_dict, tmp_fasta, mut = False)
@@ -152,7 +148,6 @@ class BestandmultiplebindermhcII:
             self.best_mhcII_pan_epitope_WT = np.add_best_epitope_info(best_epi, "Peptide")
             self.best_mhcII_pan_allele_WT = np.add_best_epitope_info(best_epi, "Allele")
             best_epi_affinity = np.filter_for_WT_epitope(preds, self.best_mhcII_pan_affinity_epitope )
-            #print best_epi_affinity
             self.best_mhcII_affinity_WT =np.add_best_epitope_info(best_epi_affinity, "Affinity(nM)")
             self.best_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Peptide")
             self.best_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "Allele")
@@ -198,10 +193,10 @@ if __name__ == '__main__':
         for ii,i in enumerate(dat[1]):
             dat[1][ii].append(str(patient))
     # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles(mhc =MHC_II)
+    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles(mhc =MHC_II)
     # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
+    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
 
     Allepit = {}
