@@ -11,7 +11,7 @@ from input.Tcell_predictor import tcellpredictor_wrapper as tcr_pred
 from input.netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
 from input.neoag import neoag_gbm_model as neoag
 from input.MixMHCpred import mixmhcpred, mixmhc2pred
-from input.dissimilarity_garnish import dissimilarity
+from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 from input.vaxrank import vaxrank
 from input import MHC_I, MHC_II
 from logzero import logger
@@ -336,8 +336,9 @@ class Epitope:
         # neoantigen fitness
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmpseq", suffix = ".fasta", delete = False)
         tmp_fasta = tmp_fasta_file.name
-        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta, self.references), "dissimilarity")
-        self.add_features(dissimilarity.wrap_dissimilarity(self.properties, tmp_fasta, self.references, filter_binder =True), "dissimilarity_filter500")
+        dissimilarity = DissimilarityCalculator()
+        self.add_features(dissimilarity.calculate_dissimilarity(self.properties, tmp_fasta, self.references), "dissimilarity")
+        self.add_features(dissimilarity.calculate_dissimilarity(self.properties, tmp_fasta, self.references, filter_binder =True), "dissimilarity_filter500")
 
         # vaxrank
         vaxrankscore = vaxrank.VaxRank()
