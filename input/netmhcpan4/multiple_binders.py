@@ -4,17 +4,20 @@ import math
 
 from logzero import logger
 
-import input.netmhcIIpan.netmhcIIpan_prediction as netmhcpan_prediction
+from input.netmhcIIpan.netmhcIIpan_prediction import NetMhcIIPanBestPrediction
 from input import MHC_I, MHC_II
+from input.netmhcpan4.netmhcpan_prediction import NetMhcPanBestPrediction
 
 
 class MultipleBinding:
 
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self.score_all_epitopes = []
         self.score_top10 = []
@@ -167,12 +170,14 @@ class MultipleBinding:
         '''takes epitope dictionary as input and returns several scores that describe multiple binding.
         '''
         # TODO: check if all of this object creation can be avoided
-        netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).generate_fasta(epi_dict)
-        alleles = netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).get_hla_alleles(epi_dict, patient_hlaI)
-        netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).mhc_prediction(alleles, set_available_mhc)
-        epi_dict["Position_Xmer_Seq"] = netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).mut_position_xmer_seq(epi_dict)
-        preds = netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).filter_binding_predictions(epi_dict)
-        list_tups = MultipleBinding().generate_epi_tuple(preds)
+        NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration).generate_fasta(epi_dict)
+        alleles = NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration).get_hla_alleles(epi_dict, patient_hlaI)
+        NetMhcPanBestPrediction(
+            runner=self.runner, configuration=self.configuration).mhc_prediction(alleles, set_available_mhc)
+        epi_dict["Position_Xmer_Seq"] = NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration).mut_position_xmer_seq(epi_dict)
+        preds = NetMhcIIPanBestPrediction(
+            runner=self.runner, configuration=self.configuration).filter_binding_predictions(epi_dict)
+        list_tups = self.generate_epi_tuple(preds)
         self.epitope_scores = "/".join([tup[0] for tup in list_tups])
         self.epitope_affinities = "/".join([tup[1] for tup in list_tups])
         self.epitope_seqs = "/".join([tup[2] for tup in list_tups])

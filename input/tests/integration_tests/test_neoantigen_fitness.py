@@ -10,29 +10,29 @@ from input import MHC_II, MHC_I
 class TestNeoantigenFitness(TestCase):
 
     def setUp(self):
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=Runner())
+        self.references, self.configuration, self.fastafile = self._load_references()
+        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
+            runner=Runner(), configuration=self.configuration)
 
     def _load_references(self):
-        references = integration_test_tools.load_references()
+        references, configuration = integration_test_tools.load_references()
         fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
-        return references, fastafile
+        return references, configuration, fastafile
 
     def test_pathogen_similarity_mhcI(self):
-        references, fastafile = self._load_references()
         result = self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
             props={"MHC_I_epitope_.best_prediction.": "hey"},
             mhc=MHC_I,
-            fastafile=fastafile.name,
-            iedb=references.iedb)
+            fastafile=self.fastafile.name,
+            iedb=self.references.iedb)
         self.assertEqual('0', result)
 
     def test_pathogen_similarity_mhcII(self):
-        references, fastafile = self._load_references()
         result = self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
             props={"MHC_II_epitope_.best_prediction.": "hey"},
             mhc=MHC_II,
-            fastafile=fastafile.name,
-            iedb=references.iedb)
+            fastafile=self.fastafile.name,
+            iedb=self.references.iedb)
         self.assertEqual('0', result)
 
     def test_amplitude_mhc(self):

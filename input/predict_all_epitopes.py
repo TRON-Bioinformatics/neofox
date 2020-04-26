@@ -8,13 +8,14 @@ from input import MHC_I, MHC_II
 from input.epitope import Epitope
 from input.helpers import data_import
 from input.new_features import conservation_scores
-from input.references import ReferenceFolder
+from input.references import ReferenceFolder, DependenciesConfiguration
 
 
 class Bunchepitopes:
 
     def __init__(self):
         self.references = ReferenceFolder()
+        self.configuration = DependenciesConfiguration()
         self.Allepit = {}
         self.proteome_dictionary = {}
         self.rna_reference = {}
@@ -276,7 +277,7 @@ class Bunchepitopes:
         # feature calculation for each epitope
         for ii, i in enumerate(dat[1]):
             # dict for each epitope
-            z = Epitope(self.references).main(
+            z = Epitope(references=self.references, configuration=self.configuration).main(
                 dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
                 self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,

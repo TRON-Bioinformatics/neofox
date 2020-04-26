@@ -6,6 +6,29 @@ import input
 from input.exceptions import INPuTConfigurationException
 
 
+class DependenciesConfiguration(object):
+
+    def __init__(self):
+        self.blastp = self._check_and_load_binary(input.INPUT_BLASTP_ENV)
+        self.mix_mhc2_pred = self._check_and_load_binary(input.INPUT_MIXMHC2PRED_ENV)
+        self.mix_mhc_pred = self._check_and_load_binary(input.INPUT_MIXMHCPRED_ENV)
+        self.rscript = self._check_and_load_binary(input.INPUT_RSCRIPT_ENV)
+        self.net_mhc2_pan = self._check_and_load_binary(input.INPUT_NETMHC2PAN_ENV)
+        self.net_mhc_pan = self._check_and_load_binary(input.INPUT_NETMHCPAN_ENV)
+
+    @staticmethod
+    def _check_and_load_binary(variable_name):
+        variable_value = os.environ.get(variable_name, "")
+        if not variable_value:
+            raise INPuTConfigurationException(
+                "Please, set the environment variable ${} pointing to the right binary!".format(
+                    variable_name))
+        if not os.path.exists(variable_value):
+            raise INPuTConfigurationException("The provided binary '{}' in ${} does not exist!".format(
+                variable_value, variable_name))
+        return variable_value
+
+
 class ReferenceFolder(object):
 
     def __init__(self):

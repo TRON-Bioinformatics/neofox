@@ -8,7 +8,7 @@ from input.Tcell_predictor.tcellpredictor_wrapper import Tcellprediction
 class TestTCellPredictor(TestCase):
 
     def setUp(self):
-        self.references = integration_test_tools.load_references()
+        self.references, self.configuration = integration_test_tools.load_references()
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
 
     def test_tcell_predictor(self):

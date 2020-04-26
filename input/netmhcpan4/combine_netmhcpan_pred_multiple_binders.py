@@ -9,11 +9,13 @@ import input.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self.MHC_score_all_epitopes = []
         self.MHC_score_top10 = []
@@ -68,7 +70,7 @@ class BestAndMultipleBinder:
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         '''
         number_alleles = len(tuple_best_per_allele)
-        multbind = multiple_binders.MultipleBinding(runner=self.runner)
+        multbind = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         if len(tuple_best_per_allele_new) == 6:
             return multbind.wrapper_mean_calculation(tuple_best_per_allele_new)
@@ -86,8 +88,8 @@ class BestAndMultipleBinder:
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         logger.debug(tmp_prediction)
-        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner)
-        mb = multiple_binders.MultipleBinding(runner=self.runner)
+        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
+        mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
         np.generate_fasta(epi_dict, tmp_fasta, mut=True)
         alleles = np.get_hla_allels(epi_dict, patient_hlaI)
         # print alleles
@@ -144,8 +146,8 @@ class BestAndMultipleBinder:
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         logger.debug(tmp_prediction)
-        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner)
-        mb = multiple_binders.MultipleBinding(runner=self.runner)
+        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
+        mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
         np.generate_fasta(epi_dict, tmp_fasta, mut=False)
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)

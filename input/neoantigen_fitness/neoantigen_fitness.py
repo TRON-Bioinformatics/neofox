@@ -10,11 +10,13 @@ from input.neoantigen_fitness.Aligner_modified import Aligner
 
 class NeoantigenFitnessCalculator(object):
 
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
 
     def _calc_pathogensimilarity(self, fasta_file, n, iedb):
         '''
@@ -23,7 +25,7 @@ class NeoantigenFitnessCalculator(object):
         outfile_file = tempfile.NamedTemporaryFile(prefix="tmp_iedb_", suffix=".xml", delete=False)
         outfile = outfile_file.name
         self.runner.run_command(cmd=[
-            "/code/ncbi-blast/2.8.1+/bin/blastp",
+            self.configuration.blastp,
             "-gapopen", "11",
             "-gapextend", "1",
             "-outfmt", "5",

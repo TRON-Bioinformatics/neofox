@@ -4,12 +4,12 @@ import tempfile
 import dotenv
 from Bio.Alphabet.IUPAC import IUPACData
 
-from input.references import ReferenceFolder
+from input.references import ReferenceFolder, DependenciesConfiguration
 
 
 def load_references():
     dotenv.load_dotenv()
-    return ReferenceFolder()
+    return ReferenceFolder(), DependenciesConfiguration()
 
 
 def create_temp_aminoacid_fasta_file():
