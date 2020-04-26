@@ -8,8 +8,12 @@ import input.netmhcpan4.multiple_binders as multiple_binders
 import input.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
 
 
-class Bestandmultiplebinder:
-    def __init__(self):
+class BestAndMultipleBinder:
+    def __init__(self, runner):
+        """
+        :type runner: input.helpers.runner.Runner
+        """
+        self.runner = runner
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self.MHC_score_all_epitopes = []
         self.MHC_score_top10 = []
@@ -64,7 +68,7 @@ class Bestandmultiplebinder:
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         '''
         number_alleles = len(tuple_best_per_allele)
-        multbind = multiple_binders.MultipleBinding()
+        multbind = multiple_binders.MultipleBinding(runner=self.runner)
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         if len(tuple_best_per_allele_new) == 6:
             return multbind.wrapper_mean_calculation(tuple_best_per_allele_new)
@@ -82,8 +86,8 @@ class Bestandmultiplebinder:
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         logger.debug(tmp_prediction)
-        np = netmhcpan_prediction.NetmhcpanBestPrediction()
-        mb = multiple_binders.MultipleBinding()
+        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner)
+        mb = multiple_binders.MultipleBinding(runner=self.runner)
         np.generate_fasta(epi_dict, tmp_fasta, mut=True)
         alleles = np.get_hla_allels(epi_dict, patient_hlaI)
         # print alleles
@@ -140,8 +144,8 @@ class Bestandmultiplebinder:
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         logger.debug(tmp_prediction)
-        np = netmhcpan_prediction.NetmhcpanBestPrediction()
-        mb = multiple_binders.MultipleBinding()
+        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner)
+        mb = multiple_binders.MultipleBinding(runner=self.runner)
         np.generate_fasta(epi_dict, tmp_fasta, mut=False)
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
@@ -186,76 +190,76 @@ class Bestandmultiplebinder:
         self.mhcI_affinity_epitope_9mer_WT = np.add_best_epitope_info(best_9mer_affinity, "Peptide")
 
 
-if __name__ == '__main__':
-
-    from input import predict_all_epitopes, epitope
-    from input.helpers import data_import
-
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
-    # file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/test.txt"
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/20170713_IS_IM_data.complete.update_Dv10.csv.annotation.csv_v2.csv"
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
-    # hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
-    # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/alleles.csv"
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/test_ott_head_pt10.txt"
-    # hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
-    # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190819_alleles_extended.csv"
-    hla_file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/20190822_alleles.csv"
-    file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/in_files/PtBI000048T_1PEB.transcript"
-    # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/20190816_alleles_extended.csv"
-    # file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/Pt12/scratch/Pt12_mut_set.txt.transcript.squish.somatic.freq"
-    dat = data_import.import_dat_icam(file, False)
-    if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-        dat = data_import.change_col_names(dat)
-    if "patient.id" not in dat[0]:
-        try:
-            patient = file.split("/")[-3]
-            if "Pt" not in patient:
-                patient = file.split("/")[-1].split(".")[0]
-        except IndexError:
-            patient = file.split("/")[-1].split(".")[0]
-        dat[0].append("patient.id")
-        for ii, i in enumerate(dat[1]):
-            dat[1][ii].append(str(patient))
-    # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
-    # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
-
-    Allepit = {}
-    for ii, i in enumerate(dat[1]):
-        if ii < 10:
-            dict_epi = epitope.Epitope()
-            dict_epi.init_properties(dat[0], dat[1][ii])
-            x = Bestandmultiplebinder()
-            x.main(dict_epi.properties, patient_hlaI, set_available_mhc)
-            print(dict_epi.properties["patient.id"])
-            attrs = vars(x)
-            print(x.mhcI_affinity_epitope_9mer)
-            print(x.MHC_score_best_per_alelle)
-
-            '''
-            for sc, mn in zip(x.MHC_score_all_epitopes, x.mean_type):
-                dict_epi.add_features(sc, "MB_score_all_epitopes_" + mn)
-            for sc, mn in zip(x.MHC_score_top10, x.mean_type):
-                dict_epi.add_features(sc, "MB_score_top10_" + mn)
-            for sc, mn in zip(x.MHC_score_best_per_alelle, x.mean_type):
-                dict_epi.add_features(sc, "MB_score_best_per_alelle_" + mn)
-            dict_epi.add_features(x.MHC_epitope_scores, "MB_epitope_scores")
-            dict_epi.add_features(x.MHC_epitope_seqs, "MB_epitope_sequences")
-            dict_epi.add_features(x.MHC_epitope_alleles, "MB_alleles")
-            dict_epi.add_features(x.MHC_number_strong_binders, "MB_number_of_strong_binders")
-            dict_epi.add_features(x.MHC_number_weak_binders, "MB_number_of_weak_binders")
-            dict_epi.add_features(x.best4_mhc_score, "best4_mhc_score")
-            dict_epi.add_features(x.best4_mhc_epitope, "best4_mhc_epitope")
-            dict_epi.add_features(x.best4_mhc_allele, "best4_mhc_allele")
-            dict_epi.add_features(x.directed_to_TCR, "directed_to_TCR")
-            z = dict_epi.properties
-            for key in z:
-                if key not in Allepit:
-                    Allepit[key] = [z[key]]
-                else:
-                    Allepit[key].append(z[key])
-            '''
-    # predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)
+# if __name__ == '__main__':
+#
+#     from input import predict_all_epitopes, epitope
+#     from input.helpers import data_import
+#
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
+#     # file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/test.txt"
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/20170713_IS_IM_data.complete.update_Dv10.csv.annotation.csv_v2.csv"
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
+#     # hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
+#     # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/riaz/output_tables_pre/alleles.csv"
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/test_ott_head_pt10.txt"
+#     # hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
+#     # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190819_alleles_extended.csv"
+#     hla_file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/20190822_alleles.csv"
+#     file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/in_files/PtBI000048T_1PEB.transcript"
+#     # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/20190816_alleles_extended.csv"
+#     # file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/Pt12/scratch/Pt12_mut_set.txt.transcript.squish.somatic.freq"
+#     dat = data_import.import_dat_icam(file, False)
+#     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
+#         dat = data_import.change_col_names(dat)
+#     if "patient.id" not in dat[0]:
+#         try:
+#             patient = file.split("/")[-3]
+#             if "Pt" not in patient:
+#                 patient = file.split("/")[-1].split(".")[0]
+#         except IndexError:
+#             patient = file.split("/")[-1].split(".")[0]
+#         dat[0].append("patient.id")
+#         for ii, i in enumerate(dat[1]):
+#             dat[1][ii].append(str(patient))
+#     # available MHC alleles
+#     set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
+#     # hla allele of patients
+#     patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+#     patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
+#
+#     Allepit = {}
+#     for ii, i in enumerate(dat[1]):
+#         if ii < 10:
+#             dict_epi = epitope.Epitope()
+#             dict_epi.init_properties(dat[0], dat[1][ii])
+#             x = Bestandmultiplebinder()
+#             x.main(dict_epi.properties, patient_hlaI, set_available_mhc)
+#             print(dict_epi.properties["patient.id"])
+#             attrs = vars(x)
+#             print(x.mhcI_affinity_epitope_9mer)
+#             print(x.MHC_score_best_per_alelle)
+#
+#             '''
+#             for sc, mn in zip(x.MHC_score_all_epitopes, x.mean_type):
+#                 dict_epi.add_features(sc, "MB_score_all_epitopes_" + mn)
+#             for sc, mn in zip(x.MHC_score_top10, x.mean_type):
+#                 dict_epi.add_features(sc, "MB_score_top10_" + mn)
+#             for sc, mn in zip(x.MHC_score_best_per_alelle, x.mean_type):
+#                 dict_epi.add_features(sc, "MB_score_best_per_alelle_" + mn)
+#             dict_epi.add_features(x.MHC_epitope_scores, "MB_epitope_scores")
+#             dict_epi.add_features(x.MHC_epitope_seqs, "MB_epitope_sequences")
+#             dict_epi.add_features(x.MHC_epitope_alleles, "MB_alleles")
+#             dict_epi.add_features(x.MHC_number_strong_binders, "MB_number_of_strong_binders")
+#             dict_epi.add_features(x.MHC_number_weak_binders, "MB_number_of_weak_binders")
+#             dict_epi.add_features(x.best4_mhc_score, "best4_mhc_score")
+#             dict_epi.add_features(x.best4_mhc_epitope, "best4_mhc_epitope")
+#             dict_epi.add_features(x.best4_mhc_allele, "best4_mhc_allele")
+#             dict_epi.add_features(x.directed_to_TCR, "directed_to_TCR")
+#             z = dict_epi.properties
+#             for key in z:
+#                 if key not in Allepit:
+#                     Allepit[key] = [z[key]]
+#                 else:
+#                     Allepit[key].append(z[key])
+#             '''
+#     # predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)

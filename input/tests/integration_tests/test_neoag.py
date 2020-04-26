@@ -1,6 +1,7 @@
 from unittest import TestCase, SkipTest
 
 from input.neoag.neoag_gbm_model import NeoagCalculator
+from input.helpers.runner import Runner
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
 
 
@@ -9,9 +10,10 @@ class TestNeoantigenFitness(TestCase):
     def setUp(self):
         self.references = integration_test_tools.load_references()
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
+        self.runner = Runner()
 
     def test_neoag(self):
-        result = NeoagCalculator().wrapper_neoag(
+        result = NeoagCalculator(runner=self.runner).wrapper_neoag(
             props={'patient': "John Doe",
                    'best_affinity_epitope_netmhcpan4': 'DDDDDDD',
                    'best_affinity_netmhcpan4': 0,

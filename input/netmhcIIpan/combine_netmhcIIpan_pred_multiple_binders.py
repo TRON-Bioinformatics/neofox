@@ -9,8 +9,13 @@ from input import MHC_II
 from input.netmhcpan4 import multiple_binders
 
 
-class BestandmultiplebindermhcII:
-    def __init__(self):
+class BestAndMultipleBinderMhcII:
+
+    def __init__(self, runner):
+        """
+        :type runner: input.helpers.runner.Runner
+        """
+        self.runner = runner
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self.MHCII_score_all_epitopes = ["NA", "NA", "NA"]
         self.MHCII_score_top10 = ["NA", "NA", "NA"]
@@ -47,7 +52,7 @@ class BestandmultiplebindermhcII:
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         '''
         number_alleles = len(tuple_best_per_allele)
-        multbind = multiple_binders.MultipleBinding()
+        multbind = multiple_binders.MultipleBinding(runner=self.runner)
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         logger.debug(tuple_best_per_allele)
         logger.debug(len(tuple_best_per_allele))
@@ -74,8 +79,8 @@ class BestandmultiplebindermhcII:
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         logger.debug(tmp_prediction)
-        np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
-        mb = multiple_binders.MultipleBinding()
+        np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner)
+        mb = multiple_binders.MultipleBinding(runner=self.runner)
         np.generate_fasta(epi_dict, tmp_fasta, mut=True)
         alleles = np.get_hla_alleles(epi_dict, patient_hlaII)
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
@@ -120,8 +125,8 @@ class BestandmultiplebindermhcII:
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         logger.debug(tmp_prediction)
-        np = netmhcIIpan_prediction.NetmhcIIpanBestPrediction()
-        mb = multiple_binders.MultipleBinding()
+        np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner)
+        mb = multiple_binders.MultipleBinding(runner=self.runner)
         np.generate_fasta(epi_dict, tmp_fasta, mut=False)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         try:
@@ -198,7 +203,7 @@ if __name__ == '__main__':
         if ii < 10:
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
-            x = BestandmultiplebindermhcII()
+            x = BestAndMultipleBinderMhcII()
             x.main(dict_epi.properties, patient_hlaII, set_available_mhc)
             # print x.MHC_epitope_scores_WT
             # print x.MHC_epitope_seqs_WT

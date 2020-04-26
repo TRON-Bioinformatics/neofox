@@ -4,14 +4,16 @@ import os
 import os.path
 import tempfile
 
-from input.helpers import runner
 from input.neoantigen_fitness.Aligner_modified import Aligner
 
 
 class DissimilarityCalculator(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, runner):
+        """
+        :type runner: input.helpers.runner.Runner
+        """
+        self.runner = runner
 
     def _calc_dissimilarity(self, fasta_file, n, references):
         '''
@@ -19,7 +21,7 @@ class DissimilarityCalculator(object):
         '''
         outfile_file = tempfile.NamedTemporaryFile(prefix="tmp_prot_", suffix=".xml", delete=False)
         outfile = outfile_file.name
-        cmd = [
+        self.runner.run_command(cmd=[
             "/code/ncbi-blast/2.8.1+/bin/blastp",
             "-gapopen", "11",
             "-gapextend", "1",
@@ -27,8 +29,7 @@ class DissimilarityCalculator(object):
             "-query", fasta_file,
             "-out", outfile,
             "-db", os.path.join(references.proteome_db, "homo_sapiens.mod"),
-            "-evalue", "100000000"]
-        runner.run_command(cmd)
+            "-evalue", "100000000"])
         aligner = Aligner()
         # set a to 32 for dissimilarity
         aligner.readAllBlastAlignments(outfile)
