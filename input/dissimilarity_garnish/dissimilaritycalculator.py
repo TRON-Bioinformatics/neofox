@@ -9,11 +9,13 @@ from input.neoantigen_fitness.Aligner_modified import Aligner
 
 class DissimilarityCalculator(object):
 
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
 
     def _calc_dissimilarity(self, fasta_file, n, references):
         '''
@@ -22,7 +24,7 @@ class DissimilarityCalculator(object):
         outfile_file = tempfile.NamedTemporaryFile(prefix="tmp_prot_", suffix=".xml", delete=False)
         outfile = outfile_file.name
         self.runner.run_command(cmd=[
-            "/code/ncbi-blast/2.8.1+/bin/blastp",
+            self.configuration.blastp,
             "-gapopen", "11",
             "-gapextend", "1",
             "-outfmt", "5",

@@ -8,12 +8,12 @@ from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCal
 class TestDissimilarity(TestCase):
 
     def setUp(self):
-        self.references = integration_test_tools.load_references()
+        self.references, self.configuration = integration_test_tools.load_references()
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         self.runner = Runner()
 
     def test_dissimilarity(self):
-        result = DissimilarityCalculator(runner=self.runner).calculate_dissimilarity(
+        result = DissimilarityCalculator(runner=self.runner, configuration=self.configuration).calculate_dissimilarity(
             props={'best_affinity_epitope_netmhcpan4': 'hey', 'best_affinity_netmhcpan4': 'ho'},
             fastafile=self.fastafile.name,
             references=self.references)

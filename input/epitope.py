@@ -6,13 +6,14 @@ from logzero import logger
 
 from input import FeatureLiterature
 from input import MHC_I, MHC_II
-from input.MixMHCpred import mixmhcpred, mixmhc2pred
-from input.Tcell_predictor import tcellpredictor_wrapper as tcr_pred
+from input.MixMHCpred.mixmhcpred import MixMHCpred
+from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from input.Tcell_predictor.tcellpredictor_wrapper import Tcellprediction
 from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 from input.neoag.neoag_gbm_model import NeoagCalculator
 from input.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
-from input.netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
-from input.netmhcpan4 import combine_netmhcpan_pred_multiple_binders as mhcprediction
+from input.netmhcIIpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from input.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from input.new_features import amino_acid_frequency_scores as freq_score, differential_expression, conservation_scores
 from input.self_similarity import self_similarity
 from input.vaxrank import vaxrank
@@ -20,17 +21,23 @@ from input.helpers.runner import Runner
 
 
 class Epitope:
-    def __init__(self, references):
+
+    def __init__(self, references, configuration):
+        """
+        :type references: input.references.ReferenceFolder
+        :type configuration: input.references.DependenciesConfiguration
+        """
         self.references = references
         self.properties = {}
         runner = Runner()
-        self.dissimilarity_calculator = DissimilarityCalculator(runner=runner)
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner)
-        self.neoag_calculator = NeoagCalculator(runner=runner)
-        self.predII = mhcIIprediction.BestAndMultipleBinderMhcII(runner=runner)
-        self.predpresentation2 = mixmhc2pred.MixMhc2Pred(runner=runner)
-        self.pred = mhcprediction.BestAndMultipleBinder(runner=runner)
-        self.predpresentation = mixmhcpred.MixMHCpred(runner=runner)
+        self.dissimilarity_calculator = DissimilarityCalculator(runner=runner, configuration=configuration)
+        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner, configuration=configuration)
+        self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
+        self.predII = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
+        self.predpresentation2 = MixMhc2Pred(runner=runner, configuration=configuration)
+        self.pred = BestAndMultipleBinder(runner=runner, configuration=configuration)
+        self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
+        self.tcellpredict = Tcellprediction(references=self.references)
 
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
@@ -215,10 +222,9 @@ class Epitope:
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
             self.properties, MHC_II), "Recognition_Potential_mhcII")
         # T cell predictor
-        tcellpredict = tcr_pred.Tcellprediction(references=self.references)
-        tcellpredict.main(self.properties)
-        self.add_features(tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
-        self.add_features(tcellpredict.TcellPrdictionScore_9merPred, "Tcell_predictor_score_9mersPredict")
+        self.tcellpredict.main(self.properties)
+        self.add_features(self.tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
+        self.add_features(self.tcellpredict.TcellPrdictionScore_9merPred, "Tcell_predictor_score_9mersPredict")
         # DAI with affinity values
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=True),
                           "DAI_affinity")

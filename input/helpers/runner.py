@@ -14,6 +14,7 @@ class Runner(object):
             logger.info("Finished command correctly!")
         else:
             logger.error("Finished command with return code {}".format(return_code))
+            logger.error(self._decode(errors))
         return self._decode(output), self._decode(errors)
 
     def _decode(self, data):

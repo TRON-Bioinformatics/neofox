@@ -11,11 +11,13 @@ from input import MHC_I
 
 class NeoagCalculator(object):
 
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
 
     def _apply_gbm(self, tmp_in):
         ''' this function calls NeoAg tool. this tool applys a gradient boosting machine based on biochemical features to epitopes (predicted seqs)
@@ -26,7 +28,7 @@ class NeoagCalculator(object):
         logger.debug(model_path)
         logger.debug(tmp_in)
         cmd = [
-            "/code/R/3.6.0/bin/Rscript",
+            self.configuration.rscript,
             tool_path,
             model_path,
             tmp_in]

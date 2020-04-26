@@ -8,7 +8,7 @@ from input import MHC_I, MHC_II
 class TestSelfSimilarity(TestCase):
 
     def setUp(self):
-        self.references = integration_test_tools.load_references()
+        self.references, self.configuration = integration_test_tools.load_references()
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
 
     def test_get_self_similarity_mhci(self):

@@ -9,11 +9,13 @@ from input.helpers import data_import
 
 class NetMhcIIPanBestPrediction:
 
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
         self.mhcII_score = "NA"
         self.epitopeII = "NA"
         self.alleleII = "NA"
@@ -88,7 +90,7 @@ class NetMhcIIPanBestPrediction:
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         logger.debug(tmp_folder)
         lines, _ = self.runner.run_command([
-            "/code/net/MHCIIpan/3.2/netMHCIIpan",
+            self.configuration.net_mhc2_pan,
             "-a", hla_allele,
             "-f", tmpfasta,
             "-tdir", tmp_folder,

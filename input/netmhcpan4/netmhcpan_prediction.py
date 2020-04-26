@@ -7,11 +7,13 @@ from input.helpers import data_import
 
 class NetMhcPanBestPrediction:
 
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
         self.mhc_score = "NA"
         self.epitope = "NA"
         self.allele = "NA"
@@ -66,7 +68,7 @@ class NetMhcPanBestPrediction:
                 allels_for_prediction.append(allele)
         hla_allele = ",".join(allels_for_prediction)
         cmd = [
-            "netMHCpan",
+            self.configuration.net_mhc_pan,
             "-a", hla_allele,
             "-f", tmpfasta,
             "-BA"]

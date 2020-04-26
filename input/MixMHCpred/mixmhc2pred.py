@@ -2,16 +2,16 @@
 
 import tempfile
 
-from input.helpers import data_import
-
 
 class MixMhc2Pred:
 
-    def __init__(self, runner):
+    def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
         """
         self.runner = runner
+        self.configuration = configuration
         self.all_peptides = "NA"
         self.all_ranks = "NA"
         self.all_alleles = "NA"
@@ -130,7 +130,7 @@ class MixMhc2Pred:
             # use best allele from mutated seq prediction
             hla_allele = hla_alleles[0]
         cmd = [
-            "MixMHC2pred",
+            self.configuration.mix_mhc2_pred,
             "-a", hla_allele,
             "-i", tmpfasta,
             "-o", outtmp]
