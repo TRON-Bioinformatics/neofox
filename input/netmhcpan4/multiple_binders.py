@@ -9,7 +9,12 @@ from input import MHC_I, MHC_II
 
 
 class MultipleBinding:
-    def __init__(self):
+
+    def __init__(self, runner):
+        """
+        :type runner: input.helpers.runner.Runner
+        """
+        self.runner = runner
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self.score_all_epitopes = []
         self.score_top10 = []
@@ -161,11 +166,12 @@ class MultipleBinding:
     def main(self, epi_dict, alleles, set_available_mhc):
         '''takes epitope dictionary as input and returns several scores that describe multiple binding.
         '''
-        netmhcpan_prediction.NetmhcpanBestPrediction().generate_fasta(epi_dict)
-        alleles = netmhcpan_prediction.NetmhcpanBestPrediction().get_hla_alleles(epi_dict, patient_hlaI)
-        netmhcpan_prediction.NetmhcpanBestPrediction().mhc_prediction(alleles, set_available_mhc)
-        epi_dict["Position_Xmer_Seq"] = netmhcpan_prediction.NetmhcpanBestPrediction().mut_position_xmer_seq(epi_dict)
-        preds = netmhcpan_prediction.NetmhcpanBestPrediction().filter_binding_predictions(epi_dict)
+        # TODO: check if all of this object creation can be avoided
+        netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).generate_fasta(epi_dict)
+        alleles = netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).get_hla_alleles(epi_dict, patient_hlaI)
+        netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).mhc_prediction(alleles, set_available_mhc)
+        epi_dict["Position_Xmer_Seq"] = netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).mut_position_xmer_seq(epi_dict)
+        preds = netmhcpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner).filter_binding_predictions(epi_dict)
         list_tups = MultipleBinding().generate_epi_tuple(preds)
         self.epitope_scores = "/".join([tup[0] for tup in list_tups])
         self.epitope_affinities = "/".join([tup[1] for tup in list_tups])
@@ -185,46 +191,46 @@ class MultipleBinding:
         self.generator_rate = self.determine_number_of_binders(list_scores=all_affinities, threshold=50)
 
 
-if __name__ == '__main__':
-
-    from input import predict_all_epitopes, epitope
-    from input.helpers import data_import
-
-    file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/20170713_IS_IM_data.complete.update_Dv10.csv.annotation.csv_v2.csv"
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
-    hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
-    dat = data_import.import_dat_icam(file, False)
-    # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
-
-    # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
-
-    Allepit = {}
-    for ii, i in enumerate(dat[1]):
-        # print ii
-        dict_epi = epitope.Epitope()
-        dict_epi.init_properties(dat[0], dat[1][ii])
-        x = MultipleBinding()
-        x.main(dict_epi.properties, patient_hlaI, set_available_mhc)
-        for sc, mn in zip(x.score_all_epitopes, x.mean_type):
-            dict_epi.add_features(sc, "MB_score_all_epitopes_" + mn)
-        for sc, mn in zip(x.score_top10, x.mean_type):
-            dict_epi.add_features(sc, "MB_score_top10_" + mn)
-        for sc, mn in zip(x.score_best_per_alelle, x.mean_type):
-            dict_epi.add_features(sc, "MB_score_best_per_alelle_" + mn)
-        dict_epi.add_features(x.epitope_scores, "MB_epitope_scores")
-        dict_epi.add_features(x.epitope_seqs, "MB_epitope_sequences")
-        dict_epi.add_features(x.epitope_alleles, "MB_alleles")
-        dict_epi.add_features(x.number_strong_binders, "MB_number_of_strong_binders")
-        dict_epi.add_features(x.number_weak_binders, "MB_number_of_weak_binders")
-        z = dict_epi.properties
-        for key in z:
-            if key not in Allepit:
-                Allepit[key] = [z[key]]
-            else:
-                Allepit[key].append(z[key])
-    # commented as this is test code which has to be placed elsewhere and it is the only bit using this write method
-    # predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)
+# if __name__ == '__main__':
+#
+#     from input import predict_all_epitopes, epitope
+#     from input.helpers import data_import
+#
+#     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/20170713_IS_IM_data.complete.update_Dv10.csv.annotation.csv_v2.csv"
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
+#     hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
+#     dat = data_import.import_dat_icam(file, False)
+#     # available MHC alleles
+#     set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
+#
+#     # hla allele of patients
+#     patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+#     patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
+#
+#     Allepit = {}
+#     for ii, i in enumerate(dat[1]):
+#         # print ii
+#         dict_epi = epitope.Epitope()
+#         dict_epi.init_properties(dat[0], dat[1][ii])
+#         x = MultipleBinding()
+#         x.main(dict_epi.properties, patient_hlaI, set_available_mhc)
+#         for sc, mn in zip(x.score_all_epitopes, x.mean_type):
+#             dict_epi.add_features(sc, "MB_score_all_epitopes_" + mn)
+#         for sc, mn in zip(x.score_top10, x.mean_type):
+#             dict_epi.add_features(sc, "MB_score_top10_" + mn)
+#         for sc, mn in zip(x.score_best_per_alelle, x.mean_type):
+#             dict_epi.add_features(sc, "MB_score_best_per_alelle_" + mn)
+#         dict_epi.add_features(x.epitope_scores, "MB_epitope_scores")
+#         dict_epi.add_features(x.epitope_seqs, "MB_epitope_sequences")
+#         dict_epi.add_features(x.epitope_alleles, "MB_alleles")
+#         dict_epi.add_features(x.number_strong_binders, "MB_number_of_strong_binders")
+#         dict_epi.add_features(x.number_weak_binders, "MB_number_of_weak_binders")
+#         z = dict_epi.properties
+#         for key in z:
+#             if key not in Allepit:
+#                 Allepit[key] = [z[key]]
+#             else:
+#                 Allepit[key].append(z[key])
+#     # commented as this is test code which has to be placed elsewhere and it is the only bit using this write method
+#     # predict_all_epitopes.Bunchepitopes().write_to_file(Allepit)

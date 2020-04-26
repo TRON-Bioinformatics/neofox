@@ -4,11 +4,15 @@ import tempfile
 
 from logzero import logger
 
-from input.helpers import data_import, runner
+from input.helpers import data_import
 
 
 class MixMHCpred:
-    def __init__(self):
+    def __init__(self, runner):
+        """
+        :type runner: input.helpers.runner.Runner
+        """
+        self.runner = runner
         self.all_peptides = "NA"
         self.all_scores = "NA"
         self.all_ranks = "NA"
@@ -93,12 +97,11 @@ class MixMHCpred:
             allele = allele.replace("HLA-", "")
             allels_for_prediction.append(allele)
         hla_allele = ",".join(allels_for_prediction)
-        cmd = [
+        self.runner.run_command(cmd=[
             "MixMHCpred",
             "-a", hla_allele,
             "-i", tmpfasta,
-            "-o", outtmp]
-        runner.run_command(cmd)
+            "-o", outtmp])
 
     def read_mixmhcpred(self, outtmp):
         '''imports output of MixMHCpred prediction

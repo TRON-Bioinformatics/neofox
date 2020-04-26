@@ -4,12 +4,16 @@ import tempfile
 
 from logzero import logger
 
-from input import MHC_II
-from input.helpers import data_import, runner
+from input.helpers import data_import
 
 
-class NetmhcIIpanBestPrediction:
-    def __init__(self):
+class NetMhcIIPanBestPrediction:
+
+    def __init__(self, runner):
+        """
+        :type runner: input.helpers.runner.Runner
+        """
+        self.runner = runner
         self.mhcII_score = "NA"
         self.epitopeII = "NA"
         self.alleleII = "NA"
@@ -83,13 +87,12 @@ class NetmhcIIpanBestPrediction:
         hla_allele = ",".join(allels_for_prediction)
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         logger.debug(tmp_folder)
-        cmd = [
+        lines, _ = self.runner.run_command([
             "/code/net/MHCIIpan/3.2/netMHCIIpan",
             "-a", hla_allele,
             "-f", tmpfasta,
             "-tdir", tmp_folder,
-            "-dirty"]
-        lines, _ = runner.run_command(cmd)
+            "-dirty"])
         logger.debug(lines)
         counter = 0
         with open(tmppred, "w") as f:
@@ -257,40 +260,40 @@ class NetmhcIIpanBestPrediction:
         self.affinity_alleleII = self.add_best_epitope_info(best_epi_affinity, "Allele")
 
 
-if __name__ == '__main__':
-
-    from input import predict_all_epitopes, epitope
-
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
-    # hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190730_alleles.csv"
-    hla_file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/20190821_alleles.csv"
-    file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/in_files/PtBI000048T_1PEB.transcript"
-    # file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
-    # hla_file ="/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
-    dat = data_import.import_dat_icam(file, False)
-    if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-        dat = data_import.change_col_names(dat)
-    if "patient.id" not in dat[0]:
-        try:
-            patient = file.split("/")[-3]
-            if "Pt" not in patient:
-                patient = file.split("/")[-1].split(".")[0]
-        except IndexError:
-            patient = file.split("/")[-1].split(".")[0]
-        dat[0].append("patient.id")
-        for ii, i in enumerate(dat[1]):
-            dat[1][ii].append(str(patient))
-    # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
-    set_available_mhcII = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles(mhc=MHC_II)
-    # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
-
-    for ii, i in enumerate(dat[1]):
-        if ii < 10:
-            dict_epi = epitope.Epitope()
-            dict_epi.init_properties(dat[0], dat[1][ii])
-            prediction = NetmhcIIpanBestPrediction()
-            prediction.main(dict_epi.properties, set_available_mhcII, patient_hlaII)
-            attrs = vars(prediction)
+# if __name__ == '__main__':
+#
+#     from input import predict_all_epitopes, epitope
+#
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
+#     # hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190730_alleles.csv"
+#     hla_file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/20190821_alleles.csv"
+#     file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/in_files/PtBI000048T_1PEB.transcript"
+#     # file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
+#     # hla_file ="/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
+#     dat = data_import.import_dat_icam(file, False)
+#     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
+#         dat = data_import.change_col_names(dat)
+#     if "patient.id" not in dat[0]:
+#         try:
+#             patient = file.split("/")[-3]
+#             if "Pt" not in patient:
+#                 patient = file.split("/")[-1].split(".")[0]
+#         except IndexError:
+#             patient = file.split("/")[-1].split(".")[0]
+#         dat[0].append("patient.id")
+#         for ii, i in enumerate(dat[1]):
+#             dat[1][ii].append(str(patient))
+#     # available MHC alleles
+#     set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
+#     set_available_mhcII = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles(mhc=MHC_II)
+#     # hla allele of patients
+#     patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+#     patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
+#
+#     for ii, i in enumerate(dat[1]):
+#         if ii < 10:
+#             dict_epi = epitope.Epitope()
+#             dict_epi.init_properties(dat[0], dat[1][ii])
+#             prediction = NetmhcIIpanBestPrediction()
+#             prediction.main(dict_epi.properties, set_available_mhcII, patient_hlaII)
+#             attrs = vars(prediction)

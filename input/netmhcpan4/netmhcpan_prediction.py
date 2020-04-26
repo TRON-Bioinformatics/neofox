@@ -2,12 +2,16 @@
 
 import tempfile
 
-from input.helpers import data_import, runner
+from input.helpers import data_import
 
 
-class NetmhcpanBestPrediction:
+class NetMhcPanBestPrediction:
 
-    def __init__(self):
+    def __init__(self, runner):
+        """
+        :type runner: input.helpers.runner.Runner
+        """
+        self.runner = runner
         self.mhc_score = "NA"
         self.epitope = "NA"
         self.allele = "NA"
@@ -66,7 +70,7 @@ class NetmhcpanBestPrediction:
             "-a", hla_allele,
             "-f", tmpfasta,
             "-BA"]
-        lines, _ = runner.run_command(cmd)
+        lines, _ = self.runner.run_command(cmd)
         counter = 0
         with open(tmppred, "w") as f:
             for line in lines.splitlines():
@@ -281,34 +285,34 @@ class NetmhcpanBestPrediction:
         print(self.Hamming_check_0_or_1("lddcd", "lddcd"))
 
 
-if __name__ == '__main__':
-
-    from input import predict_all_epitopes, epitope
-
-    # test with ott data set
-    file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
-    hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
-    # test inest data set
-    # file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
-    # hla_file = "/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
-    dat = data_import.import_dat_icam(file, False)
-    if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-        dat = data_import.change_col_names(dat)
-    # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
-    # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
-
-    print(patient_hlaI)
-    print(patient_hlaII)
-
-    for ii, i in enumerate(dat[1]):
-        if ii < 10:
-            print(ii)
-            dict_epi = epitope.Epitope()
-            dict_epi.init_properties(dat[0], dat[1][ii])
-            prediction = NetmhcpanBestPrediction()
-            prediction.main(dict_epi.properties, set_available_mhc, patient_hlaI)
-            attrs = vars(prediction)
-            print(attrs)
+# if __name__ == '__main__':
+#
+#     from input import predict_all_epitopes, epitope
+#
+#     # test with ott data set
+#     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
+#     hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
+#     # test inest data set
+#     # file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
+#     # hla_file = "/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
+#     dat = data_import.import_dat_icam(file, False)
+#     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
+#         dat = data_import.change_col_names(dat)
+#     # available MHC alleles
+#     set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
+#     # hla allele of patients
+#     patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+#     patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
+#
+#     print(patient_hlaI)
+#     print(patient_hlaII)
+#
+#     for ii, i in enumerate(dat[1]):
+#         if ii < 10:
+#             print(ii)
+#             dict_epi = epitope.Epitope()
+#             dict_epi.init_properties(dat[0], dat[1][ii])
+#             prediction = NetMhcPanBestPrediction()
+#             prediction.main(dict_epi.properties, set_available_mhc, patient_hlaI)
+#             attrs = vars(prediction)
+#             print(attrs)
