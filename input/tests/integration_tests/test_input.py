@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from input.predict_all_epitopes import Bunchepitopes
 
 

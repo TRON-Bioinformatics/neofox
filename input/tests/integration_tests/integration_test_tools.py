@@ -1,8 +1,10 @@
-import dotenv
-import tempfile
-from input.references import ReferenceFolder
-from Bio.Alphabet.IUPAC import IUPACData
 import random
+import tempfile
+
+import dotenv
+from Bio.Alphabet.IUPAC import IUPACData
+
+from input.references import ReferenceFolder
 
 
 def load_references():

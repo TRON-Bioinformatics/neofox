@@ -1,6 +1,8 @@
 import os
-import input
+
 from logzero import logger
+
+import input
 from input.exceptions import INPuTConfigurationException
 
 

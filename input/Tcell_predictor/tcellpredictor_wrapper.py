@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
-import sys
 import tempfile
-import input.Tcell_predictor.prediction as prediction
+
 from logzero import logger
+
+import input.Tcell_predictor.prediction as prediction
 
 
 class Tcellprediction:
@@ -13,7 +14,7 @@ class Tcellprediction:
         self.TcellPrdictionScore_9merPred = "NA"
         self.references = references
 
-    def _triple_gen_seq_subst_for_prediction(self, props, all = True, affinity = False):
+    def _triple_gen_seq_subst_for_prediction(self, props, all=True, affinity=False):
         """
         extracts gene id, epitope sequence and substitution from epitope dictionary
         Tcell predictor works with 9mers only! --> extract for 9mers only
@@ -34,28 +35,28 @@ class Tcellprediction:
             z = [gene.replace(" ", ""), epi, subst]
             if all:
                 z = [gene.replace(" ", ""), epi, subst]
-                return(z)
+                return (z)
             else:
-                if(affinity):
+                if (affinity):
                     if float(score) < 500:
                         z = [gene.replace(" ", ""), epi, subst]
-                        return(z)
+                        return (z)
                     else:
-                        return(["NA", "NA", "NA"])
+                        return (["NA", "NA", "NA"])
                 else:
                     if float(score) < 2:
                         z = [gene.replace(" ", ""), epi, subst]
-                        return(z)
+                        return (z)
                     else:
-                        return(["NA", "NA", "NA"])
+                        return (["NA", "NA", "NA"])
         else:
-            return(["NA", "NA", "NA"])
+            return (["NA", "NA", "NA"])
 
     def _write_triple_to_file(self, triple, tmpfile_in):
         """
         writes triple (gene id, epitope sequence, substitution) to temporary file
         """
-        with open(tmpfile_in,"w") as f:
+        with open(tmpfile_in, "w") as f:
             tripleString = " ".join(triple)
             f.write(tripleString + "\n")
 
@@ -77,7 +78,7 @@ class Tcellprediction:
 
         return score
 
-    def _wrapper_tcellpredictor(self, props, tmpfile_in, tmpfile_out, all = True, affinity = False):
+    def _wrapper_tcellpredictor(self, props, tmpfile_in, tmpfile_out, all=True, affinity=False):
         """
         wrapper function to determine
         """
@@ -92,15 +93,15 @@ class Tcellprediction:
     def main(self, props):
         ''' returns Tcell_predictor score given mps in dictionary format
         '''
-        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicIN_", suffix = ".txt", delete = False)
+        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicIN_", suffix=".txt", delete=False)
         tmp_tcellPredIN = tmp_tcellPredIN_file.name
-        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicOUT_", suffix = ".txt", delete = False)
+        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicOUT_", suffix=".txt", delete=False)
         tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
         # returns score for all epitopes --> no filtering based on mhc affinity here!
         self.TcellPrdictionScore = self._wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT)
-        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicIN_", suffix = ".txt", delete = False)
+        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicIN_", suffix=".txt", delete=False)
         tmp_tcellPredIN = tmp_tcellPredIN_file.name
-        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix ="tmp_TcellPredicOUT_", suffix = ".txt", delete = False)
+        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicOUT_", suffix=".txt", delete=False)
         tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
         # returns score for all epitopes --> do filtering based on mhc affinity here (threshold 500 nM)!
         self.TcellPrdictionScore_9merPred = self._wrapper_tcellpredictor(

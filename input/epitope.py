@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 
-import sys
 import tempfile
-from input import FeatureLiterature
-from input.self_similarity import self_similarity
-from input.neoantigen_fitness import neoantigen_fitness
-from input.new_features import amino_acid_frequency_scores as freq_score, differential_expression, conservation_scores
-from input.netmhcpan4 import combine_netmhcpan_pred_multiple_binders as mhcprediction
-from input.Tcell_predictor import tcellpredictor_wrapper as tcr_pred
-from input.netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
-from input.neoag import neoag_gbm_model as neoag
-from input.MixMHCpred import mixmhcpred, mixmhc2pred
-from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
-from input.vaxrank import vaxrank
-from input import MHC_I, MHC_II
+
 from logzero import logger
+
+from input import FeatureLiterature
+from input import MHC_I, MHC_II
+from input.MixMHCpred import mixmhcpred, mixmhc2pred
+from input.Tcell_predictor import tcellpredictor_wrapper as tcr_pred
+from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+from input.neoag import neoag_gbm_model as neoag
+from input.neoantigen_fitness import neoantigen_fitness
+from input.netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
+from input.netmhcpan4 import combine_netmhcpan_pred_multiple_binders as mhcprediction
+from input.new_features import amino_acid_frequency_scores as freq_score, differential_expression, conservation_scores
+from input.self_similarity import self_similarity
+from input.vaxrank import vaxrank
 
 
 class Epitope:
@@ -25,7 +26,7 @@ class Epitope:
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
         """
-        for nam,char in zip(col_nam, prop_list):
+        for nam, char in zip(col_nam, prop_list):
             self.properties[nam] = char
 
     def add_features(self, new_feature, new_feature_nam):
@@ -36,7 +37,9 @@ class Epitope:
     def write_to_file(self):
         print(";".join([self.properties[key] for key in self.properties]))
 
-    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict, prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, list_HLAII_MixMHC2pred, rna_avail):
+    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
+             prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content,
+             list_HLAII_MixMHC2pred, rna_avail):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
@@ -50,8 +53,10 @@ class Epitope:
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I), "DAI_mhcI")
         self.add_features(FeatureLiterature.dai(self.properties, MHC_II), "DAI_mhcII")
         # expression
-        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail = rna_avail), "Expression_Mutated_Transcript")
-        self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content = tumour_content), "Expression_Mutated_Transcript_tumor_content")
+        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail=rna_avail),
+                          "Expression_Mutated_Transcript")
+        self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content=tumour_content),
+                          "Expression_Mutated_Transcript_tumor_content")
 
         # differential expression
         self.add_features(differential_expression.add_rna_reference(self.properties, ref_dat, 0), "mean_ref_expression")
@@ -69,18 +74,19 @@ class Epitope:
         # amino acid index
         for k in aaindex1_dict:
             z = FeatureLiterature.add_aa_index1(self.properties, "wt", k, aaindex1_dict[k])
-            self.add_features(z[1],z[0])
+            self.add_features(z[1], z[0])
             z = FeatureLiterature.add_aa_index1(self.properties, "mut", k, aaindex1_dict[k])
-            self.add_features(z[1],z[0])
+            self.add_features(z[1], z[0])
         for k in aaindex2_dict:
             try:
                 z = FeatureLiterature.add_aa_index2(self.properties, k, aaindex2_dict[k])
-                self.add_features(z[1],z[0])
+                self.add_features(z[1], z[0])
             except:
                 print(aaindex2_dict[k], wt, mut)
         # PROVEAN score
         self.add_features(conservation_scores.add_ucsc_id_to_dict(self.properties), "UCSC_ID_position")
-        self.add_features(conservation_scores.add_provean_score_from_matrix(self.properties, prov_matrix), "PROVEAN_score")
+        self.add_features(conservation_scores.add_provean_score_from_matrix(self.properties, prov_matrix),
+                          "PROVEAN_score")
         pred = mhcprediction.Bestandmultiplebinder()
         pred.main(self.properties, patient_hlaI, set_available_mhc)
         # netmhcpan4 MUT rank score
@@ -134,7 +140,7 @@ class Epitope:
         # generator rate
         self.add_features(pred.epitope_affinities_WT, "MB_affinities_WT")
         self.add_features(pred.generator_rate_WT, "Generator_rate_WT")
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding = True), "DAI_mhcI_MB")
+        self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=True), "DAI_mhcI_MB")
         # netmhcpan4 wt affinity
         self.add_features(pred.best4_affinity_WT, "best_affinity_netmhcpan4_WT")
         self.add_features(pred.best4_affinity_epitope_WT, "best_affinity_epitope_netmhcpan4_WT")
@@ -152,17 +158,26 @@ class Epitope:
         self.add_features(pred.mhcI_affinity_allele_9mer_WT, "bestHLA_allele_affinity_netmhcpan4_9mer_WT")
         self.add_features(pred.mhcI_affinity_epitope_9mer_WT, "best_affinity_epitope_netmhcpan4_9mer_WT")
         # multiplex representation
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc =MHC_I, threshold ="1"), "Diff_numb_epis_<1")
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc =MHC_I, threshold ="2"), "Diff_numb_epis_<2")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc =MHC_I, threshold ="1"), "Ratio_numb_epis_<1")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc =MHC_I, threshold ="2"), "Ratio_numb_epis_<2")
-        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_I, multiple_binding=True), "Amplitude_mhcI_MB")
+        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_I, threshold="1"),
+                          "Diff_numb_epis_<1")
+        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_I, threshold="2"),
+                          "Diff_numb_epis_<2")
+        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_I, threshold="1"),
+                          "Ratio_numb_epis_<1")
+        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_I, threshold="2"),
+                          "Ratio_numb_epis_<2")
+        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_I, multiple_binding=True),
+                          "Amplitude_mhcI_MB")
         # position of mutation
-        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties), "pos_MUT_MHCI_affinity_epi")
+        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties),
+                          "pos_MUT_MHCI_affinity_epi")
         # position of mutation
-        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer = True), "pos_MUT_MHCI_affinity_epi_9mer")
-        self.add_features(self_similarity.position_in_anchor_position(self.properties, netMHCpan = True), "Mutation_in_anchor_netmhcpan")
-        self.add_features(self_similarity.position_in_anchor_position(self.properties, nine_mer = True), "Mutation_in_anchor_netmhcpan_9mer")
+        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer=True),
+                          "pos_MUT_MHCI_affinity_epi_9mer")
+        self.add_features(self_similarity.position_in_anchor_position(self.properties, netMHCpan=True),
+                          "Mutation_in_anchor_netmhcpan")
+        self.add_features(self_similarity.position_in_anchor_position(self.properties, nine_mer=True),
+                          "Mutation_in_anchor_netmhcpan_9mer")
         # selfsimilarity
         self.add_features(self_similarity.get_self_similarity(
             props=self.properties, mhc=MHC_I, references=self.references), "Selfsimilarity_mhcI")
@@ -170,9 +185,10 @@ class Epitope:
             props=self.properties, mhc=MHC_II, references=self.references), "Selfsimilarity_mhcII")
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
-        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties), "Selfsimilarity_mhcI_conserved_binder")
+        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties),
+                          "Selfsimilarity_mhcI_conserved_binder")
         # neoantigen fitness
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmpseq", suffix = ".fasta", delete = False)
+        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
         self.add_features(
             neoantigen_fitness.wrap_pathogensimilarity(
@@ -184,43 +200,56 @@ class Epitope:
             "Pathogensimiliarity_mhcII")
         self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_I), "Amplitude_mhcI")
         self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_II), "Amplitude_mhcII")
-        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I), "Recognition_Potential_mhcI")
-        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_II), "Recognition_Potential_mhcII")
+        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I),
+                          "Recognition_Potential_mhcI")
+        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_II),
+                          "Recognition_Potential_mhcII")
         # T cell predictor
         tcellpredict = tcr_pred.Tcellprediction(references=self.references)
         tcellpredict.main(self.properties)
         self.add_features(tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
         self.add_features(tcellpredict.TcellPrdictionScore_9merPred, "Tcell_predictor_score_9mersPredict")
         # DAI with affinity values
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding = False, affinity = True), "DAI_affinity")
+        self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=True),
+                          "DAI_affinity")
         # DAI wiht rank scores by netmhcpan4
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding = False, affinity = False, netmhcscore = True), "DAI_rank_netmhcpan4")
+        self.add_features(
+            FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=False, netmhcscore=True),
+            "DAI_rank_netmhcpan4")
         # Amplitude with affinity values
-        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_I, False, True), "Amplitude_mhcI_affinity")
+        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_I, False, True),
+                          "Amplitude_mhcI_affinity")
         # Amplitude with rank by netmhcpan4
         self.add_features(
-            neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc =MHC_I, multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcI_rank_netmhcpan4")
+            neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc=MHC_I, multiple_binding=False,
+                                                       affinity=False, netmhcscore=True),
+            "Amplitude_mhcI_rank_netmhcpan4")
         # Amplitude based on best affinity prediction restricted to 9mers
         self.add_features(
-            neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc =MHC_I, multiple_binding=False, nine_mer= True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
+            neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc=MHC_I, multiple_binding=False,
+                                                       nine_mer=True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
         self.add_features(
             neoantigen_fitness.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb, nine_mer= True),
+                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb, nine_mer=True),
             "Pathogensimiliarity_mhcI_9mer")
         self.add_features(
             neoantigen_fitness.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb, affinity= True),
+                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb, affinity=True),
             "Pathogensimiliarity_mhcI_affinity_nmers")
         # recogntion potential with amplitude by affinity and netmhcpan4 score
-        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I, affinity = True), "Recognition_Potential_mhcI_affinity")
+        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I, affinity=True),
+                          "Recognition_Potential_mhcI_affinity")
         self.add_features(
-            neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I, affinity = False, netmhcscore = True), "Recognition_Potential_mhcI_rank_netmhcpan4")
+            neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I, affinity=False,
+                                                               netmhcscore=True),
+            "Recognition_Potential_mhcI_rank_netmhcpan4")
         # recogntion potential with amplitude by affinity and only 9mers considered --> value as published!!
-        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I, nine_mer = True), "Recognition_Potential_mhcI_9mer_affinity")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc =MHC_I, category ="CDN"), "CDN_mhcI")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc =MHC_II, category ="CDN"), "CDN_mhcII")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc =MHC_I, category ="ADN"), "ADN_mhcI")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc =MHC_II, category ="ADN"), "ADN_mhcII")
+        self.add_features(neoantigen_fitness.calculate_recognition_potential(self.properties, MHC_I, nine_mer=True),
+                          "Recognition_Potential_mhcI_9mer_affinity")
+        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_I, category="CDN"), "CDN_mhcI")
+        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_II, category="CDN"), "CDN_mhcII")
+        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_I, category="ADN"), "ADN_mhcI")
+        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_II, category="ADN"), "ADN_mhcII")
 
         # netMHCIIpan predictions
         predII = mhcIIprediction.BestandmultiplebindermhcII()
@@ -271,24 +300,36 @@ class Epitope:
         self.add_features(predII.MHCII_number_strong_binders_WT, "MB_number_pep_MHCIIscore<2_WT")
         self.add_features(predII.MHCII_number_weak_binders_WT, "MB_number_pep_MHCIIscore<10_WT")
         # dai mhc II affinity
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding = False, affinity = True), "DAI_mhcII_affinity")
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding = False, affinity = True, affin_filtering = True), "DAI_mhcII_affinity_aff_filtered")
+        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=True),
+                          "DAI_mhcII_affinity")
+        self.add_features(
+            FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=True, affin_filtering=True),
+            "DAI_mhcII_affinity_aff_filtered")
         # dai mhc II netMHCIIpan score
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding = False, affinity = False), "DAI_mhcII_netmhcIIpan")
+        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=False),
+                          "DAI_mhcII_netmhcIIpan")
         # dai multiple binding mhc II
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding = True), "DAI_mhcII_MB")
+        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=True), "DAI_mhcII_MB")
         # difference number of binders
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc =MHC_II, threshold ="2"), "Diff_numb_epis_mhcII<2")
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc =MHC_II, threshold="10"), "Diff_numb_epis_mhcII<10")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc =MHC_II, threshold="2"), "Ratio_numb_epis_mhcII<2")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc =MHC_II, threshold="10"), "Ratio_numb_epis_mhcII<10")
+        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_II, threshold="2"),
+                          "Diff_numb_epis_mhcII<2")
+        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_II, threshold="10"),
+                          "Diff_numb_epis_mhcII<10")
+        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_II, threshold="2"),
+                          "Ratio_numb_epis_mhcII<2")
+        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_II, threshold="10"),
+                          "Ratio_numb_epis_mhcII<10")
         # amplitude affinity mhc II
-        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_II, False, True), "Amplitude_mhcII_affinity")
+        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_II, False, True),
+                          "Amplitude_mhcII_affinity")
         # amplitude multiple binding mhc II
-        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_II, True, False), "Amplitude_mhcII_mb")
+        self.add_features(neoantigen_fitness.calculate_amplitude_mhc(self.properties, MHC_II, True, False),
+                          "Amplitude_mhcII_mb")
         # amplitude rank score mhc II
         self.add_features(
-            neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc =MHC_II, multiple_binding=False, affinity = False, netmhcscore = True), "Amplitude_mhcII_rank_netmhcpan4")
+            neoantigen_fitness.calculate_amplitude_mhc(self.properties, mhc=MHC_II, multiple_binding=False,
+                                                       affinity=False, netmhcscore=True),
+            "Amplitude_mhcII_rank_netmhcpan4")
         logger.info("Amplitude mhc II: {}".format(self.properties["Amplitude_mhcII_rank_netmhcpan4"]))
         # priority score
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, MHC_I), "Number_of_mismatches_mhcI")
@@ -301,9 +342,12 @@ class Epitope:
         # neoag immunogenicity model
         self.add_features(neoag.wrapper_neoag(self.properties), "neoag_immunogencity")
         # IEDB immunogenicity only for epitopes with affinity < 500 nM (predicted with netMHCpan) --> in publications
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I), "IEDB_Immunogenicity_mhcI")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_II), "IEDB_Immunogenicity_mhcII")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I, affin_filtering = True), "IEDB_Immunogenicity_mhcI_affinity_filtered")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I),
+                          "IEDB_Immunogenicity_mhcI")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_II),
+                          "IEDB_Immunogenicity_mhcII")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I, affin_filtering=True),
+                          "IEDB_Immunogenicity_mhcI_affinity_filtered")
         # MixMHCpred
         predpresentation = mixmhcpred.MixMHCpred()
         predpresentation.main(self.properties, patient_hlaI)
@@ -334,11 +378,14 @@ class Epitope:
 
         # dissimilarity to self-proteome
         # neoantigen fitness
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmpseq", suffix = ".fasta", delete = False)
+        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
         dissimilarity = DissimilarityCalculator()
-        self.add_features(dissimilarity.calculate_dissimilarity(self.properties, tmp_fasta, self.references), "dissimilarity")
-        self.add_features(dissimilarity.calculate_dissimilarity(self.properties, tmp_fasta, self.references, filter_binder =True), "dissimilarity_filter500")
+        self.add_features(dissimilarity.calculate_dissimilarity(self.properties, tmp_fasta, self.references),
+                          "dissimilarity")
+        self.add_features(
+            dissimilarity.calculate_dissimilarity(self.properties, tmp_fasta, self.references, filter_binder=True),
+            "dissimilarity_filter500")
 
         # vaxrank
         vaxrankscore = vaxrank.VaxRank()

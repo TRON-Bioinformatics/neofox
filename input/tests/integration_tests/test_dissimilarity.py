@@ -1,6 +1,7 @@
 from unittest import TestCase
-from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
+from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 
 
 class TestDissimilarity(TestCase):
@@ -11,7 +12,7 @@ class TestDissimilarity(TestCase):
 
     def test_dissimilarity(self):
         result = DissimilarityCalculator().calculate_dissimilarity(
-            props={'best_affinity_epitope_netmhcpan4':'hey', 'best_affinity_netmhcpan4': 'ho'},
+            props={'best_affinity_epitope_netmhcpan4': 'hey', 'best_affinity_netmhcpan4': 'ho'},
             fastafile=self.fastafile.name,
             references=self.references)
         self.assertEqual('0', result)

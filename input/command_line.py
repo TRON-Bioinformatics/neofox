@@ -1,15 +1,22 @@
 from argparse import ArgumentParser
-from input.predict_all_epitopes import Bunchepitopes
+
 from logzero import logger
+
+from input.predict_all_epitopes import Bunchepitopes
 
 
 def input_cli():
     parser = ArgumentParser(description='adds patient information given in sample file of a cohort to merged icam file')
-    parser.add_argument('-i', '--icam_file', dest='icam_file', help='define iCaM file which should be annotated', required=True )
-    parser.add_argument('-a', '--allele_file', dest='allele_file', help='define file with hla alleles of patients', required=True )
-    parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origin', default="skin" )
-    parser.add_argument('-f', '--frameshift', dest='frameshift', help='indicate by true or false if frameshift mutations or SNVs are to be considered', default=False)
-    parser.add_argument('-tc', '--tumour_content', dest='tumour_content', help='pass csv file with tumour content of patient; e.g. patient_overview file ', default=False)
+    parser.add_argument('-i', '--icam_file', dest='icam_file', help='define iCaM file which should be annotated',
+                        required=True)
+    parser.add_argument('-a', '--allele_file', dest='allele_file', help='define file with hla alleles of patients',
+                        required=True)
+    parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origin', default="skin")
+    parser.add_argument('-f', '--frameshift', dest='frameshift',
+                        help='indicate by true or false if frameshift mutations or SNVs are to be considered',
+                        default=False)
+    parser.add_argument('-tc', '--tumour_content', dest='tumour_content',
+                        help='pass csv file with tumour content of patient; e.g. patient_overview file ', default=False)
     args = parser.parse_args()
 
     icam_file = args.icam_file
@@ -42,7 +49,6 @@ def input_cli():
 
     Bunchepitopes().main(file, indel, fasta_proteome, ref_file, path_to_hla_file)
     '''
-
 
 # def epitope_cli():
 #     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/test_SD.csv"

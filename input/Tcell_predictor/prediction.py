@@ -1,11 +1,12 @@
-import pickle
-import pandas as pd
 import os
+import pickle
+
+import pandas as pd
+
 from input.Tcell_predictor.preprocess import Preprocessor
 
 
 def main(f_name, output_file, references):
-
     input_file = f_name
     mat = Preprocessor(references=references).main(input_file)
     # NOTE: we do not put the Classifier.pickle in the references.py because it is code and not data what's in there

@@ -30,11 +30,11 @@ def is_improved_binder(props, mhc):
         sc_mut = props["best%Rank_netmhcpan4"]
         sc_wt = props["best%Rank_netmhcpan4_WT"]
     elif mhc == MHC_II:
-        sc_mut = props["MHC_II_score_.best_prediction."].replace(",",".")
-        sc_wt = props["MHC_II_score_.WT."].replace(",",".")
+        sc_mut = props["MHC_II_score_.best_prediction."].replace(",", ".")
+        sc_wt = props["MHC_II_score_.WT."].replace(",", ".")
 
     try:
-        improved_binder = float(sc_wt)/float(sc_mut) >= 1.2
+        improved_binder = float(sc_wt) / float(sc_mut) >= 1.2
     except (ZeroDivisionError, ValueError) as e:
         return "NA"
     return "1" if improved_binder else "0"
@@ -54,7 +54,6 @@ def selfsimilarity_of_conserved_binder_only(props):
         return "NA"
 
 
-
 def position_of_mutation_epitope(props, mhc):
     '''
     This function determines the position of the mutation within the epitope sequence.
@@ -67,7 +66,7 @@ def position_of_mutation_epitope(props, mhc):
         mhc_wt = props["MHC_II_epitope_.WT."]
     p1 = -1
     try:
-        for i,aa in enumerate(mhc_mut):
+        for i, aa in enumerate(mhc_mut):
             if aa != mhc_wt[i]:
                 p1 = i + 1
         return str(p1)
@@ -75,7 +74,7 @@ def position_of_mutation_epitope(props, mhc):
         return "NA"
 
 
-def position_of_mutation_epitope_affinity(props, nine_mer = False):
+def position_of_mutation_epitope_affinity(props, nine_mer=False):
     '''
     This function determines the position of the mutation within the epitope sequence.
     '''
@@ -87,7 +86,7 @@ def position_of_mutation_epitope_affinity(props, nine_mer = False):
         mhc_wt = props["best_affinity_epitope_netmhcpan4_WT"]
     p1 = -1
     try:
-        for i,aa in enumerate(mhc_mut):
+        for i, aa in enumerate(mhc_mut):
             if aa != mhc_wt[i]:
                 p1 = i + 1
         return str(p1)
@@ -95,9 +94,7 @@ def position_of_mutation_epitope_affinity(props, nine_mer = False):
         return "NA"
 
 
-
-
-def position_in_anchor_position(props, netMHCpan = False, nine_mer = False):
+def position_in_anchor_position(props, netMHCpan=False, nine_mer=False):
     '''
     This function determines if the mutation is located within an anchor position in mhc I.
     As an approximation, we assume that the second and the last position are anchor positions for all alleles.
@@ -114,7 +111,7 @@ def position_in_anchor_position(props, netMHCpan = False, nine_mer = False):
 
     anchor = 0
     try:
-        anchor = int(pos_mhcI) == int(pep_len) or int(pos_mhcI)==2
+        anchor = int(pos_mhcI) == int(pep_len) or int(pos_mhcI) == 2
         return str(1) if anchor else str(0)
     except:
         return "NA"

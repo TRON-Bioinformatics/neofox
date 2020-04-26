@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 import input.self_similarity.self_similarity as self_similarity
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
 from input import MHC_I, MHC_II
