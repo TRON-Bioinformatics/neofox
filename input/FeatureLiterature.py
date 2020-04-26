@@ -319,48 +319,48 @@ def classify_adn_cdn(props, mhc, category):
     return group
 
 
-if __name__ == '__main__':
-    import sys
-
-    basedir = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT"
-    sys.path.append(basedir)
-    from input.helpers import data_import
-    from input import predict_all_epitopes, epitope
-
-    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/20170713_IS_IM_data.complete.update_Dv10.csv"
-    # file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M5/scratch/scratch/A2DR1_GBMs_M5_mut_set.txt.transcript.squish.somatic.freq.annotation"
-    file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M7/scratch/scratch/A2DR1_GBMs_M7_mut_set.txt.transcript.squish.somatic.freq.annotation"
-    db_uniprot = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/database/mouse_uniprot_swissprot_plus_isoforms.fasta"
-    indel = False
-    dat = data_import.import_dat_icam(file, indel)
-    if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-        dat = data_import.change_col_names(dat)
-    if "mutation_found_in_proteome" not in dat[0]:
-        db = predict_all_epitopes.Bunchepitopes().load_proteome(db_uniprot)
-
-    dict_all = predict_all_epitopes.Bunchepitopes().Allepit
-    ## add priority_score
-    for ii, i in enumerate(dat[1]):
-        # dict for each epitope
-        z = epitope.Epitope()
-        z.init_properties(dat[0], dat[1][ii])
-        z.add_features(number_of_mismatches(z.properties, MHC_I), "Number_of_mismatches_mhcI")
-        if "mutation_found_in_proteome" not in z.properties:
-            z.add_features(match_in_proteome(z.properties, db), "mutation_found_in_proteome")
-        z.add_features(calc_priority_score(z.properties), "Priority_score")
-
-        for key in z.properties:
-            if key not in dict_all:
-                # keys are are feautres; values: list of feature values associated with mutated peptide sequence
-                dict_all[key] = [z.properties[key]]
-            else:
-                dict_all[key].append(z.properties[key])
-
-    header = dat[0]
-    header.append("Priority_score")
-
-    print("\t".join(header))
-    for i in range(len(dict_all["mutation"])):
-        z = []
-        [z.append(dict_all[col][i]) for col in header]
-        print("\t".join(z))
+# if __name__ == '__main__':
+#     import sys
+#
+#     basedir = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT"
+#     sys.path.append(basedir)
+#     from input.helpers import data_import
+#     from input import predict_all_epitopes, epitope
+#
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/20170713_IS_IM_data.complete.update_Dv10.csv"
+#     # file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M5/scratch/scratch/A2DR1_GBMs_M5_mut_set.txt.transcript.squish.somatic.freq.annotation"
+#     file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M7/scratch/scratch/A2DR1_GBMs_M7_mut_set.txt.transcript.squish.somatic.freq.annotation"
+#     db_uniprot = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/database/mouse_uniprot_swissprot_plus_isoforms.fasta"
+#     indel = False
+#     dat = data_import.import_dat_icam(file, indel)
+#     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
+#         dat = data_import.change_col_names(dat)
+#     if "mutation_found_in_proteome" not in dat[0]:
+#         db = predict_all_epitopes.Bunchepitopes().load_proteome(db_uniprot)
+#
+#     dict_all = predict_all_epitopes.Bunchepitopes().Allepit
+#     ## add priority_score
+#     for ii, i in enumerate(dat[1]):
+#         # dict for each epitope
+#         z = epitope.Epitope()
+#         z.init_properties(dat[0], dat[1][ii])
+#         z.add_features(number_of_mismatches(z.properties, MHC_I), "Number_of_mismatches_mhcI")
+#         if "mutation_found_in_proteome" not in z.properties:
+#             z.add_features(match_in_proteome(z.properties, db), "mutation_found_in_proteome")
+#         z.add_features(calc_priority_score(z.properties), "Priority_score")
+#
+#         for key in z.properties:
+#             if key not in dict_all:
+#                 # keys are are feautres; values: list of feature values associated with mutated peptide sequence
+#                 dict_all[key] = [z.properties[key]]
+#             else:
+#                 dict_all[key].append(z.properties[key])
+#
+#     header = dat[0]
+#     header.append("Priority_score")
+#
+#     print("\t".join(header))
+#     for i in range(len(dict_all["mutation"])):
+#         z = []
+#         [z.append(dict_all[col][i]) for col in header]
+#         print("\t".join(z))

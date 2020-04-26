@@ -22,14 +22,14 @@ from input.helpers.runner import Runner
 
 class Epitope:
 
-    def __init__(self, references, configuration):
+    def __init__(self, runner, references, configuration):
         """
+        :type runner: input.helpers.runner.Runner
         :type references: input.references.ReferenceFolder
         :type configuration: input.references.DependenciesConfiguration
         """
         self.references = references
         self.properties = {}
-        runner = Runner()
         self.dissimilarity_calculator = DissimilarityCalculator(runner=runner, configuration=configuration)
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner, configuration=configuration)
         self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
