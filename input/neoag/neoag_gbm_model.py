@@ -2,10 +2,10 @@
 
 import os
 import sys
-import subprocess
-import tempfile
+from input.helpers import runner
 from input import MHC_I, MHC_II
 from logzero import logger
+import tempfile
 
 
 def _apply_gbm(tmp_in):
@@ -16,11 +16,13 @@ def _apply_gbm(tmp_in):
     tool_path = os.path.join(my_path, "neoag-master/NeoAg_immunogenicity_predicition_GBM.R")
     logger.debug(model_path)
     logger.debug(tmp_in)
-    cmd = "/code/R/3.6.0/bin/Rscript " + tool_path + " "+ model_path + " " + tmp_in
-    p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-    stdoutdata, stderrdata = p.communicate()
-    logger.debug(stderrdata)
-    return stdoutdata.decode('utf-8')
+    cmd = [
+        "/code/R/3.6.0/bin/Rscript",
+        tool_path,
+        model_path,
+        tmp_in]
+    output, _ = runner.run_command(cmd)
+    return output
 
 
 def _prepare_tmp_for_neoag(props, tmp_file_name):
