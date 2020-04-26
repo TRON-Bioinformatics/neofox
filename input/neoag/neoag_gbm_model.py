@@ -10,60 +10,60 @@ from input import MHC_I
 from input.helpers import runner
 
 
-def _apply_gbm(tmp_in):
-    ''' this function calls NeoAg tool. this tool applys a gradient boosting machine based on biochemical features to epitopes (predicted seqs)
-    '''
-    my_path = os.path.abspath(os.path.dirname(__file__))
-    model_path = os.path.join(my_path, "neoag-master")
-    tool_path = os.path.join(my_path, "neoag-master/NeoAg_immunogenicity_predicition_GBM.R")
-    logger.debug(model_path)
-    logger.debug(tmp_in)
-    cmd = [
-        "/code/R/3.6.0/bin/Rscript",
-        tool_path,
-        model_path,
-        tmp_in]
-    output, _ = runner.run_command(cmd)
-    return output
+class NeoagCalculator(object):
 
+    def _apply_gbm(self, tmp_in):
+        ''' this function calls NeoAg tool. this tool applys a gradient boosting machine based on biochemical features to epitopes (predicted seqs)
+        '''
+        my_path = os.path.abspath(os.path.dirname(__file__))
+        model_path = os.path.join(my_path, "neoag-master")
+        tool_path = os.path.join(my_path, "neoag-master/NeoAg_immunogenicity_predicition_GBM.R")
+        logger.debug(model_path)
+        logger.debug(tmp_in)
+        cmd = [
+            "/code/R/3.6.0/bin/Rscript",
+            tool_path,
+            model_path,
+            tmp_in]
+        output, _ = runner.run_command(cmd)
+        return output
 
-def _prepare_tmp_for_neoag(props, tmp_file_name):
-    ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with affinity < 500 nM
-    '''
-    header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
-    if "patient.id" in props:
-        sample_id = props["patient.id"]
-    else:
-        sample_id = props["patient"]
-    mut_peptide = props["best_affinity_epitope_netmhcpan4"]
-    score_mut = props["best_affinity_netmhcpan4"]
-    ref_peptide = props["best_affinity_epitope_netmhcpan4_WT"]
-    peptide_variant_position = props["pos_MUT_MHCI_affinity_epi"]
-    try:
-        if float(score_mut) < 500:
-            epi_row = "\t".join([sample_id, mut_peptide, ref_peptide, peptide_variant_position])
+    def _prepare_tmp_for_neoag(self, props, tmp_file_name):
+        ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with affinity < 500 nM
+        '''
+        header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
+        if "patient.id" in props:
+            sample_id = props["patient.id"]
         else:
+            sample_id = props["patient"]
+        mut_peptide = props["best_affinity_epitope_netmhcpan4"]
+        score_mut = props["best_affinity_netmhcpan4"]
+        ref_peptide = props["best_affinity_epitope_netmhcpan4_WT"]
+        peptide_variant_position = props["pos_MUT_MHCI_affinity_epi"]
+        try:
+            if float(score_mut) < 500:
+                epi_row = "\t".join([sample_id, mut_peptide, ref_peptide, peptide_variant_position])
+            else:
+                epi_row = "\t".join(["NA", "NA", "NA", "NA"])
+        except ValueError:
             epi_row = "\t".join(["NA", "NA", "NA", "NA"])
-    except ValueError:
-        epi_row = "\t".join(["NA", "NA", "NA", "NA"])
-    with open(tmp_file_name, "w") as f:
-        logger.info("NEOAG: {}".format(epi_row))
-        f.write("\t".join(header) + "\n")
-        f.write(epi_row + "\n")
+        with open(tmp_file_name, "w") as f:
+            logger.info("NEOAG: {}".format(epi_row))
+            f.write("\t".join(header) + "\n")
+            f.write(epi_row + "\n")
 
-
-def wrapper_neoag(props):
-    ''' wrapper function to determine neoag immunogenicity score for a mutated peptide sequence
-    '''
-    tmp_file = tempfile.NamedTemporaryFile(prefix="tmp_neoag_", suffix=".txt", delete=False)
-    tmp_file_name = tmp_file.name
-    _prepare_tmp_for_neoag(props, tmp_file_name)
-    neoag_score = _apply_gbm(tmp_file_name)
-    with open(tmp_file_name) as f:
-        for line in f:
-            logger.info("NEOAG: {}".format(line))
-    logger.info("NEOAG: {}".format(str(neoag_score)))
-    return neoag_score
+    def wrapper_neoag(self, props):
+        ''' wrapper function to determine neoag immunogenicity score for a mutated peptide sequence
+        '''
+        tmp_file = tempfile.NamedTemporaryFile(prefix="tmp_neoag_", suffix=".txt", delete=False)
+        tmp_file_name = tmp_file.name
+        self._prepare_tmp_for_neoag(props, tmp_file_name)
+        neoag_score = self._apply_gbm(tmp_file_name)
+        with open(tmp_file_name) as f:
+            for line in f:
+                logger.info("NEOAG: {}".format(line))
+        logger.info("NEOAG: {}".format(str(neoag_score)))
+        return neoag_score
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from input import MHC_I, MHC_II
 from input.MixMHCpred import mixmhcpred, mixmhc2pred
 from input.Tcell_predictor import tcellpredictor_wrapper as tcr_pred
 from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
-from input.neoag import neoag_gbm_model as neoag
+from input.neoag.neoag_gbm_model import NeoagCalculator
 from input.neoantigen_fitness import neoantigen_fitness
 from input.netmhcIIpan import combine_netmhcIIpan_pred_multiple_binders as mhcIIprediction
 from input.netmhcpan4 import combine_netmhcpan_pred_multiple_binders as mhcprediction
@@ -340,7 +340,7 @@ class Epitope:
         # priority score using multiplexed representation score
         self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
         # neoag immunogenicity model
-        self.add_features(neoag.wrapper_neoag(self.properties), "neoag_immunogencity")
+        self.add_features(NeoagCalculator().wrapper_neoag(self.properties), "neoag_immunogencity")
         # IEDB immunogenicity only for epitopes with affinity < 500 nM (predicted with netMHCpan) --> in publications
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I),
                           "IEDB_Immunogenicity_mhcI")
