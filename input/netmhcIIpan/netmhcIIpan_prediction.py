@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-import subprocess
-import sys
 import tempfile
-from input.helpers import data_import
+from input.helpers import data_import, runner
 from input import MHC_I, MHC_II
 from logzero import logger
 
@@ -83,13 +81,18 @@ class NetmhcIIpanBestPrediction:
         hla_allele = ",".join(allels_for_prediction)
         tmp_folder = tempfile.mkdtemp(prefix ="tmp_netmhcIIpan_")
         logger.debug(tmp_folder)
-        cmd = "/code/net/MHCIIpan/3.2/netMHCIIpan -a " + hla_allele + " -f " + tmpfasta + " -tdir "+ tmp_folder + " -dirty"
-        p = subprocess.Popen(cmd, stderr=subprocess.PIPE,stdout=subprocess.PIPE, shell=True)
-        lines = p.stdout
+        cmd = [
+            "/code/net/MHCIIpan/3.2/netMHCIIpan",
+            "-a", hla_allele,
+            "-f", tmpfasta,
+            "-tdir", tmp_folder,
+            "-dirty"]
+        lines, _ = runner.run_command(cmd)
+        logger.debug(lines)
         counter = 0
         with open(tmppred, "w") as f:
-            for line in lines:
-                line = line.decode('utf8').rstrip().lstrip()
+            for line in lines.splitlines():
+                line = line.rstrip().lstrip()
                 if line:
                     if line.startswith(("#", "-", "Number", "Temporary")):
                         continue
@@ -138,16 +141,15 @@ class NetmhcIIpanBestPrediction:
         '''filters prediction file for predicted epitopes that cover mutations
         '''
         pos_xmer = props["Position_Xmer_Seq"]
-        dat_prediction = data_import.import_dat_general(tmppred)
-        dat = dat_prediction[1]
-        dat_head = dat_prediction[0]
+        header, data = data_import.import_dat_general(tmppred)
         dat_fil = []
-        pos_epi = dat_head.index("Seq")
-        epi = dat_head.index("Peptide")
-        for ii,i in enumerate(dat):
+        logger.debug(header)
+        pos_epi = header.index("Seq")
+        epi = header.index("Peptide")
+        for ii,i in enumerate(data):
             if self.epitope_covers_mutation(pos_xmer, i[pos_epi], len(i[epi])):
-                dat_fil.append(dat[ii])
-        return dat_head, dat_fil
+                dat_fil.append(data[ii])
+        return header, dat_fil
 
     def minimal_binding_score(self, prediction_tuple, rank = True):
         '''reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used. if rank = False, Aff(nM) is used

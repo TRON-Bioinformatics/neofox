@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-import subprocess
-import sys
 import tempfile
-from input.helpers import data_import
+from input.helpers import data_import, runner
 from logzero import logger
 
 
@@ -127,10 +125,12 @@ class MixMHC2pred:
         elif wt:
             # use best allele from mutated seq prediction
             hla_allele = hla_alleles[0]
-        cmd = "MixMHC2pred -a " + hla_allele + " -i " + tmpfasta + " -o " + outtmp
-        logger.info(cmd)
-        p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        p_return = p.communicate()
+        cmd = [
+            "MixMHC2pred",
+            "-a", hla_allele,
+            "-i", tmpfasta,
+            "-o", outtmp]
+        runner.run_command(cmd)
 
     def read_mixmhcpred(self, outtmp):
         '''imports output of MixMHCpred prediction

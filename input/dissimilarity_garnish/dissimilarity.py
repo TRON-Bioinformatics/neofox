@@ -2,9 +2,9 @@
 
 import os
 import os.path
-import subprocess
 import tempfile
 from input.neoantigen_fitness.Aligner_modified import Aligner
+from input.helpers import runner
 
 
 def _calc_dissimilarity(fasta_file, n, references):
@@ -13,10 +13,16 @@ def _calc_dissimilarity(fasta_file, n, references):
     '''
     outfile_file = tempfile.NamedTemporaryFile(prefix ="tmp_prot_", suffix = ".xml", delete = False)
     outfile = outfile_file.name
-    cmd = "/code/ncbi-blast/2.8.1+/bin/blastp -gapopen 11 -gapextend 1 -outfmt 5 -query " + fasta_file + \
-          " -out "  + outfile + " -db " + os.path.join(references.proteome_db,"homo_sapiens.mod") + " -evalue 100000000"
-    p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-    p.communicate()
+    cmd = [
+        "/code/ncbi-blast/2.8.1+/bin/blastp",
+        "-gapopen",  "11",
+        "-gapextend", "1",
+        "-outfmt", "5",
+        "-query", fasta_file,
+        "-out", outfile,
+        "-db", os.path.join(references.proteome_db, "homo_sapiens.mod"),
+        "-evalue", "100000000"]
+    runner.run_command(cmd)
     aligner = Aligner()
     # set a to 32 for dissimilarity
     aligner.readAllBlastAlignments(outfile)

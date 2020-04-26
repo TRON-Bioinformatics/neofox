@@ -2,10 +2,10 @@
 
 import os
 import os.path
-import subprocess
 from input.neoantigen_fitness.Aligner_modified import Aligner
 import tempfile
 from input import MHC_I, MHC_II
+from input.helpers import runner
 
 
 def _calc_pathogensimilarity(fasta_file, n, iedb):
@@ -14,10 +14,16 @@ def _calc_pathogensimilarity(fasta_file, n, iedb):
     '''
     outfile_file = tempfile.NamedTemporaryFile(prefix ="tmp_iedb_", suffix = ".xml", delete = False)
     outfile = outfile_file.name
-    cmd = "/code/ncbi-blast/2.8.1+/bin/blastp -gapopen 11 -gapextend 1 -outfmt 5 -query " + fasta_file + " -out "  + \
-          outfile + " -db " + os.path.join(iedb,"iedb_blast_db") + " -evalue 100000000"
-    p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-    p.communicate()
+    cmd = [
+        "/code/ncbi-blast/2.8.1+/bin/blastp",
+        "-gapopen",  "11",
+        "-gapextend", "1",
+        "-outfmt", "5",
+        "-query", fasta_file,
+        "-out", outfile,
+        "-db", os.path.join(iedb,"iedb_blast_db"),
+        "-evalue", "100000000"]
+    runner.run_command(cmd)
     a = Aligner()
     a.readAllBlastAlignments(outfile)
     a.computeR()
