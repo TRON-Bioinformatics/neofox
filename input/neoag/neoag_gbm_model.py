@@ -2,6 +2,7 @@
 
 import os
 import sys
+import tempfile
 
 from logzero import logger
 
