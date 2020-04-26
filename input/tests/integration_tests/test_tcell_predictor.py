@@ -1,7 +1,8 @@
-from unittest import TestCase
 from collections import defaultdict
-from input.Tcell_predictor.tcellpredictor_wrapper import Tcellprediction
+from unittest import TestCase
+
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
+from input.Tcell_predictor.tcellpredictor_wrapper import Tcellprediction
 
 
 class TestTCellPredictor(TestCase):

@@ -3,8 +3,9 @@
 import os
 import os.path
 import tempfile
-from input.neoantigen_fitness.Aligner_modified import Aligner
+
 from input.helpers import runner
+from input.neoantigen_fitness.Aligner_modified import Aligner
 
 
 class DissimilarityCalculator(object):
@@ -16,11 +17,11 @@ class DissimilarityCalculator(object):
         '''
         This function determines the dissimilarity to self-proteome of epitopes as described in Richman et al
         '''
-        outfile_file = tempfile.NamedTemporaryFile(prefix ="tmp_prot_", suffix = ".xml", delete = False)
+        outfile_file = tempfile.NamedTemporaryFile(prefix="tmp_prot_", suffix=".xml", delete=False)
         outfile = outfile_file.name
         cmd = [
             "/code/ncbi-blast/2.8.1+/bin/blastp",
-            "-gapopen",  "11",
+            "-gapopen", "11",
             "-gapextend", "1",
             "-outfmt", "5",
             "-query", fasta_file,
@@ -31,7 +32,7 @@ class DissimilarityCalculator(object):
         aligner = Aligner()
         # set a to 32 for dissimilarity
         aligner.readAllBlastAlignments(outfile)
-        aligner.computeR(a = 32)
+        aligner.computeR(a=32)
         kk = int(n.split("_")[1])
         x = aligner.Ri.get(kk)
         x_dis = "NA"
@@ -46,7 +47,7 @@ class DissimilarityCalculator(object):
         '''
         mhc_mut = props["best_affinity_epitope_netmhcpan4"]
         mhc_aff = props["best_affinity_netmhcpan4"]
-        with open(fastafile , "w") as f:
+        with open(fastafile, "w") as f:
             id = ">M_1"
             f.write(id + "\n")
             f.write(mhc_mut + "\n")

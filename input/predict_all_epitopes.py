@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 
-import sys
-from datetime import datetime
 from Bio import SeqIO
-from input.helpers import data_import
-from input import epitope
-from input.new_features import conservation_scores
-from input.references import ReferenceFolder
-from input.epitope import Epitope
+from logzero import logger
+
 import input.aa_index.aa_index as aa_index
 from input import MHC_I, MHC_II
-from logzero import logger
+from input.epitope import Epitope
+from input.helpers import data_import
+from input.new_features import conservation_scores
+from input.references import ReferenceFolder
 
 
 class Bunchepitopes:
@@ -57,7 +55,7 @@ class Bunchepitopes:
         head_cols = [col for col in ref_head if col.startswith(tissue)]
         cols_expr = [ref_head.index(col) for col in head_cols]
         gen_col = ref_head.index("gene")
-        for ii,i in enumerate(ref):
+        for ii, i in enumerate(ref):
             gene_name = i[gen_col]
             expr_values = tuple(float(i[elem]) for elem in cols_expr)
             rna_dict[gene_name] = expr_values
@@ -83,7 +81,7 @@ class Bunchepitopes:
         set_ids = set([])
         col_ucsc = header.index("UCSC_transcript")
         col_pos = header.index("substitution")
-        for ii,i in enumerate(list_epis):
+        for ii, i in enumerate(list_epis):
             ucsc_pos = conservation_scores.add_ucsc_id_to_list(i[col_ucsc], i[col_pos])
             set_ids.add(ucsc_pos)
         return set_ids
@@ -96,7 +94,7 @@ class Bunchepitopes:
         logger.info("Starting load of PROVEAN matrix" + prov_matrix)
         provean_matrix = {}
         with open(prov_matrix) as f:
-            next(f)     # skips header
+            next(f)  # skips header
             for line in f:
                 w = line.rstrip().split(";")
                 ucsc_id_pos = w[-1]
@@ -171,7 +169,6 @@ class Bunchepitopes:
         logger.info("HLA-II alleles: {}".format(patient_alleles_dict))
         return patient_alleles_dict
 
-
     @staticmethod
     def load_tumor_content_dict(path_to_patient_overview):
         """
@@ -241,7 +238,7 @@ class Bunchepitopes:
         self.aa_index2_dict = aa_index.parse_aaindex2(self.references.aaindex2)
         prov_file = self.references.prov_scores_mapped3
         self.hla_available_alleles = self.load_available_hla_alleles()
-        self.hlaII_available_alleles = self.load_available_hla_alleles(mhc = MHC_II)
+        self.hlaII_available_alleles = self.load_available_hla_alleles(mhc=MHC_II)
         self.hlaII_available_MixMHC2pred = self.load_available_allelles_mixMHC2pred()
         self.patient_hla_I_allels = self.load_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.load_patient_hla_II_allels(path_to_hla_file)
@@ -262,9 +259,9 @@ class Bunchepitopes:
         if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
             dat = data_import.change_col_names(dat)
         if "mutation_found_in_proteome" not in dat[0]:
-            self.proteome_dictionary =self.load_proteome(self.references.uniprot)
+            self.proteome_dictionary = self.load_proteome(self.references.uniprot)
         # add patient id if _mut_set.txt.transcript.squish.somatic.freq is used
-        if ("patient" not in dat[0]) and ("patient.id" not in dat[0]) :
+        if ("patient" not in dat[0]) and ("patient.id" not in dat[0]):
             try:
                 patient = file.split("/")[-3]
                 if "Pt" not in patient:
@@ -272,7 +269,7 @@ class Bunchepitopes:
             except IndexError:
                 patient = file.split("/")[-1].split(".")[0]
             dat[0].append("patient.id")
-            for ii,i in enumerate(dat[1]):
+            for ii, i in enumerate(dat[1]):
                 dat[1][ii].append(str(patient))
         # initialise information needed for feature calculation
         self.initialise_properties(dat, path_to_hla_file, tissue, tumour_content_file)

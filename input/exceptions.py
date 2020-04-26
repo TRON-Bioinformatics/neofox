@@ -1,5 +1,3 @@
-
-
 class INPuTInputParametersException(ValueError):
     pass
 

@@ -2,6 +2,7 @@
 
 import math
 
+
 def mean_of_list(list_numbs):
     '''
     This function takes a list of numbers as input and calculates the mean
@@ -15,8 +16,8 @@ def sd_of_list(list_numbs):
     This function takes a list of numbers as input and calculates the standard deviation
     '''
     mean = mean_of_list(list_numbs)
-    sd_list = float((sum([((x - mean)**2) for x in list_numbs]) / len(list_numbs))**0.5)
-    return(sd_list)
+    sd_list = float((sum([((x - mean) ** 2) for x in list_numbs]) / len(list_numbs)) ** 0.5)
+    return (sd_list)
 
 
 def add_rna_reference(props, reference_dat, i):
@@ -43,7 +44,7 @@ def fold_change(props):
     expr_tumour = props["transcript_expression"]
     expr_reference = props["mean_ref_expression"]
     try:
-        return str(math.log(float(expr_tumour) / float(expr_reference),2))
+        return str(math.log(float(expr_tumour) / float(expr_reference), 2))
     except (ValueError, ZeroDivisionError) as e:
         return "NA"
 
@@ -70,23 +71,21 @@ def pepper_calc(props):
     expr_reference = props["mean_ref_expression"]
     expr_reference_sd = props["sd_ref_expression"]
     try:
-        return  str((float(expr_tumour) - float(expr_reference)) / float(expr_reference_sd))
+        return str((float(expr_tumour) - float(expr_reference)) / float(expr_reference_sd))
     except (ValueError, ZeroDivisionError) as e:
         return "NA"
-
-
 
 
 if __name__ == '__main__':
     import sys
     import data_import
+
     ref_file = sys.argv[1]
     # "/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv"
     ref_list = load_rna_expression_reference(ref_file)
     f = sys.argv[2]
     data = data_import.import_dat_icam(f)
-    dat_merged = merge_data_reference(data, ref_list )
+    dat_merged = merge_data_reference(data, ref_list)
     print(wrapper_diff_expr(dat_merged)[0])
 
-
-    #write_ouptut_to_file(dat_epi,header)
+    # write_ouptut_to_file(dat_epi,header)

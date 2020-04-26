@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import tempfile
+
 from input.helpers import data_import, runner
-from logzero import logger
 
 
 class MixMHC2pred:
@@ -26,7 +26,7 @@ class MixMHC2pred:
         p1 = -1
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
-            for i,aa in enumerate(xmer_mut):
+            for i, aa in enumerate(xmer_mut):
                 if aa != xmer_wt[i]:
                     p1 = i + 1
         else:
@@ -37,7 +37,7 @@ class MixMHC2pred:
                     p1 += 1
         return str(p1)
 
-    def generate_nmers(self, props, list_lengths, mut = True ):
+    def generate_nmers(self, props, list_lengths, mut=True):
         ''' generates peptides covering mutation of all lengths that are provided. Returns peptides as list
         '''
         xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
@@ -53,18 +53,17 @@ class MixMHC2pred:
                 starts.append(int(start_first + s))
             ends = []
             [ends.append(int(s + (l))) for s in starts]
-            for s,e in zip(starts, ends):
+            for s, e in zip(starts, ends):
                 list_peptides.append(long_seq[s:e])
         list_peptides_fil = []
         [list_peptides_fil.append(x) for x in list_peptides if not x == ""]
         return list_peptides_fil
 
-
     def generate_fasta(self, seqs, tmpfile):
         ''' Writes seqs given in seqs list into fasta file
         '''
         counter = 0
-        with open(tmpfile,"w") as f:
+        with open(tmpfile, "w") as f:
             for seq in seqs:
                 id = "".join([">seq", str(counter)])
                 f.write(id + "\n")
@@ -86,12 +85,12 @@ class MixMHC2pred:
     def prepare_dq_dp(self, list_alleles, avail_hlaII):
         ''' returns patient DQ/DP alleles that are relevant for prediction
         '''
-        list_alleles_pairs = ["__".join([p1,p2]) for p1 in list_alleles for p2 in list_alleles if p1 != p2]
-        list_alleles_triplets = ["__".join([p1,p2,p3]) for p1 in list_alleles for p2 in list_alleles for p3 in list_alleles if p1 != p2 and p1 != p3 and p2 != p3]
+        list_alleles_pairs = ["__".join([p1, p2]) for p1 in list_alleles for p2 in list_alleles if p1 != p2]
+        list_alleles_triplets = ["__".join([p1, p2, p3]) for p1 in list_alleles for p2 in list_alleles for p3 in
+                                 list_alleles if p1 != p2 and p1 != p3 and p2 != p3]
         list_alleles_all = list_alleles_pairs + list_alleles_triplets
         alleles4pred = [allele for allele in list_alleles_all if allele in avail_hlaII]
-        return(alleles4pred)
-
+        return (alleles4pred)
 
     def hlaIIallels2prediction(self, hla_alleles, avail_hlaII):
         ''' prepares list of hla alleles for prediction
@@ -99,9 +98,9 @@ class MixMHC2pred:
         allels_for_prediction = []
         alleles_dq = []
         alleles_dp = []
-        #print hla_alleles
+        # print hla_alleles
         for allele in hla_alleles:
-            #print allele
+            # print allele
             allele = allele.replace("*", "_").replace(":", "_").replace("HLA-", "")
             if allele.startswith("DR"):
                 if allele in avail_hlaII:
@@ -114,10 +113,10 @@ class MixMHC2pred:
         alleles_dq4pred = self.prepare_dq_dp(alleles_dq, avail_hlaII)
         allels_for_prediction = allels_for_prediction + alleles_dq4pred + alleles_dp4pred
         hla_allele = " ".join(allels_for_prediction)
-        #print hla_allele
+        # print hla_allele
         return hla_allele
 
-    def mixmhc2prediction(self, hla_alleles, tmpfasta, outtmp, avail_hlaII, wt = False):
+    def mixmhc2prediction(self, hla_alleles, tmpfasta, outtmp, avail_hlaII, wt=False):
         ''' Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         '''
         if not wt:
@@ -152,7 +151,6 @@ class MixMHC2pred:
                     dat.append(line)
         return header, dat
 
-
     def extract_best_per_pep(self, pred_dat):
         '''extract info of best allele prediction for all potential ligands per muatation
         '''
@@ -162,17 +160,17 @@ class MixMHC2pred:
         alleles = []
         ranks = []
         pepcol = head.index("Peptide")
-        #scorecol = head.index("Score_bestAllele")
+        # scorecol = head.index("Score_bestAllele")
         allelecol = head.index("BestAllele")
         rankcol = head.index("%Rank")
         min_value = -1000000000000000000
-        for ii,i in enumerate(dat):
+        for ii, i in enumerate(dat):
             col_of_interest = [i[pepcol], i[rankcol], i[allelecol]]
             # all potential peptides per mutation --> return ditionary
             peps.append(i[pepcol])
             ranks.append(i[rankcol])
             alleles.append(i[allelecol])
-        return {"Peptide": peps, "BestAllele": alleles, "%Rank": ranks }
+        return {"Peptide": peps, "BestAllele": alleles, "%Rank": ranks}
 
     def extract_best_peptide_per_mutation(self, pred_dat):
         '''extract best predicted ligand per mutation
@@ -187,13 +185,13 @@ class MixMHC2pred:
         allelecol = head.index("BestAllele")
         rankcol = head.index("%Rank")
         min_value = 1000000000000000000
-        for ii,i in enumerate(dat):
+        for ii, i in enumerate(dat):
             col_of_interest = [str(i[pepcol]), str(i[rankcol]), str(i[allelecol])]
             # best ligand per mutation
             if float(i[rankcol]) < float(min_value):
                 min_value = i[rankcol]
                 min_pep = col_of_interest
-        head_new = ["Peptide",  "%Rank", "BestAllele" ]
+        head_new = ["Peptide", "%Rank", "BestAllele"]
         return head_new, min_pep
 
     def add_best_epitope_info(self, epitope_tuple, column_name):
@@ -208,7 +206,6 @@ class MixMHC2pred:
         except IndexError:
             return "NA"
 
-
     def extract_WT_for_best(self, props, best_mut_seq):
         '''extracts the corresponding WT epitope for best predicted mutated epitope
         '''
@@ -216,8 +213,8 @@ class MixMHC2pred:
         xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         start = xmer_mut.find(best_mut_seq)
         l = len(best_mut_seq)
-        wt_epi = xmer_wt[start:(start+l)]
-        return(wt_epi)
+        wt_epi = xmer_wt[start:(start + l)]
+        return (wt_epi)
 
     def extract_WT_info(self, epitope_tuple, column_name):
         '''
@@ -253,16 +250,15 @@ class MixMHC2pred:
                         avail_alleles.append(line1)
         return avail_alleles
 
-
     def main(self, props_dict, dict_patient_hlaII, list_avail_hlaII):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_sequence_", suffix = ".fasta", delete = False)
+        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="mixmhc2pred", suffix = ".txt", delete = False)
+        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhc2pred", suffix=".txt", delete=False)
         tmp_prediction = tmp_prediction_file.name
         # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al. Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes. Nat. Biotech. (2019).
-        seqs = self.generate_nmers(props_dict, [13,14,15,16,17,18])
+        seqs = self.generate_nmers(props_dict, [13, 14, 15, 16, 17, 18])
         self.generate_fasta(seqs, tmp_fasta)
         alleles = self.get_hla_allels(props_dict, dict_patient_hlaII)
         self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction, list_avail_hlaII)
@@ -270,7 +266,7 @@ class MixMHC2pred:
         try:
             pred_all = self.extract_best_per_pep(pred)
         except ValueError:
-            pred_all ={}
+            pred_all = {}
         if len(pred_all) > 0:
             pred_best = self.extract_best_peptide_per_mutation(pred)
             self.best_peptide = self.add_best_epitope_info(pred_best, "Peptide")
@@ -282,12 +278,12 @@ class MixMHC2pred:
             # prediction of for wt epitope that correspond to best epitope
             wt = self.extract_WT_for_best(props_dict, self.best_peptide)
             wt_list = [wt]
-            tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_sequence_wt_", suffix = ".fasta", delete = False)
+            tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_wt_", suffix=".fasta", delete=False)
             tmp_fasta = tmp_fasta_file.name
-            tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="mixmhc2pred_wt_", suffix = ".txt", delete = False)
+            tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhc2pred_wt_", suffix=".txt", delete=False)
             tmp_prediction = tmp_prediction_file.name
             self.generate_fasta(wt_list, tmp_fasta)
-            self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, list_avail_hlaII, wt = True)
+            self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, list_avail_hlaII, wt=True)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
             self.best_rank_wt = self.extract_WT_info(pred_wt, "%Rank")
@@ -305,13 +301,13 @@ if __name__ == '__main__':
     print(list_avail_hlaII)
 
     # test with ott data set
-    #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
-    #hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
+    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
+    # hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
     file = "/projects/SUMMIT/WP1.2/input/development/netmhcIIpan/PtCU9061.test.txt"
     hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/rizvi/icam_rizvi/20190819_alleles_extended.csv"
     # test inest data set
-    #file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
-    #hla_file = "/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
+    # file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
+    # hla_file = "/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
     dat = data_import.import_dat_icam(file, False)
     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
         dat = data_import.change_col_names(dat)
@@ -323,7 +319,7 @@ if __name__ == '__main__':
         except IndexError:
             patient = file.split("/")[-1].split(".")[0]
         dat[0].append("patient.id")
-        for ii,i in enumerate(dat[1]):
+        for ii, i in enumerate(dat[1]):
             dat[1][ii].append(str(patient))
     # available MHC alleles
     set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
@@ -334,12 +330,12 @@ if __name__ == '__main__':
     print(patient_hlaI)
     print(patient_hlaII)
 
-    for ii,i in enumerate(dat[1]):
+    for ii, i in enumerate(dat[1]):
         if ii < 10:
             print(ii)
             dict_epi = epitope.Epitope()
             dict_epi.init_properties(dat[0], dat[1][ii])
             prediction = MixMHC2pred()
-            prediction.main(dict_epi.properties,  patient_hlaII, list_avail_hlaII)
+            prediction.main(dict_epi.properties, patient_hlaII, list_avail_hlaII)
             attrs = vars(prediction)
             print(attrs)

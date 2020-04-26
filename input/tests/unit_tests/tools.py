@@ -1,4 +1,5 @@
 import os
+
 # TODO: change this import when we move to python3
 # from unittest.mock import Mock
 from mock import Mock
@@ -14,6 +15,7 @@ def _mock_file_existence(existing_files=[], unexisting_files=[]):
             return False
         else:
             return original_os_path_exists(filename)
+
     os.path.exists = Mock(side_effect=side_effect)
 
 

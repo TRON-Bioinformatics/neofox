@@ -1,5 +1,7 @@
 from functools import reduce
-#!/usr/bin/env python
+
+
+# !/usr/bin/env python
 
 def freq_aa(props, dict_freq):
     '''
@@ -38,7 +40,6 @@ def freq_4mer(props, dict_freq):
         return "NA"
 
 
-
 def build_frequency_dict(frequency_file, freq_dict):
     """Loads file with information of frequeny of nmers
     """
@@ -47,7 +48,7 @@ def build_frequency_dict(frequency_file, freq_dict):
         for line in f:
             c += 1
             w = line.strip("\n").split(";")
-            if c==1:
+            if c == 1:
                 header = w
                 continue
             else:
@@ -55,10 +56,9 @@ def build_frequency_dict(frequency_file, freq_dict):
     return freq_dict
 
 
-
-
 if __name__ == '__main__':
     import sys
+
     basedir = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2"
     sys.path.append(basedir)
     import data_import
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     dat = data_import.import_dat_icam(file, indel)
 
     properties = {}
-    for nam,char in zip(dat[0], dat[1][1]):
+    for nam, char in zip(dat[0], dat[1][1]):
         properties[nam] = char
     # add MUT AA
     properties["MUT_AA"] = FeatureLiterature.wt_mut_aa(properties, "mut")
@@ -78,8 +78,8 @@ if __name__ == '__main__':
     freq_file2 = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/new_features/20181108_4mer_freq.csv"
     freq_dict = {}
     freq_dict_4mer = {}
-    freq_dict = build_frequency_dict(freq_file1, freq_dict )
-    freq_dict_4mer = build_frequency_dict(freq_file2,freq_dict_4mer)
+    freq_dict = build_frequency_dict(freq_file1, freq_dict)
+    freq_dict_4mer = build_frequency_dict(freq_file2, freq_dict_4mer)
 
     print(freq_aa(properties, freq_dict))
     print(freq_prod_4mer(properties, freq_dict))

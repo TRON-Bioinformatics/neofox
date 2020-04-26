@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-import os
-import sys
 import math
-from input import MHC_I, MHC_II
-import input.netmhcIIpan.netmhcIIpan_prediction as netmhcpan_prediction
+
 from logzero import logger
+
+import input.netmhcIIpan.netmhcIIpan_prediction as netmhcpan_prediction
+from input import MHC_I, MHC_II
 
 
 class MultipleBinding:
@@ -29,19 +29,19 @@ class MultipleBinding:
         for num in list_numbers:
             sm = sm + float(num)
         try:
-            return str(float(sm/len(list_numbers)))
+            return str(float(sm / len(list_numbers)))
         except ZeroDivisionError:
             return "NA"
 
     def calc_harmonic_mean(self, list_numbers):
         '''Calculates the harmonic mean from a list of numbers
         '''
-        nums = [float(num)**-1 for num in list_numbers]
+        nums = [float(num) ** -1 for num in list_numbers]
         sm = 0
         for num in nums:
             sm = sm + num
         try:
-            return str(float(len(nums)/sm))
+            return str(float(len(nums) / sm))
         except ZeroDivisionError:
             return "NA"
 
@@ -51,7 +51,7 @@ class MultipleBinding:
         pr = 1
         for num in list_numbers:
             pr = float(num) * pr
-        return str(pr**(len(list_numbers)**-1))
+        return str(pr ** (len(list_numbers) ** -1))
 
     def calc_geometric_mean(self, list_numbers):
         '''Calculates the geometric mean from a list of numbers; avoids product --> suitable for larger list of number
@@ -61,32 +61,31 @@ class MultipleBinding:
             num_log = math.log(float(num))
             sm = float(num_log) + sm
         try:
-            num_log_mean = sm/len(list_numbers)
+            num_log_mean = sm / len(list_numbers)
             num_log_mean_exp = math.exp(num_log_mean)
             return str(num_log_mean_exp)
         except ZeroDivisionError:
             return "NA"
 
-
-
     def wrapper_mean_calculation(self, list_numbers):
         '''returns list of arithmetic, harmonic and geometric mean from a list of numbers
         '''
-        return [self.calc_arimetric_mean(list_numbers), self.calc_harmonic_mean(list_numbers), self.calc_geometric_mean(list_numbers)]
+        return [self.calc_arimetric_mean(list_numbers), self.calc_harmonic_mean(list_numbers),
+                self.calc_geometric_mean(list_numbers)]
 
-    def generate_epi_tuple(self, prediction_out, mhc = MHC_I):
+    def generate_epi_tuple(self, prediction_out, mhc=MHC_I):
         '''Takes netmhcpan4 output or netmhcpanII output as input (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
         returns tuple of mhc binding rank scores, epitope and HLA allele for all predicted epitopes as list
         '''
         pred_data = prediction_out[1]
         list_of_tuples = []
-        for ii,i in enumerate(pred_data):
+        for ii, i in enumerate(pred_data):
             if mhc == MHC_II:
                 # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((i[-2],i[-3], i[2], i[1]))
+                list_of_tuples.append((i[-2], i[-3], i[2], i[1]))
             else:
                 # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((i[-1],i[-2], i[2], i[1]))
+                list_of_tuples.append((i[-1], i[-2], i[2], i[1]))
         return list_of_tuples
 
     def extract_top10_epis(self, tuple_epis):
@@ -101,7 +100,6 @@ class MultipleBinding:
         homozygos_alleles = []
         [homozygos_alleles.append(allele) for allele in patient_alleles if patient_alleles.count(allele) > 1]
         return homozygos_alleles
-
 
     def extract_best_epi_per_alelle(self, tuple_epis, alleles):
         '''this function returns the predicted epitope with the lowest binding score for each patient allele, considering homozyogosity
@@ -131,7 +129,7 @@ class MultipleBinding:
                     homo_best_epi = dict_allels[allele][0]
                     homo_best_epi_all = []
                     # allele already one time represented in list --> add n-t times
-                    [homo_best_epi_all.append(tuple(homo_best_epi)) for i in range(homo_numbers -1)]
+                    [homo_best_epi_all.append(tuple(homo_best_epi)) for i in range(homo_numbers - 1)]
                     best_epis_per_allele.extend(tuple(homo_best_epi_all))
         return best_epis_per_allele
 
@@ -151,7 +149,7 @@ class MultipleBinding:
             list_score.append(epi[1])
         return list_score
 
-    def determine_number_of_binders(self, list_scores, threshold = 2):
+    def determine_number_of_binders(self, list_scores, threshold=2):
         '''Determines the number of HLA binders per mutation based on a threshold. Default is set to 2, which is threshold for weak binding using netmhcpan4.
         '''
         number_binders = 0
@@ -184,7 +182,7 @@ class MultipleBinding:
         self.score_best_per_alelle = self.wrapper_mean_calculation(best_per_alelle)
         self.number_strong_binders = self.determine_number_of_binders(all, 0.5)
         self.number_weak_binders = self.determine_number_of_binders(all, 2)
-        self.generator_rate = self.determine_number_of_binders(list_scores = all_affinities, threshold = 50)
+        self.generator_rate = self.determine_number_of_binders(list_scores=all_affinities, threshold=50)
 
 
 if __name__ == '__main__':
@@ -193,8 +191,8 @@ if __name__ == '__main__':
     from input.helpers import data_import
 
     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
-    #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/20170713_IS_IM_data.complete.update_Dv10.csv.annotation.csv_v2.csv"
-    #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
+    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/20170713_IS_IM_data.complete.update_Dv10.csv.annotation.csv_v2.csv"
+    # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_fulldat.txt"
     hla_file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/indels/RB_0004_labHLA_V2.csv"
     dat = data_import.import_dat_icam(file, False)
     # available MHC alleles
@@ -205,11 +203,11 @@ if __name__ == '__main__':
     patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
 
     Allepit = {}
-    for ii,i in enumerate(dat[1]):
-        #print ii
+    for ii, i in enumerate(dat[1]):
+        # print ii
         dict_epi = epitope.Epitope()
         dict_epi.init_properties(dat[0], dat[1][ii])
-        x =  MultipleBinding()
+        x = MultipleBinding()
         x.main(dict_epi.properties, patient_hlaI, set_available_mhc)
         for sc, mn in zip(x.score_all_epitopes, x.mean_type):
             dict_epi.add_features(sc, "MB_score_all_epitopes_" + mn)
