@@ -22,13 +22,15 @@ from input.helpers.runner import Runner
 
 class Epitope:
 
-    def __init__(self, runner, references, configuration):
+    def __init__(self, runner, references, configuration, provean_annotator):
         """
         :type runner: input.helpers.runner.Runner
         :type references: input.references.ReferenceFolder
         :type configuration: input.references.DependenciesConfiguration
+        :type provean_annotator: input.new_features.conservation_scores.ProveanAnnotator
         """
         self.references = references
+        self.provean_annotator = provean_annotator
         self.properties = {}
         self.dissimilarity_calculator = DissimilarityCalculator(runner=runner, configuration=configuration)
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner, configuration=configuration)
@@ -54,7 +56,7 @@ class Epitope:
         print(";".join([self.properties[key] for key in self.properties]))
 
     def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
-             prov_matrix, set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content,
+             set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content,
              list_HLAII_MixMHC2pred, rna_avail):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
@@ -101,7 +103,7 @@ class Epitope:
                 print(aaindex2_dict[k], wt, mut)
         # PROVEAN score
         self.add_features(conservation_scores.add_ucsc_id_to_dict(self.properties), "UCSC_ID_position")
-        self.add_features(conservation_scores.add_provean_score_from_matrix(self.properties, prov_matrix),
+        self.add_features(self.provean_annotator.add_provean_score_from_matrix(self.properties),
                           "PROVEAN_score")
         self.pred.main(self.properties, patient_hlaI, set_available_mhc)
         # netmhcpan4 MUT rank score
