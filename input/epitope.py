@@ -103,7 +103,8 @@ class Epitope:
                 print(aaindex2_dict[k], wt, mut)
         # PROVEAN score
         self.add_features(conservation_scores.add_ucsc_id_to_dict(self.properties), "UCSC_ID_position")
-        self.add_features(self.provean_annotator.add_provean_score_from_matrix(self.properties),
+        self.add_features(self.provean_annotator.add_provean_score_from_matrix(
+            mutated_aminoacid=self.properties['MUT_AA'], ucsc_id_position=self.properties['UCSC_ID_position']),
                           "PROVEAN_score")
         self.pred.main(self.properties, patient_hlaI, set_available_mhc)
         # netmhcpan4 MUT rank score
