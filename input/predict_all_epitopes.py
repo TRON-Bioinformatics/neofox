@@ -26,7 +26,6 @@ class BunchEpitopes:
         self.fourmer_frequency = {}
         self.aa_index1_dict = {}
         self.aa_index2_dict = {}
-        self.ucsc_ids = set([])
         self.provean_annotator = {}
         self.hla_available_alleles = set()
         self.hlaII_available_alleles = set()
@@ -77,18 +76,6 @@ class BunchEpitopes:
                 w = line.rstrip().split(";")
                 freq_dict[w[0]] = w[1]
         return freq_dict
-
-    def load_ucsc_ids_epitopes(self, header, list_epis):
-        """
-        Returns set with ucsc ids of epitopes.
-        """
-        set_ids = set([])
-        col_ucsc = header.index("UCSC_transcript")
-        col_pos = header.index("substitution")
-        for epi in list_epis:
-            ucsc_pos = conservation_scores.add_ucsc_id_to_list(epi[col_ucsc], epi[col_pos])
-            set_ids.add(ucsc_pos)
-        return set_ids
 
     def load_available_hla_alleles(self, mhc=MHC_I):
         """
@@ -233,8 +220,7 @@ class BunchEpitopes:
         if tumour_content_file != "":
             self.tumour_content = self.load_tumor_content_dict(tumour_content_file)
             self.rna_avail = self.load_rna_seq_avail_dict(tumour_content_file)
-        self.ucsc_ids = self.load_ucsc_ids_epitopes(data[0], data[1])
-        self.provean_annotator = ProveanAnnotator(provean_file=prov_file, epitope_ids=self.ucsc_ids)
+        self.provean_annotator = ProveanAnnotator(provean_file=prov_file, header_epitopes=data[0], epitopes=data[1])
 
     def wrapper_table_add_feature_annotation(self, file, indel, path_to_hla_file, tissue, tumour_content_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,

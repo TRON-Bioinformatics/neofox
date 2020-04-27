@@ -101,30 +101,38 @@ class Epitope:
                 self.add_features(z[1], z[0])
             except:
                 print(aaindex2_dict[k], wt, mut)
+
         # PROVEAN score
-        self.add_features(conservation_scores.add_ucsc_id_to_dict(self.properties), "UCSC_ID_position")
-        self.add_features(self.provean_annotator.add_provean_score_from_matrix(
-            mutated_aminoacid=self.properties['MUT_AA'], ucsc_id_position=self.properties['UCSC_ID_position']),
-                          "PROVEAN_score")
+        ucsc_id = self.provean_annotator.build_ucsc_id_plus_position(
+            substitution=self.properties["substitution"], ucsc_id=self.properties["UCSC_transcript"])
+        self.add_features(ucsc_id, "UCSC_ID_position")
+        self.add_features(self.provean_annotator.get_provean_annotation(
+            mutated_aminoacid=self.properties['MUT_AA'], ucsc_id_position=ucsc_id),
+            "PROVEAN_score")
         self.pred.main(self.properties, patient_hlaI, set_available_mhc)
+
         # netmhcpan4 MUT rank score
         self.add_features(self.pred.best4_mhc_score, "best%Rank_netmhcpan4")
         self.add_features(self.pred.best4_mhc_epitope, "best_epitope_netmhcpan4")
         self.add_features(self.pred.best4_mhc_allele, "bestHLA_allele_netmhcpan4")
         self.add_features(self.pred.directed_to_TCR, "directed_to_TCR")
+
         # netmhcpan4 mut affinity
         self.add_features(self.pred.best4_affinity, "best_affinity_netmhcpan4")
         self.add_features(self.pred.best4_affinity_epitope, "best_affinity_epitope_netmhcpan4")
         self.add_features(self.pred.best4_affinity_allele, "bestHLA_allele_affinity_netmhcpan4")
         self.add_features(self.pred.best4_affinity_directed_to_TCR, "affinity_directed_to_TCR")
+
         # netMHCpan MUT best 9mer score
         self.add_features(self.pred.mhcI_score_9mer, "best%Rank_netmhcpan4_9mer")
         self.add_features(self.pred.mhcI_score_epitope_9mer, "best_epitope_netmhcpan4_9mer")
         self.add_features(self.pred.mhcI_score_allele_9mer, "bestHLA_allele_netmhcpan4_9mer")
+
         # netmhcpan4 mut best 9mer affinity
         self.add_features(self.pred.mhcI_affinity_9mer, "best_affinity_netmhcpan4_9mer")
         self.add_features(self.pred.mhcI_affinity_allele_9mer, "bestHLA_allele_affinity_netmhcpan4_9mer")
         self.add_features(self.pred.mhcI_affinity_epitope_9mer, "best_affinity_epitope_netmhcpan4_9mer")
+
         # multiplexed representation MUT
         for sc, mn in zip(self.pred.MHC_score_all_epitopes, self.pred.mean_type):
             self.add_features(sc, "MB_score_all_epitopes_" + mn)
@@ -132,6 +140,7 @@ class Epitope:
             self.add_features(sc, "MB_score_top10_" + mn)
         for sc, mn in zip(self.pred.MHC_score_best_per_alelle, self.pred.mean_type):
             self.add_features(sc, "MB_score_best_per_alelle_" + mn)
+
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
         self.properties["PHBR-I"] = self.properties.pop("MB_score_best_per_alelle_harmonic")
         self.add_features(self.pred.MHC_epitope_scores, "MB_epitope_scores")
@@ -139,9 +148,11 @@ class Epitope:
         self.add_features(self.pred.MHC_epitope_alleles, "MB_alleles")
         self.add_features(self.pred.MHC_number_strong_binders, "MB_number_pep_MHCscore<1")
         self.add_features(self.pred.MHC_number_weak_binders, "MB_number_pep_MHCscore<2")
+
         # generator rate
         self.add_features(self.pred.epitope_affinities, "MB_affinities")
         self.add_features(self.pred.generator_rate, "Generator_rate")
+
         # multiplexed representation WT
         self.add_features(self.pred.MHC_epitope_scores_WT, "MB_epitope_WT_scores")
         self.add_features(self.pred.MHC_epitope_seqs_WT, "MB_epitope_WT_sequences")
@@ -155,26 +166,32 @@ class Epitope:
         self.properties["PHBR-I_WT"] = self.properties.pop("MB_score_WT_best_per_alelle_harmonic")
         self.add_features(self.pred.MHC_number_strong_binders_WT, "MB_number_pep_WT_MHCscore<1")
         self.add_features(self.pred.MHC_number_weak_binders_WT, "MB_number_pep_WT_MHCscore<2")
+
         # generator rate
         self.add_features(self.pred.epitope_affinities_WT, "MB_affinities_WT")
         self.add_features(self.pred.generator_rate_WT, "Generator_rate_WT")
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=True), "DAI_mhcI_MB")
+
         # netmhcpan4 wt affinity
         self.add_features(self.pred.best4_affinity_WT, "best_affinity_netmhcpan4_WT")
         self.add_features(self.pred.best4_affinity_epitope_WT, "best_affinity_epitope_netmhcpan4_WT")
         self.add_features(self.pred.best4_affinity_allele_WT, "bestHLA_allele_affinity_netmhcpan4_WT")
+
         # netmhcpan4 mut rank score
         self.add_features(self.pred.best4_mhc_score_WT, "best%Rank_netmhcpan4_WT")
         self.add_features(self.pred.best4_mhc_epitope_WT, "best_epitope_netmhcpan4_WT")
         self.add_features(self.pred.best4_mhc_allele_WT, "bestHLA_allele_netmhcpan4_WT")
+
         # netMHCpan MUT best 9mer score
         self.add_features(self.pred.mhcI_score_9mer_WT, "best%Rank_netmhcpan4_9mer_WT")
         self.add_features(self.pred.mhcI_score_epitope_9mer_WT, "best_epitope_netmhcpan4_9mer_WT")
         self.add_features(self.pred.mhcI_score_allele_9mer_WT, "bestHLA_allele_netmhcpan4_9mer_Wt")
+
         # netmhcpan4 mut best 9mer affinity
         self.add_features(self.pred.mhcI_affinity_9mer_WT, "best_affinity_netmhcpan4_9mer_WT")
         self.add_features(self.pred.mhcI_affinity_allele_9mer_WT, "bestHLA_allele_affinity_netmhcpan4_9mer_WT")
         self.add_features(self.pred.mhcI_affinity_epitope_9mer_WT, "best_affinity_epitope_netmhcpan4_9mer_WT")
+
         # multiplex representation
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_I, threshold="1"),
                           "Diff_numb_epis_<1")
@@ -186,9 +203,11 @@ class Epitope:
                           "Ratio_numb_epis_<2")
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, MHC_I, multiple_binding=True), "Amplitude_mhcI_MB")
+
         # position of mutation
         self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties),
                           "pos_MUT_MHCI_affinity_epi")
+
         # position of mutation
         self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer=True),
                           "pos_MUT_MHCI_affinity_epi_9mer")
@@ -196,6 +215,7 @@ class Epitope:
                           "Mutation_in_anchor_netmhcpan")
         self.add_features(self_similarity.position_in_anchor_position(self.properties, nine_mer=True),
                           "Mutation_in_anchor_netmhcpan_9mer")
+
         # selfsimilarity
         self.add_features(self_similarity.get_self_similarity(
             props=self.properties, mhc=MHC_I, references=self.references), "Selfsimilarity_mhcI")
@@ -205,6 +225,7 @@ class Epitope:
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
         self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties),
                           "Selfsimilarity_mhcI_conserved_binder")
+
         # neoantigen fitness
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
@@ -224,24 +245,30 @@ class Epitope:
             self.properties, MHC_I), "Recognition_Potential_mhcI")
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
             self.properties, MHC_II), "Recognition_Potential_mhcII")
+
         # T cell predictor
         self.tcellpredict.main(self.properties)
         self.add_features(self.tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
         self.add_features(self.tcellpredict.TcellPrdictionScore_9merPred, "Tcell_predictor_score_9mersPredict")
+
         # DAI with affinity values
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=True),
                           "DAI_affinity")
+
         # DAI wiht rank scores by netmhcpan4
         self.add_features(
             FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=False, netmhcscore=True),
             "DAI_rank_netmhcpan4")
+
         # Amplitude with affinity values
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, MHC_I, False, True), "Amplitude_mhcI_affinity")
+
         # Amplitude with rank by netmhcpan4
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
                 self.properties, mhc=MHC_I, multiple_binding=False, affinity=False, netmhcscore=True),
             "Amplitude_mhcI_rank_netmhcpan4")
+
         # Amplitude based on best affinity prediction restricted to 9mers
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, mhc=MHC_I, multiple_binding=False, nine_mer=True),
@@ -254,11 +281,13 @@ class Epitope:
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
                 props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb, affinity=True),
             "Pathogensimiliarity_mhcI_affinity_nmers")
+
         # recogntion potential with amplitude by affinity and netmhcpan4 score
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
             self.properties, MHC_I, affinity=True), "Recognition_Potential_mhcI_affinity")
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
             self.properties, MHC_I, affinity=False, netmhcscore=True), "Recognition_Potential_mhcI_rank_netmhcpan4")
+
         # recogntion potential with amplitude by affinity and only 9mers considered --> value as published!!
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
             self.properties, MHC_I, nine_mer=True), "Recognition_Potential_mhcI_9mer_affinity")
@@ -269,14 +298,17 @@ class Epitope:
 
         # netMHCIIpan predictions
         self.predII.main(self.properties, patient_hlaII, set_available_mhcII)
+
         # netmhcpan4 MUT scores
         self.add_features(self.predII.best_mhcII_pan_score, "best%Rank_netmhcIIpan")
         self.add_features(self.predII.best_mhcII_pan_epitope, "best_epitope_netmhcIIpan")
         self.add_features(self.predII.best_mhcII_pan_allele, "bestHLA_allele_netmhcIIpan")
+
         # netmhcpan4 mut affinity
         self.add_features(self.predII.best_mhcII_pan_affinity, "best_affinity_netmhcIIpan")
         self.add_features(self.predII.best_mhcII_pan_affinity_epitope, "best_affinity_epitope_netmhcIIpan")
         self.add_features(self.predII.best_mhcII_pan_affinity_allele, "bestHLA_allele_affinity_netmhcIIpan")
+
         # multiplexed representation MUT MHC II
         for sc, mn in zip(self.predII.MHCII_score_all_epitopes, self.predII.mean_type):
             self.add_features(sc, "MB_score_MHCII_all_epitopes_" + mn)
@@ -284,6 +316,7 @@ class Epitope:
             self.add_features(sc, "MB_score_MHCII_top10_" + mn)
         for sc, mn in zip(self.predII.MHCII_score_best_per_alelle, self.predII.mean_type):
             self.add_features(sc, "MB_score_MHCII_best_per_alelle_" + mn)
+
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
         self.properties["PHBR-II"] = self.properties.pop("MB_score_MHCII_best_per_alelle_harmonic")
         self.add_features(self.predII.MHCII_epitope_scores, "MB_mhcII_epitope_scores")
@@ -291,14 +324,17 @@ class Epitope:
         self.add_features(self.predII.MHCII_epitope_alleles, "MB_mhcII_alleles")
         self.add_features(self.predII.MHCII_number_strong_binders, "MB_number_pep_MHCIIscore<2")
         self.add_features(self.predII.MHCII_number_weak_binders, "MB_number_pep_MHCIIscore<10")
+
         # netmhcIIpan WT scores
         self.add_features(self.predII.best_mhcII_pan_score_WT, "best%Rank_netmhcIIpan_WT")
         self.add_features(self.predII.best_mhcII_pan_epitope_WT, "best_epitope_netmhcIIpan_WT")
         self.add_features(self.predII.best_mhcII_pan_allele_WT, "bestHLA_allele_netmhcIIpan_Wt")
+
         # netmhcIIpan wt affinity
         self.add_features(self.predII.best_mhcII_affinity_WT, "best_affinity_netmhcIIpan_WT")
         self.add_features(self.predII.best_mhcII_affinity_epitope_WT, "best_affinity_epitope_netmhcIIpan_WT")
         self.add_features(self.predII.best_mhcII_affinity_allele_WT, "bestHLA_allele_affinity_netmhcIIpan_WT")
+
         # multiplexed representation WT MHC II
         for sc, mn in zip(self.predII.MHCII_score_all_epitopes_WT, self.predII.mean_type):
             self.add_features(sc, "MB_score_MHCII_all_epitopes_WT_" + mn)
@@ -306,6 +342,7 @@ class Epitope:
             self.add_features(sc, "MB_score_MHCII_top10_WT_" + mn)
         for sc, mn in zip(self.predII.MHCII_score_best_per_alelle_WT, self.predII.mean_type):
             self.add_features(sc, "MB_score_MHCII_best_per_alelle_WT_" + mn)
+
         # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
         if "MB_score_MHCII_best_per_alelle_WT_harmonic" in self.properties:
             self.properties["PHBR-II_WT"] = self.properties.pop("MB_score_MHCII_best_per_alelle_WT_harmonic")
@@ -314,17 +351,21 @@ class Epitope:
         self.add_features(self.predII.MHCII_epitope_alleles_WT, "MB_mhcII_alleles_WT")
         self.add_features(self.predII.MHCII_number_strong_binders_WT, "MB_number_pep_MHCIIscore<2_WT")
         self.add_features(self.predII.MHCII_number_weak_binders_WT, "MB_number_pep_MHCIIscore<10_WT")
+
         # dai mhc II affinity
         self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=True),
                           "DAI_mhcII_affinity")
         self.add_features(
             FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=True, affin_filtering=True),
             "DAI_mhcII_affinity_aff_filtered")
+
         # dai mhc II netMHCIIpan score
         self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=False),
                           "DAI_mhcII_netmhcIIpan")
+
         # dai multiple binding mhc II
         self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=True), "DAI_mhcII_MB")
+
         # difference number of binders
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_II, threshold="2"),
                           "Diff_numb_epis_mhcII<2")
@@ -334,27 +375,34 @@ class Epitope:
                           "Ratio_numb_epis_mhcII<2")
         self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_II, threshold="10"),
                           "Ratio_numb_epis_mhcII<10")
+
         # amplitude affinity mhc II
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, MHC_II, False, True), "Amplitude_mhcII_affinity")
+
         # amplitude multiple binding mhc II
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, MHC_II, True, False), "Amplitude_mhcII_mb")
+
         # amplitude rank score mhc II
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, mhc=MHC_II, multiple_binding=False, affinity=False, netmhcscore=True),
             "Amplitude_mhcII_rank_netmhcpan4")
         logger.info("Amplitude mhc II: {}".format(self.properties["Amplitude_mhcII_rank_netmhcpan4"]))
+
         # priority score
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, MHC_I), "Number_of_mismatches_mhcI")
         self.add_features(FeatureLiterature.number_of_mismatches(self.properties, MHC_II), "Number_of_mismatches_mhcII")
         if "mutation_found_in_proteome" not in self.properties:
             self.add_features(FeatureLiterature.match_in_proteome(self.properties, db), "mutation_found_in_proteome")
         self.add_features(FeatureLiterature.calc_priority_score(self.properties), "Priority_score")
+
         # priority score using multiplexed representation score
         self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
+
         # neoag immunogenicity model
         self.add_features(self.neoag_calculator.wrapper_neoag(self.properties), "neoag_immunogencity")
+
         # IEDB immunogenicity only for epitopes with affinity < 500 nM (predicted with netMHCpan) --> in publications
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I),
                           "IEDB_Immunogenicity_mhcI")
@@ -362,6 +410,7 @@ class Epitope:
                           "IEDB_Immunogenicity_mhcII")
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I, affin_filtering=True),
                           "IEDB_Immunogenicity_mhcI_affinity_filtered")
+
         # MixMHCpred
         self.predpresentation.main(self.properties, patient_hlaI)
         self.add_features(self.predpresentation.all_peptides, "MixMHCpred_all_peptides")
@@ -376,6 +425,7 @@ class Epitope:
         self.add_features(self.predpresentation.best_score_wt, "MixMHCpred_best_score_wt")
         self.add_features(self.predpresentation.best_rank_wt, "MixMHCpred_best_rank_wt")
         self.add_features(self.predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
+
         # MixMHC2pred
         self.predpresentation2.main(self.properties, patient_hlaII, list_HLAII_MixMHC2pred)
         self.add_features(self.predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
@@ -389,6 +439,7 @@ class Epitope:
         self.add_features(self.predpresentation2.difference_score_mut_wt, "MixMHC2pred_difference_rank_mut_wt")
 
         # dissimilarity to self-proteome
+
         # neoantigen fitness
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
@@ -402,4 +453,5 @@ class Epitope:
         vaxrankscore.main(self.properties)
         self.add_features(vaxrankscore.total_binding_score, "vaxrank_binding_score")
         self.add_features(vaxrankscore.ranking_score, "vaxrank_total_score")
+
         return self.properties
