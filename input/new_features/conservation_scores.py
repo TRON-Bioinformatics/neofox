@@ -32,24 +32,21 @@ class ProveanAnnotator(object):
         logger.info("Starting load of PROVEAN matrix" + provean_file)
         self.provean_matrix = {}
         with open(provean_file) as f:
-            next(f)  # skips header
+            self.header = next(f).rstrip().split(";")  # stores header
             for line in f:
-                w = line.rstrip().split(";")
-                ucsc_id_pos = w[-1]
+                parts = line.rstrip().split(";")
+                ucsc_id_pos = parts[-1]
                 if ucsc_id_pos in epitope_ids:
-                    self.provean_matrix[ucsc_id_pos] = w
+                    self.provean_matrix[ucsc_id_pos] = parts
         logger.info("PROVEAN matrix loaded")
 
-    def add_provean_score_from_matrix(self, props):
-        '''
-        This function maps Provean score on given position and for specific SNV onto epitope data set (which is in form of tuple --> header + dict of ucsc_pos_id: df row)
-        '''
-        aa_mut = props["MUT_AA"]
-        ucsc_pos_epi = props["UCSC_ID_position"]
-        head_prov = ["protein_id", "position", "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R",
-                     "S", "T", "V", "W", "Y", "Del"]
+    def add_provean_score_from_matrix(self, mutated_aminoacid, ucsc_id_position):
+        """
+        This function maps Provean score on given position and for specific SNV onto epitope data set
+        (which is in form of tuple --> header + dict of ucsc_pos_id: df row)
+        """
         try:
-            return self.provean_matrix[ucsc_pos_epi][head_prov.index(aa_mut)]
+            return self.provean_matrix[ucsc_id_position][self.header.index(mutated_aminoacid)]
         except (ValueError, KeyError) as e:
             return "NA"
 
