@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 import input.self_similarity.self_similarity as self_similarity
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
 from input import MHC_I, MHC_II
@@ -7,7 +8,7 @@ from input import MHC_I, MHC_II
 class TestSelfSimilarity(TestCase):
 
     def setUp(self):
-        self.references = integration_test_tools.load_references()
+        self.references, self.configuration = integration_test_tools.load_references()
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
 
     def test_get_self_similarity_mhci(self):

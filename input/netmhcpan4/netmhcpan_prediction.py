@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 
-import subprocess
 import tempfile
+
 from input.helpers import data_import
 
 
-class NetmhcpanBestPrediction:
+class NetMhcPanBestPrediction:
 
-    def __init__(self):
+    def __init__(self, runner, configuration):
+        """
+        :type runner: input.helpers.runner.Runner
+        :type configuration: input.references.DependenciesConfiguration
+        """
+        self.runner = runner
+        self.configuration = configuration
         self.mhc_score = "NA"
         self.epitope = "NA"
         self.allele = "NA"
@@ -28,7 +34,7 @@ class NetmhcpanBestPrediction:
         '''
         return allele in set_available_mhc
 
-    def generate_fasta(self, props, tmpfile, mut = True):
+    def generate_fasta(self, props, tmpfile, mut=True):
         ''' Writes 27mer to fasta file.
         '''
         if mut:
@@ -36,7 +42,7 @@ class NetmhcpanBestPrediction:
         elif not mut:
             seq = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         id = ">seq1"
-        with open(tmpfile,"w") as f:
+        with open(tmpfile, "w") as f:
             f.write(id + "\n")
             f.write(seq + "\n")
 
@@ -61,12 +67,16 @@ class NetmhcpanBestPrediction:
             if self.mhc_allele_in_netmhcpan_available(allele, set_available_mhc):
                 allels_for_prediction.append(allele)
         hla_allele = ",".join(allels_for_prediction)
-        cmd = "netMHCpan -a " + hla_allele + " -f " + tmpfasta + " -BA"
-        p = subprocess.Popen(cmd.split(" "), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        cmd = [
+            self.configuration.net_mhc_pan,
+            "-a", hla_allele,
+            "-f", tmpfasta,
+            "-BA"]
+        lines, _ = self.runner.run_command(cmd)
         counter = 0
         with open(tmppred, "w") as f:
-            for line in p.stdout:
-                line = line.decode('utf8').rstrip().lstrip()
+            for line in lines.splitlines():
+                line = line.rstrip().lstrip()
                 if line:
                     if line.startswith(("#", "-", "HLA", "Prot")):
                         continue
@@ -90,7 +100,7 @@ class NetmhcpanBestPrediction:
         xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
-            for i,aa in enumerate(xmer_mut):
+            for i, aa in enumerate(xmer_mut):
                 if aa != xmer_wt[i]:
                     p1 = i + 1
         else:
@@ -122,12 +132,12 @@ class NetmhcpanBestPrediction:
         dat_fil = []
         pos_epi = dat_head.index("Pos")
         epi = dat_head.index("Peptide")
-        for ii,i in enumerate(dat):
+        for ii, i in enumerate(dat):
             if self.epitope_covers_mutation(pos_xmer, i[pos_epi], len(i[epi])):
                 dat_fil.append(dat[ii])
         return dat_head, dat_fil
 
-    def minimal_binding_score(self, prediction_tuple, rank = True):
+    def minimal_binding_score(self, prediction_tuple, rank=True):
         '''reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used. if rank = False, Aff(nM) is used
         '''
         dat_head = prediction_tuple[0]
@@ -136,16 +146,11 @@ class NetmhcpanBestPrediction:
             mhc_sc = dat_head.index("%Rank")
         else:
             mhc_sc = dat_head.index("Aff(nM)")
-        #print >> sys.stderr, mhc_sc
-        epi = dat_head.index("Peptide")
-        hla_allele = dat_head.index("HLA")
         max_score = float(1000000000000)
-        allele = "NA"
-        epitope = "NA"
         row = []
-        for ii,i in enumerate(dat):
+        for ii, i in enumerate(dat):
             mhc_score = float(i[mhc_sc])
-            if  mhc_score < max_score:
+            if mhc_score < max_score:
                 max_score = mhc_score
                 row = i
         return dat_head, row
@@ -190,9 +195,9 @@ class NetmhcpanBestPrediction:
         dat = prediction_tuple[1]
         seq_col = dat_head.index("Peptide")
         dat_9mers = []
-        for ii,i in enumerate(dat):
+        for ii, i in enumerate(dat):
             seq = i[seq_col]
-            if  len(seq) == 9:
+            if len(seq) == 9:
                 dat_9mers.append(i)
         return dat_head, dat_9mers
 
@@ -215,12 +220,12 @@ class NetmhcpanBestPrediction:
         seq_col = dat_head.index("Peptide")
         allele_col = dat_head.index("HLA")
         wt_epi = "NA"
-        for ii,i in enumerate(dat):
+        for ii, i in enumerate(dat):
             wt_seq = i[seq_col]
             wt_allele = i[allele_col]
             if (len(wt_seq) == len(mut_seq)) and wt_allele == mut_allele:
                 numb_mismatch = self.Hamming_check_0_or_1(mut_seq, wt_seq)
-                if  numb_mismatch == 1:
+                if numb_mismatch == 1:
                     wt_epi = i
         return dat_head, wt_epi
 
@@ -232,25 +237,24 @@ class NetmhcpanBestPrediction:
         seq_col = dat_head.index("Peptide")
         allele_col = dat_head.index("HLA")
         wt_epi = []
-        for ii,i in enumerate(dat):
+        for ii, i in enumerate(dat):
             wt_seq = i[seq_col]
             wt_allele = i[allele_col]
             if (len(wt_seq) == len(mut_seq)):
                 numb_mismatch = self.Hamming_check_0_or_1(mut_seq, wt_seq)
-                if  numb_mismatch == 1:
+                if numb_mismatch == 1:
                     wt_epi.append(i)
         dt = (dat_head, wt_epi)
         min = self.minimal_binding_score(dt)
-        return(min)
-
+        return (min)
 
     def main(self, props_dict, set_available_mhc, dict_patient_hla):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix ="tmp_singleseq_", suffix = ".fasta", delete = False)
+        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_singleseq_", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
         print(tmp_fasta)
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix ="netmhcpanpred_", suffix = ".csv", delete = False)
+        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         print(tmp_prediction)
         self.generate_fasta(props_dict, tmp_fasta)
@@ -258,12 +262,12 @@ class NetmhcpanBestPrediction:
         self.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)
         preds = self.filter_binding_predictions(props_dict, tmp_prediction)
-        #print preds
-        best_epi =  self.minimal_binding_score(preds)
-        best_epi_affinity =  self.minimal_binding_score(preds, rank = False)
-        preds_9mer =  self.filter_for_9mers(preds)
+        # print preds
+        best_epi = self.minimal_binding_score(preds)
+        best_epi_affinity = self.minimal_binding_score(preds, rank=False)
+        preds_9mer = self.filter_for_9mers(preds)
         best_9mer = self.minimal_binding_score(preds_9mer)
-        best_9mer_affinity = self.minimal_binding_score(preds_9mer, rank = False)
+        best_9mer_affinity = self.minimal_binding_score(preds_9mer, rank=False)
         self.mhc_score = self.add_best_epitope_info(best_epi, "%Rank")
         self.epitope = self.add_best_epitope_info(best_epi, "Peptide")
         self.allele = self.add_best_epitope_info(best_epi, "HLA")
@@ -271,7 +275,7 @@ class NetmhcpanBestPrediction:
         self.affinity = self.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
         self.affinity_epitope = self.add_best_epitope_info(best_epi_affinity, "Peptide")
         self.affinity_allele = self.add_best_epitope_info(best_epi_affinity, "HLA")
-        self.affinity_directed_to_TCR =  self.mutation_in_loop(props_dict, best_epi_affinity)
+        self.affinity_directed_to_TCR = self.mutation_in_loop(props_dict, best_epi_affinity)
         self.mhcI_score_9mer = self.add_best_epitope_info(best_9mer, "%Rank")
         self.mhcI_score_allele_9mer = self.add_best_epitope_info(best_9mer, "HLA")
         self.mhcI_score_epitope_9mer = self.add_best_epitope_info(best_9mer, "Peptide")
@@ -283,130 +287,34 @@ class NetmhcpanBestPrediction:
         print(self.Hamming_check_0_or_1("lddcd", "lddcd"))
 
 
-if __name__ == '__main__':
-
-    from input import predict_all_epitopes, epitope
-
-    # test with ott data set
-    file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
-    hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
-    # test inest data set
-    #file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
-    #hla_file = "/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
-    dat = data_import.import_dat_icam(file, False)
-    if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-        dat = data_import.change_col_names(dat)
-    # available MHC alleles
-    set_available_mhc = predict_all_epitopes.Bunchepitopes().add_available_hla_alleles()
-    # hla allele of patients
-    patient_hlaI = predict_all_epitopes.Bunchepitopes().add_patient_hla_I_allels(hla_file)
-    patient_hlaII = predict_all_epitopes.Bunchepitopes().add_patient_hla_II_allels(hla_file)
-
-    print(patient_hlaI)
-    print(patient_hlaII)
-
-    for ii,i in enumerate(dat[1]):
-        if ii < 10:
-            print(ii)
-            dict_epi = epitope.Epitope()
-            dict_epi.init_properties(dat[0], dat[1][ii])
-            prediction = NetmhcpanBestPrediction()
-            #print ii
-            #print dict_epi.properties
-
-            prediction.main(dict_epi.properties, set_available_mhc, patient_hlaI)
-            attrs = vars(prediction)
-            print(attrs)
-
-
-        #def wrapper(func, *args, **kwargs):
-        #    def wrapped():
-        #        return func(*args, **kwargs)
-        #    return wrapped
-        #wrapped = wrapper(prediction.main, dict_epi.properties, set_available_mhc, patient_hlaI)
-        #prediction.generate_fasta(dict_epi.properties)
-        #wrapped = wrapper(prediction.mhc_prediction, set_available_mhc, patient_hlaI)
-        #print timeit.timeit(wrapped, number=1)
-        #print timeit.timeit(wrapped, number=3)
-        #print prediction.mhc_score
-        #print prediction.epitope
-        #print prediction.allele
-        #print prediction.directed_to_TCR
-    '''
-    startTime1 = datetime.now()
-    seqs = []
-    col = dat[0].index("X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL.")
-    for ii,i in enumerate(dat[1]):
-        seqs.append(i[col])
-    file_fasta = my_path + "/all_seqs.fasta"
-    with open(file_fasta, "w") as f:
-        counter = 0
-        for seq in seqs:
-            f.write(">"+ str(counter) + "\n")
-            f.write(seq + "\n")
-            counter += 1
-
-    allels_for_prediction = []
-    tmp_fasta = file_fasta
-    hla_allele = 'HLA-A*23:01,HLA-A*68:02,HLA-B*14:02,HLA-B*49:01,HLA-C*07:01,HLA-C*08:02'
-    cmd = "/code/netMHCpan-4.0/netMHCpan -a " + hla_allele + " -f " + tmp_fasta
-    p = subprocess.Popen(cmd.split(" "),stderr=subprocess.PIPE,stdout=subprocess.PIPE)
-    lines = p.stdout
-    print cmd
-    print lines
-    fileout = my_path + "/netmhcpan_out.csv"
-    counter = 0
-    with open(fileout,"w") as f:
-        for line in lines:
-            line = line.rstrip().lstrip()
-            if line:
-                if line.startswith(("#", "-", "HLA", "Prot")):
-                    continue
-                if counter == 0 and line.startswith("Pos"):
-                    counter += 1
-                    line = line.split()
-                    line = line[0:-1] if len(line) > 13 else line
-                    f.write(";".join(line) + "\n")
-                    continue
-                elif counter >0 and line.startswith("Pos"):
-                    continue
-                line = line.split()
-                line = line[0:-2] if len(line) > 13 else line
-                line = ";".join(line)
-                f.write(line + "\n")
-    endTime1 = datetime.now()
-    print >> sys.stderr, "MHC PREDICTION "+ str(startTime1) + "\nend: "+ str(endTime1) + "\nneeded: " + str(endTime1 - startTime1)
-    '''
-
-
-
-
-
-
-
-
-
-
-    '''
-    # netmhcpan4 for example data set
-    for ii,i in enumerate(dat[1]):
-        #print dat[1][ii]
-        dict_epi = epitope.Epitope()
-        dict_epi.init_properties(dat[0], dat[1][ii])
-        NetmhcpanBestPrediction.generate_fasta(dict_epi.properties)
-        alleles = NetmhcpanBestPrediction.get_hla_allels(dict_epi.properties, hla_file)
-        NetmhcpanBestPrediction.mhc_prediction(alleles, list_available_mhc)
-        #print mut_position_xmer_seq(dict_epi.properties)
-        dict_epi.properties["Position_Xmer_Seq"] = NetmhcpanBestPrediction.mut_position_xmer_seq(dict_epi.properties)
-        preds = NetmhcpanBestPrediction.filter_binding_predictions(dict_epi.properties)
-        #print preds
-        best_epi = NetmhcpanBestPrediction.minimal_binding_score(preds)
-        #print best_epi
-        NetmhcpanBestPrediction.mutation_in_loop(dict_epi.properties, best_epi)
-        dict_epi.properties["%Rank_netmhcpan4"] = NetmhcpanBestPrediction.add_best_epitope_info(best_epi, "%Rank")
-        dict_epi.properties["HLA_allele_netmhcpan4"] = NetmhcpanBestPrediction.add_best_epitope_info(best_epi, "HLA")
-        dict_epi.properties["Best_epitope_netmhcpan4"] = NetmhcpanBestPrediction.add_best_epitope_info(best_epi, "Peptide")
-        dict_epi.properties["directed_to_TCR"] = NetmhcpanBestPrediction.mutation_in_loop(dict_epi.properties, best_epi)
-        #print dict_epi.properties
-        print dict_epi.properties["Best_epitope_netmhcpan4"],dict_epi.properties["HLA_allele_netmhcpan4"], dict_epi.properties["%Rank_netmhcpan4"], dict_epi.properties["directed_to_TCR"]
-    '''
+# if __name__ == '__main__':
+#
+#     from input import predict_all_epitopes, epitope
+#
+#     # test with ott data set
+#     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
+#     hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/alleles.csv"
+#     # test inest data set
+#     # file = "/flash/projects/WP3/AnFranziska/AnFranziska/head_seqs.txt"
+#     # hla_file = "/flash/projects/WP3/AnFranziska/AnFranziska/alleles.csv"
+#     dat = data_import.import_dat_icam(file, False)
+#     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
+#         dat = data_import.change_col_names(dat)
+#     # available MHC alleles
+#     set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles()
+#     # hla allele of patients
+#     patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
+#     patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
+#
+#     print(patient_hlaI)
+#     print(patient_hlaII)
+#
+#     for ii, i in enumerate(dat[1]):
+#         if ii < 10:
+#             print(ii)
+#             dict_epi = epitope.Epitope()
+#             dict_epi.init_properties(dat[0], dat[1][ii])
+#             prediction = NetMhcPanBestPrediction()
+#             prediction.main(dict_epi.properties, set_available_mhc, patient_hlaI)
+#             attrs = vars(prediction)
+#             print(attrs)

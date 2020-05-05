@@ -1,6 +1,7 @@
+import pickle
+
 import numpy as np
 import scipy.io as sio
-import pickle
 
 
 class Preprocessor(object):
@@ -17,15 +18,15 @@ class Preprocessor(object):
     def seq2bin(seq):
         aa = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
         dict_aa = dict((i, j) for j, i in enumerate(aa))
-        arr = np.zeros((1, 9*20))
+        arr = np.zeros((1, 9 * 20))
         for ii, letter in enumerate(seq):
-            arr[0, ii*20+dict_aa.get(letter)] = 1
+            arr[0, ii * 20 + dict_aa.get(letter)] = 1
         return arr
 
     @staticmethod
     def get_hydrophbicity(x, dict_):
         pair_letters = [c for c in x if c.isupper()]
-        res = np.abs(dict_[pair_letters[0]]-dict_[pair_letters[1]])
+        res = np.abs(dict_[pair_letters[0]] - dict_[pair_letters[1]])
         return res
 
     @staticmethod
@@ -37,7 +38,7 @@ class Preprocessor(object):
     @staticmethod
     def get_charge_change(x, dict_):
         pair_letters = [c for c in x if c.isupper()]
-        if dict_[pair_letters[0]] ==dict_[pair_letters[1]]:
+        if dict_[pair_letters[0]] == dict_[pair_letters[1]]:
             return 0
         else:
             return 1
@@ -53,13 +54,13 @@ class Preprocessor(object):
     @staticmethod
     def get_polar(x, dict_):
         pair_letters = [c for c in x if c.isupper()]
-        res = np.abs(dict_[pair_letters[0]]-dict_[pair_letters[1]])
+        res = np.abs(dict_[pair_letters[0]] - dict_[pair_letters[1]])
         return res
 
     @staticmethod
     def get_absolute(x, dict_):
         pair_letters = [c for c in x if c.isupper()]
-        res = np.abs(dict_[pair_letters[0]]-dict_[pair_letters[1]])
+        res = np.abs(dict_[pair_letters[0]] - dict_[pair_letters[1]])
         return res
 
     @staticmethod
@@ -83,20 +84,20 @@ class Preprocessor(object):
 
     def main(self, f_name):
         lst_data = []
-        with open(f_name,'r') as f:
+        with open(f_name, 'r') as f:
             for row in f:
                 gene_name, sequence, aa_subs = row.split()
                 seq_arr = self.seq2bin(sequence)
                 # tap score
                 tap_mat = self.load_data.get('tap')
                 tap_score = tap_mat.dot(seq_arr.T).ravel()
-                #cleavge score
+                # cleavge score
                 clv_mat = self.load_data.get('clv')
                 clv_mat = clv_mat[0, 20:200]
                 clv_score = clv_mat.dot(seq_arr.T).ravel()
 
                 features_aa = self.get_properties(aa_subs)
-                #expresion
+                # expresion
                 expression_value = self.get_gene_expression(gene_name)
 
                 lst_data.append(np.hstack((expression_value, features_aa, clv_score, tap_score)))

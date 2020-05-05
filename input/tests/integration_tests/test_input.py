@@ -1,6 +1,5 @@
 from unittest import TestCase
-import input.dissimilarity_garnish.dissimilarity as dissimilarity
-import input.tests.integration_tests.integration_test_tools as integration_test_tools
+
 from input.predict_all_epitopes import Bunchepitopes
 
 

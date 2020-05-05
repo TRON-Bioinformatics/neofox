@@ -1,9 +1,10 @@
+import os
 import unittest
 from unittest import TestCase
-import os
+
 import input
-from input.predict_all_epitopes import Bunchepitopes
 from input.exceptions import INPuTConfigurationException
+from input.predict_all_epitopes import Bunchepitopes
 
 
 class TestPredictAllEpitopes(TestCase):

@@ -1,11 +1,12 @@
+import os
 import unittest
 from unittest import TestCase
-import os
+
 import input
-from input.references import ReferenceFolder
-from input.exceptions import INPuTConfigurationException
-from input.tests.unit_tests.fake_classes import FakeReferenceFolder
 import input.tests.unit_tests.tools as test_tools
+from input.exceptions import INPuTConfigurationException
+from input.references import ReferenceFolder
+from input.tests.unit_tests.fake_classes import FakeReferenceFolder
 
 
 class TestReferenceFolder(TestCase):
@@ -40,6 +41,7 @@ class TestReferenceFolder(TestCase):
         )
         with self.assertRaises(INPuTConfigurationException):
             ReferenceFolder()
+
 
 if __name__ == "__main__":
     unittest.main()
