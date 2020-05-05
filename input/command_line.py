@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 from logzero import logger
 
-from input.predict_all_epitopes import Bunchepitopes
+from input.predict_all_epitopes import BunchEpitopes
 
 
 def input_cli():
@@ -30,7 +30,7 @@ def input_cli():
 
     indel = False
 
-    bunchepitopes = Bunchepitopes()
+    bunchepitopes = BunchEpitopes()
     logger.info("Starting INPuT...")
     bunchepitopes.wrapper_table_add_feature_annotation(icam_file, indel, allele_file, tissue, tumour_content_file)
     logger.info("Finished INPuT...")
