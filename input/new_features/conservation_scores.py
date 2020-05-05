@@ -1,87 +1,51 @@
-#!/usr/bin/env python
+import re
+
+from logzero import logger
 
 
-def add_ucsc_id_to_dict(props):
-    subitution = props["substitution"]
-    ucsc_id = props["UCSC_transcript"]
-    try:
-        ucsc_epi = ucsc_id.split(".")[0]
-        pos_prot = str(''.join(i for i in subitution if i.isdigit()))
-        return "_".join([ucsc_epi, str(pos_prot)])
-    except ValueError:
-        return "_".join([ucsc_epi, "Del"])
+class ProveanAnnotator(object):
 
+    def __init__(self, provean_file, header_epitopes, epitopes):
+        """
+        Loads provean scores as dictionary, but only for ucsc ids that are in epitope list
+        """
+        epitope_ids = self._load_ucsc_ids_epitopes(header_epitopes=header_epitopes, epitopes=epitopes)
+        logger.info("Starting load of PROVEAN matrix" + provean_file)
+        self.header_provean, self.provean_matrix = self._load_provean_matrix(epitope_ids, provean_file)
+        logger.info("PROVEAN matrix loaded")
 
-def add_ucsc_id_to_list(ucsc_id, subst):
-    try:
-        ucsc_epi = ucsc_id.split(".")[0]
-        pos_prot = str(''.join(i for i in subst if i.isdigit()))
-        return "_".join([ucsc_epi, str(pos_prot)])
-    except ValueError:
-        return "_".join([ucsc_epi, "Del"])
+    def _load_ucsc_ids_epitopes(self, header_epitopes, epitopes):
+        """
+        Returns set with ucsc ids of epitopes.
+        """
+        col_ucsc = header_epitopes.index("UCSC_transcript")
+        col_pos = header_epitopes.index("substitution")
+        return set([self.build_ucsc_id_plus_position(ucsc_id=e[col_ucsc], substitution=e[col_pos]) for e in epitopes])
 
+    def _load_provean_matrix(self, epitope_ids, provean_file):
+        provean_matrix = {}
+        with open(provean_file) as f:
+            header = next(f).rstrip().split(";")  # stores header
+            for line in f:
+                parts = line.rstrip().split(";")
+                ucsc_id_pos = parts[-1]
+                if ucsc_id_pos in epitope_ids:
+                    provean_matrix[ucsc_id_pos] = parts
+        return header, provean_matrix
 
-def add_provean_score_from_matrix(props, prov_d):
-    '''
-    This function maps Provean score on given position and for specific SNV onto epitope data set (which is in form of tuple --> header + dict of ucsc_pos_id: df row)
-    '''
-    aa_mut = props["MUT_AA"]
-    ucsc_pos_epi = props["UCSC_ID_position"]
-    # print ucsc_pos_epi
-    # print prov_d.keys()[1:10]
-    head_prov = ["protein_id", "position", "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R",
-                 "S", "T", "V", "W", "Y", "Del"]
-    try:
-        return prov_d[ucsc_pos_epi][head_prov.index(aa_mut)]
-    except (ValueError, KeyError) as e:
-        return "NA"
+    def get_provean_annotation(self, mutated_aminoacid, ucsc_id_position):
+        """
+        This function maps Provean score on given position and for specific SNV onto epitope data set
+        (which is in form of tuple --> header + dict of ucsc_pos_id: df row)
+        """
+        try:
+            return self.provean_matrix[ucsc_id_position][self.header_provean.index(mutated_aminoacid)]
+        except (ValueError, KeyError) as e:
+            return "NA"
 
-
-"""
-def add_provean_score(props, file_prov):
-    '''
-    This function maps Provean score on given position and for specific SNV onto epitope data set (which is in form of tuple --> header + dict of ucsc_pos_id: df row)
-    VERY SLOW!
-    '''
-    with open(file_prov) as f:
-        aa_mut = props["MUT_AA"]
-        ucsc_pos_epi = props["UCSC_ID_position"]
-        ucsc_epi = props["UCSC_transcript"]
-        z = "NA"
-        header = next(f)
-        head_prov = ["protein_id", "position", "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", "Del"]
-        for line in f:
-            w = line.rstrip().split(";")
-            prot_pos = w[-1]
-            #print prot_pos
-            if prot_pos  == ucsc_pos_epi:
-                #print aa_mut
-                try:
-                    z = w[head_prov.index(aa_mut)]
-                except ValueError:
-                    z = "NA"
-                print >> sys.stderr, z
-                return z
-            else:
-                z = "NA"
-        print >> sys.stderr, z
-        return z
-"""
-
-"""
-def add_provean_score_from_pandas(props, prov_d):
-    '''
-    This function maps Provean score on given position and for specific SNV onto epitope data set (which is in form of tuple --> header + dict of ucsc_pos_id: df row)
-    provean matrix imported as pandas dataframe. VERY SLOW SEARCH!
-    '''
-    aa_mut = props["MUT_AA"]
-    ucsc_pos_epi = props["UCSC_ID_position"]
-    #print prov_d.head()
-    #print prov_d.df.head()()[1:10]
-    try:
-        prov_row = prov_d.loc[prov_d["UCSC_ID_POS"] == ucsc_pos_epi]
-        z = prov_row.iloc[0][aa_mut]
-        return str(z)
-    except (KeyError, IndexError) as e:
-        return "NA"
-"""
+    @staticmethod
+    def build_ucsc_id_plus_position(substitution, ucsc_id):
+        ucsc_epi = re.sub(r'.\d+$', '', ucsc_id)
+        position_match = re.match(r'[A-Z](\d+)[A-Z]', substitution)
+        pos_prot = position_match.group(1) if position_match else "Del"
+        return "{}_{}".format(ucsc_epi, pos_prot)

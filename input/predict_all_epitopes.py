@@ -9,10 +9,11 @@ from input.epitope import Epitope
 from input.helpers import data_import
 from input.helpers.runner import Runner
 from input.new_features import conservation_scores
+from input.new_features.conservation_scores import ProveanAnnotator
 from input.references import ReferenceFolder, DependenciesConfiguration
 
 
-class Bunchepitopes:
+class BunchEpitopes:
 
     def __init__(self):
         self.references = ReferenceFolder()
@@ -25,8 +26,7 @@ class Bunchepitopes:
         self.fourmer_frequency = {}
         self.aa_index1_dict = {}
         self.aa_index2_dict = {}
-        self.ucsc_ids = set([])
-        self.provean_matrix = {}
+        self.provean_annotator = {}
         self.hla_available_alleles = set()
         self.hlaII_available_alleles = set()
         self.patient_hla_I_alleles = {}
@@ -76,35 +76,6 @@ class Bunchepitopes:
                 w = line.rstrip().split(";")
                 freq_dict[w[0]] = w[1]
         return freq_dict
-
-    def load_ucsc_ids_epitopes(self, header, list_epis):
-        """
-        Returns set with ucsc ids of epitopes.
-        """
-        set_ids = set([])
-        col_ucsc = header.index("UCSC_transcript")
-        col_pos = header.index("substitution")
-        for ii, i in enumerate(list_epis):
-            ucsc_pos = conservation_scores.add_ucsc_id_to_list(i[col_ucsc], i[col_pos])
-            set_ids.add(ucsc_pos)
-        return set_ids
-
-    @staticmethod
-    def load_provean_matrix(prov_matrix, epitope_ids):
-        """
-        Loads provean scores as dictionary, but only for ucsc ids that are in epitope list
-        """
-        logger.info("Starting load of PROVEAN matrix" + prov_matrix)
-        provean_matrix = {}
-        with open(prov_matrix) as f:
-            next(f)  # skips header
-            for line in f:
-                w = line.rstrip().split(";")
-                ucsc_id_pos = w[-1]
-                if ucsc_id_pos in epitope_ids:
-                    provean_matrix[ucsc_id_pos] = w
-        logger.info("PROVEAN matrix loaded")
-        return provean_matrix
 
     def load_available_hla_alleles(self, mhc=MHC_I):
         """
@@ -249,8 +220,7 @@ class Bunchepitopes:
         if tumour_content_file != "":
             self.tumour_content = self.load_tumor_content_dict(tumour_content_file)
             self.rna_avail = self.load_rna_seq_avail_dict(tumour_content_file)
-        self.ucsc_ids = self.load_ucsc_ids_epitopes(data[0], data[1])
-        self.provean_matrix = self.load_provean_matrix(prov_file, self.ucsc_ids)
+        self.provean_annotator = ProveanAnnotator(provean_file=prov_file, header_epitopes=data[0], epitopes=data[1])
 
     def wrapper_table_add_feature_annotation(self, file, indel, path_to_hla_file, tissue, tumour_content_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
@@ -279,9 +249,12 @@ class Bunchepitopes:
         # feature calculation for each epitope
         for ii, i in enumerate(dat[1]):
             # dict for each epitope
-            z = Epitope(runner=self.runner, references=self.references, configuration=self.configuration).main(
+            z = Epitope(runner=self.runner,
+                        references=self.references,
+                        configuration=self.configuration,
+                        provean_annotator=self.provean_annotator).main(
                 dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
-                self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix,
+                self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,
                 self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred, self.rna_avail)
             for key in z:
