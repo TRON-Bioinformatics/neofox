@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-import sys
-
 
 def add_ucsc_id_to_dict(props):
-    subitution =props["substitution"]
+    subitution = props["substitution"]
     ucsc_id = props["UCSC_transcript"]
     try:
         ucsc_epi = ucsc_id.split(".")[0]
@@ -12,6 +10,7 @@ def add_ucsc_id_to_dict(props):
         return "_".join([ucsc_epi, str(pos_prot)])
     except ValueError:
         return "_".join([ucsc_epi, "Del"])
+
 
 def add_ucsc_id_to_list(ucsc_id, subst):
     try:
@@ -21,20 +20,23 @@ def add_ucsc_id_to_list(ucsc_id, subst):
     except ValueError:
         return "_".join([ucsc_epi, "Del"])
 
+
 def add_provean_score_from_matrix(props, prov_d):
     '''
     This function maps Provean score on given position and for specific SNV onto epitope data set (which is in form of tuple --> header + dict of ucsc_pos_id: df row)
     '''
     aa_mut = props["MUT_AA"]
     ucsc_pos_epi = props["UCSC_ID_position"]
-    #print ucsc_pos_epi
-    #print prov_d.keys()[1:10]
-    head_prov = ["protein_id", "position", "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", "Del"]
+    # print ucsc_pos_epi
+    # print prov_d.keys()[1:10]
+    head_prov = ["protein_id", "position", "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R",
+                 "S", "T", "V", "W", "Y", "Del"]
     try:
         return prov_d[ucsc_pos_epi][head_prov.index(aa_mut)]
     except (ValueError, KeyError) as e:
         return "NA"
-        
+
+
 """
 def add_provean_score(props, file_prov):
     '''

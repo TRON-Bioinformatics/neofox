@@ -13,45 +13,47 @@ I    A/L     R/K     N/M     D/F     C/P     Q/S     E/T     G/W     H/Y     I/V
 //
 """
 
+
 def parse_aaindex1(fin):
-  d = {}
-  with open(fin) as f:
-    id = ""
-    keys1 = []
-    keys2 = []
-    values = []
-    data = False
-    lb = []
-    for line in f:
-      l = line.strip("\n")
-      w = line.split()
-      lb.append(l)
-      if l.startswith("H"):
-        id = w[1]
-      elif l.startswith("I"):
-        data = True
-        for i in w[1:]:
-          k1,k2 = i.split("/")
-          keys1.append(k1)
-          keys2.append(k2)
-      elif data and l.startswith(" "):
-        for i in w:
-          if i == "NA":
-            values.append(float('nan'))
-          else:
-            values.append(float(i))
-      elif l.startswith("//"):
-        dx = {}
-        for i,j in zip(keys1+keys2,values):
-          dx[i] = j
-        d[id] = dx
+    d = {}
+    with open(fin) as f:
         id = ""
         keys1 = []
         keys2 = []
         values = []
         data = False
         lb = []
-  return d
+        for line in f:
+            l = line.strip("\n")
+            w = line.split()
+            lb.append(l)
+            if l.startswith("H"):
+                id = w[1]
+            elif l.startswith("I"):
+                data = True
+                for i in w[1:]:
+                    k1, k2 = i.split("/")
+                    keys1.append(k1)
+                    keys2.append(k2)
+            elif data and l.startswith(" "):
+                for i in w:
+                    if i == "NA":
+                        values.append(float('nan'))
+                    else:
+                        values.append(float(i))
+            elif l.startswith("//"):
+                dx = {}
+                for i, j in zip(keys1 + keys2, values):
+                    dx[i] = j
+                d[id] = dx
+                id = ""
+                keys1 = []
+                keys2 = []
+                values = []
+                data = False
+                lb = []
+    return d
+
 
 """
 H ALTS910101
@@ -84,75 +86,77 @@ M rows = ARNDCQEGHILKMFPSTWYV, cols = ARNDCQEGHILKMFPSTWYV
 //
 """
 
-def parse_aaindex2(fin):
-  d = {}
-  with open(fin) as f:
-    id = ""
-    value_lines = []
-    rows = ""
-    cols = ""
-    data = False
-    lb = []
-    firstline = False
-    asym = False
-    for line in f:
-      l = line.strip("\n")
-      w = line.split()
-      lb.append(l)
-      if l.startswith("H"):
-        id = w[1]
-      elif l.startswith("M"):
-        data = True
-        rows = w[3].strip(",")
-        cols = w[-1]
-      elif data and l.startswith(" "):
-        if not firstline:
-          firstline = True
-          if len(w) == 1:
-            asym = True
-        values = []
-        for i in w:
-          if i == "NA" or i =="-":
-            values.append(float('nan'))
-          else:
-            values.append(float(i))
-        value_lines.append(values)
-      elif l.startswith("//"):
-        drows = {}
-        for ri,r in enumerate(list(rows)):
-          drows[r] = {}
-          for ci,c in enumerate(list(cols)):
-             try:
-               drows[r][c] = value_lines[ri][ci]
-             except:
-               pass
-        if asym:
-          # make symetrical
-          for r in list(rows):
-            for c in list(cols):
-              if c not in drows[r]:
-                drows[r][c] = drows[c][r]
 
-        d[id] = drows
+def parse_aaindex2(fin):
+    d = {}
+    with open(fin) as f:
         id = ""
         value_lines = []
-        data = False
-        lb = []
         rows = ""
         cols = ""
+        data = False
+        lb = []
         firstline = False
         asym = False
-  return d
+        for line in f:
+            l = line.strip("\n")
+            w = line.split()
+            lb.append(l)
+            if l.startswith("H"):
+                id = w[1]
+            elif l.startswith("M"):
+                data = True
+                rows = w[3].strip(",")
+                cols = w[-1]
+            elif data and l.startswith(" "):
+                if not firstline:
+                    firstline = True
+                    if len(w) == 1:
+                        asym = True
+                values = []
+                for i in w:
+                    if i == "NA" or i == "-":
+                        values.append(float('nan'))
+                    else:
+                        values.append(float(i))
+                value_lines.append(values)
+            elif l.startswith("//"):
+                drows = {}
+                for ri, r in enumerate(list(rows)):
+                    drows[r] = {}
+                    for ci, c in enumerate(list(cols)):
+                        try:
+                            drows[r][c] = value_lines[ri][ci]
+                        except:
+                            pass
+                if asym:
+                    # make symetrical
+                    for r in list(rows):
+                        for c in list(cols):
+                            if c not in drows[r]:
+                                drows[r][c] = drows[c][r]
+
+                d[id] = drows
+                id = ""
+                value_lines = []
+                data = False
+                lb = []
+                rows = ""
+                cols = ""
+                firstline = False
+                asym = False
+    return d
+
 
 if __name__ == "__main__":
-  d_aaindex1 = parse_aaindex1("aa_index/aaindex1")
-  d_aaindex2 = parse_aaindex2("aa_index/aaindex2")
-  print(len(list(d_aaindex1.keys())))
-  print(len(list(d_aaindex2.keys())))
-  print(d_aaindex2["VOGG950101"])
-  print(d_aaindex2["KOSJ950101"])
-  print(d_aaindex2["VOGG950101"]["A"]["C"], d_aaindex2["VOGG950101"]["C"]["A"])
-  print(d_aaindex2["KOSJ950101"]["A"]["C"], d_aaindex2["KOSJ950101"]["C"]["A"])
+    d_aaindex1 = parse_aaindex1("aa_index/aaindex1")
+    d_aaindex2 = parse_aaindex2("aa_index/aaindex2")
+    print(len(list(d_aaindex1.keys())))
+    print(len(list(d_aaindex2.keys())))
+    print(d_aaindex2["VOGG950101"])
+    print(d_aaindex2["KOSJ950101"])
+    print(d_aaindex2["VOGG950101"]["A"]["C"], d_aaindex2["VOGG950101"]["C"]["A"])
+    print(d_aaindex2["KOSJ950101"]["A"]["C"], d_aaindex2["KOSJ950101"]["C"]["A"])
 
 # read trompapep
 # annotate peptides with:

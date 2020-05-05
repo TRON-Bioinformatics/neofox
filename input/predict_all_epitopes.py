@@ -1,20 +1,23 @@
 #!/usr/bin/env python
 
-import sys
-from datetime import datetime
 from Bio import SeqIO
-from input.helpers import data_import
-from input import epitope
-from input.new_features import conservation_scores
-from input.references import ReferenceFolder
-from input.epitope import Epitope
+from logzero import logger
+
 import input.aa_index.aa_index as aa_index
 from input import MHC_I, MHC_II
+from input.epitope import Epitope
+from input.helpers import data_import
+from input.helpers.runner import Runner
+from input.new_features import conservation_scores
+from input.references import ReferenceFolder, DependenciesConfiguration
 
 
 class Bunchepitopes:
+
     def __init__(self):
         self.references = ReferenceFolder()
+        self.configuration = DependenciesConfiguration()
+        self.runner = Runner()
         self.Allepit = {}
         self.proteome_dictionary = {}
         self.rna_reference = {}
@@ -32,16 +35,20 @@ class Bunchepitopes:
         self.hlaII_available_MixMHC2pred = []
         self.rna_avail = {}
 
-    def build_proteome_dict(self, fasta_proteome):
-        """Loads proteome in fasta format into dictionary
+    @staticmethod
+    def load_proteome(fasta_proteome):
+        """
+        Loads proteome in fasta format into dictionary
         """
         proteome_dict = {}
         for record in SeqIO.parse(fasta_proteome, "fasta"):
             proteome_dict[record.seq] = record.id
         return proteome_dict
 
-    def add_rna_reference(self, rna_reference_file, tissue):
-        """Loads RNA reference file and returns dictionary with mean, standard deviation and sum of expression for each gene
+    @staticmethod
+    def load_rna_reference(rna_reference_file, tissue):
+        """
+        Loads RNA reference file and returns dictionary with mean, standard deviation and sum of expression for each gene
         """
         rna_dict = {}
         ref_tuple = data_import.import_dat_general(rna_reference_file)
@@ -51,55 +58,60 @@ class Bunchepitopes:
         head_cols = [col for col in ref_head if col.startswith(tissue)]
         cols_expr = [ref_head.index(col) for col in head_cols]
         gen_col = ref_head.index("gene")
-        for ii,i in enumerate(ref):
+        for ii, i in enumerate(ref):
             gene_name = i[gen_col]
             expr_values = tuple(float(i[elem]) for elem in cols_expr)
             rna_dict[gene_name] = expr_values
         return rna_dict
 
-    def add_nmer_frequency(self, frequency_file):
-        """Loads file with information of frequeny of nmers
+    @staticmethod
+    def load_nmer_frequency(frequency_file):
+        """
+        Loads file with information of frequeny of nmers
         """
         freq_dict = {}
         with open(frequency_file) as f:
-            header = next(f)
+            next(f)
             for line in f:
                 w = line.rstrip().split(";")
                 freq_dict[w[0]] = w[1]
         return freq_dict
 
-    def add_ucsc_ids_epitopes(self, header, list_epis):
-        """Returns set with ucsc ids of epitopes.
+    def load_ucsc_ids_epitopes(self, header, list_epis):
+        """
+        Returns set with ucsc ids of epitopes.
         """
         set_ids = set([])
         col_ucsc = header.index("UCSC_transcript")
         col_pos = header.index("substitution")
-        for ii,i in enumerate(list_epis):
+        for ii, i in enumerate(list_epis):
             ucsc_pos = conservation_scores.add_ucsc_id_to_list(i[col_ucsc], i[col_pos])
-            #set_ids.add(i[col_ucsc].split(".")[0])
             set_ids.add(ucsc_pos)
         return set_ids
 
-    def add_provean_matrix(self, prov_matrix, epitope_ids):
-        """Loads provean scores as dictionary, but only for ucsc ids that are in epitope list
+    @staticmethod
+    def load_provean_matrix(prov_matrix, epitope_ids):
         """
-        print("attach " + prov_matrix, file=sys.stderr)
+        Loads provean scores as dictionary, but only for ucsc ids that are in epitope list
+        """
+        logger.info("Starting load of PROVEAN matrix" + prov_matrix)
         provean_matrix = {}
         with open(prov_matrix) as f:
-            header = next(f)
+            next(f)  # skips header
             for line in f:
                 w = line.rstrip().split(";")
-                #ucsc_id = w[-2]
                 ucsc_id_pos = w[-1]
-                #if ucsc_id in epitope_ids:
                 if ucsc_id_pos in epitope_ids:
                     provean_matrix[ucsc_id_pos] = w
-        print("attach prov matrix", file=sys.stderr)
+        logger.info("PROVEAN matrix loaded")
         return provean_matrix
 
-    def add_available_hla_alleles(self, mhc=MHC_I):
-        '''loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
-        '''
+    def load_available_hla_alleles(self, mhc=MHC_I):
+        """
+        loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
+        :param mhc:
+        :return:
+        """
         if mhc == MHC_II:
             fileMHC = self.references.available_mhc_ii
         else:
@@ -110,9 +122,11 @@ class Bunchepitopes:
                 set_available_mhc.add(line.strip())
         return set_available_mhc
 
-    def add_available_allelles_mixMHC2pred(self):
-        '''loads file with available hla alllels for MixMHC2pred prediction, returns set
-        '''
+    def load_available_allelles_mixMHC2pred(self):
+        """
+        loads file with available hla alllels for MixMHC2pred prediction, returns set
+        :return:
+        """
         path_to_HLAII_file = self.references.alleles_list_pred
         avail_alleles = []
         with open(path_to_HLAII_file) as f:
@@ -122,56 +136,71 @@ class Bunchepitopes:
                     if line.startswith(("L", "A")):
                         continue
                     line1 = line.split()[0]
-                    #print line
                     if line1 is not None:
                         avail_alleles.append(line1)
         return avail_alleles
 
-    def add_patient_hla_I_allels(self, path_to_hla_file):
-        '''adds hla I alleles of patients as dictionary
-        '''
+    @staticmethod
+    def load_patient_hla_I_allels(path_to_hla_file):
+        """
+        adds hla I alleles of patients as dictionary
+        :param path_to_hla_file:
+        :return:
+        """
         patient_alleles_dict = {}
         with open(path_to_hla_file, "r") as f:
             for line in f:
                 w = line.rstrip().split(";")
                 if w[0] not in patient_alleles_dict:
                     patient_alleles_dict[w[0]] = w[2:]
+        logger.info("HLA-I alleles: {}".format(patient_alleles_dict))
         return patient_alleles_dict
 
-    def add_patient_hla_II_allels(self, path_to_hla_file):
-        '''adds hla II alleles of patients as dictionary
-        '''
+    @staticmethod
+    def load_patient_hla_II_allels(path_to_hla_file):
+        """
+        adds hla II alleles of patients as dictionary
+        :param path_to_hla_file:
+        :return:
+        """
         patient_alleles_dict = {}
         with open(path_to_hla_file, "r") as f:
             for line in f:
                 w = line.rstrip().split(";")
                 # cheating --> overwriting hla I --> check format
                 patient_alleles_dict[w[0]] = w[2:]
+        logger.info("HLA-II alleles: {}".format(patient_alleles_dict))
         return patient_alleles_dict
 
-
-    def add_tumor_content_dict(self, path_to_patient_overview):
-        ''' adds tumor content of patients as dictionary
-        '''
+    @staticmethod
+    def load_tumor_content_dict(path_to_patient_overview):
+        """
+        adds tumor content of patients as dictionary
+        :param path_to_patient_overview:
+        :return:
+        """
         tumour_content_dict = {}
         with open(path_to_patient_overview) as f:
             header = next(f)
             header = header.rstrip().split(";")
             tc_col = header.index("est. Tumor content")
-            print(tc_col, file=sys.stderr)
             for line in f:
                 w = line.rstrip().split(";")
-                #ucsc_id = w[-2]
                 patient = w[0]
                 patient = patient.rstrip("/")
                 tumour_content = w[tc_col]
                 tumour_content_dict[patient] = tumour_content
-        print(tumour_content_dict, file=sys.stderr)
+
+        logger.info("Tumor content: {}".format(tumour_content_dict))
         return tumour_content_dict
 
-    def add_rna_seq_avail_dict(self, path_to_patient_overview):
-        ''' adds info if rna seq was available as dictionary
-        '''
+    @staticmethod
+    def load_rna_seq_avail_dict(path_to_patient_overview):
+        """
+        adds info if rna seq was available as dictionary
+        :param path_to_patient_overview:
+        :return:
+        """
         rna_avail_dict = {}
         with open(path_to_patient_overview) as f:
             header = next(f)
@@ -179,23 +208,12 @@ class Bunchepitopes:
             rna_col = header.index("rna_avail")
             for line in f:
                 w = line.rstrip().split(";")
-                #ucsc_id = w[-2]
                 patient = w[0]
                 patient = patient.rstrip("/")
                 rna_avail = w[rna_col]
                 rna_avail_dict[patient] = rna_avail
-        print(rna_avail_dict, file=sys.stderr)
+        logger.info("RNA availability: {}".format(rna_avail_dict))
         return rna_avail_dict
-
-
-    def write_to_file(self, d):
-        """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
-        and printed ';' separated."""
-        print("\t".join(list(d.keys())))
-        for i in range(len(d["mutation"])):
-            z = []
-            [z.append(d[key][i]) for key in d]
-            print("\t".join(z))
 
     def write_to_file_sorted(self, d, header):
         """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
@@ -211,38 +229,28 @@ class Bunchepitopes:
             z = [d[col][i] for col in header]
             print("\t".join(z))
 
-
     def initialise_properties(self, data, path_to_hla_file, tissue, tumour_content_file):
         '''adds information to Bunchepitopes class that are needed for mutated peptide sequence annotation
         '''
-        self.rna_reference = self.add_rna_reference(self.references.gtex, tissue)
+        self.rna_reference = self.load_rna_reference(self.references.gtex, tissue)
         freq_file1 = self.references.aa_freq_prot
         freq_file2 = self.references.four_mer_freq
-        self.aa_frequency = self.add_nmer_frequency(freq_file1)
-        self.fourmer_frequency = self.add_nmer_frequency(freq_file2)
+        self.aa_frequency = self.load_nmer_frequency(freq_file1)
+        self.fourmer_frequency = self.load_nmer_frequency(freq_file2)
         self.aa_index1_dict = aa_index.parse_aaindex1(self.references.aaindex1)
         self.aa_index2_dict = aa_index.parse_aaindex2(self.references.aaindex2)
         prov_file = self.references.prov_scores_mapped3
-        self.hla_available_alleles = self.add_available_hla_alleles()
-        self.hlaII_available_alleles = self.add_available_hla_alleles(mhc = MHC_II)
-        self.hlaII_available_MixMHC2pred = self.add_available_allelles_mixMHC2pred()
-        self.patient_hla_I_allels = self.add_patient_hla_I_allels(path_to_hla_file)
-        self.patient_hla_II_allels = self.add_patient_hla_II_allels(path_to_hla_file)
-        print(self.patient_hla_II_allels, file=sys.stderr)
-        print(self.patient_hla_I_allels, file=sys.stderr)
+        self.hla_available_alleles = self.load_available_hla_alleles()
+        self.hlaII_available_alleles = self.load_available_hla_alleles(mhc=MHC_II)
+        self.hlaII_available_MixMHC2pred = self.load_available_allelles_mixMHC2pred()
+        self.patient_hla_I_allels = self.load_patient_hla_I_allels(path_to_hla_file)
+        self.patient_hla_II_allels = self.load_patient_hla_II_allels(path_to_hla_file)
         # tumour content
         if tumour_content_file != "":
-            self.tumour_content = self.add_tumor_content_dict(tumour_content_file)
-            self.rna_avail = self.add_rna_seq_avail_dict(tumour_content_file)
-        startTime1 = datetime.now()
-        print(data[0], file=sys.stderr)
-        print(data[0].index("UCSC_transcript"), file=sys.stderr)
-        self.ucsc_ids = self.add_ucsc_ids_epitopes(data[0], data[1])
-        #print >> sys.stderr, self.ucsc_ids
-        self.provean_matrix = self.add_provean_matrix(prov_file, self.ucsc_ids)
-        endTime1 = datetime.now()
-        print("ADD PROVEAN....start: "+ str(startTime1) + "\nend: "+ str(endTime1) + "\nneeded: " + str(endTime1 - startTime1), file=sys.stderr)
-
+            self.tumour_content = self.load_tumor_content_dict(tumour_content_file)
+            self.rna_avail = self.load_rna_seq_avail_dict(tumour_content_file)
+        self.ucsc_ids = self.load_ucsc_ids_epitopes(data[0], data[1])
+        self.provean_matrix = self.load_provean_matrix(prov_file, self.ucsc_ids)
 
     def wrapper_table_add_feature_annotation(self, file, indel, path_to_hla_file, tissue, tumour_content_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
@@ -254,9 +262,9 @@ class Bunchepitopes:
         if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
             dat = data_import.change_col_names(dat)
         if "mutation_found_in_proteome" not in dat[0]:
-            self.proteome_dictionary =self.build_proteome_dict(self.references.uniprot)
+            self.proteome_dictionary = self.load_proteome(self.references.uniprot)
         # add patient id if _mut_set.txt.transcript.squish.somatic.freq is used
-        if ("patient" not in dat[0]) and ("patient.id" not in dat[0]) :
+        if ("patient" not in dat[0]) and ("patient.id" not in dat[0]):
             try:
                 patient = file.split("/")[-3]
                 if "Pt" not in patient:
@@ -264,14 +272,14 @@ class Bunchepitopes:
             except IndexError:
                 patient = file.split("/")[-1].split(".")[0]
             dat[0].append("patient.id")
-            for ii,i in enumerate(dat[1]):
+            for ii, i in enumerate(dat[1]):
                 dat[1][ii].append(str(patient))
         # initialise information needed for feature calculation
         self.initialise_properties(dat, path_to_hla_file, tissue, tumour_content_file)
         # feature calculation for each epitope
         for ii, i in enumerate(dat[1]):
             # dict for each epitope
-            z = Epitope(self.references).main(
+            z = Epitope(runner=self.runner, references=self.references, configuration=self.configuration).main(
                 dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
                 self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict, self.provean_matrix,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,

@@ -1,5 +1,5 @@
-#Python version with Biopython
-#. /etc/profile.d/modules.sh; module load software/python/python-2.7.9
+# Python version with Biopython
+# . /etc/profile.d/modules.sh; module load software/python/python-2.7.9
 
 '''
 This script takes as input table from iCAM pipeline and calculates Literature feature of neoantigens
@@ -7,18 +7,20 @@ This script takes as input table from iCAM pipeline and calculates Literature fe
 
 # import modules
 import math
-import sys
 
-from input.IEDB_Immunogenicity import predict_immunogenicity_simple
+from logzero import logger
+
 from input import MHC_I, MHC_II
+from input.IEDB_Immunogenicity import predict_immunogenicity_simple
 
-def calc_IEDB_immunogenicity(props, mhc, affin_filtering = False):
+
+def calc_IEDB_immunogenicity(props, mhc, affin_filtering=False):
     '''
     This function determines the IEDB immunogenicity score
     '''
     if mhc == MHC_I:
-        #mhc_mut = props["MHC_I_epitope_.best_prediction."]
-        #mhc_allele = props["MHC_I_allele_.best_prediction."]
+        # mhc_mut = props["MHC_I_epitope_.best_prediction."]
+        # mhc_allele = props["MHC_I_allele_.best_prediction."]
         mhc_mut = props["best_affinity_epitope_netmhcpan4"]
         mhc_allele = props["bestHLA_allele_affinity_netmhcpan4"]
         mhc_score = props["best_affinity_netmhcpan4"]
@@ -28,15 +30,20 @@ def calc_IEDB_immunogenicity(props, mhc, affin_filtering = False):
     try:
         if affin_filtering:
             if float(mhc_score) < 500:
-                return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut, mhc_allele.replace("*", "").replace(":", "")))
+                return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut,
+                                                                                mhc_allele.replace("*", "").replace(":",
+                                                                                                                    "")))
             else:
                 return "NA"
         else:
-            return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut, mhc_allele.replace("*", "").replace(":", "")))
+            return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut,
+                                                                            mhc_allele.replace("*", "").replace(":",
+                                                                                                                "")))
     except ValueError:
         return "NA"
 
-def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = False, affin_filtering = False):
+
+def dai(props, mhc, multiple_binding=False, affinity=False, netmhcscore=False, affin_filtering=False):
     '''Calculates DAI: Returns difference between wt and mut MHC binding score. If multiple_binding= true, harmonic means of MHC scores of top10 epitope candidates related to a mps is used '''
     if mhc == MHC_I:
         if multiple_binding:
@@ -75,35 +82,38 @@ def dai(props, mhc, multiple_binding=False, affinity = False, netmhcscore = Fals
     except ValueError:
         return "NA"
 
-def diff_number_binders(props, mhc = MHC_I, threshold = 1):
+
+def diff_number_binders(props, mhc=MHC_I, threshold=1):
     ''' returns absolute difference of potential candidate epitopes between mutated and wt epitope
     '''
-    if mhc ==MHC_II:
+    if mhc == MHC_II:
         num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
-        num_wt =  props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
+        num_wt = props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
     else:
         num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
-        num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+        num_wt = props["MB_number_pep_WT_MHCscore<" + str(threshold)]
     try:
         return str(float(num_mut) - float(num_wt))
     except ValueError:
         return "NA"
 
-def ratio_number_binders(props, mhc = MHC_I, threshold = 1):
+
+def ratio_number_binders(props, mhc=MHC_I, threshold=1):
     ''' returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
     '''
-    if mhc ==MHC_II:
+    if mhc == MHC_II:
         num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
-        num_wt =  props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
+        num_wt = props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
     else:
         num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
-        num_wt =  props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+        num_wt = props["MB_number_pep_WT_MHCscore<" + str(threshold)]
     try:
         return str(float(num_mut) / float(num_wt))
     except ZeroDivisionError:
         return str(num_mut)
     except ValueError:
         return "NA"
+
 
 def rna_expression_mutation(props, rna_avail):
     '''
@@ -116,10 +126,10 @@ def rna_expression_mutation(props, rna_avail):
     else:
         patid = props["patient"]
     try:
-        rna_avail =  rna_avail[patid]
+        rna_avail = rna_avail[patid]
     except (KeyError, ValueError) as e:
         rna_avail = "NA"
-    print("rna_avail: " + rna_avail, file=sys.stderr)
+    logger.info("rna_avail: ".format(rna_avail))
     if rna_avail == "False":
         vaf_rna = props["VAF_in_tumor"]
     else:
@@ -132,6 +142,7 @@ def rna_expression_mutation(props, rna_avail):
     except ValueError:
         return "NA"
 
+
 def expression_mutation_tc(props, tumour_content):
     '''calculated expression of mutation corrected by tumour content
     '''
@@ -141,7 +152,7 @@ def expression_mutation_tc(props, tumour_content):
     else:
         patid = props["patient"]
     try:
-        tumour_content =  float(tumour_content[patid])/100
+        tumour_content = float(tumour_content[patid]) / 100
     except (KeyError, ValueError) as e:
         tumour_content = "NA"
     try:
@@ -162,12 +173,13 @@ def number_of_mismatches(props, mhc):
         mhc_epitope_wt = props["best_epitope_netmhcIIpan_WT"]
     p1 = 0
     try:
-        for i,aa in enumerate(mhc_epitope_mut):
+        for i, aa in enumerate(mhc_epitope_mut):
             if aa != mhc_epitope_wt[i]:
                 p1 += 1
         return str(p1)
     except IndexError:
         return "NA"
+
 
 def match_in_proteome(props, db):
     '''
@@ -181,13 +193,15 @@ def match_in_proteome(props, db):
     except:
         return "NA"
 
+
 def calc_logistic_function(mhc_score):
     '''Calculates negative logistic function given mhc score
     '''
     try:
-        return float(1/(1 + math.exp(5 * (float(mhc_score) - 2))))
+        return float(1 / (1 + math.exp(5 * (float(mhc_score) - 2))))
     except (OverflowError, ValueError) as e:
         return "NA"
+
 
 def calc_priority_score(props, multiple_binding=False):
     '''
@@ -212,12 +226,15 @@ def calc_priority_score(props, multiple_binding=False):
     priority_score = 0.0
     try:
         if vaf_tumor != "-1":
-            priority_score = (L_mut * float(vaf_tumor) * math.tanh(float(transcript_expr))) * (float(mut_in_prot) * (1 - 2**(-float(no_mismatch)) * L_wt))
+            priority_score = (L_mut * float(vaf_tumor) * math.tanh(float(transcript_expr))) * (
+                        float(mut_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
         else:
-            priority_score = (L_mut * float(vaf_rna) * math.tanh(float(transcript_expr))) * (float(mut_in_prot) * (1 - 2**(-float(no_mismatch)) * L_wt))
+            priority_score = (L_mut * float(vaf_rna) * math.tanh(float(transcript_expr))) * (
+                        float(mut_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
         return str(priority_score)
     except (TypeError, ValueError) as e:
         return "NA"
+
 
 def wt_mut_aa(props, mut):
     '''Returns wt and mut aa.
@@ -231,6 +248,7 @@ def wt_mut_aa(props, mut):
     except ValueError:
         return "NA"
 
+
 def add_aa_index1(props, mut, key, val):
     """Adds amino acido index to dictioniary. output from aa index 1 append function = tuple of feature name and feature value (nam_wt, nam_mut, val_wt, val_mut)
     mut indicates if mutated or wt aa
@@ -242,7 +260,8 @@ def add_aa_index1(props, mut, key, val):
     try:
         return "_".join([key, mut]), str(val[aa])
     except KeyError:
-            return "_".join([key, mut]), "NA"
+        return "_".join([key, mut]), "NA"
+
 
 def add_aa_index2(props, key, val):
     """Adds amino acido index to dictioniary. output from aa index 1 append function = tuple of feature name and feature value (nam_wt, nam_mut, val_wt, val_mut)
@@ -263,8 +282,8 @@ def write_ouptut_to_file(epitope_data):
     dat_new = epitope_data[1]
     head_new = epitope_data[0]
     print(";".join(head_new))
-    for ii,i in enumerate(dat_new):
-          print(";".join(i))
+    for ii, i in enumerate(dat_new):
+        print(";".join(i))
 
 
 def classify_adn_cdn(props, mhc, category):
@@ -284,11 +303,8 @@ def classify_adn_cdn(props, mhc, category):
         bdg_cutoff_classical = 1
         bdg_cutoff_alternative = 4
         amplitude_cutoff = 4
-    #print >> sys.stderr, score_mut, props["best_affinity_netmhcpan4_WT"], amplitude
     try:
         if category == "CDN":
-            #print >> sys.stderr, float(score_mut), float(bdg_cutoff_classical)
-            #print >> sys.stderr, float(score_mut) < float(bdg_cutoff_classical)
             if float(score_mut) < float(bdg_cutoff_classical):
                 group = "True"
             elif float(score_mut) > float(bdg_cutoff_classical):
@@ -300,64 +316,51 @@ def classify_adn_cdn(props, mhc, category):
                 group = "False"
     except ValueError:
         group = "NA"
-    #print >> sys.stderr, category + ": "+group
     return group
 
 
-
-if __name__ == '__main__':
-    import sys
-    basedir = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT"
-    sys.path.append(basedir)
-    from input.helpers import data_import
-    from input import predict_all_epitopes, epitope
-
-    #file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/20170713_IS_IM_data.complete.update_Dv10.csv"
-    #file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M5/scratch/scratch/A2DR1_GBMs_M5_mut_set.txt.transcript.squish.somatic.freq.annotation"
-    file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M7/scratch/scratch/A2DR1_GBMs_M7_mut_set.txt.transcript.squish.somatic.freq.annotation"
-    db_uniprot = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/database/mouse_uniprot_swissprot_plus_isoforms.fasta"
-    indel = False
-    dat = data_import.import_dat_icam(file, indel)
-    if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-            dat = data_import.change_col_names(dat)
-    if "mutation_found_in_proteome" not in dat[0]:
-            db = predict_all_epitopes.Bunchepitopes().build_proteome_dict(db_uniprot)
-
-    dict_all = predict_all_epitopes.Bunchepitopes().Allepit
-    ## add priority_score
-    for ii,i in enumerate(dat[1]):
-        #print dat[1][ii]
-        # dict for each epitope
-        z = epitope.Epitope()
-        #print z
-        z.init_properties(dat[0], dat[1][ii])
-        z.add_features(number_of_mismatches(z.properties, MHC_I), "Number_of_mismatches_mhcI")
-        if "mutation_found_in_proteome" not in z.properties:
-            z.add_features(match_in_proteome(z.properties, db), "mutation_found_in_proteome")
-        z.add_features(calc_priority_score(z.properties), "Priority_score")
-        #print z.properties
-
-        for key in z.properties:
-            if key not in dict_all:
-                # keys are are feautres; values: list of feature values associated with mutated peptide sequence
-                dict_all[key] = [z.properties[key]]
-            else:
-                dict_all[key].append(z.properties[key])
-    #print dict_all
-
-    header = dat[0]
-    header.append("Priority_score")
-    #print header
-
-    print("\t".join(header))
-    for i in range(len(dict_all["mutation"])):
-        z = []
-        [z.append(dict_all[col][i]) for col in header]
-        print("\t".join(z))
-
-    #properties = {}
-    #for nam,char in zip(dat[0], dat[1][1]):
-    #    properties[nam] = char
-
-    #print apppend_aa_index1(properties)
-    #print apppend_aa_index2(properties)
+# if __name__ == '__main__':
+#     import sys
+#
+#     basedir = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT"
+#     sys.path.append(basedir)
+#     from input.helpers import data_import
+#     from input import predict_all_epitopes, epitope
+#
+#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT2/nonprogramm_files/20170713_IS_IM_data.complete.update_Dv10.csv"
+#     # file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M5/scratch/scratch/A2DR1_GBMs_M5_mut_set.txt.transcript.squish.somatic.freq.annotation"
+#     file = "/scratch/info/projects/CM04_Core_NGS_Processing/MG148/A2DR1_GBMs_M7/scratch/scratch/A2DR1_GBMs_M7_mut_set.txt.transcript.squish.somatic.freq.annotation"
+#     db_uniprot = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/database/mouse_uniprot_swissprot_plus_isoforms.fasta"
+#     indel = False
+#     dat = data_import.import_dat_icam(file, indel)
+#     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
+#         dat = data_import.change_col_names(dat)
+#     if "mutation_found_in_proteome" not in dat[0]:
+#         db = predict_all_epitopes.Bunchepitopes().load_proteome(db_uniprot)
+#
+#     dict_all = predict_all_epitopes.Bunchepitopes().Allepit
+#     ## add priority_score
+#     for ii, i in enumerate(dat[1]):
+#         # dict for each epitope
+#         z = epitope.Epitope()
+#         z.init_properties(dat[0], dat[1][ii])
+#         z.add_features(number_of_mismatches(z.properties, MHC_I), "Number_of_mismatches_mhcI")
+#         if "mutation_found_in_proteome" not in z.properties:
+#             z.add_features(match_in_proteome(z.properties, db), "mutation_found_in_proteome")
+#         z.add_features(calc_priority_score(z.properties), "Priority_score")
+#
+#         for key in z.properties:
+#             if key not in dict_all:
+#                 # keys are are feautres; values: list of feature values associated with mutated peptide sequence
+#                 dict_all[key] = [z.properties[key]]
+#             else:
+#                 dict_all[key].append(z.properties[key])
+#
+#     header = dat[0]
+#     header.append("Priority_score")
+#
+#     print("\t".join(header))
+#     for i in range(len(dict_all["mutation"])):
+#         z = []
+#         [z.append(dict_all[col][i]) for col in header]
+#         print("\t".join(z))
