@@ -268,8 +268,15 @@ class MixMhc2Pred:
         seqs = self.generate_nmers(props_dict, [13, 14, 15, 16, 17, 18])
         self.generate_fasta(seqs, tmp_fasta)
         alleles = self.get_hla_allels(props_dict, dict_patient_hlaII)
-        self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction, list_avail_hlaII)
-        pred = self.read_mixmhcpred(tmp_prediction)
+        # try except statement to prevent stop of input for mps shorter < 13aa
+        try:
+            self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction, list_avail_hlaII)
+        except:
+            pass
+        try:
+            pred = self.read_mixmhcpred(tmp_prediction)
+        except:
+            pass
         try:
             pred_all = self.extract_best_per_pep(pred)
         except ValueError:
