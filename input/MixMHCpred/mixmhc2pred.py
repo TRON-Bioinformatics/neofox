@@ -47,19 +47,21 @@ class MixMhc2Pred:
         '''
         xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        length_mut = len(xmer_mut)
         list_peptides = []
         pos_mut = int(self.mut_position_xmer_seq(props))
         long_seq = xmer_mut if mut else xmer_wt
         for l in list_lengths:
             l = int(l)
-            start_first = pos_mut - (l)
-            starts = []
-            for s in range(l):
-                starts.append(int(start_first + s))
-            ends = []
-            [ends.append(int(s + (l))) for s in starts]
-            for s, e in zip(starts, ends):
-                list_peptides.append(long_seq[s:e])
+            if l <= length_mut:
+                start_first = pos_mut - (l)
+                starts = []
+                for s in range(l):
+                    starts.append(int(start_first + s))
+                ends = []
+                [ends.append(int(s + (l))) for s in starts]
+                for s, e in zip(starts, ends):
+                    list_peptides.append(long_seq[s:e])
         list_peptides_fil = []
         [list_peptides_fil.append(x) for x in list_peptides if not x == ""]
         return list_peptides_fil
@@ -266,8 +268,15 @@ class MixMhc2Pred:
         seqs = self.generate_nmers(props_dict, [13, 14, 15, 16, 17, 18])
         self.generate_fasta(seqs, tmp_fasta)
         alleles = self.get_hla_allels(props_dict, dict_patient_hlaII)
-        self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction, list_avail_hlaII)
-        pred = self.read_mixmhcpred(tmp_prediction)
+        # try except statement to prevent stop of input for mps shorter < 13aa
+        try:
+            self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction, list_avail_hlaII)
+        except:
+            pass
+        try:
+            pred = self.read_mixmhcpred(tmp_prediction)
+        except:
+            pass
         try:
             pred_all = self.extract_best_per_pep(pred)
         except ValueError:
