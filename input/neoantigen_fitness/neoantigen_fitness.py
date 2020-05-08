@@ -57,7 +57,10 @@ class NeoantigenFitnessCalculator(object):
             id = ">M_1"
             f.write(id + "\n")
             f.write(mhc_mut + "\n")
-        pathsim = self._calc_pathogensimilarity(fastafile, id, iedb)
+        try:
+            pathsim = self._calc_pathogensimilarity(fastafile, id, iedb)
+        except:
+            pathsim = "NA"
         return str(pathsim) if pathsim != "NA" else "0"
 
 
