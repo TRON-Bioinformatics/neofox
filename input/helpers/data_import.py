@@ -73,9 +73,9 @@ def import_dat_general(in_file):
     header = []
     c = 0
     # ceck format of file
-    if "txt" in in_file:
+    if in_file.endswith(".txt"):
         file_format = "txt"
-    elif "csv" in in_file:
+    elif in_file.endswith(".csv"):
         file_format = "csv"
     else:
         logger.warn("Table should be in csv or txt format!!")
