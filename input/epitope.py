@@ -57,8 +57,7 @@ class Epitope:
         print(";".join([self.properties[key] for key in self.properties]))
 
     def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
-             set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content,
-             list_HLAII_MixMHC2pred, rna_avail):
+             set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, rna_avail):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.init_properties(col_nam, prop_list)
@@ -439,7 +438,7 @@ class Epitope:
         self.add_features(self.predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
 
         # MixMHC2pred
-        self.predpresentation2.main(self.properties, patient_hlaII, list_HLAII_MixMHC2pred)
+        self.predpresentation2.main(self.properties, patient_hlaII)
         self.add_features(self.predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
         self.add_features(self.predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
         self.add_features(self.predpresentation2.all_alleles, "MixMHC2pred_all_alleles")

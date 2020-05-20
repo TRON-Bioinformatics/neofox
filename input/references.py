@@ -11,6 +11,7 @@ class DependenciesConfiguration(object):
     def __init__(self):
         self.blastp = self._check_and_load_binary(input.INPUT_BLASTP_ENV)
         self.mix_mhc2_pred = self._check_and_load_binary(input.INPUT_MIXMHC2PRED_ENV)
+        self.mix_mhc2_pred_alleles_list = os.path.join(os.path.dirname(self.mix_mhc2_pred), 'Alleles_list.txt')
         self.mix_mhc_pred = self._check_and_load_binary(input.INPUT_MIXMHCPRED_ENV)
         self.rscript = self._check_and_load_binary(input.INPUT_RSCRIPT_ENV)
         self.net_mhc2_pan = self._check_and_load_binary(input.INPUT_NETMHC2PAN_ENV)
@@ -34,7 +35,6 @@ class ReferenceFolder(object):
     def __init__(self):
         self.reference_genome_folder = self._check_reference_genome_folder()
         # sets the right file names for the resources
-        self.alleles_list_pred = self._get_reference_file_name('Alleles_list_pred2.txt')
         self.available_mhc_ii = self._get_reference_file_name('avail_mhcII.txt')
         self.available_mhc_i = self._get_reference_file_name('MHC_available.csv')
         self.aa_freq_prot = self._get_reference_file_name('20181108_AA_freq_prot.csv')
@@ -51,7 +51,7 @@ class ReferenceFolder(object):
         self.gtex = self._get_reference_file_name('gtex_combined.csv')
 
         # TODO: add this files self.alleles_list_pred, self.avail_mhc_ii
-        self.resources = [self.alleles_list_pred, self.available_mhc_ii, self.available_mhc_i, self.aa_freq_prot,
+        self.resources = [self.available_mhc_ii, self.available_mhc_i, self.aa_freq_prot,
                           self.four_mer_freq, self.aaindex1, self.aaindex2, self.prov_scores_mapped3, self.iedb,
                           self.proteome_db, self.tcell_predictor_aa_features,
                           self.tcell_predictor_gene_expression, self.tcell_predictor_sir_data,
