@@ -5,11 +5,11 @@ path_to_mixMHC2pred=`echo $INPUT_MIXMHC2PRED |sed 's/\(.*\)MixMHC2pred/\1/'`
 echo $path_to_mixMHC2pred
 
 # available MHC alleles netMHCpan
-/code/net/MHCpan/4.0/netMHCpan -listMHC | grep "HLA-" > "$INPUT_REFERENCE_FOLDER"/MHC_available.csv
+$INPUT_NETMHCPAN -listMHC | grep "HLA-" > "$INPUT_REFERENCE_FOLDER"/MHC_available.csv
 
 
 # available MHCII alleles netMHCIIpan
-/code/net/MHCIIpan/3.2/netMHCIIpan -list  > "$INPUT_REFERENCE_FOLDER"/avail_mhcII.txt
+$INPUT_NETMHC2PAN -list  > "$INPUT_REFERENCE_FOLDER"/avail_mhcII.txt
 
 
 # available MHCII alleles for MixMHC2pred
