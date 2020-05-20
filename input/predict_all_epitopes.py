@@ -32,7 +32,6 @@ class BunchEpitopes:
         self.patient_hla_I_alleles = {}
         self.patient_hla_II_alleles = {}
         self.tumour_content = {}
-        self.hlaII_available_MixMHC2pred = []
         self.rna_avail = {}
 
     @staticmethod
@@ -92,24 +91,6 @@ class BunchEpitopes:
             for line in f:
                 set_available_mhc.add(line.strip())
         return set_available_mhc
-
-    def load_available_allelles_mixMHC2pred(self):
-        """
-        loads file with available hla alllels for MixMHC2pred prediction, returns set
-        :return:
-        """
-        path_to_HLAII_file = self.references.alleles_list_pred
-        avail_alleles = []
-        with open(path_to_HLAII_file) as f:
-            for line in f:
-                line = line.rstrip().lstrip()
-                if line:
-                    if line.startswith(("L", "A")):
-                        continue
-                    line1 = line.split()[0]
-                    if line1 is not None:
-                        avail_alleles.append(line1)
-        return avail_alleles
 
     @staticmethod
     def load_patient_hla_I_allels(path_to_hla_file):
@@ -213,7 +194,6 @@ class BunchEpitopes:
         prov_file = self.references.prov_scores_mapped3
         self.hla_available_alleles = self.load_available_hla_alleles()
         self.hlaII_available_alleles = self.load_available_hla_alleles(mhc=MHC_II)
-        self.hlaII_available_MixMHC2pred = self.load_available_allelles_mixMHC2pred()
         self.patient_hla_I_allels = self.load_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.load_patient_hla_II_allels(path_to_hla_file)
         # tumour content
@@ -256,7 +236,7 @@ class BunchEpitopes:
                 dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
                 self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,
-                self.patient_hla_II_allels, self.tumour_content, self.hlaII_available_MixMHC2pred, self.rna_avail)
+                self.patient_hla_II_allels, self.tumour_content, self.rna_avail)
             for key in z:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
