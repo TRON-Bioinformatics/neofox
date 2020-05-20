@@ -10,6 +10,7 @@ from input.MixMHCpred.mixmhcpred import MixMHCpred
 from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from input.Tcell_predictor.tcellpredictor_wrapper import Tcellprediction
 from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+from input.helpers import properties_manager
 from input.neoag.neoag_gbm_model import NeoagCalculator
 from input.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
 from input.netmhcIIpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
@@ -63,8 +64,15 @@ class Epitope:
         self.init_properties(col_nam, prop_list)
         logger.info(self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."])
 
-        self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_I), "pos_MUT_MHCI")
-        self.add_features(self_similarity.position_of_mutation_epitope(self.properties, MHC_II), "pos_MUT_MHCII")
+        wild_type_mhci, mutation_mhci = properties_manager.get_wild_type_and_mutations(
+            properties=self.properties, mhc=MHC_I)
+        wild_type_mhcii, mutation_mhcii = properties_manager.get_wild_type_and_mutations(
+            properties=self.properties, mhc=MHC_II)
+
+        self.add_features(self_similarity.position_of_mutation_epitope(
+            wild_type=wild_type_mhci, mutation=mutation_mhci), "pos_MUT_MHCI")
+        self.add_features(self_similarity.position_of_mutation_epitope(
+            wild_type=wild_type_mhcii, mutation=mutation_mhcii), "pos_MUT_MHCII")
         self.add_features(self_similarity.position_in_anchor_position(self.properties), "Mutation_in_anchor")
 
         # differential agretopicity index
@@ -205,22 +213,26 @@ class Epitope:
             self.properties, MHC_I, multiple_binding=True), "Amplitude_mhcI_MB")
 
         # position of mutation
-        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties),
-                          "pos_MUT_MHCI_affinity_epi")
+        wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_wild_type_and_mutation_from_netmhcpan4(
+            properties=self.properties)
+        self.add_features(self_similarity.position_of_mutation_epitope(
+            wild_type=wild_type_netmhcpan4, mutation=mutation_netmhcpan4), "pos_MUT_MHCI_affinity_epi")
 
         # position of mutation
-        self.add_features(self_similarity.position_of_mutation_epitope_affinity(self.properties, nine_mer=True),
-                          "pos_MUT_MHCI_affinity_epi_9mer")
+        wild_type_netmhcpan4_9mer, mutation_netmhcpan4_9mer = properties_manager.get_wild_type_and_mutation_from_netmhcpan4(
+            properties=self.properties, nine_mer=True)
+        self.add_features(self_similarity.position_of_mutation_epitope(
+            wild_type=wild_type_netmhcpan4_9mer, mutation=mutation_netmhcpan4_9mer),"pos_MUT_MHCI_affinity_epi_9mer")
         self.add_features(self_similarity.position_in_anchor_position(self.properties, netMHCpan=True),
                           "Mutation_in_anchor_netmhcpan")
         self.add_features(self_similarity.position_in_anchor_position(self.properties, nine_mer=True),
                           "Mutation_in_anchor_netmhcpan_9mer")
 
         # selfsimilarity
+        self.add_features(self_similarity.get_self_similarity(mutation=mutation_mhci, wild_type=wild_type_mhci),
+                          "Selfsimilarity_mhcI")
         self.add_features(self_similarity.get_self_similarity(
-            props=self.properties, mhc=MHC_I, references=self.references), "Selfsimilarity_mhcI")
-        self.add_features(self_similarity.get_self_similarity(
-            props=self.properties, mhc=MHC_II, references=self.references), "Selfsimilarity_mhcII")
+            wild_type=wild_type_mhcii, mutation=mutation_mhcii), "Selfsimilarity_mhcII")
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
         self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
         self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties),

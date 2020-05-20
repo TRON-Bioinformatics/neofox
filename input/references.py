@@ -44,7 +44,6 @@ class ReferenceFolder(object):
         self.prov_scores_mapped3 = self._get_reference_file_name('PROV_scores_mapped3.csv')
         self.iedb = self._get_reference_file_name('iedb')
         self.proteome_db = self._get_reference_file_name('proteome_db')
-        self.blosum62 = self._get_reference_file_name('BLOSUM62-2.matrix.txt')
         self.tcell_predictor_sir_data = self._get_reference_file_name('SIRdata.mat')
         self.tcell_predictor_gene_expression = self._get_reference_file_name('genes-expression.pickle')
         self.tcell_predictor_aa_features = self._get_reference_file_name('amino-acids-features.pickle')
@@ -54,7 +53,7 @@ class ReferenceFolder(object):
         # TODO: add this files self.alleles_list_pred, self.avail_mhc_ii
         self.resources = [self.alleles_list_pred, self.available_mhc_ii, self.available_mhc_i, self.aa_freq_prot,
                           self.four_mer_freq, self.aaindex1, self.aaindex2, self.prov_scores_mapped3, self.iedb,
-                          self.proteome_db, self.blosum62, self.tcell_predictor_aa_features,
+                          self.proteome_db, self.tcell_predictor_aa_features,
                           self.tcell_predictor_gene_expression, self.tcell_predictor_sir_data,
                           self.uniprot, self.gtex]
         self._check_resources(self.resources)
