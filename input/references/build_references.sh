@@ -17,8 +17,8 @@ $INPUT_MAKEBLASTDB -in "$INPUT_REFERENCE_FOLDER"/iedb/IEDB.fasta -dbtype prot -p
 
 # human proteome database
 mkdir "$INPUT_REFERENCE_FOLDER"/proteom_db
-wget ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz -O "$INPUT_REFERENCE_FOLDER"/proteom_db/Homo_sapiens.fa.gz
+wget ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz -O "$INPUT_REFERENCE_FOLDER"/proteome_db/Homo_sapiens.fa.gz
 gunzip "$INPUT_REFERENCE_FOLDER"/proteom_db/Homo_sapiens.fa.gz
-$INPUT_MAKEBLASTDB -in "$INPUT_REFERENCE_FOLDER"/proteom_db/Homo_sapiens.fa -dbtype prot -parse_seqids -out "$INPUT_REFERENCE_FOLDER"/proteom_db/homo_sapiens
+$INPUT_MAKEBLASTDB -in "$INPUT_REFERENCE_FOLDER"/proteom_db/Homo_sapiens.fa -dbtype prot -parse_seqids -out "$INPUT_REFERENCE_FOLDER"/proteome_db/homo_sapiens
 
 # use Homo_sapiens.fa as uniprot_human_with_isoforms.fasta to be consistent with human proteome database
