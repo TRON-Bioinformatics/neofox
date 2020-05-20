@@ -221,6 +221,8 @@ def calc_priority_score(props, multiple_binding=False):
         score_mut = props["best%Rank_netmhcpan4"]
         score_wt = props["best%Rank_netmhcpan4_WT"]
     mut_in_prot = props["mutation_found_in_proteome"]
+    if mut_in_prot == "False" : mut_in_prot = "1"
+    if mut_in_prot == "True" : mut_in_prot = "0"
     L_mut = calc_logistic_function(score_mut)
     L_wt = calc_logistic_function(score_wt)
     priority_score = 0.0
