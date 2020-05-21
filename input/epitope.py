@@ -78,116 +78,22 @@ class Epitope:
             wild_type=wild_type_mhcii, mutation=mutation_mhcii), "pos_MUT_MHCII")
         self.add_features(self_similarity.position_in_anchor_position(self.properties), "Mutation_in_anchor")
 
-        # differential agretopicity index
-        self.add_features(
-            FeatureLiterature.dai(score_mutation=mutation_mhci, score_wild_type=wild_type_mhci), "DAI_mhcI")
-        self.add_features(
-            FeatureLiterature.dai(score_mutation=mutation_mhcii, score_wild_type=wild_type_mhcii), "DAI_mhcII")
-        # expression
-        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail=rna_avail),
-                          "Expression_Mutated_Transcript")
-        self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content=tumour_content),
-                          "Expression_Mutated_Transcript_tumor_content")
+        self.add_differential_agretopicity_index_features(mutation_mhci, mutation_mhcii, wild_type_mhci,
+                                                          wild_type_mhcii)
 
-        # differential expression
-        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 0), "mean_ref_expression")
-        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 1), "sd_ref_expression")
-        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 2), "sum_ref_expression")
-        self.add_features(differential_expression.fold_change(self.properties), "log2_fc_tumour_ref")
-        self.add_features(differential_expression.percentile_calc(self.properties), "percentile_tumour_ref")
-        self.add_features(differential_expression.pepper_calc(self.properties), "DE_pepper")
-        # amino acid frequency
-        self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "mut"), "MUT_AA")
-        self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "wt"), "WT_AA")
-        self.add_features(freq_score.freq_aa(mutated_aminoacid=mutated_aminoacid, dict_freq=aa_freq_dict), "Frequency_mutated_AA")
-        self.add_features(freq_score.freq_prod_4mer(mutation=mutation_mhci, dict_freq=aa_freq_dict), "Product_Frequency_4mer")
-        self.add_features(freq_score.freq_4mer(mutation=mutation_mhci, dict_freq=nmer_freq_dict), "Frequency_of_4mer")
-        # amino acid index
-        for k in aaindex1_dict:
-            z = FeatureLiterature.add_aa_index1(self.properties, "wt", k, aaindex1_dict[k])
-            self.add_features(z[1], z[0])
-            z = FeatureLiterature.add_aa_index1(self.properties, "mut", k, aaindex1_dict[k])
-            self.add_features(z[1], z[0])
-        for k in aaindex2_dict:
-            try:
-                z = FeatureLiterature.add_aa_index2(self.properties, k, aaindex2_dict[k])
-                self.add_features(z[1], z[0])
-            except:
-                print(aaindex2_dict[k], wt, mut)
+        self.add_expression_features(rna_avail, tumour_content)
 
-        # PROVEAN score
-        ucsc_id = self.provean_annotator.build_ucsc_id_plus_position(
-            substitution=self.properties["substitution"], ucsc_id=self.properties["UCSC_transcript"])
-        self.add_features(ucsc_id, "UCSC_ID_position")
-        self.add_features(self.provean_annotator.get_provean_annotation(
-            mutated_aminoacid=self.properties['MUT_AA'], ucsc_id_position=ucsc_id),
-            "PROVEAN_score")
-        self.pred.main(self.properties, patient_hlaI, set_available_mhc)
+        self.add_differential_expression_features(gene, ref_dat)
 
-        # netmhcpan4 MUT rank score
-        self.add_features(self.pred.best4_mhc_score, "best%Rank_netmhcpan4")
-        self.add_features(self.pred.best4_mhc_epitope, "best_epitope_netmhcpan4")
-        self.add_features(self.pred.best4_mhc_allele, "bestHLA_allele_netmhcpan4")
-        self.add_features(self.pred.directed_to_TCR, "directed_to_TCR")
+        self.add_aminoacid_frequency_features(aa_freq_dict, mutated_aminoacid, mutation_mhci, nmer_freq_dict)
 
-        # netmhcpan4 mut affinity
-        self.add_features(self.pred.best4_affinity, "best_affinity_netmhcpan4")
-        self.add_features(self.pred.best4_affinity_epitope, "best_affinity_epitope_netmhcpan4")
-        self.add_features(self.pred.best4_affinity_allele, "bestHLA_allele_affinity_netmhcpan4")
-        self.add_features(self.pred.best4_affinity_directed_to_TCR, "affinity_directed_to_TCR")
+        self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict)
 
-        # netMHCpan MUT best 9mer score
-        self.add_features(self.pred.mhcI_score_9mer, "best%Rank_netmhcpan4_9mer")
-        self.add_features(self.pred.mhcI_score_epitope_9mer, "best_epitope_netmhcpan4_9mer")
-        self.add_features(self.pred.mhcI_score_allele_9mer, "bestHLA_allele_netmhcpan4_9mer")
+        self.add_provean_score_features(patient_hlaI, set_available_mhc)
 
-        # netmhcpan4 mut best 9mer affinity
-        self.add_features(self.pred.mhcI_affinity_9mer, "best_affinity_netmhcpan4_9mer")
-        self.add_features(self.pred.mhcI_affinity_allele_9mer, "bestHLA_allele_affinity_netmhcpan4_9mer")
-        self.add_features(self.pred.mhcI_affinity_epitope_9mer, "best_affinity_epitope_netmhcpan4_9mer")
+        self.add_netmhcpan4_features()
 
-        # multiplexed representation MUT
-        for sc, mn in zip(self.pred.MHC_score_all_epitopes, self.pred.mean_type):
-            self.add_features(sc, "MB_score_all_epitopes_" + mn)
-        for sc, mn in zip(self.pred.MHC_score_top10, self.pred.mean_type):
-            self.add_features(sc, "MB_score_top10_" + mn)
-        for sc, mn in zip(self.pred.MHC_score_best_per_alelle, self.pred.mean_type):
-            self.add_features(sc, "MB_score_best_per_alelle_" + mn)
-
-        # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
-        self.properties["PHBR-I"] = self.properties.pop("MB_score_best_per_alelle_harmonic")
-        self.add_features(self.pred.MHC_epitope_scores, "MB_epitope_scores")
-        self.add_features(self.pred.MHC_epitope_seqs, "MB_epitope_sequences")
-        self.add_features(self.pred.MHC_epitope_alleles, "MB_alleles")
-        self.add_features(self.pred.MHC_number_strong_binders, "MB_number_pep_MHCscore<1")
-        self.add_features(self.pred.MHC_number_weak_binders, "MB_number_pep_MHCscore<2")
-
-        # generator rate
-        self.add_features(self.pred.epitope_affinities, "MB_affinities")
-        self.add_features(self.pred.generator_rate, "Generator_rate")
-
-        # multiplexed representation WT
-        self.add_features(self.pred.MHC_epitope_scores_WT, "MB_epitope_WT_scores")
-        self.add_features(self.pred.MHC_epitope_seqs_WT, "MB_epitope_WT_sequences")
-        self.add_features(self.pred.MHC_epitope_alleles_WT, "MB_alleles_WT")
-        for sc, mn in zip(self.pred.MHC_score_top10_WT, self.pred.mean_type):
-            self.add_features(sc, "MB_score_WT_top10_" + mn)
-        for sc, mn in zip(self.pred.MHC_score_all_epitopes_WT, self.pred.mean_type):
-            self.add_features(sc, "MB_score_WT_all_epitopes_" + mn)
-        for sc, mn in zip(self.pred.MHC_score_best_per_alelle_WT, self.pred.mean_type):
-            self.add_features(sc, "MB_score_WT_best_per_alelle_" + mn)
-        self.properties["PHBR-I_WT"] = self.properties.pop("MB_score_WT_best_per_alelle_harmonic")
-        self.add_features(self.pred.MHC_number_strong_binders_WT, "MB_number_pep_WT_MHCscore<1")
-        self.add_features(self.pred.MHC_number_weak_binders_WT, "MB_number_pep_WT_MHCscore<2")
-
-        # generator rate
-        self.add_features(self.pred.epitope_affinities_WT, "MB_affinities_WT")
-        self.add_features(self.pred.generator_rate_WT, "Generator_rate_WT")
-        wild_type_multiple_binding, mutation_multiple_binding = properties_manager.\
-            get_scores_multiple_binding(self.properties, mhc=MHC_I)
-        self.add_features(
-            FeatureLiterature.dai(score_mutation=mutation_multiple_binding, score_wild_type=wild_type_multiple_binding),
-            "DAI_mhcI_MB")
+        self.add_multiple_binding_features()
 
         # netmhcpan4 wt affinity
         self.add_features(self.pred.best4_affinity_WT, "best_affinity_netmhcpan4_WT")
@@ -237,50 +143,11 @@ class Epitope:
         self.add_features(self_similarity.position_in_anchor_position(self.properties, nine_mer=True),
                           "Mutation_in_anchor_netmhcpan_9mer")
 
-        # selfsimilarity
-        self.add_features(self_similarity.get_self_similarity(mutation=mutation_mhci, wild_type=wild_type_mhci),
-                          "Selfsimilarity_mhcI")
-        self.add_features(self_similarity.get_self_similarity(
-            wild_type=wild_type_mhcii, mutation=mutation_mhcii), "Selfsimilarity_mhcII")
-        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
-        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
-        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties),
-                          "Selfsimilarity_mhcI_conserved_binder")
+        self.add_self_similarity_features(mutation_mhci, mutation_mhcii, wild_type_mhci, wild_type_mhcii)
 
-        # neoantigen fitness
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
+        tmp_fasta = self.add_neoantigen_fitness_features(mutation_mhci, mutation_mhcii)
 
-        self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                mutation=mutation_mhci, fastafile=tmp_fasta, iedb=self.references.iedb),
-            "Pathogensimiliarity_mhcI")
-        self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                mutation=mutation_mhcii, fastafile=tmp_fasta, iedb=self.references.iedb),
-            "Pathogensimiliarity_mhcII")
-        self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_I), "Amplitude_mhcI")
-        self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_II), "Amplitude_mhcII")
-        self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            self.properties, MHC_I), "Recognition_Potential_mhcI")
-        self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            self.properties, MHC_II), "Recognition_Potential_mhcII")
-
-        # T cell predictor
-        substitution = properties_manager.get_substitution(properties=self.properties)
-        epitope = self.properties["MHC_I_epitope_.best_prediction."]
-        score = self.properties["MHC_I_score_.best_prediction."]
-        self.add_features(self.tcell_predictor.calculate_tcell_predictor_score(
-            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=2),
-            "Tcell_predictor_score")
-
-        epitope = self.properties["best_affinity_epitope_netmhcpan4_9mer"]
-        score = self.properties["best_affinity_netmhcpan4_9mer"]
-        self.add_features(self.tcell_predictor.calculate_tcell_predictor_score(
-            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=500),
-            "Tcell_predictor_score_9mersPredict")
+        self.add_tcell_predictor_features(gene)
 
         # DAI with affinity values
         wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_scores_netmhcpan4_affinity(
@@ -456,6 +323,45 @@ class Epitope:
         self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I, affin_filtering=True),
                           "IEDB_Immunogenicity_mhcI_affinity_filtered")
 
+        self.add_mix_mhc_pred_features(patient_hlaI)
+
+        self.add_mix_mhc2_pred_features(patient_hlaII)
+
+        # dissimilarity to self-proteome
+
+        # neoantigen fitness
+        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
+        tmp_fasta = tmp_fasta_file.name
+        self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
+            self.properties, tmp_fasta, self.references), "dissimilarity")
+        self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
+            self.properties, tmp_fasta, self.references, filter_binder=True), "dissimilarity_filter500")
+
+        self.add_vax_rank_features()
+
+        return self.properties
+
+    def add_vax_rank_features(self):
+        # vaxrank
+        vaxrankscore = vaxrank.VaxRank()
+        vaxrankscore.main(self.properties)
+        self.add_features(vaxrankscore.total_binding_score, "vaxrank_binding_score")
+        self.add_features(vaxrankscore.ranking_score, "vaxrank_total_score")
+
+    def add_mix_mhc2_pred_features(self, patient_hlaII):
+        # MixMHC2pred
+        self.predpresentation2.main(self.properties, patient_hlaII)
+        self.add_features(self.predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
+        self.add_features(self.predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
+        self.add_features(self.predpresentation2.all_alleles, "MixMHC2pred_all_alleles")
+        self.add_features(self.predpresentation2.best_peptide, "MixMHC2pred_best_peptide")
+        self.add_features(self.predpresentation2.best_rank, "MixMHC2pred_best_rank")
+        self.add_features(self.predpresentation2.best_allele, "MixMHC2pred_best_allele")
+        self.add_features(self.predpresentation2.best_peptide_wt, "MixMHC2pred_best_peptide_wt")
+        self.add_features(self.predpresentation2.best_rank_wt, "MixMHC2pred_best_rank_wt")
+        self.add_features(self.predpresentation2.difference_score_mut_wt, "MixMHC2pred_difference_rank_mut_wt")
+
+    def add_mix_mhc_pred_features(self, patient_hlaI):
         # MixMHCpred
         self.predpresentation.main(self.properties, patient_hlaI)
         self.add_features(self.predpresentation.all_peptides, "MixMHCpred_all_peptides")
@@ -471,32 +377,176 @@ class Epitope:
         self.add_features(self.predpresentation.best_rank_wt, "MixMHCpred_best_rank_wt")
         self.add_features(self.predpresentation.difference_score_mut_wt, "MixMHCpred_difference_score_mut_wt")
 
-        # MixMHC2pred
-        self.predpresentation2.main(self.properties, patient_hlaII)
-        self.add_features(self.predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
-        self.add_features(self.predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
-        self.add_features(self.predpresentation2.all_alleles, "MixMHC2pred_all_alleles")
-        self.add_features(self.predpresentation2.best_peptide, "MixMHC2pred_best_peptide")
-        self.add_features(self.predpresentation2.best_rank, "MixMHC2pred_best_rank")
-        self.add_features(self.predpresentation2.best_allele, "MixMHC2pred_best_allele")
-        self.add_features(self.predpresentation2.best_peptide_wt, "MixMHC2pred_best_peptide_wt")
-        self.add_features(self.predpresentation2.best_rank_wt, "MixMHC2pred_best_rank_wt")
-        self.add_features(self.predpresentation2.difference_score_mut_wt, "MixMHC2pred_difference_rank_mut_wt")
+    def add_tcell_predictor_features(self, gene):
+        # T cell predictor
+        substitution = properties_manager.get_substitution(properties=self.properties)
+        epitope = self.properties["MHC_I_epitope_.best_prediction."]
+        score = self.properties["MHC_I_score_.best_prediction."]
+        self.add_features(self.tcell_predictor.calculate_tcell_predictor_score(
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=2),
+            "Tcell_predictor_score")
+        epitope = self.properties["best_affinity_epitope_netmhcpan4_9mer"]
+        score = self.properties["best_affinity_netmhcpan4_9mer"]
+        self.add_features(self.tcell_predictor.calculate_tcell_predictor_score(
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=500),
+            "Tcell_predictor_score_9mersPredict")
 
-        # dissimilarity to self-proteome
-
+    def add_neoantigen_fitness_features(self, mutation_mhci, mutation_mhcii):
         # neoantigen fitness
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
-        self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            self.properties, tmp_fasta, self.references), "dissimilarity")
-        self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            self.properties, tmp_fasta, self.references, filter_binder=True), "dissimilarity_filter500")
+        self.add_features(
+            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
+                mutation=mutation_mhci, fastafile=tmp_fasta, iedb=self.references.iedb),
+            "Pathogensimiliarity_mhcI")
+        self.add_features(
+            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
+                mutation=mutation_mhcii, fastafile=tmp_fasta, iedb=self.references.iedb),
+            "Pathogensimiliarity_mhcII")
+        self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
+            self.properties, MHC_I), "Amplitude_mhcI")
+        self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
+            self.properties, MHC_II), "Amplitude_mhcII")
+        self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
+            self.properties, MHC_I), "Recognition_Potential_mhcI")
+        self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
+            self.properties, MHC_II), "Recognition_Potential_mhcII")
+        return tmp_fasta
 
-        # vaxrank
-        vaxrankscore = vaxrank.VaxRank()
-        vaxrankscore.main(self.properties)
-        self.add_features(vaxrankscore.total_binding_score, "vaxrank_binding_score")
-        self.add_features(vaxrankscore.ranking_score, "vaxrank_total_score")
+    def add_self_similarity_features(self, mutation_mhci, mutation_mhcii, wild_type_mhci, wild_type_mhcii):
+        # selfsimilarity
+        self.add_features(self_similarity.get_self_similarity(mutation=mutation_mhci, wild_type=wild_type_mhci),
+                          "Selfsimilarity_mhcI")
+        self.add_features(self_similarity.get_self_similarity(
+            wild_type=wild_type_mhcii, mutation=mutation_mhcii), "Selfsimilarity_mhcII")
+        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
+        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
+        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties),
+                          "Selfsimilarity_mhcI_conserved_binder")
 
-        return self.properties
+    def add_multiple_binding_features(self):
+        # multiplexed representation MUT
+        for sc, mn in zip(self.pred.MHC_score_all_epitopes, self.pred.mean_type):
+            self.add_features(sc, "MB_score_all_epitopes_" + mn)
+        for sc, mn in zip(self.pred.MHC_score_top10, self.pred.mean_type):
+            self.add_features(sc, "MB_score_top10_" + mn)
+        for sc, mn in zip(self.pred.MHC_score_best_per_alelle, self.pred.mean_type):
+            self.add_features(sc, "MB_score_best_per_alelle_" + mn)
+        # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
+        self.properties["PHBR-I"] = self.properties.pop("MB_score_best_per_alelle_harmonic")
+        self.add_features(self.pred.MHC_epitope_scores, "MB_epitope_scores")
+        self.add_features(self.pred.MHC_epitope_seqs, "MB_epitope_sequences")
+        self.add_features(self.pred.MHC_epitope_alleles, "MB_alleles")
+        self.add_features(self.pred.MHC_number_strong_binders, "MB_number_pep_MHCscore<1")
+        self.add_features(self.pred.MHC_number_weak_binders, "MB_number_pep_MHCscore<2")
+        # generator rate
+        self.add_features(self.pred.epitope_affinities, "MB_affinities")
+        self.add_features(self.pred.generator_rate, "Generator_rate")
+        # multiplexed representation WT
+        self.add_features(self.pred.MHC_epitope_scores_WT, "MB_epitope_WT_scores")
+        self.add_features(self.pred.MHC_epitope_seqs_WT, "MB_epitope_WT_sequences")
+        self.add_features(self.pred.MHC_epitope_alleles_WT, "MB_alleles_WT")
+        for sc, mn in zip(self.pred.MHC_score_top10_WT, self.pred.mean_type):
+            self.add_features(sc, "MB_score_WT_top10_" + mn)
+        for sc, mn in zip(self.pred.MHC_score_all_epitopes_WT, self.pred.mean_type):
+            self.add_features(sc, "MB_score_WT_all_epitopes_" + mn)
+        for sc, mn in zip(self.pred.MHC_score_best_per_alelle_WT, self.pred.mean_type):
+            self.add_features(sc, "MB_score_WT_best_per_alelle_" + mn)
+        self.properties["PHBR-I_WT"] = self.properties.pop("MB_score_WT_best_per_alelle_harmonic")
+        self.add_features(self.pred.MHC_number_strong_binders_WT, "MB_number_pep_WT_MHCscore<1")
+        self.add_features(self.pred.MHC_number_weak_binders_WT, "MB_number_pep_WT_MHCscore<2")
+        # generator rate
+        self.add_features(self.pred.epitope_affinities_WT, "MB_affinities_WT")
+        self.add_features(self.pred.generator_rate_WT, "Generator_rate_WT")
+        wild_type_multiple_binding, mutation_multiple_binding = properties_manager. \
+            get_scores_multiple_binding(self.properties, mhc=MHC_I)
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_multiple_binding, score_wild_type=wild_type_multiple_binding),
+            "DAI_mhcI_MB")
+
+    def add_netmhcpan4_features(self):
+        # netmhcpan4 MUT rank score
+        self.add_features(self.pred.best4_mhc_score, "best%Rank_netmhcpan4")
+        self.add_features(self.pred.best4_mhc_epitope, "best_epitope_netmhcpan4")
+        self.add_features(self.pred.best4_mhc_allele, "bestHLA_allele_netmhcpan4")
+        self.add_features(self.pred.directed_to_TCR, "directed_to_TCR")
+        # netmhcpan4 mut affinity
+        self.add_features(self.pred.best4_affinity, "best_affinity_netmhcpan4")
+        self.add_features(self.pred.best4_affinity_epitope, "best_affinity_epitope_netmhcpan4")
+        self.add_features(self.pred.best4_affinity_allele, "bestHLA_allele_affinity_netmhcpan4")
+        self.add_features(self.pred.best4_affinity_directed_to_TCR, "affinity_directed_to_TCR")
+        # netMHCpan MUT best 9mer score
+        self.add_features(self.pred.mhcI_score_9mer, "best%Rank_netmhcpan4_9mer")
+        self.add_features(self.pred.mhcI_score_epitope_9mer, "best_epitope_netmhcpan4_9mer")
+        self.add_features(self.pred.mhcI_score_allele_9mer, "bestHLA_allele_netmhcpan4_9mer")
+        # netmhcpan4 mut best 9mer affinity
+        self.add_features(self.pred.mhcI_affinity_9mer, "best_affinity_netmhcpan4_9mer")
+        self.add_features(self.pred.mhcI_affinity_allele_9mer, "bestHLA_allele_affinity_netmhcpan4_9mer")
+        self.add_features(self.pred.mhcI_affinity_epitope_9mer, "best_affinity_epitope_netmhcpan4_9mer")
+
+    def add_provean_score_features(self, patient_hlaI, set_available_mhc):
+        # PROVEAN score
+        ucsc_id = self.provean_annotator.build_ucsc_id_plus_position(
+            substitution=self.properties["substitution"], ucsc_id=self.properties["UCSC_transcript"])
+        self.add_features(ucsc_id, "UCSC_ID_position")
+        self.add_features(self.provean_annotator.get_provean_annotation(
+            mutated_aminoacid=self.properties['MUT_AA'], ucsc_id_position=ucsc_id),
+            "PROVEAN_score")
+        self.pred.main(self.properties, patient_hlaI, set_available_mhc)
+
+    def add_aminoacid_index_features(self, aaindex1_dict, aaindex2_dict):
+        # amino acid index
+        for k in aaindex1_dict:
+            z = FeatureLiterature.add_aa_index1(self.properties, "wt", k, aaindex1_dict[k])
+            self.add_features(z[1], z[0])
+            z = FeatureLiterature.add_aa_index1(self.properties, "mut", k, aaindex1_dict[k])
+            self.add_features(z[1], z[0])
+        for k in aaindex2_dict:
+            try:
+                z = FeatureLiterature.add_aa_index2(self.properties, k, aaindex2_dict[k])
+                self.add_features(z[1], z[0])
+            except:
+                print(aaindex2_dict[k], wt, mut)
+
+    def add_aminoacid_frequency_features(self, aa_freq_dict, mutated_aminoacid, mutation_mhci, nmer_freq_dict):
+        # amino acid frequency
+        self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "mut"), "MUT_AA")
+        self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "wt"), "WT_AA")
+        self.add_features(freq_score.freq_aa(mutated_aminoacid=mutated_aminoacid, dict_freq=aa_freq_dict),
+                          "Frequency_mutated_AA")
+        self.add_features(freq_score.freq_prod_4mer(mutation=mutation_mhci, dict_freq=aa_freq_dict),
+                          "Product_Frequency_4mer")
+        self.add_features(freq_score.freq_4mer(mutation=mutation_mhci, dict_freq=nmer_freq_dict), "Frequency_of_4mer")
+
+    def add_expression_features(self, rna_avail, tumour_content):
+        # expression
+        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail=rna_avail),
+                          "Expression_Mutated_Transcript")
+        self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content=tumour_content),
+                          "Expression_Mutated_Transcript_tumor_content")
+
+    def add_differential_agretopicity_index_features(self, mutation_mhci, mutation_mhcii, wild_type_mhci,
+                                                     wild_type_mhcii):
+        # differential agretopicity index
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_mhci, score_wild_type=wild_type_mhci), "DAI_mhcI")
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_mhcii, score_wild_type=wild_type_mhcii), "DAI_mhcII")
+
+    def add_differential_expression_features(self, gene, ref_dat):
+        # differential expression
+        expression_tumor = self.properties["transcript_expression"]
+        expression_reference = self.properties["mean_ref_expression"]
+        expression_reference_sum = self.properties["sum_ref_expression"]
+        expression_reference_sd = self.properties["sd_ref_expression"]
+        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 0), "mean_ref_expression")
+        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 1), "sd_ref_expression")
+        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 2), "sum_ref_expression")
+        self.add_features(differential_expression.fold_change(
+            expression_tumor=expression_tumor, expression_reference=expression_reference), "log2_fc_tumour_ref")
+        self.add_features(differential_expression.percentile_calc(
+            expression_tumor=expression_tumor, expression_reference_sum=expression_reference_sum),
+            "percentile_tumour_ref")
+        self.add_features(differential_expression.pepper_calc(
+            expression_tumor=expression_tumor, expression_reference=expression_reference,
+            expression_reference_sd=expression_reference_sd), "DE_pepper")
