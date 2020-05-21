@@ -78,7 +78,7 @@ class BestAndMultipleBinderMhcII:
         logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        tmp_fasta = intermediate_files.generate_fasta([sequence], prefix="tmp_singleseq_")
+        tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
         logger.debug(alleles_formated)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
@@ -119,7 +119,7 @@ class BestAndMultipleBinderMhcII:
         logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        tmp_fasta = intermediate_files.generate_fasta([sequence_reference], prefix="tmp_singleseq_")
+        tmp_fasta = intermediate_files.create_temp_fasta([sequence_reference], prefix="tmp_singleseq_")
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         try:
             preds = np.filter_binding_predictions(position_xmer_sequence, tmp_prediction)

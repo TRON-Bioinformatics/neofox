@@ -63,7 +63,10 @@ class Epitope:
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.properties = self.init_properties(col_nam, prop_list)
-        logger.info(self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."])
+        xmer_wt = self.properties["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        xmer_mut = self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI)
+        logger.info(xmer_mut)
 
         wild_type_mhci, mutation_mhci = properties_manager.get_epitopes(
             properties=self.properties, mhc=MHC_I)
@@ -92,7 +95,9 @@ class Epitope:
 
         self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict)
 
-        self.add_provean_score_features(patient_hlaI, set_available_mhc)
+        alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI)
+        self.add_provean_score_features(
+            xmer_wt=xmer_wt, xmer_mut=xmer_mut, alleles=alleles, set_available_mhc=set_available_mhc)
 
         self.add_netmhcpan4_features()
 
@@ -132,13 +137,13 @@ class Epitope:
             score_wild_type=self.properties["MB_score_WT_top10_harmonic"].replace(",", ".")), "Amplitude_mhcI_MB")
 
         # position of mutation
-        wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_wild_type_and_mutation_from_netmhcpan4(
+        wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_netmhcpan4_epitopes(
             properties=self.properties)
         self.add_features(self_similarity.position_of_mutation_epitope(
             wild_type=wild_type_netmhcpan4, mutation=mutation_netmhcpan4), "pos_MUT_MHCI_affinity_epi")
 
         # position of mutation
-        wild_type_netmhcpan4_9mer, mutation_netmhcpan4_9mer = properties_manager.get_wild_type_and_mutation_from_netmhcpan4(
+        wild_type_netmhcpan4_9mer, mutation_netmhcpan4_9mer = properties_manager.get_netmhcpan4_epitopes(
             properties=self.properties, nine_mer=True)
         self.add_features(self_similarity.position_of_mutation_epitope(
             wild_type=wild_type_netmhcpan4_9mer, mutation=mutation_netmhcpan4_9mer),"pos_MUT_MHCI_affinity_epi_9mer")
@@ -249,10 +254,8 @@ class Epitope:
             amplitude_cutoff=amplitude_cutoff_mhcii, category="ADN"), "ADN_mhcII")
 
         # netMHCIIpan predictions
-        sequence = self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        sequence_reference = self.properties["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        alleles = properties_manager.get_hla_allele(self.properties, patient_hlaII)
-        self.predII.main(sequence=sequence, sequence_reference=sequence_reference, alleles=alleles,
+        alleles_hlaII = properties_manager.get_hla_allele(self.properties, patient_hlaII)
+        self.predII.main(sequence=xmer_mut, sequence_reference=xmer_wt, alleles=alleles_hlaII,
                          set_available_mhc=set_available_mhcII)
 
         # netmhcpan4 MUT scores
@@ -370,13 +373,35 @@ class Epitope:
             self.add_features(FeatureLiterature.match_in_proteome(
                 sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
                 "mutation_found_in_proteome")
-        self.add_features(FeatureLiterature.calc_priority_score(self.properties), "Priority_score")
+
+        vaf_tumor = self.properties["VAF_in_tumor"]
+        vaf_rna = self.properties.get("VAF_in_RNA")     # TODO: Franziska what do we want to do when there is no value?
+        transcript_expr = self.properties["transcript_expression"]
+        no_mismatch = self.properties["Number_of_mismatches_mhcI"]
+        score_mut = self.properties["best%Rank_netmhcpan4"]
+        score_wt = self.properties["best%Rank_netmhcpan4_WT"]
+        mut_in_prot = self.properties["mutation_found_in_proteome"]
+
+        self.add_features(FeatureLiterature.calc_priority_score(
+            vaf_tumor=vaf_tumor, vaf_rna=vaf_rna, transcript_expr=transcript_expr, no_mismatch=no_mismatch,
+            score_mut=score_mut, score_wt=score_wt, mut_in_prot=mut_in_prot), "Priority_score")
 
         # priority score using multiplexed representation score
-        self.add_features(FeatureLiterature.calc_priority_score(self.properties, True), "Priority_score_MB")
+        score_mut = self.properties["MB_score_top10_harmonic"]
+        score_wt = self.properties["MB_score_WT_top10_harmonic"]
+        self.add_features(FeatureLiterature.calc_priority_score(
+            vaf_tumor=vaf_tumor, vaf_rna=vaf_rna, transcript_expr=transcript_expr, no_mismatch=no_mismatch,
+            score_mut=score_mut, score_wt=score_wt, mut_in_prot=mut_in_prot), "Priority_score_MB")
 
         # neoag immunogenicity model
-        self.add_features(self.neoag_calculator.wrapper_neoag(self.properties), "neoag_immunogencity")
+        sample_id = properties_manager.get_patient_id(self.properties)
+        mut_peptide = self.properties["best_affinity_epitope_netmhcpan4"]
+        score_mut = self.properties["best_affinity_netmhcpan4"]
+        ref_peptide = self.properties["best_affinity_epitope_netmhcpan4_WT"]
+        peptide_variant_position = self.properties["pos_MUT_MHCI_affinity_epi"]
+        self.add_features(self.neoag_calculator.wrapper_neoag(
+            sample_id=sample_id, mut_peptide=mut_peptide, score_mut=score_mut, ref_peptide=ref_peptide,
+            peptide_variant_position=peptide_variant_position), "neoag_immunogencity")
 
         # IEDB immunogenicity only for epitopes with affinity < 500 nM (predicted with netMHCpan) --> in publications
         mhci_epitope = self.properties["best_affinity_epitope_netmhcpan4"]
@@ -392,18 +417,22 @@ class Epitope:
             epitope=mhci_epitope, mhc_allele=mhci_allele, mhc_score=mhci_score, affin_filtering=True),
                           "IEDB_Immunogenicity_mhcI_affinity_filtered")
 
-        self.add_mix_mhc_pred_features(patient_hlaI)
+        self.add_mix_mhc_pred_features(xmer_wt=xmer_wt, xmer_mut=xmer_mut, patient_hlaI=patient_hlaI)
 
-        self.add_mix_mhc2_pred_features(patient_hlaII)
+        self.add_mix_mhc2_pred_features(xmer_mut=xmer_mut, xmer_wt=xmer_wt, patient_hlaII=patient_hlaII)
 
         # dissimilarity to self-proteome
 
         # neoantigen fitness
         tmp_fasta = intermediate_files.create_temp_file(prefix="tmpseq", suffix=".fasta")
+        mhc_mutation = self.properties["best_affinity_epitope_netmhcpan4"]
+        mhc_affinity = self.properties["best_affinity_netmhcpan4"]
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            self.properties, tmp_fasta, self.references), "dissimilarity")
+            mhc_mutation=mhc_mutation, mhc_affinity=mhc_affinity, fastafile=tmp_fasta, references=self.references),
+            "dissimilarity")
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            self.properties, tmp_fasta, self.references, filter_binder=True), "dissimilarity_filter500")
+            mhc_mutation=mhc_mutation, mhc_affinity=mhc_affinity, fastafile=tmp_fasta, references=self.references,
+            filter_binder=True), "dissimilarity_filter500")
 
         self.add_vax_rank_features()
 
@@ -412,13 +441,15 @@ class Epitope:
     def add_vax_rank_features(self):
         # vaxrank
         vaxrankscore = vaxrank.VaxRank()
-        vaxrankscore.main(self.properties)
+        vaxrankscore.main(mutation_scores=self.properties["MB_affinities"],
+                          expression_score=self.properties["Expression_Mutated_Transcript"])
         self.add_features(vaxrankscore.total_binding_score, "vaxrank_binding_score")
         self.add_features(vaxrankscore.ranking_score, "vaxrank_total_score")
 
-    def add_mix_mhc2_pred_features(self, patient_hlaII):
+    def add_mix_mhc2_pred_features(self, xmer_wt, xmer_mut, patient_hlaII):
         # MixMHC2pred
-        self.predpresentation2.main(self.properties, patient_hlaII)
+        alleles = properties_manager.get_hla_allele(self.properties, patient_hlaII)
+        self.predpresentation2.main(alleles=alleles, xmer_wt=xmer_wt, xmer_mut=xmer_mut)
         self.add_features(self.predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
         self.add_features(self.predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
         self.add_features(self.predpresentation2.all_alleles, "MixMHC2pred_all_alleles")
@@ -429,9 +460,10 @@ class Epitope:
         self.add_features(self.predpresentation2.best_rank_wt, "MixMHC2pred_best_rank_wt")
         self.add_features(self.predpresentation2.difference_score_mut_wt, "MixMHC2pred_difference_rank_mut_wt")
 
-    def add_mix_mhc_pred_features(self, patient_hlaI):
+    def add_mix_mhc_pred_features(self, xmer_wt, xmer_mut, patient_hlaI):
         # MixMHCpred
-        self.predpresentation.main(self.properties, patient_hlaI)
+        alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI)
+        self.predpresentation.main(xmer_wt=xmer_wt, xmer_mut=xmer_mut, alleles=alleles)
         self.add_features(self.predpresentation.all_peptides, "MixMHCpred_all_peptides")
         self.add_features(self.predpresentation.all_scores, "MixMHCpred_all_scores")
         self.add_features(self.predpresentation.all_ranks, "MixMHCpred_all_ranks")
@@ -574,7 +606,7 @@ class Epitope:
         self.add_features(self.pred.mhcI_affinity_allele_9mer, "bestHLA_allele_affinity_netmhcpan4_9mer")
         self.add_features(self.pred.mhcI_affinity_epitope_9mer, "best_affinity_epitope_netmhcpan4_9mer")
 
-    def add_provean_score_features(self, patient_hlaI, set_available_mhc):
+    def add_provean_score_features(self, xmer_mut, xmer_wt, alleles, set_available_mhc):
         # PROVEAN score
         ucsc_id = self.provean_annotator.build_ucsc_id_plus_position(
             substitution=self.properties["substitution"], ucsc_id=self.properties["UCSC_transcript"])
@@ -582,7 +614,7 @@ class Epitope:
         self.add_features(self.provean_annotator.get_provean_annotation(
             mutated_aminoacid=self.properties['MUT_AA'], ucsc_id_position=ucsc_id),
             "PROVEAN_score")
-        self.pred.main(self.properties, patient_hlaI, set_available_mhc)
+        self.pred.main(xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles, set_available_mhc=set_available_mhc)
 
     def add_aminoacid_index_features(self, aaindex1_dict, aaindex2_dict):
         # amino acid index
@@ -607,9 +639,18 @@ class Epitope:
 
     def add_expression_features(self, rna_avail, tumour_content):
         # expression
-        self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail=rna_avail),
-                          "Expression_Mutated_Transcript")
-        self.add_features(FeatureLiterature.expression_mutation_tc(self.properties, tumour_content=tumour_content),
+        transcript_expression = self.properties["Expression_Mutated_Transcript"]
+        patient_id = properties_manager.get_patient_id(self.properties)
+        vaf_tumor = self.properties["VAF_in_tumor"]
+        # TODO: Franziska please, review this. I think this is what was meant, but it was not what the code was doing
+        vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
+            self.properties.get("VAF_in_RNA", vaf_tumor)
+
+        self.add_features(FeatureLiterature.rna_expression_mutation(
+            transcript_expression=transcript_expression, vaf_rna=vaf_rna), "Expression_Mutated_Transcript")
+
+        self.add_features(FeatureLiterature.expression_mutation_tc(
+            transcript_expression=transcript_expression, patient_id=patient_id, tumour_content=tumour_content),
                           "Expression_Mutated_Transcript_tumor_content")
 
     def add_differential_agretopicity_index_features(self, mutation_mhci, mutation_mhcii, wild_type_mhci,

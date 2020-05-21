@@ -75,36 +75,21 @@ def ratio_number_binders(num_mutation, num_wild_type):
         return "NA"
 
 
-def rna_expression_mutation(props, rna_avail):
-    '''
+def rna_expression_mutation(transcript_expression, vaf_rna):
+    """
     This function calculates the product of VAF in RNA and transcript expression
     to reflect the expression of the mutated transcript
-    '''
-    transcript_expression = props["transcript_expression"]
-    patient_id = properties_manager.get_hla_allele(props)
-    try:
-        rna_avail = rna_avail[patient_id]
-    except (KeyError, ValueError) as e:
-        rna_avail = "NA"
-    logger.info("rna_avail: ".format(rna_avail))
-    if rna_avail == "False":
-        vaf_rna = props["VAF_in_tumor"]
-    else:
-        try:
-            vaf_rna = props["VAF_in_RNA"]
-        except KeyError:
-            vaf_rna = props["VAF_in_tumor"]
+    """
     try:
         return str(float(transcript_expression) * float(vaf_rna)) if float(vaf_rna) > 0 else "NA"
     except ValueError:
         return "NA"
 
 
-def expression_mutation_tc(props, tumour_content):
-    '''calculated expression of mutation corrected by tumour content
-    '''
-    transcript_expression = props["Expression_Mutated_Transcript"]
-    patient_id = properties_manager.get_patient_id(props)
+def expression_mutation_tc(transcript_expression, patient_id, tumour_content):
+    """
+    calculated expression of mutation corrected by tumour content
+    """
     try:
         tumour_content = float(tumour_content[patient_id]) / 100
     except (KeyError, ValueError) as e:
@@ -150,25 +135,11 @@ def calc_logistic_function(mhc_score):
         return "NA"
 
 
-def calc_priority_score(props, multiple_binding=False):
-    '''
+def calc_priority_score(vaf_tumor, vaf_rna, transcript_expr, no_mismatch, score_mut, score_wt, mut_in_prot):
+    """
     This function calculates the Priority Score using parameters for mhc I.
-    '''
-    vaf_tumor = props["VAF_in_tumor"]
-    try:
-        vaf_rna = props["VAF_in_RNA"]
-    except KeyError:
-        vaf_tumor = props["VAF_in_tumor"]
-    transcript_expr = props["transcript_expression"]
-    no_mismatch = props["Number_of_mismatches_mhcI"]
-    if multiple_binding:
-        score_mut = props["MB_score_top10_harmonic"]
-        score_wt = props["MB_score_WT_top10_harmonic"]
-    else:
-        score_mut = props["best%Rank_netmhcpan4"]
-        score_wt = props["best%Rank_netmhcpan4_WT"]
-    mut_in_prot = props["mutation_found_in_proteome"]
-    # TODO: is this a bug?
+    """
+    # TODO: Franziska is this a bug? It is reversing its value
     if mut_in_prot == "False" : mut_in_prot = "1"
     if mut_in_prot == "True" : mut_in_prot = "0"
     L_mut = calc_logistic_function(score_mut)

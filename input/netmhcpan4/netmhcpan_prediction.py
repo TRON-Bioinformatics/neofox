@@ -67,11 +67,9 @@ class NetMhcPanBestPrediction:
                     line = ";".join(line)
                     f.write(line + "\n")
 
-    def mut_position_xmer_seq(self, props):
+    def mut_position_xmer_seq(self, xmer_wt, xmer_mut):
         '''returns position of mutation in xmer sequence
         '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
             for i, aa in enumerate(xmer_mut):
@@ -96,10 +94,9 @@ class NetMhcPanBestPrediction:
                 cover = True
         return cover
 
-    def filter_binding_predictions(self, props, tmppred):
+    def filter_binding_predictions(self, position_xmer, tmppred):
         '''filters prediction file for predicted epitopes that cover mutations
         '''
-        pos_xmer = props["Position_Xmer_Seq"]
         dat_prediction = data_import.import_dat_general(tmppred)
         dat = dat_prediction[1]
         dat_head = dat_prediction[0]
@@ -107,7 +104,7 @@ class NetMhcPanBestPrediction:
         pos_epi = dat_head.index("Pos")
         epi = dat_head.index("Peptide")
         for ii, i in enumerate(dat):
-            if self.epitope_covers_mutation(pos_xmer, i[pos_epi], len(i[epi])):
+            if self.epitope_covers_mutation(position_xmer, i[pos_epi], len(i[epi])):
                 dat_fil.append(dat[ii])
         return dat_head, dat_fil
 
@@ -141,10 +138,10 @@ class NetMhcPanBestPrediction:
         except IndexError:
             return "NA"
 
-    def mutation_in_loop(self, props, epitope_tuple):
-        '''returns if mutation is directed to TCR (yes or no)
-        '''
-        pos_xmer = props["Position_Xmer_Seq"]
+    def mutation_in_loop(self, position_xmer, epitope_tuple):
+        """
+        returns if mutation is directed to TCR (yes or no)
+        """
         dat_head = epitope_tuple[0]
         dat_epi = epitope_tuple[1]
         pos_epi = dat_head.index("Pos")
@@ -156,7 +153,7 @@ class NetMhcPanBestPrediction:
                 pos = int(dat_epi[pos_epi])
                 start = pos + int(dat_epi[del_pos]) - 1
                 end = start + int(dat_epi[del_len])
-                if start < int(pos_xmer) <= end:
+                if start < int(position_xmer) <= end:
                     directed_to_TCR = "yes"
             return directed_to_TCR
         except IndexError:
@@ -186,23 +183,6 @@ class NetMhcPanBestPrediction:
                     return errors
         return errors
 
-    def filter_for_WT_epitope_same_allele(self, prediction_tuple, mut_seq, mut_allele):
-        '''returns wt epitope info for given mutated sequence. here best wt for same allele as mutated sequences
-        '''
-        dat_head = prediction_tuple[0]
-        dat = prediction_tuple[1]
-        seq_col = dat_head.index("Peptide")
-        allele_col = dat_head.index("HLA")
-        wt_epi = "NA"
-        for ii, i in enumerate(dat):
-            wt_seq = i[seq_col]
-            wt_allele = i[allele_col]
-            if (len(wt_seq) == len(mut_seq)) and wt_allele == mut_allele:
-                numb_mismatch = self.Hamming_check_0_or_1(mut_seq, wt_seq)
-                if numb_mismatch == 1:
-                    wt_epi = i
-        return dat_head, wt_epi
-
     def filter_for_WT_epitope(self, prediction_tuple, mut_seq, mut_allele):
         '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
         '''
@@ -221,41 +201,6 @@ class NetMhcPanBestPrediction:
         dt = (dat_head, wt_epi)
         min = self.minimal_binding_score(dt)
         return (min)
-
-    def main(self, props_dict, set_available_mhc, dict_patient_hla):
-        '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
-        '''
-        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        print(tmp_prediction)
-        tmp_fasta = intermediate_files.generate_fasta(sequences=[props_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]],
-                                          prefix="tmp_singleseq_")
-        alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
-        self.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)
-        preds = self.filter_binding_predictions(props_dict, tmp_prediction)
-        # print preds
-        best_epi = self.minimal_binding_score(preds)
-        best_epi_affinity = self.minimal_binding_score(preds, rank=False)
-        preds_9mer = self.filter_for_9mers(preds)
-        best_9mer = self.minimal_binding_score(preds_9mer)
-        best_9mer_affinity = self.minimal_binding_score(preds_9mer, rank=False)
-        self.mhc_score = self.add_best_epitope_info(best_epi, "%Rank")
-        self.epitope = self.add_best_epitope_info(best_epi, "Peptide")
-        self.allele = self.add_best_epitope_info(best_epi, "HLA")
-        self.directed_to_TCR = self.mutation_in_loop(props_dict, best_epi)
-        self.affinity = self.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
-        self.affinity_epitope = self.add_best_epitope_info(best_epi_affinity, "Peptide")
-        self.affinity_allele = self.add_best_epitope_info(best_epi_affinity, "HLA")
-        self.affinity_directed_to_TCR = self.mutation_in_loop(props_dict, best_epi_affinity)
-        self.mhcI_score_9mer = self.add_best_epitope_info(best_9mer, "%Rank")
-        self.mhcI_score_allele_9mer = self.add_best_epitope_info(best_9mer, "HLA")
-        self.mhcI_score_epitope_9mer = self.add_best_epitope_info(best_9mer, "Peptide")
-        self.mhcI_affinity_9mer = self.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
-        self.mhcI_affinity_allele_9mer = self.add_best_epitope_info(best_9mer_affinity, "HLA")
-        self.mhcI_affinity_epitope_9mer = self.add_best_epitope_info(best_9mer_affinity, "Peptide")
-        print("mismatch")
-        print(self.Hamming_check_0_or_1("lsdcd", "lddcd"))
-        print(self.Hamming_check_0_or_1("lddcd", "lddcd"))
 
 
 # if __name__ == '__main__':

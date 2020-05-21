@@ -44,18 +44,16 @@ class DissimilarityCalculator(object):
         os.remove(outfile)
         return x_dis
 
-    def calculate_dissimilarity(self, props, fastafile, references, filter_binder=False):
+    def calculate_dissimilarity(self, mhc_mutation, mhc_affinity, fastafile, references, filter_binder=False):
         '''wrapper for dissimilarity calculation
         '''
-        mhc_mut = props["best_affinity_epitope_netmhcpan4"]
-        mhc_aff = props["best_affinity_netmhcpan4"]
         with open(fastafile, "w") as f:
             id = ">M_1"
             f.write(id + "\n")
-            f.write(mhc_mut + "\n")
+            f.write(mhc_mutation + "\n")
         dissim = self._calc_dissimilarity(fastafile, id, references)
         if filter_binder:
-            if float(mhc_aff) < 500:
+            if float(mhc_affinity) < 500:
                 sc = str(dissim) if dissim != "NA" else "0"
             else:
                 sc = "NA"
