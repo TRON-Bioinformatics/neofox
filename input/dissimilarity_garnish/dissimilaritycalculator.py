@@ -2,8 +2,8 @@
 
 import os
 import os.path
-import tempfile
 
+from input.helpers import intermediate_files
 from input.neoantigen_fitness.Aligner_modified import Aligner
 
 
@@ -21,8 +21,7 @@ class DissimilarityCalculator(object):
         '''
         This function determines the dissimilarity to self-proteome of epitopes as described in Richman et al
         '''
-        outfile_file = tempfile.NamedTemporaryFile(prefix="tmp_prot_", suffix=".xml", delete=False)
-        outfile = outfile_file.name
+        outfile = intermediate_files.create_temp_file(prefix="tmp_prot_", suffix=".xml")
         self.runner.run_command(cmd=[
             self.configuration.blastp,
             "-gapopen", "11",

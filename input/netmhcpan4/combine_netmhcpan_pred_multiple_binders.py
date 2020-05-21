@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import tempfile
-
 from logzero import logger
 
 import input.netmhcpan4.multiple_binders as multiple_binders
 import input.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
-from input.helpers import properties_manager
+from input.helpers import properties_manager, intermediate_files
 
 
 class BestAndMultipleBinder:
@@ -84,14 +82,12 @@ class BestAndMultipleBinder:
         ### PREDICTION FOR MUTATED SEQUENCE
         xmer_mut = epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         logger.info("MUT seq: {}".format(xmer_mut))
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_singleseq_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
-        tmp_prediction = tmp_prediction_file.name
+        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
         np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        np.generate_fasta(epi_dict, tmp_fasta, mut=True)
+        tmp_fasta = intermediate_files.generate_fasta(sequences=[epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]],
+                                          prefix="tmp_singleseq_")
         alleles = properties_manager.get_hla_allele(epi_dict, patient_hlaI)
         # print alleles
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
@@ -142,14 +138,12 @@ class BestAndMultipleBinder:
         self.mhcI_affinity_epitope_9mer = np.add_best_epitope_info(best_9mer_affinity, "Peptide")
 
         ### PREDICTION FOR WT SEQUENCE
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_singleseq_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
-        tmp_prediction = tmp_prediction_file.name
+        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
         np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        np.generate_fasta(epi_dict, tmp_fasta, mut=False)
+        tmp_fasta = intermediate_files.generate_fasta(sequences=[epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]],
+                                          prefix="tmp_singleseq_")
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
         # multiple binding

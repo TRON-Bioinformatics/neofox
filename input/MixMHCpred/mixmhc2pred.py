@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import tempfile
-
-from input.helpers import properties_manager
+from input.helpers import properties_manager, intermediate_files
 
 
 class MixMhc2Pred:
@@ -86,17 +84,6 @@ class MixMhc2Pred:
         list_peptides_fil = []
         [list_peptides_fil.append(x) for x in list_peptides if not x == ""]
         return list_peptides_fil
-
-    def generate_fasta(self, seqs, tmpfile):
-        ''' Writes seqs given in seqs list into fasta file
-        '''
-        counter = 0
-        with open(tmpfile, "w") as f:
-            for seq in seqs:
-                id = "".join([">seq", str(counter)])
-                f.write(id + "\n")
-                f.write(seq + "\n")
-                counter += 1
 
     def prepare_dq_dp(self, list_alleles):
         ''' returns patient DQ/DP alleles that are relevant for prediction
@@ -269,13 +256,12 @@ class MixMhc2Pred:
     def main(self, props_dict, dict_patient_hlaII):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhc2pred", suffix=".txt", delete=False)
-        tmp_prediction = tmp_prediction_file.name
-        # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al. Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes. Nat. Biotech. (2019).
+        tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
+        # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al.
+        # Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
+        # Nat. Biotech. (2019).
         seqs = self.generate_nmers(props_dict, [13, 14, 15, 16, 17, 18])
-        self.generate_fasta(seqs, tmp_fasta)
+        tmp_fasta = intermediate_files.generate_fasta(seqs, prefix="tmp_sequence_")
         alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hlaII)
         # try except statement to prevent stop of input for mps shorter < 13aa
         try:
@@ -301,11 +287,8 @@ class MixMhc2Pred:
             # prediction of for wt epitope that correspond to best epitope
             wt = self.extract_WT_for_best(props_dict, self.best_peptide)
             wt_list = [wt]
-            tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_wt_", suffix=".fasta", delete=False)
-            tmp_fasta = tmp_fasta_file.name
-            tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhc2pred_wt_", suffix=".txt", delete=False)
-            tmp_prediction = tmp_prediction_file.name
-            self.generate_fasta(wt_list, tmp_fasta)
+            tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred_wt_", suffix=".txt")
+            tmp_fasta = intermediate_files.generate_fasta(wt_list, prefix="tmp_sequence_wt_")
             self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, wt=True)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")

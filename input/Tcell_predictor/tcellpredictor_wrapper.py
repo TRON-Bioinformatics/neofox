@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-import tempfile
-
 from logzero import logger
 
 import input.Tcell_predictor.prediction as prediction
+from input.helpers import intermediate_files
 
 
 class TcellPrediction:
@@ -74,10 +73,8 @@ class TcellPrediction:
     def calculate_tcell_predictor_score(self, gene, substitution, epitope, score, threshold):
         ''' returns Tcell_predictor score given mps in dictionary format
                 '''
-        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicIN_", suffix=".txt", delete=False)
-        tmp_tcellPredIN = tmp_tcellPredIN_file.name
-        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicOUT_", suffix=".txt", delete=False)
-        tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
+        tmp_tcellPredIN = intermediate_files.create_temp_file(prefix="tmp_TcellPredicIN_", suffix=".txt")
+        tmp_tcellPredOUT = intermediate_files.create_temp_file(prefix="tmp_TcellPredicOUT_", suffix=".txt")
         return self._wrapper_tcellpredictor(
             gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold,
             tmpfile_in=tmp_tcellPredIN, tmpfile_out=tmp_tcellPredOUT)

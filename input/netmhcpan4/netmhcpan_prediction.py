@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import tempfile
-
-from input.helpers import data_import, properties_manager
+from input.helpers import data_import, properties_manager, intermediate_files
 
 
 class NetMhcPanBestPrediction:
@@ -33,18 +31,6 @@ class NetMhcPanBestPrediction:
         '''checks if mhc prediction is possible for given hla allele
         '''
         return allele in set_available_mhc
-
-    def generate_fasta(self, props, tmpfile, mut=True):
-        ''' Writes 27mer to fasta file.
-        '''
-        if mut:
-            seq = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        elif not mut:
-            seq = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        id = ">seq1"
-        with open(tmpfile, "w") as f:
-            f.write(id + "\n")
-            f.write(seq + "\n")
 
     def mhc_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
         ''' Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
@@ -239,13 +225,10 @@ class NetMhcPanBestPrediction:
     def main(self, props_dict, set_available_mhc, dict_patient_hla):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_singleseq_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        print(tmp_fasta)
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
-        tmp_prediction = tmp_prediction_file.name
+        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         print(tmp_prediction)
-        self.generate_fasta(props_dict, tmp_fasta)
+        tmp_fasta = intermediate_files.generate_fasta(sequences=[props_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]],
+                                          prefix="tmp_singleseq_")
         alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
         self.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)

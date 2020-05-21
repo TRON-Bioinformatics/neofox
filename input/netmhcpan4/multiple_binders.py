@@ -166,35 +166,6 @@ class MultipleBinding:
                 number_binders += 1
         return str(number_binders)
 
-    def main(self, epi_dict, alleles, set_available_mhc):
-        '''takes epitope dictionary as input and returns several scores that describe multiple binding.
-        '''
-        # TODO: check if all of this object creation can be avoided
-        NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration).generate_fasta(epi_dict)
-        alleles = NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration).get_hla_alleles(epi_dict, patient_hlaI)
-        NetMhcPanBestPrediction(
-            runner=self.runner, configuration=self.configuration).mhc_prediction(alleles, set_available_mhc)
-        epi_dict["Position_Xmer_Seq"] = NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration).mut_position_xmer_seq(epi_dict)
-        preds = NetMhcIIPanBestPrediction(
-            runner=self.runner, configuration=self.configuration).filter_binding_predictions(epi_dict)
-        list_tups = self.generate_epi_tuple(preds)
-        self.epitope_scores = "/".join([tup[0] for tup in list_tups])
-        self.epitope_affinities = "/".join([tup[1] for tup in list_tups])
-        self.epitope_seqs = "/".join([tup[2] for tup in list_tups])
-        self.epitope_alleles = "/".join([tup[3] for tup in list_tups])
-        top10 = self.extract_top10_epis(list_tups)
-        best_per_alelle = self.extract_best_epi_per_alelle(list_tups, alleles)
-        all = self.scores_to_list(list_tups)
-        all_affinities = self.affinities_to_list(list_tups)
-        top10 = self.scores_to_list(top10)
-        self.score_top10 = self.wrapper_mean_calculation(top10)
-        best_per_alelle = self.scores_to_list(best_per_alelle)
-        self.score_all_epitopes = self.wrapper_mean_calculation(all)
-        self.score_best_per_alelle = self.wrapper_mean_calculation(best_per_alelle)
-        self.number_strong_binders = self.determine_number_of_binders(all, 0.5)
-        self.number_weak_binders = self.determine_number_of_binders(all, 2)
-        self.generator_rate = self.determine_number_of_binders(list_scores=all_affinities, threshold=50)
-
 
 # if __name__ == '__main__':
 #

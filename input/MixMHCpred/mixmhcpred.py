@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-import tempfile
-
 from logzero import logger
 
-from input.helpers import properties_manager
+from input.helpers import properties_manager, intermediate_files
 
 
 class MixMHCpred:
@@ -67,17 +65,6 @@ class MixMHCpred:
             for s, e in zip(starts, ends):
                 list_peptides.append(long_seq[s:e])
         return list_peptides
-
-    def generate_fasta(self, seqs, tmpfile):
-        ''' Writes seqs given in seqs list into fasta file
-        '''
-        counter = 0
-        with open(tmpfile, "w") as f:
-            for seq in seqs:
-                id = "".join([">seq", str(counter)])
-                f.write(id + "\n")
-                f.write(seq + "\n")
-                counter += 1
 
     def mixmhcprediction(self, hla_alleles, tmpfasta, outtmp):
         ''' Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
@@ -204,12 +191,9 @@ class MixMHCpred:
     def main(self, props_dict, dict_patient_hla):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhcpred", suffix=".txt", delete=False)
-        tmp_prediction = tmp_prediction_file.name
+        tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred", suffix=".txt")
         seqs = self.generate_nmers(props_dict, [8, 9, 10, 11])
-        self.generate_fasta(seqs, tmp_fasta)
+        tmp_fasta = intermediate_files.generate_fasta(seqs, prefix="tmp_sequence_")
         alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
         self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
         pred = self.read_mixmhcpred(tmp_prediction)
@@ -231,11 +215,8 @@ class MixMHCpred:
             # prediction of for wt epitope that correspond to best epitope
             wt = self.extract_WT_for_best(props_dict, self.best_peptide)
             wt_list = [wt]
-            tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_wt_", suffix=".fasta", delete=False)
-            tmp_fasta = tmp_fasta_file.name
-            tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhcpred_wt_", suffix=".txt", delete=False)
-            tmp_prediction = tmp_prediction_file.name
-            self.generate_fasta(wt_list, tmp_fasta)
+            tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred_wt_", suffix=".txt")
+            tmp_fasta = intermediate_files.generate_fasta(wt_list, prefix="tmp_sequence_wt_")
             self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
             logger.debug(pred_wt)
