@@ -254,7 +254,7 @@ class MixMhc2Pred:
         # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al.
         # Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
         # Nat. Biotech. (2019).
-        seqs = self.generate_nmers(xmer_wt=xmer_wt, xmer_mut=xmer_mut, list_lengths=list[13, 14, 15, 16, 17, 18])
+        seqs = self.generate_nmers(xmer_wt=xmer_wt, xmer_mut=xmer_mut, list_lengths=[13, 14, 15, 16, 17, 18])
         tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
         # try except statement to prevent stop of input for mps shorter < 13aa
         try:
