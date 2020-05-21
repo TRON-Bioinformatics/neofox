@@ -12,6 +12,7 @@ class MixMhc2Pred:
         """
         self.runner = runner
         self.configuration = configuration
+        self.available_alleles = self.load_available_allelles()
         self.all_peptides = "NA"
         self.all_ranks = "NA"
         self.all_alleles = "NA"
@@ -22,6 +23,24 @@ class MixMhc2Pred:
         self.best_score_wt = "NA"
         self.best_rank_wt = "NA"
         self.difference_score_mut_wt = "NA"
+
+    def load_available_allelles(self):
+        """
+        loads file with available hla alllels for MixMHC2pred prediction, returns set
+        :return:
+        """
+        path_to_HLAII_file = self.configuration.mix_mhc2_pred_alleles_list
+        avail_alleles = []
+        with open(path_to_HLAII_file) as f:
+            for line in f:
+                line = line.rstrip().lstrip()
+                if line:
+                    if line.startswith(("L", "A")):
+                        continue
+                    line1 = line.split()[0]
+                    if line1 is not None:
+                        avail_alleles.append(line1)
+        return avail_alleles
 
     def mut_position_xmer_seq(self, props):
         '''returns position of mutation in xmer sequence
@@ -89,17 +108,17 @@ class MixMhc2Pred:
                 patientid = props["patient.x"]
         return hla_patient_dict[patientid]
 
-    def prepare_dq_dp(self, list_alleles, avail_hlaII):
+    def prepare_dq_dp(self, list_alleles):
         ''' returns patient DQ/DP alleles that are relevant for prediction
         '''
         list_alleles_pairs = ["__".join([p1, p2]) for p1 in list_alleles for p2 in list_alleles if p1 != p2]
         list_alleles_triplets = ["__".join([p1, p2, p3]) for p1 in list_alleles for p2 in list_alleles for p3 in
                                  list_alleles if p1 != p2 and p1 != p3 and p2 != p3]
         list_alleles_all = list_alleles_pairs + list_alleles_triplets
-        alleles4pred = [allele for allele in list_alleles_all if allele in avail_hlaII]
+        alleles4pred = [allele for allele in list_alleles_all if allele in self.available_alleles]
         return (alleles4pred)
 
-    def hlaIIallels2prediction(self, hla_alleles, avail_hlaII):
+    def hlaIIallels2prediction(self, hla_alleles):
         ''' prepares list of hla alleles for prediction
         '''
         allels_for_prediction = []
@@ -110,24 +129,24 @@ class MixMhc2Pred:
             # print allele
             allele = allele.replace("*", "_").replace(":", "_").replace("HLA-", "")
             if allele.startswith("DR"):
-                if allele in avail_hlaII:
+                if allele in self.available_alleles:
                     allels_for_prediction.append(allele)
             elif allele.startswith("DP"):
                 alleles_dp.append(allele)
             elif allele.startswith("DQ"):
                 alleles_dq.append(allele)
-        alleles_dp4pred = self.prepare_dq_dp(alleles_dp, avail_hlaII)
-        alleles_dq4pred = self.prepare_dq_dp(alleles_dq, avail_hlaII)
+        alleles_dp4pred = self.prepare_dq_dp(alleles_dp)
+        alleles_dq4pred = self.prepare_dq_dp(alleles_dq)
         allels_for_prediction = allels_for_prediction + alleles_dq4pred + alleles_dp4pred
         hla_allele = " ".join(allels_for_prediction)
         # print hla_allele
         return hla_allele
 
-    def mixmhc2prediction(self, hla_alleles, tmpfasta, outtmp, avail_hlaII, wt=False):
+    def mixmhc2prediction(self, hla_alleles, tmpfasta, outtmp, wt=False):
         ''' Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         '''
         if not wt:
-            hla_allele = self.hlaIIallels2prediction(hla_alleles, avail_hlaII)
+            hla_allele = self.hlaIIallels2prediction(hla_alleles)
         elif wt:
             # use best allele from mutated seq prediction
             hla_allele = hla_alleles[0]
@@ -257,7 +276,7 @@ class MixMhc2Pred:
                         avail_alleles.append(line1)
         return avail_alleles
 
-    def main(self, props_dict, dict_patient_hlaII, list_avail_hlaII):
+    def main(self, props_dict, dict_patient_hlaII):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_", suffix=".fasta", delete=False)
@@ -270,7 +289,7 @@ class MixMhc2Pred:
         alleles = self.get_hla_allels(props_dict, dict_patient_hlaII)
         # try except statement to prevent stop of input for mps shorter < 13aa
         try:
-            self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction, list_avail_hlaII)
+            self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction)
         except:
             pass
         try:
@@ -297,7 +316,7 @@ class MixMhc2Pred:
             tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhc2pred_wt_", suffix=".txt", delete=False)
             tmp_prediction = tmp_prediction_file.name
             self.generate_fasta(wt_list, tmp_fasta)
-            self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, list_avail_hlaII, wt=True)
+            self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, wt=True)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
             self.best_rank_wt = self.extract_WT_info(pred_wt, "%Rank")
