@@ -8,7 +8,7 @@ from input import FeatureLiterature
 from input import MHC_I, MHC_II
 from input.MixMHCpred.mixmhcpred import MixMHCpred
 from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from input.Tcell_predictor.tcellpredictor_wrapper import Tcellprediction
+from input.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 from input.helpers import properties_manager
 from input.neoag.neoag_gbm_model import NeoagCalculator
@@ -40,7 +40,7 @@ class Epitope:
         self.predpresentation2 = MixMhc2Pred(runner=runner, configuration=configuration)
         self.pred = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
-        self.tcellpredict = Tcellprediction(references=self.references)
+        self.tcell_predictor = TcellPrediction(references=self.references)
 
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
@@ -67,6 +67,8 @@ class Epitope:
             properties=self.properties, mhc=MHC_I)
         wild_type_mhcii, mutation_mhcii = properties_manager.get_wild_type_and_mutations(
             properties=self.properties, mhc=MHC_II)
+        mutated_aminoacid = properties_manager.get_mutation_aminoacid()
+        gene = properties_manager.get_gene(properties=self.properties)
 
         self.add_features(self_similarity.position_of_mutation_epitope(
             wild_type=wild_type_mhci, mutation=mutation_mhci), "pos_MUT_MHCI")
@@ -84,18 +86,18 @@ class Epitope:
                           "Expression_Mutated_Transcript_tumor_content")
 
         # differential expression
-        self.add_features(differential_expression.add_rna_reference(self.properties, ref_dat, 0), "mean_ref_expression")
-        self.add_features(differential_expression.add_rna_reference(self.properties, ref_dat, 1), "sd_ref_expression")
-        self.add_features(differential_expression.add_rna_reference(self.properties, ref_dat, 2), "sum_ref_expression")
+        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 0), "mean_ref_expression")
+        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 1), "sd_ref_expression")
+        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 2), "sum_ref_expression")
         self.add_features(differential_expression.fold_change(self.properties), "log2_fc_tumour_ref")
         self.add_features(differential_expression.percentile_calc(self.properties), "percentile_tumour_ref")
         self.add_features(differential_expression.pepper_calc(self.properties), "DE_pepper")
         # amino acid frequency
         self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "mut"), "MUT_AA")
         self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "wt"), "WT_AA")
-        self.add_features(freq_score.freq_aa(self.properties, aa_freq_dict), "Frequency_mutated_AA")
-        self.add_features(freq_score.freq_prod_4mer(self.properties, aa_freq_dict), "Product_Frequency_4mer")
-        self.add_features(freq_score.freq_4mer(self.properties, nmer_freq_dict), "Frequency_of_4mer")
+        self.add_features(freq_score.freq_aa(mutated_aminoacid=mutated_aminoacid, dict_freq=aa_freq_dict), "Frequency_mutated_AA")
+        self.add_features(freq_score.freq_prod_4mer(mutation=mutation_mhci, dict_freq=aa_freq_dict), "Product_Frequency_4mer")
+        self.add_features(freq_score.freq_4mer(mutation=mutation_mhci, dict_freq=nmer_freq_dict), "Frequency_of_4mer")
         # amino acid index
         for k in aaindex1_dict:
             z = FeatureLiterature.add_aa_index1(self.properties, "wt", k, aaindex1_dict[k])
@@ -240,13 +242,14 @@ class Epitope:
         # neoantigen fitness
         tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
         tmp_fasta = tmp_fasta_file.name
+
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb),
+                mutation=mutation_mhci, fastafile=tmp_fasta, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI")
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_II, fastafile=tmp_fasta, iedb=self.references.iedb),
+                mutation=mutation_mhcii, fastafile=tmp_fasta, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcII")
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, MHC_I), "Amplitude_mhcI")
@@ -258,9 +261,18 @@ class Epitope:
             self.properties, MHC_II), "Recognition_Potential_mhcII")
 
         # T cell predictor
-        self.tcellpredict.main(self.properties)
-        self.add_features(self.tcellpredict.TcellPrdictionScore, "Tcell_predictor_score")
-        self.add_features(self.tcellpredict.TcellPrdictionScore_9merPred, "Tcell_predictor_score_9mersPredict")
+        substitution = properties_manager.get_substitution(properties=self.properties)
+        epitope = self.properties["MHC_I_epitope_.best_prediction."]
+        score = self.properties["MHC_I_score_.best_prediction."]
+        self.add_features(self.tcell_predictor.calculate_tcell_predictor_score(
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=2),
+            "Tcell_predictor_score")
+
+        epitope = self.properties["best_affinity_epitope_netmhcpan4_9mer"]
+        score = self.properties["best_affinity_netmhcpan4_9mer"]
+        self.add_features(self.tcell_predictor.calculate_tcell_predictor_score(
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=500),
+            "Tcell_predictor_score_9mersPredict")
 
         # DAI with affinity values
         self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=True),
@@ -286,11 +298,11 @@ class Epitope:
             "Amplitude_mhcI_affinity_9mer_netmhcpan4")
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb, nine_mer=True),
+                mutation=mutation_netmhcpan4_9mer, fastafile=tmp_fasta, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI_9mer")
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                props=self.properties, mhc=MHC_I, fastafile=tmp_fasta, iedb=self.references.iedb, affinity=True),
+                mutation=mutation_netmhcpan4, fastafile=tmp_fasta, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI_affinity_nmers")
 
         # recogntion potential with amplitude by affinity and netmhcpan4 score

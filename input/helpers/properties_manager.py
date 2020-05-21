@@ -8,6 +8,20 @@ PATIENT_ID2 = "patient"
 PATIENT_ID = "patient.id"
 
 
+def get_gene(properties):
+    if "gene.x" in properties:
+        gene = properties["gene.x"]
+    else:
+        gene = properties["gene"]
+    return gene
+
+def get_substitution(properties):
+    return properties["substitution"]
+
+def get_mutation_aminoacid(properties):
+    return properties["MUT_AA"]
+
+
 def get_wild_type_and_mutations(properties, mhc):
     if mhc == MHC_I:
         mutation = properties["MHC_I_epitope_.best_prediction."]
