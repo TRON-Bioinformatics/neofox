@@ -76,23 +76,22 @@ class BestAndMultipleBinder:
         else:
             return ["NA", "NA", "NA"]
 
-    def main(self, epi_dict, patient_hlaI, set_available_mhc):
-        '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
-        '''
+    def main(self, xmer_wt, xmer_mut, alleles, set_available_mhc):
+        """
+        predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
+        """
         ### PREDICTION FOR MUTATED SEQUENCE
-        xmer_mut = epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         logger.info("MUT seq: {}".format(xmer_mut))
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
         np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        tmp_fasta = intermediate_files.generate_fasta(sequences=[epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]],
-                                          prefix="tmp_singleseq_")
-        alleles = properties_manager.get_hla_allele(epi_dict, patient_hlaI)
+        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[xmer_mut], prefix="tmp_singleseq_")
         # print alleles
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
-        preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+
+        position_xmer = np.mut_position_xmer_seq(xmer_mut=xmer_mut, xmer_wt=xmer_wt)
+        preds = np.filter_binding_predictions(position_xmer=position_xmer, tmppred=tmp_prediction)
 
         # multiple binding
         list_tups = mb.generate_epi_tuple(preds)
@@ -118,12 +117,13 @@ class BestAndMultipleBinder:
         self.best4_mhc_score = np.add_best_epitope_info(best_epi, "%Rank")
         self.best4_mhc_epitope = np.add_best_epitope_info(best_epi, "Peptide")
         self.best4_mhc_allele = np.add_best_epitope_info(best_epi, "HLA")
-        self.directed_to_TCR = np.mutation_in_loop(epi_dict, best_epi)
+        self.directed_to_TCR = np.mutation_in_loop(position_xmer=position_xmer, epitope_tuple=best_epi)
         best_epi_affinity = np.minimal_binding_score(preds, rank=False)
         self.best4_affinity = np.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
         self.best4_affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Peptide")
         self.best4_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "HLA")
-        self.best4_affinity_directed_to_TCR = np.mutation_in_loop(epi_dict, best_epi_affinity)
+        self.best4_affinity_directed_to_TCR = np.mutation_in_loop(
+            position_xmer=position_xmer, epitope_tuple=best_epi_affinity)
         # multiple binding based on affinity
         self.generator_rate = mb.determine_number_of_binders(list_scores=all_affinities, threshold=50)
         # best predicted epitope of length 9
@@ -142,10 +142,10 @@ class BestAndMultipleBinder:
         logger.debug(tmp_prediction)
         np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        tmp_fasta = intermediate_files.generate_fasta(sequences=[epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]],
-                                          prefix="tmp_singleseq_")
+        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[xmer_wt],
+                                                         prefix="tmp_singleseq_")
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+        preds = np.filter_binding_predictions(position_xmer=position_xmer, tmppred=tmp_prediction)
         # multiple binding
         list_tups = mb.generate_epi_tuple(preds)
         self.MHC_epitope_scores_WT = "/".join([tup[0] for tup in list_tups])

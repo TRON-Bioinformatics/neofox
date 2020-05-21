@@ -6,7 +6,7 @@ def create_temp_file(prefix=None, suffix=None, dir=None):
     return temp_file.name
 
 
-def generate_fasta(sequences, prefix=None):
+def create_temp_fasta(sequences, prefix=None):
     """
     Writes seqs given in seqs list into fasta file
     """

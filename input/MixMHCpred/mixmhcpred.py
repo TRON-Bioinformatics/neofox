@@ -27,11 +27,9 @@ class MixMHCpred:
         self.best_rank_wt = "NA"
         self.difference_score_mut_wt = "NA"
 
-    def mut_position_xmer_seq(self, props):
+    def mut_position_xmer_seq(self, xmer_wt, xmer_mut):
         '''returns position of mutation in xmer sequence
         '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         p1 = -1
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
@@ -46,14 +44,11 @@ class MixMHCpred:
                     p1 += 1
         return str(p1)
 
-    def generate_nmers(self, props, list_lengths, mut=True):
+    def generate_nmers(self, xmer_wt, xmer_mut, list_lengths):
         ''' generates peptides covering mutation of all lengts that are provided. Returns peptides as list
         '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         list_peptides = []
-        pos_mut = int(self.mut_position_xmer_seq(props))
-        long_seq = xmer_mut if mut else xmer_wt
+        pos_mut = int(self.mut_position_xmer_seq(xmer_wt=xmer_wt, xmer_mut=xmer_mut))
         for l in list_lengths:
             l = int(l)
             start_first = pos_mut - (l)
@@ -63,7 +58,7 @@ class MixMHCpred:
             ends = []
             [ends.append(int(s + (l))) for s in starts]
             for s, e in zip(starts, ends):
-                list_peptides.append(long_seq[s:e])
+                list_peptides.append(xmer_mut[s:e])
         return list_peptides
 
     def mixmhcprediction(self, hla_alleles, tmpfasta, outtmp):
@@ -159,11 +154,9 @@ class MixMHCpred:
         except IndexError:
             return "NA"
 
-    def extract_WT_for_best(self, props, best_mut_seq):
+    def extract_WT_for_best(self, xmer_wt, xmer_mut, best_mut_seq):
         '''extracts the corresponding WT epitope for best predicted mutated epitope
         '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         start = xmer_mut.find(best_mut_seq)
         l = len(best_mut_seq)
         wt_epi = xmer_wt[start:(start + l)]
@@ -188,13 +181,12 @@ class MixMHCpred:
         except ValueError:
             return "NA"
 
-    def main(self, props_dict, dict_patient_hla):
+    def main(self, xmer_wt, xmer_mut, alleles):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred", suffix=".txt")
-        seqs = self.generate_nmers(props_dict, [8, 9, 10, 11])
-        tmp_fasta = intermediate_files.generate_fasta(seqs, prefix="tmp_sequence_")
-        alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
+        seqs = self.generate_nmers(xmer_wt=xmer_wt, xmer_mut=xmer_mut, list_lengths=[8, 9, 10, 11])
+        tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
         self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
         pred = self.read_mixmhcpred(tmp_prediction)
         try:
@@ -213,10 +205,10 @@ class MixMHCpred:
             self.all_ranks = "|".join(pred_all["%Rank_bestAllele"])
             self.all_alleles = "|".join(pred_all["BestAllele"])
             # prediction of for wt epitope that correspond to best epitope
-            wt = self.extract_WT_for_best(props_dict, self.best_peptide)
+            wt = self.extract_WT_for_best(xmer_wt=xmer_wt, xmer_mut=xmer_mut, best_mut_seq=self.best_peptide)
             wt_list = [wt]
             tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred_wt_", suffix=".txt")
-            tmp_fasta = intermediate_files.generate_fasta(wt_list, prefix="tmp_sequence_wt_")
+            tmp_fasta = intermediate_files.create_temp_fasta(wt_list, prefix="tmp_sequence_wt_")
             self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
             logger.debug(pred_wt)

@@ -220,7 +220,7 @@ class NetMhcIIPanBestPrediction:
         '''
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         sequence = props_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        tmp_fasta = intermediate_files.generate_fasta([sequence], prefix="tmp_singleseq_")
+        tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
         alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
         self.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         sequence_reference = props_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
