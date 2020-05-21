@@ -76,7 +76,10 @@ class Epitope:
             wild_type=wild_type_mhci, mutation=mutation_mhci), "pos_MUT_MHCI")
         self.add_features(self_similarity.position_of_mutation_epitope(
             wild_type=wild_type_mhcii, mutation=mutation_mhcii), "pos_MUT_MHCII")
-        self.add_features(self_similarity.position_in_anchor_position(self.properties), "Mutation_in_anchor")
+        self.add_features(self_similarity.position_in_anchor_position(
+            position_mhci=self.properties["pos_MUT_MHCI"],
+            peptide_length=self.properties["MHC_I_peptide_length_.best_prediction."]
+        ), "Mutation_in_anchor")
 
         self.add_differential_agretopicity_index_features(mutation_mhci, mutation_mhcii, wild_type_mhci,
                                                           wild_type_mhcii)
@@ -116,14 +119,14 @@ class Epitope:
         self.add_features(self.pred.mhcI_affinity_epitope_9mer_WT, "best_affinity_epitope_netmhcpan4_9mer_WT")
 
         # multiplex representation
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_I, threshold="1"),
-                          "Diff_numb_epis_<1")
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_I, threshold="2"),
-                          "Diff_numb_epis_<2")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_I, threshold="1"),
-                          "Ratio_numb_epis_<1")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_I, threshold="2"),
-                          "Ratio_numb_epis_<2")
+        for threshold in [1, 2]:
+            num_mutation = self.properties["MB_number_pep_MHCscore<{}".format(threshold)]
+            num_wild_type = self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)]
+            self.add_features(FeatureLiterature.diff_number_binders(
+                num_mutation=num_mutation,num_wild_type=num_wild_type), "Diff_numb_epis_<{}".format(threshold))
+            self.add_features(FeatureLiterature.ratio_number_binders(
+                num_mutation=num_mutation, num_wild_type=num_wild_type), "Ratio_numb_epis_<{}".format(threshold))
+
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             self.properties, MHC_I, multiple_binding=True), "Amplitude_mhcI_MB")
 
@@ -138,10 +141,14 @@ class Epitope:
             properties=self.properties, nine_mer=True)
         self.add_features(self_similarity.position_of_mutation_epitope(
             wild_type=wild_type_netmhcpan4_9mer, mutation=mutation_netmhcpan4_9mer),"pos_MUT_MHCI_affinity_epi_9mer")
-        self.add_features(self_similarity.position_in_anchor_position(self.properties, netMHCpan=True),
-                          "Mutation_in_anchor_netmhcpan")
-        self.add_features(self_similarity.position_in_anchor_position(self.properties, nine_mer=True),
-                          "Mutation_in_anchor_netmhcpan_9mer")
+        self.add_features(self_similarity.position_in_anchor_position(
+            position_mhci=self.properties["pos_MUT_MHCI_affinity_epi"],
+            peptide_length=self.properties["best_epitope_netmhcpan4"]),
+            "Mutation_in_anchor_netmhcpan")
+        self.add_features(self_similarity.position_in_anchor_position(
+            position_mhci=self.properties["pos_MUT_MHCI_affinity_epi_9mer"],
+            peptide_length=9),
+            "Mutation_in_anchor_netmhcpan_9mer")
 
         self.add_self_similarity_features(mutation_mhci, mutation_mhcii, wild_type_mhci, wild_type_mhcii)
 
@@ -194,10 +201,36 @@ class Epitope:
         # recogntion potential with amplitude by affinity and only 9mers considered --> value as published!!
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
             self.properties, MHC_I, nine_mer=True), "Recognition_Potential_mhcI_9mer_affinity")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_I, category="CDN"), "CDN_mhcI")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_II, category="CDN"), "CDN_mhcII")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_I, category="ADN"), "ADN_mhcI")
-        self.add_features(FeatureLiterature.classify_adn_cdn(self.properties, mhc=MHC_II, category="ADN"), "ADN_mhcII")
+
+        score_mutation_mhci = self.properties["best_affinity_netmhcpan4"]
+        amplitude_mhci = self.properties["Amplitude_mhcI_affinity"]
+        bdg_cutoff_classical_mhci = 50
+        bdg_cutoff_alternative_mhci = 5000
+        amplitude_cutoff_mhci = 10
+        self.add_features(FeatureLiterature.classify_adn_cdn(
+            score_mutation=score_mutation_mhci, amplitude=amplitude_mhci,
+            bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
+            amplitude_cutoff=amplitude_cutoff_mhci, category="CDN"), "CDN_mhcI")
+
+        score_mutation_mhcii = self.properties["MHC_II_score_.best_prediction."]
+        amplitude_mhcii = self.properties["Amplitude_mhcII"]
+        bdg_cutoff_classical_mhcii = 1
+        bdg_cutoff_alternative_mhcii = 4
+        amplitude_cutoff_mhcii = 4
+        self.add_features(FeatureLiterature.classify_adn_cdn(
+            score_mutation=score_mutation_mhcii, amplitude=amplitude_mhcii,
+            bdg_cutoff_classical=bdg_cutoff_classical_mhcii, bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
+            amplitude_cutoff=amplitude_cutoff_mhcii, category="CDN"), "CDN_mhcII")
+
+        self.add_features(FeatureLiterature.classify_adn_cdn(
+            score_mutation=score_mutation_mhci, amplitude=amplitude_mhci,
+            bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
+            amplitude_cutoff=amplitude_cutoff_mhci,
+            category="ADN"), "ADN_mhcI")
+        self.add_features(FeatureLiterature.classify_adn_cdn(
+            score_mutation=score_mutation_mhcii, amplitude=amplitude_mhcii,
+            bdg_cutoff_classical=bdg_cutoff_classical_mhcii, bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
+            amplitude_cutoff=amplitude_cutoff_mhcii, category="ADN"), "ADN_mhcII")
 
         # netMHCIIpan predictions
         self.predII.main(self.properties, patient_hlaII, set_available_mhcII)
@@ -279,14 +312,13 @@ class Epitope:
             "DAI_mhcII_MB")
 
         # difference number of binders
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_II, threshold="2"),
-                          "Diff_numb_epis_mhcII<2")
-        self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_II, threshold="10"),
-                          "Diff_numb_epis_mhcII<10")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_II, threshold="2"),
-                          "Ratio_numb_epis_mhcII<2")
-        self.add_features(FeatureLiterature.ratio_number_binders(self.properties, mhc=MHC_II, threshold="10"),
-                          "Ratio_numb_epis_mhcII<10")
+        for threshold in [2, 10]:
+            num_mutation = self.properties["MB_number_pep_MHCIIscore<{}".format(threshold)]
+            num_wild_type = self.properties["MB_number_pep_MHCIIscore<{}_WT".format(threshold)]
+            self.add_features(FeatureLiterature.diff_number_binders(
+                num_mutation=num_mutation,num_wild_type=num_wild_type), "Diff_numb_epis_mhcII<{}".format(threshold))
+            self.add_features(FeatureLiterature.ratio_number_binders(
+                num_mutation=num_mutation,num_wild_type=num_wild_type), "Ratio_numb_epis_mhcII<{}".format(threshold))
 
         # amplitude affinity mhc II
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
@@ -303,10 +335,16 @@ class Epitope:
         logger.info("Amplitude mhc II: {}".format(self.properties["Amplitude_mhcII_rank_netmhcpan4"]))
 
         # priority score
-        self.add_features(FeatureLiterature.number_of_mismatches(self.properties, MHC_I), "Number_of_mismatches_mhcI")
-        self.add_features(FeatureLiterature.number_of_mismatches(self.properties, MHC_II), "Number_of_mismatches_mhcII")
+        self.add_features(FeatureLiterature.number_of_mismatches(
+            epitope_wild_type=self.properties["best_epitope_netmhcpan4_WT"],
+            epitope_mutation=self.properties["best_epitope_netmhcpan4"]), "Number_of_mismatches_mhcI")
+        self.add_features(FeatureLiterature.number_of_mismatches(
+            epitope_wild_type=self.properties["best_epitope_netmhcIIpan_WT"],
+            epitope_mutation=self.properties["best_epitope_netmhcIIpan"]), "Number_of_mismatches_mhcII")
         if "mutation_found_in_proteome" not in self.properties:
-            self.add_features(FeatureLiterature.match_in_proteome(self.properties, db), "mutation_found_in_proteome")
+            self.add_features(FeatureLiterature.match_in_proteome(
+                sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
+                "mutation_found_in_proteome")
         self.add_features(FeatureLiterature.calc_priority_score(self.properties), "Priority_score")
 
         # priority score using multiplexed representation score
@@ -316,11 +354,17 @@ class Epitope:
         self.add_features(self.neoag_calculator.wrapper_neoag(self.properties), "neoag_immunogencity")
 
         # IEDB immunogenicity only for epitopes with affinity < 500 nM (predicted with netMHCpan) --> in publications
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I),
-                          "IEDB_Immunogenicity_mhcI")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_II),
-                          "IEDB_Immunogenicity_mhcII")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(self.properties, MHC_I, affin_filtering=True),
+        mhci_epitope = self.properties["best_affinity_epitope_netmhcpan4"]
+        mhci_allele = self.properties["bestHLA_allele_affinity_netmhcpan4"]
+        mhci_score = self.properties["best_affinity_netmhcpan4"]
+        mhcii_epitope = self.properties["MHC_II_epitope_.best_prediction."]
+        mhcii_allele = self.properties["MHC_II_allele_.best_prediction."]
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
+            epitope=mhci_epitope, mhc_allele=mhci_allele, mhc_score=mhci_score), "IEDB_Immunogenicity_mhcI")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
+            epitope=mhcii_epitope, mhc_allele=mhcii_allele, mhc_score=None), "IEDB_Immunogenicity_mhcII")
+        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
+            epitope=mhci_epitope, mhc_allele=mhci_allele, mhc_score=mhci_score, affin_filtering=True),
                           "IEDB_Immunogenicity_mhcI_affinity_filtered")
 
         self.add_mix_mhc_pred_features(patient_hlaI)
@@ -419,10 +463,19 @@ class Epitope:
                           "Selfsimilarity_mhcI")
         self.add_features(self_similarity.get_self_similarity(
             wild_type=wild_type_mhcii, mutation=mutation_mhcii), "Selfsimilarity_mhcII")
-        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_I), "ImprovedBinding_mhcI")
-        self.add_features(self_similarity.is_improved_binder(self.properties, MHC_II), "ImprovedBinding_mhcII")
-        self.add_features(self_similarity.selfsimilarity_of_conserved_binder_only(self.properties),
-                          "Selfsimilarity_mhcI_conserved_binder")
+        self.add_features(self_similarity.is_improved_binder(
+            score_mutation=self.properties["best%Rank_netmhcpan4"],
+            score_wild_type=self.properties["best%Rank_netmhcpan4_WT"]
+        ), "ImprovedBinding_mhcI")
+        self.add_features(self_similarity.is_improved_binder(
+            # TODO: conversion from float representation needs to be changed
+            score_mutation=self.properties["MHC_II_score_.best_prediction."].replace(",", "."),
+            score_wild_type=self.properties["MHC_II_score_.WT."].replace(",", ".")
+        ), "ImprovedBinding_mhcII")
+        self.add_features(self_similarity.self_similarity_of_conserved_binder_only(
+            has_conserved_binder=self.properties["ImprovedBinding_mhcI"],
+            similarity=self.properties["Selfsimilarity_mhcI"]),
+            "Selfsimilarity_mhcI_conserved_binder")
 
     def add_multiple_binding_features(self):
         # multiplexed representation MUT
@@ -496,22 +549,19 @@ class Epitope:
 
     def add_aminoacid_index_features(self, aaindex1_dict, aaindex2_dict):
         # amino acid index
+        mutation_aminoacid = self.properties["MUT_AA"]
+        wild_type_aminoacid = self.properties["WT_AA"]
         for k in aaindex1_dict:
-            z = FeatureLiterature.add_aa_index1(self.properties, "wt", k, aaindex1_dict[k])
-            self.add_features(z[1], z[0])
-            z = FeatureLiterature.add_aa_index1(self.properties, "mut", k, aaindex1_dict[k])
-            self.add_features(z[1], z[0])
+            self.add_features(aaindex1_dict[k].get(wild_type_aminoacid, "NA"), "{}_{}".format(k, "wt"))
+            self.add_features(aaindex1_dict[k].get(mutation_aminoacid, "NA"), "{}_{}".format(k, "mut"))
         for k in aaindex2_dict:
-            try:
-                z = FeatureLiterature.add_aa_index2(self.properties, k, aaindex2_dict[k])
-                self.add_features(z[1], z[0])
-            except:
-                print(aaindex2_dict[k], wt, mut)
+            self.add_features(aaindex2_dict[k].get(wild_type_aminoacid, {}).get(mutation_aminoacid, "NA"), k)
 
     def add_aminoacid_frequency_features(self, aa_freq_dict, mutated_aminoacid, mutation_mhci, nmer_freq_dict):
         # amino acid frequency
-        self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "mut"), "MUT_AA")
-        self.add_features(FeatureLiterature.wt_mut_aa(self.properties, "wt"), "WT_AA")
+        substitution = self.properties["substitution"]
+        self.add_features(FeatureLiterature.wt_mut_aa(substitution=substitution, mut="mut"), "MUT_AA")
+        self.add_features(FeatureLiterature.wt_mut_aa(substitution=substitution, mut="wt"), "WT_AA")
         self.add_features(freq_score.freq_aa(mutated_aminoacid=mutated_aminoacid, dict_freq=aa_freq_dict),
                           "Frequency_mutated_AA")
         self.add_features(freq_score.freq_prod_4mer(mutation=mutation_mhci, dict_freq=aa_freq_dict),
