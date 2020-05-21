@@ -178,7 +178,7 @@ class BunchEpitopes:
         header.extend(features_names)
         print("\t".join(header))
         for i in range(len(d["mutation"])):
-            z = [d[col][i] for col in header]
+            z = [str(d[col][i]) for col in header]
             print("\t".join(z))
 
     def initialise_properties(self, data, path_to_hla_file, tissue, tumour_content_file):

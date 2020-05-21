@@ -72,7 +72,6 @@ class Epitope:
             properties=self.properties, mhc=MHC_I)
         wild_type_mhcii, mutation_mhcii = properties_manager.get_epitopes(
             properties=self.properties, mhc=MHC_II)
-        mutated_aminoacid = properties_manager.get_mutation_aminoacid()
         gene = properties_manager.get_gene(properties=self.properties)
 
         self.add_features(self_similarity.position_of_mutation_epitope(
@@ -91,7 +90,7 @@ class Epitope:
 
         self.add_differential_expression_features(gene, ref_dat)
 
-        self.add_aminoacid_frequency_features(aa_freq_dict, mutated_aminoacid, mutation_mhci, nmer_freq_dict)
+        self.add_aminoacid_frequency_features(aa_freq_dict, mutation_mhci, nmer_freq_dict)
 
         self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict)
 
@@ -626,10 +625,11 @@ class Epitope:
         for k in aaindex2_dict:
             self.add_features(aaindex2_dict[k].get(wild_type_aminoacid, {}).get(mutation_aminoacid, "NA"), k)
 
-    def add_aminoacid_frequency_features(self, aa_freq_dict, mutated_aminoacid, mutation_mhci, nmer_freq_dict):
+    def add_aminoacid_frequency_features(self, aa_freq_dict, mutation_mhci, nmer_freq_dict):
         # amino acid frequency
         substitution = self.properties["substitution"]
-        self.add_features(FeatureLiterature.wt_mut_aa(substitution=substitution, mut="mut"), "MUT_AA")
+        mutated_aminoacid = FeatureLiterature.wt_mut_aa(substitution=substitution, mut="mut")
+        self.add_features(mutated_aminoacid, "MUT_AA")
         self.add_features(FeatureLiterature.wt_mut_aa(substitution=substitution, mut="wt"), "WT_AA")
         self.add_features(freq_score.freq_aa(mutated_aminoacid=mutated_aminoacid, dict_freq=aa_freq_dict),
                           "Frequency_mutated_AA")
@@ -639,7 +639,7 @@ class Epitope:
 
     def add_expression_features(self, rna_avail, tumour_content):
         # expression
-        transcript_expression = self.properties["Expression_Mutated_Transcript"]
+        transcript_expression = self.properties["transcript_expression"]
         patient_id = properties_manager.get_patient_id(self.properties)
         vaf_tumor = self.properties["VAF_in_tumor"]
         # TODO: Franziska please, review this. I think this is what was meant, but it was not what the code was doing
@@ -664,12 +664,12 @@ class Epitope:
     def add_differential_expression_features(self, gene, ref_dat):
         # differential expression
         expression_tumor = self.properties["transcript_expression"]
-        expression_reference = self.properties["mean_ref_expression"]
-        expression_reference_sum = self.properties["sum_ref_expression"]
-        expression_reference_sd = self.properties["sd_ref_expression"]
-        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 0), "mean_ref_expression")
-        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 1), "sd_ref_expression")
-        self.add_features(differential_expression.add_rna_reference(gene, ref_dat, 2), "sum_ref_expression")
+        expression_reference = differential_expression.add_rna_reference(gene, ref_dat, 0)
+        expression_reference_sum = differential_expression.add_rna_reference(gene, ref_dat, 2)
+        expression_reference_sd = differential_expression.add_rna_reference(gene, ref_dat, 1)
+        self.add_features(expression_reference, "mean_ref_expression")
+        self.add_features(expression_reference_sd, "sd_ref_expression")
+        self.add_features(expression_reference_sum, "sum_ref_expression")
         self.add_features(differential_expression.fold_change(
             expression_tumor=expression_tumor, expression_reference=expression_reference), "log2_fc_tumour_ref")
         self.add_features(differential_expression.percentile_calc(
