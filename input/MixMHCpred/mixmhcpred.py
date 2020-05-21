@@ -4,6 +4,8 @@ import tempfile
 
 from logzero import logger
 
+from input.helpers import properties_manager
+
 
 class MixMHCpred:
 
@@ -76,18 +78,6 @@ class MixMHCpred:
                 f.write(id + "\n")
                 f.write(seq + "\n")
                 counter += 1
-
-    def get_hla_allels(self, props, hla_patient_dict):
-        ''' returns hla allele of patients given in hla_file
-        '''
-        if "patient.id" in props:
-            patientid = props["patient.id"]
-        else:
-            try:
-                patientid = props["patient"]
-            except KeyError:
-                patientid = props["patient.x"]
-        return hla_patient_dict[patientid]
 
     def mixmhcprediction(self, hla_alleles, tmpfasta, outtmp):
         ''' Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
@@ -220,7 +210,7 @@ class MixMHCpred:
         tmp_prediction = tmp_prediction_file.name
         seqs = self.generate_nmers(props_dict, [8, 9, 10, 11])
         self.generate_fasta(seqs, tmp_fasta)
-        alleles = self.get_hla_allels(props_dict, dict_patient_hla)
+        alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
         self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
         pred = self.read_mixmhcpred(tmp_prediction)
         try:

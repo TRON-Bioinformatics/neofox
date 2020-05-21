@@ -2,7 +2,7 @@
 
 import tempfile
 
-from input.helpers import data_import
+from input.helpers import data_import, properties_manager
 
 
 class NetMhcPanBestPrediction:
@@ -45,18 +45,6 @@ class NetMhcPanBestPrediction:
         with open(tmpfile, "w") as f:
             f.write(id + "\n")
             f.write(seq + "\n")
-
-    def get_hla_allels(self, props, hla_patient_dict):
-        ''' returns hla allele of patients given in hla_file
-        '''
-        if "patient.id" in props:
-            patientid = props["patient.id"]
-        else:
-            try:
-                patientid = props["patient"]
-            except KeyError:
-                patientid = props["patient.x"]
-        return hla_patient_dict[patientid]
 
     def mhc_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
         ''' Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
@@ -258,7 +246,7 @@ class NetMhcPanBestPrediction:
         tmp_prediction = tmp_prediction_file.name
         print(tmp_prediction)
         self.generate_fasta(props_dict, tmp_fasta)
-        alleles = self.get_hla_allels(props_dict, dict_patient_hla)
+        alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
         self.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)
         preds = self.filter_binding_predictions(props_dict, tmp_prediction)

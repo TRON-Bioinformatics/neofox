@@ -2,6 +2,8 @@
 
 import tempfile
 
+from input.helpers import properties_manager
+
 
 class MixMhc2Pred:
 
@@ -95,18 +97,6 @@ class MixMhc2Pred:
                 f.write(id + "\n")
                 f.write(seq + "\n")
                 counter += 1
-
-    def get_hla_allels(self, props, hla_patient_dict):
-        ''' returns hla allele of patients given in hla_file
-        '''
-        if "patient.id" in props:
-            patientid = props["patient.id"]
-        else:
-            try:
-                patientid = props["patient"]
-            except KeyError:
-                patientid = props["patient.x"]
-        return hla_patient_dict[patientid]
 
     def prepare_dq_dp(self, list_alleles):
         ''' returns patient DQ/DP alleles that are relevant for prediction
@@ -286,7 +276,7 @@ class MixMhc2Pred:
         # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al. Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes. Nat. Biotech. (2019).
         seqs = self.generate_nmers(props_dict, [13, 14, 15, 16, 17, 18])
         self.generate_fasta(seqs, tmp_fasta)
-        alleles = self.get_hla_allels(props_dict, dict_patient_hlaII)
+        alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hlaII)
         # try except statement to prevent stop of input for mps shorter < 13aa
         try:
             self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction)

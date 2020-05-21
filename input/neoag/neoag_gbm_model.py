@@ -7,6 +7,7 @@ import tempfile
 from logzero import logger
 
 from input import MHC_I
+from input.helpers import properties_manager
 
 
 class NeoagCalculator(object):
@@ -39,10 +40,7 @@ class NeoagCalculator(object):
         ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with affinity < 500 nM
         '''
         header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
-        if "patient.id" in props:
-            sample_id = props["patient.id"]
-        else:
-            sample_id = props["patient"]
+        sample_id = properties_manager.get_patient_id(props)
         mut_peptide = props["best_affinity_epitope_netmhcpan4"]
         score_mut = props["best_affinity_netmhcpan4"]
         ref_peptide = props["best_affinity_epitope_netmhcpan4_WT"]

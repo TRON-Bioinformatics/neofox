@@ -4,7 +4,7 @@ import tempfile
 
 from logzero import logger
 
-from input.helpers import data_import
+from input.helpers import data_import, properties_manager
 
 
 class NetMhcIIPanBestPrediction:
@@ -39,17 +39,6 @@ class NetMhcIIPanBestPrediction:
         with open(tmpfile, "w") as f:
             f.write(id + "\n")
             f.write(seq + "\n")
-
-    def get_hla_alleles(self, props, hla_patient_dict):
-        ''' returns hla allele of patients given in hla_file
-        '''
-        if "patient.id" in props:
-            patient_id = props["patient.id"]
-        elif "patient" in props:
-            patient_id = props["patient"]
-        else:
-            patient_id = props["patient.x"]
-        return hla_patient_dict[patient_id]
 
     def generate_mhcII_alelles_combination_list(self, hla_alleles, set_available_mhc):
         ''' given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x) and HLA-DQA1/HLA-DPQ1 (4x)
@@ -247,7 +236,7 @@ class NetMhcIIPanBestPrediction:
         tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
         tmp_prediction = tmp_prediction_file.name
         self.generate_fasta(props_dict, tmp_fasta)
-        alleles = self.get_hla_alleles(props_dict, dict_patient_hla)
+        alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
         self.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)
         preds = self.filter_binding_predictions(props_dict, tmp_prediction)
