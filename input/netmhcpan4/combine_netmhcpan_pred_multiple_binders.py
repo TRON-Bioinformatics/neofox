@@ -6,6 +6,7 @@ from logzero import logger
 
 import input.netmhcpan4.multiple_binders as multiple_binders
 import input.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
+from input.helpers import properties_manager
 
 
 class BestAndMultipleBinder:
@@ -91,7 +92,7 @@ class BestAndMultipleBinder:
         np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
         np.generate_fasta(epi_dict, tmp_fasta, mut=True)
-        alleles = np.get_hla_allels(epi_dict, patient_hlaI)
+        alleles = properties_manager.get_hla_allele(epi_dict, patient_hlaI)
         # print alleles
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)

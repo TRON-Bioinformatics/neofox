@@ -6,6 +6,7 @@ from logzero import logger
 
 import input.netmhcIIpan.netmhcIIpan_prediction as netmhcIIpan_prediction
 from input import MHC_II
+from input.helpers import properties_manager
 from input.netmhcpan4 import multiple_binders
 
 
@@ -84,7 +85,7 @@ class BestAndMultipleBinderMhcII:
         np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
         np.generate_fasta(epi_dict, tmp_fasta, mut=True)
-        alleles = np.get_hla_alleles(epi_dict, patient_hlaII)
+        alleles = properties_manager.get_hla_allele(epi_dict, patient_hlaII)
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
         logger.debug(alleles_formated)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)

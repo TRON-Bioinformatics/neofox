@@ -12,6 +12,7 @@ from logzero import logger
 
 from input import MHC_I, MHC_II
 from input.IEDB_Immunogenicity import predict_immunogenicity_simple
+from input.helpers import properties_manager
 
 
 def calc_IEDB_immunogenicity(props, mhc, affin_filtering=False):
@@ -121,12 +122,9 @@ def rna_expression_mutation(props, rna_avail):
     to reflect the expression of the mutated transcript
     '''
     transcript_expression = props["transcript_expression"]
-    if "patient.id" in props:
-        patid = props["patient.id"]
-    else:
-        patid = props["patient"]
+    patient_id = properties_manager.get_hla_allele(props)
     try:
-        rna_avail = rna_avail[patid]
+        rna_avail = rna_avail[patient_id]
     except (KeyError, ValueError) as e:
         rna_avail = "NA"
     logger.info("rna_avail: ".format(rna_avail))
@@ -147,12 +145,9 @@ def expression_mutation_tc(props, tumour_content):
     '''calculated expression of mutation corrected by tumour content
     '''
     transcript_expression = props["Expression_Mutated_Transcript"]
-    if "patient.id" in props:
-        patid = props["patient.id"]
-    else:
-        patid = props["patient"]
+    patient_id = properties_manager.get_patient_id(props)
     try:
-        tumour_content = float(tumour_content[patid]) / 100
+        tumour_content = float(tumour_content[patient_id]) / 100
     except (KeyError, ValueError) as e:
         tumour_content = "NA"
     try:
