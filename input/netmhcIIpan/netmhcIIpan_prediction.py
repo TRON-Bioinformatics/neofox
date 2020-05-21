@@ -4,7 +4,7 @@ import tempfile
 
 from logzero import logger
 
-from input.helpers import data_import, properties_manager
+from input.helpers import data_import, properties_manager, intermediate_files
 
 
 class NetMhcIIPanBestPrediction:
@@ -27,18 +27,6 @@ class NetMhcIIPanBestPrediction:
         '''checks if mhc prediction is possible for given hla allele
         '''
         return allele in set_available_mhc
-
-    def generate_fasta(self, props, tmpfile, mut=True):
-        ''' Writes 27mer to fasta file.
-        '''
-        if mut == True:
-            seq = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        elif mut == False:
-            seq = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        id = ">seq1"
-        with open(tmpfile, "w") as f:
-            f.write(id + "\n")
-            f.write(seq + "\n")
 
     def generate_mhcII_alelles_combination_list(self, hla_alleles, set_available_mhc):
         ''' given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x) and HLA-DQA1/HLA-DPQ1 (4x)
@@ -104,11 +92,10 @@ class NetMhcIIPanBestPrediction:
                     line = line[0:-2] if len(line) > 11 else line
                     f.write(";".join(line) + "\n")
 
-    def mut_position_xmer_seq(self, props):
-        '''returns position of mutation in xmer sequence
-        '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+    def mut_position_xmer_seq(self, xmer_wt, xmer_mut):
+        """
+        returns position of mutation in xmer sequence
+        """
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
             for i, aa in enumerate(xmer_mut):
@@ -133,17 +120,17 @@ class NetMhcIIPanBestPrediction:
                 cover = True
         return cover
 
-    def filter_binding_predictions(self, props, tmppred):
-        '''filters prediction file for predicted epitopes that cover mutations
-        '''
-        pos_xmer = props["Position_Xmer_Seq"]
+    def filter_binding_predictions(self, position_xmer_sequence, tmppred):
+        """
+        filters prediction file for predicted epitopes that cover mutations
+        """
         header, data = data_import.import_dat_general(tmppred)
         dat_fil = []
         logger.debug(header)
         pos_epi = header.index("Seq")
         epi = header.index("Peptide")
         for ii, i in enumerate(data):
-            if self.epitope_covers_mutation(pos_xmer, i[pos_epi], len(i[epi])):
+            if self.epitope_covers_mutation(position_xmer_sequence, i[pos_epi], len(i[epi])):
                 dat_fil.append(data[ii])
         return header, dat_fil
 
@@ -231,15 +218,14 @@ class NetMhcIIPanBestPrediction:
     def main(self, props_dict, set_available_mhc, dict_patient_hla):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_singleseq_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
-        tmp_prediction = tmp_prediction_file.name
-        self.generate_fasta(props_dict, tmp_fasta)
+        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
+        sequence = props_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        tmp_fasta = intermediate_files.generate_fasta([sequence], prefix="tmp_singleseq_")
         alleles = properties_manager.get_hla_allele(props_dict, dict_patient_hla)
         self.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        props_dict["Position_Xmer_Seq"] = self.mut_position_xmer_seq(props_dict)
-        preds = self.filter_binding_predictions(props_dict, tmp_prediction)
+        sequence_reference = props_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        position_xmer_sequence = self.mut_position_xmer_seq(xmer_wt=sequence_reference, xmer_mut=sequence)
+        preds = self.filter_binding_predictions(position_xmer_sequence, tmp_prediction)
         best_epi = self.minimal_binding_score(preds)
         best_epi_affinity = self.minimal_binding_score(preds, rank=False)
 

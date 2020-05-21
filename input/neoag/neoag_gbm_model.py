@@ -2,12 +2,11 @@
 
 import os
 import sys
-import tempfile
 
 from logzero import logger
 
 from input import MHC_I
-from input.helpers import properties_manager
+from input.helpers import properties_manager, intermediate_files
 
 
 class NeoagCalculator(object):
@@ -60,8 +59,7 @@ class NeoagCalculator(object):
     def wrapper_neoag(self, props):
         ''' wrapper function to determine neoag immunogenicity score for a mutated peptide sequence
         '''
-        tmp_file = tempfile.NamedTemporaryFile(prefix="tmp_neoag_", suffix=".txt", delete=False)
-        tmp_file_name = tmp_file.name
+        tmp_file_name = intermediate_files.create_temp_file(prefix="tmp_neoag_", suffix=".txt")
         self._prepare_tmp_for_neoag(props, tmp_file_name)
         neoag_score = self._apply_gbm(tmp_file_name)
         with open(tmp_file_name) as f:

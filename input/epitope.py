@@ -10,7 +10,7 @@ from input.MixMHCpred.mixmhcpred import MixMHCpred
 from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from input.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
-from input.helpers import properties_manager
+from input.helpers import properties_manager, intermediate_files
 from input.neoag.neoag_gbm_model import NeoagCalculator
 from input.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
 from input.netmhcIIpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
@@ -249,7 +249,11 @@ class Epitope:
             amplitude_cutoff=amplitude_cutoff_mhcii, category="ADN"), "ADN_mhcII")
 
         # netMHCIIpan predictions
-        self.predII.main(self.properties, patient_hlaII, set_available_mhcII)
+        sequence = self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        sequence_reference = self.properties["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+        alleles = properties_manager.get_hla_allele(self.properties, patient_hlaII)
+        self.predII.main(sequence=sequence, sequence_reference=sequence_reference, alleles=alleles,
+                         set_available_mhc=set_available_mhcII)
 
         # netmhcpan4 MUT scores
         self.add_features(self.predII.best_mhcII_pan_score, "best%Rank_netmhcIIpan")
@@ -395,8 +399,7 @@ class Epitope:
         # dissimilarity to self-proteome
 
         # neoantigen fitness
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
+        tmp_fasta = intermediate_files.create_temp_file(prefix="tmpseq", suffix=".fasta")
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
             self.properties, tmp_fasta, self.references), "dissimilarity")
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
@@ -458,8 +461,7 @@ class Epitope:
 
     def add_neoantigen_fitness_features(self, mutation_mhci, mutation_mhcii):
         # neoantigen fitness
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmpseq", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
+        tmp_fasta = intermediate_files.create_temp_file(prefix="tmpseq", suffix=".fasta")
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
                 mutation=mutation_mhci, fastafile=tmp_fasta, iedb=self.references.iedb),

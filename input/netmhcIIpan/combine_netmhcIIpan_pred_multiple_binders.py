@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import tempfile
-
 from logzero import logger
 
 import input.netmhcIIpan.netmhcIIpan_prediction as netmhcIIpan_prediction
 from input import MHC_II
-from input.helpers import properties_manager
+from input.helpers import properties_manager, intermediate_files
 from input.netmhcpan4 import multiple_binders
 
 
@@ -71,27 +69,22 @@ class BestAndMultipleBinderMhcII:
         else:
             return ["NA", "NA", "NA"]
 
-    def main(self, epi_dict, patient_hlaII, set_available_mhc):
+    def main(self, sequence, sequence_reference, alleles, set_available_mhc):
         '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         '''
         ### PREDICTION FOR MUTATED SEQUENCE
-        xmer_mut = epi_dict["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        logger.info("MUT seq MHC II: {}".format(xmer_mut))
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_singleseq_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
-        tmp_prediction = tmp_prediction_file.name
+        logger.info("MUT seq MHC II: {}".format(sequence))
+        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        np.generate_fasta(epi_dict, tmp_fasta, mut=True)
-        alleles = properties_manager.get_hla_allele(epi_dict, patient_hlaII)
+        tmp_fasta = intermediate_files.generate_fasta([sequence], prefix="tmp_singleseq_")
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
         logger.debug(alleles_formated)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        epi_dict["Position_Xmer_Seq"] = np.mut_position_xmer_seq(epi_dict)
+        position_xmer_sequence = np.mut_position_xmer_seq(xmer_wt=sequence_reference, xmer_mut=sequence)
         try:
-            preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+            preds = np.filter_binding_predictions(position_xmer_sequence, tmp_prediction)
             # multiple binding
             list_tups = mb.generate_epi_tuple(preds, mhc=MHC_II)
             self.MHCII_epitope_scores = "/".join([tup[0] for tup in list_tups])
@@ -122,18 +115,14 @@ class BestAndMultipleBinderMhcII:
             pass
 
         ### PREDICTION FOR WT SEQUENCE
-        xmer_wt = epi_dict["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_singleseq_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="netmhcpanpred_", suffix=".csv", delete=False)
-        tmp_prediction = tmp_prediction_file.name
+        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
-        np.generate_fasta(epi_dict, tmp_fasta, mut=False)
+        tmp_fasta = intermediate_files.generate_fasta([sequence_reference], prefix="tmp_singleseq_")
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         try:
-            preds = np.filter_binding_predictions(epi_dict, tmp_prediction)
+            preds = np.filter_binding_predictions(position_xmer_sequence, tmp_prediction)
             # multiple binding
             list_tups = mb.generate_epi_tuple(preds, mhc=MHC_II)
             self.MHCII_epitope_scores_WT = "/".join([tup[0] for tup in list_tups])

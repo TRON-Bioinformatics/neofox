@@ -2,8 +2,8 @@
 
 import os
 import os.path
-import tempfile
 
+from input.helpers import intermediate_files
 from input.neoantigen_fitness.Aligner_modified import Aligner
 
 
@@ -21,8 +21,7 @@ class NeoantigenFitnessCalculator(object):
         '''
         This function determines the PATHOGENSIMILARITY of epitopes according to Balachandran et al. using a blast search against the IEDB pathogenepitope database
         '''
-        outfile_file = tempfile.NamedTemporaryFile(prefix="tmp_iedb_", suffix=".xml", delete=False)
-        outfile = outfile_file.name
+        outfile = intermediate_files.create_temp_file(prefix="tmp_iedb_", suffix=".xml")
         self.runner.run_command(cmd=[
             self.configuration.blastp,
             "-gapopen", "11",
