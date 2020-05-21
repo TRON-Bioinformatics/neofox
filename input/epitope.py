@@ -128,7 +128,8 @@ class Epitope:
                 num_mutation=num_mutation, num_wild_type=num_wild_type), "Ratio_numb_epis_<{}".format(threshold))
 
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_I, multiple_binding=True), "Amplitude_mhcI_MB")
+            score_mutation=self.properties["MB_score_top10_harmonic"].replace(",", "."),
+            score_wild_type=self.properties["MB_score_WT_top10_harmonic"].replace(",", ".")), "Amplitude_mhcI_MB")
 
         # position of mutation
         wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_wild_type_and_mutation_from_netmhcpan4(
@@ -172,17 +173,22 @@ class Epitope:
 
         # Amplitude with affinity values
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_I, False, True), "Amplitude_mhcI_affinity")
+            score_mutation=self.properties["best_affinity_netmhcpan4"].replace(",", "."),
+            score_wild_type=self.properties["best_affinity_netmhcpan4_WT"].replace(",", "."),
+            apply_correction=True), "Amplitude_mhcI_affinity")
 
         # Amplitude with rank by netmhcpan4
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-                self.properties, mhc=MHC_I, multiple_binding=False, affinity=False, netmhcscore=True),
+            score_mutation=self.properties["best%Rank_netmhcpan4"].replace(",", "."),
+            score_wild_type=self.properties["best%Rank_netmhcpan4_WT"].replace(",", ".")),
             "Amplitude_mhcI_rank_netmhcpan4")
 
         # Amplitude based on best affinity prediction restricted to 9mers
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, mhc=MHC_I, multiple_binding=False, nine_mer=True),
-            "Amplitude_mhcI_affinity_9mer_netmhcpan4")
+            score_mutation=self.properties["best_affinity_netmhcpan4_9mer"].replace(",", "."),
+            score_wild_type = self.properties["best_affinity_netmhcpan4_9mer_WT"].replace(",", "."),
+            apply_correction=True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
+
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
                 mutation=mutation_netmhcpan4_9mer, fastafile=tmp_fasta, iedb=self.references.iedb),
@@ -194,13 +200,23 @@ class Epitope:
 
         # recogntion potential with amplitude by affinity and netmhcpan4 score
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            self.properties, MHC_I, affinity=True), "Recognition_Potential_mhcI_affinity")
+            amplitude=self.properties["Amplitude_mhcI_affinity"],
+            pathogen_similarity=self.properties["Pathogensimiliarity_mhcI_affinity_nmers"],
+            mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
+            "Recognition_Potential_mhcI_affinity")
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            self.properties, MHC_I, affinity=False, netmhcscore=True), "Recognition_Potential_mhcI_rank_netmhcpan4")
+            amplitude=self.properties["Amplitude_mhcI_rank_netmhcpan4"],
+            pathogen_similarity=self.properties["Pathogensimiliarity_mhcI"],
+            mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
+            "Recognition_Potential_mhcI_rank_netmhcpan4")
 
         # recogntion potential with amplitude by affinity and only 9mers considered --> value as published!!
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            self.properties, MHC_I, nine_mer=True), "Recognition_Potential_mhcI_9mer_affinity")
+            amplitude=self.properties["Amplitude_mhcI_affinity_9mer_netmhcpan4"],
+            pathogen_similarity=self.properties["Pathogensimiliarity_mhcI_9mer"],
+            mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan_9mer"],
+            mhc_affinity_mut=float(self.properties["best_affinity_netmhcpan4_9mer"])),
+            "Recognition_Potential_mhcI_9mer_affinity")
 
         score_mutation_mhci = self.properties["best_affinity_netmhcpan4"]
         amplitude_mhci = self.properties["Amplitude_mhcI_affinity"]
@@ -322,15 +338,20 @@ class Epitope:
 
         # amplitude affinity mhc II
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_II, False, True), "Amplitude_mhcII_affinity")
+            score_mutation=self.properties["best_affinity_netmhcIIpan"].replace(",", "."),
+            score_wild_type = self.properties["best_affinity_netmhcIIpan_WT"].replace(",", "."),
+            apply_correction=True), "Amplitude_mhcII_affinity")
 
         # amplitude multiple binding mhc II
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_II, True, False), "Amplitude_mhcII_mb")
+            score_mutation=self.properties["MB_score_MHCII_top10_harmonic"].replace(",", "."),
+            score_wild_type = self.properties["MB_score_MHCII_top10_WT_harmonic"].replace(",", ".")),
+            "Amplitude_mhcII_mb")
 
         # amplitude rank score mhc II
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, mhc=MHC_II, multiple_binding=False, affinity=False, netmhcscore=True),
+            score_mutation=self.properties["best%Rank_netmhcIIpan"].replace(",", "."),
+            score_wild_type = self.properties["best%Rank_netmhcIIpan_WT"].replace(",", ".")),
             "Amplitude_mhcII_rank_netmhcpan4")
         logger.info("Amplitude mhc II: {}".format(self.properties["Amplitude_mhcII_rank_netmhcpan4"]))
 
@@ -447,14 +468,28 @@ class Epitope:
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
                 mutation=mutation_mhcii, fastafile=tmp_fasta, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcII")
+
+        score_mutation_mhci = self.properties["MHC_I_score_.best_prediction."].replace(",", ".")
+        score_wild_type_mhci = self.properties["MHC_I_score_.WT."].replace(",", ".")
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_I), "Amplitude_mhcI")
+            score_mutation=score_mutation_mhci, score_wild_type=score_wild_type_mhci), "Amplitude_mhcI")
+        score_mutation_mhcii = self.properties["MHC_II_score_.best_prediction."].replace(",", ".")
+        score_wild_type_mhcii = self.properties["MHC_II_score_.WT."].replace(",", ".")
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-            self.properties, MHC_II), "Amplitude_mhcII")
+            score_mutation=score_mutation_mhcii, score_wild_type=score_wild_type_mhcii), "Amplitude_mhcII")
+
+        # TODO: Franziska, please, review that this is the right value for mutation_in_anchor,
+        #  it is possible that there was a bug here and that it should use "Mutation_in_anchor"
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            self.properties, MHC_I), "Recognition_Potential_mhcI")
+            amplitude=self.properties["Amplitude_mhcI"],
+            pathogen_similarity=self.properties["Pathogensimiliarity_mhcI"],
+            mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
+            "Recognition_Potential_mhcI")
         self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            self.properties, MHC_II), "Recognition_Potential_mhcII")
+            amplitude=self.properties["Amplitude_mhcII"],
+            pathogen_similarity=self.properties["Pathogensimiliarity_mhcII"],
+            mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
+            "Recognition_Potential_mhcII")
         return tmp_fasta
 
     def add_self_similarity_features(self, mutation_mhci, mutation_mhcii, wild_type_mhci, wild_type_mhcii):
