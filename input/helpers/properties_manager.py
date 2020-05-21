@@ -2,9 +2,7 @@ from input import MHC_I, MHC_II
 from input.exceptions import INPuTInputParametersException
 
 PATIENT_ID3 = "patient.x"
-
 PATIENT_ID2 = "patient"
-
 PATIENT_ID = "patient.id"
 
 
@@ -15,14 +13,16 @@ def get_gene(properties):
         gene = properties["gene"]
     return gene
 
+
 def get_substitution(properties):
     return properties["substitution"]
+
 
 def get_mutation_aminoacid(properties):
     return properties["MUT_AA"]
 
 
-def get_wild_type_and_mutations(properties, mhc):
+def get_epitopes(properties, mhc):
     if mhc == MHC_I:
         mutation = properties["MHC_I_epitope_.best_prediction."]
         wild_type = properties["MHC_I_epitope_.WT."]
@@ -34,7 +34,43 @@ def get_wild_type_and_mutations(properties, mhc):
     return wild_type, mutation
 
 
-def get_wild_type_and_mutation_from_netmhcpan4(properties, nine_mer=False):
+def get_scores_multiple_binding(properties, mhc):
+    if mhc == MHC_I:
+        mutation = properties["MB_score_top10_harmonic"]
+        wild_type = properties["MB_score_WT_top10_harmonic"]
+    elif mhc == MHC_II:
+        mutation = properties["MB_score_MHCII_top10_harmonic"]
+        wild_type = properties["MB_score_MHCII_top10_WT_harmonic"]
+    else:
+        raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
+    return wild_type, mutation
+
+
+def get_scores_netmhcpan4_affinity(properties, mhc):
+    if mhc == MHC_I:
+        mutation = properties["best_affinity_netmhcpan4"]
+        wild_type = properties["best_affinity_netmhcpan4_WT"]
+    elif mhc == MHC_II:
+        mutation = properties["best_affinity_netmhcIIpan"]
+        wild_type = properties["best_affinity_netmhcIIpan_WT"]
+    else:
+        raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
+    return wild_type, mutation
+
+
+def get_scores_netmhcpan4_ranks(properties, mhc):
+    if mhc == MHC_I:
+        mutation = properties["best%Rank_netmhcpan4"]
+        wild_type = properties["best%Rank_netmhcpan4_WT"]
+    elif mhc == MHC_II:
+        mutation = properties["best%Rank_netmhcIIpan"]
+        wild_type = properties["best%Rank_netmhcIIpan_WT"]
+    else:
+        raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
+    return wild_type, mutation
+
+
+def get_netmhcpan4_epitopes(properties, nine_mer=False):
     if nine_mer:
         mutation = properties["best_affinity_epitope_netmhcpan4_9mer"]
         wild_type = properties["best_epitope_netmhcpan4_9mer_WT"]

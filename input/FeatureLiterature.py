@@ -44,42 +44,19 @@ def calc_IEDB_immunogenicity(props, mhc, affin_filtering=False):
         return "NA"
 
 
-def dai(props, mhc, multiple_binding=False, affinity=False, netmhcscore=False, affin_filtering=False):
-    '''Calculates DAI: Returns difference between wt and mut MHC binding score. If multiple_binding= true, harmonic means of MHC scores of top10 epitope candidates related to a mps is used '''
-    if mhc == MHC_I:
-        if multiple_binding:
-            sc_mut = props["MB_score_top10_harmonic"]
-            sc_wt = props["MB_score_WT_top10_harmonic"]
-        elif affinity:
-            sc_mut = props["best_affinity_netmhcpan4"]
-            sc_wt = props["best_affinity_netmhcpan4_WT"]
-        elif netmhcscore:
-            sc_mut = props["best%Rank_netmhcpan4"]
-            sc_wt = props["best%Rank_netmhcpan4_WT"]
-        else:
-            sc_mut = props["MHC_I_score_.best_prediction."]
-            sc_wt = props["MHC_I_score_.WT."]
-    elif mhc == MHC_II:
-        if multiple_binding:
-            sc_mut = props["MB_score_MHCII_top10_harmonic"]
-            sc_wt = props["MB_score_MHCII_top10_WT_harmonic"]
-        elif affinity:
-            sc_mut = props["best_affinity_netmhcIIpan"]
-            sc_wt = props["best_affinity_netmhcIIpan_WT"]
-        elif netmhcscore:
-            sc_mut = props["best%Rank_netmhcIIpan"]
-            sc_wt = props["best%Rank_netmhcIIpan_WT"]
-        else:
-            sc_mut = props["MHC_II_score_.best_prediction."]
-            sc_wt = props["MHC_II_score_.WT."]
+def dai(score_mutation, score_wild_type, affin_filtering=False):
+    """
+    Calculates DAI: Returns difference between wt and mut MHC binding score.
+    """
+    # TODO: these conversions to float need to go away from here
     try:
         if affin_filtering:
-            if float(sc_mut) < 500:
-                return str(float(sc_wt) - float(sc_mut))
+            if float(score_mutation) < 500:
+                return str(float(score_wild_type) - float(score_mutation))
             else:
                 return "NA"
         else:
-            return str(float(sc_wt) - float(sc_mut))
+            return str(float(score_wild_type) - float(score_mutation))
     except ValueError:
         return "NA"
 
