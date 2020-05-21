@@ -31,42 +31,35 @@ def add_rna_reference(gene, reference_dat, i):
         return "NA"
 
 
-def fold_change(props):
-    '''
+def fold_change(expression_tumor, expression_reference):
+    """
     This function determines the classical fold change between tumour and reference transcript expression.
     Log2(expr in tumor / expr in reference)
-    '''
-    expr_tumour = props["transcript_expression"]
-    expr_reference = props["mean_ref_expression"]
+    """
     try:
-        return str(math.log(float(expr_tumour) / float(expr_reference), 2))
+        return str(math.log(float(expression_tumor) / float(expression_reference), 2))
     except (ValueError, ZeroDivisionError) as e:
         return "NA"
 
 
-def percentile_calc(props):
-    '''
+def percentile_calc(expression_tumor, expression_reference_sum):
+    """
     This function calculates the expression difference between tumour and reference data in form of a percentile value.
     expr in tumor * 100 / (sum of expr in ref tissue + 1)
-    '''
-    expr_tumour = props["transcript_expression"]
-    expr_reference = props["sum_ref_expression"]
+    """
     try:
-        return str((float(expr_tumour) * 100) / (float(expr_reference) + 1))
+        return str((float(expression_tumor) * 100) / (float(expression_reference_sum) + 1))
     except (ValueError, ZeroDivisionError) as e:
         return "NA"
 
 
-def pepper_calc(props):
-    '''
+def pepper_calc(expression_tumor, expression_reference, expression_reference_sd):
+    """
     This function calculates the expression difference between tumour and reference data based on Pepper publication, in a z-score similar manner.
     expr in tumour - mean epxr in reference tissue / standard deviation of expression in refernce
-    '''
-    expr_tumour = props["transcript_expression"]
-    expr_reference = props["mean_ref_expression"]
-    expr_reference_sd = props["sd_ref_expression"]
+    """
     try:
-        return str((float(expr_tumour) - float(expr_reference)) / float(expr_reference_sd))
+        return str((float(expression_tumor) - float(expression_reference)) / float(expression_reference_sd))
     except (ValueError, ZeroDivisionError) as e:
         return "NA"
 
