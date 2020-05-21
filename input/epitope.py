@@ -45,8 +45,10 @@ class Epitope:
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
         """
+        properties = {}
         for nam, char in zip(col_nam, prop_list):
-            self.properties[nam] = char
+            properties[nam] = char
+        return properties
 
     def add_features(self, new_feature, new_feature_nam):
         """Adds new features to already present epitope properties, stored in form of a dictioninary
@@ -60,12 +62,12 @@ class Epitope:
              set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, rna_avail):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
-        self.init_properties(col_nam, prop_list)
+        self.properties = self.init_properties(col_nam, prop_list)
         logger.info(self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."])
 
-        wild_type_mhci, mutation_mhci = properties_manager.get_wild_type_and_mutations(
+        wild_type_mhci, mutation_mhci = properties_manager.get_epitopes(
             properties=self.properties, mhc=MHC_I)
-        wild_type_mhcii, mutation_mhcii = properties_manager.get_wild_type_and_mutations(
+        wild_type_mhcii, mutation_mhcii = properties_manager.get_epitopes(
             properties=self.properties, mhc=MHC_II)
         mutated_aminoacid = properties_manager.get_mutation_aminoacid()
         gene = properties_manager.get_gene(properties=self.properties)
@@ -77,8 +79,10 @@ class Epitope:
         self.add_features(self_similarity.position_in_anchor_position(self.properties), "Mutation_in_anchor")
 
         # differential agretopicity index
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_I), "DAI_mhcI")
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II), "DAI_mhcII")
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_mhci, score_wild_type=wild_type_mhci), "DAI_mhcI")
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_mhcii, score_wild_type=wild_type_mhcii), "DAI_mhcII")
         # expression
         self.add_features(FeatureLiterature.rna_expression_mutation(self.properties, rna_avail=rna_avail),
                           "Expression_Mutated_Transcript")
@@ -179,7 +183,11 @@ class Epitope:
         # generator rate
         self.add_features(self.pred.epitope_affinities_WT, "MB_affinities_WT")
         self.add_features(self.pred.generator_rate_WT, "Generator_rate_WT")
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=True), "DAI_mhcI_MB")
+        wild_type_multiple_binding, mutation_multiple_binding = properties_manager.\
+            get_scores_multiple_binding(self.properties, mhc=MHC_I)
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_multiple_binding, score_wild_type=wild_type_multiple_binding),
+            "DAI_mhcI_MB")
 
         # netmhcpan4 wt affinity
         self.add_features(self.pred.best4_affinity_WT, "best_affinity_netmhcpan4_WT")
@@ -275,12 +283,17 @@ class Epitope:
             "Tcell_predictor_score_9mersPredict")
 
         # DAI with affinity values
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=True),
-                          "DAI_affinity")
+        wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_scores_netmhcpan4_affinity(
+            properties=self.properties, mhc=MHC_I)
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_netmhcpan4, score_wild_type=wild_type_netmhcpan4),
+            "DAI_affinity")
 
         # DAI wiht rank scores by netmhcpan4
+        wild_type_netmhcpan4_rank, mutation_netmhcpan4_rank = properties_manager\
+            .get_scores_netmhcpan4_ranks(properties=self.properties, mhc=MHC_I)
         self.add_features(
-            FeatureLiterature.dai(self.properties, MHC_I, multiple_binding=False, affinity=False, netmhcscore=True),
+            FeatureLiterature.dai(score_mutation=mutation_netmhcpan4_rank, score_wild_type=wild_type_netmhcpan4_rank),
             "DAI_rank_netmhcpan4")
 
         # Amplitude with affinity values
@@ -376,18 +389,27 @@ class Epitope:
         self.add_features(self.predII.MHCII_number_weak_binders_WT, "MB_number_pep_MHCIIscore<10_WT")
 
         # dai mhc II affinity
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=True),
-                          "DAI_mhcII_affinity")
+        wild_type_netmhciipan4, mutation_netmhciipan4 = properties_manager.get_scores_netmhcpan4_affinity(
+            properties=self.properties, mhc=MHC_II)
         self.add_features(
-            FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=True, affin_filtering=True),
+            FeatureLiterature.dai(score_mutation=mutation_netmhciipan4, score_wild_type=wild_type_netmhciipan4),
+            "DAI_mhcII_affinity")
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_netmhciipan4, score_wild_type=wild_type_netmhciipan4,
+                                  affin_filtering=True),
             "DAI_mhcII_affinity_aff_filtered")
 
         # dai mhc II netMHCIIpan score
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=False, affinity=False),
+        self.add_features(FeatureLiterature.dai(score_mutation=mutation_mhcii, score_wild_type=wild_type_mhcii),
                           "DAI_mhcII_netmhcIIpan")
 
         # dai multiple binding mhc II
-        self.add_features(FeatureLiterature.dai(self.properties, MHC_II, multiple_binding=True), "DAI_mhcII_MB")
+        wild_type_multiple_binding_ii, mutation_multiple_binding_ii = properties_manager. \
+            get_scores_multiple_binding(self.properties, mhc=MHC_II)
+        self.add_features(
+            FeatureLiterature.dai(score_mutation=mutation_multiple_binding_ii,
+                                  score_wild_type=wild_type_multiple_binding_ii),
+            "DAI_mhcII_MB")
 
         # difference number of binders
         self.add_features(FeatureLiterature.diff_number_binders(self.properties, mhc=MHC_II, threshold="2"),
