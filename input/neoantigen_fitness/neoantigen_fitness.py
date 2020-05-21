@@ -42,27 +42,16 @@ class NeoantigenFitnessCalculator(object):
         os.remove(outfile)
         return x if x is not None else "NA"
 
-
-    def wrap_pathogensimilarity(self, props, mhc, fastafile, iedb, affinity=False, nine_mer=False):
-        if mhc == MHC_I:
-            if nine_mer:
-                mhc_mut = props["best_affinity_epitope_netmhcpan4_9mer"]
-            elif affinity:
-                mhc_mut = props["best_affinity_epitope_netmhcpan4"]
-            else:
-                mhc_mut = props["MHC_I_epitope_.best_prediction."]
-        elif mhc == MHC_II:
-            mhc_mut = props["MHC_II_epitope_.best_prediction."]
+    def wrap_pathogensimilarity(self, mutation, fastafile, iedb):
         with open(fastafile, "w") as f:
             id = ">M_1"
             f.write(id + "\n")
-            f.write(mhc_mut + "\n")
+            f.write(mutation + "\n")
         try:
             pathsim = self._calc_pathogensimilarity(fastafile, id, iedb)
         except:
             pathsim = "NA"
         return str(pathsim) if pathsim != "NA" else "0"
-
 
     def calculate_amplitude_mhc(self, props, mhc, multiple_binding=False, affinity=False, netmhcscore=False, nine_mer=False):
         '''

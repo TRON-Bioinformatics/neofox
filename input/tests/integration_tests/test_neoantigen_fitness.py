@@ -19,18 +19,9 @@ class TestNeoantigenFitness(TestCase):
         fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         return references, configuration, fastafile
 
-    def test_pathogen_similarity_mhcI(self):
+    def test_pathogen_similarity(self):
         result = self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-            props={"MHC_I_epitope_.best_prediction.": "hey"},
-            mhc=MHC_I,
-            fastafile=self.fastafile.name,
-            iedb=self.references.iedb)
-        self.assertEqual('0', result)
-
-    def test_pathogen_similarity_mhcII(self):
-        result = self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-            props={"MHC_II_epitope_.best_prediction.": "hey"},
-            mhc=MHC_II,
+            mutation='hey',
             fastafile=self.fastafile.name,
             iedb=self.references.iedb)
         self.assertEqual('0', result)

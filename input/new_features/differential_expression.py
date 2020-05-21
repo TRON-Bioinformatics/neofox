@@ -20,16 +20,11 @@ def sd_of_list(list_numbs):
     return (sd_list)
 
 
-def add_rna_reference(props, reference_dat, i):
+def add_rna_reference(gene, reference_dat, i):
     '''
     This function takes the output of load_rna_expression_reference function and appends the values to the epitope data
     i = (0,1,2) --> ("mean_ref_expression","sd_ref_expression", "sum_ref_expression")
     '''
-    if "gene" in props:
-        gene = props["gene"]
-    else:
-        gene = props["gene.x"]
-
     if gene in reference_dat:
         return str(reference_dat[gene][i])
     else:
@@ -76,16 +71,16 @@ def pepper_calc(props):
         return "NA"
 
 
-if __name__ == '__main__':
-    import sys
-    import data_import
-
-    ref_file = sys.argv[1]
-    # "/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv"
-    ref_list = load_rna_expression_reference(ref_file)
-    f = sys.argv[2]
-    data = data_import.import_dat_icam(f)
-    dat_merged = merge_data_reference(data, ref_list)
-    print(wrapper_diff_expr(dat_merged)[0])
-
-    # write_ouptut_to_file(dat_epi,header)
+# if __name__ == '__main__':
+#     import sys
+#     import data_import
+#
+#     ref_file = sys.argv[1]
+#     # "/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv"
+#     ref_list = load_rna_expression_reference(ref_file)
+#     f = sys.argv[2]
+#     data = data_import.import_dat_icam(f)
+#     dat_merged = merge_data_reference(data, ref_list)
+#     print(wrapper_diff_expr(dat_merged)[0])
+#
+#     # write_ouptut_to_file(dat_epi,header)
