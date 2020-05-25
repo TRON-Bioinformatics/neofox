@@ -157,7 +157,7 @@ class Epitope:
 
         self.add_self_similarity_features(mutation_mhci, mutation_mhcii, wild_type_mhci, wild_type_mhcii)
 
-        tmp_fasta = self.add_neoantigen_fitness_features(mutation_mhci, mutation_mhcii)
+        self.add_neoantigen_fitness_features(mutation_mhci, mutation_mhcii)
 
         self.add_tcell_predictor_features(gene)
 
@@ -195,11 +195,11 @@ class Epitope:
 
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                mutation=mutation_netmhcpan4_9mer, fastafile=tmp_fasta, iedb=self.references.iedb),
+                mutation=mutation_netmhcpan4_9mer, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI_9mer")
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                mutation=mutation_netmhcpan4, fastafile=tmp_fasta, iedb=self.references.iedb),
+                mutation=mutation_netmhcpan4, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI_affinity_nmers")
 
         # recogntion potential with amplitude by affinity and netmhcpan4 score
@@ -492,14 +492,13 @@ class Epitope:
 
     def add_neoantigen_fitness_features(self, mutation_mhci, mutation_mhcii):
         # neoantigen fitness
-        tmp_fasta = intermediate_files.create_temp_file(prefix="tmpseq", suffix=".fasta")
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                mutation=mutation_mhci, fastafile=tmp_fasta, iedb=self.references.iedb),
+                mutation=mutation_mhci, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI")
         self.add_features(
             self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-                mutation=mutation_mhcii, fastafile=tmp_fasta, iedb=self.references.iedb),
+                mutation=mutation_mhcii, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcII")
 
         score_mutation_mhci = self.properties["MHC_I_score_.best_prediction."].replace(",", ".")
@@ -523,7 +522,6 @@ class Epitope:
             pathogen_similarity=self.properties["Pathogensimiliarity_mhcII"],
             mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
             "Recognition_Potential_mhcII")
-        return tmp_fasta
 
     def add_self_similarity_features(self, mutation_mhci, mutation_mhcii, wild_type_mhci, wild_type_mhcii):
         # selfsimilarity

@@ -40,11 +40,8 @@ class NeoantigenFitnessCalculator(object):
         os.remove(outfile)
         return x if x is not None else "NA"
 
-    def wrap_pathogensimilarity(self, mutation, fastafile, iedb):
-        with open(fastafile, "w") as f:
-            id = ">M_1"
-            f.write(id + "\n")
-            f.write(mutation + "\n")
+    def wrap_pathogensimilarity(self, mutation, iedb):
+        fastafile = intermediate_files.create_temp_fasta(sequences=[mutation], prefix="tmpseq")
         try:
             pathsim = self._calc_pathogensimilarity(fastafile, id, iedb)
         except:
