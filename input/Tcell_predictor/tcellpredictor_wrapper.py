@@ -13,7 +13,7 @@ class TcellPrediction:
         self.tcell_prediction_score_9mer = "NA"
         self.references = references
 
-    def _triple_gen_seq_subst_for_prediction(self, gene, substitution, epitope, score, threshold, all=True):
+    def _triple_gen_seq_subst_for_prediction(self, gene, substitution, epitope, score, threshold):
         """
         extracts gene id, epitope sequence and substitution from epitope dictionary
         Tcell predictor works with 9mers only! --> extract for 9mers only
@@ -22,7 +22,7 @@ class TcellPrediction:
         result = (["NA", "NA", "NA"])
         if str(len(epitope)) == str(9):
             z = [gene.replace(" ", ""), epitope, substitution]
-            if all:
+            if threshold is None:
                 z = [gene.replace(" ", ""), epitope, substitution]
                 result = (z)
             else:
@@ -57,12 +57,12 @@ class TcellPrediction:
 
         return score
 
-    def _wrapper_tcellpredictor(self, gene, substitution, epitope, score, threshold, tmpfile_in, tmpfile_out, all=True):
+    def _wrapper_tcellpredictor(self, gene, substitution, epitope, score, threshold, tmpfile_in, tmpfile_out):
         """
         wrapper function to determine
         """
         trp = self._triple_gen_seq_subst_for_prediction(
-            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold, all=all)
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold)
         logger.debug(trp)
         pred_out = "NA"
         if "NA" not in trp:
@@ -70,7 +70,7 @@ class TcellPrediction:
             pred_out = self._prediction_single_mps(tmpfile_in, tmpfile_out)
         return pred_out
 
-    def calculate_tcell_predictor_score(self, gene, substitution, epitope, score, threshold):
+    def calculate_tcell_predictor_score(self, gene, substitution, epitope, score, threshold=None):
         ''' returns Tcell_predictor score given mps in dictionary format
                 '''
         tmp_tcellPredIN = intermediate_files.create_temp_file(prefix="tmp_TcellPredicIN_", suffix=".txt")
