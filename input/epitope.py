@@ -162,10 +162,10 @@ class Epitope:
         self.add_tcell_predictor_features(gene)
 
         # DAI with affinity values
-        wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_scores_netmhcpan4_affinity(
+        wild_type_netmhcpan4_affinity, mutation_netmhcpan4_affinity = properties_manager.get_scores_netmhcpan4_affinity(
             properties=self.properties, mhc=MHC_I)
         self.add_features(
-            FeatureLiterature.dai(score_mutation=mutation_netmhcpan4, score_wild_type=wild_type_netmhcpan4),
+            FeatureLiterature.dai(score_mutation=mutation_netmhcpan4_affinity, score_wild_type=wild_type_netmhcpan4_affinity),
             "DAI_affinity")
 
         # DAI wiht rank scores by netmhcpan4
