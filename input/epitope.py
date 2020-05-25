@@ -642,7 +642,6 @@ class Epitope:
         transcript_expression = self.properties["transcript_expression"]
         patient_id = properties_manager.get_patient_id(self.properties)
         vaf_tumor = self.properties["VAF_in_tumor"]
-        # TODO: Franziska please, review this. I think this is what was meant, but it was not what the code was doing
         vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
             self.properties.get("VAF_in_RNA", vaf_tumor)
 
