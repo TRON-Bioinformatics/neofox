@@ -373,8 +373,8 @@ class Epitope:
                 sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
                 "mutation_found_in_proteome")
 
-        vaf_tumor = self.properties["VAF_in_tumor"]
-        vaf_rna = self.properties.get("VAF_in_RNA")     # TODO: Franziska what do we want to do when there is no value?
+        vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
+        vaf_rna = self.properties.get("VAF_in_RNA", "NA")
         transcript_expr = self.properties["transcript_expression"]
         no_mismatch = self.properties["Number_of_mismatches_mhcI"]
         score_mut = self.properties["best%Rank_netmhcpan4"]
