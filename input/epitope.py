@@ -482,7 +482,7 @@ class Epitope:
         epitope = self.properties["MHC_I_epitope_.best_prediction."]
         score = self.properties["MHC_I_score_.best_prediction."]
         self.add_features(self.tcell_predictor.calculate_tcell_predictor_score(
-            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=2),
+            gene=gene, substitution=substitution, epitope=epitope, score=score),
             "Tcell_predictor_score")
         epitope = self.properties["best_affinity_epitope_netmhcpan4_9mer"]
         score = self.properties["best_affinity_netmhcpan4_9mer"]
