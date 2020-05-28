@@ -14,6 +14,7 @@ class Runner(object):
         return_code = process.returncode
         if return_code == 0:
             logger.info("Finished command correctly!")
+            logger.info(self._decode(output))
         else:
             logger.error("Finished command with return code {}".format(return_code))
             logger.error(self._decode(errors))
