@@ -36,7 +36,7 @@ class DissimilarityCalculator(object):
         aligner.readAllBlastAlignments(outfile)
         aligner.computeR(a=32)
         kk = 1
-        similarity = aligner.Ri.get(kk, 1)      # NOTE: returns 1 when not present
+        similarity = aligner.Ri.get(kk, 0)      # NOTE: returns 0 when not present
         dissimilarity = 1 - similarity
         os.remove(fasta_file)
         os.remove(outfile)
