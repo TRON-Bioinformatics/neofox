@@ -20,9 +20,20 @@ class TestNeoantigenFitness(TestCase):
         return references, configuration, fastafile
 
     def test_pathogen_similarity(self):
-        result = self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-            mutation='hey',
-            fastafile=self.fastafile.name,
+        # tests a pathogen sequence and expects 1.0 similarity
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+            mutation='FIAGLIAIV',
+            iedb=self.references.iedb)
+        self.assertEqual('1.0', result)
+        # tests a modified pathogen sequence and expects something between 0 and 1
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+            mutation='FIAGDAAIV',
+            iedb=self.references.iedb)
+        self.assertLess(float(result), 1.0)
+        self.assertGreater(float(result), 0.0)
+        # tests a non pathogen sequence and expects 0 similarity
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+            mutation='DDDDDMMDD',
             iedb=self.references.iedb)
         self.assertEqual('0', result)
 

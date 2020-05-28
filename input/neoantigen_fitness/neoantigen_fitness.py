@@ -2,6 +2,7 @@
 
 import os
 import os.path
+from logzero import logger
 
 from input.helpers import intermediate_files
 from input.neoantigen_fitness.Aligner_modified import Aligner
@@ -17,7 +18,7 @@ class NeoantigenFitnessCalculator(object):
         self.runner = runner
         self.configuration = configuration
 
-    def _calc_pathogensimilarity(self, fasta_file, n, iedb):
+    def _calc_pathogen_similarity(self, fasta_file, iedb):
         '''
         This function determines the PATHOGENSIMILARITY of epitopes according to Balachandran et al. using a blast search against the IEDB pathogenepitope database
         '''
@@ -34,19 +35,22 @@ class NeoantigenFitnessCalculator(object):
         a = Aligner()
         a.readAllBlastAlignments(outfile)
         a.computeR()
-        kk = int(n.split("_")[1])
-        x = a.Ri.get(kk)
+        kk = 1
+        x = a.Ri.get(kk, 0)     # NOTE: if not present it returns 0
         os.remove(fasta_file)
         os.remove(outfile)
-        return x if x is not None else "NA"
+        return x
 
-    def wrap_pathogensimilarity(self, mutation, iedb):
-        fastafile = intermediate_files.create_temp_fasta(sequences=[mutation], prefix="tmpseq")
+    def wrap_pathogen_similarity(self, mutation, iedb):
+        fastafile = intermediate_files.create_temp_fasta(sequences=[mutation], prefix="tmpseq", comment_prefix='M_')
         try:
-            pathsim = self._calc_pathogensimilarity(fastafile, id, iedb)
-        except:
-            pathsim = "NA"
-        return str(pathsim) if pathsim != "NA" else "0"
+            pathsim = self._calc_pathogen_similarity(fastafile, iedb)
+        except Exception as ex:
+            # TODO: do we need this at all? it should not fail and if it fails we probably want to just stop execution
+            logger.exception(ex)
+            pathsim = 0
+        logger.info("Peptide {} has a pathogen similarity of {}".format(mutation, pathsim))
+        return str(pathsim)
 
     def calculate_amplitude_mhc(self, score_mutation, score_wild_type, apply_correction=False):
         """

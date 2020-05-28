@@ -6,7 +6,7 @@ def create_temp_file(prefix=None, suffix=None, dir=None):
     return temp_file.name
 
 
-def create_temp_fasta(sequences, prefix=None):
+def create_temp_fasta(sequences, prefix=None, comment_prefix='seq'):
     """
     Writes seqs given in seqs list into fasta file
     """
@@ -14,7 +14,7 @@ def create_temp_fasta(sequences, prefix=None):
     counter = 1
     with open(fasta_temp_file, "w") as f:
         for seq in sequences:
-            _id = ">seq{}".format(counter)
+            _id = ">{comment_prefix}{index}".format(comment_prefix=comment_prefix, index=counter)
             f.write(_id + "\n")
             f.write(seq + "\n")
             counter += 1

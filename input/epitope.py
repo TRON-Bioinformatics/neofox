@@ -194,11 +194,11 @@ class Epitope:
             apply_correction=True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
 
         self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
+            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
                 mutation=mutation_netmhcpan4_9mer, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI_9mer")
         self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
+            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
                 mutation=mutation_netmhcpan4, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI_affinity_nmers")
 
@@ -493,11 +493,11 @@ class Epitope:
     def add_neoantigen_fitness_features(self, mutation_mhci, mutation_mhcii):
         # neoantigen fitness
         self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
+            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
                 mutation=mutation_mhci, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcI")
         self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
+            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
                 mutation=mutation_mhcii, iedb=self.references.iedb),
             "Pathogensimiliarity_mhcII")
 
