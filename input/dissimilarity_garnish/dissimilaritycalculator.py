@@ -42,11 +42,11 @@ class DissimilarityCalculator(object):
         os.remove(outfile)
         return dissimilarity
 
-    def calculate_dissimilarity(self, mhc_mutation, mhc_affinity, fastafile, references, filter_binder=False):
+    def calculate_dissimilarity(self, mhc_mutation, mhc_affinity, references, filter_binder=False):
         """
         wrapper for dissimilarity calculation
         """
-        fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmpseq", comment_prefix='M_')
+        fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmp_dissimilarity_", comment_prefix='M_')
         dissim = self._calc_dissimilarity(fastafile, references)
         sc = dissim
         if filter_binder and float(mhc_affinity) >= 500:

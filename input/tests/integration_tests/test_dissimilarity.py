@@ -15,6 +15,5 @@ class TestDissimilarity(TestCase):
     def test_dissimilarity(self):
         result = DissimilarityCalculator(runner=self.runner, configuration=self.configuration).calculate_dissimilarity(
             mhc_mutation='hey', mhc_affinity='ho',
-            fastafile=self.fastafile.name,
             references=self.references)
         self.assertEqual('0', result)
