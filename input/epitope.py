@@ -423,14 +423,13 @@ class Epitope:
         # dissimilarity to self-proteome
 
         # neoantigen fitness
-        tmp_fasta = intermediate_files.create_temp_file(prefix="tmpseq", suffix=".fasta")
         mhc_mutation = self.properties["best_affinity_epitope_netmhcpan4"]
         mhc_affinity = self.properties["best_affinity_netmhcpan4"]
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            mhc_mutation=mhc_mutation, mhc_affinity=mhc_affinity, fastafile=tmp_fasta, references=self.references),
+            mhc_mutation=mhc_mutation, mhc_affinity=mhc_affinity, references=self.references),
             "dissimilarity")
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            mhc_mutation=mhc_mutation, mhc_affinity=mhc_affinity, fastafile=tmp_fasta, references=self.references,
+            mhc_mutation=mhc_mutation, mhc_affinity=mhc_affinity, references=self.references,
             filter_binder=True), "dissimilarity_filter500")
 
         self.add_vax_rank_features()
