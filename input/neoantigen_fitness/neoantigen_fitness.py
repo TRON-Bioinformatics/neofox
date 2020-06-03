@@ -5,7 +5,7 @@ import os.path
 from logzero import logger
 
 from input.helpers import intermediate_files
-from input.neoantigen_fitness.Aligner_modified import Aligner
+from input.neoantigen_fitness.aligner import Aligner
 
 
 class NeoantigenFitnessCalculator(object):
