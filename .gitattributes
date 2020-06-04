@@ -1,2 +1,17 @@
-* -diff
-**/*.xml binary
+# Basic .gitattributes for a python repo.
+
+# Source files
+# ============
+*.py     text diff=python
+*.py3    text diff=python
+*.avdl   text diff
+*.gitignore diff
+*.gitattributes diff
+MANIFEST.in diff
+README.md diff
+
+# Binary files
+# ============
+*.xml     binary
+*.pdf      binary
+*.fasta    binary
