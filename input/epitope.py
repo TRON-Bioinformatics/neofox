@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import tempfile
-
 from logzero import logger
 
 from input import FeatureLiterature
@@ -10,15 +8,14 @@ from input.MixMHCpred.mixmhcpred import MixMHCpred
 from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from input.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
-from input.helpers import properties_manager, intermediate_files
+from input.helpers import properties_manager
 from input.neoag.neoag_gbm_model import NeoagCalculator
 from input.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
-from input.netmhcIIpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from input.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
 from input.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from input.new_features import amino_acid_frequency_scores as freq_score, differential_expression, conservation_scores
+from input.new_features import amino_acid_frequency_scores as freq_score, differential_expression
 from input.self_similarity import self_similarity
 from input.vaxrank import vaxrank
-from input.helpers.runner import Runner
 
 
 class Epitope:
