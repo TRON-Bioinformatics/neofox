@@ -12,6 +12,6 @@ README.md diff
 
 # Binary files
 # ============
-*.xml     binary
-*.pdf      binary
-*.fasta    binary
+**/*.xml     binary
+**/*.pdf      binary
+**/*.fasta    binary
