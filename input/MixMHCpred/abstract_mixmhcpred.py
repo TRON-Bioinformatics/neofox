@@ -1,47 +1,10 @@
-#!/usr/bin/env python
+from input.helpers.epitope_helper import EpitopeHelper
 
 
-class AbstractMixMHCpred:
-
-    @staticmethod
-    def generate_nmers(xmer_wt, xmer_mut, lengths):
-        """
-        Generates peptides covering mutation of all lengths that are provided. Returns peptides as list
-        No peptide is shorter than the minimun length provided
-        There are no repetitions in the results
-        """
-        length_mut = len(xmer_mut)
-        list_peptides = []
-        pos_mut = int(AbstractMixMHCpred.mut_position_xmer_seq(xmer_mut=xmer_mut, xmer_wt=xmer_wt))
-        for length in lengths:
-            if length <= length_mut:
-                start_first = pos_mut - length
-                starts = [start_first + s for s in range(length)]
-                ends = [s + length for s in starts]
-                for s, e in zip(starts, ends):
-                    list_peptides.append(xmer_mut[s:e])
-        return list(set([x for x in list_peptides if not x == "" and len(x) >= min(lengths)]))
+class AbstractMixMHCpred(EpitopeHelper):
 
     @staticmethod
-    def mut_position_xmer_seq(xmer_wt, xmer_mut):
-        """
-        returns position of mutation in xmer sequence
-        """
-        p1 = -1
-        if len(xmer_wt) == len(xmer_mut):
-            p1 = -1
-            for i, aa in enumerate(xmer_mut):
-                if aa != xmer_wt[i]:
-                    p1 = i + 1
-        else:
-            p1 = 0
-            # in case sequences do not have same length
-            for a1, a2 in zip(xmer_wt, xmer_mut):
-                if a1 == a2:
-                    p1 += 1
-        return str(p1)
-
-    def read_mixmhcpred(self, outtmp):
+    def read_mixmhcpred(outtmp):
         """
         imports output of MixMHCpred prediction
         """
@@ -62,7 +25,8 @@ class AbstractMixMHCpred:
                     dat.append(line)
         return header, dat
 
-    def add_best_epitope_info(self, epitope_tuple, column_name):
+    @staticmethod
+    def add_best_epitope_info(epitope_tuple, column_name):
         """
         returns desired information of prediction of best epitope from netmhcpan output;
         e.g. "%Rank": MHC I score, "HLA": HLA allele, "Icore": best epitope

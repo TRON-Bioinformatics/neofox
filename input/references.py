@@ -89,3 +89,19 @@ class ReferenceFolder(object):
 
     def _get_reference_file_name(self, file_name_suffix):
         return os.path.join(self.reference_genome_folder, file_name_suffix)
+
+    def load_available_hla_alleles(self, mhc=input.MHC_I):
+        """
+        loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
+        :type mhc: str
+        :rtype list:
+        """
+        if mhc == input.MHC_II:
+            fileMHC = self.available_mhc_ii
+        else:
+            fileMHC = self.available_mhc_i
+        set_available_mhc = set()
+        with open(fileMHC) as f:
+            for line in f:
+                set_available_mhc.add(line.strip())
+        return set_available_mhc

@@ -69,10 +69,10 @@ class BestAndMultipleBinder:
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         '''
         number_alleles = len(tuple_best_per_allele)
-        multbind = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
+        multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         if len(tuple_best_per_allele_new) == 6:
-            return multbind.wrapper_mean_calculation(tuple_best_per_allele_new)
+            return multbind.get_means(tuple_best_per_allele_new)
         else:
             return ["NA", "NA", "NA"]
 
@@ -84,8 +84,8 @@ class BestAndMultipleBinder:
         logger.info("MUT seq: {}".format(xmer_mut))
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
-        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
-        mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
+        np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
+        mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[xmer_mut], prefix="tmp_singleseq_")
         # print alleles
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
@@ -106,9 +106,9 @@ class BestAndMultipleBinder:
         all = mb.scores_to_list(list_tups)
         all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
-        self.MHC_score_top10 = mb.wrapper_mean_calculation(top10)
+        self.MHC_score_top10 = mb.get_means(top10)
         best_per_alelle = mb.scores_to_list(best_per_alelle)
-        self.MHC_score_all_epitopes = mb.wrapper_mean_calculation(all)
+        self.MHC_score_all_epitopes = mb.get_means(all)
         self.MHC_score_best_per_alelle = self.MHC_MB_score_best_per_allele(best_per_alelle)
         self.MHC_number_strong_binders = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders = mb.determine_number_of_binders(all, 2)
@@ -140,8 +140,8 @@ class BestAndMultipleBinder:
         ### PREDICTION FOR WT SEQUENCE
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
-        np = netmhcpan_prediction.NetMhcPanBestPrediction(runner=self.runner, configuration=self.configuration)
-        mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
+        np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
+        mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[xmer_wt],
                                                          prefix="tmp_singleseq_")
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
@@ -157,10 +157,10 @@ class BestAndMultipleBinder:
         all = mb.scores_to_list(list_tups)
         all_affinities = mb.affinities_to_list(list_tups)
         top10 = mb.scores_to_list(top10)
-        self.MHC_score_top10_WT = mb.wrapper_mean_calculation(top10)
+        self.MHC_score_top10_WT = mb.get_means(top10)
         best_per_alelle = mb.scores_to_list(best_per_alelle)
-        self.MHC_score_all_epitopes_WT = mb.wrapper_mean_calculation(all)
-        self.MHC_score_best_per_alelle_WT = mb.wrapper_mean_calculation(best_per_alelle)
+        self.MHC_score_all_epitopes_WT = mb.get_means(all)
+        self.MHC_score_best_per_alelle_WT = mb.get_means(best_per_alelle)
         self.MHC_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
         # best prediction
