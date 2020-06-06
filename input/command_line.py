@@ -28,6 +28,8 @@ def input_cli():
     else:
         tumour_content_file = ""
 
+    # TODO: this is overriding the value of the parameter frameshift, do we want to activate this Franziska?
+    #  otherwise we may want to just delete the parameter
     indel = False
 
     bunchepitopes = BunchEpitopes()
