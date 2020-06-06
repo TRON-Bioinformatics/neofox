@@ -37,7 +37,8 @@ setup(
         'scipy==1.4.1',
         'pickle-mixin',
         'scikit-learn==0.20.3',
-        'logzero==1.5.0'
+        'logzero==1.5.0',
+        'avro_validator'
     ],
     setup_requires=[],
     classifiers=[

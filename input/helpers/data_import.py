@@ -107,49 +107,6 @@ def import_dat_general(in_file):
     return header, data
 
 
-def import_as_dict(in_file, key):
-    '''Reads csv file and returns dictionary. specifiy what is key, remaining is value
-    '''
-    d = {}
-    c = 0
-    with open(in_file) as f:
-        for line in f:
-            w = line.replace('"', "").rstrip("\r\n").split(";")
-            if c == 0:
-                header = w
-                keyIndex = int(header.index(key))
-                c += 1
-                continue
-            if c > 0:
-                d[w[keyIndex]] = w[:keyIndex] + w[keyIndex + 1:]
-            c += 1
-    return d
-
-
-def import_allele_file(allele_file):
-    '''imports allele.csv file in form of dictionary'''
-    d = {}
-    with open(allele_file) as f:
-        for line in f:
-            w = line.replace('"', "").rstrip("\r\n").rstrip(';').split(";")
-            d[w[0] + "_" + w[1]] = w[2:]
-    return d
-
-
-def get_header_from_tuple(tuple_dat_head):
-    '''
-    get columnnames/header of data frame stored in tuple
-    '''
-    return tuple_dat_head[0]
-
-
-def get_data_from_tuple(tuple_dat_head):
-    '''
-    get columnnames/header of data frame stored in tuple
-    '''
-    return tuple_dat_head[1]
-
-
 def change_col_names(tuple_dat_head):
     """This function changes the names of columns if table hat not been importet to R before."""
     dat_new = tuple_dat_head[1]
@@ -232,16 +189,3 @@ def append_patient(tuple_dat_head, in_file):
             dat_new[ii].append(pat)
         head_new.append("patient")
         return head_new, dat_new
-
-
-if __name__ == '__main__':
-    import sys
-
-    f = sys.argv[1]
-    dat = import_dat(f)
-    dat = change_col_names(dat)
-    dat = append_patient(dat, f)
-    print(subst_semicolon(dat))
-    # write_ouptut_to_file(dat)
-else:
-    import sys

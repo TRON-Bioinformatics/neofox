@@ -51,8 +51,8 @@ class BunchEpitopes:
         """
         rna_dict = {}
         ref_tuple = data_import.import_dat_general(rna_reference_file)
-        ref = data_import.get_data_from_tuple(ref_tuple)
-        ref_head = data_import.get_header_from_tuple(ref_tuple)
+        ref = ref_tuple[1]
+        ref_head = ref_tuple[0]
         tissue = tissue.lower()
         head_cols = [col for col in ref_head if col.startswith(tissue)]
         cols_expr = [ref_head.index(col) for col in head_cols]
