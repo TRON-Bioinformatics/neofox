@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package neoantigen;
+
+message Gene {
+	/**
+	The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38)
+	*/
+	string assembly = 1;
+	/**
+	The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene
+	*/
+	string gene = 2;
+	/**
+	The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id)
+	*/
+	string transcriptIdentifier = 3;
+}
+
+message Mutation {
+	/**
+	The aminoacid position within the protein. 1-based, starting in the N-terminus
+	*/
+	int32 position = 1;
+	/**
+	IUPAC code for the wild type aminoacid in this position
+	*/
+	string wildTypeAminoacid = 2;
+	/**
+	IUPAC code for the mutated aminoacid in this position
+	*/
+	string mutatedAminoacid = 3;
+	/**
+	The left flanking region of variable size in IUPAC codes
+	*/
+	string leftFlankingRegion = 4;
+	/**
+	The size of the left flanking region
+	*/
+	int32 sizeLeftFlankingRegion = 5;
+	/**
+	The right flanking region of variable size in IUPAC codes
+	*/
+	string rightFlankingRegion = 6;
+	/**
+	The size of the right flanking region
+	*/
+	int32 sizeRightFlankingRegion = 7;
+}
+
+/**
+A neoantigen minimal definition
+*/
+message Neoantigen {
+	/**
+	The gene where the neoepitope corresponds
+	*/
+	Gene gene = 1;
+	/**
+	The mutation
+	*/
+	Mutation mutation = 2;
+	/**
+	Expression value of the transcript (any more definition on type of expression?
+	ie: digital from RNAseq, from microarrays, etc.)
+	*/
+	float expressionValue = 3;
+	/**
+	Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
+	there is no quantitive measurement at the moment.
+	*/
+	bool clonalityEstimation = 4;
+	/**
+	Variant allele frequency in the range [0.0, 1.0]
+	*/
+	float variantAlleleFrequency = 5;
+}
