@@ -7,9 +7,9 @@ import numpy as np
 
 from pandas.io.json import json_normalize
 
-from input.model_avro.schema_conversion import SchemaConverter
+from input.model.avro.schema_conversion import SchemaConverter
 from input.helpers import intermediate_files
-from input.model_avro.neoantigen import Neoantigen, Gene, Mutation
+from input.model.avro.neoantigen import Neoantigen, Gene, Mutation
 
 
 class SchemaConverterTest(TestCase):

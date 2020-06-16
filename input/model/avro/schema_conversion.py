@@ -7,7 +7,7 @@ import json
 from collections import defaultdict
 
 from avro_validator.schema import Schema
-from input.model_avro.neoantigen import Neoantigen, Gene, Mutation
+from input.model.avro.neoantigen import Neoantigen, Gene, Mutation
 
 NEOANTIGEN_AVSC = 'Neoantigen.avsc'
 GENE_AVSC = 'Gene.avsc'
@@ -38,7 +38,7 @@ class SchemaConverter(object):
         else:
             raise ValueError("Unexpected type for validation {}".format(type(model)))
         if not valid:
-            raise ValueError("Invalid model_avro due to unknown reasons")
+            raise ValueError("Invalid avro due to unknown reasons")
         return valid
 
     def icam2model(self, icam_file):

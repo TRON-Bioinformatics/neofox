@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from input.model_avro.schema_conversion import SchemaConverter
-from input.model_avro.neoantigen import Neoantigen, Gene, Mutation
+from input.model.avro.schema_conversion import SchemaConverter
+from input.model.avro.neoantigen import Neoantigen, Gene, Mutation
 
 
 class SchemaConverterTest(TestCase):
