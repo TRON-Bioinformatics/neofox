@@ -190,6 +190,10 @@
                   <a href="#neoantigen.Neoantigen"><span class="badge">M</span>Neoantigen</a>
                 </li>
               
+                <li>
+                  <a href="#neoantigen.Patient"><span class="badge">M</span>Patient</a>
+                </li>
+              
               
               
               
@@ -333,6 +337,14 @@ The size of the right flanking region </p></td>
             <tbody>
               
                 <tr>
+                  <td>patientIdentifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Patient identifier </p></td>
+                </tr>
+              
+                <tr>
                   <td>gene</td>
                   <td><a href="#neoantigen.Gene">Gene</a></td>
                   <td></td>
@@ -372,6 +384,63 @@ there is no quantitive measurement at the moment. </p></td>
                   <td></td>
                   <td><p>
 Variant allele frequency in the range [0.0, 1.0] </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Patient">Patient</h3>
+        <p></p><p>The metadata required for analysis for a given patient + its patient identifier</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>identifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Patient identifier </p></td>
+                </tr>
+              
+                <tr>
+                  <td>estimatedTumorContent</td>
+                  <td><a href="#float">float</a></td>
+                  <td></td>
+                  <td><p>
+Estimated tumor content (percentage) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>isRnaAvailable</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>
+Is RNA expression available? </p></td>
+                </tr>
+              
+                <tr>
+                  <td>mhcIAlleles</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>
+MHC I alleles </p></td>
+                </tr>
+              
+                <tr>
+                  <td>mhcIIAlleles</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>
+MHC II alleles </p></td>
                 </tr>
               
             </tbody>

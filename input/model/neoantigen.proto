@@ -53,25 +53,55 @@ A neoantigen minimal definition
 */
 message Neoantigen {
 	/**
+	Patient identifier
+	*/
+	string patientIdentifier = 1;
+	/**
 	The gene where the neoepitope corresponds
 	*/
-	Gene gene = 1;
+	Gene gene = 2;
 	/**
 	The mutation
 	*/
-	Mutation mutation = 2;
+	Mutation mutation = 3;
 	/**
 	Expression value of the transcript (any more definition on type of expression?
 	ie: digital from RNAseq, from microarrays, etc.)
 	*/
-	float expressionValue = 3;
+	float expressionValue = 4;
 	/**
 	Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
 	there is no quantitive measurement at the moment.
 	*/
-	bool clonalityEstimation = 4;
+	bool clonalityEstimation = 5;
 	/**
 	Variant allele frequency in the range [0.0, 1.0]
 	*/
-	float variantAlleleFrequency = 5;
+	float variantAlleleFrequency = 6;
+}
+
+/**
+The metadata required for analysis for a given patient + its patient identifier
+*/
+message Patient {
+	/**
+	Patient identifier
+	*/
+	string identifier = 1;
+	/**
+	Estimated tumor content (percentage)
+	*/
+	float estimatedTumorContent = 2;
+	/**
+	Is RNA expression available?
+	*/
+	bool isRnaAvailable = 3;
+	/**
+	MHC I alleles
+	*/
+	repeated string mhcIAlleles = 4;
+	/**
+	MHC II alleles
+	*/
+	repeated string mhcIIAlleles = 5;
 }
