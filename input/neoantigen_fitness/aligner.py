@@ -106,22 +106,3 @@ class Aligner(object):
             species = str(species).replace(" ", "_")
             return [self.Ri[i], species, al]
         return [0., None, emptyAlignment]
-
-
-import sys
-
-if __name__ == "__main__":
-    a = Aligner()
-    a.readAllBlastAlignments(sys.argv[1])
-    a.computeR()
-    n = []
-    with open(sys.argv[2]) as f:
-        for line in f:
-            if line.startswith(">"):
-                nid = int(line.strip("\n").split("_")[1])
-                continue
-            n.append((nid, line.strip("\n")))
-    for nid, i in n:
-        x = a.getR(nid)
-        if x[1] != None:
-            print(x)

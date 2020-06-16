@@ -4,41 +4,26 @@ import os
 import os.path
 
 from input.helpers import intermediate_files
-from input.neoantigen_fitness.Aligner_modified import Aligner
+from input.helpers.runner import BlastpRunner
 
 
-class DissimilarityCalculator(object):
+class DissimilarityCalculator(BlastpRunner):
 
     def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
         :type configuration: input.references.DependenciesConfiguration
         """
-        self.runner = runner
-        self.configuration = configuration
+        super().__init__(runner=runner, configuration=configuration)
 
     def _calc_dissimilarity(self, fasta_file, references):
         """
         This function determines the dissimilarity to self-proteome of epitopes as described in Richman et al
         """
-        outfile = intermediate_files.create_temp_file(prefix="tmp_prot_", suffix=".xml")
-        self.runner.run_command(cmd=[
-            self.configuration.blastp,
-            "-gapopen", "11",
-            "-gapextend", "1",
-            "-outfmt", "5",
-            "-query", fasta_file,
-            "-out", outfile,
-            "-db", os.path.join(references.proteome_db, "homo_sapiens.mod"),
-            "-evalue", "100000000"])
-        aligner = Aligner()
-        # set a to 32 for dissimilarity
-        aligner.readAllBlastAlignments(outfile)
-        aligner.computeR(a=32)
-        kk = 1
-        similarity = aligner.Ri.get(kk, 0)      # NOTE: returns 0 when not present
+        outfile = self.run_blastp(
+            fasta_file=fasta_file, database=os.path.join(references.proteome_db, "homo_sapiens.mod"))
+        similarity = self.parse_blastp_output(blastp_output_file=outfile, a=32)
         dissimilarity = 1 - similarity
-        os.remove(fasta_file)
         os.remove(outfile)
         return dissimilarity
 
@@ -48,6 +33,7 @@ class DissimilarityCalculator(object):
         """
         fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmp_dissimilarity_", comment_prefix='M_')
         dissim = self._calc_dissimilarity(fastafile, references)
+        os.remove(fastafile)
         sc = dissim
         if filter_binder and float(mhc_affinity) >= 500:
             sc = 0
