@@ -4,7 +4,7 @@ import re
 import difflib
 from collections import defaultdict
 
-from input.model_protobuf.neoantigen import Neoantigen, Gene, Mutation
+from input.model.neoantigen import Neoantigen, Gene, Mutation
 
 
 class SchemaConverter(object):

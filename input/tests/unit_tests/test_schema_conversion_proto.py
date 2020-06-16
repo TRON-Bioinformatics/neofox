@@ -5,8 +5,8 @@ from unittest import TestCase
 from Bio.Data import IUPACData
 import numpy as np
 
-from input.model_protobuf.schema_conversion import SchemaConverter
-from input.model_protobuf.neoantigen import Neoantigen, Gene, Mutation
+from input.model.schema_conversion import SchemaConverter
+from input.model.neoantigen import Neoantigen, Gene, Mutation
 
 
 class SchemaConverterTest(TestCase):
