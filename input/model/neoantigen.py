@@ -2,6 +2,7 @@
 # sources: neoantigen.proto
 # plugin: python-betterproto
 from dataclasses import dataclass
+from typing import List
 
 import betterproto
 
@@ -42,16 +43,37 @@ class Mutation(betterproto.Message):
 class Neoantigen(betterproto.Message):
     """* A neoantigen minimal definition"""
 
+    # * Patient identifier
+    patient_identifier: str = betterproto.string_field(1)
     # * The gene where the neoepitope corresponds
-    gene: "Gene" = betterproto.message_field(1)
+    gene: "Gene" = betterproto.message_field(2)
     # * The mutation
-    mutation: "Mutation" = betterproto.message_field(2)
+    mutation: "Mutation" = betterproto.message_field(3)
     # * Expression value of the transcript (any more definition on type of
     # expression? ie: digital from RNAseq, from microarrays, etc.)
-    expression_value: float = betterproto.float_field(3)
+    expression_value: float = betterproto.float_field(4)
     # * Clonality estimation. At the moment this is a boolean indicating whether
     # there is clonality or not, there is no quantitive measurement at the
     # moment.
-    clonality_estimation: bool = betterproto.bool_field(4)
+    clonality_estimation: bool = betterproto.bool_field(5)
     # * Variant allele frequency in the range [0.0, 1.0]
-    variant_allele_frequency: float = betterproto.float_field(5)
+    variant_allele_frequency: float = betterproto.float_field(6)
+
+
+@dataclass
+class Patient(betterproto.Message):
+    """
+    * The metadata required for analysis for a given patient + its patient
+    identifier
+    """
+
+    # * Patient identifier
+    identifier: str = betterproto.string_field(1)
+    # * Estimated tumor content (percentage)
+    estimated_tumor_content: float = betterproto.float_field(2)
+    # * Is RNA expression available?
+    is_rna_available: bool = betterproto.bool_field(3)
+    # * MHC I alleles
+    mhc_i_alleles: List[str] = betterproto.string_field(4)
+    # * MHC II alleles
+    mhc_i_i_alleles: List[str] = betterproto.string_field(5)
