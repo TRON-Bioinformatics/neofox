@@ -71,7 +71,8 @@ class SelfSimilarityCalculator():
 
 
 def get_self_similarity(mutation, wild_type):
-    """Returns self-similiarity between mutated and wt epitope according to Bjerregard et al.,
+    """
+    Returns self-similiarity between mutated and wt epitope according to Bjerregard et al.,
     Argument mhc indicates if determination for MHC I or MHC II epitopes
     """
     self_similarity = 'NA'
@@ -82,32 +83,25 @@ def get_self_similarity(mutation, wild_type):
     return self_similarity
 
 
-def is_improved_binder(props, mhc):
-    '''
+def is_improved_binder(score_mutation, score_wild_type):
+    """
     This function checks if mutated epitope is improved binder according to Bjerregard et al.
-    '''
-    if mhc == MHC_I:
-        sc_mut = props["best%Rank_netmhcpan4"]
-        sc_wt = props["best%Rank_netmhcpan4_WT"]
-    elif mhc == MHC_II:
-        sc_mut = props["MHC_II_score_.best_prediction."].replace(",", ".")
-        sc_wt = props["MHC_II_score_.WT."].replace(",", ".")
-
+    """
     try:
-        improved_binder = float(sc_wt) / float(sc_mut) >= 1.2
+        improved_binder = float(score_wild_type) / float(score_mutation) >= 1.2
     except (ZeroDivisionError, ValueError) as e:
         return "NA"
+    # TODO: boolean in a string needs to go away
     return "1" if improved_binder else "0"
 
 
-def selfsimilarity_of_conserved_binder_only(props):
-    '''this function returns selfsimilarity for conserved binder but not for improved binder
-    '''
-    conserved_binder = props["ImprovedBinding_mhcI"]
-    similiarity = props["Selfsimilarity_mhcI"]
+def self_similarity_of_conserved_binder_only(has_conserved_binder, similarity):
+    """
+    this function returns selfsimilarity for conserved binder but not for improved binder
+    """
     try:
-        if conserved_binder == str(0):
-            return similiarity
+        if has_conserved_binder == str(0):
+            return similarity
         else:
             return "NA"
     except (ZeroDivisionError, ValueError) as e:
@@ -115,9 +109,9 @@ def selfsimilarity_of_conserved_binder_only(props):
 
 
 def position_of_mutation_epitope(wild_type, mutation):
-    '''
+    """
     This function determines the position of the mutation within the epitope sequence.
-    '''
+    """
     p1 = -1
     try:
         for i, aa in enumerate(mutation):
@@ -128,24 +122,16 @@ def position_of_mutation_epitope(wild_type, mutation):
         return "NA"
 
 
-def position_in_anchor_position(props, netMHCpan=False, nine_mer=False):
-    '''
+def position_in_anchor_position(position_mhci, peptide_length):
+    """
     This function determines if the mutation is located within an anchor position in mhc I.
     As an approximation, we assume that the second and the last position are anchor positions for all alleles.
-    '''
-    if netMHCpan:
-        pos_mhcI = props["pos_MUT_MHCI_affinity_epi"]
-        pep_len = len(props["best_epitope_netmhcpan4"])
-    elif nine_mer:
-        pos_mhcI = props["pos_MUT_MHCI_affinity_epi_9mer"]
-        pep_len = 9
-    else:
-        pos_mhcI = props["pos_MUT_MHCI"]
-        pep_len = props["MHC_I_peptide_length_.best_prediction."]
-
-    anchor = 0
+    """
+    anchor = "NA"
     try:
-        anchor = int(pos_mhcI) == int(pep_len) or int(pos_mhcI) == 2
-        return str(1) if anchor else str(0)
+        anchor = int(position_mhci) == int(peptide_length) or int(position_mhci) == 2
+        # TODO this conversion of a boolean to a numeric boolean in a string needs to go away
+        anchor = str(1) if anchor else str(0)
     except:
-        return "NA"
+        pass
+    return anchor

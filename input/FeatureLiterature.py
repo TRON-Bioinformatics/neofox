@@ -12,147 +12,86 @@ from logzero import logger
 
 from input import MHC_I, MHC_II
 from input.IEDB_Immunogenicity import predict_immunogenicity_simple
+from input.helpers import properties_manager
 
 
-def calc_IEDB_immunogenicity(props, mhc, affin_filtering=False):
+def calc_IEDB_immunogenicity(epitope, mhc_allele, mhc_score, affin_filtering=False):
     '''
     This function determines the IEDB immunogenicity score
     '''
-    if mhc == MHC_I:
-        # mhc_mut = props["MHC_I_epitope_.best_prediction."]
-        # mhc_allele = props["MHC_I_allele_.best_prediction."]
-        mhc_mut = props["best_affinity_epitope_netmhcpan4"]
-        mhc_allele = props["bestHLA_allele_affinity_netmhcpan4"]
-        mhc_score = props["best_affinity_netmhcpan4"]
-    elif mhc == MHC_II:
-        mhc_mut = props["MHC_II_epitope_.best_prediction."]
-        mhc_allele = props["MHC_II_allele_.best_prediction."]
     try:
         if affin_filtering:
             if float(mhc_score) < 500:
-                return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut,
-                                                                                mhc_allele.replace("*", "").replace(":",
+                return str(predict_immunogenicity_simple.predict_immunogenicity(
+                    epitope, mhc_allele.replace("*", "").replace(":",
                                                                                                                     "")))
             else:
                 return "NA"
         else:
-            return str(predict_immunogenicity_simple.predict_immunogenicity(mhc_mut,
-                                                                            mhc_allele.replace("*", "").replace(":",
+            return str(predict_immunogenicity_simple.predict_immunogenicity(
+                epitope, mhc_allele.replace("*", "").replace(":",
                                                                                                                 "")))
     except ValueError:
         return "NA"
 
 
-def dai(props, mhc, multiple_binding=False, affinity=False, netmhcscore=False, affin_filtering=False):
-    '''Calculates DAI: Returns difference between wt and mut MHC binding score. If multiple_binding= true, harmonic means of MHC scores of top10 epitope candidates related to a mps is used '''
-    if mhc == MHC_I:
-        if multiple_binding:
-            sc_mut = props["MB_score_top10_harmonic"]
-            sc_wt = props["MB_score_WT_top10_harmonic"]
-        elif affinity:
-            sc_mut = props["best_affinity_netmhcpan4"]
-            sc_wt = props["best_affinity_netmhcpan4_WT"]
-        elif netmhcscore:
-            sc_mut = props["best%Rank_netmhcpan4"]
-            sc_wt = props["best%Rank_netmhcpan4_WT"]
-        else:
-            sc_mut = props["MHC_I_score_.best_prediction."]
-            sc_wt = props["MHC_I_score_.WT."]
-    elif mhc == MHC_II:
-        if multiple_binding:
-            sc_mut = props["MB_score_MHCII_top10_harmonic"]
-            sc_wt = props["MB_score_MHCII_top10_WT_harmonic"]
-        elif affinity:
-            sc_mut = props["best_affinity_netmhcIIpan"]
-            sc_wt = props["best_affinity_netmhcIIpan_WT"]
-        elif netmhcscore:
-            sc_mut = props["best%Rank_netmhcIIpan"]
-            sc_wt = props["best%Rank_netmhcIIpan_WT"]
-        else:
-            sc_mut = props["MHC_II_score_.best_prediction."]
-            sc_wt = props["MHC_II_score_.WT."]
+def dai(score_mutation, score_wild_type, affin_filtering=False):
+    """
+    Calculates DAI: Returns difference between wt and mut MHC binding score.
+    """
+    # TODO: these conversions to float need to go away from here
     try:
         if affin_filtering:
-            if float(sc_mut) < 500:
-                return str(float(sc_wt) - float(sc_mut))
+            if float(score_mutation) < 500:
+                return str(float(score_wild_type) - float(score_mutation))
             else:
                 return "NA"
         else:
-            return str(float(sc_wt) - float(sc_mut))
+            return str(float(score_wild_type) - float(score_mutation))
     except ValueError:
         return "NA"
 
 
-def diff_number_binders(props, mhc=MHC_I, threshold=1):
-    ''' returns absolute difference of potential candidate epitopes between mutated and wt epitope
-    '''
-    if mhc == MHC_II:
-        num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
-        num_wt = props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
-    else:
-        num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
-        num_wt = props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+def diff_number_binders(num_mutation, num_wild_type):
+    """
+    returns absolute difference of potential candidate epitopes between mutated and wt epitope
+    """
+    # TODO: this is not the absolute difference, just the difference :S
     try:
-        return str(float(num_mut) - float(num_wt))
+        return str(float(num_mutation) - float(num_wild_type))
     except ValueError:
         return "NA"
 
 
-def ratio_number_binders(props, mhc=MHC_I, threshold=1):
-    ''' returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
-    '''
-    if mhc == MHC_II:
-        num_mut = props["MB_number_pep_MHCIIscore<" + str(threshold)]
-        num_wt = props["MB_number_pep_MHCIIscore<" + str(threshold) + "_WT"]
-    else:
-        num_mut = props["MB_number_pep_MHCscore<" + str(threshold)]
-        num_wt = props["MB_number_pep_WT_MHCscore<" + str(threshold)]
+def ratio_number_binders(num_mutation, num_wild_type):
+    """
+    returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
+    """
     try:
-        return str(float(num_mut) / float(num_wt))
+        return str(float(num_mutation) / float(num_wild_type))
     except ZeroDivisionError:
-        return str(num_mut)
+        return str(num_wild_type)
     except ValueError:
         return "NA"
 
 
-def rna_expression_mutation(props, rna_avail):
-    '''
+def rna_expression_mutation(transcript_expression, vaf_rna):
+    """
     This function calculates the product of VAF in RNA and transcript expression
     to reflect the expression of the mutated transcript
-    '''
-    transcript_expression = props["transcript_expression"]
-    if "patient.id" in props:
-        patid = props["patient.id"]
-    else:
-        patid = props["patient"]
-    try:
-        rna_avail = rna_avail[patid]
-    except (KeyError, ValueError) as e:
-        rna_avail = "NA"
-    logger.info("rna_avail: ".format(rna_avail))
-    if rna_avail == "False":
-        vaf_rna = props["VAF_in_tumor"]
-    else:
-        try:
-            vaf_rna = props["VAF_in_RNA"]
-        except KeyError:
-            vaf_rna = props["VAF_in_tumor"]
+    """
     try:
         return str(float(transcript_expression) * float(vaf_rna)) if float(vaf_rna) > 0 else "NA"
     except ValueError:
         return "NA"
 
 
-def expression_mutation_tc(props, tumour_content):
-    '''calculated expression of mutation corrected by tumour content
-    '''
-    transcript_expression = props["Expression_Mutated_Transcript"]
-    if "patient.id" in props:
-        patid = props["patient.id"]
-    else:
-        patid = props["patient"]
+def expression_mutation_tc(transcript_expression, patient_id, tumour_content):
+    """
+    calculated expression of mutation corrected by tumour content
+    """
     try:
-        tumour_content = float(tumour_content[patid]) / 100
+        tumour_content = float(tumour_content[patient_id]) / 100
     except (KeyError, ValueError) as e:
         tumour_content = "NA"
     try:
@@ -161,34 +100,27 @@ def expression_mutation_tc(props, tumour_content):
         return "NA"
 
 
-def number_of_mismatches(props, mhc):
-    '''
+def number_of_mismatches(epitope_wild_type, epitope_mutation):
+    """
     This function calculates the number of mismatches between the wt and the mutated epitope
-    '''
-    if mhc == MHC_I:
-        mhc_epitope_mut = props["best_epitope_netmhcpan4"]
-        mhc_epitope_wt = props["best_epitope_netmhcpan4_WT"]
-    elif mhc == MHC_II:
-        mhc_epitope_mut = props["best_epitope_netmhcIIpan"]
-        mhc_epitope_wt = props["best_epitope_netmhcIIpan_WT"]
+    """
     p1 = 0
     try:
-        for i, aa in enumerate(mhc_epitope_mut):
-            if aa != mhc_epitope_wt[i]:
+        for i, aa in enumerate(epitope_mutation):
+            if aa != epitope_wild_type[i]:
                 p1 += 1
         return str(p1)
     except IndexError:
         return "NA"
 
 
-def match_in_proteome(props, db):
-    '''
+def match_in_proteome(sequence, db):
+    """
     This function checks if the mutated epitope has an exact match in a protein database (uniprot)
     Returns 0 if mutation is present in proteome and 1 if it not present
-    '''
-    seq = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+    """
     try:
-        seq_in_db = [seq in entry for entry in db]
+        seq_in_db = [sequence in entry for entry in db]
         return "0" if any(seq_in_db) else "1"
     except:
         return "NA"
@@ -203,45 +135,31 @@ def calc_logistic_function(mhc_score):
         return "NA"
 
 
-def calc_priority_score(props, multiple_binding=False):
-    '''
+def calc_priority_score(vaf_tumor, vaf_rna, transcript_expr, no_mismatch, score_mut, score_wt, mut_in_prot):
+    """
     This function calculates the Priority Score using parameters for mhc I.
-    '''
-    vaf_tumor = props["VAF_in_tumor"]
-    try:
-        vaf_rna = props["VAF_in_RNA"]
-    except KeyError:
-        vaf_tumor = props["VAF_in_tumor"]
-    transcript_expr = props["transcript_expression"]
-    no_mismatch = props["Number_of_mismatches_mhcI"]
-    if multiple_binding:
-        score_mut = props["MB_score_top10_harmonic"]
-        score_wt = props["MB_score_WT_top10_harmonic"]
-    else:
-        score_mut = props["best%Rank_netmhcpan4"]
-        score_wt = props["best%Rank_netmhcpan4_WT"]
-    mut_in_prot = props["mutation_found_in_proteome"]
+    """
+    # TODO: Franziska is this a bug? It is reversing its value
     if mut_in_prot == "False" : mut_in_prot = "1"
     if mut_in_prot == "True" : mut_in_prot = "0"
     L_mut = calc_logistic_function(score_mut)
     L_wt = calc_logistic_function(score_wt)
-    priority_score = 0.0
+    priority_score = "NA"
     try:
-        if vaf_tumor != "-1":
+        if vaf_tumor not in ["-1", "NA"]:
             priority_score = (L_mut * float(vaf_tumor) * math.tanh(float(transcript_expr))) * (
                         float(mut_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
         else:
             priority_score = (L_mut * float(vaf_rna) * math.tanh(float(transcript_expr))) * (
                         float(mut_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
-        return str(priority_score)
     except (TypeError, ValueError) as e:
-        return "NA"
+        pass
+    return str(priority_score)
 
 
-def wt_mut_aa(props, mut):
+def wt_mut_aa(substitution, mut):
     '''Returns wt and mut aa.
     '''
-    substitution = props["substitution"]
     try:
         if mut == "mut":
             return substitution[-1]
@@ -249,32 +167,6 @@ def wt_mut_aa(props, mut):
             return substitution[0]
     except ValueError:
         return "NA"
-
-
-def add_aa_index1(props, mut, key, val):
-    """Adds amino acido index to dictioniary. output from aa index 1 append function = tuple of feature name and feature value (nam_wt, nam_mut, val_wt, val_mut)
-    mut indicates if mutated or wt aa
-    """
-    if mut == "mut":
-        aa = props["MUT_AA"]
-    elif mut == "wt":
-        aa = props["WT_AA"]
-    try:
-        return "_".join([key, mut]), str(val[aa])
-    except KeyError:
-        return "_".join([key, mut]), "NA"
-
-
-def add_aa_index2(props, key, val):
-    """Adds amino acido index to dictioniary. output from aa index 1 append function = tuple of feature name and feature value (nam_wt, nam_mut, val_wt, val_mut)
-    mut indicates if mutated or wt aa
-    """
-    mut_aa = props["MUT_AA"]
-    wt_aa = props["WT_AA"]
-    try:
-        return key, str(val[wt_aa][mut_aa])
-    except KeyError:
-        return key, "NA"
 
 
 def write_ouptut_to_file(epitope_data):
@@ -288,33 +180,22 @@ def write_ouptut_to_file(epitope_data):
         print(";".join(i))
 
 
-def classify_adn_cdn(props, mhc, category):
-    '''returns if an epitope belongs to classically and alternatively defined neoepitopes (CDN vs ADN) (indicate which category to examine by category)--> Rech et al, 2018
+def classify_adn_cdn(score_mutation, amplitude, bdg_cutoff_classical, bdg_cutoff_alternative, amplitude_cutoff, category):
+    """
+    returns if an epitope belongs to classically and alternatively defined neoepitopes (CDN vs ADN) (indicate which category to examine by category)--> Rech et al, 2018
     grouping is based on affinity and affinitiy foldchange between wt and mut
-    '''
+    """
     group = "NA"
-    if mhc == MHC_I:
-        score_mut = props["best_affinity_netmhcpan4"]
-        amplitude = props["Amplitude_mhcI_affinity"]
-        bdg_cutoff_classical = 50
-        bdg_cutoff_alternative = 5000
-        amplitude_cutoff = 10
-    elif mhc == MHC_II:
-        score_mut = props["MHC_II_score_.best_prediction."]
-        amplitude = props["Amplitude_mhcII"]
-        bdg_cutoff_classical = 1
-        bdg_cutoff_alternative = 4
-        amplitude_cutoff = 4
     try:
         if category == "CDN":
-            if float(score_mut) < float(bdg_cutoff_classical):
+            if float(score_mutation) < float(bdg_cutoff_classical):
                 group = "True"
-            elif float(score_mut) > float(bdg_cutoff_classical):
+            elif float(score_mutation) > float(bdg_cutoff_classical):
                 group = "False"
         elif category == "ADN":
-            if float(score_mut) < float(bdg_cutoff_alternative) and float(amplitude) > float(amplitude_cutoff):
+            if float(score_mutation) < float(bdg_cutoff_alternative) and float(amplitude) > float(amplitude_cutoff):
                 group = "True"
-            elif float(score_mut) > float(bdg_cutoff_alternative) or float(amplitude) < float(amplitude_cutoff):
+            elif float(score_mutation) > float(bdg_cutoff_alternative) or float(amplitude) < float(amplitude_cutoff):
                 group = "False"
     except ValueError:
         group = "NA"

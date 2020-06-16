@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import tempfile
+from input.helpers import properties_manager, intermediate_files
 
 
 class MixMhc2Pred:
@@ -42,11 +42,10 @@ class MixMhc2Pred:
                         avail_alleles.append(line1)
         return avail_alleles
 
-    def mut_position_xmer_seq(self, props):
-        '''returns position of mutation in xmer sequence
-        '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
+    def mut_position_xmer_seq(self, xmer_wt, xmer_mut):
+        """
+        returns position of mutation in xmer sequence
+        """
         p1 = -1
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
@@ -61,15 +60,12 @@ class MixMhc2Pred:
                     p1 += 1
         return str(p1)
 
-    def generate_nmers(self, props, list_lengths, mut=True):
+    def generate_nmers(self, xmer_wt, xmer_mut, list_lengths):
         ''' generates peptides covering mutation of all lengths that are provided. Returns peptides as list
         '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         length_mut = len(xmer_mut)
         list_peptides = []
-        pos_mut = int(self.mut_position_xmer_seq(props))
-        long_seq = xmer_mut if mut else xmer_wt
+        pos_mut = int(self.mut_position_xmer_seq(xmer_mut=xmer_mut, xmer_wt=xmer_wt))
         for l in list_lengths:
             l = int(l)
             if l <= length_mut:
@@ -80,33 +76,10 @@ class MixMhc2Pred:
                 ends = []
                 [ends.append(int(s + (l))) for s in starts]
                 for s, e in zip(starts, ends):
-                    list_peptides.append(long_seq[s:e])
+                    list_peptides.append(xmer_mut[s:e])
         list_peptides_fil = []
         [list_peptides_fil.append(x) for x in list_peptides if not x == ""]
         return list_peptides_fil
-
-    def generate_fasta(self, seqs, tmpfile):
-        ''' Writes seqs given in seqs list into fasta file
-        '''
-        counter = 0
-        with open(tmpfile, "w") as f:
-            for seq in seqs:
-                id = "".join([">seq", str(counter)])
-                f.write(id + "\n")
-                f.write(seq + "\n")
-                counter += 1
-
-    def get_hla_allels(self, props, hla_patient_dict):
-        ''' returns hla allele of patients given in hla_file
-        '''
-        if "patient.id" in props:
-            patientid = props["patient.id"]
-        else:
-            try:
-                patientid = props["patient"]
-            except KeyError:
-                patientid = props["patient.x"]
-        return hla_patient_dict[patientid]
 
     def prepare_dq_dp(self, list_alleles):
         ''' returns patient DQ/DP alleles that are relevant for prediction
@@ -232,11 +205,9 @@ class MixMhc2Pred:
         except IndexError:
             return "NA"
 
-    def extract_WT_for_best(self, props, best_mut_seq):
+    def extract_WT_for_best(self, xmer_wt, xmer_mut, best_mut_seq):
         '''extracts the corresponding WT epitope for best predicted mutated epitope
         '''
-        xmer_wt = props["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = props["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         start = xmer_mut.find(best_mut_seq)
         l = len(best_mut_seq)
         wt_epi = xmer_wt[start:(start + l)]
@@ -276,17 +247,15 @@ class MixMhc2Pred:
                         avail_alleles.append(line1)
         return avail_alleles
 
-    def main(self, props_dict, dict_patient_hlaII):
+    def main(self, alleles, xmer_wt, xmer_mut):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
-        tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_", suffix=".fasta", delete=False)
-        tmp_fasta = tmp_fasta_file.name
-        tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhc2pred", suffix=".txt", delete=False)
-        tmp_prediction = tmp_prediction_file.name
-        # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al. Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes. Nat. Biotech. (2019).
-        seqs = self.generate_nmers(props_dict, [13, 14, 15, 16, 17, 18])
-        self.generate_fasta(seqs, tmp_fasta)
-        alleles = self.get_hla_allels(props_dict, dict_patient_hlaII)
+        tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
+        # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al.
+        # Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
+        # Nat. Biotech. (2019).
+        seqs = self.generate_nmers(xmer_wt=xmer_wt, xmer_mut=xmer_mut, list_lengths=[13, 14, 15, 16, 17, 18])
+        tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
         # try except statement to prevent stop of input for mps shorter < 13aa
         try:
             self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction)
@@ -309,13 +278,10 @@ class MixMhc2Pred:
             self.all_ranks = "|".join(pred_all["%Rank"])
             self.all_alleles = "|".join(pred_all["BestAllele"])
             # prediction of for wt epitope that correspond to best epitope
-            wt = self.extract_WT_for_best(props_dict, self.best_peptide)
+            wt = self.extract_WT_for_best(xmer_wt=xmer_wt, xmer_mut=xmer_mut, best_mut_seq=self.best_peptide)
             wt_list = [wt]
-            tmp_fasta_file = tempfile.NamedTemporaryFile(prefix="tmp_sequence_wt_", suffix=".fasta", delete=False)
-            tmp_fasta = tmp_fasta_file.name
-            tmp_prediction_file = tempfile.NamedTemporaryFile(prefix="mixmhc2pred_wt_", suffix=".txt", delete=False)
-            tmp_prediction = tmp_prediction_file.name
-            self.generate_fasta(wt_list, tmp_fasta)
+            tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred_wt_", suffix=".txt")
+            tmp_fasta = intermediate_files.create_temp_fasta(wt_list, prefix="tmp_sequence_wt_")
             self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, wt=True)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")

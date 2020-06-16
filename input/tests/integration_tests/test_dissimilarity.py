@@ -14,7 +14,6 @@ class TestDissimilarity(TestCase):
 
     def test_dissimilarity(self):
         result = DissimilarityCalculator(runner=self.runner, configuration=self.configuration).calculate_dissimilarity(
-            props={'best_affinity_epitope_netmhcpan4': 'hey', 'best_affinity_netmhcpan4': 'ho'},
-            fastafile=self.fastafile.name,
+            mhc_mutation='hey', mhc_affinity='ho',
             references=self.references)
         self.assertEqual('0', result)
