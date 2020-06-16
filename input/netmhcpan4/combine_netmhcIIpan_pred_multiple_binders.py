@@ -2,9 +2,9 @@
 
 from logzero import logger
 
-import input.netmhcIIpan.netmhcIIpan_prediction as netmhcIIpan_prediction
+import input.netmhcpan4.netmhcIIpan_prediction as netmhcIIpan_prediction
 from input import MHC_II
-from input.helpers import properties_manager, intermediate_files
+from input.helpers import intermediate_files
 from input.netmhcpan4 import multiple_binders
 
 
@@ -53,7 +53,7 @@ class BestAndMultipleBinderMhcII:
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         '''
         number_alleles = len(tuple_best_per_allele)
-        multbind = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
+        multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         logger.debug(tuple_best_per_allele)
         logger.debug(len(tuple_best_per_allele))
@@ -65,7 +65,7 @@ class BestAndMultipleBinderMhcII:
         if len(tuple_best_per_allele_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
             best_scores_allele = multbind.scores_to_list(tuple_best_per_allele_new)
-            return multbind.wrapper_mean_calculation(best_scores_allele)
+            return multbind.get_means(best_scores_allele)
         else:
             return ["NA", "NA", "NA"]
 
@@ -76,8 +76,8 @@ class BestAndMultipleBinderMhcII:
         logger.info("MUT seq MHC II: {}".format(sequence))
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
-        np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner, configuration=self.configuration)
-        mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
+        np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
+        mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
         logger.debug(alleles_formated)
@@ -95,8 +95,8 @@ class BestAndMultipleBinderMhcII:
             all = mb.scores_to_list(list_tups)
             all_affinities = mb.affinities_to_list(list_tups)
             top10 = mb.scores_to_list(top10)
-            self.MHCII_score_top10 = mb.wrapper_mean_calculation(top10)
-            self.MHCII_score_all_epitopes = mb.wrapper_mean_calculation(all)
+            self.MHCII_score_top10 = mb.get_means(top10)
+            self.MHCII_score_all_epitopes = mb.get_means(all)
             self.MHCII_score_best_per_alelle = self.MHCII_MB_score_best_per_allele(best_per_alelle)
             self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 2)
             self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 10)
@@ -117,8 +117,8 @@ class BestAndMultipleBinderMhcII:
         ### PREDICTION FOR WT SEQUENCE
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         logger.debug(tmp_prediction)
-        np = netmhcIIpan_prediction.NetMhcIIPanBestPrediction(runner=self.runner, configuration=self.configuration)
-        mb = multiple_binders.MultipleBinding(runner=self.runner, configuration=self.configuration)
+        np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
+        mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta([sequence_reference], prefix="tmp_singleseq_")
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         try:
@@ -134,8 +134,8 @@ class BestAndMultipleBinderMhcII:
             all = mb.scores_to_list(list_tups)
             all_affinities = mb.affinities_to_list(list_tups)
             top10 = mb.scores_to_list(top10)
-            self.MHCII_score_top10_WT = mb.wrapper_mean_calculation(top10)
-            self.MHCII_score_all_epitopes_WT = mb.wrapper_mean_calculation(all)
+            self.MHCII_score_top10_WT = mb.get_means(top10)
+            self.MHCII_score_all_epitopes_WT = mb.get_means(all)
             self.MHCII_score_best_per_alelle_WT = self.MHCII_MB_score_best_per_allele(best_per_alelle)
             self.MHCII_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
             self.MHCII_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)

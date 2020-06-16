@@ -5,41 +5,27 @@ import os.path
 from logzero import logger
 
 from input.helpers import intermediate_files
-from input.neoantigen_fitness.Aligner_modified import Aligner
+from input.helpers.runner import BlastpRunner
 
 
-class NeoantigenFitnessCalculator(object):
+class NeoantigenFitnessCalculator(BlastpRunner):
 
     def __init__(self, runner, configuration):
         """
         :type runner: input.helpers.runner.Runner
         :type configuration: input.references.DependenciesConfiguration
         """
-        self.runner = runner
-        self.configuration = configuration
+        super().__init__(runner, configuration)
 
     def _calc_pathogen_similarity(self, fasta_file, iedb):
-        '''
-        This function determines the PATHOGENSIMILARITY of epitopes according to Balachandran et al. using a blast search against the IEDB pathogenepitope database
-        '''
-        outfile = intermediate_files.create_temp_file(prefix="tmp_iedb_", suffix=".xml")
-        self.runner.run_command(cmd=[
-            self.configuration.blastp,
-            "-gapopen", "11",
-            "-gapextend", "1",
-            "-outfmt", "5",
-            "-query", fasta_file,
-            "-out", outfile,
-            "-db", os.path.join(iedb, "iedb_blast_db"),
-            "-evalue", "100000000"])
-        a = Aligner()
-        a.readAllBlastAlignments(outfile)
-        a.computeR()
-        kk = 1
-        x = a.Ri.get(kk, 0)     # NOTE: if not present it returns 0
-        os.remove(fasta_file)
+        """
+        This function determines the PATHOGENSIMILARITY of epitopes according to Balachandran et al. using a blast
+        search against the IEDB pathogenepitope database
+        """
+        outfile = self.run_blastp(fasta_file=fasta_file, database=os.path.join(iedb, "iedb_blast_db"))
+        similarity = self.parse_blastp_output(blastp_output_file=outfile)
         os.remove(outfile)
-        return x
+        return similarity
 
     def wrap_pathogen_similarity(self, mutation, iedb):
         fastafile = intermediate_files.create_temp_fasta(sequences=[mutation], prefix="tmpseq", comment_prefix='M_')
@@ -49,6 +35,7 @@ class NeoantigenFitnessCalculator(object):
             # TODO: do we need this at all? it should not fail and if it fails we probably want to just stop execution
             logger.exception(ex)
             pathsim = 0
+        os.remove(fastafile)
         logger.info("Peptide {} has a pathogen similarity of {}".format(mutation, pathsim))
         return str(pathsim)
 

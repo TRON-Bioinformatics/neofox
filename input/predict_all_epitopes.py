@@ -76,22 +76,6 @@ class BunchEpitopes:
                 freq_dict[w[0]] = w[1]
         return freq_dict
 
-    def load_available_hla_alleles(self, mhc=MHC_I):
-        """
-        loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
-        :param mhc:
-        :return:
-        """
-        if mhc == MHC_II:
-            fileMHC = self.references.available_mhc_ii
-        else:
-            fileMHC = self.references.available_mhc_i
-        set_available_mhc = set()
-        with open(fileMHC) as f:
-            for line in f:
-                set_available_mhc.add(line.strip())
-        return set_available_mhc
-
     @staticmethod
     def load_patient_hla_I_allels(path_to_hla_file):
         """
@@ -192,8 +176,8 @@ class BunchEpitopes:
         self.aa_index1_dict = aa_index.parse_aaindex1(self.references.aaindex1)
         self.aa_index2_dict = aa_index.parse_aaindex2(self.references.aaindex2)
         prov_file = self.references.prov_scores_mapped3
-        self.hla_available_alleles = self.load_available_hla_alleles()
-        self.hlaII_available_alleles = self.load_available_hla_alleles(mhc=MHC_II)
+        self.hla_available_alleles = self.references.load_available_hla_alleles(mhc=MHC_I)
+        self.hlaII_available_alleles = self.references.load_available_hla_alleles(mhc=MHC_II)
         self.patient_hla_I_allels = self.load_patient_hla_I_allels(path_to_hla_file)
         self.patient_hla_II_allels = self.load_patient_hla_II_allels(path_to_hla_file)
         # tumour content
