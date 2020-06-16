@@ -14,10 +14,12 @@ class MultipleBinding:
         """
         results = ["NA", "NA", "NA"]
         if list_numbers is not None and len(list_numbers) > 0:
+            # TODO: ensure that floats are parsed before calling this method so this conversion is not needed
+            list_floats = [float(x) for x in list_numbers]
             results = [
-                np.mean(list_numbers),
-                stats.hmean(list_numbers),
-                stats.gmean(list_numbers)
+                np.mean(list_floats),
+                stats.hmean(list_floats),
+                stats.gmean(list_floats)
             ]
         return results
 
