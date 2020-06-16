@@ -19,56 +19,33 @@ class TestNeoantigenFitness(TestCase):
         fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         return references, configuration, fastafile
 
-    def test_pathogen_similarity_mhcI(self):
-        result = self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-            props={"MHC_I_epitope_.best_prediction.": "hey"},
-            mhc=MHC_I,
-            fastafile=self.fastafile.name,
+    def test_pathogen_similarity(self):
+        # tests a pathogen sequence and expects 1.0 similarity
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+            mutation='FIAGLIAIV',
             iedb=self.references.iedb)
-        self.assertEqual('0', result)
-
-    def test_pathogen_similarity_mhcII(self):
-        result = self.neoantigen_fitness_calculator.wrap_pathogensimilarity(
-            props={"MHC_II_epitope_.best_prediction.": "hey"},
-            mhc=MHC_II,
-            fastafile=self.fastafile.name,
+        self.assertEqual('1.0', result)
+        # tests a modified pathogen sequence and expects something between 0 and 1
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+            mutation='FIAGDAAIV',
+            iedb=self.references.iedb)
+        self.assertLess(float(result), 1.0)
+        self.assertGreater(float(result), 0.0)
+        # tests a non pathogen sequence and expects 0 similarity
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+            mutation='DDDDDMMDD',
             iedb=self.references.iedb)
         self.assertEqual('0', result)
 
     def test_amplitude_mhc(self):
-        props = defaultdict(lambda: "1,0")
-        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_I))
-        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_II))
-        self.assertEqual('1.0',
-                         self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_I, multiple_binding=True))
-        self.assertEqual('1.0',
-                         self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_II, multiple_binding=True))
-        self.assertEqual('0.9997000899730081',
-                         self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_I, affinity=True))
-        self.assertEqual('0.9997000899730081',
-                         self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_II, affinity=True))
-        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_I, netmhcscore=True))
-        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_II, netmhcscore=True))
-        self.assertEqual('0.9997000899730081',
-                         self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_I, nine_mer=True))
-        self.assertEqual('0.9997000899730081',
-                         self.neoantigen_fitness_calculator.calculate_amplitude_mhc(props=props, mhc=MHC_II, nine_mer=True))
+        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
+            score_mutation="1.0", score_wild_type="1.0"))
+        self.assertEqual('0.9997000899730081', self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
+            score_mutation="1.0", score_wild_type="1.0", apply_correction=True))
 
     def test_recognition_potential(self):
         props = defaultdict(lambda: "1.0")
         props['Mutation_in_anchor_netmhcpan'] = '0'
         props['Mutation_in_anchor_netmhcpan_9mer'] = '0'
-        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_recognition_potential(props=props, mhc=MHC_I))
-        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_recognition_potential(props=props, mhc=MHC_II))
-        self.assertEqual('1.0',
-                         self.neoantigen_fitness_calculator.calculate_recognition_potential(props=props, mhc=MHC_I, affinity=True))
-        self.assertEqual('1.0',
-                         self.neoantigen_fitness_calculator.calculate_recognition_potential(props=props, mhc=MHC_II, affinity=True))
-        self.assertEqual('1.0',
-                         self.neoantigen_fitness_calculator.calculate_recognition_potential(props=props, mhc=MHC_I, netmhcscore=True))
-        self.assertEqual('1.0',
-                         self.neoantigen_fitness_calculator.calculate_recognition_potential(props=props, mhc=MHC_II, netmhcscore=True))
         self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            props=props, mhc=MHC_I, nine_mer=True))
-        self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            props=props, mhc=MHC_II, nine_mer=True))
+            amplitude="1.0", pathogen_similarity="1.0", mutation_in_anchor="0"))

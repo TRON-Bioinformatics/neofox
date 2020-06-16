@@ -10,16 +10,9 @@ class TestSelfSimilarity(TestCase):
         result = self_similarity.get_self_similarity(wild_type="DDD", mutation="DDD")
         self.assertEqual('1.0', result)
 
-    def test_is_improved_binder_mhci(self):
+    def test_is_improved_binder(self):
         result = self_similarity.is_improved_binder(
-            props={'best%Rank_netmhcpan4': '1.0', 'best%Rank_netmhcpan4_WT': '1.3'},
-            mhc=MHC_I)
-        self.assertEqual('1', result)
-
-    def test_is_improved_binder_mhcii(self):
-        result = self_similarity.is_improved_binder(
-            props={'MHC_II_score_.best_prediction.': '1,0', 'MHC_II_score_.WT.': '1,3'},
-            mhc=MHC_II)
+            score_mutation='1.0', score_wild_type='1.3')
         self.assertEqual('1', result)
 
     def test_position_mutation(self):

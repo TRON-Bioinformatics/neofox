@@ -1,56 +1,35 @@
 #!/usr/bin/env python
 
-import tempfile
-
 from logzero import logger
 
 import input.Tcell_predictor.prediction as prediction
+from input.helpers import intermediate_files
 
 
-class Tcellprediction:
+class TcellPrediction:
 
     def __init__(self, references):
-        self.TcellPrdictionScore = "NA"
-        self.TcellPrdictionScore_9merPred = "NA"
+        self.tcell_prediction_score = "NA"
+        self.tcell_prediction_score_9mer = "NA"
         self.references = references
 
-    def _triple_gen_seq_subst_for_prediction(self, props, all=True, affinity=False):
+    def _triple_gen_seq_subst_for_prediction(self, gene, substitution, epitope, score, threshold):
         """
         extracts gene id, epitope sequence and substitution from epitope dictionary
         Tcell predictor works with 9mers only! --> extract for 9mers only
         """
-        if "gene.x" in props:
-            gene = props["gene.x"]
-        else:
-            gene = props["gene"]
-        subst = props["substitution"]
-        if affinity:
-            epi = props["best_affinity_epitope_netmhcpan4_9mer"]
-            score = props["best_affinity_netmhcpan4_9mer"]
-        else:
-            epi = props["MHC_I_epitope_.best_prediction."]
-            score = props["MHC_I_score_.best_prediction."]
-        logger.debug("{} {} {} {} {}".format(gene, epi, subst, score, str(len(epi))))
-        if str(len(epi)) == str(9):
-            z = [gene.replace(" ", ""), epi, subst]
-            if all:
-                z = [gene.replace(" ", ""), epi, subst]
-                return (z)
+        logger.debug("{} {} {} {} {}".format(gene, epitope, substitution, score, str(len(epitope))))
+        result = (["NA", "NA", "NA"])
+        if str(len(epitope)) == str(9):
+            z = [gene.replace(" ", ""), epitope, substitution]
+            if threshold is None:
+                z = [gene.replace(" ", ""), epitope, substitution]
+                result = (z)
             else:
-                if (affinity):
-                    if float(score) < 500:
-                        z = [gene.replace(" ", ""), epi, subst]
-                        return (z)
-                    else:
-                        return (["NA", "NA", "NA"])
-                else:
-                    if float(score) < 2:
-                        z = [gene.replace(" ", ""), epi, subst]
-                        return (z)
-                    else:
-                        return (["NA", "NA", "NA"])
-        else:
-            return (["NA", "NA", "NA"])
+                if float(score) < threshold:
+                    z = [gene.replace(" ", ""), epitope, substitution]
+                    result = (z)
+        return result
 
     def _write_triple_to_file(self, triple, tmpfile_in):
         """
@@ -78,11 +57,12 @@ class Tcellprediction:
 
         return score
 
-    def _wrapper_tcellpredictor(self, props, tmpfile_in, tmpfile_out, all=True, affinity=False):
+    def _wrapper_tcellpredictor(self, gene, substitution, epitope, score, threshold, tmpfile_in, tmpfile_out):
         """
         wrapper function to determine
         """
-        trp = self._triple_gen_seq_subst_for_prediction(props, all, affinity)
+        trp = self._triple_gen_seq_subst_for_prediction(
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold)
         logger.debug(trp)
         pred_out = "NA"
         if "NA" not in trp:
@@ -90,19 +70,11 @@ class Tcellprediction:
             pred_out = self._prediction_single_mps(tmpfile_in, tmpfile_out)
         return pred_out
 
-    def main(self, props):
+    def calculate_tcell_predictor_score(self, gene, substitution, epitope, score, threshold=None):
         ''' returns Tcell_predictor score given mps in dictionary format
-        '''
-        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicIN_", suffix=".txt", delete=False)
-        tmp_tcellPredIN = tmp_tcellPredIN_file.name
-        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicOUT_", suffix=".txt", delete=False)
-        tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
-        # returns score for all epitopes --> no filtering based on mhc affinity here!
-        self.TcellPrdictionScore = self._wrapper_tcellpredictor(props, tmp_tcellPredIN, tmp_tcellPredOUT)
-        tmp_tcellPredIN_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicIN_", suffix=".txt", delete=False)
-        tmp_tcellPredIN = tmp_tcellPredIN_file.name
-        tmp_tcellPredOUT_file = tempfile.NamedTemporaryFile(prefix="tmp_TcellPredicOUT_", suffix=".txt", delete=False)
-        tmp_tcellPredOUT = tmp_tcellPredOUT_file.name
-        # returns score for all epitopes --> do filtering based on mhc affinity here (threshold 500 nM)!
-        self.TcellPrdictionScore_9merPred = self._wrapper_tcellpredictor(
-            props, tmp_tcellPredIN, tmp_tcellPredOUT, all=False, affinity=True)
+                '''
+        tmp_tcellPredIN = intermediate_files.create_temp_file(prefix="tmp_TcellPredicIN_", suffix=".txt")
+        tmp_tcellPredOUT = intermediate_files.create_temp_file(prefix="tmp_TcellPredicOUT_", suffix=".txt")
+        return self._wrapper_tcellpredictor(
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold,
+            tmpfile_in=tmp_tcellPredIN, tmpfile_out=tmp_tcellPredOUT)

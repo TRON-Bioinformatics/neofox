@@ -2,11 +2,11 @@
 
 import os
 import sys
-import tempfile
 
 from logzero import logger
 
 from input import MHC_I
+from input.helpers import properties_manager, intermediate_files
 
 
 class NeoagCalculator(object):
@@ -35,18 +35,10 @@ class NeoagCalculator(object):
         output, _ = self.runner.run_command(cmd)
         return output
 
-    def _prepare_tmp_for_neoag(self, props, tmp_file_name):
+    def _prepare_tmp_for_neoag(self, sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position, tmp_file_name):
         ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with affinity < 500 nM
         '''
         header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
-        if "patient.id" in props:
-            sample_id = props["patient.id"]
-        else:
-            sample_id = props["patient"]
-        mut_peptide = props["best_affinity_epitope_netmhcpan4"]
-        score_mut = props["best_affinity_netmhcpan4"]
-        ref_peptide = props["best_affinity_epitope_netmhcpan4_WT"]
-        peptide_variant_position = props["pos_MUT_MHCI_affinity_epi"]
         try:
             if float(score_mut) < 500:
                 epi_row = "\t".join([sample_id, mut_peptide, ref_peptide, peptide_variant_position])
@@ -59,12 +51,11 @@ class NeoagCalculator(object):
             f.write("\t".join(header) + "\n")
             f.write(epi_row + "\n")
 
-    def wrapper_neoag(self, props):
+    def wrapper_neoag(self, sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position):
         ''' wrapper function to determine neoag immunogenicity score for a mutated peptide sequence
         '''
-        tmp_file = tempfile.NamedTemporaryFile(prefix="tmp_neoag_", suffix=".txt", delete=False)
-        tmp_file_name = tmp_file.name
-        self._prepare_tmp_for_neoag(props, tmp_file_name)
+        tmp_file_name = intermediate_files.create_temp_file(prefix="tmp_neoag_", suffix=".txt")
+        self._prepare_tmp_for_neoag(sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position, tmp_file_name)
         neoag_score = self._apply_gbm(tmp_file_name)
         with open(tmp_file_name) as f:
             for line in f:
