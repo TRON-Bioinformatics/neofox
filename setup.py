@@ -23,12 +23,11 @@ setup(
             'input=input.command_line:input_cli'
         ],
     },
-    author='Franziska Lang',
+    author=['Franziska Lang', 'Pablo Riesgo Ferreiro'],
     description='TODO',
     requires=[],
     # NOTE: always specify versions to ensure build reproducibility
     # NOTE2: sklearn==0.19.0 is a hidden dependency as it is required by Classifier.pickle
-
     install_requires=[
         'biopython==1.76',
         'mock',
@@ -38,8 +37,9 @@ setup(
         'pickle-mixin',
         'scikit-learn==0.20.3',
         'logzero==1.5.0',
-        'avro_validator',
-        'betterproto'
+        'python-dotenv==0.12.0',
+        'avro_validator==1.0.6',
+        'betterproto==1.2.5'
     ],
     setup_requires=[],
     classifiers=[
