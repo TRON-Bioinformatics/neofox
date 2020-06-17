@@ -115,3 +115,58 @@ sh start_annotation_multiple_patientfiles.sh cohort_folder_with_patient_icam_fol
 ```  
 
 --> eg. parallel mps annotation of patients of a cohort, iCaM files stored in cohort_folder_with_patient_icam_folders
+
+
+## Developer guide
+
+### Build the package
+
+To build the package just run:
+```
+python setup.py bdist_wheel
+```
+
+This will create an installable wheel file under `dist/input-x.y.z.whl`.
+
+### Install the package
+
+Install the wheel file as follows:
+```
+pip install dist/input-x.y.z.whl
+```
+
+### Run integration tests
+
+To run the integration tests make sure you have a file `.env` that contains the following variables with the right values:
+```
+export INPUT_REFERENCE_FOLDER=~/addannot_references
+export INPUT_BLASTP=/code/ncbi-blast/2.8.1+/bin/blastp
+export INPUT_MIXMHC2PRED=/code/net/MixMHC2pred/1.1/MixMHC2pred
+export INPUT_MIXMHCPRED=/code/MixMHCpred/2.0.2/MixMHCpred
+export INPUT_RSCRIPT=/code/R/3.6.0/bin/Rscript
+export INPUT_NETMHC2PAN=/code/net/MHCIIpan/3.2/netMHCIIpan
+export INPUT_NETMHCPAN=/code/net/MHCpan/4.0/netMHCpan
+```
+
+The folder `$INPUT_REFERENCE_FOLDER` requires to contain the resources defined above.
+
+Run the integration tests as follows:
+```
+python -m unittest discover input.tests.integration_tests
+```
+
+The integration tests run over some real datasets and they take some time to run.
+
+The integration test that runs the whle program over a relevant dataset can be run as follows:
+```
+python -m unittest input.tests.integration_tests.test_input
+```
+
+### Run unit tests
+
+The unit tests do not have any dependency and they finish in seconds.
+
+Run the unit tests as follows:
+```
+python -m unittest discover input.tests.unit_tests
+```

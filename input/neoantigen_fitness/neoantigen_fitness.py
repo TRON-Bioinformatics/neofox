@@ -5,7 +5,7 @@ import os.path
 from logzero import logger
 
 from input.helpers import intermediate_files
-from input.helpers.runner import BlastpRunner
+from input.helpers.blastp_runner import BlastpRunner
 
 
 class NeoantigenFitnessCalculator(BlastpRunner):

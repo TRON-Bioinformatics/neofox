@@ -1,9 +1,15 @@
 from unittest import TestCase
 
 from input.predict_all_epitopes import BunchEpitopes
+from input.tests.integration_tests import integration_test_tools
 
 
 class TestInput(TestCase):
+
+    def setUp(self):
+        self.references, self.configuration = integration_test_tools.load_references()
+        # self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
+        # self.runner = Runner()
 
     def test_input(self):
         """
