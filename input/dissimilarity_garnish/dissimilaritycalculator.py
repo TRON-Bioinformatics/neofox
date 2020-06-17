@@ -4,7 +4,7 @@ import os
 import os.path
 
 from input.helpers import intermediate_files
-from input.helpers.runner import BlastpRunner
+from input.helpers.blastp_runner import BlastpRunner
 
 
 class DissimilarityCalculator(BlastpRunner):
