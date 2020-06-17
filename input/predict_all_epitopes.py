@@ -7,6 +7,7 @@ import input.aa_index.aa_index as aa_index
 from input import MHC_I, MHC_II
 from input.epitope import Epitope
 from input.helpers import data_import
+from input.helpers.properties_manager import PATIENT_ID
 from input.helpers.runner import Runner
 from input.new_features import conservation_scores
 from input.new_features.conservation_scores import ProveanAnnotator
@@ -89,7 +90,7 @@ class BunchEpitopes:
                 w = line.rstrip().split(";")
                 if w[0] not in patient_alleles_dict:
                     patient_alleles_dict[w[0]] = w[2:]
-        logger.info("HLA-I alleles: {}".format(patient_alleles_dict))
+        logger.info("HLA-I alleles loaded")
         return patient_alleles_dict
 
     @staticmethod
@@ -105,7 +106,7 @@ class BunchEpitopes:
                 w = line.rstrip().split(";")
                 # cheating --> overwriting hla I --> check format
                 patient_alleles_dict[w[0]] = w[2:]
-        logger.info("HLA-II alleles: {}".format(patient_alleles_dict))
+        logger.info("HLA-II alleles loaded")
         return patient_alleles_dict
 
     @staticmethod
@@ -127,7 +128,7 @@ class BunchEpitopes:
                 tumour_content = w[tc_col]
                 tumour_content_dict[patient] = tumour_content
 
-        logger.info("Tumor content: {}".format(tumour_content_dict))
+        logger.info("Tumor content loaded")
         return tumour_content_dict
 
     @staticmethod
@@ -186,30 +187,23 @@ class BunchEpitopes:
             self.rna_avail = self.load_rna_seq_avail_dict(tumour_content_file)
         self.provean_annotator = ProveanAnnotator(provean_file=prov_file, header_epitopes=data[0], epitopes=data[1])
 
-    def wrapper_table_add_feature_annotation(self, file, indel, path_to_hla_file, tissue, tumour_content_file):
+    def wrapper_table_add_feature_annotation(self, icam_file, patient_id, indel, hla_file, tissue, tumour_content_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
         write to txt file
         """
         # import epitope data
-        dat = data_import.import_dat_icam(file, indel)
+        dat = data_import.import_dat_icam(icam_file, indel)
         if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
             dat = data_import.change_col_names(dat)
         if "mutation_found_in_proteome" not in dat[0]:
             self.proteome_dictionary = self.load_proteome(self.references.uniprot)
-        # add patient id if _mut_set.txt.transcript.squish.somatic.freq is used
-        if ("patient" not in dat[0]) and ("patient.id" not in dat[0]):
-            try:
-                patient = file.split("/")[-3]
-                if "Pt" not in patient:
-                    patient = file.split("/")[-1].split(".")[0]
-            except IndexError:
-                patient = file.split("/")[-1].split(".")[0]
-            dat[0].append("patient.id")
-            for ii, i in enumerate(dat[1]):
-                dat[1][ii].append(str(patient))
+        # adds patient to the table
+        dat[0].append(PATIENT_ID)
+        for ii, i in enumerate(dat[1]):
+            dat[1][ii].append(str(patient_id))
         # initialise information needed for feature calculation
-        self.initialise_properties(dat, path_to_hla_file, tissue, tumour_content_file)
+        self.initialise_properties(dat, hla_file, tissue, tumour_content_file)
         # feature calculation for each epitope
         for ii, i in enumerate(dat[1]):
             # dict for each epitope
