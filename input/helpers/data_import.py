@@ -185,12 +185,6 @@ def change_col_names(tuple_dat_head):
         head_new[scII_ind] = "MHC_II_score_.best_prediction."
         head_new[scIIwt_ind] = "MHC_II_score_.WT."
 
-        try:
-            patid = head_new.index("patient")
-            head_new[patid] = "patient.id"
-        except ValueError:
-            pass
-
         return head_new, dat_new
 
     else:
