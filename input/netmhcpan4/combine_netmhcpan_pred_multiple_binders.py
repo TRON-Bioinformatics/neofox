@@ -81,9 +81,7 @@ class BestAndMultipleBinder:
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         ### PREDICTION FOR MUTATED SEQUENCE
-        logger.info("MUT seq: {}".format(xmer_mut))
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        logger.debug(tmp_prediction)
         np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[xmer_mut], prefix="tmp_singleseq_")
