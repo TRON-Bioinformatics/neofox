@@ -6,7 +6,7 @@ from Bio.Data import IUPACData
 import numpy as np
 
 from input.model.schema_conversion import SchemaConverter
-from input.model.neoantigen import Neoantigen, Gene, Mutation
+from input.model.neoantigen import Neoantigen, Gene, Mutation, Patient
 
 
 class SchemaConverterTest(TestCase):
@@ -42,8 +42,14 @@ class SchemaConverterTest(TestCase):
     def test_csv2model(self):
         neoantigens = [_get_random_neoantigen() for _ in range(5)]
         csv_data = SchemaConverter.model2csv(neoantigens)
-        neoantigens2 = SchemaConverter.csv2model(csv_data)
+        neoantigens2 = SchemaConverter.neoantigens_csv2model(csv_data)
         self._assert_lists_equal(neoantigens, neoantigens2)
+
+    def test_patient_metadata_csv2model(self):
+        patients = [_get_random_patient() for _ in range(5)]
+        csv_data = SchemaConverter.model2csv(patients)
+        patients2 = SchemaConverter.patient_metadata_csv2model(csv_data)
+        self._assert_lists_equal(patients, patients2)
         
     def _assert_lists_equal(self, neoantigens, neoantigens2):
         self.assertEqual(len(neoantigens), len(neoantigens2))
@@ -80,3 +86,13 @@ def _get_random_neoantigen():
     gene.assembly = "hg19"
     neoantigen.gene = gene
     return neoantigen
+
+
+def _get_random_patient():
+    patient = Patient()
+    patient.estimated_tumor_content = np.random.uniform(0, 1)
+    patient.is_rna_available = np.random.choice([True, False], 1)[0]
+    patient.identifier = 'Pt12345'
+    patient.mhc_i_alleles = ['A', 'B', 'C']
+    patient.mhc_i_i_alleles = ['X', 'Y']
+    return patient

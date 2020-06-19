@@ -88,16 +88,16 @@ class SchemaConverter(object):
         return alleles_stacked
 
     @staticmethod
-    def model2csv(neoantigens):
+    def model2csv(model_objects):
         """
-        :param neoantigens: list of objects of class Neoantigen
-        :type neoantigens: list[Neoantigen]
+        :param model_objects: list of objects of subclass of betterproto.Message
+        :type model_objects: list[betterproto.Message]
         :rtype: pd.Dataframe
         """
-        return json_normalize(data=[n.to_dict() for n in neoantigens])
+        return json_normalize(data=[n.to_dict(include_default_values=True) for n in model_objects])
 
     @staticmethod
-    def csv2model(dataframe):
+    def neoantigens_csv2model(dataframe):
         """
         :param dataframe: the input CSV in a dataframe
         :type dataframe: pd.Dataframe
@@ -108,6 +108,19 @@ class SchemaConverter(object):
         for _, row in dataframe.iterrows():
             neoantigens.append(Neoantigen().from_dict(SchemaConverter._flat_dict2nested_dict(flat_dict=row.to_dict())))
         return neoantigens
+
+    @staticmethod
+    def patient_metadata_csv2model(dataframe):
+        """
+        :param dataframe: the patient metadata CSV in a dataframe
+        :type dataframe: pd.Dataframe
+        :return: the list of objects of type Patient
+        :rtype: list[Patient]
+        """
+        patients = []
+        for _, row in dataframe.iterrows():
+            patients.append(Patient().from_dict(row.to_dict()))
+        return patients
 
     @staticmethod
     def _flat_dict2nested_dict(flat_dict):
