@@ -29,33 +29,20 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - Multiplexed Representation  
 
 
-## **Requirements**
+## Input Requirements
 
-**Specific Input:**  
-- icam_output.txt --> icam output file; either patient-specific, or several patients combineds
-- allele.csv --> ";" separated file with mhc I and mhc II alleles (4 digits!) for all patients of a cohort. If a gene is homozygous, give the allele twice
-  e.g.  
+**Specific Input:**
+- icam_output.txt --> icam output file
+- patient identifier --> the patient identifier to whom all neoantigens in icam output belong
+- patient data --> a table of tab separated values containing metadata on the patient
+  - required fields: identifier, mhcIAlleles, mhcIIAlleles
+  - optional fields: estimatedTumorContent, isRnaAvailable, tissue
+
+**Example of patient data table**
 ```
-Pt1;mhc_I_selection;HLA-A*03:01;HLA-A*11:01;HLA-B*55:01;HLA-B*51:01;HLA-C*01:02;HLA-C*03:03;
-Pt1;mhc_II_selection;HLA-DRB1*13:01;HLA-DRB1*11:01;HLA-DQA1*01:03;HLA-DQA1*05:05;HLA-DQB1*06:03;HLA-DQB1*03:01;HLA-DPA1*01:03;HLA-DPB1*02:01;HLA-DPB1*04:02;
-Pt2;mhc_I_selection;HLA-A*02:01;HLA-A*26:01;HLA-B*27:05;HLA-B*57:01;HLA-C*01:85;HLA-C*06:02;
-Pt2;mhc_II_selection;HLA-DRB1*01:01;HLA-DRB1*07:01;HLA-DQA1*01:01;HLA-DQA1*02:01;HLA-DQB1*05:01;HLA-DQB1*03:03;HLA-DPA1*01:03;HLA-DPB1*02:01;HLA-DPB1*04:02;
-
-```  
-- *OPTIONAL!!*:";" separated file with tumor content (e.g. patient_overview file for each cohort)
+identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
+Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
 ```
-Patient;est. Tumor content;number of mutations; number of SNVs;number of Indels;unique_peptides;number_of_expressed_ge
-Pt10/;62.0;463;437;26;180;16200
-Pt11/;;;;;;
-Pt12/;66.0;120;104;16;38;15147
-Pt13/;49.0;863;843;20;327;15707
-Pt14/;55.0;2375;2336;39;909;16107
-Pt15/;50.0;1227;1174;53;433;15029
-Pt16/;24.0;948;940;8;368;15562
-Pt17/;;;;;;
-```
-
-
 
 **Required Columns of iCaM Table:**  
 -   MHC_I_epitope_.best_prediction.  
@@ -102,19 +89,9 @@ Pt17/;;;;;;
 
 ## **Usage**  
 
-**Single iCaM File**  
 ```
-python predict_all_epitopes.py --icam_file testseq_head.txt  --allele_file alleles.csv [--tissue skin --frameshift False --tumour_content file_with_tumor_content]> test07.txt
-```  
-
---> annotation of one iCaM file
-
-**Multiple iCaM Files**  
+input --icam-file testseq_head.txt --patient-id Pt123 --patient-data patients.csv [--frameshift False]
 ```
-sh start_annotation_multiple_patientfiles.sh cohort_folder_with_patient_icam_folders output_folder allele_table cohort_name
-```  
-
---> eg. parallel mps annotation of patients of a cohort, iCaM files stored in cohort_folder_with_patient_icam_folders
 
 
 ## Developer guide
