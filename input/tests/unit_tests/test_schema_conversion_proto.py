@@ -1,10 +1,12 @@
 import random
 import struct
 from unittest import TestCase
+import pkg_resources
 
 from Bio.Data import IUPACData
 import numpy as np
 
+import input.tests
 from input.model.schema_conversion import SchemaConverter
 from input.model.neoantigen import Neoantigen, Gene, Mutation, Patient
 
@@ -45,7 +47,14 @@ class SchemaConverterTest(TestCase):
         neoantigens2 = SchemaConverter.neoantigens_csv2model(csv_data)
         self._assert_lists_equal(neoantigens, neoantigens2)
 
-    def test_patient_metadata_csv2model(self):
+    def test_patient_csv2model(self):
+        patients = [_get_random_patient() for _ in range(5)]
+        csv_data = SchemaConverter.model2csv(patients)
+        patients2 = SchemaConverter.patient_metadata_csv2model(csv_data)
+        self._assert_lists_equal(patients, patients2)
+
+    def test_patient_csv_file2model(self):
+        patients_file = pkg_resources.resource_filename(input.tests.__name__, "resources/Alleles.Pt29.csv")
         patients = [_get_random_patient() for _ in range(5)]
         csv_data = SchemaConverter.model2csv(patients)
         patients2 = SchemaConverter.patient_metadata_csv2model(csv_data)
@@ -95,4 +104,5 @@ def _get_random_patient():
     patient.identifier = 'Pt12345'
     patient.mhc_i_alleles = ['A', 'B', 'C']
     patient.mhc_i_i_alleles = ['X', 'Y']
+    patient.tissue = 'skin'
     return patient

@@ -39,55 +39,6 @@ class SchemaConverter(object):
         return neoantigens
 
     @staticmethod
-    def patient_metadata2model(hla_file, tumor_content_file):
-        """
-        :param hla_file: the path to a file with the HLAs per patient for both MHC I and MHC II
-        :type hla_file: str
-        :param tumor_content_file: the path to a file with the tumoe content per patient
-        :type tumor_content_file: str
-        :rtype: list[Patient]
-        """
-        # parse HLA table and add metadata to patient
-        alleles_stacked = SchemaConverter._parse_hlas_table(hla_file)
-        patients = {}
-        for patient_identifier in alleles_stacked.patient_id:
-            patient = Patient()
-            patient.identifier = patient_identifier
-            patient.mhc_i_alleles = list(alleles_stacked[(alleles_stacked.patient_id == patient_identifier) &
-                                                    (alleles_stacked.mhc_type == 'mhc_I_selection')].allele)
-            patient.mhc_i_i_alleles = list(alleles_stacked[(alleles_stacked.patient_id == patient_identifier) &
-                                                         (alleles_stacked.mhc_type == 'mhc_II_selection')].allele)
-            patients[patient_identifier] = patient
-
-        # parse estimated tumor content file and add metadata to patient
-        tumor_content = SchemaConverter._parse_tumor_content_table(tumor_content_file)
-        for patient_identifier in tumor_content.Patient:
-            patient = patients.get(patient_identifier)
-            if patient is not None:
-                patient.estimated_tumor_content = tumor_content[tumor_content.Patient == patient_identifier][
-                    'est. Tumor content'].iloc[0]
-                patient.is_rna_available = tumor_content[tumor_content.Patient == patient_identifier][
-                    'rna_avail'].iloc[0]
-
-        return list(patients.values())
-
-    @staticmethod
-    def _parse_tumor_content_table(tumor_content_file):
-        tumor_content = pd.read_csv(tumor_content_file, sep=';')
-        tumor_content.Patient = tumor_content.Patient.transform(lambda x: x.strip('/'))
-        return tumor_content
-
-    @staticmethod
-    def _parse_hlas_table(hla_file):
-        alleles = pd.read_csv(hla_file, sep=';', header=None,
-                              names=['patient_id', 'mhc_type'] + list(range(50))).dropna(axis=1, how='all')
-        alleles_stacked = alleles.set_index(['patient_id', 'mhc_type']).stack(dropna=True).reset_index()
-        del alleles_stacked['level_2']
-        alleles_stacked['allele'] = alleles_stacked[0]
-        del alleles_stacked[0]
-        return alleles_stacked
-
-    @staticmethod
     def model2csv(model_objects):
         """
         :param model_objects: list of objects of subclass of betterproto.Message
