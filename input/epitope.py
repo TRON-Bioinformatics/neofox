@@ -644,7 +644,7 @@ class Epitope:
 
         expression_mutated_transcript = self.properties.get("Expression_Mutated_Transcript")
         self.add_features(FeatureLiterature.expression_mutation_tc(
-            transcript_expression=expression_mutated_transcript, patient_id=patient_id, tumour_content=tumour_content),
+            transcript_expression=expression_mutated_transcript, patient_id=patient_id, tumour_content_dict=tumour_content),
                           "Expression_Mutated_Transcript_tumor_content")
 
     def add_differential_agretopicity_index_features(self, mutation_mhci, mutation_mhcii, wild_type_mhci,
