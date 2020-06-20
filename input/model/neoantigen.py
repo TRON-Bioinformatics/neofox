@@ -77,3 +77,5 @@ class Patient(betterproto.Message):
     mhc_i_alleles: List[str] = betterproto.string_field(4)
     # * MHC II alleles
     mhc_i_i_alleles: List[str] = betterproto.string_field(5)
+    # * Tissue of cancer origin
+    tissue: str = betterproto.string_field(6)

@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
 from logzero import logger
+import pandas as pd
+from input.model.schema_conversion import SchemaConverter
+from input.model.neoantigen import Patient
 
 
 def import_dat_icam(in_file, indel):
@@ -148,38 +151,20 @@ def change_col_names(tuple_dat_head):
         return head_new, dat_new
 
 
-def subst_semicolon(tuple_dat_head):
-    '''
-    This function substitutes any semilicon by "_", since output is in csv format --> problems when importing into R
-    '''
-    dat_new = tuple_dat_head[1]
-    head_new = tuple_dat_head[0]
-    data = []
-    for ii, i in enumerate(dat_new):
-        new = []
-        for element in i:
-            if ";" in element:
-                new.append(element.replace(";", "_"))
-            else:
-                new.append(element)
-        data.append(new)
-    logger.info(" ';' substituted by '_' ")
-    return head_new, data
-
-
-def append_patient(tuple_dat_head, in_file):
-    '''
-    There is no column indicating the column name in Tesla icam outputs. This function adds a columns with with the patient id.
-    '''
-    dat_new = tuple_dat_head[1]
-    head_new = tuple_dat_head[0]
-    if "patient" in head_new or "patient.x" in head_new:
-        return head_new, dat_new
-    else:
-        pat = f.split("/")
-        pat = pat[len(pat) - 1]
-        pat = pat.split("_")[0]
-        for ii, i in enumerate(dat_new):
-            dat_new[ii].append(pat)
-        head_new.append("patient")
-        return head_new, dat_new
+def import_patients_data(patients_file):
+    """
+    :param patients_file: the file to patients data CSV file
+    :type patients_file: str
+    :return: the parsed CSV into model objects
+    :rtype: list[Patient]
+    """
+    split_comma_separated_list = lambda x: x.split(',')
+    df = pd.read_csv(
+        patients_file,
+        sep='\t',
+        converters={'mhcIAlleles': split_comma_separated_list,
+                    'mhcIIAlleles': split_comma_separated_list,
+                    # TODO: remove this conversion if this is fixed
+                    #  https://github.com/danielgtaylor/python-betterproto/issues/96
+                    'estimatedTumorContent': lambda x: float(x)})
+    return SchemaConverter.patient_metadata_csv2model(df)

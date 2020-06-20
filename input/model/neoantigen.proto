@@ -104,4 +104,8 @@ message Patient {
 	MHC II alleles
 	*/
 	repeated string mhcIIAlleles = 5;
+	/**
+	Tissue of cancer origin
+	*/
+	string tissue = 6;
 }
