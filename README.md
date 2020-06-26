@@ -157,6 +157,11 @@ python -m unittest discover input.tests.integration_tests
 
 The integration tests run over some real datasets and they take some time to run.
 
+The integration test that runs the whle program over a relevant dataset can be run as follows:
+```
+python -m unittest input.tests.integration_tests.test_input
+```
+
 ### Run unit tests
 
 The unit tests do not have any dependency and they finish in seconds.
