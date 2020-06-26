@@ -1,10 +1,7 @@
 from input import MHC_I, MHC_II
 from input.exceptions import INPuTInputParametersException
 
-PATIENT_ID3 = "patient.x"
-PATIENT_ID2 = "patient"
 PATIENT_ID = "patient.id"
-
 
 def get_gene(properties):
     if "gene.x" in properties:
@@ -88,10 +85,4 @@ def get_hla_allele(props, hla_patient_dict):
 
 
 def get_patient_id(props):
-    if PATIENT_ID in props:
-        patient_id = props[PATIENT_ID]
-    elif PATIENT_ID2 in props:
-        patient_id = props[PATIENT_ID2]
-    else:
-        patient_id = props[PATIENT_ID3]
-    return patient_id
+    return props.get(PATIENT_ID)

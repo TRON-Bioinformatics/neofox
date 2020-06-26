@@ -7,9 +7,12 @@ from input.predict_all_epitopes import BunchEpitopes
 
 def input_cli():
     parser = ArgumentParser(description='adds patient information given in sample file of a cohort to merged icam file')
-    parser.add_argument('-i', '--icam_file', dest='icam_file', help='define iCaM file which should be annotated',
+    parser.add_argument('-i', '--icam-file', dest='icam_file', help='define iCaM file which should be annotated',
                         required=True)
-    parser.add_argument('-a', '--allele_file', dest='allele_file', help='define file with hla alleles of patients',
+    # TODO: once we support the input from the models this parameter will not be required
+    parser.add_argument('-p', '--patient-id', dest='patient_id', help='the patient id for the iCaM file',
+                        required=True)
+    parser.add_argument('-a', '--allele-file', dest='allele_file', help='define file with hla alleles of patients',
                         required=True)
     parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origin', default="skin")
     parser.add_argument('-f', '--frameshift', dest='frameshift',
@@ -20,6 +23,7 @@ def input_cli():
     args = parser.parse_args()
 
     icam_file = args.icam_file
+    patient_id = args.patient_id
     allele_file = args.allele_file
     tissue = args.tissue
     indel = args.frameshift
@@ -32,7 +36,7 @@ def input_cli():
 
     bunchepitopes = BunchEpitopes()
     logger.info("Starting INPuT...")
-    bunchepitopes.wrapper_table_add_feature_annotation(icam_file, indel, allele_file, tissue, tumour_content_file)
+    bunchepitopes.wrapper_table_add_feature_annotation(icam_file, patient_id, indel, allele_file, tissue, tumour_content_file)
     logger.info("Finished INPuT...")
     '''
     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"
