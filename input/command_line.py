@@ -12,31 +12,27 @@ def input_cli():
     # TODO: once we support the input from the models this parameter will not be required
     parser.add_argument('-p', '--patient-id', dest='patient_id', help='the patient id for the iCaM file',
                         required=True)
-    parser.add_argument('-a', '--allele-file', dest='allele_file', help='define file with hla alleles of patients',
+    parser.add_argument('-d', '--patients-data', dest='patients_data',
+                        help='file with data for patients with columns: identifier, estimated_tumor_content, '
+                             'is_rna_available, mhc_i_alleles, mhc_i_i_alleles, tissue',
                         required=True)
-    parser.add_argument('-t', '--tissue', dest='tissue', help='define tissue of cancer origin', default="skin")
     parser.add_argument('-f', '--frameshift', dest='frameshift',
                         help='indicate by true or false if frameshift mutations or SNVs are to be considered',
                         default=False)
-    parser.add_argument('-tc', '--tumour_content', dest='tumour_content',
-                        help='pass csv file with tumour content of patient; e.g. patient_overview file ', default=False)
     args = parser.parse_args()
 
     icam_file = args.icam_file
     patient_id = args.patient_id
-    allele_file = args.allele_file
-    tissue = args.tissue
+    patients_data = args.patients_data
     indel = args.frameshift
-    if args.tumour_content:
-        tumour_content_file = args.tumour_content
-    else:
-        tumour_content_file = ""
 
+    # TODO: this is overriding the value of the parameter frameshift, do we want to activate this Franziska?
+    #  otherwise we may want to just delete the parameter
     indel = False
 
     bunchepitopes = BunchEpitopes()
     logger.info("Starting INPuT...")
-    bunchepitopes.wrapper_table_add_feature_annotation(icam_file, patient_id, indel, allele_file, tissue, tumour_content_file)
+    bunchepitopes.wrapper_table_add_feature_annotation(icam_file, patient_id, indel, patients_data)
     logger.info("Finished INPuT...")
     '''
     file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/INPuT/nonprogramm_files/test_SD.csv"

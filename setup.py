@@ -37,7 +37,9 @@ setup(
         'pickle-mixin',
         'scikit-learn==0.20.3',
         'logzero==1.5.0',
-        'python-dotenv==0.12.0'
+        'python-dotenv==0.12.0',
+        'avro_validator==1.0.6',
+        'betterproto==1.2.5'
     ],
     setup_requires=[],
     classifiers=[
