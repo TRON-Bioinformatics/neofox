@@ -1,8 +1,8 @@
 /**
  * An example protocol in Avro IDL for defining neoepitopes
  */
-@namespace("tron.neoepitope")
-protocol Neoepitope {
+@namespace("neoantigen")
+protocol Neoantigen {
 
 	record Gene {
 		/**
@@ -12,7 +12,7 @@ protocol Neoepitope {
 		/**
 		The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene
 		*/
-		union {string, null} gene;
+		union {null, string} gene;
 		/**
 		The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id)
 		*/
@@ -40,7 +40,7 @@ protocol Neoepitope {
 		/**
 		The size of the left flanking region
 		*/
-		union {string, null} sizeLeftFlankingRegion;
+		union {null, int} sizeLeftFlankingRegion;
 		/**
 		The right flanking region of variable size in IUPAC codes
 		*/
@@ -48,13 +48,13 @@ protocol Neoepitope {
 		/**
 		The size of the right flanking region
 		*/
-		union {string, null} sizeRightlankingRegion;
+		union {null, int} sizeRightFlankingRegion;
 	}
 
 	/**
-	A neoepitope minimal definition
+	A neoantigen minimal definition
 	*/
-	record Neoepitope {
+	record Neoantigen {
 
 		/**
 		The gene where the neoepitope corresponds
@@ -68,16 +68,18 @@ protocol Neoepitope {
 
 		// OPTIONAL
 		/**
-		Expression value of the transcript (any more definition on type of expression? ie: digital from RNAseq, from microarrays, etc.)
+		Expression value of the transcript (any more definition on type of expression?
+		ie: digital from RNAseq, from microarrays, etc.)
 		*/
-		union {float, null} expressionValue;
+		union {null, float} expressionValue;
 		/**
-		Clonality estimation (any more definition on the method?)
+		Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
+		there is no quantitive measurement at the moment.
 		*/
-		union {float, null} clonalityEstimation;
+		union {null, boolean} clonalityEstimation;
 		/**
 		Variant allele frequency in the range [0.0, 1.0]
 		*/
-		union {float, null} variantAlleleFrequency;
+		union {null, float} variantAlleleFrequency;
 	}
 }
