@@ -102,23 +102,38 @@ class Epitope:
             self.add_netmhcpan4_WT_features()
             self.add_multiple_binding_features()
             self.add_multiple_binding_numdiff()
-            wild_type_netmhcpan4, mutation_netmhcpan4 = properties_manager.get_netmhcpan4_epitopes(
+            # epitope sequences
+            epitope_wt_affinity, epitope_mut_affinity = properties_manager.get_netmhcpan4_epitopes(
                 properties=self.properties)
-            wild_type_netmhcpan4_9mer, mutation_netmhcpan4_9mer = properties_manager.get_netmhcpan4_epitopes(
+            epitope_wt_affinity_9mer, epitope_mut_affinitiy_9mer = properties_manager.get_netmhcpan4_epitopes(
                 properties=self.properties, nine_mer=True)
-            wild_type_netmhcpan4_affinity, mutation_netmhcpan4_affinity = properties_manager.get_scores_netmhcpan4_affinity(
+            epitope_wt_rank, epitope_mut_rank = properties_manager.get_netmhcpan4_epitopes_rank(
+                properties=self.properties)
+            # MHC affinities/scores
+            affinity_wt, affinity_mut = properties_manager.get_scores_netmhcpan4_affinity(
                 properties=self.properties, mhc=MHC_I)
-            wild_type_netmhcpan4_rank, mutation_netmhcpan4_rank = properties_manager \
+            affinity_wt_9mer, affinity_mut_9mer = properties_manager.get_scores_netmhcpan4_affinity_9mer(
+                properties=self.properties)
+            mhc_rank_wt, mhc_rank_mut = properties_manager \
                 .get_scores_netmhcpan4_ranks(properties=self.properties, mhc=MHC_I)
             wild_type_multiple_binding_score, mutation_multiple_binding_score = properties_manager. \
                 get_scores_multiple_binding(self.properties, mhc=MHC_I)
 
             self.add_multiple_binding_scorediff(mut_score=mutation_multiple_binding_score, wt_score=wild_type_multiple_binding_score)
             # position of mutation
-            self.add_position_mutation(epi_wt=wild_type_netmhcpan4, epi_mut=mutation_netmhcpan4,
-                                       epi_wt_9mer=wild_type_netmhcpan4_9mer, epi_mut_9mer=mutation_netmhcpan4_9mer)
+            self.add_position_mutation(epi_wt=epitope_wt_affinity, epi_mut=epitope_mut_affinity,
+                                       epi_wt_9mer=epitope_wt_affinity_9mer, epi_mut_9mer=epitope_mut_affinitiy_9mer)
             # mutation in anchor
             self.add_mutation_in_anchor()
+            # DAI
+            self.add_DAI_mhcI(aff_wt=affinity_wt, aff_mut=affinity_mut,
+                              sc_wt=mhc_rank_wt, sc_mut=mhc_rank_mut)
+            # amplitude
+            self.add_amplitude_mhcI(aff_wt=affinity_wt, aff_mut=affinity_mut,
+                                    sc_wt=mhc_rank_wt, sc_mut=mhc_rank_mut,
+                                    aff_wt_9mer=affinity_wt_9mer, aff_mut_9mer=affinity_mut_9mer)
+            # pathogensimilarity
+            self.add_pathogensimilarity(epi_mut_9mer=epitope_mut_affinitiy_9mer, epi_mut=epitope_mut_affinity, epi_mut_rank=epitope_mut_rank)
 
             #TODO: change to netmhcpan
             self.add_self_similarity_features(mutation_mhci, mutation_mhcii, wild_type_mhci, wild_type_mhcii)
@@ -126,43 +141,6 @@ class Epitope:
             self.add_neoantigen_fitness_features(mutation_mhci, mutation_mhcii)
 
             self.add_tcell_predictor_features(gene)
-
-            #TODO:summarise into function
-            # DAI with affinity values
-            self.add_features(
-                FeatureLiterature.dai(score_mutation=mutation_netmhcpan4_affinity, score_wild_type=wild_type_netmhcpan4_affinity),
-                "DAI_affinity")
-            # DAI wiht rank scores by netmhcpan4
-            self.add_features(
-                FeatureLiterature.dai(score_mutation=mutation_netmhcpan4_rank, score_wild_type=wild_type_netmhcpan4_rank),
-                "DAI_rank_netmhcpan4")
-
-            #TODO:summarise into function
-            # Amplitude with affinity values
-            self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-                score_mutation=mutation_netmhcpan4_affinity, score_wild_type=wild_type_netmhcpan4_affinity,
-                apply_correction=True), "Amplitude_mhcI_affinity")
-
-            # Amplitude with rank by netmhcpan4
-            self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-                score_mutation=mutation_netmhcpan4_rank, score_wild_type=wild_type_netmhcpan4_rank),
-                "Amplitude_mhcI_rank_netmhcpan4")
-
-            # Amplitude based on best affinity prediction restricted to 9mers
-            self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
-                score_mutation=self.properties["best_affinity_netmhcpan4_9mer"],
-                score_wild_type = self.properties["best_affinity_netmhcpan4_9mer_WT"],
-                apply_correction=True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
-
-            #TODO:summarise into function
-            self.add_features(
-                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-                    mutation=mutation_netmhcpan4_9mer, iedb=self.references.iedb),
-                "Pathogensimiliarity_mhcI_9mer")
-            self.add_features(
-                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-                    mutation=mutation_netmhcpan4, iedb=self.references.iedb),
-                "Pathogensimiliarity_mhcI_affinity_nmers")
 
             # recogntion potential with amplitude by affinity and netmhcpan4 score
             self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
@@ -565,7 +543,6 @@ class Epitope:
         def add_mutation_in_anchor(self):
             """
             returns if mutation is in anchor position for best affinity epitope over all lengths and best 9mer affinity
-            :return:
             """
             self.add_features(self_similarity.position_in_anchor_position(
                 position_mhci=self.properties["pos_MUT_MHCI_affinity_epi"],
@@ -579,7 +556,6 @@ class Epitope:
         def add_DAI_mhcI(self, aff_wt, aff_mut, sc_wt, sc_mut):
             """
             returns DAI based on affinity and based on rank score
-            :return:
             """
             # DAI with affinity values
             self.add_features(
@@ -595,6 +571,62 @@ class Epitope:
                 FeatureLiterature.dai(score_mutation=sc_mut,
                                       score_wild_type=sc_wt),
                 "DAI_rank_netmhcpan4")
+
+        def add_amplitude_mhcI(self, aff_wt, aff_mut, sc_wt, sc_mut, aff_wt_9mer, aff_mut_9mer):
+            """
+            ratio in MHC binding based on affinity (all length), rank score, affintiy (9mer)
+            """
+            self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
+                score_mutation=aff_mut, score_wild_type=aff_wt,
+                apply_correction=True), "Amplitude_mhcI_affinity")
+            # Amplitude with rank by netmhcpan4
+            self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
+                score_mutation=sc_mut, score_wild_type=sc_wt),
+                "Amplitude_mhcI_rank_netmhcpan4")
+            # Amplitude based on best affinity prediction restricted to 9mers
+            self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
+                score_mutation=aff_mut_9mer, score_wild_type=aff_wt_9mer,
+                apply_correction=True), "Amplitude_mhcI_affinity_9mer_netmhcpan4")
+
+        def add_pathogensimilarity(self, epi_mut_9mer, epi_mut, epi_mut_rank):
+            """
+            pathogensimilarity for best affinity (all length), best affinity (9mer), rank score
+            """
+            self.add_features(
+                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+                    mutation=epi_mut_9mer, iedb=self.references.iedb),
+                "Pathogensimiliarity_mhcI_9mer")
+            self.add_features(
+                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+                    mutation=epi_mut_rank, iedb=self.references.iedb),
+                "Pathogensimiliarity_mhcI_rank")
+            self.add_features(
+                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+                    mutation=epi_mut, iedb=self.references.iedb),
+                "Pathogensimiliarity_mhcI_affinity_nmers")
+
+        def add_recognition_potential(self):
+            """
+            recognition potential for affinity (all lengths), affinity (9mers)
+            """
+            # recogntion potential with amplitude by affinity and netmhcpan4 score
+            self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
+                amplitude=self.properties["Amplitude_mhcI_affinity"],
+                pathogen_similarity=self.properties["Pathogensimiliarity_mhcI_affinity_nmers"],
+                mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
+                "Recognition_Potential_mhcI_affinity")
+            self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
+                amplitude=self.properties["Amplitude_mhcI_rank_netmhcpan4"],
+                pathogen_similarity=self.properties["Pathogensimiliarity_mhcI"],
+                mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
+                "Recognition_Potential_mhcI_rank_netmhcpan4")
+            # recogntion potential with amplitude by affinity and only 9mers considered --> value as published!!
+            self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
+                amplitude=self.properties["Amplitude_mhcI_affinity_9mer_netmhcpan4"],
+                pathogen_similarity=self.properties["Pathogensimiliarity_mhcI_9mer"],
+                mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan_9mer"],
+                mhc_affinity_mut=float(self.properties["best_affinity_netmhcpan4_9mer"])),
+                "Recognition_Potential_mhcI_9mer_affinity")
 
         def add_multiple_binding_features(self):
             # multiplexed representation MUT
