@@ -18,7 +18,7 @@ def get_substitution(properties):
 def get_mutation_aminoacid(properties):
     return properties["MUT_AA"]
 
-
+#TODO:to be removed
 def get_epitopes(properties, mhc):
     if mhc == MHC_I:
         mutation = properties["MHC_I_epitope_.best_prediction."]
@@ -41,7 +41,6 @@ def get_scores_multiple_binding(properties, mhc):
     else:
         raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
     return wild_type, mutation
-
 
 def get_scores_netmhcpan4_affinity(properties, mhc):
     if mhc == MHC_I:
@@ -83,6 +82,15 @@ def get_netmhcpan4_epitopes(properties, nine_mer=False):
 def get_netmhcpan4_epitopes_rank(properties):
     mutation = properties["best_epitope_netmhcpan4"]
     wild_type = properties["best_epitope_netmhcpan4_WT"]
+    return wild_type, mutation
+
+def get_netmhcIIpan_epitopes(properties, affinity=False):
+    if affinity:
+        mutation = properties["best_affinity_epitope_netmhcIIpan"]
+        wild_type = properties["best_affinity_epitope_netmhcIIpan_WT"]
+    else:
+        mutation = properties["best_epitope_netmhcIIpan"]
+        wild_type = properties["best_epitope_netmhcIIpan_WT"]
     return wild_type, mutation
 
 def get_hla_allele(props, hla_patient_dict):
