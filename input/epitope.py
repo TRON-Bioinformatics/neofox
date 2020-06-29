@@ -122,7 +122,8 @@ class Epitope:
             self.add_multiple_binding_scorediff(mut_score=mutation_multiple_binding_score, wt_score=wild_type_multiple_binding_score)
             # position of mutation
             self.add_position_mutation(epi_wt=epitope_wt_affinity, epi_mut=epitope_mut_affinity,
-                                       epi_wt_9mer=epitope_wt_affinity_9mer, epi_mut_9mer=epitope_mut_affinitiy_9mer)
+                                       epi_wt_9mer=epitope_wt_affinity_9mer, epi_mut_9mer=epitope_mut_affinitiy_9mer,
+                                       epi_mut_rank=epitope_mut_rank, epi_wt_rank=epitope_wt_rank)
             # mutation in anchor
             self.add_mutation_in_anchor()
             # DAI
@@ -529,7 +530,7 @@ class Epitope:
             self.add_features(self.pred.mhcI_affinity_allele_9mer_WT, "bestHLA_allele_affinity_netmhcpan4_9mer_WT")
             self.add_features(self.pred.mhcI_affinity_epitope_9mer_WT, "best_affinity_epitope_netmhcpan4_9mer_WT")
 
-        def add_position_mutation(self, epi_wt, epi_mut, epi_wt_9mer, epi_mut_9mer):
+        def add_position_mutation(self, epi_wt, epi_mut, epi_wt_9mer, epi_mut_9mer, epi_mut_rank, epi_wt_rank):
             """
             returns position of mutation for best affinity epitope across all lengths and 9mer
             :return:
@@ -539,6 +540,9 @@ class Epitope:
             self.add_features(self_similarity.position_of_mutation_epitope(
                 wild_type=epi_wt_9mer, mutation=epi_mut_9mer),
                 "pos_MUT_MHCI_affinity_epi_9mer")
+            self.add_features(self_similarity.position_of_mutation_epitope(
+                wild_type=epi_wt_rank, mutation=epi_mut_rank),
+                "pos_MUT_MHCI_rank_epi")
 
         def add_mutation_in_anchor(self):
             """
@@ -546,12 +550,16 @@ class Epitope:
             """
             self.add_features(self_similarity.position_in_anchor_position(
                 position_mhci=self.properties["pos_MUT_MHCI_affinity_epi"],
-                peptide_length=self.properties["best_epitope_netmhcpan4"]),
+                peptide_length=len(self.properties["best_affinity_epitope_netmhcpan4"])),
                 "Mutation_in_anchor_netmhcpan")
             self.add_features(self_similarity.position_in_anchor_position(
                 position_mhci=self.properties["pos_MUT_MHCI_affinity_epi_9mer"],
                 peptide_length=9),
                 "Mutation_in_anchor_netmhcpan_9mer")
+            self.add_features(self_similarity.position_in_anchor_position(
+                position_mhci=self.properties["pos_MUT_MHCI_affinity_epi_9mer"],
+                peptide_length=len(self.properties["best_epitope_netmhcpan4"])),
+                "Mutation_in_anchor_netmhcpan_rank")
 
         def add_DAI_mhcI(self, aff_wt, aff_mut, sc_wt, sc_mut):
             """
@@ -617,8 +625,8 @@ class Epitope:
                 "Recognition_Potential_mhcI_affinity")
             self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
                 amplitude=self.properties["Amplitude_mhcI_rank_netmhcpan4"],
-                pathogen_similarity=self.properties["Pathogensimiliarity_mhcI"],
-                mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan"]),
+                pathogen_similarity=self.properties["Pathogensimiliarity_mhcI_rank"],
+                mutation_in_anchor=self.properties["Mutation_in_anchor_netmhcpan_rank"]),
                 "Recognition_Potential_mhcI_rank_netmhcpan4")
             # recogntion potential with amplitude by affinity and only 9mers considered --> value as published!!
             self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
