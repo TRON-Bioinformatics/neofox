@@ -80,6 +80,10 @@ def get_netmhcpan4_epitopes(properties, nine_mer=False):
         wild_type = properties["best_affinity_epitope_netmhcpan4_WT"]
     return wild_type, mutation
 
+def get_netmhcpan4_epitopes_rank(properties):
+    mutation = properties["best_epitope_netmhcpan4"]
+    wild_type = properties["best_epitope_netmhcpan4_WT"]
+    return wild_type, mutation
 
 def get_hla_allele(props, hla_patient_dict):
     ''' returns hla allele of patients given in hla_file
