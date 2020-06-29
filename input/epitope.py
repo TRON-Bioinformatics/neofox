@@ -585,6 +585,10 @@ class Epitope:
             self.add_features(
                 FeatureLiterature.dai(score_mutation=aff_mut,
                                       score_wild_type=aff_wt, affin_filtering=True),
+                "DAI_affinity_filtered")
+            self.add_features(
+                FeatureLiterature.dai(score_mutation=aff_mut,
+                                      score_wild_type=aff_wt),
                 "DAI_affinity")
             # DAI wiht rank scores by netmhcpan4
             self.add_features(
