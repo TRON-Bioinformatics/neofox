@@ -70,7 +70,7 @@ def get_scores_netmhcpan4_ranks(properties, mhc):
 def get_netmhcpan4_epitopes(properties, nine_mer=False):
     if nine_mer:
         mutation = properties["best_affinity_epitope_netmhcpan4_9mer"]
-        wild_type = properties["best_epitope_netmhcpan4_9mer_WT"]
+        wild_type = properties["best_affinity_epitope_netmhcpan4_9mer_WT"]
     else:
         mutation = properties["best_affinity_epitope_netmhcpan4"]
         wild_type = properties["best_affinity_epitope_netmhcpan4_WT"]
