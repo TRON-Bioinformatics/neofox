@@ -54,6 +54,10 @@ def get_scores_netmhcpan4_affinity(properties, mhc):
         raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
     return wild_type, mutation
 
+def get_scores_netmhcpan4_affinity_9mer(properties):
+    mutation = properties["best_affinity_netmhcpan4_9mer"]
+    wild_type = properties["best_affinity_netmhcpan4_9mer_WT"]
+    return wild_type, mutation
 
 def get_scores_netmhcpan4_ranks(properties, mhc):
     if mhc == MHC_I:
