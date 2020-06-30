@@ -56,7 +56,7 @@ class Epitope:
             print(";".join([self.properties[key] for key in self.properties]))
 
         def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
-                 set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content, rna_avail):
+                 set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content_dict, rna_avail):
             """ Calculate new epitope features and add to dictonary that stores all properties
             """
             self.properties = self.init_properties(col_nam, prop_list)
@@ -73,6 +73,7 @@ class Epitope:
             alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI)
             alleles_hlaii = properties_manager.get_hla_allele(self.properties, patient_hlaII)
             substitution = properties_manager.get_substitution(properties=self.properties)
+            tumor_content = tumour_content_dict.get(patient_id) / 100
 
             mutated_aminoacid = FeatureLiterature.wt_mut_aa(substitution=substitution, mut="mut")
             self.add_features(mutated_aminoacid, "MUT_AA")
@@ -81,8 +82,8 @@ class Epitope:
 
 
             # MHC binding independent features
-            self.add_expression_features(tumour_content, vaf_rna=vaf_rna,
-                                         transcript_expression=transcript_expr, patient_id=patient_id)
+            self.add_expression_features(tumor_content=tumor_content, vaf_rna=vaf_rna,
+                                         transcript_expression=transcript_expr)
             self.add_differential_expression_features(gene, ref_dat, expression_tumor=transcript_expr)
             self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict,
                                               mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
@@ -736,15 +737,13 @@ class Epitope:
             self.add_features(freq_score.freq_4mer(mutation=mutation_mhci, dict_freq=nmer_freq_dict),
                               "Frequency_of_4mer")
 
-        def add_expression_features(self, tumour_content, vaf_rna, patient_id,
-                                    transcript_expression):
+        def add_expression_features(self, tumor_content, vaf_rna, transcript_expression):
             # expression
             self.add_features(FeatureLiterature.rna_expression_mutation(
                 transcript_expression=transcript_expression, vaf_rna=vaf_rna), "Expression_Mutated_Transcript")
             expression_mutated_transcript = self.properties.get("Expression_Mutated_Transcript")
             self.add_features(FeatureLiterature.expression_mutation_tc(
-                transcript_expression=expression_mutated_transcript, patient_id=patient_id,
-                tumour_content_dict=tumour_content),
+                transcript_expression=expression_mutated_transcript, tumor_content=tumor_content),
                               "Expression_Mutated_Transcript_tumor_content")
 
         def add_differential_expression_features(self, gene, ref_dat, expression_tumor):
