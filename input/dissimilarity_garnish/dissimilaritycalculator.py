@@ -36,5 +36,5 @@ class DissimilarityCalculator(BlastpRunner):
         os.remove(fastafile)
         sc = dissim
         if filter_binder and float(mhc_affinity) >= 500:
-            sc = 0
+            sc = "NA"
         return sc
