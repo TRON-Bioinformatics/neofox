@@ -3,6 +3,7 @@ from input.exceptions import INPuTInputParametersException
 
 PATIENT_ID = "patient.id"
 
+
 def get_gene(properties):
     if "gene.x" in properties:
         gene = properties["gene.x"]
@@ -18,18 +19,6 @@ def get_substitution(properties):
 def get_mutation_aminoacid(properties):
     return properties["MUT_AA"]
 
-#TODO:to be removed
-def get_epitopes(properties, mhc):
-    if mhc == MHC_I:
-        mutation = properties["MHC_I_epitope_.best_prediction."]
-        wild_type = properties["MHC_I_epitope_.WT."]
-    elif mhc == MHC_II:
-        mutation = properties["MHC_II_epitope_.best_prediction."]
-        wild_type = properties["MHC_II_epitope_.WT."]
-    else:
-        raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
-    return wild_type, mutation
-
 
 def get_scores_multiple_binding(properties, mhc):
     if mhc == MHC_I:
@@ -42,6 +31,7 @@ def get_scores_multiple_binding(properties, mhc):
         raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
     return wild_type, mutation
 
+
 def get_scores_netmhcpan4_affinity(properties, mhc):
     if mhc == MHC_I:
         mutation = properties["best_affinity_netmhcpan4"]
@@ -53,10 +43,12 @@ def get_scores_netmhcpan4_affinity(properties, mhc):
         raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
     return wild_type, mutation
 
+
 def get_scores_netmhcpan4_affinity_9mer(properties):
     mutation = properties["best_affinity_netmhcpan4_9mer"]
     wild_type = properties["best_affinity_netmhcpan4_9mer_WT"]
     return wild_type, mutation
+
 
 def get_scores_netmhcpan4_ranks(properties, mhc):
     if mhc == MHC_I:
@@ -79,12 +71,14 @@ def get_netmhcpan4_epitopes(properties, nine_mer=False):
         wild_type = properties["best_affinity_epitope_netmhcpan4_WT"]
     return wild_type, mutation
 
+
 def get_netmhcpan4_epitopes_rank(properties):
     mutation = properties["best_epitope_netmhcpan4"]
     wild_type = properties["best_epitope_netmhcpan4_WT"]
     return wild_type, mutation
 
-def get_netmhcIIpan_epitopes(properties, affinity=False):
+
+def get_netmhciipan_epitopes(properties, affinity=False):
     if affinity:
         mutation = properties["best_affinity_epitope_netmhcIIpan"]
         wild_type = properties["best_affinity_epitope_netmhcIIpan_WT"]
@@ -92,6 +86,7 @@ def get_netmhcIIpan_epitopes(properties, affinity=False):
         mutation = properties["best_epitope_netmhcIIpan"]
         wild_type = properties["best_epitope_netmhcIIpan_WT"]
     return wild_type, mutation
+
 
 def get_hla_allele(props, hla_patient_dict):
     ''' returns hla allele of patients given in hla_file
