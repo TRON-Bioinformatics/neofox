@@ -80,7 +80,6 @@ class Epitope:
             wt_aminoacid = FeatureLiterature.wt_mut_aa(substitution=substitution, mut="wt")
             self.add_features(wt_aminoacid, "WT_AA")
 
-
             # MHC binding independent features
             self.add_expression_features(tumor_content=tumor_content, vaf_rna=vaf_rna,
                                          transcript_expression=transcript_expr)
@@ -91,13 +90,6 @@ class Epitope:
             self.add_features(FeatureLiterature.match_in_proteome(
                 sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
                 "mutation_not_found_in_proteome")
-            '''
-                        if "mutation_found_in_proteome" not in self.properties:
-                self.add_features(FeatureLiterature.match_in_proteome(
-                    sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
-                    "mutation_found_in_proteome")
-            '''
-
 
             # HLA I predictions: NetMHCpan
             self.pred.main(xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles, set_available_mhc=set_available_mhc)
