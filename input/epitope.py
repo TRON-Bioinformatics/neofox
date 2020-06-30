@@ -88,10 +88,16 @@ class Epitope:
             self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict,
                                               mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
             self.add_provean_score_features()
-            if "mutation_found_in_proteome" not in self.properties:
+            self.add_features(FeatureLiterature.match_in_proteome(
+                sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
+                "mutation_not_found_in_proteome")
+            '''
+                        if "mutation_found_in_proteome" not in self.properties:
                 self.add_features(FeatureLiterature.match_in_proteome(
                     sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
                     "mutation_found_in_proteome")
+            '''
+
 
             # HLA I predictions: NetMHCpan
             self.pred.main(xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles, set_available_mhc=set_available_mhc)
@@ -663,15 +669,15 @@ class Epitope:
             returns priority score for mhc I rank + multible binding
             """
             no_mismatch = self.properties["Number_of_mismatches_mhcI"]
-            mut_in_prot = self.properties["mutation_found_in_proteome"]
+            mut_not_in_prot = self.properties["mutation_not_found_in_proteome"]
             # priority score with rank score
             self.add_features(FeatureLiterature.calc_priority_score(
                 vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=no_mismatch,
-                score_mut=rank_mut, score_wt=rank_wt, mut_in_prot=mut_in_prot), "Priority_score")
+                score_mut=rank_mut, score_wt=rank_wt, mut_not_in_prot=mut_not_in_prot), "Priority_score")
             # priority score using multiplexed representation score
             self.add_features(FeatureLiterature.calc_priority_score(
                 vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=no_mismatch,
-                score_mut=mb_mut, score_wt=mb_wt, mut_in_prot=mut_in_prot), "Priority_score_MB")
+                score_mut=mb_mut, score_wt=mb_wt, mut_not_in_prot=mut_not_in_prot), "Priority_score_MB")
 
         def add_neoag(self, sample_id, mut_peptide, score_mut, ref_peptide):
             """
