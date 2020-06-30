@@ -486,7 +486,7 @@ class Epitope:
                 num_mutation = self.properties["MB_number_pep_MHCscore<{}".format(threshold)]
                 num_wild_type = self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)]
                 self.add_features(FeatureLiterature.diff_number_binders(
-                    num_mutation=num_mutation, num_wild_type=num_wild_type), "Diff_numb_epis_<{}".format(threshold))
+                    num_mutation=num_mutation, num_wild_type=num_wild_type), "Diff_numb_epis_mhcI<{}".format(threshold))
                 self.add_features(FeatureLiterature.ratio_number_binders(
                     num_mutation=num_mutation, num_wild_type=num_wild_type), "Ratio_numb_epis_<{}".format(threshold))
 
