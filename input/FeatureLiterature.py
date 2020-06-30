@@ -86,15 +86,14 @@ def rna_expression_mutation(transcript_expression, vaf_rna):
         return "NA"
 
 
-def expression_mutation_tc(transcript_expression, patient_id, tumour_content_dict):
+def expression_mutation_tc(transcript_expression, tumor_content):
     """
     calculated expression of mutation corrected by tumour content
     """
-    tumor_content = tumour_content_dict.get(patient_id)
     corrected_expression = "NA"
     if tumor_content is not None and tumor_content > 0.0:
         try:
-            corrected_expression = str(float(transcript_expression) / tumor_content / 100)
+            corrected_expression = str(float(transcript_expression) / tumor_content)
         except ValueError:
             pass
     return corrected_expression
