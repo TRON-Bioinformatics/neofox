@@ -19,10 +19,10 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
         self.mhcII_score = "NA"
-        self.epitopeII = "NA"
+        self.epitopeII = "-"
         self.alleleII = "NA"
         self.affinityII = "NA"
-        self.affinity_epitopeII = "NA"
+        self.affinity_epitopeII = "-"
         self.affinity_alleleII = "NA"
 
 
