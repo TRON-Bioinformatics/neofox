@@ -83,6 +83,7 @@ class MultipleBinding:
                     # allele already one time represented in list --> add n-t times
                     [homo_best_epi_all.append(tuple(homo_best_epi)) for i in range(homo_numbers - 1)]
                     best_epis_per_allele.extend(tuple(homo_best_epi_all))
+        logger.info(best_epis_per_allele)
         return best_epis_per_allele
 
     def scores_to_list(self, tuple_epis):
