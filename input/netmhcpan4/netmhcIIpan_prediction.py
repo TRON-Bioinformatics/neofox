@@ -25,6 +25,21 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.affinity_epitopeII = "NA"
         self.affinity_alleleII = "NA"
 
+
+    def check_format_allele(self, allele):
+        """
+        sometimes genotyping may be too detailed. (e.g. HLA-DRB1*04:01:01 should be HLA-DRB1*04:01)
+        :param allele: HLA-allele
+        :return: HLA-allele in correct format
+        """
+        if allele.count(":") > 1:
+            allele_correct = ":".join(allele.split(":")[0:2])
+        else:
+            allele_correct = allele
+        return allele_correct
+
+
+
     def generate_mhcII_alelles_combination_list(self, hla_alleles, set_available_mhc):
         ''' given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x) and HLA-DQA1/HLA-DPQ1 (4x)
         '''
@@ -34,10 +49,14 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         dqb_alleles = []
         dpb_alleles = []
         for allele in hla_alleles:
+            allele = self.check_format_allele(allele)
             if allele.startswith("HLA-DRB1"):
                 allele = allele.replace("HLA-", "").replace("*", "_").replace(":", "")
+                logger.info(allele)
                 if allele in set_available_mhc:
                     allels_for_prediction.append(allele)
+                else:
+                    logger.info(allele + "not available")
             else:
                 allele = allele.replace("*", "").replace(":", "")
                 if allele.startswith("HLA-DPA"):
@@ -54,6 +73,7 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         for allele in dp_dq_alleles:
             if allele in set_available_mhc:
                 allels_for_prediction.append(allele)
+        logger.info(allels_for_prediction)
         return allels_for_prediction
 
     def mhcII_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
