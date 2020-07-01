@@ -56,7 +56,8 @@ class Epitope:
             print(";".join([self.properties[key] for key in self.properties]))
 
         def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
-                 set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content_dict, rna_avail):
+                 set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content_dict, rna_avail,
+                 patient_id):
             """ Calculate new epitope features and add to dictonary that stores all properties
             """
             self.properties = self.init_properties(col_nam, prop_list)
@@ -65,13 +66,15 @@ class Epitope:
             logger.info(xmer_mut)
 
             gene = properties_manager.get_gene(properties=self.properties)
-            patient_id = properties_manager.get_patient_id(self.properties)
+            #patient_id = properties_manager.get_patient_id(self.properties)
+            #logger.debug(patient_id)
+            #logger.debug(patient_hlaI)
             vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
             vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
                 self.properties.get("VAF_in_RNA", vaf_tumor)
             transcript_expr = self.properties["transcript_expression"]
-            alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI)
-            alleles_hlaii = properties_manager.get_hla_allele(self.properties, patient_hlaII)
+            alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI, patient_id)
+            alleles_hlaii = properties_manager.get_hla_allele(self.properties, patient_hlaII, patient_id)
             substitution = properties_manager.get_substitution(properties=self.properties)
             tumor_content = tumour_content_dict.get(patient_id) / 100
 
@@ -194,9 +197,9 @@ class Epitope:
             self.add_iedb_immunogenicity(epitope_mhci=epitope_mut_affinity, affinity_mhci=affinity_mut,
                                          epitope_mhcii=epitope_mut_rank_mhcii)
             # MixMHCpred
-            self.add_mix_mhc_pred_features(xmer_wt=xmer_wt, xmer_mut=xmer_mut, patient_hlai=patient_hlaI)
+            self.add_mix_mhc_pred_features(xmer_wt=xmer_wt, xmer_mut=xmer_mut, alleles=alleles)
             # MixMHC2pred
-            self.add_mix_mhc2_pred_features(xmer_mut=xmer_mut, xmer_wt=xmer_wt, patient_hlaII=patient_hlaII)
+            self.add_mix_mhc2_pred_features(xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles_hlaii)
             # dissimilarity to self-proteome
             self.add_dissimilarity(epitope_mhci=epitope_mut_affinity, affinity_mhci=affinity_mut,
                                    epitope_mhcii=epitope_mut_affinity_mhcii, affinity_mhcii=affinity_mut_mhcii)
@@ -213,10 +216,8 @@ class Epitope:
             self.add_features(vaxrankscore.total_binding_score, "vaxrank_binding_score")
             self.add_features(vaxrankscore.ranking_score, "vaxrank_total_score")
 
-        def add_mix_mhc2_pred_features(self, xmer_wt, xmer_mut, patient_hlaII):
+        def add_mix_mhc2_pred_features(self, xmer_wt, xmer_mut, alleles):
             # MixMHC2pred
-            # TODO:remove allele grep and pass as argument
-            alleles = properties_manager.get_hla_allele(self.properties, patient_hlaII)
             self.predpresentation2.main(alleles=alleles, xmer_wt=xmer_wt, xmer_mut=xmer_mut)
             self.add_features(self.predpresentation2.all_peptides, "MixMHC2pred_all_peptides")
             self.add_features(self.predpresentation2.all_ranks, "MixMHC2pred_all_ranks")
@@ -228,10 +229,8 @@ class Epitope:
             self.add_features(self.predpresentation2.best_rank_wt, "MixMHC2pred_best_rank_wt")
             self.add_features(self.predpresentation2.difference_score_mut_wt, "MixMHC2pred_difference_rank_mut_wt")
 
-        def add_mix_mhc_pred_features(self, xmer_wt, xmer_mut, patient_hlai):
+        def add_mix_mhc_pred_features(self, xmer_wt, xmer_mut, alleles):
             # MixMHCpred
-            # TODO:remove allele grep and pass as argument
-            alleles = properties_manager.get_hla_allele(self.properties, patient_hlai)
             self.predpresentation.main(xmer_wt=xmer_wt, xmer_mut=xmer_mut, alleles=alleles)
             self.add_features(self.predpresentation.all_peptides, "MixMHCpred_all_peptides")
             self.add_features(self.predpresentation.all_scores, "MixMHCpred_all_scores")
