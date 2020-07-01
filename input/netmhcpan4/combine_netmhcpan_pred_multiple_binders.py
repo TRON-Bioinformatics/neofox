@@ -158,7 +158,7 @@ class BestAndMultipleBinder:
         self.MHC_score_top10_WT = mb.get_means(top10)
         best_per_alelle = mb.scores_to_list(best_per_alelle)
         self.MHC_score_all_epitopes_WT = mb.get_means(all)
-        self.MHC_score_best_per_alelle_WT = mb.get_means(best_per_alelle)
+        self.MHC_score_best_per_alelle_WT = mb.MHC_MB_score_best_per_allele(best_per_alelle)
         self.MHC_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
         # best prediction
