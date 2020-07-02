@@ -91,11 +91,12 @@ def expression_mutation_tc(transcript_expression, tumor_content):
     calculated expression of mutation corrected by tumour content
     """
     corrected_expression = "NA"
-    if tumor_content is not None and tumor_content > 0.0:
-        try:
-            corrected_expression = str(float(transcript_expression) / tumor_content)
-        except ValueError:
-            pass
+    if tumor_content != "NA":
+        if tumor_content > 0.0:
+            try:
+                corrected_expression = str(float(transcript_expression) / tumor_content)
+            except ValueError:
+                pass
     return corrected_expression
 
 
