@@ -66,9 +66,6 @@ class Epitope:
             logger.info(xmer_mut)
 
             gene = properties_manager.get_gene(properties=self.properties)
-            #patient_id = properties_manager.get_patient_id(self.properties)
-            #logger.debug(patient_id)
-            #logger.debug(patient_hlaI)
             vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
             vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
                 self.properties.get("VAF_in_RNA", vaf_tumor)
@@ -76,7 +73,8 @@ class Epitope:
             alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI, patient_id)
             alleles_hlaii = properties_manager.get_hla_allele(self.properties, patient_hlaII, patient_id)
             substitution = properties_manager.get_substitution(properties=self.properties)
-            tumor_content = tumour_content_dict.get(patient_id) / 100
+            tumor_content = tumour_content_dict.get(patient_id)
+            if tumor_content!= "NA": tumor_content = tumor_content / 100
 
             mutated_aminoacid = FeatureLiterature.wt_mut_aa(substitution=substitution, mut="mut")
             self.add_features(mutated_aminoacid, "MUT_AA")
