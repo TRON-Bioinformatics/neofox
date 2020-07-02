@@ -259,8 +259,12 @@ class Epitope:
             # selfsimilarity
             self.add_features(self_similarity.get_self_similarity(mutation=epitope_mut_mhci, wild_type=epitope_wt_mhci),
                               "Selfsimilarity_mhcI")
-            self.add_features(self_similarity.get_self_similarity(
-                wild_type=epitope_wt_mhcii, mutation=epitope_mut_mhcii), "Selfsimilarity_mhcII")
+            if epitope_mut_mhcii != "-":
+                self.add_features(self_similarity.get_self_similarity(
+                    wild_type=epitope_wt_mhcii, mutation=epitope_mut_mhcii), "Selfsimilarity_mhcII")
+            elif epitope_mut_mhcii == "-":
+                self.add_features( "NA", "Selfsimilarity_mhcII")
+
             self.add_features(self_similarity.is_improved_binder(
                 score_mutation=rank_mut_mhci, score_wild_type=rank_wt_mhci
             ), "ImprovedBinding_mhcI")
@@ -636,15 +640,21 @@ class Epitope:
             """
             neoantigen fitness for mhcII based on affinity
             """
-            self.add_features(
-                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-                    mutation=epitope_mut_mhcii, iedb=self.references.iedb),
-                "Pathogensimiliarity_mhcII")
-            self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
-                amplitude=self.properties["Amplitude_mhcII_affinity"],
-                pathogen_similarity=self.properties["Pathogensimiliarity_mhcII"],
-                mutation_in_anchor="0"),
-                "Recognition_Potential_mhcII_affinity")
+            if epitope_mut_mhcii != "-":
+                self.add_features(
+                    self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
+                        mutation=epitope_mut_mhcii, iedb=self.references.iedb),
+                    "Pathogensimiliarity_mhcII")
+                self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
+                    amplitude=self.properties["Amplitude_mhcII_affinity"],
+                    pathogen_similarity=self.properties["Pathogensimiliarity_mhcII"],
+                    mutation_in_anchor="0"),
+                    "Recognition_Potential_mhcII_affinity")
+            elif epitope_mut_mhcii == "-":
+                self.add_features("NA", "Pathogensimiliarity_mhcII")
+                self.add_features("NA", "Recognition_Potential_mhcII_affinity")
+
+
 
         def add_add_number_mismatches(self, epi_wt_mhci, epi_mut_mhci, epi_wt_mhcii, epi_mut_mhcii):
             """
@@ -687,8 +697,11 @@ class Epitope:
             mhcii_allele = self.properties["bestHLA_allele_netmhcIIpan"]
             self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
                 epitope=epitope_mhci, mhc_allele=mhci_allele, mhc_score=affinity_mhci), "IEDB_Immunogenicity_mhcI")
-            self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
-                epitope=epitope_mhcii, mhc_allele=mhcii_allele, mhc_score=None), "IEDB_Immunogenicity_mhcII")
+            if epitope_mhcii != "-":
+                self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
+                    epitope=epitope_mhcii, mhc_allele=mhcii_allele, mhc_score=None), "IEDB_Immunogenicity_mhcII")
+            elif epitope_mhcii == "-":
+                self.add_features( "NA", "IEDB_Immunogenicity_mhcII")
             self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
                 epitope=epitope_mhci, mhc_allele=mhci_allele, mhc_score=affinity_mhci, affin_filtering=True),
                 "IEDB_Immunogenicity_mhcI_affinity_filtered")
@@ -703,9 +716,13 @@ class Epitope:
             self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
                 mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci, references=self.references,
                 filter_binder=True), "dissimilarity_filter500")
-            self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-                mhc_mutation=epitope_mhcii, mhc_affinity=affinity_mhcii, references=self.references),
-                "dissimilarity_mhcII")
+            if epitope_mhcii != "-":
+                self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
+                    mhc_mutation=epitope_mhcii, mhc_affinity=affinity_mhcii, references=self.references),
+                    "dissimilarity_mhcII")
+            elif epitope_mhci == "-":
+                self.add_features("NA", "dissimilarity_mhcII")
+
 
         def add_provean_score_features(self):
             # PROVEAN score
