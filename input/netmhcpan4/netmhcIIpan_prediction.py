@@ -147,21 +147,19 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 row = i
         return dat_head, row
 
-    def filter_for_WT_epitope(self, prediction_tuple, mut_seq):
+    def filter_for_wt_epitope_position(self, prediction_tuple, mut_seq, position_epi_xmer):
         '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
         '''
         dat_head = prediction_tuple[0]
         dat = prediction_tuple[1]
         seq_col = dat_head.index("Peptide")
-        allele_col = dat_head.index("Allele")
+        pos_col = dat_head.index("Seq")
         wt_epi = []
         for ii, i in enumerate(dat):
             wt_seq = i[seq_col]
-            wt_allele = i[allele_col]
-            if (len(wt_seq) == len(mut_seq)):
-                numb_mismatch = self.hamming_check_0_or_1(mut_seq, wt_seq)
-                if numb_mismatch == 1:
-                    wt_epi.append(i)
+            wt_pos = i[pos_col]
+            if (len(wt_seq) == len(mut_seq)) & (wt_pos == position_epi_xmer):
+                wt_epi.append(i)
         dt = (dat_head, wt_epi)
         min = self.minimal_binding_score(dt)
         return (min)
