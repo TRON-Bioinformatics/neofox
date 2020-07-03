@@ -26,19 +26,22 @@ class EpitopeHelper(object):
         """
         returns position of mutation in xmer sequence
         """
-        p1 = -1
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
             for i, aa in enumerate(xmer_mut):
                 if aa != xmer_wt[i]:
                     p1 = i + 1
+            pos_mut = p1
         else:
             p1 = 0
             # in case sequences do not have same length
             for a1, a2 in zip(xmer_wt, xmer_mut):
                 if a1 == a2:
                     p1 += 1
-        return str(p1)
+                elif a1 != a2:
+                    p1 += 1
+                    pos_mut = p1
+        return pos_mut
 
     @staticmethod
     def epitope_covers_mutation(position_mutation, position_epitope, length_epitope):
