@@ -122,7 +122,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 row = i
         return dat_head, row
 
-    def mutation_in_loop(self, position_xmer, epitope_tuple):
+    def mutation_in_loop(self, position_xmer_list, epitope_tuple):
         """
         returns if mutation is directed to TCR (yes or no)
         """
@@ -131,17 +131,17 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         pos_epi = dat_head.index("Pos")
         del_pos = dat_head.index("Gp")
         del_len = dat_head.index("Gl")
-        directed_to_TCR = "no"
-        try:
+        directed_to_tcr_list = [False]
+        for position_mutation_xmer in position_xmer_list:
             if del_pos > 0:
                 pos = int(dat_epi[pos_epi])
                 start = pos + int(dat_epi[del_pos]) - 1
                 end = start + int(dat_epi[del_len])
-                if start < int(position_xmer) <= end:
-                    directed_to_TCR = "yes"
-            return directed_to_TCR
-        except IndexError:
-            return "NA"
+                if start < position_mutation_xmer <= end:
+                    directed_to_tcr_list.append("yes")
+        directed_to_tcr = any(directed_to_tcr_list)
+        return directed_to_tcr
+
 
     def filter_for_9mers(self, prediction_tuple):
         '''returns only predicted 9mers
@@ -156,7 +156,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 dat_9mers.append(i)
         return dat_head, dat_9mers
 
-    def filter_for_WT_epitope(self, prediction_tuple, mut_seq, mut_allele):
+    def filter_for_WT_epitope(self, prediction_tuple, mut_seq, mut_allele, number_snv):
         '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
         '''
         dat_head = prediction_tuple[0]
@@ -169,8 +169,25 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
             wt_allele = i[allele_col]
             if (len(wt_seq) == len(mut_seq)):
                 numb_mismatch = self.hamming_check_0_or_1(mut_seq, wt_seq)
-                if numb_mismatch == 1:
+                if numb_mismatch <= number_snv:
                     wt_epi.append(i)
+        dt = (dat_head, wt_epi)
+        min = self.minimal_binding_score(dt)
+        return (min)
+
+    def filter_for_WT_epitope_position(self, prediction_tuple, mut_seq, position_epi_xmer):
+        '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
+        '''
+        dat_head = prediction_tuple[0]
+        dat = prediction_tuple[1]
+        seq_col = dat_head.index("Peptide")
+        pos_col = dat_head.index("Pos")
+        wt_epi = []
+        for ii, i in enumerate(dat):
+            wt_seq = i[seq_col]
+            wt_pos = i[pos_col]
+            if (len(wt_seq) == len(mut_seq)) & (wt_pos == position_epi_xmer):
+                wt_epi.append(i)
         dt = (dat_head, wt_epi)
         min = self.minimal_binding_score(dt)
         return (min)
