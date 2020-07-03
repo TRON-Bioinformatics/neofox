@@ -27,19 +27,23 @@ class BestAndMultipleBinder:
         self.best4_mhc_score = "NA"
         self.best4_mhc_epitope = "NA"
         self.best4_mhc_allele = "NA"
+        self.best4_mhc_position = "NA"
         self.directed_to_TCR = "NA"
         self.best4_affinity = "NA"
-        self.best4_affinity_epitope = "NA"
+        self.best4_affinity_epitope = "-"
         self.best4_affinity_allele = "NA"
+        self.best4_affinity_position = "NA"
         self.best4_affinity_directed_to_TCR = "NA"
         self.epitope_affinities = ""
         self.generator_rate = ""
         self.mhcI_score_9mer = "NA"
         self.mhcI_score_allele_9mer = "NA"
-        self.mhcI_score_epitope_9mer = "NA"
+        self.mhcI_score_position_9mer = "NA"
+        self.mhcI_score_epitope_9mer = "-"
         self.mhcI_affinity_9mer = "NA"
         self.mhcI_affinity_allele_9mer = "NA"
-        self.mhcI_affinity_epitope_9mer = "NA"
+        self.mhcI_affinity_position_9mer = "NA"
+        self.mhcI_affinity_epitope_9mer = "-"
         # WT features
         self.MHC_epitope_scores_WT = ""
         self.MHC_epitope_seqs_WT = ""
@@ -115,13 +119,15 @@ class BestAndMultipleBinder:
         self.best4_mhc_score = np.add_best_epitope_info(best_epi, "%Rank")
         self.best4_mhc_epitope = np.add_best_epitope_info(best_epi, "Peptide")
         self.best4_mhc_allele = np.add_best_epitope_info(best_epi, "HLA")
-        self.directed_to_TCR = np.mutation_in_loop(position_xmer=position_xmer, epitope_tuple=best_epi)
+        self.best4_mhc_position = np.add_best_epitope_info(best_epi, "Pos")
+        self.directed_to_TCR = np.mutation_in_loop(position_xmer_list=position_xmer, epitope_tuple=best_epi)
         best_epi_affinity = np.minimal_binding_score(preds, rank=False)
         self.best4_affinity = np.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
         self.best4_affinity_epitope = np.add_best_epitope_info(best_epi_affinity, "Peptide")
         self.best4_affinity_allele = np.add_best_epitope_info(best_epi_affinity, "HLA")
+        self.best4_affinity_position = np.add_best_epitope_info(best_epi_affinity, "Pos")
         self.best4_affinity_directed_to_TCR = np.mutation_in_loop(
-            position_xmer=position_xmer, epitope_tuple=best_epi_affinity)
+            position_xmer_list=position_xmer, epitope_tuple=best_epi_affinity)
         # multiple binding based on affinity
         self.generator_rate = mb.determine_number_of_binders(list_scores=all_affinities, threshold=50)
         # best predicted epitope of length 9
@@ -130,9 +136,11 @@ class BestAndMultipleBinder:
         best_9mer_affinity = np.minimal_binding_score(preds_9mer, rank=False)
         self.mhcI_score_9mer = np.add_best_epitope_info(best_9mer, "%Rank")
         self.mhcI_score_allele_9mer = np.add_best_epitope_info(best_9mer, "HLA")
+        self.mhcI_score_position_9mer = np.add_best_epitope_info(best_9mer, "Pos")
         self.mhcI_score_epitope_9mer = np.add_best_epitope_info(best_9mer, "Peptide")
         self.mhcI_affinity_9mer = np.add_best_epitope_info(best_9mer_affinity, "Aff(nM)")
         self.mhcI_affinity_allele_9mer = np.add_best_epitope_info(best_9mer_affinity, "HLA")
+        self.mhcI_affinity_position_9mer = np.add_best_epitope_info(best_9mer_affinity, "Pos")
         self.mhcI_affinity_epitope_9mer = np.add_best_epitope_info(best_9mer_affinity, "Peptide")
 
         ### PREDICTION FOR WT SEQUENCE
@@ -162,11 +170,14 @@ class BestAndMultipleBinder:
         self.MHC_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
         # best prediction
-        best_epi = np.filter_for_WT_epitope(preds, self.best4_mhc_epitope, self.best4_mhc_allele)
+        best_epi = np.filter_for_WT_epitope_position(preds, self.best4_mhc_epitope,
+                                            position_epi_xmer=self.best4_mhc_position)
         self.best4_mhc_score_WT = np.add_best_epitope_info(best_epi, "%Rank")
         self.best4_mhc_epitope_WT = np.add_best_epitope_info(best_epi, "Peptide")
         self.best4_mhc_allele_WT = np.add_best_epitope_info(best_epi, "HLA")
-        best_epi_affinity = np.filter_for_WT_epitope(preds, self.best4_affinity_epitope, self.best4_affinity_allele)
+
+        best_epi_affinity = np.filter_for_WT_epitope_position(preds, self.best4_affinity_epitope,
+                                                     position_epi_xmer=self.best4_affinity_position)
         self.best4_affinity_WT = np.add_best_epitope_info(best_epi_affinity, "Aff(nM)")
         self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_epi_affinity, "Peptide")
         self.best4_affinity_allele_WT = np.add_best_epitope_info(best_epi_affinity, "HLA")
@@ -174,9 +185,10 @@ class BestAndMultipleBinder:
         logger.info("WT: {}; MUT: {}".format(self.generator_rate_WT, self.generator_rate))
         # best predicted epitope of length 9
         preds_9mer = np.filter_for_9mers(preds)
-        best_9mer = np.filter_for_WT_epitope(preds_9mer, self.mhcI_score_epitope_9mer, self.mhcI_score_allele_9mer)
-        best_9mer_affinity = np.filter_for_WT_epitope(preds_9mer, mut_seq=self.mhcI_affinity_epitope_9mer,
-                                                      mut_allele=self.mhcI_affinity_allele_9mer)
+        best_9mer = np.filter_for_WT_epitope_position(preds_9mer, self.mhcI_score_epitope_9mer,
+                                             position_epi_xmer=self.mhcI_score_position_9mer)
+        best_9mer_affinity = np.filter_for_WT_epitope_position(preds_9mer, mut_seq=self.mhcI_affinity_epitope_9mer,
+                                                      position_epi_xmer=self.mhcI_affinity_position_9mer)
         self.mhcI_score_9mer_WT = np.add_best_epitope_info(best_9mer, "%Rank")
         self.mhcI_score_allele_9mer_WT = np.add_best_epitope_info(best_9mer, "HLA")
         self.mhcI_score_epitope_9mer_WT = np.add_best_epitope_info(best_9mer, "Peptide")
