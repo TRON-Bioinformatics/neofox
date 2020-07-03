@@ -45,17 +45,6 @@ Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  
 ```
 
 **Required Columns of iCaM Table:**  
--   MHC_I_epitope_.best_prediction.  
-- 	MHC_I_epitope_.WT.  
--   MHC_II_epitope_.best_prediction.  
-- 	MHC_II_epitope_.WT.  
-- 	MHC_I_score_.best_prediction.  
-- 	MHC_I_score_.WT.  
-- 	MHC_II_score_.best_prediction.  
-- 	MHC_II_score_.WT.  
-- 	MHC_I_peptide_length_.best_prediction.
-- 	MHC_I_allele_.best_prediction.  
-- 	MHC_II_allele_.best_prediction.  
 - 	transcript_expression  
 - 	VAF_in_RNA  
 - 	VAF_in_tumor  
