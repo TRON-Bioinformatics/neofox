@@ -11,7 +11,7 @@ class EpitopeHelper(object):
         """
         length_mut = len(xmer_mut)
         list_peptides = []
-        pos_mut_list = int(EpitopeHelper.mut_position_xmer_seq(xmer_mut=xmer_mut, xmer_wt=xmer_wt))
+        pos_mut_list = EpitopeHelper.mut_position_xmer_seq(xmer_mut=xmer_mut, xmer_wt=xmer_wt)
         for pos_mut in pos_mut_list:
             for length in lengths:
                 if length <= length_mut:
