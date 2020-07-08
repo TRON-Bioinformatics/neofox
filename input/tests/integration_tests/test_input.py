@@ -27,5 +27,4 @@ class TestInput(TestCase):
         BunchEpitopes().wrapper_table_add_feature_annotation(
             icam_file=input_file,
             patient_id=patient_id,
-            indel=False,
             patients_file=patients_file)
