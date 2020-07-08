@@ -33,10 +33,10 @@ class MultipleBinding:
         for ii, i in enumerate(pred_data):
             if mhc == MHC_II:
                 # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((i[-2], i[-3], i[2], i[1]))
+                list_of_tuples.append((i[9], i[8], i[2], i[1]))
             else:
                 # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((i[-1], i[-2], i[2], i[1]))
+                list_of_tuples.append((i[13], i[12], i[2], i[1]))
         return list_of_tuples
 
     def extract_top10_epis(self, tuple_epis):
@@ -83,6 +83,7 @@ class MultipleBinding:
                     # allele already one time represented in list --> add n-t times
                     [homo_best_epi_all.append(tuple(homo_best_epi)) for i in range(homo_numbers - 1)]
                     best_epis_per_allele.extend(tuple(homo_best_epi_all))
+        logger.info(best_epis_per_allele)
         return best_epis_per_allele
 
     def scores_to_list(self, tuple_epis):

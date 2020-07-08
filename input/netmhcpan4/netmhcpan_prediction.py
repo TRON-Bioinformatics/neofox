@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from logzero import logger
+
 from input.helpers import data_import
 from input.helpers.epitope_helper import EpitopeHelper
 from input.netmhcpan4.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
@@ -34,14 +36,31 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         '''
         return allele in set_available_mhc
 
+    def check_format_allele(self, allele):
+        """
+        sometimes genotyping may be too detailed. (e.g. HLA-DRB1*04:01:01 should be HLA-DRB1*04:01)
+        :param allele: HLA-allele
+        :return: HLA-allele in correct format
+        """
+        # TODO: was added to netMHCIIpan too --> combine
+        if allele.count(":") > 1:
+            allele_correct = ":".join(allele.split(":")[0:2])
+        else:
+            allele_correct = allele
+        return allele_correct
+
+
     def mhc_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
         ''' Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         '''
         allels_for_prediction = []
         for allele in hla_alleles:
+            allele = self.check_format_allele(allele)
             allele = allele.replace("*", "")
             if self._mhc_allele_in_netmhcpan_available(allele, set_available_mhc):
                 allels_for_prediction.append(allele)
+            else:
+                logger.info(allele + "not available")
         hla_allele = ",".join(allels_for_prediction)
         cmd = [
             self.configuration.net_mhc_pan,

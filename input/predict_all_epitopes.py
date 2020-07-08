@@ -131,6 +131,7 @@ class BunchEpitopes:
             self.proteome_dictionary = self.load_proteome(self.references.uniprot)
         # adds patient to the table
         dat[0].append(PATIENT_ID)
+        logger.debug(patient_id)
         for ii, i in enumerate(dat[1]):
             dat[1][ii].append(str(patient_id))
         # initialise information needed for feature calculation
@@ -145,7 +146,7 @@ class BunchEpitopes:
                 dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
                 self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,
-                self.patient_hla_II_allels, self.tumour_content, self.rna_avail)
+                self.patient_hla_II_allels, self.tumour_content, self.rna_avail, patient_id)
             for key in z:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
