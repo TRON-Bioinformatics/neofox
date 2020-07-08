@@ -92,9 +92,10 @@ class BunchEpitopes:
             z = [str(d[col][i]) for col in header]
             print("\t".join(z))
 
-    def initialise_properties(self, data, patients):
+    def initialise_properties(self, header, data, patients):
         """
         adds information to Bunchepitopes class that are needed for mutated peptide sequence annotation
+        :param header
         :param data:
         :type patients: list[Patient]
         :return:
@@ -115,42 +116,42 @@ class BunchEpitopes:
         self.patient_hla_II_allels = {p.identifier: p.mhc_i_i_alleles for p in patients}
         self.tumour_content = {p.identifier: p.estimated_tumor_content for p in patients}
         self.rna_avail = {p.identifier: p.is_rna_available for p in patients}
-        self.provean_annotator = ProveanAnnotator(provean_file=prov_file, header_epitopes=data[0], epitopes=data[1])
+        self.provean_annotator = ProveanAnnotator(provean_file=prov_file, header_epitopes=header, epitopes=data)
 
-    def wrapper_table_add_feature_annotation(self, icam_file, patient_id, indel, patients_file):
+    def wrapper_table_add_feature_annotation(self, icam_file, patient_id, patients_file):
         """ Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
         write to txt file
         """
         # import epitope data
-        dat = data_import.import_dat_icam(icam_file, indel)
+        header, rows = data_import.import_dat_icam(icam_file)
         patients = data_import.import_patients_data(patients_file)
-        if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-            dat = data_import.change_col_names(dat)
-        if "mutation_found_in_proteome" not in dat[0]:
+        if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in header:
+            header, rows = data_import.change_col_names(header=header, data=rows)
+        if "mutation_found_in_proteome" not in header:
             self.proteome_dictionary = self.load_proteome(self.references.uniprot)
         # adds patient to the table
-        dat[0].append(PATIENT_ID)
+        header.append(PATIENT_ID)
         logger.debug(patient_id)
-        for ii, i in enumerate(dat[1]):
-            dat[1][ii].append(str(patient_id))
+        for row in rows:
+            row.append(str(patient_id))
         # initialise information needed for feature calculation
-        self.initialise_properties(dat, patients)
+        self.initialise_properties(header=header, data=rows, patients=patients)
         # feature calculation for each epitope
-        for ii, i in enumerate(dat[1]):
+        for row in rows:
             # dict for each epitope
-            z = Epitope(runner=self.runner,
-                        references=self.references,
-                        configuration=self.configuration,
-                        provean_annotator=self.provean_annotator).main(
-                dat[0], dat[1][ii], self.proteome_dictionary, self.rna_reference, self.aa_frequency,
+            epitope = Epitope(
+                runner=self.runner, references=self.references, configuration=self.configuration,
+                provean_annotator=self.provean_annotator)
+            features = epitope.main(
+                header, row, self.proteome_dictionary, self.rna_reference, self.aa_frequency,
                 self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,
                 self.patient_hla_II_allels, self.tumour_content, self.rna_avail, patient_id)
-            for key in z:
+            for key in features:
                 if key not in self.Allepit:
                     # keys are are feautres; values: list of feature values associated with mutated peptide sequence
-                    self.Allepit[key] = [z[key]]
+                    self.Allepit[key] = [features[key]]
                 else:
-                    self.Allepit[key].append(z[key])
-        self.write_to_file_sorted(self.Allepit, dat[0])
+                    self.Allepit[key].append(features[key])
+        self.write_to_file_sorted(self.Allepit, header)
