@@ -12,9 +12,16 @@ class TestDissimilarity(TestCase):
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         self.runner = Runner()
 
-    def test_dissimilarity(self):
-        result = DissimilarityCalculator(runner=self.runner, configuration=self.configuration).calculate_dissimilarity(
-            props={'best_affinity_epitope_netmhcpan4': 'hey', 'best_affinity_netmhcpan4': 'ho'},
-            fastafile=self.fastafile.name,
-            references=self.references)
-        self.assertEqual('0', result)
+    def test_dissimilar_sequences(self):
+        result = DissimilarityCalculator(
+            runner=self.runner, configuration=self.configuration)\
+            .calculate_dissimilarity(
+            mhc_mutation='tocino', mhc_affinity='velocidad', references=self.references)
+        self.assertEqual(1, result)
+
+    def test_similar_sequences(self):
+        result = DissimilarityCalculator(
+            runner=self.runner, configuration=self.configuration)\
+            .calculate_dissimilarity(
+            mhc_mutation='DDDDDD', mhc_affinity='DDDDDD', references=self.references)
+        self.assertTrue(result < 0.000001)

@@ -14,11 +14,11 @@ class TestNeoantigenFitness(TestCase):
 
     def test_neoag(self):
         result = NeoagCalculator(runner=self.runner, configuration=self.configuration).wrapper_neoag(
-            props={'patient': "John Doe",
-                   'best_affinity_epitope_netmhcpan4': 'DDDDDDD',
-                   'best_affinity_netmhcpan4': 0,
-                   'best_affinity_epitope_netmhcpan4_WT': 'DDDDDDV',
-                   'pos_MUT_MHCI_affinity_epi': '12345'})
+            sample_id="12345",
+            mut_peptide="DDDDDV",
+            score_mut="0",
+            ref_peptide="DDDDDD",
+            peptide_variant_position="123")
         self.assertTrue(isinstance(result, str))
         self.assertTrue(float(result) > 0)
 
