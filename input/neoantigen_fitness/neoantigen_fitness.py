@@ -70,7 +70,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         try:
             candidate_recognition_potential = str(float(amplitude) * float(pathogen_similarity))
             if mhc_affinity_mut:
-                if mutation_in_anchor == "0" and mhc_affinity_mut < 500:
+                if mutation_in_anchor == "0" and float(mhc_affinity_mut) < 500.0:
                     recognition_potential = candidate_recognition_potential
             else:
                 if mutation_in_anchor == "0":
