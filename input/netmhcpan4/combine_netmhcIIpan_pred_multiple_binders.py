@@ -27,10 +27,10 @@ class BestAndMultipleBinderMhcII:
         self.MHCII_epitope_scores = "NA"
         self.MHCII_epitope_alleles = "NA"
         self.best_mhcII_pan_score = "NA"
-        self.best_mhcII_pan_epitope = "NA"
+        self.best_mhcII_pan_epitope = "-"
         self.best_mhcII_pan_allele = "NA"
         self.best_mhcII_pan_affinity = "NA"
-        self.best_mhcII_pan_affinity_epitope = "NA"
+        self.best_mhcII_pan_affinity_epitope = "-"
         self.best_mhcII_pan_affinity_allele = "NA"
         # WT features
         self.MHCII_epitope_scores_WT = "Na"
@@ -42,10 +42,10 @@ class BestAndMultipleBinderMhcII:
         self.MHCII_number_strong_binders_WT = "NA"
         self.MHCII_number_weak_binders_WT = "NA"
         self.best_mhcII_pan_score_WT = "NA"
-        self.best_mhcII_pan_epitope_WT = "NA"
+        self.best_mhcII_pan_epitope_WT = "-"
         self.best_mhcII_pan_allele_WT = "NA"
         self.best_mhcII_affinity_WT = "NA"
-        self.best_mhcII_affinity_epitope_WT = "NA"
+        self.best_mhcII_affinity_epitope_WT = "-"
         self.best_mhcII_affinity_allele_WT = "NA"
 
     def MHCII_MB_score_best_per_allele(self, tuple_best_per_allele):

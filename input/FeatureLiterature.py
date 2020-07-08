@@ -86,17 +86,17 @@ def rna_expression_mutation(transcript_expression, vaf_rna):
         return "NA"
 
 
-def expression_mutation_tc(transcript_expression, patient_id, tumour_content_dict):
+def expression_mutation_tc(transcript_expression, tumor_content):
     """
     calculated expression of mutation corrected by tumour content
     """
-    tumor_content = tumour_content_dict.get(patient_id)
     corrected_expression = "NA"
-    if tumor_content is not None and tumor_content > 0.0:
-        try:
-            corrected_expression = str(float(transcript_expression) / tumor_content / 100)
-        except ValueError:
-            pass
+    if tumor_content != "NA":
+        if tumor_content > 0.0:
+            try:
+                corrected_expression = str(float(transcript_expression) / tumor_content)
+            except ValueError:
+                pass
     return corrected_expression
 
 
@@ -135,23 +135,20 @@ def calc_logistic_function(mhc_score):
         return "NA"
 
 
-def calc_priority_score(vaf_tumor, vaf_rna, transcript_expr, no_mismatch, score_mut, score_wt, mut_in_prot):
+def calc_priority_score(vaf_tumor, vaf_rna, transcript_expr, no_mismatch, score_mut, score_wt, mut_not_in_prot):
     """
     This function calculates the Priority Score using parameters for mhc I.
     """
-    # TODO: Franziska is this a bug? It is reversing its value
-    if mut_in_prot == "False" : mut_in_prot = "1"
-    if mut_in_prot == "True" : mut_in_prot = "0"
     L_mut = calc_logistic_function(score_mut)
     L_wt = calc_logistic_function(score_wt)
     priority_score = "NA"
     try:
         if vaf_tumor not in ["-1", "NA"]:
             priority_score = (L_mut * float(vaf_tumor) * math.tanh(float(transcript_expr))) * (
-                        float(mut_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
+                    float(mut_not_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
         else:
             priority_score = (L_mut * float(vaf_rna) * math.tanh(float(transcript_expr))) * (
-                        float(mut_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
+                    float(mut_not_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
     except (TypeError, ValueError) as e:
         pass
     return str(priority_score)
