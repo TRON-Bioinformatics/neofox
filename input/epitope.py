@@ -716,7 +716,7 @@ class Epitope:
             self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
                 mhc_mutation=epitope_mhcii, mhc_affinity=affinity_mhcii, references=self.references),
                 "dissimilarity_mhcII")
-        elif epitope_mhci == "-":
+        elif epitope_mhcii == "-":
             self.add_features("NA", "dissimilarity_mhcII")
 
     def add_provean_score_features(self):
