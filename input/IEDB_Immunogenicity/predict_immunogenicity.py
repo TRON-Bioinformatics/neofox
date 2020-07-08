@@ -11,6 +11,8 @@ from optparse import OptionParser
 
 from logzero import logger
 
+from input.helpers import intermediate_files
+
 
 class Prediction():
 
@@ -160,21 +162,18 @@ class Prediction():
 
     def create_csv(self, mask_choice, mask_out, data):
         import csv
-        import tempfile
 
         tmpdir = './output'
 
         # Create a temporary file inside the tmp/ directory
-        tmpfile = tempfile.NamedTemporaryFile(prefix="immunogenicity_", suffix=".csv", dir=tmpdir, delete=False)
-
-        with open(tmpfile.name, 'wb') as result:
+        tmpfile = intermediate_files.create_temp_file(prefix="immunogenicity_", suffix=".csv", dir=tmpdir)
+        with open(tmpfile, 'wb') as result:
             writer = csv.writer(result, delimiter=',')
             data.insert(0, ['masking: ', '{0}'.format(mask_choice)])
             data.insert(1, ['masked variables: ', '{0}'.format(mask_out)])
             for score in data:
                 writer.writerow(score)
-        tmpfile.close()
-        return tmpfile.name
+        return tmpfile
 
     def commandline_help(self):
         print("""

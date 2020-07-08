@@ -2,7 +2,7 @@ from collections import defaultdict
 from unittest import TestCase
 
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
-from input.Tcell_predictor.tcellpredictor_wrapper import Tcellprediction
+from input.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 
 
 class TestTCellPredictor(TestCase):
@@ -12,10 +12,9 @@ class TestTCellPredictor(TestCase):
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
 
     def test_tcell_predictor(self):
-        tcell_predictor = Tcellprediction(references=self.references)
-        tcell_predictor.main(props=defaultdict(lambda: "blah"))
-        self.assertEqual("NA", tcell_predictor.TcellPrdictionScore)
-        self.assertEqual("NA", tcell_predictor.TcellPrdictionScore_9merPred)
+        tcell_predictor = TcellPrediction(references=self.references)
+        result = tcell_predictor.calculate_tcell_predictor_score(gene="BLAH", substitution='blaaaah', epitope="BLAHBLAH", score=5, threshold=10)
+        self.assertEqual("NA", result)
 
 
 """
