@@ -6,17 +6,16 @@ from input.model.schema_conversion import SchemaConverter
 from input.model.neoantigen import Patient
 
 
-def import_dat_icam(in_file, indel):
+def import_dat_icam(in_file, indel=False):
     """
     This function imports a result table from the iCAM pipeline
     Parameter indel (True/False) indicates if output contains indels or SNVs
     """
     file_format = 0
-    c = 0
     data = []
     header = []
     c = 0
-    # ceck format of file
+    # check format of file
     if "txt" in in_file or "transcript" in in_file:
         file_format = "txt"
     elif "csv" in in_file:
@@ -110,45 +109,40 @@ def import_dat_general(in_file):
     return header, data
 
 
-def change_col_names(tuple_dat_head):
+def change_col_names(header, data):
     """This function changes the names of columns if table hat not been importet to R before."""
-    dat_new = tuple_dat_head[1]
-    head_new = tuple_dat_head[0]
-    if "MHC_I_peptide_length_(best_prediction)" in head_new:
-        mut_long = head_new.index("+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)")
-        wt_long = head_new.index("[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)")
-        lenI_ind = head_new.index("MHC_I_peptide_length_(best_prediction)")
-        allI_ind = head_new.index("MHC_I_allele_(best_prediction)")
-        epiI_ind = head_new.index("MHC_I_epitope_(best_prediction)")
-        epiIwt_ind = head_new.index("MHC_I_epitope_(WT)")
-        scI_ind = head_new.index("MHC_I_score_(best_prediction)")
-        scIwt_ind = head_new.index("MHC_I_score_(WT)")
-        lenII_ind = head_new.index("MHC_II_peptide_length_(best_prediction)")
-        allII_ind = head_new.index("MHC_II_allele_(best_prediction)")
-        epiII_ind = head_new.index("MHC_II_epitope_(best_prediction)")
-        epiIIwt_ind = head_new.index("MHC_II_epitope_(WT)")
-        scII_ind = head_new.index("MHC_II_score_(best_prediction)")
-        scIIwt_ind = head_new.index("MHC_II_score_(WT)")
+    if "MHC_I_peptide_length_(best_prediction)" in header:
+        mut_long = header.index("+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)")
+        wt_long = header.index("[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)")
+        lenI_ind = header.index("MHC_I_peptide_length_(best_prediction)")
+        allI_ind = header.index("MHC_I_allele_(best_prediction)")
+        epiI_ind = header.index("MHC_I_epitope_(best_prediction)")
+        epiIwt_ind = header.index("MHC_I_epitope_(WT)")
+        scI_ind = header.index("MHC_I_score_(best_prediction)")
+        scIwt_ind = header.index("MHC_I_score_(WT)")
+        lenII_ind = header.index("MHC_II_peptide_length_(best_prediction)")
+        allII_ind = header.index("MHC_II_allele_(best_prediction)")
+        epiII_ind = header.index("MHC_II_epitope_(best_prediction)")
+        epiIIwt_ind = header.index("MHC_II_epitope_(WT)")
+        scII_ind = header.index("MHC_II_score_(best_prediction)")
+        scIIwt_ind = header.index("MHC_II_score_(WT)")
 
-        head_new[mut_long] = "X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."
-        head_new[wt_long] = "X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."
-        head_new[lenI_ind] = "MHC_I_peptide_length_.best_prediction."
-        head_new[allI_ind] = "MHC_I_allele_.best_prediction."
-        head_new[epiI_ind] = "MHC_I_epitope_.best_prediction."
-        head_new[epiIwt_ind] = "MHC_I_epitope_.WT."
-        head_new[scI_ind] = "MHC_I_score_.best_prediction."
-        head_new[scIwt_ind] = "MHC_I_score_.WT."
-        head_new[lenII_ind] = "MHC_II_peptide_length_.best_prediction."
-        head_new[allII_ind] = "MHC_II_allele_.best_prediction."
-        head_new[epiII_ind] = "MHC_II_epitope_.best_prediction."
-        head_new[epiIIwt_ind] = "MHC_II_epitope_.WT."
-        head_new[scII_ind] = "MHC_II_score_.best_prediction."
-        head_new[scIIwt_ind] = "MHC_II_score_.WT."
+        header[mut_long] = "X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."
+        header[wt_long] = "X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."
+        header[lenI_ind] = "MHC_I_peptide_length_.best_prediction."
+        header[allI_ind] = "MHC_I_allele_.best_prediction."
+        header[epiI_ind] = "MHC_I_epitope_.best_prediction."
+        header[epiIwt_ind] = "MHC_I_epitope_.WT."
+        header[scI_ind] = "MHC_I_score_.best_prediction."
+        header[scIwt_ind] = "MHC_I_score_.WT."
+        header[lenII_ind] = "MHC_II_peptide_length_.best_prediction."
+        header[allII_ind] = "MHC_II_allele_.best_prediction."
+        header[epiII_ind] = "MHC_II_epitope_.best_prediction."
+        header[epiIIwt_ind] = "MHC_II_epitope_.WT."
+        header[scII_ind] = "MHC_II_score_.best_prediction."
+        header[scIIwt_ind] = "MHC_II_score_.WT."
 
-        return head_new, dat_new
-
-    else:
-        return head_new, dat_new
+    return header, data
 
 
 def import_patients_data(patients_file):
