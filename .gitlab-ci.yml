@@ -7,6 +7,7 @@ test:
     - apk add --no-cache --virtual python3-dev libffi-dev openssl-dev && apk add --no-cache --update python3 && apk add --no-cache --update py-pip
     - pip3 install --upgrade pip setuptools
     - which python3
+    - pip install wheel
     - python3 setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
     - python3 -m unittest discover input.tests.input_tests
