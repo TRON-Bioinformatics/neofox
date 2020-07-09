@@ -4,8 +4,8 @@ stages:
 test:
   stage: test
   script:
-    - apt-get update -qy
-    - apt-get install -y python-dev python-pip
+    - virtualenv venv
+    - source venv/bin/activate
     - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
     - python -m unittest discover input.tests.input_tests
