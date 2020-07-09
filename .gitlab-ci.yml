@@ -4,8 +4,7 @@ stages:
 test:
   stage: test
   script:
-    - apk add --update python-dev
-    - apk add --update py-pip
+    - apk add --no-cache --virtual python3-dev libffi-dev openssl-dev && apk add --no-cache --update python3 && pip3 install --upgrade pip setuptools
     - which python
     - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
