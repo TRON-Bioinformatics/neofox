@@ -4,6 +4,7 @@ stages:
 test:
   stage: test
   script:
+    - yum install python-devel python-pip
     - which python
     - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
