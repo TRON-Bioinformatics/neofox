@@ -20,7 +20,7 @@ cache:
 
 before_script:
   - apt-get update
-  - apt-get install gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
+  - apt-get install gcc gfortran build-essential wget libfreetype-dev libpng-dev libopenblas-dev
   - python -V               # Print out python version for debugging
   - pip install virtualenv
   - virtualenv venv
