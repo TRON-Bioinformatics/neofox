@@ -27,7 +27,7 @@ class TestNetMhcPanPredictor(TestCase):
             set_available_mhc=self.references.load_available_hla_alleles(mhc=MHC_I))
         self.assertTrue(os.path.exists(tmp_prediction))
         self.assertEqual(166, len(open(tmp_prediction).readlines()))
-        header, rows = netmhcpan_predictor.filter_binding_predictions(4, tmp_prediction)
+        header, rows = netmhcpan_predictor.filter_binding_predictions([4], tmp_prediction)
         self.assertEqual(14, len(header))  # output has 14 columns
         for r in rows:
             self.assertEqual(14, len(r))  # each row has 14 columns
@@ -67,7 +67,7 @@ class TestNetMhcPanPredictor(TestCase):
         self.assertTrue(os.path.exists(tmp_prediction))
         self.assertEqual(20, len(open(tmp_prediction).readlines()))
 
-        header, rows = netmhc2pan_predictor.filter_binding_predictions(4, tmp_prediction)
+        header, rows = netmhc2pan_predictor.filter_binding_predictions([4], tmp_prediction)
         self.assertEqual(12, len(header))  # output has 14 columns
         for r in rows:
             self.assertTrue(len(r) <= 12 or len(r) >= 10)  # each row has 10 or 12 columns
