@@ -30,6 +30,8 @@ test:
     - apk --no-cache --update-cache add gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
     # pip install --upgrade pip setuptools
     # pip install wheel
+    # numpy is installed beforehand because scikit-learn installation is troubled https://github.com/scikit-learn/scikit-learn/issues/7867
+    - pip install numpy==1.16.2
     - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
     - python -m unittest discover input.tests.input_tests
