@@ -19,20 +19,18 @@ class TestMixMHCPred(TestCase):
         mixmhcpred = MixMHCpred(runner=self.runner, configuration=self.configuration)
         # this is an epitope from IEDB of length 9
         mutated = 'NLVPMVATV'
-        wild_type = 'NLVPMVATV'
+        wild_type = 'NLVPIVATV'
         mixmhcpred.main(xmer_wt=wild_type, xmer_mut=mutated, alleles=TEST_HLAI_ALLELES[0:5])
         self.assertIsNotNone(mixmhcpred.all_peptides)
-        self.assertEqual("NLVPMVAT", mixmhcpred.all_peptides)
+        self.assertEqual(set("NLVPMVATV|LVPMVATV|NLVPMVAT".split("|")), set(mixmhcpred.all_peptides.split("|")))
         logger.debug(mixmhcpred.all_peptides)
-        self.assertEqual(len(mixmhcpred.all_peptides.split('|')), 1)
         self.assertIsNotNone(mixmhcpred.all_scores)
         logger.debug(mixmhcpred.all_scores)
-        self.assertEqual(len(mixmhcpred.all_scores.split('|')), 1)
-        self.assertEqual("-0.522931", mixmhcpred.all_scores)
         self.assertIsNotNone(mixmhcpred.all_ranks)
         logger.debug(mixmhcpred.all_ranks)
-        self.assertEqual(len(mixmhcpred.all_ranks.split('|')), 1)
-        self.assertEqual("77", mixmhcpred.all_ranks)
+        self.assertEqual(len(mixmhcpred.all_ranks.split('|')), len(mixmhcpred.all_peptides.split('|')))
+        self.assertEqual(set("0.306957|-0.479377|-0.522931".split("|")), set(mixmhcpred.all_scores.split("|")))
+        self.assertTrue("77" in mixmhcpred.all_ranks.split('|'))
         self.assertIsNotNone(mixmhcpred.all_alleles)
         self.assertIsNotNone(mixmhcpred.best_peptide)
         self.assertIsNotNone(mixmhcpred.best_score)
@@ -54,15 +52,14 @@ class TestMixMHCPred(TestCase):
         mixmhcpred = MixMhc2Pred(runner=self.runner, configuration=self.configuration)
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFFKNIVTPR'
-        wild_type = 'ENPVVHFFKNIVTPR'
+        wild_type = 'ENPVVHIFKNIVTPR'
         mixmhcpred.main(xmer_wt=wild_type, xmer_mut=mutated, alleles=TEST_HLAII_ALLELES)
         self.assertIsNotNone(mixmhcpred.all_peptides)
-        self.assertEqual(len(mixmhcpred.all_peptides.split('|')), 2)
         self.assertTrue("ENPVVHFFKNIVTP" in mixmhcpred.all_peptides.split('|'))
         self.assertTrue("NPVVHFFKNIVTP" in mixmhcpred.all_peptides.split('|'))
         logger.debug(mixmhcpred.all_peptides)
         self.assertIsNotNone(mixmhcpred.all_ranks)
-        self.assertEqual(len(mixmhcpred.all_ranks.split('|')), 2)
+        self.assertEqual(len(mixmhcpred.all_ranks.split('|')), len(mixmhcpred.all_peptides.split('|')))
         self.assertTrue("0.116547" in mixmhcpred.all_ranks.split('|'))
         self.assertTrue("0.276218", mixmhcpred.all_ranks.split('|'))
         logger.debug(mixmhcpred.all_ranks)
