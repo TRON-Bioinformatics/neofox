@@ -49,6 +49,21 @@ message Mutation {
 }
 
 /**
+This is a generic class to hold annotations from INPuT
+*/
+message Annotation {
+	/**
+	The name of the annotation
+	*/
+	string name = 1;
+	/**
+	The value of the annotation
+	TODO: make this better to hold int, float and bool
+	*/
+	string value = 2;
+}
+
+/**
 A neoantigen minimal definition
 */
 message Neoantigen {
@@ -65,19 +80,26 @@ message Neoantigen {
 	*/
 	Mutation mutation = 3;
 	/**
-	Expression value of the transcript (any more definition on type of expression?
-	ie: digital from RNAseq, from microarrays, etc.)
-	*/
-	float expressionValue = 4;
-	/**
 	Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
 	there is no quantitive measurement at the moment.
 	*/
-	bool clonalityEstimation = 5;
+	bool clonalityEstimation = 4;
 	/**
-	Variant allele frequency in the range [0.0, 1.0]
+	Expression value of the transcript from RNA data. Range [0, +inf].
 	*/
-	float variantAlleleFrequency = 6;
+	float rnaExpression = 5;
+	/**
+	Variant allele frequency from the DNA. Range [0.0, 1.0]
+	*/
+	float dnaVariantAlleleFrequency = 6;
+	/**
+	Variant allele frequency from the RNA. Range [0.0, 1.0]
+	*/
+	float rnaVariantAlleleFrequency = 7;
+	/**
+	Annotations
+	*/
+	repeated Annotation annotations = 8;
 }
 
 /**

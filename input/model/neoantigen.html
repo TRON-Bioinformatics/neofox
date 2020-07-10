@@ -179,6 +179,10 @@
             <ul>
               
                 <li>
+                  <a href="#neoantigen.Annotation"><span class="badge">M</span>Annotation</a>
+                </li>
+              
+                <li>
                   <a href="#neoantigen.Gene"><span class="badge">M</span>Gene</a>
                 </li>
               
@@ -211,6 +215,40 @@
       </div>
       <p></p>
 
+      
+        <h3 id="neoantigen.Annotation">Annotation</h3>
+        <p></p><p>This is a generic class to hold annotations from INPuT</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The name of the annotation </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The value of the annotation
+TODO: make this better to hold int, float and bool </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
       
         <h3 id="neoantigen.Gene">Gene</h3>
         <p></p>
@@ -361,15 +399,6 @@ The mutation </p></td>
                 </tr>
               
                 <tr>
-                  <td>expressionValue</td>
-                  <td><a href="#float">float</a></td>
-                  <td></td>
-                  <td><p>
-Expression value of the transcript (any more definition on type of expression?
-ie: digital from RNAseq, from microarrays, etc.) </p></td>
-                </tr>
-              
-                <tr>
                   <td>clonalityEstimation</td>
                   <td><a href="#bool">bool</a></td>
                   <td></td>
@@ -379,11 +408,35 @@ there is no quantitive measurement at the moment. </p></td>
                 </tr>
               
                 <tr>
-                  <td>variantAlleleFrequency</td>
+                  <td>rnaExpression</td>
                   <td><a href="#float">float</a></td>
                   <td></td>
                   <td><p>
-Variant allele frequency in the range [0.0, 1.0] </p></td>
+Expression value of the transcript from RNA data. Range [0, &#43;inf]. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>dnaVariantAlleleFrequency</td>
+                  <td><a href="#float">float</a></td>
+                  <td></td>
+                  <td><p>
+Variant allele frequency from the DNA. Range [0.0, 1.0] </p></td>
+                </tr>
+              
+                <tr>
+                  <td>rnaVariantAlleleFrequency</td>
+                  <td><a href="#float">float</a></td>
+                  <td></td>
+                  <td><p>
+Variant allele frequency from the RNA. Range [0.0, 1.0] </p></td>
+                </tr>
+              
+                <tr>
+                  <td>annotations</td>
+                  <td><a href="#neoantigen.Annotation">Annotation</a></td>
+                  <td>repeated</td>
+                  <td><p>
+Annotations </p></td>
                 </tr>
               
             </tbody>
