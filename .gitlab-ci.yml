@@ -4,6 +4,7 @@ image: python:3.7-alpine
 # only cache local items.
 variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    VENV_CACHE_DIR: "$CI_PROJECT_DIR/venv"
 
 # Pip's cache doesn't store the python packages
 # https://pip.pypa.io/en/stable/reference/pip_install/#caching
@@ -12,8 +13,10 @@ variables:
 # them in a virtualenv and cache it as well.
 cache:
   paths:
-    - .cache/pip
-    - venv/
+    - $PIP_CACHE_DIR
+    - $VENV_CACHE_DIR
+    #- .cache/pip
+    #- venv/
 
 before_script:
   - python -V               # Print out python version for debugging
@@ -32,7 +35,7 @@ test:
     # pip install wheel
     # numpy is installed beforehand because scikit-learn installation is troubled https://github.com/scikit-learn/scikit-learn/issues/7867
     # pip install numpy==1.16.2
-    - pip install -r requirements.txt
+    - pip install --no-use-pep517 -r requirements.txt
     - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
     - python -m unittest discover input.tests.input_tests
