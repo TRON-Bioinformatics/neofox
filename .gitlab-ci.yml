@@ -44,4 +44,4 @@ test:
     - pip install -r requirements.txt
     - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
-    - python -m unittest discover input.tests.input_tests
+    - python -m unittest discover input.tests.unit_tests
