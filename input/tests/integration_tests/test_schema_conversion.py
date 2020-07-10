@@ -2,13 +2,14 @@ from unittest import TestCase
 
 from input.model.schema_conversion import SchemaConverter
 from input.model.neoantigen import Neoantigen, Gene, Mutation, Patient
+from input.helpers.data_import import import_patients_data
 
 
 class SchemaConverterTest(TestCase):
 
     def test_icam2model(self):
-        # self.icam_file = '/projects/SUMMIT/WP1.2/input/development/Pt29.sequences4testing.txt'
-        self.icam_file = '\\\\192.168.171.199\\projects$\\SUMMIT\\WP1.2\\input\\development\\Pt29.sequences4testing.txt'
+        self.icam_file = '/projects/SUMMIT/WP1.2/input/development/Pt29.sequences4testing.txt'
+        # self.icam_file = '\\\\192.168.171.199\\projects$\\SUMMIT\\WP1.2\\input\\development\\Pt29.sequences4testing.txt'
         with open(self.icam_file) as f:
             self.count_lines = len(f.readlines())
         neoantigens = SchemaConverter().icam2model(self.icam_file)
@@ -22,8 +23,8 @@ class SchemaConverterTest(TestCase):
             self.assertTrue(n.mutation.mutated_aminoacid is not None and len(n.mutation.mutated_aminoacid) == 1)
 
     def test_overriding_patient_id(self):
-        # self.icam_file = '/projects/SUMMIT/WP1.2/input/development/Pt29.sequences4testing.txt'
-        self.icam_file = '\\\\192.168.171.199\\projects$\\SUMMIT\\WP1.2\\input\\development\\Pt29.sequences4testing.txt'
+        self.icam_file = '/projects/SUMMIT/WP1.2/input/development/Pt29.sequences4testing.txt'
+        # self.icam_file = '\\\\192.168.171.199\\projects$\\SUMMIT\\WP1.2\\input\\development\\Pt29.sequences4testing.txt'
         with open(self.icam_file) as f:
             self.count_lines = len(f.readlines())
         neoantigens = SchemaConverter().icam2model(self.icam_file, patient_id='patientX')
@@ -34,19 +35,13 @@ class SchemaConverterTest(TestCase):
             self.assertEqual(n.patient_identifier, None)
 
     def test_patient_metadata2model(self):
-        # alleles_file = '/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/vanallen/output_tables/20200106_alleles_extended.csv'
-        # tumor_content_file = '/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/vanallen/output_tables/vanallen_patient_overview.csv'
-        alleles_file = "\\\\192.168.171.199\\projects$\\SUMMIT\\WP1.2\\Literature_Cohorts\\data_analysis\\cohorts\\vanallen\\output_tables\\20200106_alleles_extended.csv"
-        tumor_content_file = '\\\\192.168.171.199\\projects$\\SUMMIT\\WP1.2\\Literature_Cohorts\\data_analysis\\cohorts\\vanallen\\output_tables\\vanallen_patient_overview.csv'
-        with open(alleles_file) as f:
-            count_lines = len(f.readlines())
-        patients = SchemaConverter().patient_metadata2model(hla_file=alleles_file, tumor_content_file=tumor_content_file)
+        cohort_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/vanallen/output_tables/cohort_overview_vanallen_quantiseq.txt"
+        patients = import_patients_data(cohort_file)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
-        self.assertEqual(count_lines / 2, len(patients))
         for n in patients:
             self.assertIsInstance(n, Patient)
             self.assertIsInstance(n.is_rna_available, bool)
-            self.assertIsInstance(n.estimated_tumor_content, float)
+            self.assertTrue(n.estimated_tumor_content == "NA" or isinstance(n.estimated_tumor_content, float))
             self.assertIsInstance(n.mhc_i_alleles, list)
             self.assertIsInstance(n.mhc_i_i_alleles, list)
