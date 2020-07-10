@@ -8,7 +8,7 @@ import numpy as np
 
 import input.tests
 from input.model.schema_conversion import SchemaConverter
-from input.model.neoantigen import Neoantigen, Gene, Mutation, Patient
+from input.model.neoantigen import Neoantigen, Gene, Mutation, Patient, Annotation
 
 
 class SchemaConverterTest(TestCase):
@@ -35,11 +35,11 @@ class SchemaConverterTest(TestCase):
         self.assertIsNotNone(csv_data)
         self.assertEqual(csv_data.shape[0], len(neoantigens))
         for n in neoantigens:
-            self.assertEqual(n.variant_allele_frequency,
+            self.assertEqual(n.dna_variant_allele_frequency,
                              csv_data[
                                  (csv_data['mutation.position'] == n.mutation.position) &
                                  (csv_data['mutation.mutatedAminoacid'] == n.mutation.mutated_aminoacid)
-                             ].variantAlleleFrequency.iloc[0])
+                             ].dnaVariantAlleleFrequency.iloc[0])
 
     def test_csv2model(self):
         neoantigens = [_get_random_neoantigen() for _ in range(5)]
@@ -53,13 +53,17 @@ class SchemaConverterTest(TestCase):
         patients2 = SchemaConverter.patient_metadata_csv2model(csv_data)
         self._assert_lists_equal(patients, patients2)
 
-    def test_patient_csv_file2model(self):
-        patients_file = pkg_resources.resource_filename(input.tests.__name__, "resources/Alleles.Pt29.csv")
-        patients = [_get_random_patient() for _ in range(5)]
-        csv_data = SchemaConverter.model2csv(patients)
-        patients2 = SchemaConverter.patient_metadata_csv2model(csv_data)
-        self._assert_lists_equal(patients, patients2)
-        
+    def test_annotate_neoantigen(self):
+        neoantigen = _get_random_neoantigen()
+        neoantigen.annotations = [Annotation(name='string_annotation', value='blabla'),
+                                      Annotation(name='integer_annotation', value=1),
+                                      Annotation(name='float_annotation', value=1.1)]
+        neoantigen_dict = neoantigen.to_dict()
+        self.assertTrue(len(neoantigen_dict.get('annotations')) == 3)
+        self.assertEqual(neoantigen_dict.get('annotations')[0].get('value'), 'blabla')
+        self.assertEqual(neoantigen_dict.get('annotations')[1].get('value'), 1)
+        self.assertEqual(neoantigen_dict.get('annotations')[2].get('value'), 1.1)
+
     def _assert_lists_equal(self, neoantigens, neoantigens2):
         self.assertEqual(len(neoantigens), len(neoantigens2))
         for n1, n2, in zip(neoantigens, neoantigens2):
@@ -75,9 +79,14 @@ class SchemaValidationTest(TestCase):
 
     def test_field_invalid_type(self):
         neoantigen = _get_random_neoantigen()
-        neoantigen.expression_value = "5.7"  # should be a float
+        neoantigen.rna_expression = "5.7"  # should be a float
         with self.assertRaises(struct.error):
             SchemaConverter.validate(neoantigen)
+
+    def test_annnotation_invalid_type(self):
+        annotation = Annotation(name='invalid_annotation', value=123)
+        with self.assertRaises(Exception):  # NOTE: when  the offending value is a literal exception is not captured
+            SchemaConverter.validate(annotation)
 
 
 def _get_random_neoantigen():
