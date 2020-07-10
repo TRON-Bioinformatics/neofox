@@ -33,8 +33,8 @@ test:
   stage: test
   script:
     #- apk --no-cache --update-cache add gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
-    - apt-get update
-    - apt-get install gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
+    #- apt-get update
+    #- apt-get install gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
     # pip install --upgrade pip setuptools
     # pip install wheel
     # numpy is installed beforehand because scikit-learn installation is troubled https://github.com/scikit-learn/scikit-learn/issues/7867
