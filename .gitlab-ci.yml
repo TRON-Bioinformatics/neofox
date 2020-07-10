@@ -15,13 +15,11 @@ cache:
   paths:
     - $PIP_CACHE_DIR
     - $VENV_CACHE_DIR
-    #- .cache/pip
-    #- venv/
 
 before_script:
   - apt-get update
   - apt-get install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
-  - python -V               # Print out python version for debugging
+  - python -V
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
@@ -32,16 +30,6 @@ stages:
 test:
   stage: test
   script:
-    #- apk --no-cache --update-cache add gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
-    #- apt-get update
-    #- apt-get install gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
-    # pip install --upgrade pip setuptools
-    # pip install wheel
-    # numpy is installed beforehand because scikit-learn installation is troubled https://github.com/scikit-learn/scikit-learn/issues/7867
-    # pip install numpy==1.16.2
-    - pip install pandas==0.24.2
-    # - pip install --no-use-pep517 -r requirements.txt
-    - pip install -r requirements.txt
     - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
     - python -m unittest discover input.tests.unit_tests
