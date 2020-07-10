@@ -1,13 +1,35 @@
+image: python:3.7.3
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -V               # Print out python version for debugging
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
 stages:
   - test
 
 test:
   stage: test
   script:
-    - apk --no-cache --update-cache add gcc gfortran python3 python3-dev py-pip build-base wget freetype-dev libpng-dev openblas-dev
-    - pip3 install --upgrade pip setuptools
-    - which python3
-    - pip install wheel
-    - python3 setup.py bdist_wheel
+    - apk --no-cache --update-cache add gcc gfortran build-base wget freetype-dev libpng-dev openblas-dev
+    # pip install --upgrade pip setuptools
+    # pip install wheel
+    - python setup.py bdist_wheel
     - pip install dist/input-0.3.0-py3-none-any.whl
-    - python3 -m unittest discover input.tests.input_tests
+    - python -m unittest discover input.tests.input_tests
