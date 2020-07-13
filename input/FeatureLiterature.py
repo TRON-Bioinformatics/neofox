@@ -14,45 +14,6 @@ from input import MHC_I, MHC_II
 from input.helpers import properties_manager
 
 
-def dai(score_mutation, score_wild_type, affin_filtering=False):
-    """
-    Calculates DAI: Returns difference between wt and mut MHC binding score.
-    """
-    # TODO: these conversions to float need to go away from here
-    try:
-        if affin_filtering:
-            if float(score_mutation) < 500:
-                return str(float(score_wild_type) - float(score_mutation))
-            else:
-                return "NA"
-        else:
-            return str(float(score_wild_type) - float(score_mutation))
-    except ValueError:
-        return "NA"
-
-
-def diff_number_binders(num_mutation, num_wild_type):
-    """
-    returns absolute difference of potential candidate epitopes between mutated and wt epitope
-    """
-    # TODO: this is not the absolute difference, just the difference :S
-    try:
-        return str(float(num_mutation) - float(num_wild_type))
-    except ValueError:
-        return "NA"
-
-
-def ratio_number_binders(num_mutation, num_wild_type):
-    """
-    returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
-    """
-    try:
-        return str(float(num_mutation) / float(num_wild_type))
-    except ZeroDivisionError:
-        return str(num_wild_type)
-    except ValueError:
-        return "NA"
-
 
 def rna_expression_mutation(transcript_expression, vaf_rna):
     """

@@ -17,6 +17,7 @@ from input.new_features import amino_acid_frequency_scores as freq_score, differ
 from input.self_similarity import self_similarity
 from input.vaxrank import vaxrank
 from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
+from input.literature_features.differential_binding import DifferentialBinding
 
 
 class Epitope:
@@ -39,7 +40,8 @@ class Epitope:
         self.pred = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
         self.tcell_predictor = TcellPrediction(references=self.references)
-        self.iedb_immunogenicity= IEDBimmunogenicity()
+        self.iedb_immunogenicity = IEDBimmunogenicity()
+        self.differential_binding = DifferentialBinding()
 
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
@@ -72,8 +74,8 @@ class Epitope:
         vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
             self.properties.get("VAF_in_RNA", vaf_tumor)
         transcript_expr = self.properties["transcript_expression"]
-        alleles = properties_manager.get_hla_allele(self.properties, patient_hlaI, patient_id)
-        alleles_hlaii = properties_manager.get_hla_allele(self.properties, patient_hlaII, patient_id)
+        alleles = properties_manager.get_hla_allele(patient_hlaI, patient_id)
+        alleles_hlaii = properties_manager.get_hla_allele(patient_hlaII, patient_id)
         substitution = properties_manager.get_substitution(properties=self.properties)
         tumor_content = tumour_content_dict.get(patient_id)
         if tumor_content != "NA": tumor_content = tumor_content / 100
@@ -117,6 +119,7 @@ class Epitope:
         wild_type_multiple_binding_score, mutation_multiple_binding_score = properties_manager. \
             get_scores_multiple_binding(self.properties, mhc=MHC_I)
 
+        logger.debug(mutation_multiple_binding_score)
         self.add_multiple_binding_scorediff(mut_score=mutation_multiple_binding_score,
                                             wt_score=wild_type_multiple_binding_score)
         # position of mutation
@@ -358,16 +361,16 @@ class Epitope:
         """
         # DAI with affinity values
         self.add_features(
-            FeatureLiterature.dai(score_mutation=aff_mut,
+            self.differential_binding.dai(score_mutation=aff_mut,
                                   score_wild_type=aff_wt, affin_filtering=True),
             "DAI_affinity_filtered")
         self.add_features(
-            FeatureLiterature.dai(score_mutation=aff_mut,
+            self.differential_binding.dai(score_mutation=aff_mut,
                                   score_wild_type=aff_wt),
             "DAI_affinity")
         # DAI wiht rank scores by netmhcpan4
         self.add_features(
-            FeatureLiterature.dai(score_mutation=sc_mut,
+            self.differential_binding.dai(score_mutation=sc_mut,
                                   score_wild_type=sc_wt),
             "DAI_rank_netmhcpan4")
 
@@ -485,11 +488,11 @@ class Epitope:
         returns difference and ratio of # epitopes with rank scores < 1 or 2 for mutant and wt sequence
         """
         for threshold in [1, 2]:
-            num_mutation = self.properties["MB_number_pep_MHCscore<{}".format(threshold)]
-            num_wild_type = self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)]
-            self.add_features(FeatureLiterature.diff_number_binders(
+            num_mutation = float(self.properties["MB_number_pep_MHCscore<{}".format(threshold)])
+            num_wild_type = float(self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)])
+            self.add_features(self.differential_binding.diff_number_binders(
                 num_mutation=num_mutation, num_wild_type=num_wild_type), "Diff_numb_epis_mhcI<{}".format(threshold))
-            self.add_features(FeatureLiterature.ratio_number_binders(
+            self.add_features(self.differential_binding.ratio_number_binders(
                 num_mutation=num_mutation, num_wild_type=num_wild_type), "Ratio_numb_epis_<{}".format(threshold))
 
     def add_multiple_binding_scorediff(self, mut_score, wt_score):
@@ -499,8 +502,12 @@ class Epitope:
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             score_mutation=mut_score, score_wild_type=wt_score),
             "Amplitude_mhcI_MB")
+        logger.debug(mut_score)
+        logger.debug(type(mut_score))
+        logger.debug(wt_score)
+        logger.debug(type(wt_score))
         self.add_features(
-            FeatureLiterature.dai(score_mutation=mut_score, score_wild_type=wt_score),
+            self.differential_binding.dai(score_mutation=mut_score, score_wild_type=wt_score),
             "DAI_mhcI_MB")
 
     def add_netmhciipan_features(self):
@@ -569,14 +576,14 @@ class Epitope:
         """
         # dai mhc II affinity
         self.add_features(
-            FeatureLiterature.dai(score_mutation=aff_mut, score_wild_type=aff_wt),
+            self.differential_binding.dai(score_mutation=aff_mut, score_wild_type=aff_wt),
             "DAI_mhcII_affinity")
         self.add_features(
-            FeatureLiterature.dai(score_mutation=aff_mut, score_wild_type=aff_wt, affin_filtering=True),
+            self.differential_binding.dai(score_mutation=aff_mut, score_wild_type=aff_wt, affin_filtering=True),
             "DAI_mhcII_affinity_aff_filtered")
         # dai mhc II netMHCIIpan score
         self.add_features(
-            FeatureLiterature.dai(score_mutation=rank_mut, score_wild_type=rank_wt),
+            self.differential_binding.dai(score_mutation=rank_mut, score_wild_type=rank_wt),
             "DAI_mhcII_rank")
 
     def add_multiple_binding_numdiff_mhcii(self):
@@ -584,12 +591,12 @@ class Epitope:
         returns difference and ratio of # epitopes with rank scores < 2 or 10 for mutant and wt sequence for MHC II
         """
         for threshold in [2, 10]:
-            num_mutation = self.properties["MB_number_pep_MHCIIscore<{}".format(threshold)]
-            num_wild_type = self.properties["MB_number_pep_MHCIIscore<{}_WT".format(threshold)]
-            self.add_features(FeatureLiterature.diff_number_binders(
+            num_mutation = float(self.properties["MB_number_pep_MHCIIscore<{}".format(threshold)])
+            num_wild_type = float(self.properties["MB_number_pep_MHCIIscore<{}_WT".format(threshold)])
+            self.add_features(self.differential_binding.diff_number_binders(
                 num_mutation=num_mutation, num_wild_type=num_wild_type),
                 "Diff_numb_epis_mhcII<{}".format(threshold))
-            self.add_features(FeatureLiterature.ratio_number_binders(
+            self.add_features(self.differential_binding.ratio_number_binders(
                 num_mutation=num_mutation, num_wild_type=num_wild_type),
                 "Ratio_numb_epis_mhcII<{}".format(threshold))
 
@@ -602,7 +609,7 @@ class Epitope:
             "Amplitude_mhcII_mb")
         # dai multiple binding mhc II
         self.add_features(
-            FeatureLiterature.dai(score_mutation=mut_score, score_wild_type=wt_score),
+            self.differential_binding.dai(score_mutation=mut_score, score_wild_type=wt_score),
             "DAI_mhcII_MB")
 
     def add_amplitude_mhcii(self, aff_wt, aff_mut, sc_wt, sc_mut):

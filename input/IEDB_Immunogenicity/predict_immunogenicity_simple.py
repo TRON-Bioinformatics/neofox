@@ -69,13 +69,13 @@ class IEDBimmunogenicity:
         try:
             if affin_filtering:
                 if float(mhc_score) < 500.0:
-                    score = str(self.predict_immunogenicity(
+                    score = self.predict_immunogenicity(
                         epitope, mhc_allele.replace("*", "").replace(":",
-                                                                     "")))
+                                                                     ""))
             else:
-                score = str(self.predict_immunogenicity(
+                score = self.predict_immunogenicity(
                     epitope, mhc_allele.replace("*", "").replace(":",
-                                                                 "")))
+                                                                 ""))
         except ValueError:
             score = "NA"
         return score
