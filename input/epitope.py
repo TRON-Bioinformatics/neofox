@@ -82,9 +82,9 @@ class Epitope:
         tumor_content = tumour_content_dict.get(patient_id)
         if tumor_content != "NA": tumor_content = tumor_content / 100
 
-        mutated_aminoacid = FeatureLiterature.wt_mut_aa(substitution=substitution, mut="mut")
+        mutated_aminoacid = properties_manager.get_wt_mut_aa(substitution=substitution, mut_or_wt="mut")
         self.add_features(mutated_aminoacid, "MUT_AA")
-        wt_aminoacid = FeatureLiterature.wt_mut_aa(substitution=substitution, mut="wt")
+        wt_aminoacid = properties_manager.get_wt_mut_aa(substitution=substitution, mut_or_wt="wt")
         self.add_features(wt_aminoacid, "WT_AA")
 
         # MHC binding independent features
@@ -440,11 +440,11 @@ class Epitope:
         bdg_cutoff_classical_mhci = 50
         bdg_cutoff_alternative_mhci = 5000
         amplitude_cutoff_mhci = 10
-        self.add_features(FeatureLiterature.classify_adn_cdn(
+        self.add_features(self.differential_binding.classify_adn_cdn(
             score_mutation=score_mut, amplitude=amplitude_mhci,
             bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
             amplitude_cutoff=amplitude_cutoff_mhci, category="CDN"), "CDN_mhcI")
-        self.add_features(FeatureLiterature.classify_adn_cdn(
+        self.add_features(self.differential_binding.classify_adn_cdn(
             score_mutation=score_mut, amplitude=amplitude_mhci,
             bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
             amplitude_cutoff=amplitude_cutoff_mhci,
@@ -636,11 +636,11 @@ class Epitope:
         bdg_cutoff_classical_mhcii = 1
         bdg_cutoff_alternative_mhcii = 4
         amplitude_cutoff_mhcii = 4
-        self.add_features(FeatureLiterature.classify_adn_cdn(
+        self.add_features(self.differential_binding.classify_adn_cdn(
             score_mutation=score_mut, amplitude=amplitude_mhcii,
             bdg_cutoff_classical=bdg_cutoff_classical_mhcii, bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
             amplitude_cutoff=amplitude_cutoff_mhcii, category="CDN"), "CDN_mhcII")
-        self.add_features(FeatureLiterature.classify_adn_cdn(
+        self.add_features(self.differential_binding.classify_adn_cdn(
             score_mutation=score_mut, amplitude=amplitude_mhcii,
             bdg_cutoff_classical=bdg_cutoff_classical_mhcii, bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
             amplitude_cutoff=amplitude_cutoff_mhcii, category="ADN"), "ADN_mhcII")
