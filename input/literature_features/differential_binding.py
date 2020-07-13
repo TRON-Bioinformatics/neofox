@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+
+class DifferentialBinding:
+
+    def __init__(self):
+        self.score = "NA"
+
+    def dai(self, score_mutation, score_wild_type, affin_filtering=False):
+        """
+        Calculates DAI: Returns difference between wt and mut MHC binding score.
+        """
+        # TODO: these conversions to float need to go away from here
+        score = "NA"
+        try:
+            if affin_filtering:
+                if score_mutation < 500.0:
+                    score = score_wild_type - score_mutation
+            else:
+                score = score_wild_type - score_mutation
+        except ValueError:
+            score = "NA"
+        return score
+
+    def diff_number_binders(self, num_mutation, num_wild_type):
+        """
+        returns difference of potential candidate epitopes between mutated and wt epitope
+        """
+        try:
+            difference = num_mutation - num_wild_type
+        except ValueError:
+            difference = "NA"
+        return difference
+
+    def ratio_number_binders(self, num_mutation, num_wild_type):
+        """
+        returns ratio of number of potential candidate epitopes between mutated and wt epitope. if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
+        """
+        try:
+            ratio = num_mutation / num_wild_type
+        except ZeroDivisionError:
+            ratio = num_wild_type
+        except ValueError:
+            ratio = "NA"
+        return ratio
+
+

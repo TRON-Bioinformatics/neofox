@@ -29,7 +29,7 @@ def get_scores_multiple_binding(properties, mhc):
         wild_type = properties["MB_score_MHCII_top10_WT_harmonic"]
     else:
         raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
-    return wild_type, mutation
+    return float(wild_type), float(mutation)
 
 
 def get_scores_netmhcpan4_affinity(properties, mhc):
@@ -41,13 +41,13 @@ def get_scores_netmhcpan4_affinity(properties, mhc):
         wild_type = properties["best_affinity_netmhcIIpan_WT"]
     else:
         raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
-    return wild_type, mutation
+    return float(wild_type), float(mutation)
 
 
 def get_scores_netmhcpan4_affinity_9mer(properties):
     mutation = properties["best_affinity_netmhcpan4_9mer"]
     wild_type = properties["best_affinity_netmhcpan4_9mer_WT"]
-    return wild_type, mutation
+    return float(wild_type), float(mutation)
 
 
 def get_scores_netmhcpan4_ranks(properties, mhc):
@@ -59,7 +59,7 @@ def get_scores_netmhcpan4_ranks(properties, mhc):
         wild_type = properties["best%Rank_netmhcIIpan_WT"]
     else:
         raise INPuTInputParametersException("Bad MHC value: {}".format(mhc))
-    return wild_type, mutation
+    return float(wild_type), float(mutation)
 
 
 def get_netmhcpan4_epitopes(properties, nine_mer=False):
@@ -88,7 +88,7 @@ def get_netmhciipan_epitopes(properties, affinity=False):
     return wild_type, mutation
 
 
-def get_hla_allele(props, hla_patient_dict, patient_id):
+def get_hla_allele(hla_patient_dict, patient_id):
     ''' returns hla allele of patients given in hla_file
     '''
     return hla_patient_dict[patient_id]
