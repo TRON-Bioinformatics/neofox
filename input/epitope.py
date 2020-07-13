@@ -19,6 +19,7 @@ from input.vaxrank import vaxrank
 from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
 from input.literature_features.differential_binding import DifferentialBinding
 from input.literature_features.expression import Expression
+from input.literature_features.priority_score import PriorityScore
 
 
 class Epitope:
@@ -44,6 +45,7 @@ class Epitope:
         self.iedb_immunogenicity = IEDBimmunogenicity()
         self.differential_binding = DifferentialBinding()
         self.expression_calculator = Expression()
+        self.priority_score_calcualtor = PriorityScore()
 
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
@@ -94,7 +96,7 @@ class Epitope:
         self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict,
                                           mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
         self.add_provean_score_features()
-        self.add_features(FeatureLiterature.match_in_proteome(
+        self.add_features(self.priority_score_calcualtor.match_not_in_proteome(
             sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
             "mutation_not_found_in_proteome")
 
@@ -662,9 +664,9 @@ class Epitope:
         """
         returns number of mismatches between best MHCI / MHC II epitopes (rank) and their corresponding WTs
         """
-        self.add_features(FeatureLiterature.number_of_mismatches(
+        self.add_features(self.priority_score_calcualtor.number_of_mismatches(
             epitope_wild_type=epi_wt_mhci, epitope_mutation=epi_mut_mhci), "Number_of_mismatches_mhcI")
-        self.add_features(FeatureLiterature.number_of_mismatches(
+        self.add_features(self.priority_score_calcualtor.number_of_mismatches(
             epitope_wild_type=epi_wt_mhcii, epitope_mutation=epi_mut_mhcii), "Number_of_mismatches_mhcII")
 
     def add_priority_score(self, rank_mut, rank_wt, mb_mut, mb_wt, expr, vaf_tum, vaf_transcr):
@@ -674,11 +676,11 @@ class Epitope:
         no_mismatch = self.properties["Number_of_mismatches_mhcI"]
         mut_not_in_prot = self.properties["mutation_not_found_in_proteome"]
         # priority score with rank score
-        self.add_features(FeatureLiterature.calc_priority_score(
+        self.add_features(self.priority_score_calcualtor.calc_priority_score(
             vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=no_mismatch,
             score_mut=rank_mut, score_wt=rank_wt, mut_not_in_prot=mut_not_in_prot), "Priority_score")
         # priority score using multiplexed representation score
-        self.add_features(FeatureLiterature.calc_priority_score(
+        self.add_features(self.priority_score_calcualtor.calc_priority_score(
             vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=no_mismatch,
             score_mut=mb_mut, score_wt=mb_wt, mut_not_in_prot=mut_not_in_prot), "Priority_score_MB")
 
