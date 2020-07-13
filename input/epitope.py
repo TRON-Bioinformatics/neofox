@@ -121,7 +121,6 @@ class Epitope:
         wild_type_multiple_binding_score, mutation_multiple_binding_score = properties_manager. \
             get_scores_multiple_binding(self.properties, mhc=MHC_I)
 
-        logger.debug(mutation_multiple_binding_score)
         self.add_multiple_binding_scorediff(mut_score=mutation_multiple_binding_score,
                                             wt_score=wild_type_multiple_binding_score)
         # position of mutation
@@ -504,10 +503,6 @@ class Epitope:
         self.add_features(self.neoantigen_fitness_calculator.calculate_amplitude_mhc(
             score_mutation=mut_score, score_wild_type=wt_score),
             "Amplitude_mhcI_MB")
-        logger.debug(mut_score)
-        logger.debug(type(mut_score))
-        logger.debug(wt_score)
-        logger.debug(type(wt_score))
         self.add_features(
             self.differential_binding.dai(score_mutation=mut_score, score_wild_type=wt_score),
             "DAI_mhcI_MB")
