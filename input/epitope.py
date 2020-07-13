@@ -2,7 +2,6 @@
 
 from logzero import logger
 
-from input import FeatureLiterature
 from input import MHC_I, MHC_II
 from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from input.MixMHCpred.mixmhcpred import MixMHCpred
