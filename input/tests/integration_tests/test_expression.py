@@ -1,4 +1,4 @@
-from collections import defaultdict
+
 from unittest import TestCase
 
 from input.literature_features.expression import Expression
