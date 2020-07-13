@@ -10,6 +10,8 @@ class PriorityScore:
         """
         This function calculates the number of mismatches between the wt and the mutated epitope
         """
+        if len(epitope_wild_type) < len(epitope_mutation):
+            epitope_mutation = epitope_mutation[:len(epitope_wild_type)]
         p1 = 0
         try:
             for i, aa in enumerate(epitope_mutation):
@@ -55,7 +57,7 @@ class PriorityScore:
             if vaf_tumor not in ["-1", "NA"]:
                 priority_score = (L_mut * float(vaf_tumor) * math.tanh(float(transcript_expr))) * (
                         float(mut_not_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
-            else:
+            elif vaf_rna not in ["-1", "NA"]:
                 priority_score = (L_mut * float(vaf_rna) * math.tanh(float(transcript_expr))) * (
                         float(mut_not_in_prot) * (1 - 2 ** (-float(no_mismatch)) * L_wt))
         except (TypeError, ValueError) as e:
