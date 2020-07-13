@@ -13,7 +13,7 @@ class Expression:
         to reflect the expression of the mutated transcript
         """
         try:
-            expression_mut = float(transcript_expression) * float(vaf_rna) if float(vaf_rna) > 0.0 else "NA"
+            expression_mut = float(transcript_expression) * float(vaf_rna) if float(vaf_rna) >= 0.0 else "NA"
         except ValueError:
             expression_mut = "NA"
         return expression_mut
