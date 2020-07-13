@@ -15,30 +15,6 @@ from input.helpers import properties_manager
 
 
 
-def rna_expression_mutation(transcript_expression, vaf_rna):
-    """
-    This function calculates the product of VAF in RNA and transcript expression
-    to reflect the expression of the mutated transcript
-    """
-    try:
-        return str(float(transcript_expression) * float(vaf_rna)) if float(vaf_rna) > 0 else "NA"
-    except ValueError:
-        return "NA"
-
-
-def expression_mutation_tc(transcript_expression, tumor_content):
-    """
-    calculated expression of mutation corrected by tumour content
-    """
-    corrected_expression = "NA"
-    if tumor_content != "NA":
-        if tumor_content > 0.0:
-            try:
-                corrected_expression = str(float(transcript_expression) / tumor_content)
-            except ValueError:
-                pass
-    return corrected_expression
-
 
 def number_of_mismatches(epitope_wild_type, epitope_mutation):
     """
