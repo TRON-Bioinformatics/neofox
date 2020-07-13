@@ -44,4 +44,28 @@ class DifferentialBinding:
             ratio = "NA"
         return ratio
 
+    def classify_adn_cdn(self, score_mutation, amplitude, bdg_cutoff_classical, bdg_cutoff_alternative, amplitude_cutoff,
+                         category):
+        """
+        returns if an epitope belongs to classically and alternatively defined neoepitopes (CDN vs ADN)
+        (indicate which category to examine by category)--> Rech et al, 2018
+        grouping is based on affinity and affinitiy foldchange between wt and mut
+        """
+        group = "NA"
+        try:
+            if category == "CDN":
+                if float(score_mutation) < float(bdg_cutoff_classical):
+                    group = "True"
+                elif float(score_mutation) > float(bdg_cutoff_classical):
+                    group = "False"
+            elif category == "ADN":
+                if float(score_mutation) < float(bdg_cutoff_alternative) and float(amplitude) > float(amplitude_cutoff):
+                    group = "True"
+                elif float(score_mutation) > float(bdg_cutoff_alternative) or float(amplitude) < float(
+                        amplitude_cutoff):
+                    group = "False"
+        except ValueError:
+            group = "NA"
+        return group
+
 

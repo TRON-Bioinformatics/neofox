@@ -96,3 +96,18 @@ def get_hla_allele(hla_patient_dict, patient_id):
 
 def get_patient_id(props):
     return props.get(PATIENT_ID)
+
+
+def get_wt_mut_aa(substitution, mut_or_wt):
+    '''Returns wt and mut aa.
+    '''
+    amino_acid = "NA"
+    try:
+        if mut_or_wt == "mut":
+            amino_acid = substitution[-1]
+        elif mut_or_wt == "wt":
+            amino_acid = substitution[0]
+    except ValueError:
+        pass
+    return amino_acid
+
