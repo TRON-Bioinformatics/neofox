@@ -1,17 +1,9 @@
-# Python version with Biopython
-# . /etc/profile.d/modules.sh; module load software/python/python-2.7.9
-
-'''
-This script takes as input table from iCAM pipeline and calculates Literature feature of neoantigens
-'''
+#!/usr/bin/env python
 
 # import modules
 import math
 
 from logzero import logger
-
-from input import MHC_I, MHC_II
-from input.helpers import properties_manager
 
 
 
