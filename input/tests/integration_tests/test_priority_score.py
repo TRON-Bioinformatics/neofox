@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from input.literature_features.priority_score import PriorityScore
 from input.predict_all_epitopes import BunchEpitopes
-from input.references import ReferenceFolder, DependenciesConfiguration
+from input.references import ReferenceFolder
 
 
 class TestPriorityScore(TestCase):
