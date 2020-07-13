@@ -28,7 +28,7 @@ class DifferentialBinding:
         """
         try:
             difference = num_mutation - num_wild_type
-        except ValueError:
+        except TypeError:
             difference = "NA"
         return difference
 
