@@ -18,6 +18,7 @@ from input.self_similarity import self_similarity
 from input.vaxrank import vaxrank
 from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
 from input.literature_features.differential_binding import DifferentialBinding
+from input.literature_features.expression import Expression
 
 
 class Epitope:
@@ -42,6 +43,7 @@ class Epitope:
         self.tcell_predictor = TcellPrediction(references=self.references)
         self.iedb_immunogenicity = IEDBimmunogenicity()
         self.differential_binding = DifferentialBinding()
+        self.expression_calculator = Expression()
 
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
@@ -757,12 +759,11 @@ class Epitope:
 
     def add_expression_features(self, tumor_content, vaf_rna, transcript_expression):
         # expression
-        self.add_features(FeatureLiterature.rna_expression_mutation(
-            transcript_expression=transcript_expression, vaf_rna=vaf_rna), "Expression_Mutated_Transcript")
-        expression_mutated_transcript = self.properties.get("Expression_Mutated_Transcript")
-        self.add_features(FeatureLiterature.expression_mutation_tc(
-            transcript_expression=expression_mutated_transcript, tumor_content=tumor_content),
-            "Expression_Mutated_Transcript_tumor_content")
+        self.expression_calculator.calculate_expression(transcript_expression=transcript_expression, vaf_rna=vaf_rna,
+                                                        tumor_content=tumor_content)
+        self.add_features(self.expression_calculator.expression_mutation, "Expression_Mutated_Transcript")
+        self.add_features(self.expression_calculator.expression_mutation_tc,
+                          "Expression_Mutated_Transcript_tumor_content")
 
     def add_differential_expression_features(self, gene, ref_dat, expression_tumor):
         # differential expression
