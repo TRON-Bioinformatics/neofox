@@ -16,6 +16,7 @@ from input.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMult
 from input.new_features import amino_acid_frequency_scores as freq_score, differential_expression
 from input.self_similarity import self_similarity
 from input.vaxrank import vaxrank
+from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
 
 
 class Epitope:
@@ -38,6 +39,7 @@ class Epitope:
         self.pred = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
         self.tcell_predictor = TcellPrediction(references=self.references)
+        self.iedb_immunogenicity= IEDBimmunogenicity()
 
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
@@ -691,14 +693,14 @@ class Epitope:
         """
         mhci_allele = self.properties["bestHLA_allele_affinity_netmhcpan4"]
         mhcii_allele = self.properties["bestHLA_allele_netmhcIIpan"]
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
+        self.add_features(self.iedb_immunogenicity.calc_IEDB_immunogenicity(
             epitope=epitope_mhci, mhc_allele=mhci_allele, mhc_score=affinity_mhci), "IEDB_Immunogenicity_mhcI")
         if epitope_mhcii != "-":
-            self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
+            self.add_features(self.iedb_immunogenicity.calc_IEDB_immunogenicity(
                 epitope=epitope_mhcii, mhc_allele=mhcii_allele, mhc_score=None), "IEDB_Immunogenicity_mhcII")
         elif epitope_mhcii == "-":
             self.add_features("NA", "IEDB_Immunogenicity_mhcII")
-        self.add_features(FeatureLiterature.calc_IEDB_immunogenicity(
+        self.add_features(self.iedb_immunogenicity.calc_IEDB_immunogenicity(
             epitope=epitope_mhci, mhc_allele=mhci_allele, mhc_score=affinity_mhci, affin_filtering=True),
             "IEDB_Immunogenicity_mhcI_affinity_filtered")
 

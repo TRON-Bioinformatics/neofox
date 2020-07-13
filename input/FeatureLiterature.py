@@ -11,28 +11,7 @@ import math
 from logzero import logger
 
 from input import MHC_I, MHC_II
-from input.IEDB_Immunogenicity import predict_immunogenicity_simple
 from input.helpers import properties_manager
-
-
-def calc_IEDB_immunogenicity(epitope, mhc_allele, mhc_score, affin_filtering=False):
-    '''
-    This function determines the IEDB immunogenicity score
-    '''
-    try:
-        if affin_filtering:
-            if float(mhc_score) < 500:
-                return str(predict_immunogenicity_simple.predict_immunogenicity(
-                    epitope, mhc_allele.replace("*", "").replace(":",
-                                                                                                                    "")))
-            else:
-                return "NA"
-        else:
-            return str(predict_immunogenicity_simple.predict_immunogenicity(
-                epitope, mhc_allele.replace("*", "").replace(":",
-                                                                                                                "")))
-    except ValueError:
-        return "NA"
 
 
 def dai(score_mutation, score_wild_type, affin_filtering=False):
