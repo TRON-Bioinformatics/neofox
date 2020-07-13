@@ -39,7 +39,7 @@ class DifferentialBinding:
         try:
             ratio = num_mutation / num_wild_type
         except ZeroDivisionError:
-            ratio = num_wild_type
+            ratio = "NA"
         except ValueError:
             ratio = "NA"
         return ratio
