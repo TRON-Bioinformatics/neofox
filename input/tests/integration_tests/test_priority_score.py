@@ -59,3 +59,7 @@ class TestPriorityScore(TestCase):
                                                               no_mismatch=1, score_mut=1.1, score_wt=10,
                                                               mut_not_in_prot=1)
         self.assertEqual(result, "NA")
+        result = self.priority_calculator.calc_priority_score(vaf_tumor=0.35, vaf_rna=0.33, transcript_expr="NA",
+                                                              no_mismatch=1, score_mut="NA", score_wt=10,
+                                                              mut_not_in_prot=1)
+        self.assertEqual(result, "NA")
