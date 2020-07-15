@@ -40,6 +40,17 @@ class Mutation(betterproto.Message):
 
 
 @dataclass
+class Annotation(betterproto.Message):
+    """* This is a generic class to hold annotations from INPuT"""
+
+    # * The name of the annotation
+    name: str = betterproto.string_field(1)
+    # * The value of the annotation TODO: make this better to hold int, float and
+    # bool
+    value: str = betterproto.string_field(2)
+
+
+@dataclass
 class Neoantigen(betterproto.Message):
     """* A neoantigen minimal definition"""
 
@@ -49,15 +60,18 @@ class Neoantigen(betterproto.Message):
     gene: "Gene" = betterproto.message_field(2)
     # * The mutation
     mutation: "Mutation" = betterproto.message_field(3)
-    # * Expression value of the transcript (any more definition on type of
-    # expression? ie: digital from RNAseq, from microarrays, etc.)
-    expression_value: float = betterproto.float_field(4)
     # * Clonality estimation. At the moment this is a boolean indicating whether
     # there is clonality or not, there is no quantitive measurement at the
     # moment.
-    clonality_estimation: bool = betterproto.bool_field(5)
-    # * Variant allele frequency in the range [0.0, 1.0]
-    variant_allele_frequency: float = betterproto.float_field(6)
+    clonality_estimation: bool = betterproto.bool_field(4)
+    # * Expression value of the transcript from RNA data. Range [0, +inf].
+    rna_expression: float = betterproto.float_field(5)
+    # * Variant allele frequency from the DNA. Range [0.0, 1.0]
+    dna_variant_allele_frequency: float = betterproto.float_field(6)
+    # * Variant allele frequency from the RNA. Range [0.0, 1.0]
+    rna_variant_allele_frequency: float = betterproto.float_field(7)
+    # * Annotations
+    annotations: List["Annotation"] = betterproto.message_field(8)
 
 
 @dataclass
