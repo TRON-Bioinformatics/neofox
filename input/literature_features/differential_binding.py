@@ -18,7 +18,7 @@ class DifferentialBinding:
                     score = score_wild_type - score_mutation
             else:
                 score = score_wild_type - score_mutation
-        except ValueError:
+        except TypeError:
             score = "NA"
         return score
 
