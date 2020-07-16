@@ -34,9 +34,9 @@ class TestDissimilarity(TestCase):
             mhc_mutation='LGLSDSQFLQTFLFM', mhc_affinity='430', references=self.references)
         self.assertEqual(result, 0)
         # unsimmilar peptide
-        # TODO: change this peptide sequence by 15mer when parameter a was trained for MHC class II 
         result = DissimilarityCalculator(
             runner=self.runner, configuration=self.configuration) \
             .calculate_dissimilarity(
-            mhc_mutation='QLEQALDCEIY', mhc_affinity='430', references=self.references)
+            mhc_mutation='LFTSPIMTKSAEMIV', mhc_affinity='430', references=self.references)
+        print(result)
         self.assertGreater(result, 0.0)
