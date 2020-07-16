@@ -17,6 +17,7 @@ class SchemaConverter(object):
         :type model: betterproto.Message
         :return:
         """
+        # TODO: make this method capture appropriately validation issues whend ealing with int and float
         return model.__bytes__()
 
     @staticmethod
@@ -111,9 +112,14 @@ class SchemaConverter(object):
         neoantigen.patient_identifier = patient_id if patient_id else icam_entry.get('patient', icam_entry.get('patient.id'))
         neoantigen.mutation = mutation
         neoantigen.gene = gene
-        neoantigen.clonality_estimation = None                                  # TODO: where do we get this from?
-        neoantigen.expression_value = icam_entry.get('transcript_expression')   # TODO: or do we want exon expression?
-        neoantigen.variant_allele_frequency = icam_entry.get('VAF_in_tumor')     # TODO: or do we want VAF in RNA?
+        # clonality estimation is not coming from iCaM
+        neoantigen.clonality_estimation = None
+        # missing RNA expression values are represented as -1
+        vaf_rna_raw = icam_entry.get('VAF_RNA_raw')
+        neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
+        vaf_in_rna = icam_entry.get('VAF_in_RNA')
+        neoantigen.rna_variant_allele_frequency = vaf_in_rna if vaf_in_rna >= 0 else None
+        neoantigen.dna_variant_allele_frequency = icam_entry.get('VAF_in_tumor')
 
         return neoantigen
 
