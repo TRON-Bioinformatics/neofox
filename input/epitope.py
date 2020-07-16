@@ -759,7 +759,7 @@ class Epitope:
             transcript_expression=transcript_expression, vaf_rna=vaf_rna)
         self.add_features(expression_mutation, "Expression_Mutated_Transcript")
         self.add_features(self.expression_calculator.rna_expression_mutation_tc(
-            transcript_expression=expression_mutation, tumor_content=tumor_content),
+            expression_mutation=expression_mutation, tumor_content=tumor_content),
                           "Expression_Mutated_Transcript_tumor_content")
 
     def add_differential_expression_features(self, gene, ref_dat, expression_tumor):
