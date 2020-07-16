@@ -76,7 +76,7 @@ class Epitope:
         vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
         vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
             self.properties.get("VAF_in_RNA", vaf_tumor)
-        transcript_expr = self.properties["transcript_expression"]
+        transcript_expr = properties_manager.get_expression(properties=self.properties)
         alleles = properties_manager.get_hla_allele(patient_hlaI, patient_id)
         alleles_hlaii = properties_manager.get_hla_allele(patient_hlaII, patient_id)
         substitution = properties_manager.get_substitution(properties=self.properties)
