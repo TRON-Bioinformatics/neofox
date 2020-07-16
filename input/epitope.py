@@ -490,8 +490,8 @@ class Epitope:
         returns difference and ratio of # epitopes with rank scores < 1 or 2 for mutant and wt sequence
         """
         for threshold in [1, 2]:
-            num_mutation = float(self.properties["MB_number_pep_MHCscore<{}".format(threshold)])
-            num_wild_type = float(self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)])
+            num_mutation = self.properties["MB_number_pep_MHCscore<{}".format(threshold)]
+            num_wild_type = self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)]
             self.add_features(self.differential_binding.diff_number_binders(
                 num_mutation=num_mutation, num_wild_type=num_wild_type), "Diff_numb_epis_mhcI<{}".format(threshold))
             self.add_features(self.differential_binding.ratio_number_binders(
