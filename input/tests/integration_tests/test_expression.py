@@ -28,6 +28,10 @@ class TestExpression(TestCase):
         result = self.expression_calculator.rna_expression_mutation_tc(expression_mutation=12.0,
                                                                        tumor_content=0.7)
         self.assertGreater(result, 0.0)
+        # expression mutation = "NA"
+        result = self.expression_calculator.rna_expression_mutation_tc(expression_mutation="NA",
+                                                                       tumor_content=0.7)
+        self.assertEqual(result, "NA")
         # tumor content = "NA"
         result = self.expression_calculator.rna_expression_mutation_tc(expression_mutation=12.0,
                                                                        tumor_content="NA")
