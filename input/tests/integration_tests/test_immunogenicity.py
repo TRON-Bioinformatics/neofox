@@ -3,7 +3,7 @@ from unittest import TestCase
 from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
 
 
-class TestImmunogenicity:
+class TestImmunogenicity(TestCase)
 
     def setUp(self):
         self.immunogenicity_calculator = IEDBimmunogenicity()
