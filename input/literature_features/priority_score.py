@@ -12,8 +12,8 @@ class PriorityScore:
         """
         p1 = 0
         try:
-            for i, aa in enumerate(epitope_mutation):
-                if aa != epitope_wild_type[i]:
+            for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
+                if aa_mut != aa_wt:
                     p1 += 1
         except IndexError:
             p1 = "NA"
