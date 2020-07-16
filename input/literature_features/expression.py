@@ -14,7 +14,7 @@ class Expression:
             expression_mut = "NA"
         return expression_mut
 
-    def rna_expression_mutation_tc(self, transcript_expression, tumor_content):
+    def rna_expression_mutation_tc(self, expression_mutation, tumor_content):
         """
         calculated expression of mutation corrected by tumour content
         """
@@ -22,7 +22,7 @@ class Expression:
         if tumor_content != "NA":
             if tumor_content > 0.0:
                 try:
-                    expression_mut_tc = float(transcript_expression) / tumor_content
+                    expression_mut_tc = float(expression_mutation) / tumor_content
                 except ValueError:
                     pass
         return expression_mut_tc
