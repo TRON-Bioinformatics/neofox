@@ -3,9 +3,6 @@
 
 class DifferentialBinding:
 
-    def __init__(self):
-        self.score = "NA"
-
     def dai(self, score_mutation, score_wild_type, affin_filtering=False):
         """
         Calculates DAI: Returns difference between wt and mut MHC binding score.
@@ -54,16 +51,9 @@ class DifferentialBinding:
         group = "NA"
         try:
             if category == "CDN":
-                if float(score_mutation) < float(bdg_cutoff_classical):
-                    group = "True"
-                elif float(score_mutation) > float(bdg_cutoff_classical):
-                    group = "False"
+                group = str(float(score_mutation) < bdg_cutoff_classical)
             elif category == "ADN":
-                if float(score_mutation) < float(bdg_cutoff_alternative) and float(amplitude) > float(amplitude_cutoff):
-                    group = "True"
-                elif float(score_mutation) > float(bdg_cutoff_alternative) or float(amplitude) < float(
-                        amplitude_cutoff):
-                    group = "False"
+                group = str(float(score_mutation) < bdg_cutoff_alternative and float(amplitude) > amplitude_cutoff)
         except ValueError:
             group = "NA"
         return group
