@@ -755,10 +755,11 @@ class Epitope:
 
     def add_expression_features(self, tumor_content, vaf_rna, transcript_expression):
         # expression
-        self.expression_calculator.calculate_expression(transcript_expression=transcript_expression, vaf_rna=vaf_rna,
-                                                        tumor_content=tumor_content)
-        self.add_features(self.expression_calculator.expression_mutation, "Expression_Mutated_Transcript")
-        self.add_features(self.expression_calculator.expression_mutation_tc,
+        expression_mutation = self.expression_calculator.rna_expression_mutation(
+            transcript_expression=transcript_expression, vaf_rna=vaf_rna)
+        self.add_features(expression_mutation, "Expression_Mutated_Transcript")
+        self.add_features(self.expression_calculator.rna_expression_mutation_tc(
+            transcript_expression=expression_mutation, tumor_content=tumor_content),
                           "Expression_Mutated_Transcript_tumor_content")
 
     def add_differential_expression_features(self, gene, ref_dat, expression_tumor):
