@@ -10,15 +10,10 @@ class PriorityScore:
         """
         This function calculates the number of mismatches between the wt and the mutated epitope
         """
-        if len(epitope_wild_type) < len(epitope_mutation):
-            epitope_mutation = epitope_mutation[:len(epitope_wild_type)]
         p1 = 0
-        try:
-            for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
-                if aa_mut != aa_wt:
-                    p1 += 1
-        except IndexError:
-            p1 = "NA"
+        for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
+            if aa_mut != aa_wt:
+                p1 += 1
         return p1
 
     def match_not_in_proteome(self, sequence, db):
