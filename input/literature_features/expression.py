@@ -19,11 +19,9 @@ class Expression:
         calculated expression of mutation corrected by tumour content
         """
         expression_mut_tc = "NA"
-        if tumor_content != "NA":
-            if tumor_content > 0.0:
-                try:
-                    expression_mut_tc = float(expression_mutation) / tumor_content
-                except ValueError:
-                    pass
+        try:
+            expression_mut_tc = float(expression_mutation) / tumor_content
+        except (ValueError, TypeError, ZeroDivisionError) as e:
+            pass
         return expression_mut_tc
 
