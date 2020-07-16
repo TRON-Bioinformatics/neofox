@@ -22,6 +22,9 @@ class TestExpression(TestCase):
         result = self.expression_calculator.rna_expression_mutation(transcript_expression=12.0,
                                                                     vaf_rna=-1)
         self.assertEqual(result, "NA")
+        result = self.expression_calculator.rna_expression_mutation(transcript_expression="NA",
+                                                                    vaf_rna=-1)
+        self.assertEqual(result, "NA")
 
 
     def test_expression_mutation_tumor_content(self):

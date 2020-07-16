@@ -16,6 +16,12 @@ def get_substitution(properties):
     return properties["substitution"]
 
 
+def get_expression(properties):
+    expression = properties["transcript_expression"]
+    expression = float(expression) if expression != "NA" else "NA"
+    return expression
+
+
 def get_mutation_aminoacid(properties):
     return properties["MUT_AA"]
 
@@ -97,8 +103,8 @@ def get_netmhciipan_epitopes(properties, affinity=False):
 
 
 def get_hla_allele(hla_patient_dict, patient_id):
-    ''' returns hla allele of patients given in hla_file
-    '''
+    """ returns hla allele of patients given in hla_file
+    """
     return hla_patient_dict[patient_id]
 
 
@@ -107,8 +113,8 @@ def get_patient_id(props):
 
 
 def get_wt_mut_aa(substitution, mut_or_wt):
-    '''Returns wt and mut aa.
-    '''
+    """Returns wt and mut aa.
+    """
     amino_acid = "NA"
     try:
         if mut_or_wt == "mut":
