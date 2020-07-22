@@ -15,7 +15,7 @@ class DifferentialBinding:
                     score = score_wild_type - score_mutation
             else:
                 score = score_wild_type - score_mutation
-        except ValueError:
+        except TypeError:
             score = "NA"
         return score
 
@@ -25,7 +25,7 @@ class DifferentialBinding:
         """
         try:
             difference = num_mutation - num_wild_type
-        except ValueError:
+        except TypeError:
             difference = "NA"
         return difference
 
@@ -36,8 +36,8 @@ class DifferentialBinding:
         try:
             ratio = num_mutation / num_wild_type
         except ZeroDivisionError:
-            ratio = num_wild_type
-        except ValueError:
+            ratio = "NA"
+        except TypeError:
             ratio = "NA"
         return ratio
 

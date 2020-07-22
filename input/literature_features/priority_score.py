@@ -11,12 +11,9 @@ class PriorityScore:
         This function calculates the number of mismatches between the wt and the mutated epitope
         """
         p1 = 0
-        try:
-            for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
-                if aa_mut != aa_wt:
-                    p1 += 1
-        except IndexError:
-            p1 = "NA"
+        for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
+            if aa_mut != aa_wt:
+                p1 += 1
         return p1
 
     def match_not_in_proteome(self, sequence, db):
@@ -55,7 +52,7 @@ class PriorityScore:
             if vaf_tumor not in ["-1", "NA"]:
                 priority_score = self.mupexi(l_mut, l_wt, mut_not_in_prot, no_mismatch, transcript_expr,
                                              vaf_tumor)
-            else:
+            elif vaf_rna not in ["-1", "NA"]:
                 priority_score = self.mupexi(l_mut, l_wt, mut_not_in_prot, no_mismatch, transcript_expr,
                                    vaf_rna)
         except (TypeError, ValueError) as e:
