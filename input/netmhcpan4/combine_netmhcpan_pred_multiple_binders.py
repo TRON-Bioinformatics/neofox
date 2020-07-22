@@ -68,17 +68,17 @@ class BestAndMultipleBinder:
         self.mhcI_affinity_allele_9mer_WT = "NA"
         self.mhcI_affinity_epitope_9mer_WT = "NA"
 
-    def MHC_MB_score_best_per_allele(self, tuple_best_per_allele):
+    def mhc_mb_score_best_per_allele(self, tuple_best_per_allele):
         '''returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         '''
-        number_alleles = len(tuple_best_per_allele)
         multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         if len(tuple_best_per_allele_new) == 6:
-            return multbind.get_means(tuple_best_per_allele_new)
+            mean_best_per_per_allele = multbind.get_means(tuple_best_per_allele_new)
         else:
-            return ["NA", "NA", "NA"]
+            mean_best_per_per_allele = ["NA", "NA", "NA"]
+        return mean_best_per_per_allele
 
     def main(self, xmer_wt, xmer_mut, alleles, set_available_mhc):
         """
@@ -111,7 +111,7 @@ class BestAndMultipleBinder:
         self.MHC_score_top10 = mb.get_means(top10)
         best_per_alelle = mb.scores_to_list(best_per_alelle)
         self.MHC_score_all_epitopes = mb.get_means(all)
-        self.MHC_score_best_per_alelle = self.MHC_MB_score_best_per_allele(best_per_alelle)
+        self.MHC_score_best_per_alelle = self.mhc_mb_score_best_per_allele(best_per_alelle)
         self.MHC_number_strong_binders = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders = mb.determine_number_of_binders(all, 2)
         # best prediction
@@ -166,7 +166,7 @@ class BestAndMultipleBinder:
         self.MHC_score_top10_WT = mb.get_means(top10)
         best_per_alelle = mb.scores_to_list(best_per_alelle)
         self.MHC_score_all_epitopes_WT = mb.get_means(all)
-        self.MHC_score_best_per_alelle_WT = self.MHC_MB_score_best_per_allele(best_per_alelle)
+        self.MHC_score_best_per_alelle_WT = self.mhc_mb_score_best_per_allele(best_per_alelle)
         self.MHC_number_strong_binders_WT = mb.determine_number_of_binders(all, 1)
         self.MHC_number_weak_binders_WT = mb.determine_number_of_binders(all, 2)
         # best prediction
