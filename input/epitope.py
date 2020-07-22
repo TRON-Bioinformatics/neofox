@@ -2,7 +2,6 @@
 
 from logzero import logger
 
-from input import FeatureLiterature
 from input import MHC_I, MHC_II
 from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from input.MixMHCpred.mixmhcpred import MixMHCpred
@@ -77,7 +76,7 @@ class Epitope:
         vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
         vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
             self.properties.get("VAF_in_RNA", vaf_tumor)
-        transcript_expr = self.properties["transcript_expression"]
+        transcript_expr = properties_manager.get_expression(properties=self.properties)
         alleles = properties_manager.get_hla_allele(patient_hlaI, patient_id)
         alleles_hlaii = properties_manager.get_hla_allele(patient_hlaII, patient_id)
         substitution = properties_manager.get_substitution(properties=self.properties)
@@ -491,8 +490,8 @@ class Epitope:
         returns difference and ratio of # epitopes with rank scores < 1 or 2 for mutant and wt sequence
         """
         for threshold in [1, 2]:
-            num_mutation = float(self.properties["MB_number_pep_MHCscore<{}".format(threshold)])
-            num_wild_type = float(self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)])
+            num_mutation = self.properties["MB_number_pep_MHCscore<{}".format(threshold)]
+            num_wild_type = self.properties["MB_number_pep_WT_MHCscore<{}".format(threshold)]
             self.add_features(self.differential_binding.diff_number_binders(
                 num_mutation=num_mutation, num_wild_type=num_wild_type), "Diff_numb_epis_mhcI<{}".format(threshold))
             self.add_features(self.differential_binding.ratio_number_binders(
@@ -590,8 +589,8 @@ class Epitope:
         returns difference and ratio of # epitopes with rank scores < 2 or 10 for mutant and wt sequence for MHC II
         """
         for threshold in [2, 10]:
-            num_mutation = float(self.properties["MB_number_pep_MHCIIscore<{}".format(threshold)])
-            num_wild_type = float(self.properties["MB_number_pep_MHCIIscore<{}_WT".format(threshold)])
+            num_mutation = self.properties["MB_number_pep_MHCIIscore<{}".format(threshold)]
+            num_wild_type = self.properties["MB_number_pep_MHCIIscore<{}_WT".format(threshold)]
             self.add_features(self.differential_binding.diff_number_binders(
                 num_mutation=num_mutation, num_wild_type=num_wild_type),
                 "Diff_numb_epis_mhcII<{}".format(threshold))
@@ -760,7 +759,7 @@ class Epitope:
             transcript_expression=transcript_expression, vaf_rna=vaf_rna)
         self.add_features(expression_mutation, "Expression_Mutated_Transcript")
         self.add_features(self.expression_calculator.rna_expression_mutation_tc(
-            transcript_expression=expression_mutation, tumor_content=tumor_content),
+            expression_mutation=expression_mutation, tumor_content=tumor_content),
                           "Expression_Mutated_Transcript_tumor_content")
 
     def add_differential_expression_features(self, gene, ref_dat, expression_tumor):
