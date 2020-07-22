@@ -55,7 +55,7 @@ class DataImportTest(TestCase):
         self.assertIsNotNone(header)
         self.assertEqual(len(header), 44)
         self.assertIsNotNone(rows)
-        self.assertEqual(len(rows), 8)  # 2 indels are excluded from the input file
+        self.assertEqual(len(rows), 9)  # 2 indels are excluded from the input file
         self.assertIsInstance(rows, list)
         for r in rows:
             self.assertEqual(len(r), 44)
