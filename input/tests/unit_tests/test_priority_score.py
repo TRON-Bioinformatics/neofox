@@ -1,21 +1,22 @@
 from unittest import TestCase
 
+import pkg_resources
+
 from input.literature_features.priority_score import PriorityScore
 from input.predict_all_epitopes import BunchEpitopes
-from input.references import ReferenceFolder
+import input.tests
 
 
 class TestPriorityScore(TestCase):
 
     def setUp(self):
         self.priority_calculator = PriorityScore()
-        self.references = ReferenceFolder()
-        self.db = BunchEpitopes.load_proteome(self.references.uniprot)
-
+        self.db = BunchEpitopes.load_proteome(pkg_resources.resource_filename(
+                input.tests.__name__, "resources/uniprot.first200linesfortesting.fasta"))
 
     def test_proteome_match(self):
         # sequence in proteome
-        result = self.priority_calculator.match_not_in_proteome(sequence="MAELCPLA", db=self.db)
+        result = self.priority_calculator.match_not_in_proteome(sequence="QQLRELRRRWL", db=self.db)
         self.assertEqual(result, "0")
         # sequence not int proteome
         result = self.priority_calculator.match_not_in_proteome(sequence="FIAGLIAIV", db=self.db)

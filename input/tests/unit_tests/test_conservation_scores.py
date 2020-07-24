@@ -1,26 +1,24 @@
 from unittest import TestCase
 
+import pkg_resources
+import input.tests
 from input.new_features.conservation_scores import ProveanAnnotator
-from input.tests.integration_tests import integration_test_tools
 
 
 class TestProveanAnnotator(TestCase):
 
     def setUp(self):
-        self.references, self.configuration = integration_test_tools.load_references()
         self.header_epitopes = ["UCSC_transcript", "substitution"]
         self.epitopes = [
-            ["uc010qbo.1", "A207S"],
-            ["uc001ovh.1", "A41S"],
-            ["uc001ovh.1", "A40S"],
-            ["uc001tzg.1", "A154S"],
-            ["uc001uir.1", "A39S"],
-            ["uc001yqt.1", "A701S"],
-            ["uc001zrt.1", "A1520S"],
-            ["uc010umw.1", "A114S"],
-            ["uc010umy.1", "A7S"]]
+            ["uc059atj.1", "A5S"],
+            ["uc059atj.1", "A13Q"],
+            ["uc059atj.1", "A27W"],
+            ["uc058xwc.1", "S12Q"],
+            ["uc058xwc.1", "W20S"]]
         self.annotator = ProveanAnnotator(
-            provean_file=self.references.prov_scores_mapped3, header_epitopes=self.header_epitopes,
+            provean_file=pkg_resources.resource_filename(
+                input.tests.__name__, "resources/PROV_scores_mapped3.first200linesfortesting.csv"),
+            header_epitopes=self.header_epitopes,
             epitopes=self.epitopes)
 
     def test_provean_annotator_loading(self):
@@ -29,10 +27,11 @@ class TestProveanAnnotator(TestCase):
 
     def test_provean_annotator(self):
         provean_annotation = self.annotator.get_provean_annotation(
-            mutated_aminoacid="S", ucsc_id_position="uc001tzg_154")
-        self.assertIsNotNone(provean_annotation)
-        self.assertTrue(provean_annotation != "NA")
-        self.assertIsNotNone(float(provean_annotation))
+            mutated_aminoacid="S", ucsc_id_position="uc059atj_5")
+        self.assertEqual(provean_annotation,  "-3")
+        provean_annotation = self.annotator.get_provean_annotation(
+            mutated_aminoacid="Q", ucsc_id_position="uc058xwc_12")
+        self.assertEqual(provean_annotation,  "-4.58")
 
     def test_provean_annotator_non_existing_aminoacid(self):
         provean_annotation = self.annotator.get_provean_annotation(

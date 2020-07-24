@@ -31,6 +31,8 @@ class SchemaConverter(object):
         :rtype: list[Neoepitope]
         """
         data = pd.read_csv(icam_file, sep='\t')
+        # filter out indels as the substitution field is reported empty by iCaM
+        data = data[~data['substitution'].isna()]
         SchemaConverter._enrich_icam_table(data)
         neoantigens = []
         for _, icam_entry in data.iterrows():
