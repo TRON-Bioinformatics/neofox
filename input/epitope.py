@@ -23,15 +23,17 @@ from input.literature_features.priority_score import PriorityScore
 
 class Epitope:
 
-    def __init__(self, runner, references, configuration, provean_annotator):
+    def __init__(self, runner, references, configuration, provean_annotator, gtex):
         """
         :type runner: input.helpers.runner.Runner
         :type references: input.references.ReferenceFolder
         :type configuration: input.references.DependenciesConfiguration
         :type provean_annotator: input.new_features.conservation_scores.ProveanAnnotator
+        :type gtex: input.gtex.gtex.GTEx
         """
         self.references = references
         self.provean_annotator = provean_annotator
+        self.gtex = gtex
         self.properties = {}
         self.dissimilarity_calculator = DissimilarityCalculator(runner=runner, configuration=configuration)
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner, configuration=configuration)
@@ -62,9 +64,9 @@ class Epitope:
     def write_to_file(self):
         print(";".join([self.properties[key] for key in self.properties]))
 
-    def main(self, col_nam, prop_list, db, ref_dat, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
+    def main(self, col_nam, prop_list, db, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
              set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content_dict, rna_avail,
-             patient_id):
+             patient_id, tissue):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.properties = self.init_properties(col_nam, prop_list)
@@ -91,7 +93,7 @@ class Epitope:
         # MHC binding independent features
         self.add_expression_features(tumor_content=tumor_content, vaf_rna=vaf_rna,
                                      transcript_expression=transcript_expr)
-        self.add_differential_expression_features(gene, ref_dat, expression_tumor=transcript_expr)
+        self.add_differential_expression_features(gene, expression_tumor=transcript_expr, tissue=tissue)
         self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict,
                                           mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
         self.add_provean_score_features()
@@ -762,11 +764,9 @@ class Epitope:
             expression_mutation=expression_mutation, tumor_content=tumor_content),
                           "Expression_Mutated_Transcript_tumor_content")
 
-    def add_differential_expression_features(self, gene, ref_dat, expression_tumor):
+    def add_differential_expression_features(self, gene, gtex, expression_tumor, tissue):
         # differential expression
-        expression_reference = differential_expression.add_rna_reference(gene, ref_dat, 0)
-        expression_reference_sum = differential_expression.add_rna_reference(gene, ref_dat, 2)
-        expression_reference_sd = differential_expression.add_rna_reference(gene, ref_dat, 1)
+        expression_reference, expression_reference_sum, expression_reference_sd = self.gtex.get_metrics(gene, tissue)
         self.add_features(expression_reference, "mean_ref_expression")
         self.add_features(expression_reference_sd, "sd_ref_expression")
         self.add_features(expression_reference_sum, "sum_ref_expression")

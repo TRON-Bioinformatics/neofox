@@ -3,7 +3,7 @@ from unittest import TestCase
 import pkg_resources
 
 from input.literature_features.priority_score import PriorityScore
-from input.predict_all_epitopes import BunchEpitopes
+from input.predict_all_epitopes import ImmunogenicityNeoantigenPredictionToolbox
 import input.tests
 
 
@@ -11,7 +11,7 @@ class TestPriorityScore(TestCase):
 
     def setUp(self):
         self.priority_calculator = PriorityScore()
-        self.db = BunchEpitopes.load_proteome(pkg_resources.resource_filename(
+        self.db = ImmunogenicityNeoantigenPredictionToolbox.load_proteome(pkg_resources.resource_filename(
                 input.tests.__name__, "resources/uniprot.first200linesfortesting.fasta"))
 
     def test_proteome_match(self):
