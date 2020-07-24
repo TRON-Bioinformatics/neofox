@@ -1,6 +1,7 @@
 import os
 
 from logzero import logger
+import pandas as pd
 
 import input
 from input.exceptions import INPuTConfigurationException
@@ -48,14 +49,13 @@ class ReferenceFolder(object):
         self.tcell_predictor_gene_expression = self._get_reference_file_name('genes-expression.pickle')
         self.tcell_predictor_aa_features = self._get_reference_file_name('amino-acids-features.pickle')
         self.uniprot = self._get_reference_file_name('uniprot_human_with_isoforms.fasta')
-        self.gtex = self._get_reference_file_name('gtex_combined.csv')
 
         # TODO: add this files self.alleles_list_pred, self.avail_mhc_ii
         self.resources = [self.available_mhc_ii, self.available_mhc_i, self.aa_freq_prot,
                           self.four_mer_freq, self.aaindex1, self.aaindex2, self.prov_scores_mapped3, self.iedb,
                           self.proteome_db, self.tcell_predictor_aa_features,
                           self.tcell_predictor_gene_expression, self.tcell_predictor_sir_data,
-                          self.uniprot, self.gtex]
+                          self.uniprot]
         self._check_resources(self.resources)
         self._log_configuration()
 
