@@ -64,6 +64,36 @@ class SchemaConverterTest(TestCase):
         self.assertEqual(neoantigen_dict.get('annotations')[1].get('value'), 1)
         self.assertEqual(neoantigen_dict.get('annotations')[2].get('value'), 1.1)
 
+    def test_icam2model(self):
+        icam_file = pkg_resources.resource_filename(input.tests.__name__, "resources/test_data.txt")
+        with open(icam_file) as f:
+            self.count_lines = len(f.readlines())
+        neoantigens = SchemaConverter().icam2model(icam_file)
+        self.assertIsNotNone(neoantigens)
+        # NOTE: the file contains 2 indels that are filtered out
+        self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
+        for n in neoantigens:
+            self.assertIsInstance(n, Neoantigen)
+            self.assertIsInstance(n.gene, Gene)
+            self.assertIsInstance(n.mutation, Mutation)
+            self.assertTrue(n.gene.transcript_identifier is not None and len(n.gene.transcript_identifier) > 0)
+            self.assertTrue(n.mutation.mutated_aminoacid is not None and len(n.mutation.mutated_aminoacid) == 1)
+            self.assertTrue(n.rna_variant_allele_frequency is None or
+                            (0 <= n.rna_variant_allele_frequency <= 1))
+            self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
+            self.assertTrue(0 <= n.dna_variant_allele_frequency <= 1)
+
+    def test_overriding_patient_id(self):
+        icam_file = pkg_resources.resource_filename(input.tests.__name__, "resources/test_data.txt")
+        with open(icam_file) as f:
+            self.count_lines = len(f.readlines())
+        neoantigens = SchemaConverter().icam2model(icam_file, patient_id='patientX')
+        for n in neoantigens:
+            self.assertEqual(n.patient_identifier, 'patientX')
+        neoantigens = SchemaConverter().icam2model(icam_file)
+        for n in neoantigens:
+            self.assertEqual(n.patient_identifier, None)
+
     def _assert_lists_equal(self, neoantigens, neoantigens2):
         self.assertEqual(len(neoantigens), len(neoantigens2))
         for n1, n2, in zip(neoantigens, neoantigens2):
