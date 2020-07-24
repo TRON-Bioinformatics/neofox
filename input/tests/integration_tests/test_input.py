@@ -1,7 +1,7 @@
 from unittest import TestCase
 import pkg_resources
 import input.tests
-from input.predict_all_epitopes import ImmunogenicityNeoantigenPredictionToolbox
+from input.immunogenicity_neoantigen_prediction import ImmunogenicityNeoantigenPredictionToolbox
 from input.tests.integration_tests import integration_test_tools
 
 

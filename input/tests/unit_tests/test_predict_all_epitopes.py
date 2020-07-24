@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import input
 from input.exceptions import INPuTConfigurationException
-from input.predict_all_epitopes import ImmunogenicityNeoantigenPredictionToolbox
+from input.immunogenicity_neoantigen_prediction import ImmunogenicityNeoantigenPredictionToolbox
 
 
 class TestPredictAllEpitopes(TestCase):

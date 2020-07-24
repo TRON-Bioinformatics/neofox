@@ -51,6 +51,7 @@ class GTEx(object):
         return mean_expression, sum_expression, sd_expression
 
     def _get_metric(self, gene, tissue, metric):
+        # TODO: avoid the stupid NA
         try:
             metric = self.gtex.at[(gene, tissue, metric), 'value']
         except KeyError:

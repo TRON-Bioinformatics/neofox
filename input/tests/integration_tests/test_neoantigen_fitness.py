@@ -1,7 +1,7 @@
 from collections import defaultdict
 from unittest import TestCase
 
-from input.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
+from input.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
 from input.helpers.runner import Runner
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
 

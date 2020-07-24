@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 
 from logzero import logger
 
-from input.predict_all_epitopes import ImmunogenicityNeoantigenPredictionToolbox
+from input.immunogenicity_neoantigen_prediction import ImmunogenicityNeoantigenPredictionToolbox
 
 
 def input_cli():

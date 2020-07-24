@@ -4,14 +4,15 @@ from logzero import logger
 
 import input.aa_index.aa_index as aa_index
 from input import MHC_I, MHC_II
+from input.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
 from input.epitope import Epitope
-from input.gtex.gtex import GTEx
+from input.annotation_resources.gtex.gtex import GTEx
 from input.helpers import data_import
 from input.helpers.properties_manager import PATIENT_ID
 from input.helpers.runner import Runner
 from input.new_features.conservation_scores import ProveanAnnotator
 from input.references import ReferenceFolder, DependenciesConfiguration
-from input.uniprot.uniprot import Uniprot
+from input.annotation_resources.uniprot.uniprot import Uniprot
 
 
 class ImmunogenicityNeoantigenPredictionToolbox:
@@ -49,10 +50,8 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         for row in self.rows:
             row.append(str(self.patient_id))
 
-        freq_file1 = self.references.aa_freq_prot
-        freq_file2 = self.references.four_mer_freq
-        self.aa_frequency = self.load_nmer_frequency(freq_file1)
-        self.fourmer_frequency = self.load_nmer_frequency(freq_file2)
+        self.aa_frequency = AminoacidFrequency()
+        self.fourmer_frequency = FourmerFrequency()
         self.aa_index1_dict = aa_index.parse_aaindex1(self.references.aaindex1)
         self.aa_index2_dict = aa_index.parse_aaindex2(self.references.aaindex2)
 
@@ -62,19 +61,6 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.rna_avail = {p.identifier: p.is_rna_available for p in patients}
         self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3,
                                                   header_epitopes=self.header, epitopes=self.rows)
-
-    @staticmethod
-    def load_nmer_frequency(frequency_file):
-        """
-        Loads file with information of frequeny of nmers
-        """
-        freq_dict = {}
-        with open(frequency_file) as f:
-            next(f)
-            for line in f:
-                w = line.rstrip().split(";")
-                freq_dict[w[0]] = w[1]
-        return freq_dict
 
     def write_to_file_sorted(self, d, header):
         """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list

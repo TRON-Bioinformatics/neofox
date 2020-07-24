@@ -2,7 +2,7 @@
 
 from logzero import logger
 
-from input.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
+from input.predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from input.helpers import intermediate_files
 
 
