@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from Bio import SeqIO
 from logzero import logger
 
 import input.aa_index.aa_index as aa_index
@@ -12,7 +11,7 @@ from input.helpers.properties_manager import PATIENT_ID
 from input.helpers.runner import Runner
 from input.new_features.conservation_scores import ProveanAnnotator
 from input.references import ReferenceFolder, DependenciesConfiguration
-from input.model.neoantigen import Patient
+from input.uniprot.uniprot import Uniprot
 
 
 class ImmunogenicityNeoantigenPredictionToolbox:
@@ -25,6 +24,7 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.configuration = DependenciesConfiguration()
         self.runner = Runner()
         self.gtex = GTEx()
+        self.uniprot = Uniprot(self.references.uniprot)
         self.hla_available_alleles = self.references.load_available_hla_alleles(mhc=MHC_I)
         self.hlaII_available_alleles = self.references.load_available_hla_alleles(mhc=MHC_II)
 
@@ -34,10 +34,11 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         # import epitope data
         self.header, self.rows = data_import.import_dat_icam(icam_file)
         patients = data_import.import_patients_data(patients_file)
+
+        # TODO: remove once we are loading data into models
         if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in self.header:
             self.header, self.rows = data_import.change_col_names(header=self.header, data=self.rows)
 
-        self.proteome_dictionary = self.load_proteome(self.references.uniprot)
         # adds patient to the table
         self.header.append(PATIENT_ID)
         logger.debug(self.patient_id)
@@ -60,36 +61,7 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.tumour_content = {p.identifier: p.estimated_tumor_content for p in patients}
         self.rna_avail = {p.identifier: p.is_rna_available for p in patients}
         self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3,
-                                                  header_epitopes=self.header, epitopes=self.data)
-
-    @staticmethod
-    def load_proteome(fasta_proteome):
-        """
-        Loads proteome in fasta format into dictionary
-        """
-        proteome_dict = {}
-        for record in SeqIO.parse(fasta_proteome, "fasta"):
-            proteome_dict[record.seq] = record.id
-        return proteome_dict
-
-    @staticmethod
-    def load_rna_reference(rna_reference_file, tissue):
-        """
-        Loads RNA reference file and returns dictionary with mean, standard deviation and sum of expression for each gene
-        """
-        rna_dict = {}
-        ref_tuple = data_import.import_dat_general(rna_reference_file)
-        ref = ref_tuple[1]
-        ref_head = ref_tuple[0]
-        tissue = tissue.lower()
-        head_cols = [col for col in ref_head if col.startswith(tissue)]
-        cols_expr = [ref_head.index(col) for col in head_cols]
-        gen_col = ref_head.index("gene")
-        for ii, i in enumerate(ref):
-            gene_name = i[gen_col]
-            expr_values = tuple(float(i[elem]) for elem in cols_expr)
-            rna_dict[gene_name] = expr_values
-        return rna_dict
+                                                  header_epitopes=self.header, epitopes=self.rows)
 
     @staticmethod
     def load_nmer_frequency(frequency_file):
@@ -128,9 +100,9 @@ class ImmunogenicityNeoantigenPredictionToolbox:
             # dict for each epitope
             epitope = Epitope(
                 runner=self.runner, references=self.references, configuration=self.configuration,
-                provean_annotator=self.provean_annotator, gtex=self.gtex)
+                provean_annotator=self.provean_annotator, gtex=self.gtex, uniprot=self.uniprot)
             features = epitope.main(
-                self.header, row, self.proteome_dictionary, self.gtex, self.aa_frequency,
+                self.header, row, self.aa_frequency,
                 self.fourmer_frequency, self.aa_index1_dict, self.aa_index2_dict,
                 self.hla_available_alleles, self.hlaII_available_alleles, self.patient_hla_I_allels,
                 self.patient_hla_II_allels, self.tumour_content, self.rna_avail, self.patient_id, self.tissue)

@@ -24,7 +24,7 @@ class TestInput(TestCase):
         patient_id = 'Pt29'
         input_file = '/projects/SUMMIT/WP1.2/input/development/Pt29.sequences4testing.txt'
         patients_file = pkg_resources.resource_filename(input.tests.__name__, "resources/patient.Pt29.csv")
-        ImmunogenicityNeoantigenPredictionToolbox().run(
+        ImmunogenicityNeoantigenPredictionToolbox(
             icam_file=input_file,
             patient_id=patient_id,
-            patients_file=patients_file)
+            patients_file=patients_file).run()

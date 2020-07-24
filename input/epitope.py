@@ -23,17 +23,19 @@ from input.literature_features.priority_score import PriorityScore
 
 class Epitope:
 
-    def __init__(self, runner, references, configuration, provean_annotator, gtex):
+    def __init__(self, runner, references, configuration, provean_annotator, gtex, uniprot):
         """
         :type runner: input.helpers.runner.Runner
         :type references: input.references.ReferenceFolder
         :type configuration: input.references.DependenciesConfiguration
         :type provean_annotator: input.new_features.conservation_scores.ProveanAnnotator
         :type gtex: input.gtex.gtex.GTEx
+        :type uniprot: input.uniprot.uniprot.Uniprot
         """
         self.references = references
         self.provean_annotator = provean_annotator
         self.gtex = gtex
+        self.uniprot = uniprot
         self.properties = {}
         self.dissimilarity_calculator = DissimilarityCalculator(runner=runner, configuration=configuration)
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner, configuration=configuration)
@@ -64,7 +66,7 @@ class Epitope:
     def write_to_file(self):
         print(";".join([self.properties[key] for key in self.properties]))
 
-    def main(self, col_nam, prop_list, db, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
+    def main(self, col_nam, prop_list, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
              set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content_dict, rna_avail,
              patient_id, tissue):
         """ Calculate new epitope features and add to dictonary that stores all properties
@@ -97,8 +99,8 @@ class Epitope:
         self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict,
                                           mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
         self.add_provean_score_features()
-        self.add_features(self.priority_score_calcualtor.match_not_in_proteome(
-            sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."], db=db),
+        self.add_features(self.uniprot.is_sequence_not_in_uniprot(
+            sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]),
             "mutation_not_found_in_proteome")
 
         # HLA I predictions: NetMHCpan
@@ -764,7 +766,7 @@ class Epitope:
             expression_mutation=expression_mutation, tumor_content=tumor_content),
                           "Expression_Mutated_Transcript_tumor_content")
 
-    def add_differential_expression_features(self, gene, gtex, expression_tumor, tissue):
+    def add_differential_expression_features(self, gene, expression_tumor, tissue):
         # differential expression
         expression_reference, expression_reference_sum, expression_reference_sd = self.gtex.get_metrics(gene, tissue)
         self.add_features(expression_reference, "mean_ref_expression")
