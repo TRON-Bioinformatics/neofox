@@ -3,16 +3,16 @@
 from logzero import logger
 
 from input import MHC_I, MHC_II
-from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from input.MixMHCpred.mixmhcpred import MixMHCpred
-from input.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+from input.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from input.predictors.MixMHCpred.mixmhcpred import MixMHCpred
+from input.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from input.predictors.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 from input.helpers import properties_manager
-from input.neoag.neoag_gbm_model import NeoagCalculator
-from input.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
-from input.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
-from input.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from input.new_features import amino_acid_frequency_scores as freq_score, differential_expression
+from input.predictors.neoag.neoag_gbm_model import NeoagCalculator
+from input.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
+from input.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from input.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from input.new_features import differential_expression
 from input.self_similarity import self_similarity
 from input.vaxrank import vaxrank
 from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
@@ -66,7 +66,7 @@ class Epitope:
     def write_to_file(self):
         print(";".join([self.properties[key] for key in self.properties]))
 
-    def main(self, col_nam, prop_list, aa_freq_dict, nmer_freq_dict, aaindex1_dict, aaindex2_dict,
+    def main(self, col_nam, prop_list, aa_frequency, nmer_frequency, aaindex1_dict, aaindex2_dict,
              set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content_dict, rna_avail,
              patient_id, tissue):
         """ Calculate new epitope features and add to dictonary that stores all properties
@@ -150,8 +150,8 @@ class Epitope:
         # T cell predictor
         self.add_tcell_predictor_features(gene, substitution=substitution, affinity=affinity_mut_9mer,
                                           epitope=epitope_mut_affinitiy_9mer)
-        self.add_aminoacid_frequency_features(aa_freq_dict=aa_freq_dict, mutation_mhci=epitope_mut_rank,
-                                              nmer_freq_dict=nmer_freq_dict, mutated_aminoacid=mutated_aminoacid)
+        self.add_aminoacid_frequency_features(aa_freq=aa_frequency, mutation_mhci=epitope_mut_rank,
+                                              nmer_freq=nmer_frequency, mutated_aminoacid=mutated_aminoacid)
 
         # netMHCIIpan predictions
         self.predII.main(sequence=xmer_mut, sequence_reference=xmer_wt, alleles=alleles_hlaii,
@@ -748,14 +748,11 @@ class Epitope:
         for k in aaindex2_dict:
             self.add_features(aaindex2_dict[k].get(wild_type_aminoacid, {}).get(mutation_aminoacid, "NA"), k)
 
-    def add_aminoacid_frequency_features(self, aa_freq_dict, mutation_mhci, nmer_freq_dict, mutated_aminoacid):
+    def add_aminoacid_frequency_features(self, aa_freq, mutation_mhci, nmer_freq, mutated_aminoacid):
         # amino acid frequency
-        self.add_features(freq_score.freq_aa(mutated_aminoacid=mutated_aminoacid, dict_freq=aa_freq_dict),
-                          "Frequency_mutated_AA")
-        self.add_features(freq_score.freq_prod_4mer(mutation=mutation_mhci, dict_freq=aa_freq_dict),
-                          "Product_Frequency_4mer")
-        self.add_features(freq_score.freq_4mer(mutation=mutation_mhci, dict_freq=nmer_freq_dict),
-                          "Frequency_of_4mer")
+        self.add_features(aa_freq.get_frequency(mutated_aminoacid), "Frequency_mutated_AA")
+        self.add_features(aa_freq.get_product_4mer_frequencies(mutation_mhci), "Product_Frequency_4mer")
+        self.add_features(nmer_freq.get_frequency_4mer(mutation_mhci), "Frequency_of_4mer")
 
     def add_expression_features(self, tumor_content, vaf_rna, transcript_expression):
         # expression

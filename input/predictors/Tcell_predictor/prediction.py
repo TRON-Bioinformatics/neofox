@@ -3,7 +3,7 @@ import pickle
 
 import pandas as pd
 
-from input.Tcell_predictor.preprocess import Preprocessor
+from input.predictors.Tcell_predictor.preprocess import Preprocessor
 
 
 def main(f_name, output_file, references):

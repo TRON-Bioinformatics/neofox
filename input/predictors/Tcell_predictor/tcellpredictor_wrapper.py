@@ -2,7 +2,7 @@
 
 from logzero import logger
 
-import input.Tcell_predictor.prediction as prediction
+import input.predictors.Tcell_predictor.prediction as prediction
 from input.helpers import intermediate_files
 
 

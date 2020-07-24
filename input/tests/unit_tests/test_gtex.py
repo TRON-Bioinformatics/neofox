@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from input.gtex.gtex import GTEx
+from input.annotation_resources.gtex.gtex import GTEx
 
 
 class TestGtex(TestCase):

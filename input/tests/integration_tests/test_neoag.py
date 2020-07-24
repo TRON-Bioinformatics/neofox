@@ -1,6 +1,6 @@
 from unittest import TestCase, SkipTest
 
-from input.neoag.neoag_gbm_model import NeoagCalculator
+from input.predictors.neoag.neoag_gbm_model import NeoagCalculator
 from input.helpers.runner import Runner
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
 

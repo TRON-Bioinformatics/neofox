@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from input.gtex.gtex import GTEx
-from input.uniprot.uniprot import Uniprot
+from input.annotation_resources.uniprot.uniprot import Uniprot
 import pkg_resources
 import input
 

@@ -4,7 +4,7 @@ from logzero import logger
 
 from input.helpers import data_import
 from input.helpers.epitope_helper import EpitopeHelper
-from input.netmhcpan4.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
+from input.predictors.netmhcpan4.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
 
 
 class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):

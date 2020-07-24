@@ -2,9 +2,9 @@
 
 from logzero import logger
 
-import input.netmhcpan4.multiple_binders as multiple_binders
-import input.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
-from input.helpers import properties_manager, intermediate_files
+import input.predictors.netmhcpan4.multiple_binders as multiple_binders
+import input.predictors.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
+from input.helpers import intermediate_files
 
 
 class BestAndMultipleBinder:

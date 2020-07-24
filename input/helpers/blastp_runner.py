@@ -1,5 +1,5 @@
 from input.helpers import intermediate_files
-from input.neoantigen_fitness.aligner import Aligner
+from input.predictors.neoantigen_fitness.aligner import Aligner
 
 
 class BlastpRunner(object):

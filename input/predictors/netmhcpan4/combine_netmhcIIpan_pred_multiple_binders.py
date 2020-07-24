@@ -2,10 +2,10 @@
 
 from logzero import logger
 
-import input.netmhcpan4.netmhcIIpan_prediction as netmhcIIpan_prediction
+import input.predictors.netmhcpan4.netmhcIIpan_prediction as netmhcIIpan_prediction
 from input import MHC_II
 from input.helpers import intermediate_files
-from input.netmhcpan4 import multiple_binders
+from input.predictors.netmhcpan4 import multiple_binders
 
 
 class BestAndMultipleBinderMhcII:
