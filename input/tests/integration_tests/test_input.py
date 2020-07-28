@@ -27,4 +27,4 @@ class TestInput(TestCase):
         ImmunogenicityNeoantigenPredictionToolbox(
             icam_file=input_file,
             patient_id=patient_id,
-            patients_file=patients_file).run()
+            patients_file=patients_file).get_annotations()

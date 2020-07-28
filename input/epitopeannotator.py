@@ -19,36 +19,55 @@ from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunoge
 from input.literature_features.differential_binding import DifferentialBinding
 from input.literature_features.expression import Expression
 from input.literature_features.priority_score import PriorityScore
+from input.model.neoantigen import Patient
 
 
-class Epitope:
+class EpitopeAnnotator:
 
-    def __init__(self, runner, references, configuration, provean_annotator, gtex, uniprot):
+    def __init__(self, references, provean_annotator, gtex, uniprot, aa_frequency, fourmer_frequency, aa_index1_dict,
+                 aa_index2_dict, dissimilarity_calculator, neoantigen_fitness_calculator, neoag_calculator,
+                 predII, predpresentation2, pred, predpresentation, tcell_predictor, iedb_immunogenicity,
+                 differential_binding, expression_calculator, priority_score_calculator, patients):
         """
-        :type runner: input.helpers.runner.Runner
         :type references: input.references.ReferenceFolder
-        :type configuration: input.references.DependenciesConfiguration
         :type provean_annotator: input.new_features.conservation_scores.ProveanAnnotator
         :type gtex: input.gtex.gtex.GTEx
         :type uniprot: input.uniprot.uniprot.Uniprot
+        :type dissimilarity_calculator: input.predictors.dissimilarity_garnish.dissimilaritycalculator.DissimilarityCalculator
+        :type neoantigen_fitness_calculator: input.predictors.neoantigen_fitness.neoantigen_fitness.NeoantigenFitnessCalculator
+        :type neoag_calculator: input.predictors.neoag.neoag_gbm_model.NeoagCalculator
+        :type predII: input.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders.BestAndMultipleBinderMhcII
+        :type predpresentation2: input.predictors.MixMHCpred.mixmhc2pred.MixMhc2Pred
+        :type pred: input.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders.BestAndMultipleBinderMhc
+        :type predpresentation: input.predictors.MixMHCpred.mixmhcpred.MixMhcPred
+        :type tcell_predictor: input.predictors.Tcell_predictor.tcellpredictor_wrapper.TcellPrediction
+        :type iedb_immunogenicity: input.IEDB_Immunogenicity.predict_immunogenicity_simple.IEDBimmunogenicity
+        :type differential_binding: input.literature_features.differential_binding.DifferentialBinding
+        :type expression_calculator: input.literature_features.expression.Expression
+        :type priority_score_calculator: input.literature_features.priority_score.PriorityScore
+        :type patients: dict[str, Patient]
         """
         self.references = references
         self.provean_annotator = provean_annotator
         self.gtex = gtex
         self.uniprot = uniprot
-        self.properties = {}
-        self.dissimilarity_calculator = DissimilarityCalculator(runner=runner, configuration=configuration)
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner, configuration=configuration)
-        self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
-        self.predII = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
-        self.predpresentation2 = MixMhc2Pred(runner=runner, configuration=configuration)
-        self.pred = BestAndMultipleBinder(runner=runner, configuration=configuration)
-        self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
-        self.tcell_predictor = TcellPrediction(references=self.references)
-        self.iedb_immunogenicity = IEDBimmunogenicity()
-        self.differential_binding = DifferentialBinding()
-        self.expression_calculator = Expression()
-        self.priority_score_calcualtor = PriorityScore()
+        self.patients = patients
+        self.aa_frequency = aa_frequency
+        self.fourmer_frequency = fourmer_frequency
+        self.aa_index1_dict = aa_index1_dict
+        self.aa_index2_dict = aa_index2_dict
+        self.dissimilarity_calculator = dissimilarity_calculator
+        self.neoantigen_fitness_calculator = neoantigen_fitness_calculator
+        self.neoag_calculator = neoag_calculator
+        self.predII = predII
+        self.predpresentation2 = predpresentation2
+        self.pred = pred
+        self.predpresentation = predpresentation
+        self.tcell_predictor = tcell_predictor
+        self.iedb_immunogenicity = iedb_immunogenicity
+        self.differential_binding = differential_binding
+        self.expression_calculator = expression_calculator
+        self.priority_score_calculator = priority_score_calculator
 
     def init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
@@ -66,9 +85,7 @@ class Epitope:
     def write_to_file(self):
         print(";".join([self.properties[key] for key in self.properties]))
 
-    def main(self, col_nam, prop_list, aa_frequency, nmer_frequency, aaindex1_dict, aaindex2_dict,
-             set_available_mhc, set_available_mhcII, patient_hlaI, patient_hlaII, tumour_content_dict, rna_avail,
-             patient_id, tissue):
+    def get_annotation(self, col_nam, prop_list, patient_id, tissue):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
         self.properties = self.init_properties(col_nam, prop_list)
@@ -78,14 +95,13 @@ class Epitope:
 
         gene = properties_manager.get_gene(properties=self.properties)
         vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
-        vaf_rna = vaf_tumor if rna_avail.get(patient_id, "False") == "False" else \
+        vaf_rna = vaf_tumor if not self.patients.get(patient_id).is_rna_available else \
             self.properties.get("VAF_in_RNA", vaf_tumor)
         transcript_expr = properties_manager.get_expression(properties=self.properties)
-        alleles = properties_manager.get_hla_allele(patient_hlaI, patient_id)
-        alleles_hlaii = properties_manager.get_hla_allele(patient_hlaII, patient_id)
+        alleles = self.patients.get(patient_id).mhc_i_alleles
+        alleles_hlaii = self.patients.get(patient_id).mhc_i_i_alleles
         substitution = properties_manager.get_substitution(properties=self.properties)
-        tumor_content = tumour_content_dict.get(patient_id)
-        if tumor_content != "NA": tumor_content = tumor_content / 100
+        tumor_content = self.patients.get(patient_id).estimated_tumor_content
 
         mutated_aminoacid = properties_manager.get_wt_mut_aa(substitution=substitution, mut_or_wt="mut")
         self.add_features(mutated_aminoacid, "MUT_AA")
@@ -96,7 +112,7 @@ class Epitope:
         self.add_expression_features(tumor_content=tumor_content, vaf_rna=vaf_rna,
                                      transcript_expression=transcript_expr)
         self.add_differential_expression_features(gene, expression_tumor=transcript_expr, tissue=tissue)
-        self.add_aminoacid_index_features(aaindex1_dict, aaindex2_dict,
+        self.add_aminoacid_index_features(self.aa_index1_dict, self.aa_index2_dict,
                                           mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
         self.add_provean_score_features()
         self.add_features(self.uniprot.is_sequence_not_in_uniprot(
@@ -104,7 +120,9 @@ class Epitope:
             "mutation_not_found_in_proteome")
 
         # HLA I predictions: NetMHCpan
-        self.pred.main(xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles, set_available_mhc=set_available_mhc)
+        self.pred.main(
+            xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles,
+            set_available_mhc=self.references.load_available_hla_alleles(mhc=MHC_I))
         self.add_netmhcpan4_features()
         self.add_netmhcpan4_wt_features()
         self.add_multiple_binding_features()
@@ -150,12 +168,12 @@ class Epitope:
         # T cell predictor
         self.add_tcell_predictor_features(gene, substitution=substitution, affinity=affinity_mut_9mer,
                                           epitope=epitope_mut_affinitiy_9mer)
-        self.add_aminoacid_frequency_features(aa_freq=aa_frequency, mutation_mhci=epitope_mut_rank,
-                                              nmer_freq=nmer_frequency, mutated_aminoacid=mutated_aminoacid)
+        self.add_aminoacid_frequency_features(aa_freq=self.aa_frequency, mutation_mhci=epitope_mut_rank,
+                                              nmer_freq=self.fourmer_frequency, mutated_aminoacid=mutated_aminoacid)
 
         # netMHCIIpan predictions
         self.predII.main(sequence=xmer_mut, sequence_reference=xmer_wt, alleles=alleles_hlaii,
-                         set_available_mhc=set_available_mhcII)
+                         set_available_mhc=self.references.load_available_hla_alleles(mhc=MHC_II))
         self.add_netmhciipan_features()
         self.add_netmhciipan_wt_features()
         self.add_multiple_binding_mhcii_features()
@@ -667,9 +685,9 @@ class Epitope:
         """
         returns number of mismatches between best MHCI / MHC II epitopes (rank) and their corresponding WTs
         """
-        self.add_features(self.priority_score_calcualtor.number_of_mismatches(
+        self.add_features(self.priority_score_calculator.number_of_mismatches(
             epitope_wild_type=epi_wt_mhci, epitope_mutation=epi_mut_mhci), "Number_of_mismatches_mhcI")
-        self.add_features(self.priority_score_calcualtor.number_of_mismatches(
+        self.add_features(self.priority_score_calculator.number_of_mismatches(
             epitope_wild_type=epi_wt_mhcii, epitope_mutation=epi_mut_mhcii), "Number_of_mismatches_mhcII")
 
     def add_priority_score(self, rank_mut, rank_wt, mb_mut, mb_wt, expr, vaf_tum, vaf_transcr):
@@ -679,11 +697,11 @@ class Epitope:
         no_mismatch = self.properties["Number_of_mismatches_mhcI"]
         mut_not_in_prot = self.properties["mutation_not_found_in_proteome"]
         # priority score with rank score
-        self.add_features(self.priority_score_calcualtor.calc_priority_score(
+        self.add_features(self.priority_score_calculator.calc_priority_score(
             vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=no_mismatch,
             score_mut=rank_mut, score_wt=rank_wt, mut_not_in_prot=mut_not_in_prot), "Priority_score")
         # priority score using multiplexed representation score
-        self.add_features(self.priority_score_calcualtor.calc_priority_score(
+        self.add_features(self.priority_score_calculator.calc_priority_score(
             vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=no_mismatch,
             score_mut=mb_mut, score_wt=mb_wt, mut_not_in_prot=mut_not_in_prot), "Priority_score_MB")
 
