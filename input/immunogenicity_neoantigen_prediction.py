@@ -2,12 +2,13 @@
 
 from logzero import logger
 
-import input.aa_index.aa_index as aa_index
+from input.aa_index.aa_index import AaIndex
 from input.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
 from input.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
-from input.epitopeannotator import EpitopeAnnotator
+from input.epitope_annotator import EpitopeAnnotator
 from input.annotation_resources.gtex.gtex import GTEx
 from input.helpers import data_import
+from input.helpers.available_alleles import AvailableAlleles
 from input.helpers.properties_manager import PATIENT_ID
 from input.helpers.runner import Runner
 from input.literature_features.differential_binding import DifferentialBinding
@@ -39,10 +40,11 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.uniprot = Uniprot(self.references.uniprot)
         self.aa_frequency = AminoacidFrequency()
         self.fourmer_frequency = FourmerFrequency()
-        self.aa_index1_dict = aa_index.parse_aaindex1(self.references.aaindex1)
-        self.aa_index2_dict = aa_index.parse_aaindex2(self.references.aaindex2)
-        self.dissimilarity_calculator = DissimilarityCalculator(runner=runner, configuration=configuration)
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(runner=runner, configuration=configuration)
+        self.aa_index = AaIndex()
+        self.dissimilarity_calculator = DissimilarityCalculator(
+            runner=runner, configuration=configuration, proteome_db=self.references.proteome_db)
+        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
+            runner=runner, configuration=configuration, iedb=self.references.iedb)
         self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
         self.predII = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
         self.predpresentation2 = MixMhc2Pred(runner=runner, configuration=configuration)
@@ -53,6 +55,7 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.differential_binding = DifferentialBinding()
         self.expression_calculator = Expression()
         self.priority_score_calcualtor = PriorityScore()
+        self.available_alleles = AvailableAlleles(self.references)
 
         # import epitope data
         self.header, self.rows = data_import.import_dat_icam(icam_file)
@@ -82,14 +85,12 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         write to txt file
         """
         epitope_annotator = EpitopeAnnotator(
-            references=self.references,
             provean_annotator=self.provean_annotator,
             gtex=self.gtex,
             uniprot=self.uniprot,
             aa_frequency=self.aa_frequency,
             fourmer_frequency=self.fourmer_frequency,
-            aa_index1_dict=self.aa_index1_dict,
-            aa_index2_dict=self.aa_index2_dict,
+            aa_index=self.aa_index,
             dissimilarity_calculator=self.dissimilarity_calculator,
             neoantigen_fitness_calculator=self.neoantigen_fitness_calculator,
             neoag_calculator=self.neoag_calculator,
@@ -102,6 +103,7 @@ class ImmunogenicityNeoantigenPredictionToolbox:
             differential_binding=self.differential_binding,
             expression_calculator=self.expression_calculator,
             priority_score_calculator=self.priority_score_calcualtor,
+            available_alleles=self.available_alleles,
             patients=self.patients)
         # feature calculation for each epitope
         annotations = []

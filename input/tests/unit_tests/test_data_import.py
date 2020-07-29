@@ -31,7 +31,7 @@ class DataImportTest(TestCase):
         self.assertEqual(patients[0].identifier, "Pt29")
         self.assertEqual(len(patients[0].mhc_i_alleles), 6)
         self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
-        self.assertEqual(patients[0].estimated_tumor_content, 69.0)
+        self.assertEqual(patients[0].estimated_tumor_content, 0.69)
         self.assertEqual(patients[0].is_rna_available, True)
         self.assertEqual(patients[0].tissue, 'skin')
 
@@ -45,7 +45,7 @@ class DataImportTest(TestCase):
         self.assertEqual(patients[0].identifier, "Ptx")
         self.assertEqual(len(patients[0].mhc_i_alleles), 6)
         self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
-        self.assertEqual(patients[0].estimated_tumor_content, 84.0)
+        self.assertEqual(patients[0].estimated_tumor_content, 0.84)
         self.assertEqual(patients[0].is_rna_available, True)
         self.assertEqual(patients[0].tissue, 'skin')
 
