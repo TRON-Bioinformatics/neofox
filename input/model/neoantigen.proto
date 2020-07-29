@@ -111,7 +111,7 @@ message Patient {
 	*/
 	string identifier = 1;
 	/**
-	Estimated tumor content (percentage)
+	Estimated tumor content (value between 0 and 1)
 	*/
 	float estimatedTumorContent = 2;
 	/**

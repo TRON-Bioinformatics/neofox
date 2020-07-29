@@ -22,7 +22,7 @@ class TestInput(TestCase):
         :return:
         """
         patient_id = 'Pt29'
-        input_file = '/projects/SUMMIT/WP1.2/input/development/Pt29.sequences4testing.txt'
+        input_file = pkg_resources.resource_filename(input.tests.__name__, "resources/test_data.txt")
         patients_file = pkg_resources.resource_filename(input.tests.__name__, "resources/patient.Pt29.csv")
         ImmunogenicityNeoantigenPredictionToolbox(
             icam_file=input_file,
