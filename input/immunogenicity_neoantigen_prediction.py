@@ -36,11 +36,19 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.references = ReferenceFolder()
         configuration = DependenciesConfiguration()
         runner = Runner()
+
+        # resources without external dependencies
         self.gtex = GTEx()
         self.uniprot = Uniprot(self.references.uniprot)
         self.aa_frequency = AminoacidFrequency()
         self.fourmer_frequency = FourmerFrequency()
         self.aa_index = AaIndex()
+        self.differential_binding = DifferentialBinding()
+        self.expression_calculator = Expression()
+        self.priority_score_calcualtor = PriorityScore()
+        self.tcell_predictor = TcellPrediction()
+
+        # resources with external dependencies (files or binaries)
         self.dissimilarity_calculator = DissimilarityCalculator(
             runner=runner, configuration=configuration, proteome_db=self.references.proteome_db)
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
@@ -50,11 +58,7 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.predpresentation2 = MixMhc2Pred(runner=runner, configuration=configuration)
         self.pred = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
-        self.tcell_predictor = TcellPrediction(references=self.references)
         self.iedb_immunogenicity = IEDBimmunogenicity()
-        self.differential_binding = DifferentialBinding()
-        self.expression_calculator = Expression()
-        self.priority_score_calcualtor = PriorityScore()
         self.available_alleles = AvailableAlleles(self.references)
 
         # import epitope data
