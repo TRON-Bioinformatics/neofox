@@ -16,20 +16,6 @@ class PriorityScore:
                 p1 += 1
         return p1
 
-    def match_not_in_proteome(self, sequence, db):
-        """
-        This function checks if the mutated epitope has an exact match in a protein database (uniprot)
-        Returns 0 if mutation is present in proteome and 1 if it not present
-        """
-        match = "1"
-        try:
-            seq_in_db = [sequence in entry for entry in db]
-            if any(seq_in_db):
-                match = "0"
-        except:
-            match = "NA"
-        return match
-
     def calc_logistic_function(self, mhc_score):
         """
         Calculates negative logistic function given mhc score

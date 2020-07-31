@@ -5,8 +5,8 @@ import input.tests.integration_tests.integration_test_tools as integration_test_
 from input import MHC_I, MHC_II
 from input.helpers import intermediate_files
 from input.helpers.runner import Runner
-from input.netmhcpan4.netmhcIIpan_prediction import NetMhcIIPanPredictor
-from input.netmhcpan4.netmhcpan_prediction import NetMhcPanPredictor
+from input.predictors.netmhcpan4.netmhcIIpan_prediction import NetMhcIIPanPredictor
+from input.predictors.netmhcpan4.netmhcpan_prediction import NetMhcPanPredictor
 from input.tests import TEST_HLAI_ALLELES, TEST_HLAII_ALLELES
 
 

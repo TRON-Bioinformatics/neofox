@@ -2,9 +2,9 @@ from unittest import TestCase
 from logzero import logger
 
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
-from input.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
-from input.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from input.MixMHCpred.mixmhcpred import MixMHCpred
+from input.predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
+from input.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from input.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from input.helpers.runner import Runner
 from input.tests import TEST_HLAI_ALLELES, TEST_HLAII_ALLELES
 

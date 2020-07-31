@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import input.tests.integration_tests.integration_test_tools as integration_test_tools
 from input.helpers.runner import Runner
-from input.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+from input.predictors.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 
 
 class TestDissimilarity(TestCase):

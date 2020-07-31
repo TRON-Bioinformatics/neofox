@@ -102,12 +102,6 @@ def get_netmhciipan_epitopes(properties, affinity=False):
     return wild_type, mutation
 
 
-def get_hla_allele(hla_patient_dict, patient_id):
-    """ returns hla allele of patients given in hla_file
-    """
-    return hla_patient_dict[patient_id]
-
-
 def get_patient_id(props):
     return props.get(PATIENT_ID)
 
