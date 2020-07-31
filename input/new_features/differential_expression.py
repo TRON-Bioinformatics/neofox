@@ -20,17 +20,6 @@ def sd_of_list(list_numbs):
     return (sd_list)
 
 
-def add_rna_reference(gene, reference_dat, i):
-    '''
-    This function takes the output of load_rna_expression_reference function and appends the values to the epitope data
-    i = (0,1,2) --> ("mean_ref_expression","sd_ref_expression", "sum_ref_expression")
-    '''
-    if gene in reference_dat:
-        return str(reference_dat[gene][i])
-    else:
-        return "NA"
-
-
 def fold_change(expression_tumor, expression_reference):
     """
     This function determines the classical fold change between tumour and reference transcript expression.
