@@ -10,27 +10,28 @@ from input.helpers.blastp_runner import BlastpRunner
 
 class NeoantigenFitnessCalculator(BlastpRunner):
 
-    def __init__(self, runner, configuration):
+    def __init__(self, runner, configuration, iedb):
         """
         :type runner: input.helpers.runner.Runner
         :type configuration: input.references.DependenciesConfiguration
         """
         super().__init__(runner, configuration)
+        self.iedb = iedb
 
-    def _calc_pathogen_similarity(self, fasta_file, iedb):
+    def _calc_pathogen_similarity(self, fasta_file):
         """
         This function determines the PATHOGENSIMILARITY of epitopes according to Balachandran et al. using a blast
         search against the IEDB pathogenepitope database
         """
-        outfile = self.run_blastp(fasta_file=fasta_file, database=os.path.join(iedb, "iedb_blast_db"))
+        outfile = self.run_blastp(fasta_file=fasta_file, database=os.path.join(self.iedb, "iedb_blast_db"))
         similarity = self.parse_blastp_output(blastp_output_file=outfile)
         os.remove(outfile)
         return similarity
 
-    def wrap_pathogen_similarity(self, mutation, iedb):
+    def wrap_pathogen_similarity(self, mutation):
         fastafile = intermediate_files.create_temp_fasta(sequences=[mutation], prefix="tmpseq", comment_prefix='M_')
         try:
-            pathsim = self._calc_pathogen_similarity(fastafile, iedb)
+            pathsim = self._calc_pathogen_similarity(fastafile)
         except Exception as ex:
             # TODO: do we need this at all? it should not fail and if it fails we probably want to just stop execution
             logger.exception(ex)

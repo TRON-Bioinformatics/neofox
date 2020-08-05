@@ -11,7 +11,7 @@ class TestNeoantigenFitness(TestCase):
     def setUp(self):
         self.references, self.configuration, self.fastafile = self._load_references()
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
-            runner=Runner(), configuration=self.configuration)
+            runner=Runner(), configuration=self.configuration, iedb=self.references.iedb)
 
     def _load_references(self):
         references, configuration = integration_test_tools.load_references()
@@ -20,20 +20,14 @@ class TestNeoantigenFitness(TestCase):
 
     def test_pathogen_similarity(self):
         # tests a pathogen sequence and expects 1.0 similarity
-        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-            mutation='FIAGLIAIV',
-            iedb=self.references.iedb)
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation='FIAGLIAIV')
         self.assertEqual('1.0', result)
         # tests a modified pathogen sequence and expects something between 0 and 1
-        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-            mutation='FIAGDAAIV',
-            iedb=self.references.iedb)
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation='FIAGDAAIV')
         self.assertLess(float(result), 1.0)
         self.assertGreater(float(result), 0.0)
         # tests a non pathogen sequence and expects 0 similarity
-        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-            mutation='DDDDDMMDD',
-            iedb=self.references.iedb)
+        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation='DDDDDMMDD')
         self.assertEqual('0', result)
 
     def test_amplitude_mhc(self):

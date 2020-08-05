@@ -24,12 +24,11 @@ from input.model.neoantigen import Patient
 
 class EpitopeAnnotator:
 
-    def __init__(self, references, provean_annotator, gtex, uniprot, aa_frequency, fourmer_frequency, aa_index1_dict,
-                 aa_index2_dict, dissimilarity_calculator, neoantigen_fitness_calculator, neoag_calculator,
+    def __init__(self, provean_annotator, gtex, uniprot, aa_frequency, fourmer_frequency, aa_index,
+                 dissimilarity_calculator, neoantigen_fitness_calculator, neoag_calculator,
                  predII, predpresentation2, pred, predpresentation, tcell_predictor, iedb_immunogenicity,
-                 differential_binding, expression_calculator, priority_score_calculator, patients):
+                 differential_binding, expression_calculator, priority_score_calculator, available_alleles, patients):
         """
-        :type references: input.references.ReferenceFolder
         :type provean_annotator: input.new_features.conservation_scores.ProveanAnnotator
         :type gtex: input.gtex.gtex.GTEx
         :type uniprot: input.uniprot.uniprot.Uniprot
@@ -45,17 +44,19 @@ class EpitopeAnnotator:
         :type differential_binding: input.literature_features.differential_binding.DifferentialBinding
         :type expression_calculator: input.literature_features.expression.Expression
         :type priority_score_calculator: input.literature_features.priority_score.PriorityScore
+        :type available_alleles: input.helpers.available_alleles.AvailableAlleles
+        :type aa_frequency: input.annotation_resources.nmer_frequency.nmer_frequency.AminoacidFrequency
+        :type fourmer_frequency: input.annotation_resources.nmer_frequency.nmer_frequency.FourmerFrequency
+        :type aa_index: input.aa_index.aa_index.AaIndex
         :type patients: dict[str, Patient]
         """
-        self.references = references
         self.provean_annotator = provean_annotator
         self.gtex = gtex
         self.uniprot = uniprot
         self.patients = patients
         self.aa_frequency = aa_frequency
         self.fourmer_frequency = fourmer_frequency
-        self.aa_index1_dict = aa_index1_dict
-        self.aa_index2_dict = aa_index2_dict
+        self.aa_index = aa_index
         self.dissimilarity_calculator = dissimilarity_calculator
         self.neoantigen_fitness_calculator = neoantigen_fitness_calculator
         self.neoag_calculator = neoag_calculator
@@ -68,8 +69,9 @@ class EpitopeAnnotator:
         self.differential_binding = differential_binding
         self.expression_calculator = expression_calculator
         self.priority_score_calculator = priority_score_calculator
+        self.available_alleles = available_alleles
 
-    def init_properties(self, col_nam, prop_list):
+    def _init_properties(self, col_nam, prop_list):
         """Initiates epitope property storage in a dictionary
         """
         properties = {}
@@ -82,13 +84,10 @@ class EpitopeAnnotator:
         """
         self.properties[new_feature_nam] = new_feature
 
-    def write_to_file(self):
-        print(";".join([self.properties[key] for key in self.properties]))
-
     def get_annotation(self, col_nam, prop_list, patient_id, tissue):
         """ Calculate new epitope features and add to dictonary that stores all properties
         """
-        self.properties = self.init_properties(col_nam, prop_list)
+        self.properties = self._init_properties(col_nam, prop_list)
         xmer_wt = self.properties["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         xmer_mut = self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         logger.info(xmer_mut)
@@ -112,7 +111,7 @@ class EpitopeAnnotator:
         self.add_expression_features(tumor_content=tumor_content, vaf_rna=vaf_rna,
                                      transcript_expression=transcript_expr)
         self.add_differential_expression_features(gene, expression_tumor=transcript_expr, tissue=tissue)
-        self.add_aminoacid_index_features(self.aa_index1_dict, self.aa_index2_dict,
+        self.add_aminoacid_index_features(self.aa_index.get_aaindex1(), self.aa_index.get_aaindex2(),
                                           mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
         self.add_provean_score_features()
         self.add_features(self.uniprot.is_sequence_not_in_uniprot(
@@ -122,7 +121,7 @@ class EpitopeAnnotator:
         # HLA I predictions: NetMHCpan
         self.pred.main(
             xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles,
-            set_available_mhc=self.references.load_available_hla_alleles(mhc=MHC_I))
+            set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.add_netmhcpan4_features()
         self.add_netmhcpan4_wt_features()
         self.add_multiple_binding_features()
@@ -173,7 +172,7 @@ class EpitopeAnnotator:
 
         # netMHCIIpan predictions
         self.predII.main(sequence=xmer_mut, sequence_reference=xmer_wt, alleles=alleles_hlaii,
-                         set_available_mhc=self.references.load_available_hla_alleles(mhc=MHC_II))
+                         set_available_mhc=self.available_alleles.get_available_mhc_ii())
         self.add_netmhciipan_features()
         self.add_netmhciipan_wt_features()
         self.add_multiple_binding_mhcii_features()
@@ -419,16 +418,13 @@ class EpitopeAnnotator:
         pathogensimilarity for best affinity (all length), best affinity (9mer), rank score
         """
         self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-                mutation=epi_mut_9mer, iedb=self.references.iedb),
+            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation=epi_mut_9mer),
             "Pathogensimiliarity_mhcI_9mer")
         self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-                mutation=epi_mut_rank, iedb=self.references.iedb),
+            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation=epi_mut_rank),
             "Pathogensimiliarity_mhcI_rank")
         self.add_features(
-            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-                mutation=epi_mut, iedb=self.references.iedb),
+            self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation=epi_mut),
             "Pathogensimiliarity_mhcI_affinity_nmers")
 
     def add_recognition_potential(self, aff_mut_9mer):
@@ -669,8 +665,7 @@ class EpitopeAnnotator:
         """
         if epitope_mut_mhcii != "-":
             self.add_features(
-                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(
-                    mutation=epitope_mut_mhcii, iedb=self.references.iedb),
+                self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation=epitope_mut_mhcii),
                 "Pathogensimiliarity_mhcII")
             self.add_features(self.neoantigen_fitness_calculator.calculate_recognition_potential(
                 amplitude=self.properties["Amplitude_mhcII_affinity"],
@@ -736,15 +731,12 @@ class EpitopeAnnotator:
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci, references=self.references),
-            "dissimilarity")
+            mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci), "dissimilarity")
         self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-            mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci, references=self.references,
-            filter_binder=True), "dissimilarity_filter500")
+            mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci, filter_binder=True), "dissimilarity_filter500")
         if epitope_mhcii != "-":
             self.add_features(self.dissimilarity_calculator.calculate_dissimilarity(
-                mhc_mutation=epitope_mhcii, mhc_affinity=affinity_mhcii, references=self.references),
-                "dissimilarity_mhcII")
+                mhc_mutation=epitope_mhcii, mhc_affinity=affinity_mhcii), "dissimilarity_mhcII")
         elif epitope_mhcii == "-":
             self.add_features("NA", "dissimilarity_mhcII")
 
