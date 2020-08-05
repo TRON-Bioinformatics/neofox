@@ -19,7 +19,7 @@ class Expression:
         calculated expression of mutation corrected by tumour content
         """
         try:
-            expression_mut_tc = expression_mutation / (tumor_content / 100)
+            expression_mut_tc = expression_mutation / tumor_content
         except (TypeError, ZeroDivisionError) as e:
             expression_mut_tc = "NA"
         return expression_mut_tc

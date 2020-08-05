@@ -2,16 +2,21 @@ import pickle
 
 import numpy as np
 import scipy.io as sio
+import os
+
+
+MAT = "SIRdata.mat"
+GENES_EXPRESSION_PICKLE = "genes-expression.pickle"
+ACIDS_FEATURES_PICKLE = "amino-acids-features.pickle"
 
 
 class Preprocessor(object):
 
-    def __init__(self, references):
-        self.references = references
-        self.load_data = sio.loadmat(self.references.tcell_predictor_sir_data)
-        with open(self.references.tcell_predictor_gene_expression, 'rb') as handle:
+    def __init__(self):
+        self.load_data = sio.loadmat(os.path.join(os.path.abspath(os.path.dirname(__file__)), MAT))
+        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), GENES_EXPRESSION_PICKLE), 'rb') as handle:
             self.dict_expression = pickle.load(handle)
-        with open(self.references.tcell_predictor_aa_features, 'rb') as handle:
+        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), ACIDS_FEATURES_PICKLE), 'rb') as handle:
             self.dict_data = pickle.load(handle)
 
     @staticmethod

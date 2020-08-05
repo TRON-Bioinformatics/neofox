@@ -14,29 +14,29 @@ class TestDissimilarity(TestCase):
 
     def test_dissimilar_sequences(self):
         result = DissimilarityCalculator(
-            runner=self.runner, configuration=self.configuration)\
+            runner=self.runner, configuration=self.configuration, proteome_db=self.references.proteome_db)\
             .calculate_dissimilarity(
-            mhc_mutation='tocino', mhc_affinity='velocidad', references=self.references)
+            mhc_mutation='tocino', mhc_affinity='velocidad')
         self.assertEqual(1, result)
 
     def test_similar_sequences(self):
         result = DissimilarityCalculator(
-            runner=self.runner, configuration=self.configuration)\
+            runner=self.runner, configuration=self.configuration, proteome_db=self.references.proteome_db)\
             .calculate_dissimilarity(
-            mhc_mutation='DDDDDD', mhc_affinity='DDDDDD', references=self.references)
+            mhc_mutation='DDDDDD', mhc_affinity='DDDDDD')
         self.assertTrue(result < 0.000001)
 
     def test_dissimilarity_mhcii(self):
         # peptide with point mutation
         result = DissimilarityCalculator(
-            runner=self.runner, configuration=self.configuration) \
+            runner=self.runner, configuration=self.configuration, proteome_db=self.references.proteome_db) \
             .calculate_dissimilarity(
-            mhc_mutation='LGLSDSQFLQTFLFM', mhc_affinity='430', references=self.references)
+            mhc_mutation='LGLSDSQFLQTFLFM', mhc_affinity='430')
         self.assertEqual(result, 0)
         # unsimmilar peptide
         result = DissimilarityCalculator(
-            runner=self.runner, configuration=self.configuration) \
+            runner=self.runner, configuration=self.configuration, proteome_db=self.references.proteome_db) \
             .calculate_dissimilarity(
-            mhc_mutation='LFTSPIMTKSAEMIV', mhc_affinity='430', references=self.references)
+            mhc_mutation='LFTSPIMTKSAEMIV', mhc_affinity='430')
         print(result)
         self.assertGreater(result, 0.0)
