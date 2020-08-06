@@ -14,7 +14,7 @@ from input.helpers.runner import Runner
 from input.literature_features.differential_binding import DifferentialBinding
 from input.literature_features.expression import Expression
 from input.literature_features.priority_score import PriorityScore
-from input.new_features.conservation_scores import ProveanAnnotator
+from input.annotation_resources.provean.provean import ProveanAnnotator
 from input.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from input.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from input.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -60,6 +60,7 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
         self.iedb_immunogenicity = IEDBimmunogenicity()
         self.available_alleles = AvailableAlleles(self.references)
+        self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3)
 
         # import epitope data
         self.header, self.rows = data_import.import_dat_icam(icam_file)
@@ -78,9 +79,6 @@ class ImmunogenicityNeoantigenPredictionToolbox:
         self.tissue = self.patients.get(self.patient_id).tissue
         for row in self.rows:
             row.append(str(self.patient_id))
-
-        self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3,
-                                                  header_epitopes=self.header, epitopes=self.rows)
 
     def get_annotations(self):
         """
