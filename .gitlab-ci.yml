@@ -31,5 +31,6 @@ test:
   stage: test
   script:
     - python setup.py bdist_wheel
+    - pip uninstall input
     - pip install dist/input-*.whl
     - python -m unittest discover input.tests.unit_tests
