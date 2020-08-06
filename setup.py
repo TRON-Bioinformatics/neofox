@@ -1,16 +1,5 @@
 from setuptools import find_packages, setup, Command
-import distutils.command.build
-from distutils.dist import Distribution
-# from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
-# import xmlrunner
-import unittest
-import sys
-import os
-# import dotenv
-import logging
-import glob
-from datetime import datetime
-import input
+import neofox
 
 
 # parses requirements from file
@@ -19,13 +8,13 @@ with open('requirements.txt') as f:
 
 # Build the Python package
 setup(
-    name='input',
-    version=input.VERSION,
+    name='neofox',
+    version=neofox.VERSION,
     packages=find_packages(),
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'input=input.command_line:input_cli'
+            'neofox=neofox.command_line:neofox_cli'
         ],
     },
     author=['Franziska Lang', 'Pablo Riesgo Ferreiro'],

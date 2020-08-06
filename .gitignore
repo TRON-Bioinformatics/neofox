@@ -5,4 +5,4 @@ venv
 .env
 build
 dist
-input.egg-info/
+neofox.egg-info/
