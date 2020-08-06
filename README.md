@@ -1,4 +1,4 @@
-# **INPuT - Immunogenictiy Neoantigen Prediction Toolbox**
+# **NeoFox - NEOantigen Feature tOolboX**
 
 
 Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope descriptors
@@ -29,7 +29,7 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - Multiplexed Representation  
 
 
-## Input Requirements
+## NeoFox Requirements
 
 **Specific Input:**
 - icam_output.txt --> icam output file
@@ -79,7 +79,7 @@ Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  
 ## **Usage**  
 
 ```
-input --icam-file testseq_head.txt --patient-id Pt123 --patient-data patients.csv [--frameshift False]
+neofox --icam-file testseq_head.txt --patient-id Pt123 --patient-data patients.csv [--frameshift False]
 ```
 
 
@@ -105,27 +105,27 @@ pip install dist/input-x.y.z.whl
 
 To run the integration tests make sure you have a file `.env` that contains the following variables with the right values:
 ```
-export INPUT_REFERENCE_FOLDER=~/addannot_references
-export INPUT_BLASTP=/code/ncbi-blast/2.8.1+/bin/blastp
-export INPUT_MIXMHC2PRED=/code/net/MixMHC2pred/1.1/MixMHC2pred
-export INPUT_MIXMHCPRED=/code/MixMHCpred/2.0.2/MixMHCpred
-export INPUT_RSCRIPT=/code/R/3.6.0/bin/Rscript
-export INPUT_NETMHC2PAN=/code/net/MHCIIpan/3.2/netMHCIIpan
-export INPUT_NETMHCPAN=/code/net/MHCpan/4.0/netMHCpan
+export NEOFOX_REFERENCE_FOLDER=~/addannot_references
+export NEOFOX_BLASTP=/code/ncbi-blast/2.8.1+/bin/blastp
+export NEOFOX_MIXMHC2PRED=/code/net/MixMHC2pred/1.1/MixMHC2pred
+export NEOFOX_MIXMHCPRED=/code/MixMHCpred/2.0.2/MixMHCpred
+export NEOFOX_RSCRIPT=/code/R/3.6.0/bin/Rscript
+export NEOFOX_NETMHC2PAN=/code/net/MHCIIpan/3.2/netMHCIIpan
+export NEOFOX_NETMHCPAN=/code/net/MHCpan/4.0/netMHCpan
 ```
 
-The folder `$INPUT_REFERENCE_FOLDER` requires to contain the resources defined above.
+The folder `NEOFOX_REFERENCE_FOLDER` requires to contain the resources defined above.
 
 Run the integration tests as follows:
 ```
-python -m unittest discover input.tests.integration_tests
+python -m unittest discover neofox.tests.integration_tests
 ```
 
 The integration tests run over some real datasets and they take some time to run.
 
 The integration test that runs the whle program over a relevant dataset can be run as follows:
 ```
-python -m unittest input.tests.integration_tests.test_input
+python -m unittest neofox.tests.integration_tests.test_input
 ```
 
 ### Run unit tests
@@ -134,5 +134,5 @@ The unit tests do not have any dependency and they finish in seconds.
 
 Run the unit tests as follows:
 ```
-python -m unittest discover input.tests.unit_tests
+python -m unittest discover neofox.tests.unit_tests
 ```
