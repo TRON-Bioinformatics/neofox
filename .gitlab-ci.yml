@@ -31,5 +31,6 @@ test:
   stage: test
   script:
     - python setup.py bdist_wheel
-    - pip install dist/input-*.whl
-    - python -m unittest discover input.tests.unit_tests
+    - pip uninstall -y neofox
+    - pip install dist/neofox-*.whl
+    - python -m unittest discover neofox.tests.unit_tests

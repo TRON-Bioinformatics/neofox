@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this script calls input tool and queues annotation of identidied mps for each patient separately
+# this script calls neofox tool and queues annotation of identidied mps for each patient separately
 
 # $1 = directory of icam output folders
 # $2 = output folder
@@ -22,7 +22,7 @@ do
     echo $pat
     file=$dir/scratch/$pat
     file2="$file"_mut_set.txt.transcript.squish.somatic.freq
-    outfile="$2"/"$4".input."$pat".txt
+    outfile="$2"/"$4".neofox."$pat".txt
     output="$2"/"$pat".log
     error="$2"/"$pat".err
     echo $file2
