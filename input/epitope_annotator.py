@@ -82,7 +82,7 @@ class EpitopeAnnotator:
     def add_features(self, new_feature, new_feature_nam):
         """Adds new features to already present epitope properties, stored in form of a dictioninary
         """
-        self.properties[new_feature_nam] = new_feature
+        self.properties[new_feature_nam] = new_feature if new_feature is not None else "NA"
 
     def get_annotation(self, col_nam, prop_list, patient_id, tissue):
         """ Calculate new epitope features and add to dictonary that stores all properties
@@ -742,11 +742,11 @@ class EpitopeAnnotator:
 
     def add_provean_score_features(self):
         # PROVEAN score
-        ucsc_id = self.provean_annotator.build_ucsc_id_plus_position(
-            substitution=self.properties["substitution"], ucsc_id=self.properties["UCSC_transcript"])
-        self.add_features(ucsc_id, "UCSC_ID_position")
+        ucsc_id, position = self.provean_annotator.build_ucsc_id_plus_position(
+            substitution=self.properties["substitution"], protein_id_with_version=self.properties["UCSC_transcript"])
+        self.add_features("{}_{}".format(ucsc_id, position), "UCSC_ID_position")
         self.add_features(self.provean_annotator.get_provean_annotation(
-            mutated_aminoacid=self.properties['MUT_AA'], ucsc_id_position=ucsc_id),
+            mutated_aminoacid=self.properties['MUT_AA'], protein_id=ucsc_id, position=int(position)),
             "PROVEAN_score")
 
     def add_aminoacid_index_features(self, aaindex1_dict, aaindex2_dict, mutation_aminoacid,

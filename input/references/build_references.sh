@@ -4,7 +4,6 @@
 # available MHC alleles netMHCpan
 $INPUT_NETMHCPAN -listMHC | grep "HLA-" > "$INPUT_REFERENCE_FOLDER"/MHC_available.csv
 
-
 # available MHCII alleles netMHCIIpan
 $INPUT_NETMHC2PAN -list  > "$INPUT_REFERENCE_FOLDER"/avail_mhcII.txt
 
@@ -22,3 +21,17 @@ gunzip "$INPUT_REFERENCE_FOLDER"/proteom_db/Homo_sapiens.fa.gz
 $INPUT_MAKEBLASTDB -in "$INPUT_REFERENCE_FOLDER"/proteom_db/Homo_sapiens.fa -dbtype prot -parse_seqids -out "$INPUT_REFERENCE_FOLDER"/proteome_db/homo_sapiens
 
 # use Homo_sapiens.fa as uniprot_human_with_isoforms.fasta to be consistent with human proteome database
+
+
+# PROVEAN scores
+wget ftp://ftp.jcvi.org/pub/data/provean/precomputed_scores/PROVEAN_scores_ensembl66_human.tsv.gz
+# TODO: some mapping of Ensembl protein ids to UCSC ids happening here. Do we still have this code?
+# eventually the mapped resource becomes comma separated...
+tr ';' '\t' < PROV_scores_mapped3.csv > PROV_scores_mapped3.tab
+# those Ensembl ids without a mapping to UCSC are stored as NA we need to filter out those
+grep -v NA PROV_scores_mapped3.tab > PROV_scores_mapped3.filtered.tab
+# we need to sort by the UCSC id and position (keeping the header)
+(head -n 1 PROV_scores_mapped3.filtered.tab && tail -n +2 PROV_scores_mapped3.filtered.tab | sort -k25,25V -k2,2n) > PROV_scores_mapped3.filtered.sorted.tab
+# bgzip and tabix index on the UCSC id and the position in the protein
+bgzip PROV_scores_mapped3.filtered.sorted.tab
+tabix -f -s 25 -b 2 -e 2 PROV_scores_mapped3.filtered.sorted.tab.gz
