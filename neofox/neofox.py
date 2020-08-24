@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import sys
 from logzero import logger
 
 from neofox.aa_index.aa_index import AaIndex
@@ -114,3 +114,29 @@ class NeoFox:
             annotation = epitope_annotator.get_annotation(self.header, row, self.patient_id, self.tissue)
             annotations.append(annotation)
         return annotations, self.header
+
+    @staticmethod
+    def write_to_file_sorted(annotations, header, output_file=None):
+        """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
+        and printed ';' separated."""
+        if output_file is not None:
+            sys.stdout = open(output_file, 'w')     # redirects stdout if file provided
+        transformed_annotations = {}
+        for neoantigen in annotations:
+            for key in neoantigen:
+                if key not in transformed_annotations:
+                    # keys are are feautres; values: list of feature values associated with mutated peptide sequence
+                    transformed_annotations[key] = [neoantigen[key]]
+                else:
+                    transformed_annotations[key].append(neoantigen[key])
+
+        features_names = []
+        for key in transformed_annotations:
+            if key not in header:
+                features_names.append(key)
+        features_names.sort()
+        header.extend(features_names)
+        print("\t".join(header))
+        for i in range(len(transformed_annotations["mutation"])):  # NOTE: this has nothing to do with "mutation" field
+            z = [str(transformed_annotations[col][i]) for col in header]
+            print("\t".join(z))

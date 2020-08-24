@@ -90,16 +90,18 @@ class EpitopeAnnotator:
         self.properties = self._init_properties(col_nam, prop_list)
         xmer_wt = self.properties["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
         xmer_mut = self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        logger.info(xmer_mut)
-
         gene = properties_manager.get_gene(properties=self.properties)
         vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
         vaf_rna = vaf_tumor if not self.patients.get(patient_id).is_rna_available else \
             self.properties.get("VAF_in_RNA", vaf_tumor)
         transcript_expr = properties_manager.get_expression(properties=self.properties)
+        substitution = properties_manager.get_substitution(properties=self.properties)
+
+        logger.info(xmer_mut)
+
         alleles = self.patients.get(patient_id).mhc_i_alleles
         alleles_hlaii = self.patients.get(patient_id).mhc_i_i_alleles
-        substitution = properties_manager.get_substitution(properties=self.properties)
+
         tumor_content = self.patients.get(patient_id).estimated_tumor_content
 
         mutated_aminoacid = properties_manager.get_wt_mut_aa(substitution=substitution, mut_or_wt="mut")
@@ -114,9 +116,7 @@ class EpitopeAnnotator:
         self.add_aminoacid_index_features(self.aa_index.get_aaindex1(), self.aa_index.get_aaindex2(),
                                           mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
         self.add_provean_score_features()
-        self.add_features(self.uniprot.is_sequence_not_in_uniprot(
-            sequence=self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]),
-            "mutation_not_found_in_proteome")
+        self.add_features(self.uniprot.is_sequence_not_in_uniprot(sequence=xmer_mut), "mutation_not_found_in_proteome")
 
         # HLA I predictions: NetMHCpan
         self.pred.main(
