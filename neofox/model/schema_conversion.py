@@ -14,7 +14,7 @@ from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient
 ICAM_FIELD_VAF_DNA = 'VAF_in_tumor'
 ICAM_FIELD_VAF_RNA = 'VAF_in_RNA'
 ICAM_FIELD_RNA_EXPRESSION = 'VAF_RNA_raw'
-ICAM_FIELD_GENE = 'UCSC_transcript'
+ICAM_FIELD_TRANSCRIPT = 'UCSC_transcript'
 ICAM_FIELD_GENE = 'gene'
 ICAM_FIELD_WILD_TYPE_XMER = '[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 ICAM_FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
@@ -122,7 +122,7 @@ class SchemaConverter(object):
         gene = Gene()
         gene.assembly = 'hg19'
         gene.gene = icam_entry.get(ICAM_FIELD_GENE)
-        gene.transcript_identifier = icam_entry.get(ICAM_FIELD_GENE)
+        gene.transcript_identifier = icam_entry.get(ICAM_FIELD_TRANSCRIPT)
 
         mutation = Mutation()
         mutation.position = icam_entry.get('position')

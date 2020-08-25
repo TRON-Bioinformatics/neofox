@@ -145,6 +145,7 @@ class NeoFox:
         for i in range(len(transformed_annotations["patient_identifier"])):  # NOTE: this has nothing to do with "patient_identifier" field
             z = [NeoFox.fetch_annotation(transformed_annotations, col, i) for col in header]
             print("\t".join(z))
+        sys.stdout.flush()  # this is required to avoid half written files
         logger.info("Finished writing")
 
     @staticmethod
