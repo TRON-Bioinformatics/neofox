@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-
+from betterproto import Casing
 from logzero import logger
-
+import re
+import pandas as pd
 from neofox import MHC_I, MHC_II
+from neofox.model.schema_conversion import SchemaConverter
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -27,7 +29,7 @@ class EpitopeAnnotator:
     def __init__(self, provean_annotator, gtex, uniprot, aa_frequency, fourmer_frequency, aa_index,
                  dissimilarity_calculator, neoantigen_fitness_calculator, neoag_calculator,
                  predII, predpresentation2, pred, predpresentation, tcell_predictor, iedb_immunogenicity,
-                 differential_binding, expression_calculator, priority_score_calculator, available_alleles, patients):
+                 differential_binding, expression_calculator, priority_score_calculator, available_alleles):
         """
         :type provean_annotator: neofox.new_features.conservation_scores.ProveanAnnotator
         :type gtex: neofox.gtex.gtex.GTEx
@@ -48,12 +50,10 @@ class EpitopeAnnotator:
         :type aa_frequency: neofox.annotation_resources.nmer_frequency.nmer_frequency.AminoacidFrequency
         :type fourmer_frequency: neofox.annotation_resources.nmer_frequency.nmer_frequency.FourmerFrequency
         :type aa_index: neofox.aa_index.aa_index.AaIndex
-        :type patients: dict[str, Patient]
         """
         self.provean_annotator = provean_annotator
         self.gtex = gtex
         self.uniprot = uniprot
-        self.patients = patients
         self.aa_frequency = aa_frequency
         self.fourmer_frequency = fourmer_frequency
         self.aa_index = aa_index
@@ -71,51 +71,53 @@ class EpitopeAnnotator:
         self.priority_score_calculator = priority_score_calculator
         self.available_alleles = available_alleles
 
-    def _init_properties(self, col_nam, prop_list):
-        """Initiates epitope property storage in a dictionary
-        """
-        properties = {}
-        for nam, char in zip(col_nam, prop_list):
-            properties[nam] = char
-        return properties
-
     def add_features(self, new_feature, new_feature_nam):
         """Adds new features to already present epitope properties, stored in form of a dictioninary
         """
         self.properties[new_feature_nam] = new_feature if new_feature is not None else "NA"
 
-    def get_annotation(self, col_nam, prop_list, patient_id, tissue):
-        """ Calculate new epitope features and add to dictonary that stores all properties
+    def get_annotation(self, neoantigen, patient):
         """
-        self.properties = self._init_properties(col_nam, prop_list)
-        xmer_wt = self.properties["X.WT._..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        xmer_mut = self.properties["X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL."]
-        gene = properties_manager.get_gene(properties=self.properties)
-        vaf_tumor = self.properties.get("VAF_in_tumor", "NA")
-        vaf_rna = vaf_tumor if not self.patients.get(patient_id).is_rna_available else \
-            self.properties.get("VAF_in_RNA", vaf_tumor)
-        transcript_expr = properties_manager.get_expression(properties=self.properties)
-        substitution = properties_manager.get_substitution(properties=self.properties)
+        Calculate new epitope features and add to dictonary that stores all properties
 
-        logger.info(xmer_mut)
+        :type neoantigen: neofox.model.neoantigen.Neoantigen
+        :type patient: neofox.model.neoantigen.Patient
+        :return:
+        """
+        self.properties = SchemaConverter.object2flat_dict(neoantigen)
+        xmer_wt = neoantigen.mutation.wild_type_xmer
+        xmer_mut = neoantigen.mutation.mutated_xmer
+        gene = neoantigen.gene.gene
+        vaf_tumor = neoantigen.dna_variant_allele_frequency
+        vaf_rna = vaf_tumor if not patient.is_rna_available else neoantigen.rna_variant_allele_frequency
+        transcript_expr = neoantigen.rna_expression
+        mutated_aminoacid = neoantigen.mutation.mutated_aminoacid
+        wild_type_aminoacid = neoantigen.mutation.wild_type_aminoacid
+        # TODO: this is needed by the T cell predictor, move this construction inside by passing the neoantigen
+        substitution = "{}{}{}".format(
+            neoantigen.mutation.wild_type_aminoacid, neoantigen.mutation.position, neoantigen.mutation.mutated_aminoacid)
+        # TODO: remove this when we move away from properties please
+        self.properties['substitution'] = substitution
 
-        alleles = self.patients.get(patient_id).mhc_i_alleles
-        alleles_hlaii = self.patients.get(patient_id).mhc_i_i_alleles
+        logger.info("Annotating substituion {substitution} in {gene}:{transcript} with expression={expression}, "
+                    "VAF in DNA={vaf_dna}, VAF in RNA={vaf_rna}".format(
+            substitution=substitution, gene=gene, transcript=neoantigen.gene.transcript_identifier,
+            expression=transcript_expr, vaf_dna=vaf_tumor, vaf_rna=vaf_rna))
 
-        tumor_content = self.patients.get(patient_id).estimated_tumor_content
+        alleles = patient.mhc_i_alleles
+        alleles_hlaii = patient.mhc_i_i_alleles
+        tumor_content = patient.estimated_tumor_content
 
-        mutated_aminoacid = properties_manager.get_wt_mut_aa(substitution=substitution, mut_or_wt="mut")
         self.add_features(mutated_aminoacid, "MUT_AA")
-        wt_aminoacid = properties_manager.get_wt_mut_aa(substitution=substitution, mut_or_wt="wt")
-        self.add_features(wt_aminoacid, "WT_AA")
+        self.add_features(wild_type_aminoacid, "WT_AA")
 
         # MHC binding independent features
         self.add_expression_features(tumor_content=tumor_content, vaf_rna=vaf_rna,
                                      transcript_expression=transcript_expr)
-        self.add_differential_expression_features(gene, expression_tumor=transcript_expr, tissue=tissue)
+        self.add_differential_expression_features(gene, expression_tumor=transcript_expr, tissue=patient.tissue)
         self.add_aminoacid_index_features(self.aa_index.get_aaindex1(), self.aa_index.get_aaindex2(),
-                                          mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wt_aminoacid)
-        self.add_provean_score_features()
+                                          mutation_aminoacid=mutated_aminoacid, wild_type_aminoacid=wild_type_aminoacid)
+        self.add_provean_score_features(neoantigen)
         self.add_features(self.uniprot.is_sequence_not_in_uniprot(sequence=xmer_mut), "mutation_not_found_in_proteome")
 
         # HLA I predictions: NetMHCpan
@@ -217,7 +219,7 @@ class EpitopeAnnotator:
                                 mb_mut=mutation_multiple_binding_score, mb_wt=wild_type_multiple_binding_score,
                                 vaf_transcr=vaf_rna, vaf_tum=vaf_tumor, expr=transcript_expr)
         # neoag immunogenicity model
-        self.add_neoag(sample_id=patient_id, mut_peptide=epitope_mut_affinity, score_mut=affinity_mut,
+        self.add_neoag(sample_id=patient.identifier, mut_peptide=epitope_mut_affinity, score_mut=affinity_mut,
                        ref_peptide=epitope_wt_affinity)
         # IEDB immunogenicity
         self.add_iedb_immunogenicity(epitope_mhci=epitope_mut_affinity, affinity_mhci=affinity_mut,
@@ -740,13 +742,14 @@ class EpitopeAnnotator:
         elif epitope_mhcii == "-":
             self.add_features("NA", "dissimilarity_mhcII")
 
-    def add_provean_score_features(self):
+    def add_provean_score_features(self, neoantigen):
         # PROVEAN score
-        ucsc_id, position = self.provean_annotator.build_ucsc_id_plus_position(
-            substitution=self.properties["substitution"], protein_id_with_version=self.properties["UCSC_transcript"])
-        self.add_features("{}_{}".format(ucsc_id, position), "UCSC_ID_position")
+        position = neoantigen.mutation.position
+        transcript_identifier_without_version = re.sub(r'.\d+$', '', neoantigen.gene.transcript_identifier)
+        self.add_features("{}_{}".format(transcript_identifier_without_version, position), "UCSC_ID_position")
         self.add_features(self.provean_annotator.get_provean_annotation(
-            mutated_aminoacid=self.properties['MUT_AA'], protein_id=ucsc_id, position=int(position)),
+            mutated_aminoacid=self.properties['MUT_AA'], protein_id=transcript_identifier_without_version,
+            position=int(position)),
             "PROVEAN_score")
 
     def add_aminoacid_index_features(self, aaindex1_dict, aaindex2_dict, mutation_aminoacid,
