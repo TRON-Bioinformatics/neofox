@@ -20,11 +20,8 @@ def neofox_cli():
     patient_id = args.patient_id
     patients_data = args.patients_data
 
-    logger.info("Loading data...")
     neofox = NeoFox(
         icam_file=icam_file, patients_file=patients_data, patient_id=patient_id)
-    logger.info("Starting NeoFox...")
     annotations, header = neofox.get_annotations()
-    logger.info("Writing results...")
     neofox.write_to_file_sorted(annotations, header)
     logger.info("Finished NeoFox")

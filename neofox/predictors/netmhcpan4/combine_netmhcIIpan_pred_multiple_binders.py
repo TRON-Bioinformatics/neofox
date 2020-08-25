@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-
-from logzero import logger
-
 import neofox.predictors.netmhcpan4.netmhcIIpan_prediction as netmhcIIpan_prediction
 from neofox import MHC_II
 from neofox.helpers import intermediate_files
@@ -57,13 +54,9 @@ class BestAndMultipleBinderMhcII:
         number_alleles = len(tuple_best_per_allele)
         multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
-        logger.debug(tuple_best_per_allele)
-        logger.debug(len(tuple_best_per_allele))
         for best_epi in tuple_best_per_allele:
             if best_epi[-1].startswith("DRB1"):
                 tuple_best_per_allele_new.append(best_epi)
-        logger.debug(tuple_best_per_allele_new)
-        logger.debug(len(tuple_best_per_allele_new))
         if len(tuple_best_per_allele_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
             best_scores_allele = multbind.scores_to_list(tuple_best_per_allele_new)
@@ -75,14 +68,11 @@ class BestAndMultipleBinderMhcII:
         '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         '''
         ### PREDICTION FOR MUTATED SEQUENCE
-        logger.info("MUT seq MHC II: {}".format(sequence))
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
         alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
-        logger.debug(alleles_formated)
         np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
         position_xmer_sequence = np.mut_position_xmer_seq(xmer_wt=sequence_reference, xmer_mut=sequence)
         try:
@@ -101,7 +91,6 @@ class BestAndMultipleBinderMhcII:
             self.MHCII_score_best_per_alelle = self.MHCII_MB_score_best_per_allele(best_per_alelle)
             self.MHCII_number_strong_binders = mb.determine_number_of_binders(all, 2)
             self.MHCII_number_weak_binders = mb.determine_number_of_binders(all, 10)
-            logger.debug(self.MHCII_number_weak_binders)
             # best prediction
             best_epi = np.minimal_binding_score(preds)
             self.best_mhcII_pan_score = np.add_best_epitope_info(best_epi, "%Rank")
@@ -119,7 +108,6 @@ class BestAndMultipleBinderMhcII:
 
         ### PREDICTION FOR WT SEQUENCE
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        logger.debug(tmp_prediction)
         np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta([sequence_reference], prefix="tmp_singleseq_")
@@ -156,63 +144,3 @@ class BestAndMultipleBinderMhcII:
         except IndexError:
             # if neofox sequence shorter than 15 aa
             pass
-
-
-# if __name__ == '__main__':
-#
-#     from neofox import predict_all_epitopes, epitope
-#     from neofox.helpers import data_import
-#
-#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/testdat_ott.txt"
-#     # hla_file ="/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190730_alleles.csv"
-#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/test_ott_head_pt10.txt"
-#     # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190819_alleles_extended.csv"
-#     # hla_file = "/projects/SUMMIT/WP1.2//Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/20190819_alleles_extended.csv"
-#     # file = "/projects/SUMMIT/WP1.2//Literature_Cohorts/data_analysis/cohorts/hugo/icam_hugo/Pt10/scratch/Pt10_mut_set.txt.transcript.squish.somatic.freq"
-#     # file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/in_files/PtBI000048T_1PEB.transcript"
-#     # hla_file = "/projects/SUMMIT/WP1.2/dataset_annotation/Birmingham/20190822_alleles.csv"
-#     # file = "/projects/CM01_iVAC/immunogenicity_prediction/3rd_party_solutions/MHC_prediction_netmhcpan4/test_ott_head_pt10.txt"
-#     # hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/ott/icam_ott/20190819_alleles_extended.csv"
-#     # file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/rizvi/output_tables/freq_expression_input1.1/PtTU0428.rizvi.freq.expr.imput.txt"
-#     file = "/projects/SUMMIT/WP1.2/neofox/development/netmhcIIpan/PtCU9061.test.txt"
-#     hla_file = "/projects/SUMMIT/WP1.2/Literature_Cohorts/data_analysis/cohorts/rizvi/icam_rizvi/20190819_alleles_extended.csv"
-#     dat = data_import.import_dat_icam(file, False)
-#     if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in dat[0]:
-#         dat = data_import.change_col_names(dat)
-#     if "patient.id" not in dat[0]:
-#         try:
-#             patient = file.split("/")[-3]
-#             if "Pt" not in patient:
-#                 patient = file.split("/")[-1].split(".")[0]
-#         except IndexError:
-#             patient = file.split("/")[-1].split(".")[0]
-#         dat[0].append("patient.id")
-#         for ii, i in enumerate(dat[1]):
-#             dat[1][ii].append(str(patient))
-#     # available MHC alleles
-#     set_available_mhc = predict_all_epitopes.Bunchepitopes().load_available_hla_alleles(mhc=MHC_II)
-#     # hla allele of patients
-#     patient_hlaI = predict_all_epitopes.Bunchepitopes().load_patient_hla_I_allels(hla_file)
-#     patient_hlaII = predict_all_epitopes.Bunchepitopes().load_patient_hla_II_allels(hla_file)
-#
-#     Allepit = {}
-#     for ii, i in enumerate(dat[1]):
-#         if ii < 10:
-#             dict_epi = epitope.Epitope()
-#             dict_epi.init_properties(dat[0], dat[1][ii])
-#             x = BestAndMultipleBinderMhcII()
-#             x.main(dict_epi.properties, patient_hlaII, set_available_mhc)
-#             # print x.MHC_epitope_scores_WT
-#             # print x.MHC_epitope_seqs_WT
-#             # print x.MHC_epitope_seqs
-#             attrs = vars(x)
-#             # print "score"
-#             # print x.best_mhcII_pan_epitope
-#             # print x.best_mhcII_pan_epitope_WT
-#             # print "affinity"
-#             # print x.best_mhcII_pan_affinity_epitope
-#             # print x.best_mhcII_affinity_epitope_WT
-#
-#             print("PHBR")
-#             print(x.MHCII_score_best_per_alelle)
-#             # print attrs

@@ -1,7 +1,12 @@
 #!/usr/bin/env python
+import logging
 import sys
+import os
+import time
+import logzero
 from logzero import logger
 
+from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.aa_index.aa_index import AaIndex
 from neofox.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
 from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
@@ -30,8 +35,13 @@ class NeoFox:
 
     def __init__(self, icam_file, patient_id, patients_file):
 
+        logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
+        if logfile is not None:
+            logzero.logfile(logfile)
+        # TODO: this does not work
+        logzero.loglevel(logging.DEBUG)
+        logger.info("Loading data...")
         self.patient_id = patient_id
-
         self.references = ReferenceFolder()
         configuration = DependenciesConfiguration()
         runner = Runner()
@@ -69,6 +79,7 @@ class NeoFox:
         for n in self.neoantigens:
             if n.patient_identifier is None:
                 n.patient_identifier = self.patient_id
+        logger.info("Data loaded")
 
     def get_annotations(self):
         """
@@ -76,6 +87,7 @@ class NeoFox:
         calls epitope class --> determination of epitope properties,
         write to txt file
         """
+        logger.info("Starting NeoFox annotations...")
         epitope_annotator = EpitopeAnnotator(
             provean_annotator=self.provean_annotator,
             gtex=self.gtex,
@@ -99,8 +111,11 @@ class NeoFox:
         # feature calculation for each epitope
         annotations = []
         for neoantigen in self.neoantigens:
-            # TODO: move this initialisation out of the loop once the properties have been refactored out
+            logger.info("Annotating neoantigen...")
+            start = time.time()
             annotation = epitope_annotator.get_annotation(neoantigen, self.patients.get(neoantigen.patient_identifier))
+            end = time.time()
+            logger.info("Elapsed time for annotating neoantigen {} seconds".format(int(end - start)))
             annotations.append(annotation)
         return annotations, list(annotations[0].keys())
 
@@ -108,6 +123,7 @@ class NeoFox:
     def write_to_file_sorted(annotations, header, output_file=None):
         """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
         and printed ';' separated."""
+        logger.info("Writing results...")
         if output_file is not None:
             sys.stdout = open(output_file, 'w')     # redirects stdout if file provided
         transformed_annotations = {}
@@ -129,6 +145,7 @@ class NeoFox:
         for i in range(len(transformed_annotations["patient_identifier"])):  # NOTE: this has nothing to do with "patient_identifier" field
             z = [NeoFox.fetch_annotation(transformed_annotations, col, i) for col in header]
             print("\t".join(z))
+        logger.info("Finished writing")
 
     @staticmethod
     def fetch_annotation(annotations, column, index):
