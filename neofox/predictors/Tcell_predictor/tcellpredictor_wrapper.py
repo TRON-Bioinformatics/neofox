@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-from logzero import logger
 import os
 import pickle
 from neofox.helpers import intermediate_files
@@ -22,7 +20,6 @@ class TcellPrediction:
         extracts gene id, epitope sequence and substitution from epitope dictionary
         Tcell predictor works with 9mers only! --> extract for 9mers only
         """
-        logger.debug("{} {} {} {} {}".format(gene, epitope, substitution, score, str(len(epitope))))
         result = None
         if str(len(epitope)) == str(9):
             if threshold is None or float(score) < threshold:
@@ -53,7 +50,6 @@ class TcellPrediction:
         """
         trp = self._triple_gen_seq_subst(
             gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold)
-        logger.debug(trp)
         pred_out = "NA"
         if trp is not None:
             self._write_triple_to_file(trp, tmpfile_in)

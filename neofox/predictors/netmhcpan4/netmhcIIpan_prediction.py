@@ -52,11 +52,10 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
             allele = self.check_format_allele(allele)
             if allele.startswith("HLA-DRB1"):
                 allele = allele.replace("HLA-", "").replace("*", "_").replace(":", "")
-                logger.info(allele)
                 if allele in set_available_mhc:
                     allels_for_prediction.append(allele)
                 else:
-                    logger.info(allele + "not available")
+                    logger.warn(allele + " not available")
             else:
                 allele = allele.replace("*", "").replace(":", "")
                 if allele.startswith("HLA-DPA"):
@@ -73,7 +72,6 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         for allele in dp_dq_alleles:
             if allele in set_available_mhc:
                 allels_for_prediction.append(allele)
-        logger.info(allels_for_prediction)
         return allels_for_prediction
 
     def mhcII_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
@@ -82,14 +80,12 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         allels_for_prediction = self.generate_mhcII_alelles_combination_list(hla_alleles, set_available_mhc)
         hla_allele = ",".join(allels_for_prediction)
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
-        logger.debug(tmp_folder)
         lines, _ = self.runner.run_command([
             self.configuration.net_mhc2_pan,
             "-a", hla_allele,
             "-f", tmpfasta,
             "-tdir", tmp_folder,
             "-dirty"])
-        logger.debug(lines)
         counter = 0
         # TODO: avoid writing a file here, just return some data structure no need to go to the file system
         with open(tmppred, "w") as f:
@@ -116,7 +112,6 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         """
         header, data = data_import.import_dat_general(tmppred)
         dat_fil = []
-        logger.debug(header)
         pos_epi = header.index("Seq")
         epi = header.index("Peptide")
         for ii, i in enumerate(data):

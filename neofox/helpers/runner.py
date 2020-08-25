@@ -18,7 +18,7 @@ class Runner(object):
         logger.info("Elapsed time {} seconds".format(int(end - start)))
         if return_code == 0:
             logger.info("Finished command correctly!")
-            logger.info(self._decode(output))
+            # logger.debug(self._decode(output))
         else:
             logger.error("Finished command with return code {}".format(return_code))
             logger.error(self._decode(output))

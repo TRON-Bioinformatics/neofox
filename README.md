@@ -123,10 +123,14 @@ python -m unittest discover neofox.tests.integration_tests
 
 The integration tests run over some real datasets and they take some time to run.
 
-The integration test that runs the whle program over a relevant dataset can be run as follows:
+The integration test that runs the whole program over a relevant dataset can be run as follows:
 ```
-python -m unittest neofox.tests.integration_tests.test_input
+python -m unittest neofox.tests.integration_tests.test_neofox
 ```
+
+#### Regression tests
+
+This last test (ie: `test_neofox`) writes its output to a file named `neofox/tests/resources/output_yyyymmddHHMMSS.txt`. If there is an existing file named `neofox/tests/resources/output_previous.txt` then it loads both files in memory and compares them. It outputs whether there are some lost or gained columns and for the common columns it evaluates if the values are the same. If they are the same the file `output_previous.txt` is overwritten by the new file, otherwise it outputs the details of the differing columns.
 
 ### Run unit tests
 
@@ -136,3 +140,7 @@ Run the unit tests as follows:
 ```
 python -m unittest discover neofox.tests.unit_tests
 ```
+
+### Logging
+
+Logs are written to the standard error by default. Optionally they can be written to a file by setting the environment variable `NEOFOX_LOGFILE` pointing to the desired file.
