@@ -1,30 +1,6 @@
 from neofox import MHC_I, MHC_II
 from neofox.exceptions import NeofoxInputParametersException
 
-PATIENT_ID = "patient.id"
-
-
-def get_gene(properties):
-    if "gene.x" in properties:
-        gene = properties["gene.x"]
-    else:
-        gene = properties["gene"]
-    return gene
-
-
-def get_substitution(properties):
-    return properties["substitution"]
-
-
-def get_expression(properties):
-    expression = properties["transcript_expression"]
-    expression = float(expression) if expression != "NA" else "NA"
-    return expression
-
-
-def get_mutation_aminoacid(properties):
-    return properties["MUT_AA"]
-
 
 def get_scores_multiple_binding(properties, mhc):
     if mhc == MHC_I:
@@ -100,22 +76,3 @@ def get_netmhciipan_epitopes(properties, affinity=False):
         mutation = properties["best_epitope_netmhcIIpan"]
         wild_type = properties["best_epitope_netmhcIIpan_WT"]
     return wild_type, mutation
-
-
-def get_patient_id(props):
-    return props.get(PATIENT_ID)
-
-
-def get_wt_mut_aa(substitution, mut_or_wt):
-    """Returns wt and mut aa.
-    """
-    amino_acid = "NA"
-    try:
-        if mut_or_wt == "mut":
-            amino_acid = substitution[-1]
-        elif mut_or_wt == "wt":
-            amino_acid = substitution[0]
-    except ValueError:
-        pass
-    return amino_acid
-

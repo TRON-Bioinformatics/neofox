@@ -3,6 +3,8 @@
 import math
 
 
+# TODO: review if this can be replaced by out of the box implementations
+
 def mean_of_list(list_numbs):
     '''
     This function takes a list of numbers as neofox and calculates the mean
@@ -27,7 +29,7 @@ def fold_change(expression_tumor, expression_reference):
     """
     try:
         return str(math.log(float(expression_tumor) / float(expression_reference), 2))
-    except (ValueError, ZeroDivisionError) as e:
+    except (TypeError, ValueError, ZeroDivisionError) as e:
         return "NA"
 
 
@@ -38,7 +40,7 @@ def percentile_calc(expression_tumor, expression_reference_sum):
     """
     try:
         return str((float(expression_tumor) * 100) / (float(expression_reference_sum) + 1))
-    except (ValueError, ZeroDivisionError) as e:
+    except (TypeError, ValueError, ZeroDivisionError) as e:
         return "NA"
 
 
@@ -49,20 +51,5 @@ def pepper_calc(expression_tumor, expression_reference, expression_reference_sd)
     """
     try:
         return str((float(expression_tumor) - float(expression_reference)) / float(expression_reference_sd))
-    except (ValueError, ZeroDivisionError) as e:
+    except (TypeError, ValueError, ZeroDivisionError) as e:
         return "NA"
-
-
-# if __name__ == '__main__':
-#     import sys
-#     import data_import
-#
-#     ref_file = sys.argv[1]
-#     # "/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv"
-#     ref_list = load_rna_expression_reference(ref_file)
-#     f = sys.argv[2]
-#     data = data_import.import_dat_icam(f)
-#     dat_merged = merge_data_reference(data, ref_list)
-#     print(wrapper_diff_expr(dat_merged)[0])
-#
-#     # write_ouptut_to_file(dat_epi,header)
