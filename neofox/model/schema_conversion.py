@@ -14,6 +14,7 @@ from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient
 ICAM_FIELD_VAF_DNA = 'VAF_in_tumor'
 ICAM_FIELD_VAF_RNA = 'VAF_in_RNA'
 ICAM_FIELD_RNA_EXPRESSION = 'VAF_RNA_raw'
+ICAM_FIELD_TRANSCRIPT_EXPRESSION = 'transcript_expression'
 ICAM_FIELD_TRANSCRIPT = 'UCSC_transcript'
 ICAM_FIELD_GENE = 'gene'
 ICAM_FIELD_WILD_TYPE_XMER = '[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
@@ -142,7 +143,9 @@ class SchemaConverter(object):
         # clonality estimation is not coming from iCaM
         neoantigen.clonality_estimation = None
         # missing RNA expression values are represented as -1
-        vaf_rna_raw = icam_entry.get(ICAM_FIELD_RNA_EXPRESSION)
+        # TODO: this is using the generic transcript expression instead of the expression read from RNA in patient
+        # TODO: do we want to define some rules about when to use one or the other?
+        vaf_rna_raw = icam_entry.get(ICAM_FIELD_TRANSCRIPT_EXPRESSION)
         neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
         vaf_in_rna = icam_entry.get(ICAM_FIELD_VAF_RNA)
         neoantigen.rna_variant_allele_frequency = vaf_in_rna if vaf_in_rna >= 0 else None

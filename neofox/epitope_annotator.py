@@ -21,7 +21,7 @@ from neofox.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunog
 from neofox.literature_features.differential_binding import DifferentialBinding
 from neofox.literature_features.expression import Expression
 from neofox.literature_features.priority_score import PriorityScore
-from neofox.model.neoantigen import Patient
+from neofox.model.neoantigen import Patient, Neoantigen
 
 
 class EpitopeAnnotator:
@@ -72,24 +72,21 @@ class EpitopeAnnotator:
         self.available_alleles = available_alleles
 
     def add_features(self, new_feature, new_feature_nam):
-        """Adds new features to already present epitope properties, stored in form of a dictioninary
-        """
+        """Adds new features to already present epitope properties, stored in form of a dictionary"""
         self.properties[new_feature_nam] = new_feature if new_feature is not None else "NA"
 
-    def get_annotation(self, neoantigen, patient):
-        """
-        Calculate new epitope features and add to dictonary that stores all properties
-
-        :type neoantigen: neofox.model.neoantigen.Neoantigen
-        :type patient: neofox.model.neoantigen.Patient
-        :return:
-        """
+    def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> dict:
+        """Calculate new epitope features and add to dictonary that stores all properties"""
         self.properties = SchemaConverter.object2flat_dict(neoantigen)
         xmer_wt = neoantigen.mutation.wild_type_xmer
         xmer_mut = neoantigen.mutation.mutated_xmer
         gene = neoantigen.gene.gene
         vaf_tumor = neoantigen.dna_variant_allele_frequency
-        vaf_rna = vaf_tumor if not patient.is_rna_available else neoantigen.rna_variant_allele_frequency
+        vaf_rna = neoantigen.rna_variant_allele_frequency
+        if not patient.is_rna_available:
+            logger.warning("Using the DNA VAF to estimate the RNA VAF as the patient does not have RNA available")
+            # TODO: overwrite value in the neoantigen object
+            vaf_rna = vaf_tumor
         transcript_expr = neoantigen.rna_expression
         mutated_aminoacid = neoantigen.mutation.mutated_aminoacid
         wild_type_aminoacid = neoantigen.mutation.wild_type_aminoacid
@@ -98,14 +95,8 @@ class EpitopeAnnotator:
             neoantigen.mutation.wild_type_aminoacid, neoantigen.mutation.position, neoantigen.mutation.mutated_aminoacid)
         # TODO: remove this when we move away from properties please
         self.properties['substitution'] = substitution
-
-        logger.info("Annotating substituion {substitution} in {gene}:{transcript} with expression={expression}, "
-                    "VAF in DNA={vaf_dna}, VAF in RNA={vaf_rna}".format(
-            substitution=substitution, gene=gene, transcript=neoantigen.gene.transcript_identifier,
-            expression=transcript_expr, vaf_dna=vaf_tumor, vaf_rna=vaf_rna))
-
-        alleles = patient.mhc_i_alleles
-        alleles_hlaii = patient.mhc_i_i_alleles
+        alleles_mhc_i = patient.mhc_i_alleles
+        alleles_mhc_ii = patient.mhc_i_i_alleles
         tumor_content = patient.estimated_tumor_content
 
         self.add_features(mutated_aminoacid, "MUT_AA")
@@ -122,7 +113,7 @@ class EpitopeAnnotator:
 
         # HLA I predictions: NetMHCpan
         self.pred.main(
-            xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles,
+            xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles_mhc_i,
             set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.add_netmhcpan4_features()
         self.add_netmhcpan4_wt_features()
@@ -173,7 +164,7 @@ class EpitopeAnnotator:
                                               nmer_freq=self.fourmer_frequency, mutated_aminoacid=mutated_aminoacid)
 
         # netMHCIIpan predictions
-        self.predII.main(sequence=xmer_mut, sequence_reference=xmer_wt, alleles=alleles_hlaii,
+        self.predII.main(sequence=xmer_mut, sequence_reference=xmer_wt, alleles=alleles_mhc_ii,
                          set_available_mhc=self.available_alleles.get_available_mhc_ii())
         self.add_netmhciipan_features()
         self.add_netmhciipan_wt_features()
@@ -225,9 +216,9 @@ class EpitopeAnnotator:
         self.add_iedb_immunogenicity(epitope_mhci=epitope_mut_affinity, affinity_mhci=affinity_mut,
                                      epitope_mhcii=epitope_mut_rank_mhcii)
         # MixMHCpred
-        self.add_mix_mhc_pred_features(xmer_wt=xmer_wt, xmer_mut=xmer_mut, alleles=alleles)
+        self.add_mix_mhc_pred_features(xmer_wt=xmer_wt, xmer_mut=xmer_mut, alleles=alleles_mhc_i)
         # MixMHC2pred
-        self.add_mix_mhc2_pred_features(xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles_hlaii)
+        self.add_mix_mhc2_pred_features(xmer_mut=xmer_mut, xmer_wt=xmer_wt, alleles=alleles_mhc_ii)
         # dissimilarity to self-proteome
         self.add_dissimilarity(epitope_mhci=epitope_mut_affinity, affinity_mhci=affinity_mut,
                                epitope_mhcii=epitope_mut_affinity_mhcii, affinity_mhcii=affinity_mut_mhcii)

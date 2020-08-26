@@ -62,7 +62,7 @@ class TestNeofox(TestCase):
         except KeyError:
             ok_values_count = 0
         if ok_values_count == 0:
-            raise Exception("There no equal values at all for column {}".format(column_name))
+            logger.error("There no equal values at all for column {}".format(column_name))
 
         try:
             ko_values_count = value_counts[False]
