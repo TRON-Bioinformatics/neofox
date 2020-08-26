@@ -8,6 +8,8 @@ import pandas as pd
 from logzero import logger
 import os
 import shutil
+import math
+import numpy as np
 
 
 class TestNeofox(TestCase):
@@ -43,6 +45,7 @@ class TestNeofox(TestCase):
         if os.path.exists(previous_file):
             previous_df = pd.read_csv(previous_file, sep="\t")
             new_df = pd.read_csv(new_file, sep="\t")
+            self._check_rows(new_df, previous_df)
             shared_columns = self._check_columns(new_df, previous_df)
             has_error = False
             for c in shared_columns:
@@ -55,19 +58,17 @@ class TestNeofox(TestCase):
 
     def _check_values(self, column_name, new_df, previous_df):
         error = False
-        value_counts = previous_df[column_name].isin(new_df[column_name]).value_counts(dropna=False)
+        ok_values_count = 0
+        ko_values_count = 0
+        for s1, s2 in zip(previous_df[column_name], new_df[column_name]):
+            if self._check_single_value(s1, s2):
+                ok_values_count += 1
+            else:
+                ko_values_count += 1
 
-        try:
-            ok_values_count = value_counts[True]
-        except KeyError:
-            ok_values_count = 0
         if ok_values_count == 0:
             logger.error("There no equal values at all for column {}".format(column_name))
 
-        try:
-            ko_values_count = value_counts[False]
-        except KeyError:
-            ko_values_count = 0
         if ko_values_count > 0:
             logger.error("There are {} different values for column {}".format(ko_values_count, column_name))
             logger.error("Previous version: {}".format(previous_df[column_name].get_values()))
@@ -75,6 +76,15 @@ class TestNeofox(TestCase):
             error = True
 
         return error
+
+    def _check_single_value(self, s1, s2):
+        if isinstance(s1, float) or isinstance(s1, np.float):
+            # equality of NaN is never true so we force it
+            # relative tolerance set to consider equal very close floats
+            is_equal = True if np.isnan(s1) and np.isnan(s2) else math.isclose(s1, s2, rel_tol=0.0001)
+        else:
+            is_equal = s1 == s2
+        return is_equal
 
     def _check_columns(self, new_df, previous_df):
         shared_columns = set(previous_df.columns).intersection(set(new_df.columns))
@@ -88,3 +98,6 @@ class TestNeofox(TestCase):
         self.assertTrue(len(shared_columns) > 0)
         return shared_columns
 
+    def _check_rows(self, new_df, previous_df):
+        # fails the test if the number of rows differ
+        self.assertEqual(previous_df.shape[0], new_df.shape[0], "Mismatching number of rows")
