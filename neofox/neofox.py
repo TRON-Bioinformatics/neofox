@@ -18,7 +18,7 @@ from neofox.literature_features.differential_binding import DifferentialBinding
 from neofox.literature_features.expression import Expression
 from neofox.literature_features.priority_score import PriorityScore
 from neofox.annotation_resources.provean.provean import ProveanAnnotator
-from neofox.model.schema_conversion import SchemaConverter
+from neofox.model.conversion import ModelConverter
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -72,8 +72,8 @@ class NeoFox:
         self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3)
 
         # import epitope data
-        self.neoantigens = SchemaConverter.parse_icam_file(icam_file)
-        self.patients = {patient.identifier: patient for patient in SchemaConverter.parse_patients_file(patients_file)}
+        self.neoantigens = ModelConverter.parse_icam_file(icam_file)
+        self.patients = {patient.identifier: patient for patient in ModelConverter.parse_patients_file(patients_file)}
 
         # TODO: avoid overriding patient id parameter
         for n in self.neoantigens:

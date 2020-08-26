@@ -8,8 +8,11 @@ from pandas.io.json import json_normalize
 import re
 import difflib
 from collections import defaultdict
+import hashlib
+import base64
 
 from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient
+from neofox.model.validation import ModelValidator
 
 ICAM_FIELD_VAF_DNA = 'VAF_in_tumor'
 ICAM_FIELD_VAF_RNA = 'VAF_in_RNA'
@@ -21,17 +24,7 @@ ICAM_FIELD_WILD_TYPE_XMER = '[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 ICAM_FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 
 
-class SchemaConverter(object):
-
-    @staticmethod
-    def validate(model: betterproto.Message):
-        # TODO: make this method capture appropriately validation issues whend dealing with int and float
-        return model.__bytes__()
-
-    @staticmethod
-    def validate_neoantigen(neoantigen: Neoantigen):
-        # TODO: check that all fields are consistent
-        pass
+class ModelConverter(object):
 
     @staticmethod
     def parse_icam_file(icam_file: str, patient_id: str = None) -> List[Neoantigen]:
@@ -44,13 +37,19 @@ class SchemaConverter(object):
         data = pd.read_csv(icam_file, sep='\t')
         # filter out indels as the substitution field is reported empty by iCaM
         data = data[~data['substitution'].isna()]
-        SchemaConverter._enrich_icam_table(data)
+        ModelConverter._enrich_icam_table(data)
         neoantigens = []
         for _, icam_entry in data.iterrows():
-            neoantigens.append(SchemaConverter._icam_entry2model(icam_entry, patient_id=patient_id))
+            neoantigen = ModelConverter._icam_entry2model(icam_entry, patient_id=patient_id)
+            neoantigen.identifier = ModelConverter.generate_neoantigen_identifier(neoantigen=neoantigen)
+            neoantigens.append(neoantigen)
         for n in neoantigens:
-            SchemaConverter.validate(n)
+            ModelValidator.validate(n)
         return neoantigens
+
+    @staticmethod
+    def generate_neoantigen_identifier(neoantigen: Neoantigen) -> str:
+        return base64.b64encode(hashlib.md5(neoantigen.to_json().encode('utf8')).digest()).decode('utf8')
 
     @staticmethod
     def parse_patients_file(patients_file: str) -> List[Patient]:
@@ -67,7 +66,7 @@ class SchemaConverter(object):
                         # TODO: remove this conversion if this is fixed
                         #  https://github.com/danielgtaylor/python-betterproto/issues/96
                         'estimatedTumorContent': lambda x: float(x) if x != "NA" else x})
-        return SchemaConverter.patient_metadata_csv2objects(df)
+        return ModelConverter.patient_metadata_csv2objects(df)
 
     @staticmethod
     def objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:
@@ -88,12 +87,12 @@ class SchemaConverter(object):
         """
         Transforms a model object into a flat dict. Nested fields are concatenated with a dot
         """
-        return SchemaConverter.object2series(model).to_dict()
+        return ModelConverter.object2series(model).to_dict()
 
     @staticmethod
     def neoantigens_csv2object(series: pd.Series) -> Neoantigen:
         """transforms an entry from a CSV into an object"""
-        return Neoantigen().from_dict(SchemaConverter._flat_dict2nested_dict(flat_dict=series.to_dict()))
+        return Neoantigen().from_dict(ModelConverter._flat_dict2nested_dict(flat_dict=series.to_dict()))
 
     @staticmethod
     def patient_metadata_csv2objects(dataframe: pd.DataFrame) -> List[Patient]:
@@ -161,10 +160,10 @@ class SchemaConverter(object):
         data['position'] = data['substitution'].transform(lambda x: int(re.search("\w(\d+)\w", x).group(1)))
         data['left_flanking_region'] = data[[
             ICAM_FIELD_MUTATED_XMER, ICAM_FIELD_WILD_TYPE_XMER]].apply(
-            lambda x: SchemaConverter._get_matching_region(x[0], x[1]), axis=1)
+            lambda x: ModelConverter._get_matching_region(x[0], x[1]), axis=1)
         data['right_flanking_region'] = data[[
             ICAM_FIELD_MUTATED_XMER, ICAM_FIELD_WILD_TYPE_XMER]].apply(
-            lambda x: SchemaConverter._get_matching_region(x[0], x[1], match=1), axis=1)
+            lambda x: ModelConverter._get_matching_region(x[0], x[1], match=1), axis=1)
 
     @staticmethod
     def _get_matching_region(sequence1: str, sequence2: str, match: int =0) -> str:

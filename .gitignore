@@ -6,3 +6,4 @@ venv
 build
 dist
 neofox.egg-info/
+neofox/tests/resources/output*
