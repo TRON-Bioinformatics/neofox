@@ -57,57 +57,42 @@ message Mutation {
 }
 
 /**
-This is a generic class to hold annotations from INPuT
-*/
-message Annotation {
-	/**
-	The name of the annotation
-	*/
-	string name = 1;
-	/**
-	The value of the annotation
-	TODO: make this better to hold int, float and bool
-	*/
-	string value = 2;
-}
-
-/**
 A neoantigen minimal definition
 */
 message Neoantigen {
 	/**
+	A unique identifier of a neoantigen
+	*/
+	string identifier = 1;
+	/**
 	Patient identifier
 	*/
-	string patientIdentifier = 1;
+	string patientIdentifier = 2;
 	/**
 	The gene where the neoepitope corresponds
 	*/
-	Gene gene = 2;
+	Gene gene = 3;
 	/**
 	The mutation
 	*/
-	Mutation mutation = 3;
+	Mutation mutation = 4;
 	/**
 	Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
 	there is no quantitive measurement at the moment.
 	*/
-	bool clonalityEstimation = 4;
+	bool clonalityEstimation = 5;
 	/**
 	Expression value of the transcript from RNA data. Range [0, +inf].
 	*/
-	float rnaExpression = 5;
+	float rnaExpression = 6;
 	/**
 	Variant allele frequency from the DNA. Range [0.0, 1.0]
 	*/
-	float dnaVariantAlleleFrequency = 6;
+	float dnaVariantAlleleFrequency = 7;
 	/**
 	Variant allele frequency from the RNA. Range [0.0, 1.0]
 	*/
-	float rnaVariantAlleleFrequency = 7;
-	/**
-	Annotations
-	*/
-	repeated Annotation annotations = 8;
+	float rnaVariantAlleleFrequency = 8;
 }
 
 /**
@@ -138,4 +123,49 @@ message Patient {
 	Tissue of cancer origin
 	*/
 	string tissue = 6;
+}
+
+/**
+This is a generic class to hold annotations from INPuT
+*/
+message Annotation {
+	/**
+	The name of the annotation
+	*/
+	string name = 1;
+	/**
+	The value of the annotation
+	TODO: make this better to hold int, float and bool
+	*/
+	string value = 2;
+}
+
+/**
+A set of annotations for a neoantigen
+*/
+message NeoantigenAnnotations {
+	/**
+	A unique identifier of a neoantigen
+	*/
+	string neoantigenIdentifier = 1;
+	/**
+	List of annotations
+	*/
+	repeated Annotation annotations = 2;
+	/**
+	The annotator
+	*/
+	string annotator = 3;
+	/**
+	The version of the annotator
+	*/
+	string annotatorVersion = 4;
+	/**
+	A timestamp determined when the annotation was created
+	*/
+	string timestamp = 5;
+	/**
+	Annotation resources MD5 hash
+	*/
+	string resourcesHash = 6;
 }
