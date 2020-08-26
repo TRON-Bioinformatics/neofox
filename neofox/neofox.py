@@ -113,7 +113,10 @@ class NeoFox:
         for neoantigen in self.neoantigens:
             logger.info("Annotating neoantigen...")
             start = time.time()
-            annotation = epitope_annotator.get_annotation(neoantigen, self.patients.get(neoantigen.patient_identifier))
+            patient = self.patients.get(neoantigen.patient_identifier)
+            logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
+            logger.debug("Patient: {}".format(patient.to_json(indent=3)))
+            annotation = epitope_annotator.get_annotation(neoantigen, patient)
             end = time.time()
             logger.info("Elapsed time for annotating neoantigen {} seconds".format(int(end - start)))
             annotations.append(annotation)
