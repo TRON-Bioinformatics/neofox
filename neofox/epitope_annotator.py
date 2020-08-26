@@ -4,7 +4,7 @@ from logzero import logger
 import re
 import pandas as pd
 from neofox import MHC_I, MHC_II
-from neofox.model.schema_conversion import SchemaConverter
+from neofox.model.conversion import ModelConverter
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -77,7 +77,7 @@ class EpitopeAnnotator:
 
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> dict:
         """Calculate new epitope features and add to dictonary that stores all properties"""
-        self.properties = SchemaConverter.object2flat_dict(neoantigen)
+        self.properties = ModelConverter.object2flat_dict(neoantigen)
         xmer_wt = neoantigen.mutation.wild_type_xmer
         xmer_mut = neoantigen.mutation.mutated_xmer
         gene = neoantigen.gene.gene

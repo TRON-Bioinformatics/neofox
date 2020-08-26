@@ -8,11 +8,12 @@ from Bio.Data import IUPACData
 import numpy as np
 
 import neofox.tests
-from neofox.model.schema_conversion import SchemaConverter
-from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, Annotation
+from neofox.model.conversion import ModelConverter
+from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, Annotation, NeoantigenAnnotations
+from neofox.model.validation import ModelValidator
 
 
-class SchemaConverterTest(TestCase):
+class ModelConverterTest(TestCase):
 
     def test_model2json(self):
         neoantigens = [_get_random_neoantigen() for _ in range(5)]
@@ -32,46 +33,50 @@ class SchemaConverterTest(TestCase):
 
     def test_model2csv(self):
         neoantigen = _get_random_neoantigen()
-        csv_data = SchemaConverter.object2series(neoantigen)
+        csv_data = ModelConverter.object2series(neoantigen)
         self.assertIsNotNone(csv_data)
         self.assertIsInstance(csv_data, pd.Series)
         self.assertEqual(neoantigen.dna_variant_allele_frequency, csv_data.dna_variant_allele_frequency)
 
     def test_model2flat_dict(self):
         neoantigen = _get_random_neoantigen()
-        flat_dict = SchemaConverter.object2flat_dict(neoantigen)
+        flat_dict = ModelConverter.object2flat_dict(neoantigen)
         self.assertIsNotNone(flat_dict)
         self.assertEqual(neoantigen.dna_variant_allele_frequency, flat_dict['dna_variant_allele_frequency'])
         self.assertEqual(neoantigen.gene.transcript_identifier, flat_dict['gene.transcript_identifier'])
 
     def test_csv2model(self):
         neoantigen = _get_random_neoantigen()
-        csv_data = SchemaConverter.object2series(neoantigen)
-        neoantigen2 = SchemaConverter.neoantigens_csv2object(csv_data)
+        csv_data = ModelConverter.object2series(neoantigen)
+        neoantigen2 = ModelConverter.neoantigens_csv2object(csv_data)
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_patient_csv2model(self):
         patients = [_get_random_patient() for _ in range(5)]
-        csv_data = SchemaConverter.objects2dataframe(patients)
-        patients2 = SchemaConverter.patient_metadata_csv2objects(csv_data)
+        csv_data = ModelConverter.objects2dataframe(patients)
+        patients2 = ModelConverter.patient_metadata_csv2objects(csv_data)
         self._assert_lists_equal(patients, patients2)
 
-    def test_annotate_neoantigen(self):
+    def test_neoantigen_annotations(self):
         neoantigen = _get_random_neoantigen()
-        neoantigen.annotations = [Annotation(name='string_annotation', value='blabla'),
+        annotations = NeoantigenAnnotations()
+        annotations.neoantigen_identifier = ModelConverter.generate_neoantigen_identifier(neoantigen)
+        annotations.annotations = [Annotation(name='string_annotation', value='blabla'),
                                       Annotation(name='integer_annotation', value=1),
                                       Annotation(name='float_annotation', value=1.1)]
-        neoantigen_dict = neoantigen.to_dict()
-        self.assertTrue(len(neoantigen_dict.get('annotations')) == 3)
-        self.assertEqual(neoantigen_dict.get('annotations')[0].get('value'), 'blabla')
-        self.assertEqual(neoantigen_dict.get('annotations')[1].get('value'), 1)
-        self.assertEqual(neoantigen_dict.get('annotations')[2].get('value'), 1.1)
+        annotations_dict = annotations.to_dict()
+        self.assertTrue(len(annotations_dict.get('annotations')) == 3)
+        self.assertEqual(annotations_dict.get('annotations')[0].get('value'), 'blabla')
+        # this does not fail, but it will fail validation
+        self.assertEqual(annotations_dict.get('annotations')[1].get('value'), 1)
+        self.assertEqual(annotations_dict.get('annotations')[2].get('value'), 1.1)
+        self.assertTrue(annotations_dict.get('neoantigenIdentifier'), ModelConverter.generate_neoantigen_identifier(neoantigen))
 
     def test_icam2model(self):
         icam_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         with open(icam_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = SchemaConverter().parse_icam_file(icam_file)
+        neoantigens = ModelConverter().parse_icam_file(icam_file)
         self.assertIsNotNone(neoantigens)
         # NOTE: the file contains 2 indels that are filtered out
         self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
@@ -90,16 +95,16 @@ class SchemaConverterTest(TestCase):
         icam_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         with open(icam_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = SchemaConverter().parse_icam_file(icam_file, patient_id='patientX')
+        neoantigens = ModelConverter().parse_icam_file(icam_file, patient_id='patientX')
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, 'patientX')
-        neoantigens = SchemaConverter().parse_icam_file(icam_file)
+        neoantigens = ModelConverter().parse_icam_file(icam_file)
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, None)
 
     def test_patients_csv_file2model(self):
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/alleles.Pt29.csv")
-        patients = SchemaConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 1)
@@ -113,7 +118,7 @@ class SchemaConverterTest(TestCase):
 
     def test_patients_csv_file2model2(self):
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        patients = SchemaConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 1)
@@ -127,7 +132,7 @@ class SchemaConverterTest(TestCase):
 
     def test_patients_csv_file2model3(self):
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_patient_info.txt")
-        patients = SchemaConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 1)
@@ -145,23 +150,30 @@ class SchemaConverterTest(TestCase):
             self.assertEqual(n1, n2)
 
 
-class SchemaValidationTest(TestCase):
+class ModelValidatorTest(TestCase):
     
     def test_validation(self):
         neoantigens = [_get_random_neoantigen() for _ in range(5)]
         for n in neoantigens:
-            SchemaConverter.validate(n)
+            ModelValidator.validate(n)
 
     def test_field_invalid_type(self):
         neoantigen = _get_random_neoantigen()
         neoantigen.rna_expression = "5.7"  # should be a float
         with self.assertRaises(struct.error):
-            SchemaConverter.validate(neoantigen)
+            ModelValidator.validate(neoantigen)
 
     def test_annnotation_invalid_type(self):
         annotation = Annotation(name='invalid_annotation', value=123)
         with self.assertRaises(Exception):  # NOTE: when  the offending value is a literal exception is not captured
-            SchemaConverter.validate(annotation)
+            ModelValidator.validate(annotation)
+
+    def test_neoantigen_unique_identifier(self):
+        neoantigen = _get_random_neoantigen()
+        unique_identifier = ModelConverter.generate_neoantigen_identifier(neoantigen)
+        self.assertEqual(unique_identifier, ModelConverter.generate_neoantigen_identifier(neoantigen))
+        neoantigen.gene.gene = "ANOTHER_GENE"
+        self.assertNotEqual(unique_identifier, ModelConverter.generate_neoantigen_identifier(neoantigen))
 
 
 def _get_random_neoantigen():
