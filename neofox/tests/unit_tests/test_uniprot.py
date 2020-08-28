@@ -14,10 +14,10 @@ class TestUniprot(TestCase):
 
     def test_sequence_not_in_uniprot(self):
         result = self.uniprot.is_sequence_not_in_uniprot("NOT_IN_UNIPROT")
-        self.assertEqual("1", result)
+        self.assertEqual(True, result)
 
     def test_sequence_in_uniprot(self):
         result = self.uniprot.is_sequence_not_in_uniprot("LLEKVKAHEIAWLHGTI")
-        self.assertEqual("0", result)
+        self.assertEqual(False, result)
 
 

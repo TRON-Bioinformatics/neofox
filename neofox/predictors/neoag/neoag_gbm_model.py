@@ -2,6 +2,8 @@
 
 import os
 from neofox.helpers import intermediate_files
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
 
 
 class NeoagCalculator(object):
@@ -43,10 +45,10 @@ class NeoagCalculator(object):
             f.write("\t".join(header) + "\n")
             f.write(epi_row + "\n")
 
-    def wrapper_neoag(self, sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position):
+    def get_annotation(self, sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position) -> Annotation:
         ''' wrapper function to determine neoag immunogenicity score for a mutated peptide sequence
         '''
         tmp_file_name = intermediate_files.create_temp_file(prefix="tmp_neoag_", suffix=".txt")
         self._prepare_tmp_for_neoag(sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position, tmp_file_name)
         neoag_score = self._apply_gbm(tmp_file_name)
-        return neoag_score
+        return AnnotationFactory.build_annotation(value=neoag_score, name="neoag_immunogencity")

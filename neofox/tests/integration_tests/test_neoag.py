@@ -13,7 +13,7 @@ class TestNeoantigenFitness(TestCase):
         self.runner = Runner()
 
     def test_neoag(self):
-        result = NeoagCalculator(runner=self.runner, configuration=self.configuration).wrapper_neoag(
+        result = NeoagCalculator(runner=self.runner, configuration=self.configuration).get_annotation(
             sample_id="12345",
             mut_peptide="DDDDDV",
             score_mut="0",

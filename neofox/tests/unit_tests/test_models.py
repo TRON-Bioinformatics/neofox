@@ -144,6 +144,31 @@ class ModelConverterTest(TestCase):
         self.assertEqual(patients[0].is_rna_available, True)
         self.assertEqual(patients[0].tissue, 'skin')
 
+    def test_annotations2short_wide_df(self):
+        annotations = [
+            NeoantigenAnnotations(
+                neoantigen_identifier='12345',
+                annotations=[
+                    Annotation(name='this_name', value='this_value'),
+                    Annotation(name='that_name', value='that_value'),
+                    Annotation(name='diese_name', value='diese_value'),
+                    Annotation(name='das_name', value='das_value')
+                ]
+            ),
+            NeoantigenAnnotations(
+                neoantigen_identifier='6789',
+                annotations=[
+                    Annotation(name='this_name', value='0'),
+                    Annotation(name='that_name', value='1'),
+                    Annotation(name='diese_name', value='2'),
+                    Annotation(name='das_name', value='3')
+                ]
+            )
+        ]
+        df = ModelConverter.annotations2short_wide_table(annotations)
+        self.assertEqual(df.shape[0], 2)
+        self.assertEqual(df.shape[1], 5)
+
     def _assert_lists_equal(self, neoantigens, neoantigens2):
         self.assertEqual(len(neoantigens), len(neoantigens2))
         for n1, n2, in zip(neoantigens, neoantigens2):

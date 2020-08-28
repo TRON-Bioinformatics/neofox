@@ -11,7 +11,9 @@ class AbstractNetMhcPanPredictor(object):
         dat_head = epitope_tuple[0]
         dat = epitope_tuple[1]
         val = dat_head.index(column_name)
+        result = None
         try:
-            return dat[val]
+            result = dat[val]
         except IndexError:
-            return "NA"
+            pass
+        return result

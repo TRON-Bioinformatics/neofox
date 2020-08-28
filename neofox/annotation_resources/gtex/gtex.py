@@ -1,7 +1,11 @@
 import os
+from typing import List
+
 import pandas as pd
 from logzero import logger
 
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
 
 GTEX_FILE_NAME = "gtex_combined.csv.gz"
 
@@ -49,6 +53,13 @@ class GTEx(object):
         sum_expression = self._get_metric(gene, tissue, 'sum')
         sd_expression = self._get_metric(gene, tissue, 'sd')
         return mean_expression, sum_expression, sd_expression
+
+    def get_annotations(self, mean: float, sd: float, sum: float) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(name="mean_ref_expression", value=mean),
+            AnnotationFactory.build_annotation(name="sd_ref_expression", value=sd),
+            AnnotationFactory.build_annotation(name="sum_ref_expression", value=sum)
+        ]
 
     def _get_metric(self, gene, tissue, metric):
         # TODO: avoid the stupid NA

@@ -1,7 +1,12 @@
 #!/usr/bin/env python
+from typing import List
+
 import neofox.predictors.netmhcpan4.netmhcIIpan_prediction as netmhcIIpan_prediction
 from neofox import MHC_II
 from neofox.helpers import intermediate_files
+from neofox.literature_features.differential_binding import DifferentialBinding
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.netmhcpan4 import multiple_binders
 
 
@@ -14,6 +19,7 @@ class BestAndMultipleBinderMhcII:
         """
         self.runner = runner
         self.configuration = configuration
+        self.differential_binding = DifferentialBinding()
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self.MHCII_score_all_epitopes = ["NA", "NA", "NA"]
         self.MHCII_score_top10 = ["NA", "NA", "NA"]
@@ -64,7 +70,7 @@ class BestAndMultipleBinderMhcII:
         else:
             return ["NA", "NA", "NA"]
 
-    def main(self, sequence, sequence_reference, alleles, set_available_mhc):
+    def run(self, sequence, sequence_reference, alleles, set_available_mhc):
         '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         '''
         ### PREDICTION FOR MUTATED SEQUENCE
@@ -144,3 +150,109 @@ class BestAndMultipleBinderMhcII:
         except IndexError:
             # if neofox sequence shorter than 15 aa
             pass
+
+    def get_annotations(self) -> List[Annotation]:
+        annotations =  [
+            # netmhcpan4 MUT scores
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_score, name="best%Rank_netmhcIIpan"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_epitope, name="best_epitope_netmhcIIpan"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_allele, name="bestHLA_allele_netmhcIIpan"),
+            # netmhcpan4 mut affinity
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_affinity, name="best_affinity_netmhcIIpan"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_affinity_epitope,
+                                               name="best_affinity_epitope_netmhcIIpan"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_affinity_allele,
+                                               name="bestHLA_allele_affinity_netmhcIIpan"),
+            # netmhcIIpan WT scores
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_score_WT, name="best%Rank_netmhcIIpan_WT"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_epitope_WT, name="best_epitope_netmhcIIpan_WT"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_allele_WT, name="bestHLA_allele_netmhcIIpan_Wt"),
+            # netmhcIIpan wt affinity
+            AnnotationFactory.build_annotation(value=self.best_mhcII_affinity_WT, name="best_affinity_netmhcIIpan_WT"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_affinity_epitope_WT,
+                                               name="best_affinity_epitope_netmhcIIpan_WT"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_affinity_allele_WT,
+                                               name="bestHLA_allele_affinity_netmhcIIpan_WT"),
+
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_scores, name="MB_mhcII_epitope_scores"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_seqs, name="MB_mhcII_epitope_sequences"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_alleles, name="MB_mhcII_alleles"),
+            AnnotationFactory.build_annotation(value=self.MHCII_number_strong_binders,
+                                               name="MB_number_pep_MHCIIscore<2"),
+            AnnotationFactory.build_annotation(value=self.MHCII_number_weak_binders,
+                                               name="MB_number_pep_MHCIIscore<10"),
+
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_scores_WT, name="MB_mhcII_epitope_scores_WT"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_seqs_WT, name="MB_mhcII_epitope_sequences_WT"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_alleles_WT, name="MB_mhcII_alleles_WT"),
+            AnnotationFactory.build_annotation(value=self.MHCII_number_strong_binders_WT,
+                                               name="MB_number_pep_MHCIIscore<2_WT"),
+            AnnotationFactory.build_annotation(value=self.MHCII_number_weak_binders_WT,
+                                               name="MB_number_pep_MHCIIscore<10_WT")
+            ]
+        # multiplexed representation MUT MHC II
+        for sc, mn in zip(self.MHCII_score_all_epitopes, self.mean_type):
+            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_MHCII_all_epitopes_" + mn))
+        for sc, mn in zip(self.MHCII_score_top10, self.mean_type):
+            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_MHCII_top10_" + mn))
+        for sc, mn in zip(self.MHCII_score_best_per_alelle, self.mean_type):
+            # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
+            annotations.append(AnnotationFactory.build_annotation(
+                value=sc, name="MB_score_MHCII_best_per_alelle_" + mn if mn != "harmonic" else "PHBR-II"))
+        # multiplexed representation WT MHC II
+        for sc, mn in zip(self.MHCII_score_all_epitopes_WT, self.mean_type):
+            annotations.append(AnnotationFactory.build_annotation(value=sc,
+                                                                  name="MB_score_MHCII_all_epitopes_WT_" + mn))
+        for sc, mn in zip(self.MHCII_score_top10_WT, self.mean_type):
+            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_MHCII_top10_WT_" + mn))
+        for sc, mn in zip(self.MHCII_score_best_per_alelle_WT, self.mean_type):
+            # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
+            annotations.append(AnnotationFactory.build_annotation(
+                value=sc, name="MB_score_MHCII_best_per_alelle_WT_" + mn if mn != "harmonic" else "PHBR-II_WT"))
+
+        annotations.extend(self.get_differential_binding_annotations(
+            aff_mut=self.best_mhcII_pan_affinity, aff_wt=self.best_mhcII_affinity_WT,
+            rank_mut=self.best_mhcII_pan_score, rank_wt=self.best_mhcII_pan_score_WT
+        ))
+        annotations.extend(self.get_multiple_binding_annotations())
+
+        return annotations
+
+    def get_differential_binding_annotations(self, aff_mut, aff_wt, rank_mut, rank_wt) -> List[Annotation]:
+        """
+        returns DAI for MHC II based on affinity (filtered + no filtered) and rank
+        """
+        # dai mhc II affinity
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.differential_binding.dai(score_mutation=aff_mut, score_wild_type=aff_wt),
+                name="DAI_mhcII_affinity"),
+            AnnotationFactory.build_annotation(
+                value=self.differential_binding.dai(score_mutation=aff_mut, score_wild_type=aff_wt, affin_filtering=True),
+                name="DAI_mhcII_affinity_aff_filtered"),
+            # dai mhc II netMHCIIpan score
+            AnnotationFactory.build_annotation(
+                value=self.differential_binding.dai(score_mutation=rank_mut, score_wild_type=rank_wt),
+                name="DAI_mhcII_rank")
+        ]
+
+    def get_multiple_binding_annotations(self):
+
+        num_strong_binders_mutation = self.MHCII_number_strong_binders
+        num_strong_binders_wild_type = self.MHCII_number_strong_binders_WT
+        num_weak_binders_mutation = self.MHCII_number_weak_binders
+        num_weak_binders_wild_type = self.MHCII_number_weak_binders_WT
+        return [
+            AnnotationFactory.build_annotation(value=self.differential_binding.diff_number_binders(
+                num_mutation=num_strong_binders_mutation, num_wild_type=num_strong_binders_wild_type),
+                name="Diff_numb_epis_mhcII<2"),
+            AnnotationFactory.build_annotation(value=self.differential_binding.ratio_number_binders(
+                num_mutation=num_strong_binders_mutation, num_wild_type=num_strong_binders_wild_type),
+                name="Ratio_numb_epis_mhcII<2"),
+            AnnotationFactory.build_annotation(value=self.differential_binding.diff_number_binders(
+                num_mutation=num_weak_binders_mutation, num_wild_type=num_weak_binders_wild_type),
+                name="Diff_numb_epis_mhcII<10"),
+            AnnotationFactory.build_annotation(value=self.differential_binding.ratio_number_binders(
+                num_mutation=num_weak_binders_mutation, num_wild_type=num_weak_binders_wild_type),
+                name="Ratio_numb_epis_mhcII<10")
+        ]
