@@ -2,9 +2,12 @@
 
 import os
 import os.path
+from typing import List
 
 from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
 
 
 class DissimilarityCalculator(BlastpRunner):
@@ -32,10 +35,26 @@ class DissimilarityCalculator(BlastpRunner):
         """
         wrapper for dissimilarity calculation
         """
-        fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmp_dissimilarity_", comment_prefix='M_')
-        dissim = self._calc_dissimilarity(fastafile)
-        os.remove(fastafile)
-        sc = dissim
-        if filter_binder and float(mhc_affinity) >= 500:
-            sc = "NA"
-        return sc
+        dissimilarity_score = None
+        if mhc_mutation != "-" and (not filter_binder or not mhc_affinity >= 500):
+            fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmp_dissimilarity_", comment_prefix='M_')
+            dissimilarity_score = self._calc_dissimilarity(fastafile)
+            os.remove(fastafile)
+        return dissimilarity_score
+
+    def get_annotations(self, epitope_mhci, affinity_mhci, epitope_mhcii, affinity_mhcii) -> List[Annotation]:
+        """
+        returns dissimilarity for MHC I (affinity) MHC II (affinity)
+        """
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_dissimilarity(mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci),
+                name="dissimilarity"),
+            AnnotationFactory.build_annotation(
+                value=self.calculate_dissimilarity(
+                    mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci, filter_binder=True),
+                name="dissimilarity_filter500"),
+            AnnotationFactory.build_annotation(
+                value=self.calculate_dissimilarity(mhc_mutation=epitope_mhcii, mhc_affinity=affinity_mhcii),
+                name="dissimilarity_mhcII")
+            ]

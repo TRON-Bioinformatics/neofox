@@ -2,6 +2,8 @@
 import os
 import pickle
 from neofox.helpers import intermediate_files
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.Tcell_predictor.preprocess import Preprocessor
 
 CLASSIFIER_PICKLE = 'Classifier.pickle'
@@ -56,10 +58,15 @@ class TcellPrediction:
             pred_out = self._run_prediction(tmpfile_in)
         return pred_out
 
-    def calculate_tcell_predictor_score(self, gene, substitution, epitope, score, threshold=None):
+    def _calculate_tcell_predictor_score(self, gene, substitution, epitope, score, threshold=None):
         ''' returns Tcell_predictor score given mps in dictionary format
                 '''
         tmp_tcellPredIN = intermediate_files.create_temp_file(prefix="tmp_TcellPredicIN_", suffix=".txt")
         return self._wrapper_tcellpredictor(
             gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold,
             tmpfile_in=tmp_tcellPredIN)
+
+    def get_annotation(self, gene, substitution, epitope, score, threshold=None) -> Annotation:
+        return AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
+            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold),
+            name="Tcell_predictor_score_unfiltered")

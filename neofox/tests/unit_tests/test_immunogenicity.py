@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neofox.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
+from neofox.predictors.iedb.iedb import IEDBimmunogenicity
 
 
 class TestImmunogenicity(TestCase):
@@ -15,4 +15,4 @@ class TestImmunogenicity(TestCase):
         result = self.immunogenicity_calculator.calc_IEDB_immunogenicity(epitope="ENPVVHFF",
                                                                          mhc_allele="HLA-A*68:01", mhc_score=600,
                                                                          affin_filtering=True)
-        self.assertEqual(result, "NA")
+        self.assertIsNone(result)

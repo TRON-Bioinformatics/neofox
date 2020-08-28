@@ -3,6 +3,9 @@ import pysam
 import gzip
 from logzero import logger
 
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
+
 
 class ProveanAnnotator(object):
 
@@ -23,24 +26,24 @@ class ProveanAnnotator(object):
             header = p.readline().split("\t")
         return {x:i for i, x in enumerate(header)}
 
-    def get_provean_annotation(self, protein_id, position, mutated_aminoacid):
+    def get_provean_annotation(self, protein_id: str, position: int, mutated_aminoacid: str) -> Annotation:
         """
-        Returns the PROVEAN score of particular mutation in a protein
+        Returns the PROVEAN score annotation of particular mutation in a protein
         :param protein_id: ucsc protein id
-        :type protein_id: str
         :param position: the position in the protein
-        :type position: int
         :param mutated_aminoacid: the mutated aminoacid
-        :type mutated_aminoacid: str
         :return: the provean score
-        :rtype str
         """
+        score = self._get_provean_score(mutated_aminoacid, position, protein_id)
+        return AnnotationFactory.build_annotation(name="PROVEAN_score", value=score)
+
+    def _get_provean_score(self, mutated_aminoacid:str, position:int, protein_id:str) -> float:
         provean_score = None
         logger.info("Fetching the PROVEAN score at {}:{}:{}".format(protein_id, position, mutated_aminoacid))
         try:
             results = self.provean.fetch(protein_id, position - 1, position)
             provean_entry = next(results).split("\t")
-            provean_score = provean_entry[self.aminoacid_indexes.get(mutated_aminoacid)]
+            provean_score = float(provean_entry[self.aminoacid_indexes.get(mutated_aminoacid)])
         except (IndexError, TypeError, ValueError) as ex:
             logger.error("Error fetching the PROVEAN score at {}:{}:{}".format(protein_id, position, mutated_aminoacid))
         logger.info("Fetched a PROVEAN score of {}".format(provean_score))
