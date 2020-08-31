@@ -24,10 +24,10 @@ class EpitopeHelperTest(TestCase):
 
     def test_position_mutation(self):
         position = EpitopeHelper().position_of_mutation_epitope(wild_type="AAAAAA", mutation="AAANAA")
-        self.assertEqual(position, "4")
+        self.assertEqual(position, 4)
         position = EpitopeHelper().position_of_mutation_epitope(wild_type="AAAAAA", mutation="AAAAAA")
-        self.assertEqual(position, "-1")
+        self.assertEqual(position, -1)
         position = EpitopeHelper().position_of_mutation_epitope(wild_type="AAAAAA", mutation="AANNNN")
-        self.assertEqual(position, "6")
+        self.assertEqual(position, 6)
 
     # TODO: test ther methods in the EpitopeHelper

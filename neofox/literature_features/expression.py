@@ -20,7 +20,7 @@ class Expression:
         """
         expression_mut = None
         try:
-            expression_mut = transcript_expression * vaf_rna if vaf_rna >= 0.0 else None
+            expression_mut = transcript_expression * vaf_rna if vaf_rna is not None and vaf_rna >= 0.0 else None
         except (TypeError, ValueError):
             pass
         return expression_mut
