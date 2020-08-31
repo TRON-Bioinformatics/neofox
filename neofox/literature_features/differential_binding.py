@@ -51,10 +51,10 @@ class DifferentialBinding:
         group = None
         try:
             if category == "CDN":
-                group = str(score_mutation < bdg_cutoff_classical)
+                group = score_mutation < bdg_cutoff_classical
             elif category == "ADN":
-                group = str(score_mutation < bdg_cutoff_alternative and amplitude > amplitude_cutoff)
-        except ValueError:
+                group = score_mutation < bdg_cutoff_alternative and amplitude > amplitude_cutoff
+        except (ValueError, TypeError):
             pass
         return group
 

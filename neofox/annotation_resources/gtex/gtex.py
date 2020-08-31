@@ -62,9 +62,8 @@ class GTEx(object):
         ]
 
     def _get_metric(self, gene, tissue, metric):
-        # TODO: avoid the stupid NA
         try:
             metric = self.gtex.at[(gene, tissue, metric), 'value']
         except KeyError:
-            metric = 'NA'
+            metric = None
         return metric
