@@ -28,7 +28,7 @@ class BlastpRunner(object):
             "-evalue", "100000000"])
         return outfile
 
-    def parse_blastp_output(self, blastp_output_file, **kwargs):
+    def parse_blastp_output(self, blastp_output_file, **kwargs) -> int:
         aligner = Aligner()
         # set a to 32 for dissimilarity
         aligner.readAllBlastAlignments(blastp_output_file)

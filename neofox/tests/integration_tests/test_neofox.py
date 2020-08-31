@@ -72,8 +72,10 @@ class TestNeofox(TestCase):
 
         if ko_values_count > 0:
             logger.error("There are {} different values for column {}".format(ko_values_count, column_name))
-            logger.error("Previous version: {}".format(previous_df[column_name].get_values()))
-            logger.error("New version: {}".format(new_df[column_name].get_values()))
+            logger.error("Previous version: {}".format(previous_df[column_name].transform(
+                lambda x: x[0:20] + "..." if len(x) > 20 else x).get_values()))
+            logger.error("New version: {}".format(new_df[column_name].transform(
+                lambda x: x[0:20] + "..." if len(x) > 20 else x).get_values()))
             error = True
 
         return error

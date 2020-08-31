@@ -8,6 +8,8 @@ from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
+from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 
 
 class DissimilarityCalculator(BlastpRunner):
@@ -42,19 +44,24 @@ class DissimilarityCalculator(BlastpRunner):
             os.remove(fastafile)
         return dissimilarity_score
 
-    def get_annotations(self, epitope_mhci, affinity_mhci, epitope_mhcii, affinity_mhcii) -> List[Annotation]:
+    def get_annotations(
+            self, netmhcpan: BestAndMultipleBinder, netmhcpan2: BestAndMultipleBinderMhcII) -> List[Annotation]:
         """
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
         return [
             AnnotationFactory.build_annotation(
-                value=self.calculate_dissimilarity(mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci),
+                value=self.calculate_dissimilarity(
+                    mhc_mutation=netmhcpan.best4_affinity_epitope, mhc_affinity=netmhcpan.best4_affinity),
                 name="dissimilarity"),
             AnnotationFactory.build_annotation(
                 value=self.calculate_dissimilarity(
-                    mhc_mutation=epitope_mhci, mhc_affinity=affinity_mhci, filter_binder=True),
+                    mhc_mutation=netmhcpan.best4_affinity_epitope, mhc_affinity=netmhcpan.best4_affinity,
+                    filter_binder=True),
                 name="dissimilarity_filter500"),
             AnnotationFactory.build_annotation(
-                value=self.calculate_dissimilarity(mhc_mutation=epitope_mhcii, mhc_affinity=affinity_mhcii),
+                value=self.calculate_dissimilarity(
+                    mhc_mutation=netmhcpan2.best_mhcII_pan_affinity_epitope,
+                    mhc_affinity=netmhcpan2.best_mhcII_pan_affinity),
                 name="dissimilarity_mhcII")
             ]

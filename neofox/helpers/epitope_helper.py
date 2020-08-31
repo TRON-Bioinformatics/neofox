@@ -47,19 +47,19 @@ class EpitopeHelper(object):
         return pos_mut
 
     @staticmethod
-    def position_of_mutation_epitope(wild_type, mutation):
+    def position_of_mutation_epitope(wild_type, mutation) -> int:
         """
         This function determines the position of the mutation within the epitope sequence.
         """
         # TODO: is this efficient? No, a solution with zip is around 25% faster, maybe something else is even faster
-        p1 = -1
+        position = -1
         try:
             for i, aa in enumerate(mutation):
                 if aa != wild_type[i]:
-                    p1 = i + 1
-            return str(p1)
+                    position = i + 1
         except:
-            return None
+            position = None
+        return position
 
     @staticmethod
     def number_of_mismatches(epitope_wild_type, epitope_mutation):
@@ -74,16 +74,14 @@ class EpitopeHelper(object):
         return p1
 
     @staticmethod
-    def position_in_anchor_position(position_mhci, peptide_length):
+    def position_in_anchor_position(position_mhci: int, peptide_length: int) -> bool:
         """
         This function determines if the mutation is located within an anchor position in mhc I.
         As an approximation, we assume that the second and the last position are anchor positions for all alleles.
         """
-        anchor = "NA"
+        anchor = None
         try:
-            anchor = int(position_mhci) == int(peptide_length) or int(position_mhci) == 2
-            # TODO this conversion of a boolean to a numeric boolean in a string needs to go away
-            anchor = str(1) if anchor else str(0)
+            anchor = position_mhci == peptide_length or position_mhci == 2
         except:
             pass
         return anchor
