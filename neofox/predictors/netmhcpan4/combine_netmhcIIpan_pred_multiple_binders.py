@@ -22,37 +22,37 @@ class BestAndMultipleBinderMhcII:
         self.configuration = configuration
         self.differential_binding = DifferentialBinding()
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
-        self.MHCII_score_all_epitopes = ["NA", "NA", "NA"]
-        self.MHCII_score_top10 = ["NA", "NA", "NA"]
-        self.MHCII_score_best_per_alelle = ["NA", "NA", "NA"]
-        self.MHCII_number_strong_binders = "NA"
-        self.MHCII_number_weak_binders = "NA"
-        self.MHCII_epitope_seqs = "NA"
-        self.MHCII_epitope_scores = "NA"
-        self.MHCII_epitope_alleles = "NA"
+        self.MHCII_score_all_epitopes = [None, None, None]
+        self.MHCII_score_top10 = [None, None, None]
+        self.MHCII_score_best_per_alelle = [None, None, None]
+        self.MHCII_number_strong_binders = None
+        self.MHCII_number_weak_binders = None
+        self.MHCII_epitope_seqs = None
+        self.MHCII_epitope_scores = None
+        self.MHCII_epitope_alleles = None
         self.best_mhcII_pan_score = None
         self.best_mhcII_pan_epitope = "-"
-        self.best_mhcII_pan_allele = "NA"
-        self.best_mhcII_pan_position = "NA"
+        self.best_mhcII_pan_allele = None
+        self.best_mhcII_pan_position = None
         self.best_mhcII_pan_affinity = None
         self.best_mhcII_pan_affinity_epitope = "-"
-        self.best_mhcII_pan_affinity_allele = "NA"
-        self.best_mhcII_pan_affinity_position = "NA"
+        self.best_mhcII_pan_affinity_allele = None
+        self.best_mhcII_pan_affinity_position = None
         # WT features
-        self.MHCII_epitope_scores_WT = "Na"
-        self.MHCII_epitope_seqs_WT = "NA"
-        self.MHCII_epitope_alleles_WT = "NA"
-        self.MHCII_score_top10_WT = ["NA", "NA", "NA"]
-        self.MHCII_score_all_epitopes_WT = ["NA", "NA", "NA"]
-        self.MHCII_score_best_per_alelle_WT = ["NA", "NA", "NA"]
-        self.MHCII_number_strong_binders_WT = "NA"
-        self.MHCII_number_weak_binders_WT = "NA"
+        self.MHCII_epitope_scores_WT = None
+        self.MHCII_epitope_seqs_WT = None
+        self.MHCII_epitope_alleles_WT = None
+        self.MHCII_score_top10_WT = [None, None, None]
+        self.MHCII_score_all_epitopes_WT = [None, None, None]
+        self.MHCII_score_best_per_alelle_WT = [None, None, None]
+        self.MHCII_number_strong_binders_WT = None
+        self.MHCII_number_weak_binders_WT = None
         self.best_mhcII_pan_score_WT = None
         self.best_mhcII_pan_epitope_WT = "-"
-        self.best_mhcII_pan_allele_WT = "NA"
+        self.best_mhcII_pan_allele_WT = None
         self.best_mhcII_affinity_WT = None
         self.best_mhcII_affinity_epitope_WT = "-"
-        self.best_mhcII_affinity_allele_WT = "NA"
+        self.best_mhcII_affinity_allele_WT = None
 
     def MHCII_MB_score_best_per_allele(self, tuple_best_per_allele):
         '''returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
@@ -69,7 +69,7 @@ class BestAndMultipleBinderMhcII:
             best_scores_allele = multbind.scores_to_list(tuple_best_per_allele_new)
             return multbind.get_means(best_scores_allele)
         else:
-            return ["NA", "NA", "NA"]
+            return [None, None, None]
 
     def run(self, sequence, sequence_reference, alleles, set_available_mhc):
         '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed

@@ -39,14 +39,13 @@ class TestMixMHCPred(TestCase):
         self.assertIsNotNone(mixmhcpred.best_peptide_wt)
         self.assertIsNotNone(mixmhcpred.best_score_wt)
         self.assertIsNotNone(mixmhcpred.best_rank_wt)
-        self.assertIsNotNone(mixmhcpred.difference_score_mut_wt)
 
     def test_mixmhcpred_too_small_epitope(self):
         mixmhcpred = MixMHCpred(runner=self.runner, configuration=self.configuration)
         mutated = 'NLVP'
         wild_type = 'NLVP'
         mixmhcpred.run(xmer_wt=wild_type, xmer_mut=mutated, alleles=TEST_HLAI_ALLELES)
-        self.assertEqual("NA", mixmhcpred.all_peptides)
+        self.assertEqual(None, mixmhcpred.all_peptides)
 
     def test_mixmhcpred2_epitope_iedb(self):
         mixmhcpred = MixMhc2Pred(runner=self.runner, configuration=self.configuration)
@@ -70,7 +69,6 @@ class TestMixMHCPred(TestCase):
         self.assertIsNotNone(mixmhcpred.best_peptide_wt)
         self.assertIsNotNone(mixmhcpred.best_score_wt)
         self.assertIsNotNone(mixmhcpred.best_rank_wt)
-        self.assertIsNotNone(mixmhcpred.difference_score_mut_wt)
 
     def test_mixmhcpred2_too_small_epitope(self):
         mixmhcpred = MixMhc2Pred(runner=self.runner, configuration=self.configuration)
@@ -78,7 +76,7 @@ class TestMixMHCPred(TestCase):
         mutated = 'ENPVVHFF'
         wild_type = 'ENPVVHFF'
         mixmhcpred.run(xmer_wt=wild_type, xmer_mut=mutated, alleles=TEST_HLAII_ALLELES)
-        self.assertEqual("NA", mixmhcpred.all_peptides)
+        self.assertEqual(None, mixmhcpred.all_peptides)
 
     def test_generate_nmers(self):
         result = AbstractMixMHCpred.generate_nmers(

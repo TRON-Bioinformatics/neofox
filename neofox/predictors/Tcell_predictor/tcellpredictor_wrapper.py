@@ -15,8 +15,8 @@ CLASSIFIER_PICKLE = 'Classifier.pickle'
 class TcellPrediction:
 
     def __init__(self):
-        self.tcell_prediction_score = "NA"
-        self.tcell_prediction_score_9mer = "NA"
+        self.tcell_prediction_score = None
+        self.tcell_prediction_score_9mer = None
         with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), CLASSIFIER_PICKLE), 'rb') as f:
             self.classifier = pickle.load(f)
 
@@ -55,7 +55,7 @@ class TcellPrediction:
         """
         trp = self._triple_gen_seq_subst(
             gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold)
-        pred_out = "NA"
+        pred_out = None
         if trp is not None:
             self._write_triple_to_file(trp, tmpfile_in)
             pred_out = self._run_prediction(tmpfile_in)

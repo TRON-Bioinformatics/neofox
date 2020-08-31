@@ -99,5 +99,5 @@ class MultipleBinding:
         for score in list_scores:
             if float(score) < threshold:
                 number_binders += 1
-        number_binders = number_binders if not len(list_scores) == 0 else "NA"
+        number_binders = number_binders if not len(list_scores) == 0 else None
         return number_binders

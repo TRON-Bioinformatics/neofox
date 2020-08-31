@@ -26,7 +26,6 @@ class MixMhc2Pred(AbstractMixMHCpred):
         self.best_peptide_wt = None
         self.best_score_wt = None
         self.best_rank_wt = None
-        self.difference_score_mut_wt = None
 
     def load_available_allelles(self):
         """
@@ -189,8 +188,6 @@ class MixMhc2Pred(AbstractMixMHCpred):
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
             # TODO: improve how data is fetched so types are maintained
             self.best_rank_wt = float(self.extract_WT_info(pred_wt, "%Rank"))
-            # difference in scores between mut and wt
-            self.difference_score_mut_wt = self.difference_score(self.best_rank_wt, self.best_rank)
             
     def get_annotations(self) -> List[Annotation]:
         return [
@@ -203,5 +200,5 @@ class MixMhc2Pred(AbstractMixMHCpred):
             AnnotationFactory.build_annotation(value=self.best_peptide_wt, name="MixMHC2pred_best_peptide_wt"),
             AnnotationFactory.build_annotation(value=self.best_rank_wt, name="MixMHC2pred_best_rank_wt"),
             AnnotationFactory.build_annotation(
-                value=self.difference_score_mut_wt, name="MixMHC2pred_difference_rank_mut_wt")
+                value=self.best_rank - self.best_rank_wt, name="MixMHC2pred_difference_rank_mut_wt")
         ]

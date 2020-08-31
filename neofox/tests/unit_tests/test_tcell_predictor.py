@@ -12,17 +12,17 @@ class TestTCellPredictor(TestCase):
     def test_non_existing_gene(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
             gene="BLAH", substitution='blaaaah', epitope="BLAHBLAH", score=5, threshold=10)
-        self.assertEqual("NA", result)
+        self.assertEqual(None, result)
 
     def test_existing_gene_with_too_short_epitope(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
             gene="BRCA2", substitution='C', epitope="CCCCCC", score=5, threshold=10)
-        self.assertEqual("NA", result)
+        self.assertEqual(None, result)
 
     def test_existing_gene_with_too_long_epitope(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
             gene="BRCA2", substitution='C', epitope="CCCCCCCCCC", score=5, threshold=10)
-        self.assertEqual("NA", result)
+        self.assertEqual(None, result)
 
     def test_existing_gene(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(

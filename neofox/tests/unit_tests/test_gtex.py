@@ -21,22 +21,22 @@ class TestGtex(TestCase):
 
     def test_get_metrics_from_non_existing_tissue(self):
         mean_expression, sum_expression, sd_expression = self.gtex.get_metrics("BRCA2", "chinichinchin")
-        self.assertEqual("NA", mean_expression)
-        self.assertEqual("NA", sum_expression)
-        self.assertEqual("NA", sd_expression)
+        self.assertEqual(None, mean_expression)
+        self.assertEqual(None, sum_expression)
+        self.assertEqual(None, sd_expression)
         mean_expression, sum_expression, sd_expression = self.gtex.get_metrics("BRCA2", None)
-        self.assertEqual("NA", mean_expression)
-        self.assertEqual("NA", sum_expression)
-        self.assertEqual("NA", sd_expression)
+        self.assertEqual(None, mean_expression)
+        self.assertEqual(None, sum_expression)
+        self.assertEqual(None, sd_expression)
 
     def test_get_metrics_from_non_existing_gene(self):
         mean_expression, sum_expression, sd_expression = self.gtex.get_metrics("NOOOOOOOPE", "skin")
-        self.assertEqual("NA", mean_expression)
-        self.assertEqual("NA", sum_expression)
-        self.assertEqual("NA", sd_expression)
+        self.assertEqual(None, mean_expression)
+        self.assertEqual(None, sum_expression)
+        self.assertEqual(None, sd_expression)
         mean_expression, sum_expression, sd_expression = self.gtex.get_metrics(None, "skin")
-        self.assertEqual("NA", mean_expression)
-        self.assertEqual("NA", sum_expression)
-        self.assertEqual("NA", sd_expression)
+        self.assertEqual(None, mean_expression)
+        self.assertEqual(None, sum_expression)
+        self.assertEqual(None, sd_expression)
 
 
