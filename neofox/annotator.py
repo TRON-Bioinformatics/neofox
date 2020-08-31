@@ -43,7 +43,13 @@ class NeoantigenAnnotator:
                  mixmhc2: MixMhc2Pred,
                  netmhcpan: BestAndMultipleBinder,
                  mixmhc: MixMHCpred,
-                 available_alleles: AvailableAlleles):
+                 available_alleles: AvailableAlleles,
+                 gtex: GTEx,
+                 aa_frequency: AminoacidFrequency,
+                 fourmer_frequency: FourmerFrequency,
+                 aa_index: AminoacidIndex,
+                 tcell_predictor: TcellPrediction,
+                 self_similarity: SelfSimilarityCalculator):
         """class to annotate neoantigens"""
         self.provean_annotator = provean_annotator
         self.dissimilarity_calculator = dissimilarity_calculator
@@ -55,17 +61,17 @@ class NeoantigenAnnotator:
         self.mixmhc = mixmhc
         self.available_alleles = available_alleles
         self.uniprot = uniprot
+        self.gtex = gtex
+        self.aa_frequency = aa_frequency
+        self.fourmer_frequency = fourmer_frequency
+        self.aa_index = aa_index
+        self.tcell_predictor = tcell_predictor
+        self.self_similarity = self_similarity
 
-        # TODO: assess which of this parse files and should be created only once due to performance reasons
+        # NOTE: these resources do not read any file thus can be initialised fast
         self.differential_binding = DifferentialBinding()
-        self.gtex = GTEx()
-        self.aa_frequency = AminoacidFrequency()
-        self.fourmer_frequency = FourmerFrequency()
-        self.aa_index = AminoacidIndex()
         self.priority_score_calculator = PriorityScore()
-        self.tcell_predictor = TcellPrediction()
         self.iedb_immunogenicity = IEDBimmunogenicity()
-        self.self_similarity = SelfSimilarityCalculator()
 
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> NeoantigenAnnotations:
         """Calculate new epitope features and add to dictonary that stores all properties"""
@@ -198,7 +204,3 @@ class NeoantigenAnnotator:
         self.annotations.annotations.extend(DifferentialExpression().get_annotations(
             expression_tumor=expression_tumor, expression_reference=gtex_mean,
             expression_reference_sd=gtex_sd, expression_reference_sum=gtex_sum))
-
-    def _2float(self, value):
-        # TODO: this is temporary! aghhh
-        return float(value) if value != "NA" else "NA"

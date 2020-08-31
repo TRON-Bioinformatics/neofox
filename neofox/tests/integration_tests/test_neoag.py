@@ -16,7 +16,7 @@ class TestNeoantigenFitness(TestCase):
         result = NeoagCalculator(runner=self.runner, configuration=self.configuration).get_annotation(
             sample_id="12345",
             mut_peptide="DDDDDV",
-            score_mut="0",
+            score_mut=0,
             ref_peptide="DDDDDD",
             peptide_variant_position="123")
         self.assertTrue(isinstance(result, str))

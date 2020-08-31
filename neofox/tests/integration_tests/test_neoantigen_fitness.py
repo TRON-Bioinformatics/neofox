@@ -41,4 +41,4 @@ class TestNeoantigenFitness(TestCase):
         props['Mutation_in_anchor_netmhcpan'] = '0'
         props['Mutation_in_anchor_netmhcpan_9mer'] = '0'
         self.assertEqual('1.0', self.neoantigen_fitness_calculator.calculate_recognition_potential(
-            amplitude="1.0", pathogen_similarity="1.0", mutation_in_anchor="0"))
+            amplitude=1.0, pathogen_similarity=1.0, mutation_in_anchor=False))

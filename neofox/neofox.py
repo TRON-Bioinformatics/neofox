@@ -9,6 +9,9 @@ import logzero
 from logzero import logger
 
 from neofox import NEOFOX_LOG_FILE_ENV
+from neofox.aa_index.aa_index import AminoacidIndex
+from neofox.annotation_resources.gtex.gtex import GTEx
+from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
 from neofox.annotator import NeoantigenAnnotator
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.runner import Runner
@@ -17,6 +20,7 @@ from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import NeoantigenAnnotations
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
+from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.predictors.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 from neofox.predictors.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
@@ -24,6 +28,7 @@ from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders impo
 from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
 
 
 class NeoFox:
@@ -54,6 +59,12 @@ class NeoFox:
         self.available_alleles = AvailableAlleles(self.references)
         self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3)
         self.uniprot = Uniprot(self.references.uniprot)
+        self.gtex = GTEx()
+        self.aa_frequency = AminoacidFrequency()
+        self.fourmer_frequency = FourmerFrequency()
+        self.aa_index = AminoacidIndex()
+        self.tcell_predictor = TcellPrediction()
+        self.self_similarity = SelfSimilarityCalculator()
 
         # import epitope data
         self.neoantigens = ModelConverter.parse_icam_file(icam_file)
@@ -82,7 +93,14 @@ class NeoFox:
             mixmhc2=self.predpresentation2,
             netmhcpan=self.pred,
             mixmhc=self.predpresentation,
-            available_alleles=self.available_alleles)
+            available_alleles=self.available_alleles,
+            gtex=self.gtex,
+            aa_frequency=self.aa_frequency,
+            fourmer_frequency=self.fourmer_frequency,
+            aa_index=self.aa_index,
+            tcell_predictor=self.tcell_predictor,
+            self_similarity=self.self_similarity
+        )
         # feature calculation for each epitope
         annotations = []
         for neoantigen in self.neoantigens:
@@ -96,42 +114,3 @@ class NeoFox:
             logger.info("Elapsed time for annotating neoantigen {} seconds".format(int(end - start)))
             annotations.append(annotation)
         return annotations
-
-    @staticmethod
-    def write_to_file_sorted(annotations: NeoantigenAnnotations, output_file=None):
-        """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
-        and printed ';' separated."""
-        logger.info("Writing results...")
-        if output_file is not None:
-            sys.stdout = open(output_file, 'w')     # redirects stdout if file provided
-        transformed_annotations = {}
-        for neoantigen in annotations:
-            for key in neoantigen:
-                if key not in transformed_annotations:
-                    # keys are are feautres; values: list of feature values associated with mutated peptide sequence
-                    transformed_annotations[key] = [neoantigen[key]]
-                else:
-                    transformed_annotations[key].append(neoantigen[key])
-
-        features_names = []
-        for key in transformed_annotations:
-            if key not in header:
-                features_names.append(key)
-        features_names.sort()
-        header.extend(features_names)
-        print("\t".join(header))
-        for i in range(len(transformed_annotations["patient_identifier"])):  # NOTE: this has nothing to do with "patient_identifier" field
-            z = [NeoFox.fetch_annotation(transformed_annotations, col, i) for col in header]
-            print("\t".join(z))
-        sys.stdout.flush()  # this is required to avoid half written files
-        logger.info("Finished writing")
-
-    @staticmethod
-    def fetch_annotation(annotations, column, index):
-        # TODO: this is a compromise solution that will go away soon
-        result = "NA"
-        try:
-            result = str(annotations[column][index])
-        except IndexError:
-            pass
-        return result

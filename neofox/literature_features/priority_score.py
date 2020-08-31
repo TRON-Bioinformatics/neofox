@@ -20,7 +20,7 @@ class PriorityScore:
         try:
             log_score = 1.0 / (1.0 + math.exp(5.0 * (mhc_score - 2.0)))
         except (OverflowError, ValueError) as e:
-            log_score = "NA"
+            log_score = None
         return log_score
 
     def calc_priority_score(self, vaf_tumor, vaf_rna, transcript_expr, no_mismatch, score_mut, score_wt,

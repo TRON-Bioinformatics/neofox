@@ -29,7 +29,6 @@ class MixMHCpred(AbstractMixMHCpred):
         self.best_peptide_wt = None
         self.best_score_wt = None
         self.best_rank_wt = None
-        self.difference_score_mut_wt = None
 
     def mixmhcprediction(self, hla_alleles, tmpfasta, outtmp):
         ''' Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
@@ -121,8 +120,6 @@ class MixMHCpred(AbstractMixMHCpred):
             rank_wt_of_interest = "_".join(["%Rank", self.best_allele])
             self.best_score_wt = float(self.extract_WT_info(pred_wt, score_wt_of_interest))
             self.best_rank_wt = self.extract_WT_info(pred_wt, rank_wt_of_interest)
-            # difference in scores between mut and wt
-            self.difference_score_mut_wt = self.difference_score(self.best_score, self.best_score_wt)
             
     def get_annotations(self) -> List[Annotation]:
         return [
@@ -138,5 +135,5 @@ class MixMHCpred(AbstractMixMHCpred):
             AnnotationFactory.build_annotation(value=self.best_score_wt, name="MixMHCpred_best_score_wt"),
             AnnotationFactory.build_annotation(value=self.best_rank_wt, name="MixMHCpred_best_rank_wt"),
             AnnotationFactory.build_annotation(
-                value=self.difference_score_mut_wt, name="MixMHCpred_difference_score_mut_wt")
+                value=self.best_score - self.best_score_wt, name="MixMHCpred_difference_score_mut_wt")
             ]

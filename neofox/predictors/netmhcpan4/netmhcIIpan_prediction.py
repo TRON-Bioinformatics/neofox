@@ -120,11 +120,7 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
             mhc_sc = dat_head.index("%Rank")
         else:
             mhc_sc = dat_head.index("Affinity(nM)")
-        epi = dat_head.index("Peptide")
-        hla_allele = dat_head.index("Allele")
         max_score = float(1000000000)
-        allele = "NA"
-        epitope = "NA"
         row = []
         for ii, i in enumerate(dat):
             mhc_score = float(i[mhc_sc])
