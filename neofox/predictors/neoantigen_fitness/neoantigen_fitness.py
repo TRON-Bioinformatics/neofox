@@ -12,6 +12,8 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.literature_features.differential_binding import DifferentialBinding
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
+from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 
 
 class NeoantigenFitnessCalculator(BlastpRunner):
@@ -52,14 +54,14 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         This function calculates the amplitude between mutated and wt epitope according to Balachandran et al.
         when affinity is used, use correction from Luksza et al. *1/(1+0.0003*aff_wt)
         """
-        amplitude_mhc = "NA"
+        amplitude_mhc = None
         try:
-            candidate_amplitude_mhc = float(score_wild_type) / float(score_mutation)
+            candidate_amplitude_mhc = score_wild_type / score_mutation
             if apply_correction:  #nine_mer or affinity:
-                amplitude_mhc = str(candidate_amplitude_mhc * (self._calculate_correction(score_wild_type)))
+                amplitude_mhc = candidate_amplitude_mhc * self._calculate_correction(score_wild_type)
             else:
-                amplitude_mhc = str(candidate_amplitude_mhc)
-        except(ZeroDivisionError, ValueError) as e:
+                amplitude_mhc = candidate_amplitude_mhc
+        except(ZeroDivisionError, ValueError):
             pass
         return amplitude_mhc
 
@@ -67,7 +69,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         return 1 / (1 + 0.0003 * float(score_wild_type))
 
     def calculate_recognition_potential(
-            self, amplitude, pathogen_similarity, mutation_in_anchor, mhc_affinity_mut=None):
+            self, amplitude: float, pathogen_similarity: float, mutation_in_anchor: bool, mhc_affinity_mut: float = None):
         """
         This function calculates the recognition potential, defined by the product of amplitude and pathogensimiliarity of an epitope according to Balachandran et al.
         F_alpha = - max (A_i x R_i)
@@ -76,40 +78,36 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         """
         recognition_potential = None
         try:
-            candidate_recognition_potential = str(float(amplitude) * float(pathogen_similarity))
+            candidate_recognition_potential = amplitude * pathogen_similarity
             if mhc_affinity_mut:
-                if mutation_in_anchor == "0" and float(mhc_affinity_mut) < 500.0:
+                if not mutation_in_anchor and mhc_affinity_mut < 500.0:
                     recognition_potential = candidate_recognition_potential
             else:
-                if mutation_in_anchor == "0":
+                if not mutation_in_anchor:
                     recognition_potential = candidate_recognition_potential
         except ValueError:
             pass
         return recognition_potential
 
-    def get_annotations(self,
-                        binding_wild_type, binding_mutation,
-                        affinity_wild_type, affinity_mutation, rank_wild_type, rank_mutation,
-                        affinity_9mer_wild_type, affinity_9mer_mutation,
-                        sequence_9mer_mutation: str, sequence_9mer_wild_type: str,
-                        sequence_mutation: str, sequence_wild_type: str,
-                        sequence_rank_mutation: str, sequence_rank_wild_type: str) -> List[Annotation]:
-
+    def get_annotations(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
         amplitude_affinity = self.calculate_amplitude_mhc(
-            score_mutation=affinity_mutation, score_wild_type=affinity_wild_type, apply_correction=True)
+            score_mutation=netmhcpan.best4_affinity, score_wild_type=netmhcpan.best4_affinity_WT,
+            apply_correction=True)
         amplitude_nemhcpan_rank = self.calculate_amplitude_mhc(
-            score_mutation=rank_mutation, score_wild_type=rank_wild_type)
+            score_mutation=netmhcpan.best4_mhc_score, score_wild_type=netmhcpan.best4_mhc_score_WT)
         amplitude_best_affinity_9mers = self.calculate_amplitude_mhc(
-            score_mutation=affinity_9mer_mutation, score_wild_type=affinity_9mer_wild_type, apply_correction=True)
-        pathogen_similarity_9mer = self.wrap_pathogen_similarity(mutation=sequence_9mer_mutation)
-        pathogen_similarity_rank = self.wrap_pathogen_similarity(mutation=sequence_rank_mutation)
-        pathogen_similarity_affinity = self.wrap_pathogen_similarity(mutation=sequence_mutation)
+            score_mutation=netmhcpan.mhcI_affinity_9mer, score_wild_type=netmhcpan.mhcI_affinity_9mer_WT,
+            apply_correction=True)
+        pathogen_similarity_9mer = self.wrap_pathogen_similarity(mutation=netmhcpan.mhcI_affinity_epitope_9mer)
+        pathogen_similarity_rank = self.wrap_pathogen_similarity(mutation=netmhcpan.best4_mhc_epitope)
+        pathogen_similarity_affinity = self.wrap_pathogen_similarity(mutation=netmhcpan.best4_affinity_epitope)
 
-        position = EpitopeHelper.position_of_mutation_epitope(wild_type=sequence_wild_type, mutation=sequence_mutation)
+        position = EpitopeHelper.position_of_mutation_epitope(wild_type=netmhcpan.best4_affinity_epitope_WT,
+                                                              mutation=netmhcpan.best4_affinity_epitope)
         position_9mer = EpitopeHelper.position_of_mutation_epitope(
-            wild_type=sequence_9mer_wild_type, mutation=sequence_9mer_mutation)
+            wild_type=netmhcpan.mhcI_affinity_epitope_9mer_WT, mutation=netmhcpan.mhcI_affinity_epitope_9mer)
         position_rank = EpitopeHelper.position_of_mutation_epitope(
-            wild_type=sequence_rank_wild_type, mutation=sequence_rank_mutation)
+            wild_type=netmhcpan.best4_mhc_score_WT, mutation=netmhcpan.best4_mhc_score)
 
         bdg_cutoff_classical_mhci = 50
         bdg_cutoff_alternative_mhci = 5000
@@ -117,27 +115,29 @@ class NeoantigenFitnessCalculator(BlastpRunner):
 
         return [
             AnnotationFactory.build_annotation(name="CDN_mhcI", value=self.differential_binding.classify_adn_cdn(
-                score_mutation=affinity_mutation, amplitude=amplitude_affinity,
+                score_mutation=netmhcpan.best4_affinity, amplitude=amplitude_affinity,
                 bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                 amplitude_cutoff=amplitude_cutoff_mhci, category="CDN")),
             AnnotationFactory.build_annotation(name="ADN_mhcI", value=self.differential_binding.classify_adn_cdn(
-                score_mutation=affinity_mutation, amplitude=amplitude_affinity,
+                score_mutation=netmhcpan.best4_affinity, amplitude=amplitude_affinity,
                 bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                 amplitude_cutoff=amplitude_cutoff_mhci, category="ADN")),
             AnnotationFactory.build_annotation(name="Amplitude_mhcI_MB", value=self.calculate_amplitude_mhc(
-                score_mutation=binding_mutation, score_wild_type=binding_wild_type)),
+                score_mutation=netmhcpan.MHC_score_top10[1],
+                score_wild_type=netmhcpan.MHC_score_top10_WT[1])),
             AnnotationFactory.build_annotation(
                 name="DAI_mhcI_MB", value=self.differential_binding.dai(
-                    score_mutation=binding_mutation, score_wild_type=binding_wild_type)),
+                    score_mutation=netmhcpan.MHC_score_top10[1],
+                    score_wild_type=netmhcpan.MHC_score_top10_WT[1])),
             AnnotationFactory.build_annotation(
                 name="DAI_affinity_filtered", value=self.differential_binding.dai(
-                    score_mutation=affinity_mutation, score_wild_type=affinity_wild_type, affin_filtering=True)),
+                    score_mutation=netmhcpan.best4_affinity, score_wild_type=netmhcpan.best4_affinity_WT, affin_filtering=True)),
             AnnotationFactory.build_annotation(
                 name="DAI_affinity", value=self.differential_binding.dai(
-                    score_mutation=affinity_mutation, score_wild_type=affinity_wild_type)),
+                    score_mutation=netmhcpan.best4_affinity, score_wild_type=netmhcpan.best4_affinity_WT)),
             AnnotationFactory.build_annotation(
                 name="DAI_rank_netmhcpan4", value=self.differential_binding.dai(
-                    score_mutation=rank_mutation, score_wild_type=rank_wild_type)),
+                    score_mutation=netmhcpan.best4_mhc_score, score_wild_type=netmhcpan.best4_mhc_score_WT)),
             AnnotationFactory.build_annotation(name="Amplitude_mhcI_affinity", value=amplitude_affinity),
             AnnotationFactory.build_annotation(name="Amplitude_mhcI_rank_netmhcpan4", value=amplitude_nemhcpan_rank),
             AnnotationFactory.build_annotation(name="Amplitude_mhcI_affinity_9mer_netmhcpan4",
@@ -152,29 +152,29 @@ class NeoantigenFitnessCalculator(BlastpRunner):
                                                    pathogen_similarity=pathogen_similarity_affinity,
                                                    mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
                                                        position_mhci=position,
-                                                       peptide_length=len(sequence_mutation)))),
+                                                       peptide_length=len(netmhcpan.best4_affinity_epitope)))),
             AnnotationFactory.build_annotation(name="Recognition_Potential_mhcI_rank_netmhcpan4",
                                                value=self.calculate_recognition_potential(
                                                    amplitude=amplitude_nemhcpan_rank,
                                                    pathogen_similarity=pathogen_similarity_rank,
                                                    mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
                                                        position_mhci=position_rank,
-                                                       peptide_length=len(sequence_rank_mutation)))),
+                                                       peptide_length=len(netmhcpan.best4_mhc_epitope)))),
             AnnotationFactory.build_annotation(name="Recognition_Potential_mhcI_9mer_affinity",
                                                value=self.calculate_recognition_potential(
                                                    amplitude=amplitude_best_affinity_9mers,
                                                    pathogen_similarity=pathogen_similarity_9mer,
                                                    mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
                                                        position_mhci=position_9mer,
-                                                       peptide_length=len(sequence_9mer_mutation)),
-                                                   mhc_affinity_mut=affinity_9mer_mutation))
+                                                       peptide_length=len(netmhcpan.mhcI_affinity_epitope_9mer)),
+                                                   mhc_affinity_mut=netmhcpan.mhcI_affinity_9mer))
         ]
 
-    def get_annotations_mch2(self, mut_score, wt_score, aff_mut, aff_wt, sc_mut, sc_wt, epitope_mut_mhcii) -> List[Annotation]:
+    def get_annotations_mch2(self, netmhcpan2: BestAndMultipleBinderMhcII) -> List[Annotation]:
 
-        pathogen_similarity = self.wrap_pathogen_similarity(mutation=epitope_mut_mhcii)
+        pathogen_similarity = self.wrap_pathogen_similarity(mutation=netmhcpan2.best_mhcII_pan_affinity_epitope)
         amplitude_affinity = self.calculate_amplitude_mhc(
-            score_mutation=aff_mut, score_wild_type=aff_wt, apply_correction=True)
+            score_mutation=netmhcpan2.best_mhcII_pan_affinity, score_wild_type=netmhcpan2.best_mhcII_affinity_WT, apply_correction=True)
         bdg_cutoff_classical_mhcii = 1
         bdg_cutoff_alternative_mhcii = 4
         amplitude_cutoff_mhcii = 4
@@ -182,31 +182,33 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         return [
             AnnotationFactory.build_annotation(
                 value=self.calculate_amplitude_mhc(
-                    score_mutation=mut_score, score_wild_type=wt_score), name="Amplitude_mhcII_mb"),
+                    score_mutation=netmhcpan2.MHCII_score_top10[1], score_wild_type=netmhcpan2.MHCII_score_top10_WT[1]),
+                name="Amplitude_mhcII_mb"),
             # dai multiple binding mhc II
             AnnotationFactory.build_annotation(
-                value=self.differential_binding.dai(score_mutation=mut_score, score_wild_type=wt_score),
+                value=self.differential_binding.dai(
+                    score_mutation=netmhcpan2.MHCII_score_top10[1], score_wild_type=netmhcpan2.MHCII_score_top10_WT[1]),
                 name="DAI_mhcII_MB"),
             AnnotationFactory.build_annotation(value=amplitude_affinity, name="Amplitude_mhcII_affinity"),
             # amplitude rank score mhc II
             AnnotationFactory.build_annotation(value=self.calculate_amplitude_mhc(
-                score_mutation=sc_mut, score_wild_type=sc_wt),
+                score_mutation=netmhcpan2.best_mhcII_pan_score, score_wild_type=netmhcpan2.best_mhcII_pan_score_WT),
                 name="Amplitude_mhcII_rank_netmhcpan4"),
             AnnotationFactory.build_annotation(
-                value=self.wrap_pathogen_similarity(mutation=epitope_mut_mhcii),
+                value=self.wrap_pathogen_similarity(mutation=netmhcpan2.best_mhcII_pan_affinity_epitope),
                 name="Pathogensimiliarity_mhcII"),
             AnnotationFactory.build_annotation(value=self.calculate_recognition_potential(
-                amplitude=amplitude_affinity, pathogen_similarity=pathogen_similarity, mutation_in_anchor="0"),
+                amplitude=amplitude_affinity, pathogen_similarity=pathogen_similarity, mutation_in_anchor=False),
                 name="Recognition_Potential_mhcII_affinity"),
             AnnotationFactory.build_annotation(
                 value=self.differential_binding.classify_adn_cdn(
-                    score_mutation=sc_mut, amplitude=amplitude_affinity, bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
+                    score_mutation=netmhcpan2.best_mhcII_pan_score, amplitude=amplitude_affinity, bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                     bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii, amplitude_cutoff=amplitude_cutoff_mhcii,
                     category="CDN"),
                 name="CDN_mhcII"),
             AnnotationFactory.build_annotation(
                 value=self.differential_binding.classify_adn_cdn(
-                    score_mutation=sc_mut, amplitude=amplitude_affinity, bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
+                    score_mutation=netmhcpan2.best_mhcII_pan_score, amplitude=amplitude_affinity, bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                     bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii, amplitude_cutoff=amplitude_cutoff_mhcii,
                     category="ADN"),
                 name="ADN_mhcII")

@@ -4,6 +4,7 @@ import os
 from neofox.helpers import intermediate_files
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
+from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 
 
 class NeoagCalculator(object):
@@ -35,8 +36,8 @@ class NeoagCalculator(object):
         '''
         header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
         try:
-            if float(score_mut) < 500:
-                epi_row = "\t".join([sample_id, mut_peptide, ref_peptide, peptide_variant_position])
+            if score_mut < 500:
+                epi_row = "\t".join([sample_id, mut_peptide, ref_peptide, str(peptide_variant_position)])
             else:
                 epi_row = "\t".join(["NA", "NA", "NA", "NA"])
         except ValueError:
@@ -45,10 +46,10 @@ class NeoagCalculator(object):
             f.write("\t".join(header) + "\n")
             f.write(epi_row + "\n")
 
-    def get_annotation(self, sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position) -> Annotation:
-        ''' wrapper function to determine neoag immunogenicity score for a mutated peptide sequence
-        '''
+    def get_annotation(self, sample_id, netmhcpan: BestAndMultipleBinder, peptide_variant_position) -> Annotation:
+        """wrapper function to determine neoag immunogenicity score for a mutated peptide sequence"""
         tmp_file_name = intermediate_files.create_temp_file(prefix="tmp_neoag_", suffix=".txt")
-        self._prepare_tmp_for_neoag(sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position, tmp_file_name)
+        self._prepare_tmp_for_neoag(sample_id, netmhcpan.best4_affinity_epitope, netmhcpan.best4_affinity,
+                                    netmhcpan.best4_affinity_epitope_WT, peptide_variant_position, tmp_file_name)
         neoag_score = self._apply_gbm(tmp_file_name)
         return AnnotationFactory.build_annotation(value=neoag_score, name="neoag_immunogencity")

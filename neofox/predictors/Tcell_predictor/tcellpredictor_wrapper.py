@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 import os
 import pickle
+from typing import List
+
 from neofox.helpers import intermediate_files
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.Tcell_predictor.preprocess import Preprocessor
+from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 
 CLASSIFIER_PICKLE = 'Classifier.pickle'
 
@@ -66,7 +69,15 @@ class TcellPrediction:
             gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold,
             tmpfile_in=tmp_tcellPredIN)
 
-    def get_annotation(self, gene, substitution, epitope, score, threshold=None) -> Annotation:
-        return AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
-            gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold),
-            name="Tcell_predictor_score_unfiltered")
+    def get_annotations(self, gene, substitution, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
+
+        return [
+            AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
+                gene=gene, substitution=substitution, epitope=netmhcpan.mhcI_affinity_epitope_9mer,
+                score=netmhcpan.mhcI_affinity_9mer),
+                name="Tcell_predictor_score_unfiltered"),
+            AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
+                gene=gene, substitution=substitution, epitope=netmhcpan.mhcI_affinity_epitope_9mer,
+                score=netmhcpan.mhcI_affinity_9mer, threshold=500),
+                name="Tcell_predictor_score_9mersPredict")
+        ]

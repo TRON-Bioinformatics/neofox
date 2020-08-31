@@ -107,7 +107,7 @@ class MixMhc2Pred(AbstractMixMHCpred):
         pepcol = head.index("Peptide")
         allelecol = head.index("BestAllele")
         rankcol = head.index("%Rank")
-        for entry in sorted(dat, key=lambda x: float(x[rankcol])):
+        for entry in sorted(dat, key=lambda x: (float(x[rankcol]), x[allelecol])):
             # all potential peptides per mutation --> return ditionary
             peps.append(entry[pepcol])
             ranks.append(entry[rankcol])

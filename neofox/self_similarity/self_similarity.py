@@ -4,6 +4,8 @@ import math
 import os
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
+from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 
 THRESHOLD_IMPROVED_BINDER = 1.2
 
@@ -108,19 +110,23 @@ class SelfSimilarityCalculator():
             pass
         return result
 
-    def get_annnotations(self, epitope_mut_mhci, epitope_wt_mhci, epitope_mut_mhcii, epitope_wt_mhcii,
-                                     rank_mut_mhci, rank_wt_mhci, rank_mut_mhcii, rank_wt_mhcii) -> List[Annotation]:
+    def get_annnotations(
+            self, netmhcpan: BestAndMultipleBinder, netmhcpan2: BestAndMultipleBinderMhcII) -> List[Annotation]:
 
-        improved_binding_mhc1 = self.is_improved_binder(score_mutation=rank_mut_mhci, score_wild_type=rank_wt_mhci)
-        self_similarity_mhc1 = self.get_self_similarity(mutation=epitope_mut_mhci, wild_type=epitope_wt_mhci)
+        improved_binding_mhc1 = self.is_improved_binder(score_mutation=netmhcpan.best4_mhc_score,
+                                                        score_wild_type=netmhcpan.best4_mhc_score_WT)
+        self_similarity_mhc1 = self.get_self_similarity(mutation=netmhcpan.best4_mhc_epitope,
+                                                        wild_type=netmhcpan.best4_mhc_epitope_WT)
         return [
             AnnotationFactory.build_annotation(value=self_similarity_mhc1, name="Selfsimilarity_mhcI"),
             AnnotationFactory.build_annotation(
-                value=self.get_self_similarity(wild_type=epitope_wt_mhcii, mutation=epitope_mut_mhcii),
+                value=self.get_self_similarity(wild_type=netmhcpan2.best_mhcII_pan_epitope_WT,
+                                               mutation=netmhcpan2.best_mhcII_pan_epitope),
                 name="Selfsimilarity_mhcII"),
             AnnotationFactory.build_annotation(value=improved_binding_mhc1, name="ImprovedBinding_mhcI"),
             AnnotationFactory.build_annotation(
-                value=self.is_improved_binder(score_mutation=rank_mut_mhcii, score_wild_type=rank_wt_mhcii),
+                value=self.is_improved_binder(score_mutation=netmhcpan2.best_mhcII_pan_score,
+                                              score_wild_type=netmhcpan2.best_mhcII_pan_score_WT),
                 name="ImprovedBinding_mhcII"),
             AnnotationFactory.build_annotation(
                 value=self.self_similarity_of_conserved_binder_only(

@@ -4,6 +4,8 @@ from logzero import logger
 
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
+from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 
 immunoweight = [0.00, 0.00, 0.10, 0.31, 0.30, 0.29, 0.26, 0.18, 0.00]
 
@@ -72,24 +74,23 @@ class IEDBimmunogenicity:
             pass
         return score
 
-    def get_annotations(self, epitope_mhci, affinity_mhci, epitope_mhcii, mhci_allele, mhcii_allele) -> List[Annotation]:
-        """
-        returns IEDB immunogenicity for MHC I (based on affinity) and MHC II (based on rank)
-        """
+    def get_annotations(
+            self, netmhcpan: BestAndMultipleBinder, netmhcpan2: BestAndMultipleBinderMhcII,
+            mhci_allele, mhcii_allele) -> List[Annotation]:
+        """returns IEDB immunogenicity for MHC I (based on affinity) and MHC II (based on rank)"""
         return [
             AnnotationFactory.build_annotation(
                 value=self.calc_IEDB_immunogenicity(
-                    epitope=epitope_mhci, mhc_allele=mhci_allele, mhc_score=affinity_mhci),
+                    epitope=netmhcpan.best4_affinity_epitope, mhc_allele=mhci_allele,
+                    mhc_score=netmhcpan.best4_affinity),
                 name="IEDB_Immunogenicity_mhcI"),
             AnnotationFactory.build_annotation(
                 value=self.calc_IEDB_immunogenicity(
-                    epitope=epitope_mhcii, mhc_allele=mhcii_allele, mhc_score=None),
+                    epitope=netmhcpan2.best_mhcII_pan_epitope, mhc_allele=mhcii_allele, mhc_score=None),
                 name="IEDB_Immunogenicity_mhcII"),
             AnnotationFactory.build_annotation(
                 value=self.calc_IEDB_immunogenicity(
-                    epitope=epitope_mhci, mhc_allele=mhci_allele, mhc_score=affinity_mhci, affin_filtering=True),
+                    epitope=netmhcpan.best4_affinity_epitope, mhc_allele=mhci_allele,
+                    mhc_score=netmhcpan.best4_affinity, affin_filtering=True),
                 name="IEDB_Immunogenicity_mhcI_affinity_filtered")
             ]
-
-
-

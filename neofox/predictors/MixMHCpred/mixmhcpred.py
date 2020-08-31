@@ -59,7 +59,7 @@ class MixMHCpred(AbstractMixMHCpred):
         scorecol = head.index("Score_bestAllele")
         allelecol = head.index("BestAllele")
         rankcol = head.index("%Rank_bestAllele")
-        for entry in sorted(dat, key=lambda x: int(x[rankcol])):
+        for entry in sorted(dat, key=lambda x: (int(x[rankcol]), x[allelecol])):
             # all potential peptides per mutation --> return ditionary
             peps.append(entry[pepcol])
             scores.append(entry[scorecol])
@@ -103,7 +103,6 @@ class MixMHCpred(AbstractMixMHCpred):
             self.best_peptide = self.add_best_epitope_info(pred_best, "Peptide")
             self.best_score = float(self.add_best_epitope_info(pred_best, "Score_bestAllele"))
             self.best_rank = self.add_best_epitope_info(pred_best, "%Rank_bestAllele")
-            self.best_allele = self.add_best_epitope_info(pred_best, "BestAllele")
             self.best_allele = self.add_best_epitope_info(pred_best, "BestAllele")
             self.all_peptides = "|".join(pred_all["Peptide"])
             self.all_scores = "|".join(pred_all["Score_bestAllele"])
