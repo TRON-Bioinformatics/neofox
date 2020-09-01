@@ -10,6 +10,7 @@ import difflib
 from collections import defaultdict
 import hashlib
 import base64
+import json
 
 from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, NeoantigenAnnotations
 from neofox.model.validation import ModelValidator
@@ -69,11 +70,27 @@ class ModelConverter(object):
         return ModelConverter.patient_metadata_csv2objects(df)
 
     @staticmethod
+    def parse_neoantigens_file(neoantigens_file: str) -> List[Neoantigen]:
+        """
+        :param neoantigens_file: the file to neoantigens data CSV file
+        :return: the parsed CSV into model objects
+        """
+        return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t'))
+
+    @staticmethod
     def objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:
         """
         :param model_objects: list of objects of subclass of betterproto.Message
         """
         return json_normalize(data=[n.to_dict(include_default_values=True) for n in model_objects])
+
+    @staticmethod
+    def objects2json(model_objects: List[betterproto.Message], output_file: str):
+        """
+        :param model_objects: list of objects of subclass of betterproto.Message
+        """
+        with open(output_file, "w") as f:
+            json.dump([o.to_dict(casing=Casing.SNAKE) for o in model_objects], f)
 
     @staticmethod
     def object2series(model_object: betterproto.Message) -> pd.Series:
@@ -103,6 +120,14 @@ class ModelConverter(object):
         return patients
 
     @staticmethod
+    def neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
+        """transforms an patients CSV into a list of objects"""
+        neoantigens = []
+        for _, row in dataframe.iterrows():
+            neoantigens.append(Neoantigen().from_dict(ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())))
+        return neoantigens
+
+    @staticmethod
     def annotations2short_wide_table(
             neoantigen_annotations: List[NeoantigenAnnotations], neoantigens: List[Neoantigen]) -> pd.DataFrame:
         dfs = []
@@ -115,6 +140,15 @@ class ModelConverter(object):
             dfs.append(df)
         annotations_df = pd.concat(dfs)
         return neoantigens_df.set_index('identifier').merge(annotations_df, on='identifier')
+
+    @staticmethod
+    def annotations2tall_skinny_table(neoantigen_annotations: List[NeoantigenAnnotations]) -> pd.DataFrame:
+        dfs = []
+        for na in neoantigen_annotations:
+            df = pd.DataFrame([a.to_dict() for a in na.annotations])
+            df['neoantigen_identifier'] = na.neoantigen_identifier
+            dfs.append(df[df.value != "NA"])    # avoid writing NA values
+        return pd.concat(dfs)
 
     @staticmethod
     def _flat_dict2nested_dict(flat_dict: dict) -> dict:
