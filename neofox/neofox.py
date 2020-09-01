@@ -13,6 +13,7 @@ from neofox.aa_index.aa_index import AminoacidIndex
 from neofox.annotation_resources.gtex.gtex import GTEx
 from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
 from neofox.annotator import NeoantigenAnnotator
+from neofox.exceptions import NeofoxConfigurationException
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.provean.provean import ProveanAnnotator
@@ -41,6 +42,8 @@ class NeoFox:
         # TODO: this does not work
         logzero.loglevel(logging.DEBUG)
         logger.info("Loading data...")
+        if neoantigens is None or patients is None:
+            raise NeofoxConfigurationException("Missing input data to run Neofox")
         self.neoantigens = neoantigens
         self.patients = {patient.identifier: patient for patient in patients}
         # TODO: avoid overriding patient id parameter

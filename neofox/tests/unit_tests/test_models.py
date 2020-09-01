@@ -167,6 +167,10 @@ class ModelConverterTest(TestCase):
         self.assertEqual(df.shape[0], 2)
         self.assertEqual(df.shape[1], 22)
 
+        df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)
+        self.assertEqual(df_annotations.shape[0], 8)
+        self.assertEqual(df_annotations.shape[1], 3)
+
     def _assert_lists_equal(self, neoantigens, neoantigens2):
         self.assertEqual(len(neoantigens), len(neoantigens2))
         for n1, n2, in zip(neoantigens, neoantigens2):
