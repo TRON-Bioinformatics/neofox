@@ -147,27 +147,25 @@ class ModelConverterTest(TestCase):
     def test_annotations2short_wide_df(self):
         annotations = [
             NeoantigenAnnotations(
-                neoantigen_identifier='12345',
-                annotations=[
-                    Annotation(name='this_name', value='this_value'),
-                    Annotation(name='that_name', value='that_value'),
-                    Annotation(name='diese_name', value='diese_value'),
-                    Annotation(name='das_name', value='das_value')
-                ]
+                neoantigen_identifier='12345',annotations=[
+                    Annotation(name='this_name', value='this_value'), Annotation(name='that_name', value='that_value'),
+                    Annotation(name='diese_name', value='diese_value'), Annotation(name='das_name', value='das_value')]
             ),
             NeoantigenAnnotations(
-                neoantigen_identifier='6789',
-                annotations=[
-                    Annotation(name='this_name', value='0'),
-                    Annotation(name='that_name', value='1'),
-                    Annotation(name='diese_name', value='2'),
-                    Annotation(name='das_name', value='3')
-                ]
+                neoantigen_identifier='6789', annotations=[
+                    Annotation(name='this_name', value='0'), Annotation(name='that_name', value='1'),
+                    Annotation(name='diese_name', value='2'), Annotation(name='das_name', value='3')]
             )
         ]
-        df = ModelConverter.annotations2short_wide_table(annotations)
+        neoantigens = [
+            Neoantigen(
+                identifier="12345", mutation=Mutation(position=10, wild_type_aminoacid="A", mutated_aminoacid="C")),
+            Neoantigen(
+                identifier="6789", mutation=Mutation(position=20, wild_type_aminoacid="G", mutated_aminoacid="Z"))
+        ]
+        df = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens=neoantigens)
         self.assertEqual(df.shape[0], 2)
-        self.assertEqual(df.shape[1], 5)
+        self.assertEqual(df.shape[1], 22)
 
     def _assert_lists_equal(self, neoantigens, neoantigens2):
         self.assertEqual(len(neoantigens), len(neoantigens2))

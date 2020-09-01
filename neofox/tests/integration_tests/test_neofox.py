@@ -34,11 +34,14 @@ class TestNeofox(TestCase):
         output_file = pkg_resources.resource_filename(neofox.tests.__name__,
                                                       "resources/output_{:%Y%m%d%H%M%S}.txt".format(datetime.now()))
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
+        neoantigens = ModelConverter.parse_icam_file(input_file)
+        patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            icam_file=input_file,
+            neoantigens=neoantigens,
             patient_id=patient_id,
-            patients_file=patients_file).get_annotations()
-        ModelConverter.annotations2short_wide_table(annotations).to_csv(output_file, sep='\t', index=False)
+            patients=patients).get_annotations()
+        ModelConverter.annotations2short_wide_table(
+            neoantigen_annotations=annotations, neoantigens=neoantigens).to_csv(output_file, sep='\t', index=False)
         self._regression_test_on_output_file(new_file=output_file)
 
     def _regression_test_on_output_file(self, new_file):

@@ -103,15 +103,18 @@ class ModelConverter(object):
         return patients
 
     @staticmethod
-    def annotations2short_wide_table(neoantigen_annotations: List[NeoantigenAnnotations]) -> pd.DataFrame:
+    def annotations2short_wide_table(
+            neoantigen_annotations: List[NeoantigenAnnotations], neoantigens: List[Neoantigen]) -> pd.DataFrame:
         dfs = []
+        neoantigens_df = ModelConverter.objects2dataframe(neoantigens)
         for na in neoantigen_annotations:
             df = pd.DataFrame([a.to_dict() for a in na.annotations]).set_index('name').transpose()
-            df['neoantigen_identifier'] = na.neoantigen_identifier
+            df['identifier'] = na.neoantigen_identifier
             df.reset_index(inplace=True)
             del df['index']
             dfs.append(df)
-        return pd.concat(dfs)
+        annotations_df = pd.concat(dfs)
+        return neoantigens_df.set_index('identifier').merge(annotations_df, on='identifier')
 
     @staticmethod
     def _flat_dict2nested_dict(flat_dict: dict) -> dict:

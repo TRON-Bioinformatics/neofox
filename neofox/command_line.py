@@ -24,6 +24,8 @@ def neofox_cli():
     patients_data = args.patients_data
     output_file = args.output_file
 
-    annotations = NeoFox(icam_file=icam_file, patients_file=patients_data, patient_id=patient_id).get_annotations()
-    ModelConverter.annotations2short_wide_table(annotations).to_csv(output_file, sep='\t', index=False)
+    neoantigens = ModelConverter.parse_icam_file(icam_file)
+    patients = ModelConverter.parse_patients_file(patients_data)
+    annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id).get_annotations()
+    ModelConverter.annotations2short_wide_table(annotations, neoantigens).to_csv(output_file, sep='\t', index=False)
     logger.info("Finished NeoFox")
