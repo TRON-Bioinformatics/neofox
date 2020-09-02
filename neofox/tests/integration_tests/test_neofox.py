@@ -45,9 +45,7 @@ class TestNeofox(TestCase):
         neoantigens = ModelConverter.parse_icam_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens,
-            patient_id=patient_id,
-            patients=patients).get_annotations()
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=6).get_annotations()
 
         # writes output
         ModelConverter.annotations2short_wide_table(
