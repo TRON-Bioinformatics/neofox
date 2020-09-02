@@ -45,15 +45,3 @@ class ProveanAnnotator(object):
             logger.error("Error fetching the PROVEAN score at {}:{}:{}".format(protein_id, position, mutated_aminoacid))
         logger.info("Fetched a PROVEAN score of {}".format(provean_score))
         return provean_score
-
-    @staticmethod
-    def build_ucsc_id_plus_position(substitution, protein_id_with_version):
-        """
-        :param substitution: 1-letter aminoacid code + position in the protein + 1 letter aminoacid, eg: V12L
-        :param protein_id_with_version: a UCSC protein id with version number, eg: uc058xwc.1
-        :return: tuple with protein id without version + position
-        """
-        protein_id = re.sub(r'.\d+$', '', protein_id_with_version)
-        position_match = re.match(r'[A-Z](\d+)[A-Z]', substitution)
-        position = position_match.group(1) if position_match else "Del"
-        return protein_id, position

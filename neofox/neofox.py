@@ -1,20 +1,24 @@
 #!/usr/bin/env python
-
+import logging
+import sys
+import os
+import time
+import logzero
 from logzero import logger
 
+from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.aa_index.aa_index import AaIndex
 from neofox.IEDB_Immunogenicity.predict_immunogenicity_simple import IEDBimmunogenicity
 from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
 from neofox.epitope_annotator import EpitopeAnnotator
 from neofox.annotation_resources.gtex.gtex import GTEx
-from neofox.helpers import data_import
 from neofox.helpers.available_alleles import AvailableAlleles
-from neofox.helpers.properties_manager import PATIENT_ID
 from neofox.helpers.runner import Runner
 from neofox.literature_features.differential_binding import DifferentialBinding
 from neofox.literature_features.expression import Expression
 from neofox.literature_features.priority_score import PriorityScore
 from neofox.annotation_resources.provean.provean import ProveanAnnotator
+from neofox.model.schema_conversion import SchemaConverter
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -31,8 +35,13 @@ class NeoFox:
 
     def __init__(self, icam_file, patient_id, patients_file):
 
+        logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
+        if logfile is not None:
+            logzero.logfile(logfile)
+        # TODO: this does not work
+        logzero.loglevel(logging.DEBUG)
+        logger.info("Loading data...")
         self.patient_id = patient_id
-
         self.references = ReferenceFolder()
         configuration = DependenciesConfiguration()
         runner = Runner()
@@ -63,22 +72,14 @@ class NeoFox:
         self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3)
 
         # import epitope data
-        self.header, self.rows = data_import.import_dat_icam(icam_file)
-        self.patients = {patient.identifier: patient for patient in data_import.import_patients_data(patients_file)}
+        self.neoantigens = SchemaConverter.parse_icam_file(icam_file)
+        self.patients = {patient.identifier: patient for patient in SchemaConverter.parse_patients_file(patients_file)}
 
-        # TODO: remove once we are loading data into models
-        if "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)" in self.header:
-            self.header, self.rows = data_import.change_col_names(header=self.header, data=self.rows)
-
-        # adds patient to the table
-        self.header.append(PATIENT_ID)
-        logger.debug(self.patient_id)
-
-        # TODO: when we are moving away from the icam table we will have a patient id for each neoantigen and
-        # TODO: we will be able to pass the whole list of patients below
-        self.tissue = self.patients.get(self.patient_id).tissue
-        for row in self.rows:
-            row.append(str(self.patient_id))
+        # TODO: avoid overriding patient id parameter
+        for n in self.neoantigens:
+            if n.patient_identifier is None:
+                n.patient_identifier = self.patient_id
+        logger.info("Data loaded")
 
     def get_annotations(self):
         """
@@ -86,6 +87,7 @@ class NeoFox:
         calls epitope class --> determination of epitope properties,
         write to txt file
         """
+        logger.info("Starting NeoFox annotations...")
         epitope_annotator = EpitopeAnnotator(
             provean_annotator=self.provean_annotator,
             gtex=self.gtex,
@@ -105,12 +107,56 @@ class NeoFox:
             differential_binding=self.differential_binding,
             expression_calculator=self.expression_calculator,
             priority_score_calculator=self.priority_score_calcualtor,
-            available_alleles=self.available_alleles,
-            patients=self.patients)
+            available_alleles=self.available_alleles)
         # feature calculation for each epitope
         annotations = []
-        for row in self.rows:
-            # TODO: move this initialisation out of the loop once the properties have been refactored out
-            annotation = epitope_annotator.get_annotation(self.header, row, self.patient_id, self.tissue)
+        for neoantigen in self.neoantigens:
+            logger.info("Annotating neoantigen...")
+            start = time.time()
+            patient = self.patients.get(neoantigen.patient_identifier)
+            logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
+            logger.debug("Patient: {}".format(patient.to_json(indent=3)))
+            annotation = epitope_annotator.get_annotation(neoantigen, patient)
+            end = time.time()
+            logger.info("Elapsed time for annotating neoantigen {} seconds".format(int(end - start)))
             annotations.append(annotation)
-        return annotations, self.header
+        return annotations, list(annotations[0].keys())
+
+    @staticmethod
+    def write_to_file_sorted(annotations, header, output_file=None):
+        """Transforms dictionary (property --> epitopes). To one unit (epitope) corresponding values are concentrated in one list
+        and printed ';' separated."""
+        logger.info("Writing results...")
+        if output_file is not None:
+            sys.stdout = open(output_file, 'w')     # redirects stdout if file provided
+        transformed_annotations = {}
+        for neoantigen in annotations:
+            for key in neoantigen:
+                if key not in transformed_annotations:
+                    # keys are are feautres; values: list of feature values associated with mutated peptide sequence
+                    transformed_annotations[key] = [neoantigen[key]]
+                else:
+                    transformed_annotations[key].append(neoantigen[key])
+
+        features_names = []
+        for key in transformed_annotations:
+            if key not in header:
+                features_names.append(key)
+        features_names.sort()
+        header.extend(features_names)
+        print("\t".join(header))
+        for i in range(len(transformed_annotations["patient_identifier"])):  # NOTE: this has nothing to do with "patient_identifier" field
+            z = [NeoFox.fetch_annotation(transformed_annotations, col, i) for col in header]
+            print("\t".join(z))
+        sys.stdout.flush()  # this is required to avoid half written files
+        logger.info("Finished writing")
+
+    @staticmethod
+    def fetch_annotation(annotations, column, index):
+        # TODO: this is a compromise solution that will go away soon
+        result = "NA"
+        try:
+            result = str(annotations[column][index])
+        except IndexError:
+            pass
+        return result
