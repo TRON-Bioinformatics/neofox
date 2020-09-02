@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 from typing import List
-
 from logzero import logger
-
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
@@ -54,17 +52,22 @@ class MixMHCpred(AbstractMixMHCpred):
         scores = []
         alleles = []
         ranks = []
-        pepcol = head.index("Peptide")
-        scorecol = head.index("Score_bestAllele")
-        allelecol = head.index("BestAllele")
-        rankcol = head.index("%Rank_bestAllele")
-        for entry in sorted(dat, key=lambda x: (int(x[rankcol]), x[allelecol])):
-            # all potential peptides per mutation --> return ditionary
-            peps.append(entry[pepcol])
-            scores.append(entry[scorecol])
-            ranks.append(entry[rankcol])
-            alleles.append(entry[allelecol])
-        return {"Peptide": peps, "Score_bestAllele": scores, "BestAllele": alleles, "%Rank_bestAllele": ranks}
+        result = {}
+        try:
+            pepcol = head.index("Peptide")
+            scorecol = head.index("Score_bestAllele")
+            allelecol = head.index("BestAllele")
+            rankcol = head.index("%Rank_bestAllele")
+            for entry in sorted(dat, key=lambda x: float(x[rankcol])):
+                # all potential peptides per mutation --> return ditionary
+                peps.append(entry[pepcol])
+                scores.append(entry[scorecol])
+                ranks.append(entry[rankcol])
+                alleles.append(entry[allelecol])
+            result = {"Peptide": peps, "Score_bestAllele": scores, "BestAllele": alleles, "%Rank_bestAllele": ranks}
+        except ValueError:
+            pass
+        return result
 
     def extract_best_peptide_per_mutation(self, pred_dat):
         '''extract best predicted ligand per mutation
@@ -93,11 +96,8 @@ class MixMHCpred(AbstractMixMHCpred):
         tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
         self.mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
         pred = self.read_mixmhcpred(tmp_prediction)
-        try:
-            pred_all = self.extract_best_per_pep(pred)
-        except ValueError:
-            pred_all = {}
-        if len(pred_all) > 0:
+        pred_all = self.extract_best_per_pep(pred)
+        if len(pred[1]) > 0:
             pred_best = self.extract_best_peptide_per_mutation(pred)
             self.best_peptide = self.add_best_epitope_info(pred_best, "Peptide")
             self.best_score = float(self.add_best_epitope_info(pred_best, "Score_bestAllele"))
@@ -120,7 +120,7 @@ class MixMHCpred(AbstractMixMHCpred):
             rank_wt_of_interest = "_".join(["%Rank", self.best_allele])
             self.best_score_wt = float(self.extract_WT_info(pred_wt, score_wt_of_interest))
             self.best_rank_wt = self.extract_WT_info(pred_wt, rank_wt_of_interest)
-            
+
     def get_annotations(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(value=self.all_peptides, name="MixMHCpred_all_peptides"),
