@@ -67,7 +67,6 @@ class TestMixMHCPred(TestCase):
         self.assertIsNotNone(mixmhcpred.best_rank)
         self.assertIsNotNone(mixmhcpred.best_allele)
         self.assertIsNotNone(mixmhcpred.best_peptide_wt)
-        self.assertIsNotNone(mixmhcpred.best_score_wt)
         self.assertIsNotNone(mixmhcpred.best_rank_wt)
 
     def test_mixmhcpred2_too_small_epitope(self):
