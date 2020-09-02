@@ -21,6 +21,9 @@ class BestAndMultipleBinder:
         self.configuration = configuration
         self.differential_binding = DifferentialBinding()
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
+        self._initialise()
+
+    def _initialise(self):
         self.MHC_score_all_epitopes = []
         self.MHC_score_top10 = []
         self.MHC_score_best_per_alelle = []
@@ -89,6 +92,7 @@ class BestAndMultipleBinder:
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         ### PREDICTION FOR MUTATED SEQUENCE
+        self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
