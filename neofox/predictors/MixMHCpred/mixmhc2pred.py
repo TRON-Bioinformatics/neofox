@@ -101,16 +101,13 @@ class MixMhc2Pred(AbstractMixMHCpred):
         alleles = []
         ranks = []
         pepcol = head.index("Peptide")
-        # scorecol = head.index("Score_bestAllele")
         allelecol = head.index("BestAllele")
         rankcol = head.index("%Rank")
-        min_value = -1000000000000000000
-        for ii, i in enumerate(dat):
-            col_of_interest = [i[pepcol], i[rankcol], i[allelecol]]
+        for entry in sorted(dat, key=lambda x: float(x[rankcol])):
             # all potential peptides per mutation --> return ditionary
-            peps.append(i[pepcol])
-            ranks.append(i[rankcol])
-            alleles.append(i[allelecol])
+            peps.append(entry[pepcol])
+            ranks.append(entry[rankcol])
+            alleles.append(entry[allelecol])
         return {"Peptide": peps, "BestAllele": alleles, "%Rank": ranks}
 
     def extract_best_peptide_per_mutation(self, pred_dat):
@@ -118,10 +115,6 @@ class MixMhc2Pred(AbstractMixMHCpred):
         '''
         head = pred_dat[0]
         dat = pred_dat[1]
-        peps = []
-        scores = []
-        alleles = []
-        ranks = []
         pepcol = head.index("Peptide")
         allelecol = head.index("BestAllele")
         rankcol = head.index("%Rank")
