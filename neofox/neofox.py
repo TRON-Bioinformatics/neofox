@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import logging
-import sys
 import os
 import time
 from typing import List
-
 import logzero
 from logzero import logger
-
+import dask
+from multiprocessing.pool import ThreadPool
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.aa_index.aa_index import AminoacidIndex
 from neofox.annotation_resources.gtex.gtex import GTEx
@@ -34,14 +33,19 @@ from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
 
 class NeoFox:
 
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient]):
+    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int):
 
+        # initialise logs
         logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
         if logfile is not None:
             logzero.logfile(logfile)
         # TODO: this does not work
         logzero.loglevel(logging.DEBUG)
         logger.info("Loading data...")
+
+        # initialise dask
+        dask.config.set(pool=ThreadPool(num_cpus))
+
         if neoantigens is None or patients is None:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
         self.neoantigens = neoantigens
@@ -51,29 +55,11 @@ class NeoFox:
             if n.patient_identifier is None:
                 n.patient_identifier = patient_id
 
-        self.references = ReferenceFolder()
-        configuration = DependenciesConfiguration()
-        runner = Runner()
+        references = ReferenceFolder()
+        self.uniprot = Uniprot(references.uniprot)
+        self.gtex = GTEx()
 
         # resources with external dependencies (files or binaries)
-        self.dissimilarity_calculator = DissimilarityCalculator(
-            runner=runner, configuration=configuration, proteome_db=self.references.proteome_db)
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
-            runner=runner, configuration=configuration, iedb=self.references.iedb)
-        self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
-        self.predII = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
-        self.predpresentation2 = MixMhc2Pred(runner=runner, configuration=configuration)
-        self.pred = BestAndMultipleBinder(runner=runner, configuration=configuration)
-        self.predpresentation = MixMHCpred(runner=runner, configuration=configuration)
-        self.available_alleles = AvailableAlleles(self.references)
-        self.provean_annotator = ProveanAnnotator(provean_file=self.references.prov_scores_mapped3)
-        self.uniprot = Uniprot(self.references.uniprot)
-        self.gtex = GTEx()
-        self.aa_frequency = AminoacidFrequency()
-        self.fourmer_frequency = FourmerFrequency()
-        self.aa_index = AminoacidIndex()
-        self.tcell_predictor = TcellPrediction()
-        self.self_similarity = SelfSimilarityCalculator()
         logger.info("Data loaded")
 
     def get_annotations(self) -> List[NeoantigenAnnotations]:
@@ -83,34 +69,19 @@ class NeoFox:
         write to txt file
         """
         logger.info("Starting NeoFox annotations...")
-        epitope_annotator = NeoantigenAnnotator(
-            provean_annotator=self.provean_annotator,
-            uniprot=self.uniprot,
-            dissimilarity_calculator=self.dissimilarity_calculator,
-            neoantigen_fitness_calculator=self.neoantigen_fitness_calculator,
-            neoag_calculator=self.neoag_calculator,
-            netmhcpan2=self.predII,
-            mixmhc2=self.predpresentation2,
-            netmhcpan=self.pred,
-            mixmhc=self.predpresentation,
-            available_alleles=self.available_alleles,
-            gtex=self.gtex,
-            aa_frequency=self.aa_frequency,
-            fourmer_frequency=self.fourmer_frequency,
-            aa_index=self.aa_index,
-            tcell_predictor=self.tcell_predictor,
-            self_similarity=self.self_similarity
-        )
         # feature calculation for each epitope
-        annotations = []
+        delayed_annotations = []
         for neoantigen in self.neoantigens:
-            logger.info("Annotating neoantigen...")
-            start = time.time()
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            neoantigen_annotation = epitope_annotator.get_annotation(neoantigen, patient)
-            end = time.time()
-            logger.info("Elapsed time for annotating neoantigen {} seconds".format(int(end - start)))
-            annotations.append(neoantigen_annotation)
+            delayed_annotation = dask.delayed(
+                NeoantigenAnnotator(uniprot=self.uniprot, gtex=self.gtex).get_annotation)(neoantigen, patient)
+            delayed_annotations.append(delayed_annotation)
+
+        start = time.time()
+        annotations = dask.compute(*delayed_annotations)
+        end = time.time()
+        logger.info("Elapsed time for annotating {} neoantigens {} seconds".format(
+            len(self.neoantigens), int(end - start)))
         return annotations

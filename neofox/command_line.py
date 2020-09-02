@@ -32,6 +32,7 @@ def neofox_cli():
                         help='output results in a tall skinny tab-separated table')
     parser.add_argument('--with-json', dest='with_json', action='store_true',
                         help='output results in JSON format')
+    parser.add_argument('--num_cpus', dest='num_cpus', default=1, help='number of CPUs for computation')
     args = parser.parse_args()
 
     input_file = args.input_file
@@ -43,6 +44,7 @@ def neofox_cli():
     with_sw = args.with_short_wide_table
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
+    num_cpus = int(args.num_cpus)
     if input_file and icam_file:
         raise NeofoxInputParametersException(
             "Please, define either an iCaM file or a standard input file as input. Not both")
@@ -60,7 +62,8 @@ def neofox_cli():
     patients = ModelConverter.parse_patients_file(patients_data)
 
     # run annotations
-    annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id).get_annotations()
+    annotations = NeoFox(
+        neoantigens=neoantigens, patients=patients, patient_id=patient_id, num_cpus=num_cpus).get_annotations()
 
     # writes the output
     if with_sw:
