@@ -17,6 +17,9 @@ class MixMhc2Pred(AbstractMixMHCpred):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self.load_available_allelles()
+        self._initialise()
+
+    def _initialise(self):
         self.all_peptides = None
         self.all_ranks = None
         self.all_alleles = None
@@ -24,7 +27,6 @@ class MixMhc2Pred(AbstractMixMHCpred):
         self.best_rank = None
         self.best_allele = None
         self.best_peptide_wt = None
-        self.best_score_wt = None
         self.best_rank_wt = None
 
     def load_available_allelles(self):
@@ -148,6 +150,7 @@ class MixMhc2Pred(AbstractMixMHCpred):
     def run(self, alleles, xmer_wt, xmer_mut):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
+        self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
         # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al.
         # Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.

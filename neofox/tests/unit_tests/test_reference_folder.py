@@ -6,7 +6,7 @@ import neofox
 import neofox.tests.unit_tests.tools as test_tools
 from neofox.exceptions import NeofoxConfigurationException
 from neofox.references.references import ReferenceFolder
-from neofox.tests.unit_tests.fake_classes import FakeReferenceFolder
+from neofox.tests.fake_classes import FakeReferenceFolder
 
 
 class TestReferenceFolder(TestCase):
