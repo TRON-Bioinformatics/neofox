@@ -13,11 +13,12 @@ from neofox.aa_index.aa_index import AminoacidIndex
 from neofox.annotation_resources.gtex.gtex import GTEx
 from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
 from neofox.annotator import NeoantigenAnnotator
+from neofox.exceptions import NeofoxConfigurationException
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.provean.provean import ProveanAnnotator
 from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import NeoantigenAnnotations
+from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -33,7 +34,7 @@ from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
 
 class NeoFox:
 
-    def __init__(self, icam_file, patient_id, patients_file):
+    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient]):
 
         logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
         if logfile is not None:
@@ -41,7 +42,15 @@ class NeoFox:
         # TODO: this does not work
         logzero.loglevel(logging.DEBUG)
         logger.info("Loading data...")
-        self.patient_id = patient_id
+        if neoantigens is None or patients is None:
+            raise NeofoxConfigurationException("Missing input data to run Neofox")
+        self.neoantigens = neoantigens
+        self.patients = {patient.identifier: patient for patient in patients}
+        # TODO: avoid overriding patient id parameter
+        for n in self.neoantigens:
+            if n.patient_identifier is None:
+                n.patient_identifier = patient_id
+
         self.references = ReferenceFolder()
         configuration = DependenciesConfiguration()
         runner = Runner()
@@ -65,15 +74,6 @@ class NeoFox:
         self.aa_index = AminoacidIndex()
         self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
-
-        # import epitope data
-        self.neoantigens = ModelConverter.parse_icam_file(icam_file)
-        self.patients = {patient.identifier: patient for patient in ModelConverter.parse_patients_file(patients_file)}
-
-        # TODO: avoid overriding patient id parameter
-        for n in self.neoantigens:
-            if n.patient_identifier is None:
-                n.patient_identifier = self.patient_id
         logger.info("Data loaded")
 
     def get_annotations(self) -> List[NeoantigenAnnotations]:
@@ -109,8 +109,8 @@ class NeoFox:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            annotation = epitope_annotator.get_annotation(neoantigen, patient)
+            neoantigen_annotation = epitope_annotator.get_annotation(neoantigen, patient)
             end = time.time()
             logger.info("Elapsed time for annotating neoantigen {} seconds".format(int(end - start)))
-            annotations.append(annotation)
+            annotations.append(neoantigen_annotation)
         return annotations

@@ -31,15 +31,35 @@ class TestNeofox(TestCase):
         """
         patient_id = 'Pt29'
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
-        output_file = pkg_resources.resource_filename(neofox.tests.__name__,
-                                                      "resources/output_{:%Y%m%d%H%M%S}.txt".format(datetime.now()))
+        output_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.txt".format(datetime.now()))
+        output_file_tall_skinny = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.txt".format(datetime.now()))
+        output_file_neoantigens = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.txt".format(datetime.now()))
+        output_json_neoantigens = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.json".format(datetime.now()))
+        output_json_annotations = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.json".format(datetime.now()))
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
+        neoantigens = ModelConverter.parse_icam_file(input_file)
+        patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            icam_file=input_file,
+            neoantigens=neoantigens,
             patient_id=patient_id,
-            patients_file=patients_file).get_annotations()
-        ModelConverter.annotations2short_wide_table(annotations).to_csv(output_file, sep='\t', index=False)
+            patients=patients).get_annotations()
+
+        # writes output
+        ModelConverter.annotations2short_wide_table(
+            neoantigen_annotations=annotations, neoantigens=neoantigens).to_csv(output_file, sep='\t', index=False)
+        ModelConverter.annotations2tall_skinny_table(annotations).to_csv(output_file_tall_skinny, sep='\t', index=False)
+        ModelConverter.objects2dataframe(neoantigens).to_csv(output_file_neoantigens, sep='\t', index=False)
+        ModelConverter.objects2json(annotations, output_json_annotations)
+        ModelConverter.objects2json(neoantigens, output_json_neoantigens)
+
+        # regression test
         self._regression_test_on_output_file(new_file=output_file)
+
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
