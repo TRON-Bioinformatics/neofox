@@ -13,14 +13,18 @@ I    A/L     R/K     N/M     D/F     C/P     Q/S     E/T     G/W     H/Y     I/V
 //
 """
 import os
+from typing import List
+
 from logzero import logger
 
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
 
 AA_INDEX1_FILENAME = 'aaindex1'
 AA_INDEX2_FILENAME = 'aaindex2'
 
 
-class AaIndex(object):
+class AminoacidIndex(object):
 
     def __init__(self):
         aaindex1_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), AA_INDEX1_FILENAME)
@@ -31,12 +35,6 @@ class AaIndex(object):
         logger.info("Loading AA index 2...")
         self.aaindex2 = self._parse_aaindex2(aaindex2_file)
         logger.info("Loaded {} entries...".format(len(self.aaindex2)))
-
-    def get_aaindex1(self):
-        return self.aaindex1
-
-    def get_aaindex2(self):
-        return self.aaindex2
 
     def _parse_aaindex1(self, fin):
         d = {}
@@ -77,6 +75,20 @@ class AaIndex(object):
                     data = False
                     lb = []
         return d
+
+    def get_annotations(self, wild_type_aminoacid: str, mutation_aminoacid: str) -> List[Annotation]:
+
+        annotations = []
+        for k in self.aaindex1:
+            annotations.append(AnnotationFactory.build_annotation(
+                value=self.aaindex1[k].get(wild_type_aminoacid), name="{}_{}".format(k, "wt")))
+            annotations.append(AnnotationFactory.build_annotation(
+                value=self.aaindex1[k].get(mutation_aminoacid), name="{}_{}".format(k, "mut")))
+        for k in self.aaindex2:
+            annotations.append(AnnotationFactory.build_annotation(
+                value=self.aaindex2[k].get(wild_type_aminoacid, {}).get(mutation_aminoacid), name=k))
+
+        return annotations
 
 
     """
@@ -170,27 +182,3 @@ class AaIndex(object):
                     firstline = False
                     asym = False
         return d
-
-
-if __name__ == "__main__":
-    d_aaindex1 = parse_aaindex1("aa_index/aaindex1")
-    d_aaindex2 = parse_aaindex2("aa_index/aaindex2")
-    print(len(list(d_aaindex1.keys())))
-    print(len(list(d_aaindex2.keys())))
-    print(d_aaindex2["VOGG950101"])
-    print(d_aaindex2["KOSJ950101"])
-    print(d_aaindex2["VOGG950101"]["A"]["C"], d_aaindex2["VOGG950101"]["C"]["A"])
-    print(d_aaindex2["KOSJ950101"]["A"]["C"], d_aaindex2["KOSJ950101"]["C"]["A"])
-
-# read trompapep
-# annotate peptides with:
-# z descriptors for mutant plus z describtors for WT
-# matrices for substitution
-
-# R: PCA, mark immunogenic candidates ?
-#    define conserved and induced binders ?
-#    retest with subgroups ?
-
-# self similarity to proteome
-#   k-mer based counting - how many k-mers of mut peptide are in proteome ?
-#   maybe correalte with EPAT db ?

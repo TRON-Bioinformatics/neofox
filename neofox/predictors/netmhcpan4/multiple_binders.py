@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats as stats
-
+from logzero import logger
 from neofox import MHC_I, MHC_II
 
 
@@ -10,14 +10,12 @@ class MultipleBinding:
         """
         returns list of arithmetic, harmonic and geometric mean from a list of numbers
         """
-        results = ["NA", "NA", "NA"]
+        results = [None, None, None]
         if list_numbers is not None and len(list_numbers) > 0:
-            # TODO: ensure that floats are parsed before calling this method so this conversion is not needed
-            list_floats = [float(x) for x in list_numbers]
             results = [
-                np.mean(list_floats),
-                stats.hmean(list_floats),
-                stats.gmean(list_floats)
+                np.mean(list_numbers),
+                stats.hmean(list_numbers),
+                stats.gmean(list_numbers)
             ]
         return results
 
@@ -31,10 +29,11 @@ class MultipleBinding:
         for ii, i in enumerate(pred_data):
             if mhc == MHC_II:
                 # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((i[9], i[8], i[2], i[1]))
+                list_of_tuples.append((float(i[9]), float(i[8]), i[2], i[1]))
             else:
                 # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((i[13], i[12], i[2], i[1]))
+                list_of_tuples.append((float(i[13]), float(i[12]), i[2], i[1]))
+        list_of_tuples.sort(key=lambda x: x[0])     # sort by rank
         return list_of_tuples
 
     def extract_top10_epis(self, tuple_epis):
@@ -100,5 +99,5 @@ class MultipleBinding:
         for score in list_scores:
             if float(score) < threshold:
                 number_binders += 1
-        number_binders = number_binders if not len(list_scores) == 0 else "NA"
+        number_binders = number_binders if not len(list_scores) == 0 else None
         return number_binders

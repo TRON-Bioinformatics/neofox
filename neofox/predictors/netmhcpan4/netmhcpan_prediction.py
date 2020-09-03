@@ -16,25 +16,6 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         """
         self.runner = runner
         self.configuration = configuration
-        self.mhc_score = "NA"
-        self.epitope = "NA"
-        self.allele = "NA"
-        self.directed_to_TCR = "NA"
-        self.affinity = "NA"
-        self.affinity_epitope = "NA"
-        self.affinity_allele = "NA"
-        self.affinity_directed_to_TCR = "NA"
-        self.mhcI_score_9mer = "NA"
-        self.mhcI_score_allele_9mer = "NA"
-        self.mhcI_score_epitope_9mer = "NA"
-        self.mhcI_affinity_9mer = "NA"
-        self.mhcI_affinity_allele_9mer = "NA"
-        self.mhcI_affinity_epitope_9mer = "NA"
-
-    def _mhc_allele_in_netmhcpan_available(self, allele, set_available_mhc):
-        '''checks if mhc prediction is possible for given hla allele
-        '''
-        return allele in set_available_mhc
 
     def check_format_allele(self, allele):
         """
@@ -57,7 +38,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         for allele in hla_alleles:
             allele = self.check_format_allele(allele)
             allele = allele.replace("*", "")
-            if self._mhc_allele_in_netmhcpan_available(allele, set_available_mhc):
+            if allele in set_available_mhc:
                 allels_for_prediction.append(allele)
             else:
                 logger.info(allele + "not available")
@@ -141,7 +122,6 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                     directed_to_tcr_list.append("yes")
         directed_to_tcr = any(directed_to_tcr_list)
         return directed_to_tcr
-
 
     def filter_for_9mers(self, prediction_tuple):
         '''returns only predicted 9mers

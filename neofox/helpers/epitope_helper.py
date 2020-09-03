@@ -27,6 +27,7 @@ class EpitopeHelper(object):
         """
         returns position of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
         """
+        # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
         pos_mut = []
         if len(xmer_wt) == len(xmer_mut):
             p1 = -1
@@ -44,6 +45,46 @@ class EpitopeHelper(object):
                     p1 += 1
                     pos_mut.append(p1)
         return pos_mut
+
+    @staticmethod
+    def position_of_mutation_epitope(wild_type, mutation) -> int:
+        """
+        This function determines the position of the mutation within the epitope sequence.
+        """
+        # TODO: is this efficient? No, a solution with zip is around 25% faster, maybe something else is even faster
+        position = -1
+        try:
+            for i, aa in enumerate(mutation):
+                if aa != wild_type[i]:
+                    position = i + 1
+        except:
+            position = None
+        return position
+
+    @staticmethod
+    def number_of_mismatches(epitope_wild_type, epitope_mutation):
+        """
+        This function calculates the number of mismatches between the wt and the mutated epitope
+        """
+        # TODO: this is not efficient, it can be done with zip or using some library implementing Levenhstein distance
+        p1 = 0
+        for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
+            if aa_mut != aa_wt:
+                p1 += 1
+        return p1
+
+    @staticmethod
+    def position_in_anchor_position(position_mhci: int, peptide_length: int) -> bool:
+        """
+        This function determines if the mutation is located within an anchor position in mhc I.
+        As an approximation, we assume that the second and the last position are anchor positions for all alleles.
+        """
+        anchor = None
+        try:
+            anchor = position_mhci == peptide_length or position_mhci == 2
+        except:
+            pass
+        return anchor
 
     @staticmethod
     def epitope_covers_mutation(position_mutation_list, position_epitope, length_epitope):

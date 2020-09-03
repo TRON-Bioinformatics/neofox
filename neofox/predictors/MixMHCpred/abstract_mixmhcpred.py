@@ -37,7 +37,7 @@ class AbstractMixMHCpred(EpitopeHelper):
         try:
             return dat[val]
         except IndexError:
-            return "NA"
+            return None
 
     def extract_WT_for_best(self, xmer_wt, xmer_mut, best_mut_seq):
         """
@@ -60,4 +60,13 @@ class AbstractMixMHCpred(EpitopeHelper):
         try:
             return dat[val]
         except IndexError:
-            return "NA"
+            return None
+
+    def difference_score(self, mut_score, wt_score):
+        """calcualated difference in MixMHCpred scores between mutated and wt"""
+        result = None
+        try:
+            result = wt_score - mut_score
+        except ValueError:
+            pass
+        return result

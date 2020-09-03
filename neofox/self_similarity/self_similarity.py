@@ -1,9 +1,13 @@
 #!/usr/bin/env python
-
-from neofox import MHC_I, MHC_II
-
+from typing import List
 import math
 import os
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
+from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+
+THRESHOLD_IMPROVED_BINDER = 1.2
 
 BETA = 0.11387
 BLOSUM62_FILE_NAME = 'BLOSUM62-2.matrix.txt'
@@ -69,69 +73,63 @@ class SelfSimilarityCalculator():
             p = p * K1[u[i]][v[i]]
         return p
 
+    def get_self_similarity(self, mutation, wild_type):
+        """
+        Returns self-similiarity between mutated and wt epitope according to Bjerregard et al.,
+        Argument mhc indicates if determination for MHC I or MHC II epitopes
+        """
+        self_similarity = None
+        if mutation != "-":
+            try:
+                self_similarity = str(self.compute_k_hat_3(mutation, wild_type))
+            except ZeroDivisionError:
+                pass
+        return self_similarity
 
-def get_self_similarity(mutation, wild_type):
-    """
-    Returns self-similiarity between mutated and wt epitope according to Bjerregard et al.,
-    Argument mhc indicates if determination for MHC I or MHC II epitopes
-    """
-    self_similarity = 'NA'
-    try:
-        self_similarity = str(SelfSimilarityCalculator().compute_k_hat_3(mutation, wild_type))
-    except ZeroDivisionError:
-        pass
-    return self_similarity
+    def is_improved_binder(self, score_mutation, score_wild_type) -> bool:
+        """
+        This function checks if mutated epitope is improved binder according to Bjerregard et al.
+        """
+        improved_binder = None
+        try:
+            improved_binder = score_wild_type / score_mutation >= THRESHOLD_IMPROVED_BINDER
+        except (ZeroDivisionError, ValueError) as e:
+            pass
+        return improved_binder
 
+    def self_similarity_of_conserved_binder_only(self, has_conserved_binder, similarity):
+        """
+        this function returns selfsimilarity for conserved binder but not for improved binder
+        """
+        result = None
+        try:
+            # TODO: is this logic correct? improved binder is synonymous to conserved binder or opposite?
+            if not has_conserved_binder:
+                result = similarity
+        except (ZeroDivisionError, ValueError) as e:
+            pass
+        return result
 
-def is_improved_binder(score_mutation, score_wild_type):
-    """
-    This function checks if mutated epitope is improved binder according to Bjerregard et al.
-    """
-    try:
-        improved_binder = float(score_wild_type) / float(score_mutation) >= 1.2
-    except (ZeroDivisionError, ValueError) as e:
-        return "NA"
-    # TODO: boolean in a string needs to go away
-    return "1" if improved_binder else "0"
+    def get_annnotations(
+            self, netmhcpan: BestAndMultipleBinder, netmhcpan2: BestAndMultipleBinderMhcII) -> List[Annotation]:
 
-
-def self_similarity_of_conserved_binder_only(has_conserved_binder, similarity):
-    """
-    this function returns selfsimilarity for conserved binder but not for improved binder
-    """
-    try:
-        if has_conserved_binder == str(0):
-            return similarity
-        else:
-            return "NA"
-    except (ZeroDivisionError, ValueError) as e:
-        return "NA"
-
-
-def position_of_mutation_epitope(wild_type, mutation):
-    """
-    This function determines the position of the mutation within the epitope sequence.
-    """
-    p1 = -1
-    try:
-        for i, aa in enumerate(mutation):
-            if aa != wild_type[i]:
-                p1 = i + 1
-        return str(p1)
-    except:
-        return "NA"
-
-
-def position_in_anchor_position(position_mhci, peptide_length):
-    """
-    This function determines if the mutation is located within an anchor position in mhc I.
-    As an approximation, we assume that the second and the last position are anchor positions for all alleles.
-    """
-    anchor = "NA"
-    try:
-        anchor = int(position_mhci) == int(peptide_length) or int(position_mhci) == 2
-        # TODO this conversion of a boolean to a numeric boolean in a string needs to go away
-        anchor = str(1) if anchor else str(0)
-    except:
-        pass
-    return anchor
+        improved_binding_mhc1 = self.is_improved_binder(score_mutation=netmhcpan.best4_mhc_score,
+                                                        score_wild_type=netmhcpan.best4_mhc_score_WT)
+        self_similarity_mhc1 = self.get_self_similarity(mutation=netmhcpan.best4_mhc_epitope,
+                                                        wild_type=netmhcpan.best4_mhc_epitope_WT)
+        return [
+            AnnotationFactory.build_annotation(value=self_similarity_mhc1, name="Selfsimilarity_mhcI"),
+            AnnotationFactory.build_annotation(
+                value=self.get_self_similarity(wild_type=netmhcpan2.best_mhcII_pan_epitope_WT,
+                                               mutation=netmhcpan2.best_mhcII_pan_epitope),
+                name="Selfsimilarity_mhcII"),
+            AnnotationFactory.build_annotation(value=improved_binding_mhc1, name="ImprovedBinding_mhcI"),
+            AnnotationFactory.build_annotation(
+                value=self.is_improved_binder(score_mutation=netmhcpan2.best_mhcII_pan_score,
+                                              score_wild_type=netmhcpan2.best_mhcII_pan_score_WT),
+                name="ImprovedBinding_mhcII"),
+            AnnotationFactory.build_annotation(
+                value=self.self_similarity_of_conserved_binder_only(
+                    has_conserved_binder=improved_binding_mhc1, similarity=self_similarity_mhc1),
+                name="Selfsimilarity_mhcI_conserved_binder")
+            ]
