@@ -195,6 +195,10 @@
                 </li>
               
                 <li>
+                  <a href="#neoantigen.NeoantigenAnnotations"><span class="badge">M</span>NeoantigenAnnotations</a>
+                </li>
+              
+                <li>
                   <a href="#neoantigen.Patient"><span class="badge">M</span>Patient</a>
                 </li>
               
@@ -391,6 +395,14 @@ The size of the right flanking region </p></td>
             <tbody>
               
                 <tr>
+                  <td>identifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+A unique identifier of a neoantigen </p></td>
+                </tr>
+              
+                <tr>
                   <td>patientIdentifier</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
@@ -447,12 +459,69 @@ Variant allele frequency from the DNA. Range [0.0, 1.0] </p></td>
 Variant allele frequency from the RNA. Range [0.0, 1.0] </p></td>
                 </tr>
               
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.NeoantigenAnnotations">NeoantigenAnnotations</h3>
+        <p></p><p>A set of annotations for a neoantigen</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>neoantigenIdentifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+A unique identifier of a neoantigen </p></td>
+                </tr>
+              
                 <tr>
                   <td>annotations</td>
                   <td><a href="#neoantigen.Annotation">Annotation</a></td>
                   <td>repeated</td>
                   <td><p>
-Annotations </p></td>
+List of annotations </p></td>
+                </tr>
+              
+                <tr>
+                  <td>annotator</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The annotator </p></td>
+                </tr>
+              
+                <tr>
+                  <td>annotatorVersion</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The version of the annotator </p></td>
+                </tr>
+              
+                <tr>
+                  <td>timestamp</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+A timestamp determined when the annotation was created </p></td>
+                </tr>
+              
+                <tr>
+                  <td>resourcesHash</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Annotation resources MD5 hash </p></td>
                 </tr>
               
             </tbody>

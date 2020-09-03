@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+from typing import List
+
+from neofox.model.neoantigen import Annotation
+from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
 
@@ -13,16 +17,17 @@ class MixMhc2Pred(AbstractMixMHCpred):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self.load_available_allelles()
-        self.all_peptides = "NA"
-        self.all_ranks = "NA"
-        self.all_alleles = "NA"
-        self.best_peptide = "NA"
-        self.best_rank = "NA"
-        self.best_allele = "NA"
-        self.best_peptide_wt = "NA"
-        self.best_score_wt = "NA"
-        self.best_rank_wt = "NA"
-        self.difference_score_mut_wt = "NA"
+        self._initialise()
+
+    def _initialise(self):
+        self.all_peptides = None
+        self.all_ranks = None
+        self.all_alleles = None
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+        self.best_peptide_wt = None
+        self.best_rank_wt = None
 
     def load_available_allelles(self):
         """
@@ -103,7 +108,7 @@ class MixMhc2Pred(AbstractMixMHCpred):
         pepcol = head.index("Peptide")
         allelecol = head.index("BestAllele")
         rankcol = head.index("%Rank")
-        for entry in sorted(dat, key=lambda x: float(x[rankcol])):
+        for entry in sorted(dat, key=lambda x: (float(x[rankcol]), x[allelecol])):
             # all potential peptides per mutation --> return ditionary
             peps.append(entry[pepcol])
             ranks.append(entry[rankcol])
@@ -129,8 +134,7 @@ class MixMhc2Pred(AbstractMixMHCpred):
         return head_new, min_pep
 
     def import_available_HLAII_alleles(self, path_to_HLAII_file):
-        '''HLA II alleles for which MixMHC2pred predictions are possible
-        '''
+        """HLA II alleles for which MixMHC2pred predictions are possible"""
         avail_alleles = []
         with open(path_to_HLAII_file) as f:
             for line in f:
@@ -143,17 +147,10 @@ class MixMhc2Pred(AbstractMixMHCpred):
                         avail_alleles.append(line1)
         return avail_alleles
 
-    def difference_score(self, mut_score, wt_score):
-        ''' calcualated difference in MixMHCpred scores between mutated and wt
-        '''
-        try:
-            return str(float(wt_score) - float(mut_score))
-        except ValueError:
-            return "NA"
-
-    def main(self, alleles, xmer_wt, xmer_mut):
+    def run(self, alleles, xmer_wt, xmer_mut):
         '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         '''
+        self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
         # prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al.
         # Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
@@ -178,7 +175,8 @@ class MixMhc2Pred(AbstractMixMHCpred):
         if len(pred_all) > 0:
             pred_best = self.extract_best_peptide_per_mutation(pred)
             self.best_peptide = self.add_best_epitope_info(pred_best, "Peptide")
-            self.best_rank = self.add_best_epitope_info(pred_best, "%Rank")
+            # TODO: improve how data is fetched so types are maintained
+            self.best_rank = float(self.add_best_epitope_info(pred_best, "%Rank"))
             self.best_allele = self.add_best_epitope_info(pred_best, "BestAllele")
             self.all_peptides = "|".join(pred_all["Peptide"])
             self.all_ranks = "|".join(pred_all["%Rank"])
@@ -191,6 +189,19 @@ class MixMhc2Pred(AbstractMixMHCpred):
             self.mixmhc2prediction([self.best_allele], tmp_fasta, tmp_prediction, wt=True)
             pred_wt = self.read_mixmhcpred(tmp_prediction)
             self.best_peptide_wt = self.extract_WT_info(pred_wt, "Peptide")
-            self.best_rank_wt = self.extract_WT_info(pred_wt, "%Rank")
-            # difference in scores between mut and wt
-            self.difference_score_mut_wt = self.difference_score(self.best_rank_wt, self.best_rank)
+            # TODO: improve how data is fetched so types are maintained
+            self.best_rank_wt = float(self.extract_WT_info(pred_wt, "%Rank"))
+            
+    def get_annotations(self) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(value=self.all_peptides, name="MixMHC2pred_all_peptides"),
+            AnnotationFactory.build_annotation(value=self.all_ranks, name="MixMHC2pred_all_ranks"),
+            AnnotationFactory.build_annotation(value=self.all_alleles, name="MixMHC2pred_all_alleles"),
+            AnnotationFactory.build_annotation(value=self.best_peptide, name="MixMHC2pred_best_peptide"),
+            AnnotationFactory.build_annotation(value=self.best_rank, name="MixMHC2pred_best_rank"),
+            AnnotationFactory.build_annotation(value=self.best_allele, name="MixMHC2pred_best_allele"),
+            AnnotationFactory.build_annotation(value=self.best_peptide_wt, name="MixMHC2pred_best_peptide_wt"),
+            AnnotationFactory.build_annotation(value=self.best_rank_wt, name="MixMHC2pred_best_rank_wt"),
+            AnnotationFactory.build_annotation(
+                value=self.best_rank - self.best_rank_wt, name="MixMHC2pred_difference_rank_mut_wt")
+        ]

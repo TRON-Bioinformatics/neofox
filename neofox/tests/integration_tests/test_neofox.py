@@ -2,6 +2,7 @@ from unittest import TestCase
 from datetime import datetime
 import pkg_resources
 import neofox.tests
+from neofox.model.conversion import ModelConverter
 from neofox.neofox import NeoFox
 from neofox.tests.integration_tests import integration_test_tools
 import pandas as pd
@@ -33,11 +34,11 @@ class TestNeofox(TestCase):
         output_file = pkg_resources.resource_filename(neofox.tests.__name__,
                                                       "resources/output_{:%Y%m%d%H%M%S}.txt".format(datetime.now()))
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        annotations, header = NeoFox(
+        annotations = NeoFox(
             icam_file=input_file,
             patient_id=patient_id,
             patients_file=patients_file).get_annotations()
-        NeoFox.write_to_file_sorted(annotations, header, output_file=output_file)
+        ModelConverter.annotations2short_wide_table(annotations).to_csv(output_file, sep='\t', index=False)
         self._regression_test_on_output_file(new_file=output_file)
 
     def _regression_test_on_output_file(self, new_file):
@@ -71,8 +72,10 @@ class TestNeofox(TestCase):
 
         if ko_values_count > 0:
             logger.error("There are {} different values for column {}".format(ko_values_count, column_name))
-            logger.error("Previous version: {}".format(previous_df[column_name].get_values()))
-            logger.error("New version: {}".format(new_df[column_name].get_values()))
+            logger.error("Previous version: {}".format(previous_df[column_name].transform(
+                lambda x: x[0:20] + "..." if len(x) > 20 else x).get_values()))
+            logger.error("New version: {}".format(new_df[column_name].transform(
+                lambda x: x[0:20] + "..." if len(x) > 20 else x).get_values()))
             error = True
 
         return error

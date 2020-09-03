@@ -18,13 +18,6 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         """
         self.runner = runner
         self.configuration = configuration
-        self.mhcII_score = "NA"
-        self.epitopeII = "-"
-        self.alleleII = "NA"
-        self.affinityII = "NA"
-        self.affinity_epitopeII = "-"
-        self.affinity_alleleII = "NA"
-
 
     def check_format_allele(self, allele):
         """
@@ -37,8 +30,6 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         else:
             allele_correct = allele
         return allele_correct
-
-
 
     def generate_mhcII_alelles_combination_list(self, hla_alleles, set_available_mhc):
         ''' given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x) and HLA-DQA1/HLA-DPQ1 (4x)
@@ -77,8 +68,8 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
     def mhcII_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
         ''' Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file.
         '''
-        allels_for_prediction = self.generate_mhcII_alelles_combination_list(hla_alleles, set_available_mhc)
-        hla_allele = ",".join(allels_for_prediction)
+        alleles_for_prediction = self.generate_mhcII_alelles_combination_list(hla_alleles, set_available_mhc)
+        hla_allele = ",".join(alleles_for_prediction)
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command([
             self.configuration.net_mhc2_pan,
@@ -129,11 +120,7 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
             mhc_sc = dat_head.index("%Rank")
         else:
             mhc_sc = dat_head.index("Affinity(nM)")
-        epi = dat_head.index("Peptide")
-        hla_allele = dat_head.index("Allele")
         max_score = float(1000000000)
-        allele = "NA"
-        epitope = "NA"
         row = []
         for ii, i in enumerate(dat):
             mhc_score = float(i[mhc_sc])

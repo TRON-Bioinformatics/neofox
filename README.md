@@ -92,13 +92,13 @@ To build the package just run:
 python setup.py bdist_wheel
 ```
 
-This will create an installable wheel file under `dist/input-x.y.z.whl`.
+This will create an installable wheel file under `dist/neofox-x.y.z.whl`.
 
 ### Install the package
 
 Install the wheel file as follows:
 ```
-pip install dist/input-x.y.z.whl
+pip install dist/neofox-x.y.z.whl
 ```
 
 ### Run integration tests
