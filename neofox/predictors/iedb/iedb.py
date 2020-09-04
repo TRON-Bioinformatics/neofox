@@ -70,7 +70,7 @@ class IEDBimmunogenicity:
         try:
             if epitope != "-" and (affin_filtering and float(mhc_score) < 500.0) or not affin_filtering:
                 score = self.predict_immunogenicity(epitope, mhc_allele.replace("*", "").replace(":", ""))
-        except ValueError:
+        except (ValueError, AttributeError):
             pass
         return score
 
