@@ -1,7 +1,6 @@
 from argparse import ArgumentParser
 from logzero import logger
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.model.conversion import ModelConverter
 from neofox.neofox import NeoFox
 import os
 
@@ -31,7 +30,7 @@ def neofox_cli():
                         help='output results in JSON format')
     args = parser.parse_args()
 
-    input_file = args.input_file
+    model_file = args.model_file
     icam_file = args.icam_file
     patient_id = args.patient_id
     patients_data = args.patients_data
@@ -40,30 +39,49 @@ def neofox_cli():
     with_sw = args.with_short_wide_table
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
-    if input_file and icam_file:
+    if model_file and icam_file:
         raise NeofoxInputParametersException(
             "Please, define either an iCaM file or a standard input file as input. Not both")
-    if not input_file and not icam_file:
+    if not model_file and not icam_file:
         raise NeofoxInputParametersException(
             "Please, define one input file, either an iCaM file or a standard input file")
     if not with_sw and not with_ts and not with_json:
         with_sw = True  # if none specified short wide is the default
 
-    # parse the input data
-    if icam_file is not None:
-        neoantigens = ModelConverter.parse_icam_file(icam_file)
-    else:
-        neoantigens = ModelConverter.parse_neoantigens_file(input_file)
-    patients = ModelConverter.parse_patients_file(patients_data)
+    # makes sure that the output folder exists
+    os.makedirs(output_folder, exist_ok=True)
+
+    neoantigens, patients = _read_data(icam_file, model_file, patients_data)
 
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder
                          ).get_annotations()
 
+    _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
+
+    logger.info("Finished NeoFox")
+
+
+def _read_data(icam_file, model_file, patients_data):
+    # NOTE: this import here is a compromise solution so the help of the command line responds faster
+    from neofox.model.conversion import ModelConverter
+    # parse the input data
+    if icam_file is not None:
+        neoantigens = ModelConverter.parse_icam_file(icam_file)
+    else:
+        neoantigens = ModelConverter.parse_neoantigens_file(model_file)
+    patients = ModelConverter.parse_patients_file(patients_data)
+    return neoantigens, patients
+
+
+def _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts):
+    # NOTE: this import here is a compromise solution so the help of the command line responds faster
+    from neofox.model.conversion import ModelConverter
     # writes the output
     if with_sw:
         ModelConverter.annotations2short_wide_table(annotations, neoantigens).to_csv(
-            os.path.join(output_folder, "{}_neoantigens_features_short_wide.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neoantigens_features_short_wide.tsv".format(output_prefix)), sep='\t',
+            index=False)
     if with_ts:
         ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
             os.path.join(output_folder, "{}_features_tall_skinny.tsv".format(output_prefix)), sep='\t', index=False)
@@ -74,5 +92,3 @@ def neofox_cli():
             annotations, os.path.join(output_folder, "{}_features.json".format(output_prefix)))
         ModelConverter.objects2json(
             neoantigens, os.path.join(output_folder, "{}_neoantigens.json".format(output_prefix)))
-
-    logger.info("Finished NeoFox")
