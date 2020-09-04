@@ -61,7 +61,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
                 amplitude_mhc = candidate_amplitude_mhc * self._calculate_correction(score_wild_type)
             else:
                 amplitude_mhc = candidate_amplitude_mhc
-        except(ZeroDivisionError, ValueError):
+        except(ZeroDivisionError, ValueError, TypeError):
             pass
         return amplitude_mhc
 
@@ -85,7 +85,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
             else:
                 if not mutation_in_anchor:
                     recognition_potential = candidate_recognition_potential
-        except ValueError:
+        except (ValueError, TypeError):
             pass
         return recognition_potential
 
