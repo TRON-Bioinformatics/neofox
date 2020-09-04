@@ -45,7 +45,8 @@ class ProveanAnnotator(object):
             provean_entry = next(results).split("\t")
             provean_score = float(provean_entry[self.aminoacid_indexes.get(mutated_aminoacid)])
             logger.info("Fetched a PROVEAN score of {}".format(provean_score))
-        except StopIteration:
+        except (StopIteration, ValueError):
+            # pysam triggers these two exceptions under different situations when no data is available
             logger.error("No PROVEAN entries for {}:{}".format(protein_id, position))
         except IndexError:
             logger.error("Bad aminoacid trying to read PROVEAN {} with index {}".format(
