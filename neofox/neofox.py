@@ -8,35 +8,23 @@ from logzero import logger
 import dask
 from multiprocessing.pool import ThreadPool
 from neofox import NEOFOX_LOG_FILE_ENV
-from neofox.aa_index.aa_index import AminoacidIndex
 from neofox.annotation_resources.gtex.gtex import GTEx
-from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import NeofoxConfigurationException
-from neofox.helpers.available_alleles import AvailableAlleles
-from neofox.helpers.runner import Runner
-from neofox.annotation_resources.provean.provean import ProveanAnnotator
-from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
-from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
-from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from neofox.predictors.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
-from neofox.predictors.neoag.neoag_gbm_model import NeoagCalculator
-from neofox.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
-from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
-from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
+from neofox.references.references import ReferenceFolder
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
 
 
 class NeoFox:
 
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int):
+    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int, work_folder=None):
 
         # initialise logs
-        logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
+        if work_folder and os.path.exists(work_folder):
+            logfile = os.path.join(work_folder, "neofox.log")
+        else:
+            logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
         if logfile is not None:
             logzero.logfile(logfile)
         # TODO: this does not work
@@ -56,10 +44,11 @@ class NeoFox:
                 n.patient_identifier = patient_id
 
         references = ReferenceFolder()
+
+        # resources with long loading times
         self.uniprot = Uniprot(references.uniprot)
         self.gtex = GTEx()
 
-        # resources with external dependencies (files or binaries)
         logger.info("Data loaded")
 
     def get_annotations(self) -> List[NeoantigenAnnotations]:
