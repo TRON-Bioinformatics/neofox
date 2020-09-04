@@ -34,9 +34,12 @@ from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
 
 class NeoFox:
 
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient]):
+    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], work_folder=None):
 
-        logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
+        if work_folder and os.path.exists(work_folder):
+            logfile = os.path.join(work_folder, "neofox.log")
+        else:
+            logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
         if logfile is not None:
             logzero.logfile(logfile)
         # TODO: this does not work
