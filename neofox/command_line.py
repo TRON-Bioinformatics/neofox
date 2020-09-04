@@ -57,7 +57,8 @@ def neofox_cli():
     patients = ModelConverter.parse_patients_file(patients_data)
 
     # run annotations
-    annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id).get_annotations()
+    annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder
+                         ).get_annotations()
 
     # writes the output
     if with_sw:
