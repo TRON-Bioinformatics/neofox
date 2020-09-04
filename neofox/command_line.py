@@ -54,7 +54,8 @@ def neofox_cli():
     neoantigens, patients = _read_data(icam_file, model_file, patients_data)
 
     # run annotations
-    annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder
+    annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
+                         output_prefix = output_prefix
                          ).get_annotations()
 
     _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
