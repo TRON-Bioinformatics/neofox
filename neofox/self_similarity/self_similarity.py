@@ -93,7 +93,7 @@ class SelfSimilarityCalculator():
         improved_binder = None
         try:
             improved_binder = score_wild_type / score_mutation >= THRESHOLD_IMPROVED_BINDER
-        except (ZeroDivisionError, ValueError) as e:
+        except (ZeroDivisionError, ValueError,  TypeError) as e:
             pass
         return improved_binder
 
