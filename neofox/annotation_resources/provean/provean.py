@@ -44,7 +44,12 @@ class ProveanAnnotator(object):
             results = self.provean.fetch(protein_id, position - 1, position)
             provean_entry = next(results).split("\t")
             provean_score = float(provean_entry[self.aminoacid_indexes.get(mutated_aminoacid)])
-        except (IndexError, TypeError, ValueError) as ex:
-            logger.error("Error fetching the PROVEAN score at {}:{}:{}".format(protein_id, position, mutated_aminoacid))
-        logger.info("Fetched a PROVEAN score of {}".format(provean_score))
+            logger.info("Fetched a PROVEAN score of {}".format(provean_score))
+        except StopIteration:
+            logger.error("No PROVEAN entries for {}:{}".format(protein_id, position))
+        except IndexError:
+            logger.error("Bad aminoacid trying to read PROVEAN {} with index {}".format(
+                mutated_aminoacid, self.aminoacid_indexes[mutated_aminoacid]))
+        except TypeError:
+            logger.error("Non float entry coming out of PROVEAN for {}:{}".format(protein_id, position))
         return provean_score
