@@ -1,24 +1,21 @@
 from argparse import ArgumentParser
-
-from betterproto import Casing
 from logzero import logger
-
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.model.conversion import ModelConverter
 from neofox.neofox import NeoFox
 import os
-import json
 
 
 def neofox_cli():
     parser = ArgumentParser(description='adds patient information given in sample file of a cohort to merged icam file')
-    parser.add_argument('--input-file', dest='input_file', help='input file with neoantigens')
-    parser.add_argument('-i', '--icam-file', dest='icam_file',
-                        help='iCaM file with neoantigens (this is an alternative input for iCaM integration)')
+    parser.add_argument('--model-file', dest='model_file',
+                        help='input tabular file with neoantigens')
+    parser.add_argument('--icam-file', dest='icam_file',
+                        help='input iCaM file with neoantigens (this is an alternative input for iCaM integration)')
     # TODO: once we support the neofox from the models this parameter will not be required
-    parser.add_argument('-p', '--patient-id', dest='patient_id', help='the patient id for the iCaM file',
+    parser.add_argument('--patient-id', dest='patient_id', help='the patient id for the iCaM file',
                         required=True)
-    parser.add_argument('-d', '--patients-data', dest='patients_data',
+    parser.add_argument('--patients-data', dest='patients_data',
                         help='file with data for patients with columns: identifier, estimated_tumor_content, '
                              'is_rna_available, mhc_i_alleles, mhc_i_i_alleles, tissue',
                         required=True)
@@ -65,16 +62,16 @@ def neofox_cli():
     # writes the output
     if with_sw:
         ModelConverter.annotations2short_wide_table(annotations, neoantigens).to_csv(
-            os.path.join(output_folder, "{}.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neofox_neoantigens_features_short_wide.tsv".format(output_prefix)), sep='\t', index=False)
     if with_ts:
         ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
-            os.path.join(output_folder, "{}.annotations.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neofox_features_tall_skinny.tsv".format(output_prefix)), sep='\t', index=False)
         ModelConverter.objects2dataframe(neoantigens).to_csv(
-            os.path.join(output_folder, "{}.neoantigens.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neofox_neoantigens.tsv".format(output_prefix)), sep='\t', index=False)
     if with_json:
         ModelConverter.objects2json(
-            annotations, os.path.join(output_folder, "{}.annotations.json".format(output_prefix)))
+            annotations, os.path.join(output_folder, "{}_neofox_features.json".format(output_prefix)))
         ModelConverter.objects2json(
-            neoantigens, os.path.join(output_folder, "{}.neoantigens.json".format(output_prefix)))
+            neoantigens, os.path.join(output_folder, "{}_neofox_neoantigens.json".format(output_prefix)))
 
     logger.info("Finished NeoFox")
