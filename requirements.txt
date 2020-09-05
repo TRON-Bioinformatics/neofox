@@ -9,3 +9,4 @@ logzero==1.5.0
 python-dotenv==0.12.0
 betterproto==1.2.5
 pysam==0.16.0.1
+dask[complete]==2.25.0

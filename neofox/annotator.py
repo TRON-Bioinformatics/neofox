@@ -11,6 +11,7 @@ from neofox.annotation_resources.provean.provean import ProveanAnnotator
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.helpers.runner import Runner
 from neofox.literature_features.differential_expression import DifferentialExpression
 from neofox.model.conversion import ModelConverter
 from neofox.model.wrappers import AnnotationFactory
@@ -22,6 +23,7 @@ from neofox.predictors.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
 from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
 from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.vaxrank import vaxrank
 from neofox.predictors.iedb.iedb import IEDBimmunogenicity
@@ -33,40 +35,29 @@ from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 
 class NeoantigenAnnotator:
 
-    def __init__(self,
-                 provean_annotator: ProveanAnnotator,
-                 uniprot: Uniprot,
-                 dissimilarity_calculator: DissimilarityCalculator,
-                 neoantigen_fitness_calculator: NeoantigenFitnessCalculator,
-                 neoag_calculator: NeoagCalculator,
-                 netmhcpan2: BestAndMultipleBinderMhcII,
-                 mixmhc2: MixMhc2Pred,
-                 netmhcpan: BestAndMultipleBinder,
-                 mixmhc: MixMHCpred,
-                 available_alleles: AvailableAlleles,
-                 gtex: GTEx,
-                 aa_frequency: AminoacidFrequency,
-                 fourmer_frequency: FourmerFrequency,
-                 aa_index: AminoacidIndex,
-                 tcell_predictor: TcellPrediction,
-                 self_similarity: SelfSimilarityCalculator):
+    def __init__(self, uniprot: Uniprot, gtex: GTEx):
         """class to annotate neoantigens"""
-        self.provean_annotator = provean_annotator
-        self.dissimilarity_calculator = dissimilarity_calculator
-        self.neoantigen_fitness_calculator = neoantigen_fitness_calculator
-        self.neoag_calculator = neoag_calculator
-        self.netmhcpan2 = netmhcpan2
-        self.mixmhc2 = mixmhc2
-        self.netmhcpan = netmhcpan
-        self.mixmhc = mixmhc
-        self.available_alleles = available_alleles
+        references = ReferenceFolder()
+        configuration = DependenciesConfiguration()
+        runner = Runner()
+        self.provean_annotator = ProveanAnnotator(provean_file=references.prov_scores_mapped3)
+        self.dissimilarity_calculator = DissimilarityCalculator(
+            runner=runner, configuration=configuration, proteome_db=references.proteome_db)
+        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
+            runner=runner, configuration=configuration, iedb=references.iedb)
+        self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
+        self.netmhcpan2 = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
+        self.mixmhc2 = MixMhc2Pred(runner=runner, configuration=configuration)
+        self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
+        self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
+        self.available_alleles = AvailableAlleles(references)
         self.uniprot = uniprot
         self.gtex = gtex
-        self.aa_frequency = aa_frequency
-        self.fourmer_frequency = fourmer_frequency
-        self.aa_index = aa_index
-        self.tcell_predictor = tcell_predictor
-        self.self_similarity = self_similarity
+        self.aa_frequency = AminoacidFrequency()
+        self.fourmer_frequency = FourmerFrequency()
+        self.aa_index = AminoacidIndex()
+        self.tcell_predictor = TcellPrediction()
+        self.self_similarity = SelfSimilarityCalculator()
 
         # NOTE: these resources do not read any file thus can be initialised fast
         self.differential_binding = DifferentialBinding()
