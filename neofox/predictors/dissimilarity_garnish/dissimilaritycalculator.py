@@ -22,7 +22,7 @@ class DissimilarityCalculator(BlastpRunner):
         super().__init__(runner=runner, configuration=configuration)
         self.proteome_db = proteome_db
 
-    def _calc_dissimilarity(self, fasta_file):
+    def _dissimilarity(self, fasta_file):
         """
         This function determines the dissimilarity to self-proteome of epitopes as described in Richman et al
         """
@@ -39,8 +39,9 @@ class DissimilarityCalculator(BlastpRunner):
         """
         dissimilarity_score = None
         if mhc_mutation != "-" and (not filter_binder or not mhc_affinity >= 500):
-            fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmp_dissimilarity_", comment_prefix='M_')
-            dissimilarity_score = self._calc_dissimilarity(fastafile)
+            fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmp_dissimilarity_",
+                                                             comment_prefix='M_')
+            dissimilarity_score = self._dissimilarity(fastafile)
             os.remove(fastafile)
         return dissimilarity_score
 
@@ -53,15 +54,15 @@ class DissimilarityCalculator(BlastpRunner):
             AnnotationFactory.build_annotation(
                 value=self.calculate_dissimilarity(
                     mhc_mutation=netmhcpan.best4_affinity_epitope, mhc_affinity=netmhcpan.best4_affinity),
-                name="dissimilarity"),
+                name="Dissimilarity_MHCI"),
             AnnotationFactory.build_annotation(
                 value=self.calculate_dissimilarity(
                     mhc_mutation=netmhcpan.best4_affinity_epitope, mhc_affinity=netmhcpan.best4_affinity,
                     filter_binder=True),
-                name="dissimilarity_filter500"),
+                name="Dissimilarity_MHCI_cutoff500nM"),
             AnnotationFactory.build_annotation(
                 value=self.calculate_dissimilarity(
                     mhc_mutation=netmhcpan2.best_mhcII_pan_affinity_epitope,
                     mhc_affinity=netmhcpan2.best_mhcII_pan_affinity),
-                name="dissimilarity_mhcII")
+                name="Dissimilarity_MHCII")
             ]

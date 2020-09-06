@@ -56,10 +56,10 @@ class BestAndMultipleBinderMhcII:
         self.best_mhcII_affinity_allele_WT = None
 
     def MHCII_MB_score_best_per_allele(self, tuple_best_per_allele):
-        '''returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
+        """returns list of multiple binding scores for mhcII considering best epitope per allele,
+        applying different types of means (harmonic ==> PHRB-II, Marty et al).
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
-        '''
-        number_alleles = len(tuple_best_per_allele)
+        """
         multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         for best_epi in tuple_best_per_allele:
@@ -73,9 +73,9 @@ class BestAndMultipleBinderMhcII:
             return [None, None, None]
 
     def run(self, sequence, sequence_reference, alleles, set_available_mhc):
-        '''predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
-        '''
-        ### PREDICTION FOR MUTATED SEQUENCE
+        """predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
+        """
+        # mutation
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
@@ -115,7 +115,7 @@ class BestAndMultipleBinderMhcII:
             # if neofox sequence shorter than 15 aa
             pass
 
-        ### PREDICTION FOR WT SEQUENCE
+        # wt
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
@@ -156,62 +156,62 @@ class BestAndMultipleBinderMhcII:
 
     def get_annotations(self) -> List[Annotation]:
         annotations =  [
-            # netmhcpan4 MUT scores
-            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_score, name="best%Rank_netmhcIIpan"),
-            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_epitope, name="best_epitope_netmhcIIpan"),
-            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_allele, name="bestHLA_allele_netmhcIIpan"),
-            # netmhcpan4 mut affinity
-            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_affinity, name="best_affinity_netmhcIIpan"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_score, name="Best_rank_MHCII_score"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_epitope, name="Best_rank_MHCII_score_epitope"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_allele, name="Best_rank_MHCII_score_allele"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_affinity, name="Best_affinity_MHCII_score"),
             AnnotationFactory.build_annotation(value=self.best_mhcII_pan_affinity_epitope,
-                                               name="best_affinity_epitope_netmhcIIpan"),
+                                               name="Best_affinity_MHCII_epitope"),
             AnnotationFactory.build_annotation(value=self.best_mhcII_pan_affinity_allele,
-                                               name="bestHLA_allele_affinity_netmhcIIpan"),
-            # netmhcIIpan WT scores
-            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_score_WT, name="best%Rank_netmhcIIpan_WT"),
-            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_epitope_WT, name="best_epitope_netmhcIIpan_WT"),
-            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_allele_WT, name="bestHLA_allele_netmhcIIpan_Wt"),
-            # netmhcIIpan wt affinity
-            AnnotationFactory.build_annotation(value=self.best_mhcII_affinity_WT, name="best_affinity_netmhcIIpan_WT"),
+                                               name="Best_affinity_MHCII_allele"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_score_WT, name="Best_rank_MHCII_score_WT"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_epitope_WT,
+                                               name="Best_rank_MHCII_score_epitope_WT"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_pan_allele_WT,
+                                               name="Best_rank_MHCII_score_allele_WT"),
+            AnnotationFactory.build_annotation(value=self.best_mhcII_affinity_WT, name="Best_affinity_MHCII_score_WT"),
             AnnotationFactory.build_annotation(value=self.best_mhcII_affinity_epitope_WT,
-                                               name="best_affinity_epitope_netmhcIIpan_WT"),
+                                               name="Best_affinity_MHCII_epitope_WT"),
             AnnotationFactory.build_annotation(value=self.best_mhcII_affinity_allele_WT,
-                                               name="bestHLA_allele_affinity_netmhcIIpan_WT"),
+                                               name="Best_affinity_MHCII_allele_WT"),
 
-            AnnotationFactory.build_annotation(value=self.MHCII_epitope_scores, name="MB_mhcII_epitope_scores"),
-            AnnotationFactory.build_annotation(value=self.MHCII_epitope_seqs, name="MB_mhcII_epitope_sequences"),
-            AnnotationFactory.build_annotation(value=self.MHCII_epitope_alleles, name="MB_mhcII_alleles"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_scores, name="All_ranks_MHCII"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_seqs, name="All_epitopes_MHCII"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_alleles, name="All_alleles_MHCII"),
             AnnotationFactory.build_annotation(value=self.MHCII_number_strong_binders,
-                                               name="MB_number_pep_MHCIIscore<2"),
+                                               name="Number_strong_binders_MHCII"),
             AnnotationFactory.build_annotation(value=self.MHCII_number_weak_binders,
-                                               name="MB_number_pep_MHCIIscore<10"),
+                                               name="Number_weak_binders_MHCII"),
 
-            AnnotationFactory.build_annotation(value=self.MHCII_epitope_scores_WT, name="MB_mhcII_epitope_scores_WT"),
-            AnnotationFactory.build_annotation(value=self.MHCII_epitope_seqs_WT, name="MB_mhcII_epitope_sequences_WT"),
-            AnnotationFactory.build_annotation(value=self.MHCII_epitope_alleles_WT, name="MB_mhcII_alleles_WT"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_scores_WT, name="All_ranks_MHCII_WT"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_seqs_WT, name="All_epitopes_MHCII_WT"),
+            AnnotationFactory.build_annotation(value=self.MHCII_epitope_alleles_WT, name="All_alleles_MHCII_WT"),
             AnnotationFactory.build_annotation(value=self.MHCII_number_strong_binders_WT,
-                                               name="MB_number_pep_MHCIIscore<2_WT"),
+                                               name="Number_strong_binders_MHCII_WT"),
             AnnotationFactory.build_annotation(value=self.MHCII_number_weak_binders_WT,
-                                               name="MB_number_pep_MHCIIscore<10_WT")
+                                               name="Number_weak_binders_MHCII_WT")
             ]
         # multiplexed representation MUT MHC II
         for sc, mn in zip(self.MHCII_score_all_epitopes, self.mean_type):
-            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_MHCII_all_epitopes_" + mn))
+            annotations.append(AnnotationFactory.build_annotation(value=sc,
+                                                                  name="Multiple_binding_score_MHCII_all_epitopes_" + mn))
         for sc, mn in zip(self.MHCII_score_top10, self.mean_type):
-            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_MHCII_top10_" + mn))
+            annotations.append(AnnotationFactory.build_annotation(value=sc, name="Multiple_binding_score_MHCII_top10_" + mn))
         for sc, mn in zip(self.MHCII_score_best_per_alelle, self.mean_type):
             # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
             annotations.append(AnnotationFactory.build_annotation(
-                value=sc, name="MB_score_MHCII_best_per_alelle_" + mn if mn != "harmonic" else "PHBR-II"))
+                value=sc, name="Multiple_binding_score_MHCII_best_per_alelle_" + mn if mn != "harmonic" else "PHBR-II"))
         # multiplexed representation WT MHC II
         for sc, mn in zip(self.MHCII_score_all_epitopes_WT, self.mean_type):
             annotations.append(AnnotationFactory.build_annotation(value=sc,
-                                                                  name="MB_score_MHCII_all_epitopes_WT_" + mn))
+                                                                  name="Multiple_binding_score_MHCII_all_epitopes_WT_" + mn))
         for sc, mn in zip(self.MHCII_score_top10_WT, self.mean_type):
-            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_MHCII_top10_WT_" + mn))
+            annotations.append(AnnotationFactory.build_annotation(value=sc,
+                                                                  name="Multiple_binding_score_MHCII_top10_WT_" + mn))
         for sc, mn in zip(self.MHCII_score_best_per_alelle_WT, self.mean_type):
             # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
             annotations.append(AnnotationFactory.build_annotation(
-                value=sc, name="MB_score_MHCII_best_per_alelle_WT_" + mn if mn != "harmonic" else "PHBR-II_WT"))
+                value=sc, name="Multiple_binding_score_MHCII_best_per_alelle_WT_" + mn if mn != "harmonic" else "PHBR-II_WT"))
 
         return annotations
 

@@ -64,7 +64,7 @@ class IEDBimmunogenicity:
             raise ex
         return score
 
-    def calc_IEDB_immunogenicity(self, epitope, mhc_allele, mhc_score, affin_filtering=False):
+    def calculate_iedb_immunogenicity(self, epitope, mhc_allele, mhc_score, affin_filtering=False):
         """This function determines the IEDB immunogenicity score"""
         score = None
         try:
@@ -80,17 +80,17 @@ class IEDBimmunogenicity:
         """returns IEDB immunogenicity for MHC I (based on affinity) and MHC II (based on rank)"""
         return [
             AnnotationFactory.build_annotation(
-                value=self.calc_IEDB_immunogenicity(
-                    epitope=netmhcpan.best4_affinity_epitope, mhc_allele=mhci_allele,
-                    mhc_score=netmhcpan.best4_affinity),
-                name="IEDB_Immunogenicity_mhcI"),
-            AnnotationFactory.build_annotation(
-                value=self.calc_IEDB_immunogenicity(
-                    epitope=netmhcpan2.best_mhcII_pan_epitope, mhc_allele=mhcii_allele, mhc_score=None),
-                name="IEDB_Immunogenicity_mhcII"),
-            AnnotationFactory.build_annotation(
-                value=self.calc_IEDB_immunogenicity(
+                value=self.calculate_iedb_immunogenicity(
                     epitope=netmhcpan.best4_affinity_epitope, mhc_allele=mhci_allele,
                     mhc_score=netmhcpan.best4_affinity, affin_filtering=True),
-                name="IEDB_Immunogenicity_mhcI_affinity_filtered")
+                name="IEDB_Immunogenicity_MHCI_cutoff500nM"),
+            AnnotationFactory.build_annotation(
+                value=self.calculate_iedb_immunogenicity(
+                    epitope=netmhcpan.best4_affinity_epitope, mhc_allele=mhci_allele,
+                    mhc_score=netmhcpan.best4_affinity),
+                name="IEDB_Immunogenicity_MHCI"),
+            AnnotationFactory.build_annotation(
+                value=self.calculate_iedb_immunogenicity(
+                    epitope=netmhcpan2.best_mhcII_pan_epitope, mhc_allele=mhcii_allele, mhc_score=None),
+                name="IEDB_Immunogenicity_MHCII"),
             ]
