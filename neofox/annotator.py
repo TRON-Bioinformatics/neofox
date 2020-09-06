@@ -15,8 +15,6 @@ from neofox.helpers.runner import Runner
 from neofox.literature_features.differential_expression import DifferentialExpression
 from neofox.literature_features.differential_binding.amplitude import Amplitude
 from neofox.literature_features.differential_binding.differential_binding import DifferentialBinding
-from neofox.model.conversion import ModelConverter
-from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
