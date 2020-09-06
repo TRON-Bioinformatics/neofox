@@ -16,7 +16,7 @@ def neofox_cli():
                         required=True)
     parser.add_argument('--patients-data', dest='patients_data',
                         help='file with data for patients with columns: identifier, estimated_tumor_content, '
-                             'is_rna_available, mhc_i_alleles, mhc_i_i_alleles, tissue',
+                             'is_rna_available, mhc_i_alleles, mhc_ii_alleles, tissue',
                         required=True)
     parser.add_argument('--output-folder', dest='output_folder', help='output folder', required=True)
     parser.add_argument('--output-prefix', dest='output_prefix',
