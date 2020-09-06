@@ -24,7 +24,7 @@ class NeoFox:
 
         # initialise logs
         if work_folder and os.path.exists(work_folder):
-            logfile = "".join([work_folder, "/", output_prefix, "_neofox.log"])
+            logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
         else:
             logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
         if logfile is not None:
