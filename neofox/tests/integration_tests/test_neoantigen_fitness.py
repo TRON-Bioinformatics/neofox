@@ -39,3 +39,5 @@ class TestNeoantigenFitness(TestCase):
     def test_recognition_potential(self):
         self.assertEqual(1.0, self.neoantigen_fitness_calculator.calculate_recognition_potential(
             amplitude=1.0, pathogen_similarity=1.0, mutation_in_anchor=False))
+        self.assertEqual(None, self.neoantigen_fitness_calculator.calculate_recognition_potential(
+            amplitude=None, pathogen_similarity=1.0, mutation_in_anchor=False))
