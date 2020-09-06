@@ -18,7 +18,8 @@ class NeoagCalculator(object):
         self.configuration = configuration
 
     def _apply_gbm(self, tmp_in):
-        ''' this function calls NeoAg tool. this tool applys a gradient boosting machine based on biochemical features to epitopes (predicted seqs)
+        ''' this function calls NeoAg tool. this tool applys a gradient boosting machine based on biochemical features
+        to epitopes (predicted seqs)
         '''
         my_path = os.path.abspath(os.path.dirname(__file__))
         model_path = os.path.join(my_path, "neoag-master")
@@ -31,8 +32,10 @@ class NeoagCalculator(object):
         output, _ = self.runner.run_command(cmd)
         return output
 
-    def _prepare_tmp_for_neoag(self, sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position, tmp_file_name):
-        ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with affinity < 500 nM
+    def _prepare_tmp_for_neoag(self, sample_id, mut_peptide, score_mut, ref_peptide, peptide_variant_position,
+                               tmp_file_name):
+        ''' writes necessary epitope information into temporary file for neoag tool; only for epitopes with
+        affinity < 500 nM
         '''
         header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
         try:
@@ -52,4 +55,4 @@ class NeoagCalculator(object):
         self._prepare_tmp_for_neoag(sample_id, netmhcpan.best4_affinity_epitope, netmhcpan.best4_affinity,
                                     netmhcpan.best4_affinity_epitope_WT, peptide_variant_position, tmp_file_name)
         neoag_score = self._apply_gbm(tmp_file_name)
-        return AnnotationFactory.build_annotation(value=neoag_score, name="neoag_immunogencity")
+        return AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogencity")
