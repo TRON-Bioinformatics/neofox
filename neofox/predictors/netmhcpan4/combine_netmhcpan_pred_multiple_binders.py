@@ -5,7 +5,6 @@ import neofox.predictors.netmhcpan4.multiple_binders as multiple_binders
 import neofox.predictors.netmhcpan4.netmhcpan_prediction as netmhcpan_prediction
 from neofox.helpers import intermediate_files
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.literature_features.differential_binding import DifferentialBinding
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 import neofox.helpers.casting as casting
@@ -19,7 +18,6 @@ class BestAndMultipleBinder:
         """
         self.runner = runner
         self.configuration = configuration
-        self.differential_binding = DifferentialBinding()
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self._initialise()
 
@@ -262,25 +260,8 @@ class BestAndMultipleBinder:
         for sc, mn in zip(self.MHC_score_best_per_alelle_WT, self.mean_type):
             annotations.append(
                 AnnotationFactory.build_annotation(value=sc, name="MB_score_WT_best_per_alelle_" + mn if mn != "harmonic" else "PHBR-I_WT"))
-        annotations.extend(self._get_multiple_binding_numdiff(
-            num_mutation=self.MHC_number_strong_binders, num_wild_type=self.MHC_number_strong_binders_WT, threshold=1))
-        annotations.extend(self._get_multiple_binding_numdiff(
-            num_mutation=self.MHC_number_weak_binders, num_wild_type=self.MHC_number_weak_binders_WT, threshold=2))
         annotations.extend(self._get_positions_and_mutation_in_anchor())
         return annotations
-
-    def _get_multiple_binding_numdiff(self, num_mutation, num_wild_type, threshold):
-        """
-        returns difference and ratio of # epitopes with rank scores < 1 or 2 for mutant and wt sequence
-        """
-        return [
-            AnnotationFactory.build_annotation(value=self.differential_binding.diff_number_binders(
-                num_mutation=num_mutation, num_wild_type=num_wild_type),
-                name="Diff_numb_epis_mhcI<{}".format(threshold)),
-            AnnotationFactory.build_annotation(value=self.differential_binding.ratio_number_binders(
-                num_mutation=num_mutation, num_wild_type=num_wild_type),
-                name="Ratio_numb_epis_<{}".format(threshold))
-        ]
 
     def _get_positions_and_mutation_in_anchor(self):
         """

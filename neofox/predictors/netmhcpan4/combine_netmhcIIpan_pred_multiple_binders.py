@@ -4,7 +4,6 @@ from typing import List
 import neofox.predictors.netmhcpan4.netmhcIIpan_prediction as netmhcIIpan_prediction
 from neofox import MHC_II
 from neofox.helpers import intermediate_files
-from neofox.literature_features.differential_binding import DifferentialBinding
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.netmhcpan4 import multiple_binders
@@ -20,7 +19,6 @@ class BestAndMultipleBinderMhcII:
         """
         self.runner = runner
         self.configuration = configuration
-        self.differential_binding = DifferentialBinding()
         self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self._initialise()
 
@@ -215,49 +213,6 @@ class BestAndMultipleBinderMhcII:
             annotations.append(AnnotationFactory.build_annotation(
                 value=sc, name="MB_score_MHCII_best_per_alelle_WT_" + mn if mn != "harmonic" else "PHBR-II_WT"))
 
-        annotations.extend(self.get_differential_binding_annotations(
-            aff_mut=self.best_mhcII_pan_affinity, aff_wt=self.best_mhcII_affinity_WT,
-            rank_mut=self.best_mhcII_pan_score, rank_wt=self.best_mhcII_pan_score_WT
-        ))
-        annotations.extend(self.get_multiple_binding_annotations())
-
         return annotations
 
-    def get_differential_binding_annotations(self, aff_mut, aff_wt, rank_mut, rank_wt) -> List[Annotation]:
-        """
-        returns DAI for MHC II based on affinity (filtered + no filtered) and rank
-        """
-        # dai mhc II affinity
-        return [
-            AnnotationFactory.build_annotation(
-                value=self.differential_binding.dai(score_mutation=aff_mut, score_wild_type=aff_wt),
-                name="DAI_mhcII_affinity"),
-            AnnotationFactory.build_annotation(
-                value=self.differential_binding.dai(score_mutation=aff_mut, score_wild_type=aff_wt, affin_filtering=True),
-                name="DAI_mhcII_affinity_aff_filtered"),
-            # dai mhc II netMHCIIpan score
-            AnnotationFactory.build_annotation(
-                value=self.differential_binding.dai(score_mutation=rank_mut, score_wild_type=rank_wt),
-                name="DAI_mhcII_rank")
-        ]
 
-    def get_multiple_binding_annotations(self):
-
-        num_strong_binders_mutation = self.MHCII_number_strong_binders
-        num_strong_binders_wild_type = self.MHCII_number_strong_binders_WT
-        num_weak_binders_mutation = self.MHCII_number_weak_binders
-        num_weak_binders_wild_type = self.MHCII_number_weak_binders_WT
-        return [
-            AnnotationFactory.build_annotation(value=self.differential_binding.diff_number_binders(
-                num_mutation=num_strong_binders_mutation, num_wild_type=num_strong_binders_wild_type),
-                name="Diff_numb_epis_mhcII<2"),
-            AnnotationFactory.build_annotation(value=self.differential_binding.ratio_number_binders(
-                num_mutation=num_strong_binders_mutation, num_wild_type=num_strong_binders_wild_type),
-                name="Ratio_numb_epis_mhcII<2"),
-            AnnotationFactory.build_annotation(value=self.differential_binding.diff_number_binders(
-                num_mutation=num_weak_binders_mutation, num_wild_type=num_weak_binders_wild_type),
-                name="Diff_numb_epis_mhcII<10"),
-            AnnotationFactory.build_annotation(value=self.differential_binding.ratio_number_binders(
-                num_mutation=num_weak_binders_mutation, num_wild_type=num_weak_binders_wild_type),
-                name="Ratio_numb_epis_mhcII<10")
-        ]
