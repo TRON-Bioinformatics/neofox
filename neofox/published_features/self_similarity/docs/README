@@ -1,0 +1,8 @@
+
+Both are referenced by 1205.6031.pdf:
+- Q.matrix.txt
+  https://www.ncbi.nlm.nih.gov/IEB/ToolBox/CPP_DOC/lxr/source/src/algo/blast/composition_adjustment/matrix_frequency_data.c#L391
+- BLOSUM62-2.matrix.txt
+  
+
+
