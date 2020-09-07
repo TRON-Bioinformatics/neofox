@@ -28,7 +28,7 @@ def neofox_cli():
                         help='output results in a tall skinny tab-separated table')
     parser.add_argument('--with-json', dest='with_json', action='store_true',
                         help='output results in JSON format')
-    parser.add_argument('--num_cpus', dest='num_cpus', default=1, help='number of CPUs for computation')
+    parser.add_argument('--num-cpus', dest='num_cpus', default=1, help='number of CPUs for computation')
     args = parser.parse_args()
 
     model_file = args.model_file
