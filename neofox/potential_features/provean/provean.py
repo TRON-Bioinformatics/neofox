@@ -41,7 +41,7 @@ class ProveanAnnotator(object):
         provean_score = None
         logger.info("Fetching the PROVEAN score at {}:{}:{}".format(protein_id, position, mutated_aminoacid))
         try:
-            results = self.provean.fetch(protein_id, position - 1, position, multiple_iterator=True)
+            results = self.provean.fetch(protein_id, position - 1, position)
             provean_entry = next(results).split("\t")
             provean_score = float(provean_entry[self.aminoacid_indexes.get(mutated_aminoacid)])
             logger.info("Fetched a PROVEAN score of {}".format(provean_score))
