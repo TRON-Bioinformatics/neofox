@@ -57,8 +57,8 @@ class AminoacidFrequency(AbstractNmerFrequency):
 
     def get_annotations(self, aminoacid: str, sequence: str) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(name="Frequency_mutated_AA", value=self._get_frequency(aminoacid)),
-            AnnotationFactory.build_annotation(name="Product_Frequency_4mer",
+            AnnotationFactory.build_annotation(name="Frequency_mutated_amino_acid", value=self._get_frequency(aminoacid)),
+            AnnotationFactory.build_annotation(name="Product_frequency_4mer_directed_TCR",
                                                value=self._get_product_4mer_frequencies(sequence))
         ]
 
@@ -76,5 +76,5 @@ class FourmerFrequency(AbstractNmerFrequency):
 
     def get_annotations(self, sequence: str) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(name="Frequency_of_4mer", value=self._get_frequency_4mer(sequence))
+            AnnotationFactory.build_annotation(name="Frequency_of_4mer_directed_TCR", value=self._get_frequency_4mer(sequence))
         ]

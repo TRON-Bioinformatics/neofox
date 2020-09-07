@@ -118,18 +118,18 @@ class SelfSimilarityCalculator():
         self_similarity_mhc1 = self.get_self_similarity(mutation=netmhcpan.best4_mhc_epitope,
                                                         wild_type=netmhcpan.best4_mhc_epitope_WT)
         return [
-            AnnotationFactory.build_annotation(value=self_similarity_mhc1, name="Selfsimilarity_mhcI"),
+            AnnotationFactory.build_annotation(value=self_similarity_mhc1, name="Selfsimilarity_MHCI"),
             AnnotationFactory.build_annotation(
                 value=self.get_self_similarity(wild_type=netmhcpan2.best_mhcII_pan_epitope_WT,
                                                mutation=netmhcpan2.best_mhcII_pan_epitope),
-                name="Selfsimilarity_mhcII"),
-            AnnotationFactory.build_annotation(value=improved_binding_mhc1, name="ImprovedBinding_mhcI"),
+                name="Selfsimilarity_MHCII"),
+            AnnotationFactory.build_annotation(value=improved_binding_mhc1, name="Improved_Binder_MHCI"),
             AnnotationFactory.build_annotation(
                 value=self.is_improved_binder(score_mutation=netmhcpan2.best_mhcII_pan_score,
                                               score_wild_type=netmhcpan2.best_mhcII_pan_score_WT),
-                name="ImprovedBinding_mhcII"),
+                name="Improved_Binder__MHCII"),
             AnnotationFactory.build_annotation(
                 value=self.self_similarity_of_conserved_binder_only(
                     has_conserved_binder=improved_binding_mhc1, similarity=self_similarity_mhc1),
-                name="Selfsimilarity_mhcI_conserved_binder")
+                name="Selfsimilarity_MHCI_conserved_binder")
             ]

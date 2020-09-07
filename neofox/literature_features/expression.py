@@ -37,8 +37,8 @@ class Expression:
 
     def get_annotations(self) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(name="Expression_Mutated_Transcript", value=self.expression),
-            AnnotationFactory.build_annotation(name="Expression_Mutated_Transcript_tumor_content",
+            AnnotationFactory.build_annotation(name="Expression_mutated_transcript", value=self.expression),
+            AnnotationFactory.build_annotation(name="Expression_mutated_transcript_tumor_content",
                                                value=self.expression_tumor_content_corrected)
         ]
 

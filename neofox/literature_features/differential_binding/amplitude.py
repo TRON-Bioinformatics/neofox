@@ -63,18 +63,18 @@ class Amplitude:
     def get_annotations(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
-                value=self.amplitude_mhci_affinity, name="Amplitude_mhcI_affinity"),
-            AnnotationFactory.build_annotation(value=self.amplitude_mhci_rank, name="Amplitude_mhcI_rank_netmhcpan4"),
+                value=self.amplitude_mhci_affinity, name="Amplitude_MHCI_affinity"),
+            AnnotationFactory.build_annotation(value=self.amplitude_mhci_rank, name="Amplitude_MHCI_rank"),
             AnnotationFactory.build_annotation(value=self.amplitude_mhci_affinity_9mer,
-                name="Amplitude_mhcI_affinity_9mer_netmhcpan4"),
-            AnnotationFactory.build_annotation(value=self.amplitude_mhci_MB, name="Amplitude_mhcI_MB")
+                name="Amplitude_MHCI_affinity_9mer"),
+            AnnotationFactory.build_annotation(value=self.amplitude_mhci_MB, name="Amplitude_MHCI_multiple_binding")
         ]
 
     def get_annotations_mhc2(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
-                value=self.amplitude_mhcii_affinity, name="Amplitude_mhcII_affinity"),
-            AnnotationFactory.build_annotation(value=self.amplitude_mhcii_rank, name="Amplitude_mhcII_rank_netmhcpan4"),
+                value=self.amplitude_mhcii_affinity, name="Amplitude_MHCII_affinity"),
+            AnnotationFactory.build_annotation(value=self.amplitude_mhcii_rank, name="Amplitude_MHCII_rank"),
             AnnotationFactory.build_annotation(value=self.amplitude_mhcii_MB,
-                                               name="Amplitude_mhcII_mb")
+                                               name="Amplitude_MHCII_multiple_binding")
         ]
