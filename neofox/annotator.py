@@ -4,32 +4,32 @@ from logzero import logger
 import re
 from datetime import datetime
 import neofox
-from neofox.aa_index.aa_index import AminoacidIndex
+from neofox.potential_features.aa_index.aa_index import AminoacidIndex
 from neofox.annotation_resources.gtex.gtex import GTEx
-from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
-from neofox.annotation_resources.provean.provean import ProveanAnnotator
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
-from neofox.literature_features.differential_expression import DifferentialExpression
-from neofox.literature_features.differential_binding.amplitude import Amplitude
-from neofox.literature_features.differential_binding.differential_binding import DifferentialBinding
-from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
-from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from neofox.predictors.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
-from neofox.predictors.neoag.neoag_gbm_model import NeoagCalculator
-from neofox.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
-from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
-from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
-from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
-from neofox.vaxrank import vaxrank
-from neofox.predictors.iedb.iedb import IEDBimmunogenicity
-from neofox.literature_features.expression import Expression
-from neofox.literature_features.priority_score import PriorityScore
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
+from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from neofox.potential_features.differential_expression import DifferentialExpression
+from neofox.potential_features.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
+from neofox.potential_features.provean.provean import ProveanAnnotator
+from neofox.published_features.differential_binding.amplitude import Amplitude
+from neofox.published_features.differential_binding.differential_binding import DifferentialBinding
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
+from neofox.published_features.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
+from neofox.published_features.vaxrank import vaxrank
+from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
+from neofox.published_features.expression import Expression
+from neofox.published_features.priority_score import PriorityScore
 from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 
 
 class NeoantigenAnnotator:

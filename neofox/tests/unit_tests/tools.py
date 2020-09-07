@@ -1,7 +1,6 @@
 import os
 
-# TODO: change this import when we move to python3
-# from unittest.mock import Mock
+
 from mock import Mock
 
 

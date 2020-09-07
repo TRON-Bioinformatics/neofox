@@ -1,7 +1,7 @@
 from collections import defaultdict
 from unittest import TestCase
 
-from neofox.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
+from neofox.published_features.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 
