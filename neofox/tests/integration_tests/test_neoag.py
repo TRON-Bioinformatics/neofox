@@ -1,7 +1,7 @@
 from unittest import TestCase, SkipTest
 
 from neofox.model.neoantigen import Annotation
-from neofox.predictors.neoag.neoag_gbm_model import NeoagCalculator
+from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.tests.fake_classes import FakeBestAndMultipleBinder

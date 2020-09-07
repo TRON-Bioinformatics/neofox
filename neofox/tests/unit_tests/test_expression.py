@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 
-from neofox.literature_features.expression import Expression
+from neofox.published_features.expression import Expression
 
 
 

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 
 
 class TestTCellPredictor(TestCase):

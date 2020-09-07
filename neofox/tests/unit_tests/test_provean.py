@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import pkg_resources
 import neofox.tests
-from neofox.annotation_resources.provean.provean import ProveanAnnotator
+from neofox.potential_features.provean.provean import ProveanAnnotator
 from neofox.model.wrappers import NOT_AVAILABLE_VALUE
 
 

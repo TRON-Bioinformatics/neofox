@@ -30,27 +30,7 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 
 
 ## NeoFox Requirements
-
-**Specific Input:**
-- icam_output.txt --> icam output file
-- patient identifier --> the patient identifier to whom all neoantigens in icam output belong
-- patient data --> a table of tab separated values containing metadata on the patient
-  - required fields: identifier, mhcIAlleles, mhcIIAlleles
-  - optional fields: estimatedTumorContent, isRnaAvailable, tissue
-
-**Example of patient data table**
-```
-identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
-Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
-```
-
-**Required Columns of iCaM Table:**  
-- 	transcript_expression  
-- 	VAF_in_RNA  
-- 	VAF_in_tumor  
-- 	X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL.
--   substitution  
--   patient.id (e.g Pt1, Ptx)    
+ 
 
 **Required Additional Files:**  
 - RNA reference *(/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv, predict_all_epitopes.py)*  
@@ -65,7 +45,7 @@ Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  
 - available HLA II alleles for MixMHC2pred *("/projects/SUMMIT/WP1.2/input/development/MixMHCpred/Alleles_list_pred2.txt")*
 
 **Required Software/Tools/Dependencies:**  
-- python2 *(anaconda/2/2018)*
+- python3 *(anaconda/2/2018)*
 - BLAST *(/code/ncbi-blast/2.8.1+/bin/blastp, neoantigen_fitness.py)*  
 - netmhcpan *(/code/netMHCpan-4.0/netMHCpan, netmhcpan_prediction.py)*  
 - netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
@@ -79,7 +59,19 @@ Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  
 ## **Usage**  
 
 ```
-neofox --icam-file testseq_head.txt --patient-id Pt123 --patient-data patients.csv [--frameshift False]
+neofox --model-file/--icam-file testseq_head.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
+```
+**Specific Input:**
+
+--icam-file: tab-separated file in iCaM output style (**required columns**: transcript_expression,+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL),[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL),  VAF_in_RNA, substitution)  <br>
+--model-file: file in model format<br>
+--patient-id: patient identifier <br>
+--patient data: a table of tab separated values containing metadata on the patient (**required fields**: identifier, mhcIAlleles, mhcIIAlleles; **optional fields**: estimatedTumorContent, isRnaAvailable, tissue)
+
+Example of patient data table:
+```
+identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
+Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
 ```
 
 

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neofox.predictors.iedb.iedb import IEDBimmunogenicity
+from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
 
 
 class TestImmunogenicity(TestCase):
