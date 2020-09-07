@@ -32,8 +32,8 @@ class MixMHCpred(AbstractMixMHCpred):
         self.best_rank_wt = None
 
     def _mixmhcprediction(self, hla_alleles, tmpfasta, outtmp):
-        ''' Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
-        '''
+        """ Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
+        """
         allels_for_prediction = []
         for allele in hla_alleles:
             allele = allele.replace("*", "")
@@ -47,8 +47,8 @@ class MixMHCpred(AbstractMixMHCpred):
             "-o", outtmp])
 
     def _extract_best_per_pep(self, pred_dat):
-        '''extract info of best allele prediction for all potential ligands per muatation
-        '''
+        """extract info of best allele prediction for all potential ligands per muatation
+        """
         head = pred_dat[0]
         dat = pred_dat[1]
         peps = []
@@ -73,8 +73,8 @@ class MixMHCpred(AbstractMixMHCpred):
         return result
 
     def _extract_best_peptide_per_mutation(self, pred_dat):
-        '''extract best predicted ligand per mutation
-        '''
+        """extract best predicted ligand per mutation
+        """
         head = pred_dat[0]
         dat = pred_dat[1]
         pepcol = head.index("Peptide")
@@ -92,8 +92,8 @@ class MixMHCpred(AbstractMixMHCpred):
         return head_new, min_pep
 
     def run(self, xmer_wt, xmer_mut, alleles):
-        '''Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
-        '''
+        """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
+        """
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred", suffix=".txt")
         seqs = self.generate_nmers(xmer_wt=xmer_wt, xmer_mut=xmer_mut, lengths=[8, 9, 10, 11])
@@ -135,9 +135,9 @@ class MixMHCpred(AbstractMixMHCpred):
             AnnotationFactory.build_annotation(value=self.best_score, name="MixMHCpred_best_score"),
             AnnotationFactory.build_annotation(value=self.best_rank, name="MixMHCpred_best_rank"),
             AnnotationFactory.build_annotation(value=self.best_allele, name="MixMHCpred_best_allele"),
-            AnnotationFactory.build_annotation(value=self.best_peptide_wt, name="MixMHCpred_best_peptide_wt"),
-            AnnotationFactory.build_annotation(value=self.best_score_wt, name="MixMHCpred_best_score_wt"),
-            AnnotationFactory.build_annotation(value=self.best_rank_wt, name="MixMHCpred_best_rank_wt"),
+            AnnotationFactory.build_annotation(value=self.best_peptide_wt, name="MixMHCpred_best_peptide_WT"),
+            AnnotationFactory.build_annotation(value=self.best_score_wt, name="MixMHCpred_best_score_WT"),
+            AnnotationFactory.build_annotation(value=self.best_rank_wt, name="MixMHCpred_best_rank_WT"),
             AnnotationFactory.build_annotation(
-                value=self.best_score - self.best_score_wt, name="MixMHCpred_difference_score_mut_wt")
+                value=self.best_score - self.best_score_wt, name="MixMHCpred_difference_score_MUT_WT")
             ]
