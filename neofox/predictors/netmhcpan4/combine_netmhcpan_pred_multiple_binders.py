@@ -75,9 +75,9 @@ class BestAndMultipleBinder:
         self.mhcI_affinity_epitope_9mer_WT = None
 
     def mhc_mb_score_best_per_allele(self, tuple_best_per_allele):
-        '''returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
+        """returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
-        '''
+        """
         multbind = multiple_binders.MultipleBinding()
         tuple_best_per_allele_new = list(tuple_best_per_allele)
         mean_best_per_per_allele = [None, None, None]
@@ -89,7 +89,7 @@ class BestAndMultipleBinder:
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
-        ### PREDICTION FOR MUTATED SEQUENCE
+        # mutation
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
@@ -147,7 +147,7 @@ class BestAndMultipleBinder:
         self.mhcI_affinity_position_9mer = np.add_best_epitope_info(best_9mer_affinity, "Pos")
         self.mhcI_affinity_epitope_9mer = np.add_best_epitope_info(best_9mer_affinity, "Peptide")
 
-        ### PREDICTION FOR WT SEQUENCE
+        # wt
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
@@ -188,9 +188,9 @@ class BestAndMultipleBinder:
         # best predicted epitope of length 9
         preds_9mer = np.filter_for_9mers(preds)
         best_9mer = np.filter_for_WT_epitope_position(preds_9mer, self.mhcI_score_epitope_9mer,
-                                             position_epi_xmer=self.mhcI_score_position_9mer)
+                                                      position_epi_xmer=self.mhcI_score_position_9mer)
         best_9mer_affinity = np.filter_for_WT_epitope_position(preds_9mer, mut_seq=self.mhcI_affinity_epitope_9mer,
-                                                      position_epi_xmer=self.mhcI_affinity_position_9mer)
+                                                               position_epi_xmer=self.mhcI_affinity_position_9mer)
         self.mhcI_score_9mer_WT = np.add_best_epitope_info(best_9mer, "%Rank")
         self.mhcI_score_allele_9mer_WT = np.add_best_epitope_info(best_9mer, "HLA")
         self.mhcI_score_epitope_9mer_WT = np.add_best_epitope_info(best_9mer, "Peptide")
@@ -199,67 +199,102 @@ class BestAndMultipleBinder:
         self.mhcI_affinity_epitope_9mer_WT = np.add_best_epitope_info(best_9mer_affinity, "Peptide")
 
     def get_annotations(self) -> List[Annotation]:
-        annotations = [AnnotationFactory.build_annotation(value=self.best4_mhc_score, name="best%Rank_netmhcpan4"),
-                       AnnotationFactory.build_annotation(value=self.best4_mhc_epitope, name="best_epitope_netmhcpan4"),
-                       AnnotationFactory.build_annotation(value=self.best4_mhc_allele, name="bestHLA_allele_netmhcpan4"),
-                       AnnotationFactory.build_annotation(value=self.directed_to_TCR, name="directed_to_TCR"),
-                       AnnotationFactory.build_annotation(value=self.best4_affinity, name="best_affinity_netmhcpan4"),
-                       AnnotationFactory.build_annotation(value=self.best4_affinity_epitope, name="best_affinity_epitope_netmhcpan4"),
-                       AnnotationFactory.build_annotation(value=self.best4_affinity_allele, name="bestHLA_allele_affinity_netmhcpan4"),
-                       AnnotationFactory.build_annotation(value=self.best4_affinity_directed_to_TCR, name="affinity_directed_to_TCR"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_score_9mer, name="best%Rank_netmhcpan4_9mer"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_score_epitope_9mer, name="best_epitope_netmhcpan4_9mer"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_score_allele_9mer, name="bestHLA_allele_netmhcpan4_9mer"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_9mer, name="best_affinity_netmhcpan4_9mer"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_allele_9mer, name="bestHLA_allele_affinity_netmhcpan4_9mer"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_epitope_9mer, name="best_affinity_epitope_netmhcpan4_9mer"),
-                       AnnotationFactory.build_annotation(value=self.best4_affinity_WT, name="best_affinity_netmhcpan4_WT"),
-                       AnnotationFactory.build_annotation(value=self.best4_affinity_epitope_WT, name="best_affinity_epitope_netmhcpan4_WT"),
-                       AnnotationFactory.build_annotation(value=self.best4_affinity_allele_WT, name="bestHLA_allele_affinity_netmhcpan4_WT"),
-                       AnnotationFactory.build_annotation(value=self.best4_mhc_score_WT, name="best%Rank_netmhcpan4_WT"),
-                       AnnotationFactory.build_annotation(value=self.best4_mhc_epitope_WT, name="best_epitope_netmhcpan4_WT"),
-                       AnnotationFactory.build_annotation(value=self.best4_mhc_allele_WT, name="bestHLA_allele_netmhcpan4_WT"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_score_9mer_WT, name="best%Rank_netmhcpan4_9mer_WT"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_score_epitope_9mer_WT, name="best_epitope_netmhcpan4_9mer_WT"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_score_allele_9mer_WT, name="bestHLA_allele_netmhcpan4_9mer_Wt"),
-                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_9mer_WT, name="best_affinity_netmhcpan4_9mer_WT"),
+        annotations = [AnnotationFactory.build_annotation(value=self.best4_mhc_score, name="Best_rank_MHCI_score"),
+                       AnnotationFactory.build_annotation(value=self.best4_mhc_epitope,
+                                                          name="Best_rank_MHCI_score_epitope"),
+                       AnnotationFactory.build_annotation(value=self.best4_mhc_allele,
+                                                          name="Best_rank_MHCI_score_allele"),
+                       AnnotationFactory.build_annotation(value=self.directed_to_TCR,
+                                                          name="Best_rank_MHCI_mutation_directed_to_TCR"),
+                       AnnotationFactory.build_annotation(value=self.best4_affinity, name="Best_affinity_MHCI_score"),
+                       AnnotationFactory.build_annotation(value=self.best4_affinity_epitope,
+                                                          name="Best_affinity_MHCI_epitope"),
+                       AnnotationFactory.build_annotation(value=self.best4_affinity_allele,
+                                                          name="Best_affinity_MHCI_allele"),
+                       AnnotationFactory.build_annotation(value=self.best4_affinity_directed_to_TCR,
+                                                          name="Best_affinity_MHCI_mutation_directed_to_TCR"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_score_9mer, name="Best_rank_MHCI_9mer_score"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_score_epitope_9mer,
+                                                          name="Best_rank_MHCI_9mer_epitope"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_score_allele_9mer,
+                                                          name="Best_rank_MHCI_9mer_allele"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_9mer,
+                                                          name="Best_affinity_MHCI_9mer_score"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_allele_9mer,
+                                                          name="Best_affinity_MHCI_9mer_allele"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_epitope_9mer,
+                                                          name="Best_affinity_MHCI_9mer_epitope"),
+                       AnnotationFactory.build_annotation(value=self.MHC_epitope_scores, name="All_ranks_MHCI"),
+                       AnnotationFactory.build_annotation(value=self.epitope_affinities, name="All_affinities_MHCI"),
+                       AnnotationFactory.build_annotation(value=self.MHC_epitope_seqs, name="All_epitopes_MHCI"),
+                       AnnotationFactory.build_annotation(value=self.MHC_epitope_alleles, name="All_alleles_MHCI"),
+                       AnnotationFactory.build_annotation(value=self.MHC_number_strong_binders,
+                                                          name="Number_strong_binders_MHCI"),
+                       AnnotationFactory.build_annotation(value=self.MHC_number_weak_binders,
+                                                          name="Number_weak_binders_MHCI"),
+                       # wt
+                       AnnotationFactory.build_annotation(value=self.best4_affinity_WT,
+                                                          name="Best_affinity_MHCI_score_WT"),
+                       AnnotationFactory.build_annotation(value=self.best4_affinity_epitope_WT,
+                                                          name="Best_affinity_MHCI_epitope_WT"),
+                       AnnotationFactory.build_annotation(value=self.best4_affinity_allele_WT,
+                                                          name="Best_affinity_MHCI_allele_WT"),
+                       AnnotationFactory.build_annotation(value=self.best4_mhc_score_WT,
+                                                          name="Best_rank_MHCI_score_WT"),
+                       AnnotationFactory.build_annotation(value=self.best4_mhc_epitope_WT,
+                                                          name="Best_rank_MHCI_score_epitope_WT"),
+                       AnnotationFactory.build_annotation(value=self.best4_mhc_allele_WT,
+                                                          name="Best_rank_MHCI_score_allele_WT"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_score_9mer_WT,
+                                                          name="Best_rank_MHCI_9mer_score_WT"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_score_epitope_9mer_WT,
+                                                          name="Best_rank_MHCI_9mer_epitope_WT"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_score_allele_9mer_WT,
+                                                          name="Best_rank_MHCI_9mer_allele_WT"),
+                       AnnotationFactory.build_annotation(value=self.mhcI_affinity_9mer_WT,
+                                                          name="Best_affinity_MHCI_9mer_score_WT"),
                        AnnotationFactory.build_annotation(value=self.mhcI_affinity_allele_9mer_WT,
-                                  name="bestHLA_allele_affinity_netmhcpan4_9mer_WT"),
+                                                          name="Best_affinity_MHCI_9mer_allele_WT"),
                        AnnotationFactory.build_annotation(value=self.mhcI_affinity_epitope_9mer_WT,
-                                  name="best_affinity_epitope_netmhcpan4_9mer_WT"),
-                       AnnotationFactory.build_annotation(value=self.MHC_epitope_scores, name="MB_epitope_scores"),
-                       AnnotationFactory.build_annotation(value=self.MHC_epitope_seqs, name="MB_epitope_sequences"),
-                       AnnotationFactory.build_annotation(value=self.MHC_epitope_alleles, name="MB_alleles"),
-                       AnnotationFactory.build_annotation(value=self.MHC_number_strong_binders, name="MB_number_pep_MHCscore<1"),
-                       AnnotationFactory.build_annotation(value=self.MHC_number_weak_binders, name="MB_number_pep_MHCscore<2"),
+                                                          name="Best_affinity_MHCI_9mer_epitope_WT"),
+                       AnnotationFactory.build_annotation(value=self.MHC_epitope_scores_WT,
+                                                          name="All_ranks_MHCIe_WT"),
+                       AnnotationFactory.build_annotation(value=self.MHC_epitope_seqs_WT,
+                                                          name="All_epitopes_MHCI_WT"),
+                       AnnotationFactory.build_annotation(value=self.MHC_epitope_alleles_WT,
+                                                          name="All_alleles_MHCI_WT"),
+                       AnnotationFactory.build_annotation(value=self.epitope_affinities_WT,
+                                                          name="All_affinities_MHCI_WT"),
+                       AnnotationFactory.build_annotation(value=self.MHC_number_strong_binders_WT,
+                                                          name="Number_strong_binders_MHCI_WT"),
+                       AnnotationFactory.build_annotation(value=self.MHC_number_weak_binders_WT,
+                                                          name="Number_weak_binders_MHCI_WT"),
                        # generator rate
-                       AnnotationFactory.build_annotation(value=self.epitope_affinities, name="MB_affinities"),
                        AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate"),
-                       # multiplexed representation WT
-                       AnnotationFactory.build_annotation(value=self.MHC_epitope_scores_WT, name="MB_epitope_WT_scores"),
-                       AnnotationFactory.build_annotation(value=self.MHC_epitope_seqs_WT, name="MB_epitope_WT_sequences"),
-                       AnnotationFactory.build_annotation(value=self.MHC_epitope_alleles_WT, name="MB_alleles_WT"),
-                       AnnotationFactory.build_annotation(value=self.MHC_number_strong_binders_WT, name="MB_number_pep_WT_MHCscore<1"),
-                       AnnotationFactory.build_annotation(value=self.MHC_number_weak_binders_WT, name="MB_number_pep_WT_MHCscore<2"),
-                       AnnotationFactory.build_annotation(value=self.epitope_affinities_WT, name="MB_affinities_WT"),
-                       AnnotationFactory.build_annotation(value=self.generator_rate_WT, name="Generator_rate_WT")
+                       AnnotationFactory.build_annotation(value=self.generator_rate_WT, name="Generator_rate_WT"),
                        ]
 
         for sc, mn in zip(self.MHC_score_all_epitopes, self.mean_type):
-            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_all_epitopes_" + mn))
+            annotations.append(
+                AnnotationFactory.build_annotation(value=sc, name="Multiple_binding_score_MHCI_all_epitopes_" + mn))
         for sc, mn in zip(self.MHC_score_top10, self.mean_type):
-            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_top10_" + mn))
+            annotations.append(
+                AnnotationFactory.build_annotation(value=sc, name="Multiple_binding_score_MHCI_top10_" + mn))
         for sc, mn in zip(self.MHC_score_best_per_alelle, self.mean_type):
             # rename MB_score_best_per_alelle_harmonic to PHBR (described in Marty et al)
             annotations.append(
-                AnnotationFactory.build_annotation(value=sc, name="MB_score_best_per_alelle_" + mn if mn != 'harmonic' else "PHBR-I"))
+                AnnotationFactory.build_annotation(value=sc,
+                                                   name="Multiple_binding_score_MHCI_best_per_alelle_" + mn if mn != 'harmonic' else "PHBR-I"))
         for sc, mn in zip(self.MHC_score_top10_WT, self.mean_type):
-            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_WT_top10_" + mn))
+            annotations.append(AnnotationFactory.build_annotation(value=sc,
+                                                                  name="Multiple_binding_score_MHCI_top10_WT_" + mn))
         for sc, mn in zip(self.MHC_score_all_epitopes_WT, self.mean_type):
-            annotations.append(AnnotationFactory.build_annotation(value=sc, name="MB_score_WT_all_epitopes_" + mn))
+            annotations.append(AnnotationFactory.build_annotation(value=sc,
+                                                                  name="Multiple_binding_score_MHCI_all_epitopes_WT_" + mn))
         for sc, mn in zip(self.MHC_score_best_per_alelle_WT, self.mean_type):
             annotations.append(
-                AnnotationFactory.build_annotation(value=sc, name="MB_score_WT_best_per_alelle_" + mn if mn != "harmonic" else "PHBR-I_WT"))
+                AnnotationFactory.build_annotation(value=sc,
+                                                   name="ultiple_binding_score_MHCI_best_per_alelle_WT_" + mn if mn != "harmonic" else "PHBR-I_WT"))
         annotations.extend(self._get_positions_and_mutation_in_anchor())
         return annotations
 
@@ -273,17 +308,18 @@ class BestAndMultipleBinder:
             wild_type=self.mhcI_affinity_epitope_9mer_WT, mutation=self.mhcI_affinity_epitope_9mer)
 
         return [
-            AnnotationFactory.build_annotation(value=position, name="pos_MUT_MHCI_affinity_epi"),
-            AnnotationFactory.build_annotation(value=position_9mer, name="pos_MUT_MHCI_affinity_epi_9mer"),
+            AnnotationFactory.build_annotation(value=position, name="Best_affinity_MHCI_position_mutation"),
+            AnnotationFactory.build_annotation(value=position_9mer, name="Best_affinity_MHCI_9mer_position_mutation"),
             AnnotationFactory.build_annotation(value=EpitopeHelper.position_of_mutation_epitope(
-                wild_type=self.best4_mhc_epitope_WT, mutation=self.best4_mhc_epitope), name="pos_MUT_MHCI_rank_epi"),
+                wild_type=self.best4_mhc_epitope_WT, mutation=self.best4_mhc_epitope),
+                name="Best_rank_MHCI_position_mutation"),
             AnnotationFactory.build_annotation(value=EpitopeHelper.position_in_anchor_position(
                 position_mhci=position, peptide_length=len(self.best4_affinity_epitope)),
-                name="Mutation_in_anchor_netmhcpan"),
+                name="Best_affinity_MHCI_mutation_in_anchor"),
             AnnotationFactory.build_annotation(value=EpitopeHelper.position_in_anchor_position(
                 position_mhci=position_9mer, peptide_length=9),
-                name="Mutation_in_anchor_netmhcpan_9mer"),
+                name="Best_affinity_MHCI_9mer_mutation_in_anchor"),
             AnnotationFactory.build_annotation(value=EpitopeHelper.position_in_anchor_position(
                 position_mhci=position_9mer, peptide_length=len(self.best4_mhc_epitope)),
-                name="Mutation_in_anchor_netmhcpan_rank")
+                name="Best_rank_MHCI_mutation_in_anchor")
             ]
