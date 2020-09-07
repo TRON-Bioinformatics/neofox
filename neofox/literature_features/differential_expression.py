@@ -25,7 +25,8 @@ class DifferentialExpression(object):
     @staticmethod
     def _percentile_calc(expression_tumor: float, expression_reference_sum: float) -> float:
         """
-        This function calculates the expression difference between tumour and reference data in form of a percentile value.
+        This function calculates the expression difference between tumour and reference data in form of a percentile
+        value.
         expr in tumor * 100 / (sum of expr in ref tissue + 1)
         """
         percentile = None
@@ -38,7 +39,8 @@ class DifferentialExpression(object):
     @staticmethod
     def _pepper_calc(expression_tumor: float, expression_reference: float, expression_reference_sd: float):
         """
-        This function calculates the expression difference between tumour and reference data based on Pepper publication, in a z-score similar manner.
+        This function calculates the expression difference between tumour and reference data based on Pepper
+        publication, in a z-score similar manner.
         expr in tumour - mean epxr in reference tissue / standard deviation of expression in refernce
         """
         pepper = None
@@ -51,11 +53,13 @@ class DifferentialExpression(object):
     def get_annotations(self, expression_tumor, expression_reference, expression_reference_sum,
                         expression_reference_sd) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(name="log2_fc_tumour_ref", value=self._fold_change(
+            AnnotationFactory.build_annotation(name="Differential_expression_log2_foldchange", value=self._fold_change(
                 expression_tumor=expression_tumor, expression_reference=expression_reference)),
-            AnnotationFactory.build_annotation(name="percentile_tumour_ref", value=self._percentile_calc(
-                expression_tumor=expression_tumor, expression_reference_sum=expression_reference_sum)),
-            AnnotationFactory.build_annotation(name="DE_pepper", value=self._pepper_calc(
+            AnnotationFactory.build_annotation(name="Differential_expression_percentile",
+                                               value=self._percentile_calc(
+                                                   expression_tumor=expression_tumor,
+                                                   expression_reference_sum=expression_reference_sum)),
+            AnnotationFactory.build_annotation(name="Differential_expression_pepper", value=self._pepper_calc(
                 expression_tumor=expression_tumor, expression_reference=expression_reference,
                 expression_reference_sd=expression_reference_sd))
         ]
