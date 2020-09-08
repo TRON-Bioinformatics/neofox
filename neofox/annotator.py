@@ -34,7 +34,7 @@ from neofox.references.references import ReferenceFolder, DependenciesConfigurat
 
 class NeoantigenAnnotator:
 
-    def __init__(self, uniprot: Uniprot, gtex: GTEx):
+    def __init__(self):
         """class to annotate neoantigens"""
         references = ReferenceFolder()
         configuration = DependenciesConfiguration()
@@ -50,8 +50,8 @@ class NeoantigenAnnotator:
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
         self.available_alleles = AvailableAlleles(references)
-        self.uniprot = uniprot
-        self.gtex = gtex
+        self.uniprot = Uniprot(references.uniprot)
+        self.gtex = GTEx()
         self.aa_frequency = AminoacidFrequency()
         self.fourmer_frequency = FourmerFrequency()
         self.aa_index = AminoacidIndex()
