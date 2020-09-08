@@ -67,7 +67,7 @@ class NeoFox:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            futures.append(self.dask_client.submit(self.annotate_neoantigen, neoantigen, patient))
+            futures.append(self.dask_client.submit(NeoFox.annotate_neoantigen, neoantigen, patient, self.uniprot, self.gtex))
 
         annotations = self.dask_client.gather(futures)
         end = time.time()
@@ -75,10 +75,11 @@ class NeoFox:
             len(self.neoantigens), int(end - start)))
         return annotations
 
-    def annotate_neoantigen(self, neoantigen: Neoantigen, patient: Patient):
+    @staticmethod
+    def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient, uniprot: Uniprot, gtex:GTEx):
         logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
         start = time.time()
-        annotation = NeoantigenAnnotator(uniprot=self.uniprot, gtex=self.gtex).get_annotation(neoantigen, patient)
+        annotation = NeoantigenAnnotator(uniprot=uniprot, gtex=gtex).get_annotation(neoantigen, patient)
         end = time.time()
         logger.info("Elapsed time for annotating neoantigen {}: {} seconds".format(
             neoantigen.identifier, int(end - start)))
