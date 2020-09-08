@@ -14,8 +14,9 @@ from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
 
 class NeoFox:
 
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int,
-                 work_folder=None, output_prefix=None):
+
+    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int, work_folder=None,
+                 output_prefix = None):
 
         # initialise logs
         if work_folder and os.path.exists(work_folder):

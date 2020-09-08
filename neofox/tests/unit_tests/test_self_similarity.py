@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 
 
 class TestSelfSimilarity(TestCase):

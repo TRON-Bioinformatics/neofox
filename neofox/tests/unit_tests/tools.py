@@ -1,13 +1,8 @@
 import os
-
-# TODO: change this import when we move to python3
-# from unittest.mock import Mock
 import random
-
 import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
-
 from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient
 
 

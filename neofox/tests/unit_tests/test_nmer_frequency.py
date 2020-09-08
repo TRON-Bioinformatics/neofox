@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
+from neofox.potential_features.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
 
 
 class TestNmerFrequency(TestCase):

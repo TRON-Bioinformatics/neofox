@@ -4,31 +4,32 @@ from logzero import logger
 import re
 from datetime import datetime
 import neofox
-from neofox.aa_index.aa_index import AminoacidIndex
+from neofox.potential_features.aa_index.aa_index import AminoacidIndex
 from neofox.annotation_resources.gtex.gtex import GTEx
-from neofox.annotation_resources.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
-from neofox.annotation_resources.provean.provean import ProveanAnnotator
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
-from neofox.literature_features.differential_expression import DifferentialExpression
-from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
-from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from neofox.predictors.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
-from neofox.predictors.neoag.neoag_gbm_model import NeoagCalculator
-from neofox.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
-from neofox.predictors.netmhcpan4.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
-from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
-from neofox.self_similarity.self_similarity import SelfSimilarityCalculator
-from neofox.vaxrank import vaxrank
-from neofox.predictors.iedb.iedb import IEDBimmunogenicity
-from neofox.literature_features.differential_binding import DifferentialBinding
-from neofox.literature_features.expression import Expression
-from neofox.literature_features.priority_score import PriorityScore
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
+from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
+from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from neofox.potential_features.differential_expression import DifferentialExpression
+from neofox.potential_features.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
+from neofox.potential_features.provean.provean import ProveanAnnotator
+from neofox.published_features.differential_binding.amplitude import Amplitude
+from neofox.published_features.differential_binding.differential_binding import DifferentialBinding
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
+from neofox.published_features.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
+from neofox.published_features.vaxrank import vaxrank
+from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
+from neofox.published_features.expression import Expression
+from neofox.published_features.priority_score import PriorityScore
 from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 
 
 class NeoantigenAnnotator:
@@ -44,7 +45,7 @@ class NeoantigenAnnotator:
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
             runner=runner, configuration=configuration, iedb=references.iedb)
         self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
-        self.netmhcpan2 = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
+        self.netmhc2pan = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
         self.mixmhc2 = MixMhc2Pred(runner=runner, configuration=configuration)
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
@@ -61,6 +62,8 @@ class NeoantigenAnnotator:
         self.differential_binding = DifferentialBinding()
         self.priority_score_calculator = PriorityScore()
         self.iedb_immunogenicity = IEDBimmunogenicity()
+        self.differential_binding = DifferentialBinding()
+        self.amplitude = Amplitude()
 
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> NeoantigenAnnotations:
         """Calculate new epitope features and add to dictonary that stores all properties"""
@@ -76,7 +79,8 @@ class NeoantigenAnnotator:
 
         # TODO: this is needed by the T cell predictor, move this construction inside by passing the neoantigen
         substitution = "{}{}{}".format(
-            neoantigen.mutation.wild_type_aminoacid, neoantigen.mutation.position, neoantigen.mutation.mutated_aminoacid)
+            neoantigen.mutation.wild_type_aminoacid, neoantigen.mutation.position,
+            neoantigen.mutation.mutated_aminoacid)
 
         # MHC binding independent features
         expression_calculator = Expression(
@@ -98,8 +102,29 @@ class NeoantigenAnnotator:
             alleles=patient.mhc_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.annotations.annotations.extend(self.netmhcpan.get_annotations())
 
+        # HLA II predictions: NetMHCIIpan
+        self.netmhc2pan.run(
+            sequence=neoantigen.mutation.mutated_xmer, sequence_reference=neoantigen.mutation.wild_type_xmer,
+            alleles=patient.mhc_i_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_ii())
+        self.annotations.annotations.extend(self.netmhc2pan.get_annotations())
+
+        # Amplitude
+        self.amplitude.run(netmhcpan=self.netmhcpan, netmhc2pan=self.netmhc2pan)
+        self.annotations.annotations.extend(self.amplitude.get_annotations())
+        self.annotations.annotations.extend(self.amplitude.get_annotations_mhc2())
+
         # Neoantigen fitness metrics
-        self.annotations.annotations.extend(self.neoantigen_fitness_calculator.get_annotations(self.netmhcpan))
+        self.annotations.annotations.extend(
+            self.neoantigen_fitness_calculator.get_annotations(self.netmhcpan, self.amplitude))
+        self.annotations.annotations.extend(
+            self.neoantigen_fitness_calculator.get_annotations_mhc2(self.netmhc2pan, self.amplitude))
+
+        # Differential Binding
+        self.annotations.annotations.extend(self.differential_binding.get_annotations_dai(self.netmhcpan,
+                                                                                          self.netmhc2pan))
+        self.annotations.annotations.extend(self.differential_binding.get_annotations(self.netmhcpan, self.amplitude))
+        self.annotations.annotations.extend(
+            self.differential_binding.get_annotations_mhc2(self.netmhc2pan, self.amplitude))
 
         # T cell predictor
         self.annotations.annotations.extend(self.tcell_predictor.get_annotations(
@@ -110,21 +135,13 @@ class NeoantigenAnnotator:
             neoantigen.mutation.mutated_aminoacid, self.netmhcpan.best4_mhc_epitope))
         self.annotations.annotations.extend(self.fourmer_frequency.get_annotations(self.netmhcpan.best4_mhc_epitope))
 
-        # netMHCIIpan predictions
-        self.netmhcpan2.run(
-            sequence=neoantigen.mutation.mutated_xmer, sequence_reference=neoantigen.mutation.wild_type_xmer,
-            alleles=patient.mhc_i_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_ii())
-        self.annotations.annotations.extend(self.netmhcpan2.get_annotations())
-
-        self.annotations.annotations.extend(self.neoantigen_fitness_calculator.get_annotations_mch2(self.netmhcpan2))
-
         # self-similarity
         self.annotations.annotations.extend(self.self_similarity.get_annnotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhcpan2))
+            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan))
 
         # number of mismatches and priority scores
         self.annotations.annotations.extend(self.priority_score_calculator.get_annotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhcpan2, vaf_transcr=vaf_rna,
+            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan, vaf_transcr=vaf_rna,
             vaf_tum=neoantigen.dna_variant_allele_frequency,
             expr=neoantigen.rna_expression, mut_not_in_prot=sequence_not_in_uniprot))
 
@@ -136,9 +153,9 @@ class NeoantigenAnnotator:
 
         # IEDB immunogenicity
         self.annotations.annotations.extend(self.iedb_immunogenicity.get_annotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhcpan2,
+            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan,
             mhci_allele=self.netmhcpan.best4_affinity_allele,
-            mhcii_allele=self.netmhcpan2.best_mhcII_pan_allele))
+            mhcii_allele=self.netmhc2pan.best_mhcII_pan_allele))
 
         # MixMHCpred
         self.mixmhc.run(
@@ -154,7 +171,7 @@ class NeoantigenAnnotator:
 
         # dissimilarity to self-proteome
         self.annotations.annotations.extend(self.dissimilarity_calculator.get_annotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhcpan2))
+            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan))
 
         # vaxrank
         vaxrankscore = vaxrank.VaxRank()

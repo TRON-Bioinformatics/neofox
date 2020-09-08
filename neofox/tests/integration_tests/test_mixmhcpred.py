@@ -2,9 +2,9 @@ from unittest import TestCase
 from logzero import logger
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
-from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
+from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
 from neofox.tests import TEST_HLAI_ALLELES, TEST_HLAII_ALLELES
 
