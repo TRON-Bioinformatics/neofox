@@ -258,7 +258,7 @@ class BestAndMultipleBinder:
                        AnnotationFactory.build_annotation(value=self.mhcI_affinity_epitope_9mer_WT,
                                                           name="Best_affinity_MHCI_9mer_epitope_WT"),
                        AnnotationFactory.build_annotation(value=self.MHC_epitope_scores_WT,
-                                                          name="All_ranks_MHCIe_WT"),
+                                                          name="All_ranks_MHCI_WT"),
                        AnnotationFactory.build_annotation(value=self.MHC_epitope_seqs_WT,
                                                           name="All_epitopes_MHCI_WT"),
                        AnnotationFactory.build_annotation(value=self.MHC_epitope_alleles_WT,
@@ -294,7 +294,7 @@ class BestAndMultipleBinder:
         for sc, mn in zip(self.MHC_score_best_per_alelle_WT, self.mean_type):
             annotations.append(
                 AnnotationFactory.build_annotation(value=sc,
-                                                   name="ultiple_binding_score_MHCI_best_per_alelle_WT_" + mn if mn != "harmonic" else "PHBR-I_WT"))
+                                                   name="Multiple_binding_score_MHCI_best_per_alelle_WT_" + mn if mn != "harmonic" else "PHBR-I_WT"))
         annotations.extend(self._get_positions_and_mutation_in_anchor())
         return annotations
 
