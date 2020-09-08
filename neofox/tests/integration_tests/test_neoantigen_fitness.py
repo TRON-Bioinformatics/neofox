@@ -1,7 +1,7 @@
 from collections import defaultdict
 from unittest import TestCase
 
-from neofox.predictors.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
+from neofox.published_features.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 
@@ -39,3 +39,5 @@ class TestNeoantigenFitness(TestCase):
     def test_recognition_potential(self):
         self.assertEqual(1.0, self.neoantigen_fitness_calculator.calculate_recognition_potential(
             amplitude=1.0, pathogen_similarity=1.0, mutation_in_anchor=False))
+        self.assertEqual(None, self.neoantigen_fitness_calculator.calculate_recognition_potential(
+            amplitude=None, pathogen_similarity=1.0, mutation_in_anchor=False))

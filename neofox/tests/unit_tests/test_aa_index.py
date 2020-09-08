@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neofox.aa_index.aa_index import AminoacidIndex
+from neofox.potential_features.aa_index.aa_index import AminoacidIndex
 
 
 class TestAaIndex(TestCase):

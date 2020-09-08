@@ -6,8 +6,8 @@ from neofox import MHC_I, MHC_II
 from neofox.helpers import intermediate_files
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.runner import Runner
-from neofox.predictors.netmhcpan4.netmhcIIpan_prediction import NetMhcIIPanPredictor
-from neofox.predictors.netmhcpan4.netmhcpan_prediction import NetMhcPanPredictor
+from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
+from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.tests import TEST_HLAI_ALLELES, TEST_HLAII_ALLELES
 
 
