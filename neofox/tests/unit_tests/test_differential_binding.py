@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neofox.literature_features.differential_binding import DifferentialBinding
+from neofox.published_features.differential_binding.differential_binding import DifferentialBinding
 
 
 class TestDifferentialBinding(TestCase):

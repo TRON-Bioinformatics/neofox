@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.helpers.runner import Runner
-from neofox.predictors.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
+from neofox.published_features.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 
 
 class TestDissimilarity(TestCase):
