@@ -13,8 +13,6 @@ from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.literature_features.differential_expression import DifferentialExpression
-from neofox.model.conversion import ModelConverter
-from neofox.model.wrappers import AnnotationFactory
 from neofox.predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.predictors.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -35,7 +33,7 @@ from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 
 class NeoantigenAnnotator:
 
-    def __init__(self, uniprot: Uniprot, gtex: GTEx):
+    def __init__(self):
         """class to annotate neoantigens"""
         references = ReferenceFolder()
         configuration = DependenciesConfiguration()
@@ -51,8 +49,8 @@ class NeoantigenAnnotator:
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
         self.available_alleles = AvailableAlleles(references)
-        self.uniprot = uniprot
-        self.gtex = gtex
+        self.uniprot = Uniprot(references.uniprot)
+        self.gtex = GTEx()
         self.aa_frequency = AminoacidFrequency()
         self.fourmer_frequency = FourmerFrequency()
         self.aa_index = AminoacidIndex()
