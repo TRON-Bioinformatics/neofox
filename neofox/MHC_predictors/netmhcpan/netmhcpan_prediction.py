@@ -32,8 +32,8 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
 
 
     def mhc_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
-        ''' Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
-        '''
+        """ Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
+        """
         allels_for_prediction = []
         for allele in hla_alleles:
             allele = self.check_format_allele(allele)
@@ -71,61 +71,61 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                     f.write(line + "\n")
 
     def filter_binding_predictions(self, position_xmer, tmppred):
-        '''filters prediction file for predicted epitopes that cover mutations
-        '''
+        """filters prediction file for predicted epitopes that cover mutations
+        """
         dat_prediction = data_import.import_dat_general(tmppred)
-        dat = dat_prediction[1]
-        dat_head = dat_prediction[0]
-        dat_fil = []
-        pos_epi = dat_head.index("Pos")
-        epi = dat_head.index("Peptide")
-        for ii, i in enumerate(dat):
+        data_mhc_prediction = dat_prediction[1]
+        header = dat_prediction[0]
+        data_mhc_prediction_filtered = []
+        pos_epi = header.index("Pos")
+        epi = header.index("Peptide")
+        for ii, i in enumerate(data_mhc_prediction):
             if self.epitope_covers_mutation(position_xmer, i[pos_epi], len(i[epi])):
-                dat_fil.append(dat[ii])
-        return dat_head, dat_fil
+                data_mhc_prediction_filtered.append(data_mhc_prediction[ii])
+        return header, data_mhc_prediction_filtered
 
     def minimal_binding_score(self, prediction_tuple, rank=True):
-        '''reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used. if rank = False, Aff(nM) is used
-        '''
+        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used. if rank = False, Aff(nM) is used
+        """
         # TODO: generalize this method with netmhcIIpan_prediction.py + change neofox
-        dat_head = prediction_tuple[0]
-        dat = prediction_tuple[1]
+        header = prediction_tuple[0]
+        epitope_data = prediction_tuple[1]
         if rank:
-            mhc_sc = dat_head.index("%Rank")
+            mhc_sc = header.index("%Rank")
         else:
-            mhc_sc = dat_head.index("Aff(nM)")
+            mhc_sc = header.index("Aff(nM)")
         max_score = float(1000000000000)
-        row = []
-        for ii, i in enumerate(dat):
+        best_predicted_epitope = []
+        for ii, i in enumerate(epitope_data):
             mhc_score = float(i[mhc_sc])
             if mhc_score < max_score:
                 max_score = mhc_score
-                row = i
-        return dat_head, row
+                best_predicted_epitope = i
+        return header, best_predicted_epitope
 
     def mutation_in_loop(self, position_xmer_list, epitope_tuple):
         """
         returns if mutation is directed to TCR (yes or no)
         """
-        dat_head = epitope_tuple[0]
-        dat_epi = epitope_tuple[1]
-        pos_epi = dat_head.index("Pos")
-        del_pos = dat_head.index("Gp")
-        del_len = dat_head.index("Gl")
+        header = epitope_tuple[0]
+        epitope_data = epitope_tuple[1]
+        pos_epi = header.index("Pos")
+        del_pos = header.index("Gp")
+        del_len = header.index("Gl")
         directed_to_tcr_list = [False]
         for position_mutation_xmer in position_xmer_list:
             if del_pos > 0:
-                pos = int(dat_epi[pos_epi])
-                start = pos + int(dat_epi[del_pos]) - 1
-                end = start + int(dat_epi[del_len])
+                pos = int(epitope_data[pos_epi])
+                start = pos + int(epitope_data[del_pos]) - 1
+                end = start + int(epitope_data[del_len])
                 if start < position_mutation_xmer <= end:
                     directed_to_tcr_list.append("yes")
         directed_to_tcr = any(directed_to_tcr_list)
         return directed_to_tcr
 
     def filter_for_9mers(self, prediction_tuple):
-        '''returns only predicted 9mers
-        '''
+        """returns only predicted 9mers
+        """
         dat_head = prediction_tuple[0]
         dat = prediction_tuple[1]
         seq_col = dat_head.index("Peptide")
@@ -137,37 +137,34 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         return dat_head, dat_9mers
 
     def filter_for_WT_epitope(self, prediction_tuple, mut_seq, mut_allele, number_snv):
-        '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
-        '''
-        dat_head = prediction_tuple[0]
-        dat = prediction_tuple[1]
-        seq_col = dat_head.index("Peptide")
-        allele_col = dat_head.index("HLA")
-        wt_epi = []
-        for ii, i in enumerate(dat):
+        """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
+        """
+        header = prediction_tuple[0]
+        data = prediction_tuple[1]
+        seq_col = header.index("Peptide")
+        epitopes_wt = []
+        for ii, i in enumerate(data):
             wt_seq = i[seq_col]
-            wt_allele = i[allele_col]
-            if (len(wt_seq) == len(mut_seq)):
+            if len(wt_seq) == len(mut_seq):
                 numb_mismatch = self.hamming_check_0_or_1(mut_seq, wt_seq)
                 if numb_mismatch <= number_snv:
-                    wt_epi.append(i)
-        dt = (dat_head, wt_epi)
-        min = self.minimal_binding_score(dt)
-        return (min)
+                    epitopes_wt.append(i)
+        all_epitopes_wt = (header, epitopes_wt)
+        self.minimal_binding_score(all_epitopes_wt)
+        return self.minimal_binding_score(all_epitopes_wt)
 
     def filter_for_WT_epitope_position(self, prediction_tuple, mut_seq, position_epi_xmer):
-        '''returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
-        '''
-        dat_head = prediction_tuple[0]
-        dat = prediction_tuple[1]
-        seq_col = dat_head.index("Peptide")
-        pos_col = dat_head.index("Pos")
-        wt_epi = []
-        for ii, i in enumerate(dat):
+        """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
+        """
+        header = prediction_tuple[0]
+        data = prediction_tuple[1]
+        seq_col = header.index("Peptide")
+        pos_col = header.index("Pos")
+        epitopes_wt = []
+        for ii, i in enumerate(data):
             wt_seq = i[seq_col]
             wt_pos = i[pos_col]
             if (len(wt_seq) == len(mut_seq)) & (wt_pos == position_epi_xmer):
-                wt_epi.append(i)
-        dt = (dat_head, wt_epi)
-        min = self.minimal_binding_score(dt)
-        return (min)
+                epitopes_wt.append(i)
+        all_epitopes_wt = (header, epitopes_wt)
+        return self.minimal_binding_score(all_epitopes_wt)
