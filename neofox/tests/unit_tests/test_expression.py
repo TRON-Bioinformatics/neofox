@@ -12,7 +12,7 @@ class TestExpression(TestCase):
         self.assertGreater(result.value, "0.0")
         # no reads for mut
         result = Expression(transcript_expression=12.0, vaf_rna=0.0, tumor_content=None).get_annotations()[0]
-        self.assertEqual(result.value, "0.0")
+        self.assertEqual(result.value, "0")
         # no reads for mut/wt
         result = Expression(transcript_expression=12.0, vaf_rna=-1, tumor_content=None).get_annotations()[0]
         self.assertEqual(result.value, "NA")
