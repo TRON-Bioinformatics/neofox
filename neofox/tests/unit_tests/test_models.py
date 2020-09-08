@@ -1,22 +1,19 @@
-import random
 import struct
 from unittest import TestCase
 import pkg_resources
 import pandas as pd
 
-from Bio.Data import IUPACData
-import numpy as np
-
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, Annotation, NeoantigenAnnotations
 from neofox.model.validation import ModelValidator
+from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
 
 
 class ModelConverterTest(TestCase):
 
     def test_model2json(self):
-        neoantigens = [_get_random_neoantigen() for _ in range(5)]
+        neoantigens = [get_random_neoantigen() for _ in range(5)]
         json_data = [n.to_json() for n in neoantigens]
         self.assertIsInstance(json_data, list)
         self.assertEqual(5, len(json_data))
@@ -24,7 +21,7 @@ class ModelConverterTest(TestCase):
         self._assert_lists_equal(neoantigens, neoantigens2)
 
     def test_model2dict(self):
-        neoantigens = [_get_random_neoantigen() for _ in range(5)]
+        neoantigens = [get_random_neoantigen() for _ in range(5)]
         json_data = [n.to_dict() for n in neoantigens]
         self.assertIsInstance(json_data, list)
         self.assertEqual(5, len(json_data))
@@ -32,33 +29,33 @@ class ModelConverterTest(TestCase):
         self._assert_lists_equal(neoantigens, neoantigens2)
 
     def test_model2csv(self):
-        neoantigen = _get_random_neoantigen()
+        neoantigen = get_random_neoantigen()
         csv_data = ModelConverter.object2series(neoantigen)
         self.assertIsNotNone(csv_data)
         self.assertIsInstance(csv_data, pd.Series)
         self.assertEqual(neoantigen.dna_variant_allele_frequency, csv_data.dna_variant_allele_frequency)
 
     def test_model2flat_dict(self):
-        neoantigen = _get_random_neoantigen()
+        neoantigen = get_random_neoantigen()
         flat_dict = ModelConverter.object2flat_dict(neoantigen)
         self.assertIsNotNone(flat_dict)
         self.assertEqual(neoantigen.dna_variant_allele_frequency, flat_dict['dna_variant_allele_frequency'])
         self.assertEqual(neoantigen.gene.transcript_identifier, flat_dict['gene.transcript_identifier'])
 
     def test_csv2model(self):
-        neoantigen = _get_random_neoantigen()
+        neoantigen = get_random_neoantigen()
         csv_data = ModelConverter.object2series(neoantigen)
         neoantigen2 = ModelConverter.neoantigens_csv2object(csv_data)
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_patient_csv2model(self):
-        patients = [_get_random_patient() for _ in range(5)]
+        patients = [get_random_patient() for _ in range(5)]
         csv_data = ModelConverter.objects2dataframe(patients)
         patients2 = ModelConverter.patient_metadata_csv2objects(csv_data)
         self._assert_lists_equal(patients, patients2)
 
     def test_neoantigen_annotations(self):
-        neoantigen = _get_random_neoantigen()
+        neoantigen = get_random_neoantigen()
         annotations = NeoantigenAnnotations()
         annotations.neoantigen_identifier = ModelConverter.generate_neoantigen_identifier(neoantigen)
         annotations.annotations = [Annotation(name='string_annotation', value='blabla'),
@@ -180,12 +177,12 @@ class ModelConverterTest(TestCase):
 class ModelValidatorTest(TestCase):
     
     def test_validation(self):
-        neoantigens = [_get_random_neoantigen() for _ in range(5)]
+        neoantigens = [get_random_neoantigen() for _ in range(5)]
         for n in neoantigens:
             ModelValidator.validate(n)
 
     def test_field_invalid_type(self):
-        neoantigen = _get_random_neoantigen()
+        neoantigen = get_random_neoantigen()
         neoantigen.rna_expression = "5.7"  # should be a float
         with self.assertRaises(struct.error):
             ModelValidator.validate(neoantigen)
@@ -196,36 +193,8 @@ class ModelValidatorTest(TestCase):
             ModelValidator.validate(annotation)
 
     def test_neoantigen_unique_identifier(self):
-        neoantigen = _get_random_neoantigen()
+        neoantigen = get_random_neoantigen()
         unique_identifier = ModelConverter.generate_neoantigen_identifier(neoantigen)
         self.assertEqual(unique_identifier, ModelConverter.generate_neoantigen_identifier(neoantigen))
         neoantigen.gene.gene = "ANOTHER_GENE"
         self.assertNotEqual(unique_identifier, ModelConverter.generate_neoantigen_identifier(neoantigen))
-
-
-def _get_random_neoantigen():
-    neoantigen = Neoantigen()
-    neoantigen.variant_allele_frequency = np.random.uniform(0, 1)
-    neoantigen.expression_value = np.random.uniform(0, 50)
-    mutation = Mutation()
-    mutation.mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
-    mutation.wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
-    mutation.position = np.random.randint(0, 1000)
-    neoantigen.mutation = mutation
-    gene = Gene()
-    gene.gene = "BRCA2"
-    gene.transcript_identifier = "ENST1234567"
-    gene.assembly = "hg19"
-    neoantigen.gene = gene
-    return neoantigen
-
-
-def _get_random_patient():
-    patient = Patient()
-    patient.estimated_tumor_content = np.random.uniform(0, 1)
-    patient.is_rna_available = np.random.choice([True, False], 1)[0]
-    patient.identifier = 'Pt12345'
-    patient.mhc_i_alleles = ['A', 'B', 'C']
-    patient.mhc_i_i_alleles = ['X', 'Y']
-    patient.tissue = 'skin'
-    return patient
