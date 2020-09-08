@@ -31,30 +31,14 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 
 ## NeoFox Requirements
  
-
-**Required Additional Files:**  
-- RNA reference *(/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv, predict_all_epitopes.py)*  
-- protein database *(/projects/data/human/2018_uniprot_with_isoforms/uniprot_human_with_isoforms.fasta, predict_all_epitopes.py)*  
-- amino acid frequencies *(./new_features/20181108_AA_freq_prot.csv, predict_all_epitopes.py)*  
-- 4mer amino acid frequnecies *(./new_features/20181108_4mer_freq.csv, predict_all_epitopes.py)*  
-- PROVEAN score matrix *(./new_features/PROV_scores_mapped3.csv, predict_all_epitopes.py)*  
-- available HLA I alleles for netmhcpan4 *(./netmhcpan4/MHC_available.csv, predict_all_epitopes.py)*  
-- available HLA II alleles for netmhcIIpan3.2 *(./netmhcIIpan/avail_mhcII.txt, predict_all_epitopes.py)*  
-- aaindex1 *("aa_index/aaindex1", predict_all_epitopes.py)*  
-- aanindex2 *("aa_index/aaindex1", predict_all_epitopes.py)*  
-- available HLA II alleles for MixMHC2pred *("/projects/SUMMIT/WP1.2/input/development/MixMHCpred/Alleles_list_pred2.txt")*
-
 **Required Software/Tools/Dependencies:**  
-- python3 *(anaconda/2/2018)*
-- BLAST *(/code/ncbi-blast/2.8.1+/bin/blastp, neoantigen_fitness.py)*  
-- netmhcpan *(/code/netMHCpan-4.0/netMHCpan, netmhcpan_prediction.py)*  
-- netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
-- netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
-- MixMHCpred *(/code/MixMHCpred/2.0.2/MixMHCpred, mixmhcpred.py)*
-- Tcell_predictor: python3 + scripts/pickle/mat files of Tcell_predictor tool *(/code/Anaconda/3/2018/bin/python + tool under ./Tcell_predictor, tcellpredictor_wrapper.py )*  
-- Neoag: Neoag R-module *(./neoag-master, neoag_gbm_model.py)* + R *(/code/R/3.6.0/bin/Rscript)*
-- MixMHCpred *(/code/MixMHCpred/2.0.2/)*
-- MixMHC2pred *(/code/net/MixMHC2pred/1.1)*
+- Python-3.7.3
+- BLAST-2.8.1 
+- netMHCpan-4.0 
+- netMHCIIpan-3.2
+- MixMHCpred 2.0.2  
+- R-3.6.0
+- MixMHC2pred 1.1 
 
 ## **Usage**  
 
