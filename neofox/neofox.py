@@ -48,8 +48,10 @@ class NeoFox:
         references = ReferenceFolder()
 
         # resources with long loading times
-        self.uniprot = Uniprot(references.uniprot)
-        self.gtex = GTEx()
+        uniprot_future = self.dask_client.submit(Uniprot, references.uniprot)
+        gtex_future = self.dask_client.submit(GTEx)
+        self.uniprot = uniprot_future.result()
+        self.gtex = gtex_future.result()
 
         logger.info("Data loaded")
 
