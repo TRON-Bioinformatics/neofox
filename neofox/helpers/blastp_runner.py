@@ -1,5 +1,5 @@
 from neofox.helpers import intermediate_files
-from neofox.predictors.neoantigen_fitness.aligner import Aligner
+from neofox.published_features.neoantigen_fitness.aligner import Aligner
 
 
 class BlastpRunner(object):

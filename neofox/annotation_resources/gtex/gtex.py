@@ -56,9 +56,9 @@ class GTEx(object):
 
     def get_annotations(self, mean: float, sd: float, sum: float) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(name="mean_ref_expression", value=mean),
-            AnnotationFactory.build_annotation(name="sd_ref_expression", value=sd),
-            AnnotationFactory.build_annotation(name="sum_ref_expression", value=sum)
+            AnnotationFactory.build_annotation(name="Reference_expression_mean", value=mean),
+            AnnotationFactory.build_annotation(name="Reference_expression_standard_deviation", value=sd),
+            AnnotationFactory.build_annotation(name="Reference_expression_mean_sum", value=sum)
         ]
 
     def _get_metric(self, gene, tissue, metric):

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from neofox.literature_features.priority_score import PriorityScore
+from neofox.published_features.priority_score import PriorityScore
 
 
 class TestPriorityScore(TestCase):

@@ -30,56 +30,32 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 
 
 ## NeoFox Requirements
-
-**Specific Input:**
-- icam_output.txt --> icam output file
-- patient identifier --> the patient identifier to whom all neoantigens in icam output belong
-- patient data --> a table of tab separated values containing metadata on the patient
-  - required fields: identifier, mhcIAlleles, mhcIIAlleles
-  - optional fields: estimatedTumorContent, isRnaAvailable, tissue
-
-**Example of patient data table**
-```
-identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
-Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
-```
-
-**Required Columns of iCaM Table:**  
-- 	transcript_expression  
-- 	VAF_in_RNA  
-- 	VAF_in_tumor  
-- 	X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL.
--   substitution  
--   patient.id (e.g Pt1, Ptx)    
-
-**Required Additional Files:**  
-- RNA reference *(/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv, predict_all_epitopes.py)*  
-- protein database *(/projects/data/human/2018_uniprot_with_isoforms/uniprot_human_with_isoforms.fasta, predict_all_epitopes.py)*  
-- amino acid frequencies *(./new_features/20181108_AA_freq_prot.csv, predict_all_epitopes.py)*  
-- 4mer amino acid frequnecies *(./new_features/20181108_4mer_freq.csv, predict_all_epitopes.py)*  
-- PROVEAN score matrix *(./new_features/PROV_scores_mapped3.csv, predict_all_epitopes.py)*  
-- available HLA I alleles for netmhcpan4 *(./netmhcpan4/MHC_available.csv, predict_all_epitopes.py)*  
-- available HLA II alleles for netmhcIIpan3.2 *(./netmhcIIpan/avail_mhcII.txt, predict_all_epitopes.py)*  
-- aaindex1 *("aa_index/aaindex1", predict_all_epitopes.py)*  
-- aanindex2 *("aa_index/aaindex1", predict_all_epitopes.py)*  
-- available HLA II alleles for MixMHC2pred *("/projects/SUMMIT/WP1.2/input/development/MixMHCpred/Alleles_list_pred2.txt")*
-
+ 
 **Required Software/Tools/Dependencies:**  
-- python2 *(anaconda/2/2018)*
-- BLAST *(/code/ncbi-blast/2.8.1+/bin/blastp, neoantigen_fitness.py)*  
-- netmhcpan *(/code/netMHCpan-4.0/netMHCpan, netmhcpan_prediction.py)*  
-- netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
-- netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
-- MixMHCpred *(/code/MixMHCpred/2.0.2/MixMHCpred, mixmhcpred.py)*
-- Tcell_predictor: python3 + scripts/pickle/mat files of Tcell_predictor tool *(/code/Anaconda/3/2018/bin/python + tool under ./Tcell_predictor, tcellpredictor_wrapper.py )*  
-- Neoag: Neoag R-module *(./neoag-master, neoag_gbm_model.py)* + R *(/code/R/3.6.0/bin/Rscript)*
-- MixMHCpred *(/code/MixMHCpred/2.0.2/)*
-- MixMHC2pred *(/code/net/MixMHC2pred/1.1)*
+- Python-3.7.3
+- BLAST-2.8.1 
+- netMHCpan-4.0 
+- netMHCIIpan-3.2
+- MixMHCpred 2.0.2  
+- R-3.6.0
+- MixMHC2pred 1.1 
 
 ## **Usage**  
 
 ```
-neofox --icam-file testseq_head.txt --patient-id Pt123 --patient-data patients.csv [--frameshift False]
+neofox --model-file/--icam-file testseq_head.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
+```
+**Specific Input:**
+
+--icam-file: tab-separated file in iCaM output style (**required columns**: transcript_expression,+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL),[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL),  VAF_in_RNA, substitution)  <br>
+--model-file: file in model format<br>
+--patient-id: patient identifier <br>
+--patient data: a table of tab separated values containing metadata on the patient (**required fields**: identifier, mhcIAlleles, mhcIIAlleles; **optional fields**: estimatedTumorContent, isRnaAvailable, tissue)
+
+Example of patient data table:
+```
+identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
+Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
 ```
 
 

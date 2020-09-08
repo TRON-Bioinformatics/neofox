@@ -1,7 +1,7 @@
 import os
 
 import neofox
-from neofox.predictors.netmhcpan4.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from neofox.references.references import ReferenceFolder
 
 

@@ -16,7 +16,7 @@ def neofox_cli():
                         required=True)
     parser.add_argument('--patients-data', dest='patients_data',
                         help='file with data for patients with columns: identifier, estimated_tumor_content, '
-                             'is_rna_available, mhc_i_alleles, mhc_i_i_alleles, tissue',
+                             'is_rna_available, mhc_i_alleles, mhc_ii_alleles, tissue',
                         required=True)
     parser.add_argument('--output-folder', dest='output_folder', help='output folder', required=True)
     parser.add_argument('--output-prefix', dest='output_prefix',
@@ -56,9 +56,10 @@ def neofox_cli():
     neoantigens, patients = _read_data(icam_file, model_file, patients_data)
 
     # run annotations
-    annotations = NeoFox(
-        neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
-        num_cpus=num_cpus, output_prefix=output_prefix).get_annotations()
+
+    annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
+                         output_prefix = output_prefix, num_cpus=num_cpus
+                         ).get_annotations()
 
     _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
 
