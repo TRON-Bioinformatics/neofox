@@ -6,7 +6,7 @@ from typing import List
 import logzero
 from logzero import logger
 import dask
-from multiprocessing.pool import ThreadPool
+from dask.distributed import Client
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotation_resources.gtex.gtex import GTEx
 from neofox.annotator import NeoantigenAnnotator
@@ -33,7 +33,8 @@ class NeoFox:
         logger.info("Loading data...")
 
         # initialise dask
-        dask.config.set(pool=ThreadPool(num_cpus))
+        # TODO: number of threads is hard coded. Is there a better value for this?
+        self.dask_client = Client(processes=True, n_workers=num_cpus, threads_per_worker=4)
 
         if neoantigens is None or patients is None:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
@@ -60,18 +61,25 @@ class NeoFox:
         """
         logger.info("Starting NeoFox annotations...")
         # feature calculation for each epitope
-        delayed_annotations = []
+        futures = []
+        start = time.time()
         for neoantigen in self.neoantigens:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            delayed_annotation = dask.delayed(
-                NeoantigenAnnotator(uniprot=self.uniprot, gtex=self.gtex).get_annotation)(neoantigen, patient)
-            delayed_annotations.append(delayed_annotation)
+            futures.append(self.dask_client.submit(self.annotate_neoantigen, neoantigen, patient))
 
-        start = time.time()
-        annotations = dask.compute(*delayed_annotations)
+        annotations = self.dask_client.gather(futures)
         end = time.time()
         logger.info("Elapsed time for annotating {} neoantigens {} seconds".format(
             len(self.neoantigens), int(end - start)))
         return annotations
+
+    def annotate_neoantigen(self, neoantigen: Neoantigen, patient: Patient):
+        logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
+        start = time.time()
+        annotation = NeoantigenAnnotator(uniprot=self.uniprot, gtex=self.gtex).get_annotation(neoantigen, patient)
+        end = time.time()
+        logger.info("Elapsed time for annotating neoantigen {}: {} seconds".format(
+            neoantigen.identifier, int(end - start)))
+        return annotation
