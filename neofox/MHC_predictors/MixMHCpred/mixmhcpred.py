@@ -139,5 +139,7 @@ class MixMHCpred(AbstractMixMHCpred):
             AnnotationFactory.build_annotation(value=self.best_score_wt, name="MixMHCpred_best_score_WT"),
             AnnotationFactory.build_annotation(value=self.best_rank_wt, name="MixMHCpred_best_rank_WT"),
             AnnotationFactory.build_annotation(
-                value=self.best_score - self.best_score_wt, name="MixMHCpred_difference_score_MUT_WT")
+                value=self.best_score - self.best_score_wt
+                if self.best_score is not None and self.best_score_wt is not None else None,
+                name="MixMHCpred_difference_score_MUT_WT")
             ]
