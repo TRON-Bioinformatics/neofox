@@ -55,4 +55,4 @@ class NeoagCalculator(object):
         self._prepare_tmp_for_neoag(sample_id, netmhcpan.best4_affinity_epitope, netmhcpan.best4_affinity,
                                     netmhcpan.best4_affinity_epitope_WT, peptide_variant_position, tmp_file_name)
         neoag_score = self._apply_gbm(tmp_file_name)
-        return AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogencity")
+        return AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogenicity")
