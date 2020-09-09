@@ -20,7 +20,7 @@ class TestProveanAnnotator(TestCase):
     def test_provean_annotator(self):
         provean_annotation = self.annotator.get_provean_annotation(
             mutated_aminoacid="S", protein_id="uc059atj", position=5)
-        self.assertEqual(provean_annotation.value,  "-3.0")
+        self.assertEqual(provean_annotation.value,  "-3")
         provean_annotation = self.annotator.get_provean_annotation(
             mutated_aminoacid="Q", protein_id="uc058xwc", position=12)
         self.assertEqual(provean_annotation.value,  "-4.58")
