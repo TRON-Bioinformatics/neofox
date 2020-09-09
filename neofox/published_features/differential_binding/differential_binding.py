@@ -123,7 +123,7 @@ class DifferentialBinding:
                 name="Difference_number_epitopes_MHCI_weak_binder"),
             AnnotationFactory.build_annotation(value=self.ratio_number_binders(
                 num_mutation=netmhcpan.MHC_number_strong_binders, num_wild_type=netmhcpan.MHC_number_strong_binders_WT),
-                name="Ratio_number_epitopes_MHCI_strong_binder}"),
+                name="Ratio_number_epitopes_MHCI_strong_binder"),
             AnnotationFactory.build_annotation(value=self.ratio_number_binders(
                 num_mutation=netmhcpan.MHC_number_weak_binders, num_wild_type=netmhcpan.MHC_number_weak_binders_WT),
                 name="Ratio_number_epitopes_MHCI_weak_binder")

@@ -125,7 +125,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
                                                    mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
                                                        position_mhci=position,
                                                        peptide_length=len(netmhcpan.best4_affinity_epitope)))),
-            AnnotationFactory.build_annotation(name="Recognition_Potential_MHCI_rank4",
+            AnnotationFactory.build_annotation(name="Recognition_Potential_MHCI_rank",
                                                value=self.calculate_recognition_potential(
                                                    amplitude=amplitude.amplitude_mhci_rank,
                                                    pathogen_similarity=pathogen_similarity_rank,
