@@ -41,6 +41,8 @@ def get_random_neoantigen():
     mutation = Mutation()
     mutation.mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
     mutation.wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
+    mutation.left_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
+    mutation.right_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
     mutation.position = np.random.randint(0, 1000)
     neoantigen.mutation = mutation
     gene = Gene()
