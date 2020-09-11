@@ -42,7 +42,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(neoantigen.dna_variant_allele_frequency, flat_dict['dna_variant_allele_frequency'])
         self.assertEqual(neoantigen.gene.transcript_identifier, flat_dict['gene.transcript_identifier'])
 
-    def test_csv2model(self):
+    def test_model2csv2model(self):
         neoantigen = get_random_neoantigen()
         csv_data = ModelConverter.object2series(neoantigen)
         neoantigen2 = ModelConverter.neoantigens_csv2object(csv_data)
@@ -57,7 +57,7 @@ class ModelConverterTest(TestCase):
     def test_neoantigen_annotations(self):
         neoantigen = get_random_neoantigen()
         annotations = NeoantigenAnnotations()
-        annotations.neoantigen_identifier = ModelConverter.generate_neoantigen_identifier(neoantigen)
+        annotations.neoantigen_identifier = ModelValidator.generate_neoantigen_identifier(neoantigen)
         annotations.annotations = [Annotation(name='string_annotation', value='blabla'),
                                       Annotation(name='integer_annotation', value=1),
                                       Annotation(name='float_annotation', value=1.1)]
@@ -67,7 +67,7 @@ class ModelConverterTest(TestCase):
         # this does not fail, but it will fail validation
         self.assertEqual(annotations_dict.get('annotations')[1].get('value'), 1)
         self.assertEqual(annotations_dict.get('annotations')[2].get('value'), 1.1)
-        self.assertTrue(annotations_dict.get('neoantigenIdentifier'), ModelConverter.generate_neoantigen_identifier(neoantigen))
+        self.assertTrue(annotations_dict.get('neoantigenIdentifier'), ModelValidator.generate_neoantigen_identifier(neoantigen))
 
     def test_icam2model(self):
         icam_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
@@ -87,6 +87,16 @@ class ModelConverterTest(TestCase):
                             (0 <= n.rna_variant_allele_frequency <= 1))
             self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
             self.assertTrue(0 <= n.dna_variant_allele_frequency <= 1)
+
+    def test_csv2model(self):
+        neoantigens_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
+        neoantigens = ModelConverter.parse_neoantigens_file(neoantigens_file)
+        self.assertEqual(5, len(neoantigens))
+        for n in neoantigens:
+            self.assertTrue(isinstance(n, Neoantigen))
+            self.assertTrue(n.gene.gene is not None)
+            self.assertTrue(n.gene.transcript_identifier is not None)
+            self.assertTrue(n.gene.assembly is not None)
 
     def test_overriding_patient_id(self):
         icam_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
@@ -172,29 +182,3 @@ class ModelConverterTest(TestCase):
         self.assertEqual(len(neoantigens), len(neoantigens2))
         for n1, n2, in zip(neoantigens, neoantigens2):
             self.assertEqual(n1, n2)
-
-
-class ModelValidatorTest(TestCase):
-    
-    def test_validation(self):
-        neoantigens = [get_random_neoantigen() for _ in range(5)]
-        for n in neoantigens:
-            ModelValidator.validate(n)
-
-    def test_field_invalid_type(self):
-        neoantigen = get_random_neoantigen()
-        neoantigen.rna_expression = "5.7"  # should be a float
-        with self.assertRaises(struct.error):
-            ModelValidator.validate(neoantigen)
-
-    def test_annnotation_invalid_type(self):
-        annotation = Annotation(name='invalid_annotation', value=123)
-        with self.assertRaises(Exception):  # NOTE: when  the offending value is a literal exception is not captured
-            ModelValidator.validate(annotation)
-
-    def test_neoantigen_unique_identifier(self):
-        neoantigen = get_random_neoantigen()
-        unique_identifier = ModelConverter.generate_neoantigen_identifier(neoantigen)
-        self.assertEqual(unique_identifier, ModelConverter.generate_neoantigen_identifier(neoantigen))
-        neoantigen.gene.gene = "ANOTHER_GENE"
-        self.assertNotEqual(unique_identifier, ModelConverter.generate_neoantigen_identifier(neoantigen))

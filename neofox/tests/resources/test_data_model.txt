@@ -1,0 +1,6 @@
+gene.assembly	gene.gene	gene.transcriptIdentifier	mutation.leftFlankingRegion	mutation.mutatedAminoacid	mutation.position	mutation.rightFlankingRegion	mutation.wildTypeAminoacid	patientIdentifier
+hg19	BRCA2	ENST1234567	AAAAAA	L	935	AAAAA	F	Pt29
+hg19	BRCA2	ENST1234567	AAAAAA	M	518	AAAAA	R	Pt29
+hg19	BRCA2	ENST1234567	AAAAAA	G	285	AAAAA	K	Pt29
+hg19	BRCA2	ENST1234567	AAAAAA	C	685	AAAAA	E	Pt29
+hg19	BRCA2	ENST1234567	AAAAAA	K	503	AAAAA	C	Pt29

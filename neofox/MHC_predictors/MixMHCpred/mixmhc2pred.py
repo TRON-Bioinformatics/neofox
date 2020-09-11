@@ -201,5 +201,6 @@ class MixMhc2Pred(AbstractMixMHCpred):
             AnnotationFactory.build_annotation(value=self.best_peptide_wt, name="MixMHC2pred_best_peptide_WT"),
             AnnotationFactory.build_annotation(value=self.best_rank_wt, name="MixMHC2pred_best_rank_WT"),
             AnnotationFactory.build_annotation(
-                value=self.best_rank - self.best_rank_wt, name="MixMHC2pred_difference_rank_MUT_WT")
+                value=self.best_rank - self.best_rank_wt if self.best_rank and self.best_rank_wt else None,
+                name="MixMHC2pred_difference_rank_MUT_WT")
         ]
