@@ -1,4 +1,4 @@
-# **NeoFox - NEOantigen Feature tOolboX**
+# NeoFox - NEOantigen Feature tOolboX
 
 
 Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope descriptors
@@ -32,32 +32,129 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 ## NeoFox Requirements
  
 **Required Software/Tools/Dependencies:**  
-- Python-3.7.3
-- BLAST-2.8.1 
-- netMHCpan-4.0 
-- netMHCIIpan-3.2
-- MixMHCpred 2.0.2  
-- R-3.6.0
-- MixMHC2pred 1.1 
+- Python 3.7
+- R 3.6.0
+- BLAST 2.8.1
+- netMHCpan 4.0
+- netMHCIIpan 3.2
+- MixMHCpred 2.0.2
+- MixMHC2pred 1.1
 
-## **Usage**  
+## Usage
 
 ```
-neofox --model-file/--icam-file testseq_head.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
+neofox --model-file/--icam-file neoantigens.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
 ```
-**Specific Input:**
 
---icam-file: tab-separated file in iCaM output style (**required columns**: transcript_expression,+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL),[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL),  VAF_in_RNA, substitution)  <br>
---model-file: file in model format<br>
---patient-id: patient identifier <br>
---patient data: a table of tab separated values containing metadata on the patient (**required fields**: identifier, mhcIAlleles, mhcIIAlleles; **optional fields**: estimatedTumorContent, isRnaAvailable, tissue)
+### Configuration
 
-Example of patient data table:
+Setup the following environment variables pointing to the required software
+```
+export NEOFOX_BLASTP=/code/ncbi-blast/2.8.1+/bin/blastp
+export NEOFOX_MIXMHC2PRED=/code/net/MixMHC2pred/1.1/MixMHC2pred
+export NEOFOX_MIXMHCPRED=/code/MixMHCpred/2.0.2/MixMHCpred
+export NEOFOX_RSCRIPT=/code/R/3.6.0/bin/Rscript
+export NEOFOX_NETMHC2PAN=/code/net/MHCIIpan/3.2/netMHCIIpan
+export NEOFOX_NETMHCPAN=/code/net/MHCpan/4.0/netMHCpan
+```
+
+Build the reference data as described (here)[neofox/references/build_references.sh] and set the environment variable `NEOFOX_REFERENCE_FOLDER` pointing to the reference folder.
+
+### Input data
+
+- `--icam-file`: tab-separated values table with neoantigens in iCaM output format
+- `--model-file`: tab-separated values table with neoantigens in Neofox model format described in [protobuf model](neofox/model/neoantigen.proto)
+- `--patient-id`: patient identifier (**optional**, this will be used as the patient id for neoantigens without patient)
+- `--patient data`: a table of tab separated values containing metadata on the patient
+
+**NOTE**: provide either `--icam-file` or `--model-file`
+
+Example of iCaM neoantigens table:
+```
+gene	UCSC_transcript	transcript_expression	substitution	+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)	[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)	VAF_in_tumor	VAF_in_RNA
+VCAN	uc003kii.3	0.519506894	I547T	DEVLGEPSQDILVTDQTRLEATISPET	DEVLGEPSQDILVIDQTRLEATISPET 0.294573643	0.857142857
+```
+where:
+- `gene` is the HGNC gene symbol
+- `UCSC_trancript` is the UCSC transcript id including the version
+- `substitution` represents a single aminoacid substitution with single letter aminoacids (eg: I547T)
+- `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the mutated neoantigen
+- `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent aminoacid sequence in the normal tissue
+- `transcript_expression` the transcript expression (**optional**)
+- `VAF_in_tumor` variant allele frequency in the DNA (**optional**)
+- `VAF_in_RNA` variant allele frequency in the RNA (**optional**, this will be estimated using the `VAF_in_tumor` if not available)
+
+Example of Neofox model neoantigens table:
+```
+gene.assembly	gene.gene	gene.transcriptIdentifier	mutation.leftFlankingRegion	mutation.mutatedAminoacid	mutation.position	mutation.rightFlankingRegion	mutation.wildTypeAminoacid	patientIdentifier   rnaExpression   rnaVariantAlleleFrequency   dnaVariantAlleleFrequency
+hg19	BRCA2	uc003kii.3	AAAAAA	L	935	AAAAA	F	Pt1 4.512   0.4675  0.36103
+hg19	BRCA2	uc003kii.3	AAAAAA	M	518	AAAAA	R	Pt2 0.154   0.015404    0.034404
+hg19	BRCA2	uc003kii.3	AAAAAA	G	285	AAAAA	K	Pt3 8.841207    0.89387 0.51924
+```
+where:
+- `gene.assembly` - the assembly of the reference genome (only hg19 is supported)
+- `gene.gene` - the HGMC gene symbol
+- `gene.transcriptIdentifier` - the UCSC transcript identifier including the version number
+- `mutation.leftFlankingRegion` - the aminoacids flanking the mutation on the left (in IUPAC one letter symbols)
+- `mutation.mutatedAminoacid` - the mutated aminoacid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
+- `mutation.position` - the 1 based position of the mutation in the protein
+- `mutation.rightFlankingRegion` - the aminoacids flanking the mutation on the left (in IUPAC one letter symbols)
+- `mutation.wildTypeAminoacid` - the wild type aminoacid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
+- `patientIdentifier` - the patient identifier
+- `rnaExpression` - the transcript RNA expression (**optional**)
+- `rnaVariantAlleleFrequency` - the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
+- `dnaVariantAlleleFrequency` - the variant allele frequency calculated from the DNA (**optional**)
+
+Example of patients data table:
 ```
 identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
 Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
 ```
+where:
+- `identifier` - the patient identifier
+- `mhcIAlleles` - the list of MHC I alleles in the patient
+- `mhcIIAlleles` - the list of MHC II alleles in the patient
+- `estimatedTumorContent` - the percentage of estimated tumor content (**optional**)
+- `isRnaAvailable` - whether RNA was available for the analysis. If true then the `VAF_in_RNA` field will be used, else `VAF_in_DNA` will be used. (**optional**)
+- `tissue` - the tissue of the tumor. This is used to extract the gene expression from GTEx, use one from the list below (**optional**)
 
+GTEx tissues:
+```
+adipose tissue
+adrenal gland
+bladder
+blood
+blood vessel
+brain
+breast
+cervix
+colon
+esophagus
+fallopian tube
+heart
+kidney
+liver
+lung
+nerve
+ovary
+pancreas
+pituitary gland
+prostate
+salivary gland
+skeletal muscle
+skin
+small intestine
+spleen
+stomach
+testis
+thyroid
+uterus
+vagina
+```
+
+### Output data
+
+The output data is returned in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON (`--with-json`).
 
 ## Developer guide
 
@@ -79,18 +176,7 @@ pip install dist/neofox-x.y.z.whl
 
 ### Run integration tests
 
-To run the integration tests make sure you have a file `.env` that contains the following variables with the right values:
-```
-export NEOFOX_REFERENCE_FOLDER=~/addannot_references
-export NEOFOX_BLASTP=/code/ncbi-blast/2.8.1+/bin/blastp
-export NEOFOX_MIXMHC2PRED=/code/net/MixMHC2pred/1.1/MixMHC2pred
-export NEOFOX_MIXMHCPRED=/code/MixMHCpred/2.0.2/MixMHCpred
-export NEOFOX_RSCRIPT=/code/R/3.6.0/bin/Rscript
-export NEOFOX_NETMHC2PAN=/code/net/MHCIIpan/3.2/netMHCIIpan
-export NEOFOX_NETMHCPAN=/code/net/MHCpan/4.0/netMHCpan
-```
-
-The folder `NEOFOX_REFERENCE_FOLDER` requires to contain the resources defined above.
+To run the integration tests make sure you have a file `.env` that contains the environment variables described in the configuration section.
 
 Run the integration tests as follows:
 ```
@@ -119,4 +205,4 @@ python -m unittest discover neofox.tests.unit_tests
 
 ### Logging
 
-Logs are written to the standard error by default. Optionally they can be written to a file by setting the environment variable `NEOFOX_LOGFILE` pointing to the desired file.
+Logs are written to the standard error and to the output folder by default. Optionally they can be written to a file by setting the environment variable `NEOFOX_LOGFILE` pointing to the desired file.

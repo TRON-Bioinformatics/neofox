@@ -73,6 +73,20 @@ class TestNeofox(TestCase):
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
 
+    def test_neofox_model_input(self):
+        """
+        """
+        patient_id = 'Pt29'
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
+        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
+        neoantigens = ModelConverter.parse_neoantigens_file(input_file)
+        patients = ModelConverter.parse_patients_file(patients_file)
+        annotations = NeoFox(
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
+        self.assertEqual(5, len(annotations))
+        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
+        self.assertTrue(len(annotations[0].annotations) > 10)
+
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
         if os.path.exists(previous_file):
