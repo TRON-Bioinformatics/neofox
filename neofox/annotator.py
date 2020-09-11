@@ -19,10 +19,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 from logzero import logger
-import re
 from datetime import datetime
 import neofox
-from neofox.potential_features.aa_index.aa_index import AminoacidIndex
 from neofox.annotation_resources.gtex.gtex import GTEx
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.helpers.available_alleles import AvailableAlleles
@@ -32,9 +30,6 @@ from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from neofox.potential_features.differential_expression import DifferentialExpression
-from neofox.potential_features.nmer_frequency.nmer_frequency import AminoacidFrequency, FourmerFrequency
-from neofox.potential_features.provean.provean import ProveanAnnotator
 from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.published_features.differential_binding.differential_binding import DifferentialBinding
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -57,7 +52,6 @@ class NeoantigenAnnotator:
         references = ReferenceFolder()
         configuration = DependenciesConfiguration()
         runner = Runner()
-        self.provean_annotator = ProveanAnnotator(provean_file=references.prov_scores_mapped3)
         self.dissimilarity_calculator = DissimilarityCalculator(
             runner=runner, configuration=configuration, proteome_db=references.proteome_db)
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
@@ -70,9 +64,6 @@ class NeoantigenAnnotator:
         self.available_alleles = AvailableAlleles(references)
         self.uniprot = Uniprot(references.uniprot)
         self.gtex = GTEx()
-        self.aa_frequency = AminoacidFrequency()
-        self.fourmer_frequency = FourmerFrequency()
-        self.aa_index = AminoacidIndex()
         self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
 
@@ -107,10 +98,6 @@ class NeoantigenAnnotator:
         self.annotations.annotations.extend(expression_calculator.get_annotations())
         self.add_differential_expression_features(
             neoantigen.gene.gene, expression_tumor=neoantigen.rna_expression, tissue=patient.tissue)
-        self.add_aminoacid_index_features(
-            mutation_aminoacid=neoantigen.mutation.mutated_aminoacid,
-            wild_type_aminoacid=neoantigen.mutation.wild_type_aminoacid)
-        self.add_provean_score_features(neoantigen)
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.uniprot.get_annotations(sequence_not_in_uniprot))
 
@@ -147,11 +134,6 @@ class NeoantigenAnnotator:
         # T cell predictor
         self.annotations.annotations.extend(self.tcell_predictor.get_annotations(
             gene=neoantigen.gene.gene, substitution=substitution, netmhcpan=self.netmhcpan))
-
-        # frequencies
-        self.annotations.annotations.extend(self.aa_frequency.get_annotations(
-            neoantigen.mutation.mutated_aminoacid, self.netmhcpan.best4_mhc_epitope))
-        self.annotations.annotations.extend(self.fourmer_frequency.get_annotations(self.netmhcpan.best4_mhc_epitope))
 
         # self-similarity
         self.annotations.annotations.extend(self.self_similarity.get_annnotations(
@@ -208,23 +190,7 @@ class NeoantigenAnnotator:
         # TODO: set the hash fro the resources
         self.annotations.annotations = []
 
-    def add_provean_score_features(self, neoantigen):
-        # PROVEAN score
-        transcript_identifier_without_version = re.sub(r'.\d+$', '', neoantigen.gene.transcript_identifier)
-        self.annotations.annotations.append(self.provean_annotator.get_provean_annotation(
-            mutated_aminoacid=neoantigen.mutation.mutated_aminoacid,
-            protein_id=transcript_identifier_without_version,
-            position=neoantigen.mutation.position))
-
-    def add_aminoacid_index_features(self, mutation_aminoacid, wild_type_aminoacid):
-        # amino acid index
-        self.annotations.annotations.extend(self.aa_index.get_annotations(
-            wild_type_aminoacid=wild_type_aminoacid, mutation_aminoacid=mutation_aminoacid))
-
     def add_differential_expression_features(self, gene, expression_tumor, tissue):
         # differential expression
         gtex_mean, gtex_sum, gtex_sd = self.gtex.get_metrics(gene, tissue)
         self.annotations.annotations.extend(self.gtex.get_annotations(gtex_mean, gtex_sd, gtex_sum))
-        self.annotations.annotations.extend(DifferentialExpression().get_annotations(
-            expression_tumor=expression_tumor, expression_reference=gtex_mean,
-            expression_reference_sd=gtex_sd, expression_reference_sum=gtex_sum))
