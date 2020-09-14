@@ -103,7 +103,7 @@ class NeoantigenAnnotator:
 
         # HLA I predictions: NetMHCpan
         self.netmhcpan.run(
-            xmer_mut=neoantigen.mutation.mutated_xmer, xmer_wt=neoantigen.mutation.wild_type_xmer,
+            sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
             alleles=patient.mhc_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.annotations.annotations.extend(self.netmhcpan.get_annotations())
 
@@ -159,14 +159,14 @@ class NeoantigenAnnotator:
 
         # MixMHCpred
         self.mixmhc.run(
-            xmer_wt=neoantigen.mutation.wild_type_xmer, xmer_mut=neoantigen.mutation.mutated_xmer,
+            sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
             alleles=patient.mhc_i_alleles)
         self.annotations.annotations.extend(self.mixmhc.get_annotations())
 
         # MixMHC2pred
         self.mixmhc2.run(
-            alleles=patient.mhc_i_i_alleles, xmer_wt=neoantigen.mutation.wild_type_xmer,
-            xmer_mut=neoantigen.mutation.mutated_xmer)
+            alleles=patient.mhc_i_i_alleles, sequence_wt=neoantigen.mutation.wild_type_xmer,
+            sequence_mut=neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.mixmhc2.get_annotations())
 
         # dissimilarity to self-proteome
