@@ -58,32 +58,6 @@ class MixMHCpred(AbstractMixMHCpred):
             "-i", tmpfasta,
             "-o", outtmp])
 
-    def _extract_best_per_pep(self, ligand_data_tuple):
-        """extract info of best allele prediction for all potential ligands per muatation
-        """
-        head = ligand_data_tuple[0]
-        predicted_ligands = ligand_data_tuple[1]
-        peptides = []
-        scores = []
-        alleles = []
-        ranks = []
-        result = {}
-        try:
-            index_peptide = head.index("Peptide")
-            index_score = head.index("Score_bestAllele")
-            index_allele = head.index("BestAllele")
-            index_rank = head.index("%Rank_bestAllele")
-            for entry in sorted(predicted_ligands, key=lambda x: float(x[index_rank])):
-                # all potential peptides per mutation --> return dictionary
-                peptides.append(entry[index_peptide])
-                scores.append(entry[index_score])
-                ranks.append(entry[index_rank])
-                alleles.append(entry[index_allele])
-            result = {"Peptide": peptides, "Score_bestAllele": scores, "BestAllele": alleles, "%Rank_bestAllele": ranks}
-        except ValueError:
-            pass
-        return result
-
     def _extract_best_peptide_per_mutation(self, ligand_data_tuple):
         """extract best predicted ligand per mutation
         """
