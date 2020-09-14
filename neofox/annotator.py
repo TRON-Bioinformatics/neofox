@@ -92,12 +92,6 @@ class NeoantigenAnnotator:
             neoantigen.mutation.mutated_aminoacid)
 
         # MHC binding independent features
-        expression_calculator = Expression(
-            transcript_expression=neoantigen.rna_expression, vaf_rna=vaf_rna,
-            tumor_content=patient.estimated_tumor_content)
-        self.annotations.annotations.extend(expression_calculator.get_annotations())
-        self.add_differential_expression_features(
-            neoantigen.gene.gene, expression_tumor=neoantigen.rna_expression, tissue=patient.tissue)
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.uniprot.get_annotations(sequence_not_in_uniprot))
 
@@ -117,7 +111,7 @@ class NeoantigenAnnotator:
         self.amplitude.run(netmhcpan=self.netmhcpan, netmhc2pan=self.netmhc2pan)
         self.annotations.annotations.extend(self.amplitude.get_annotations())
 
-        # Neoantigen fitness metrics
+        # Neoantigen fitness
         self.annotations.annotations.extend(
             self.neoantigen_fitness_calculator.get_annotations(self.netmhcpan, self.amplitude))
 
@@ -133,11 +127,11 @@ class NeoantigenAnnotator:
 
         # self-similarity
         self.annotations.annotations.extend(self.self_similarity.get_annnotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan))
+            netmhcpan=self.netmhcpan))
 
-        # number of mismatches and priority scores
+        # number of mismatches and priority score
         self.annotations.annotations.extend(self.priority_score_calculator.get_annotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan, vaf_transcr=vaf_rna,
+            netmhcpan=self.netmhcpan, vaf_transcr=vaf_rna,
             vaf_tum=neoantigen.dna_variant_allele_frequency,
             expr=neoantigen.rna_expression, mut_not_in_prot=sequence_not_in_uniprot))
 
