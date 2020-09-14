@@ -37,12 +37,3 @@ class TestExpression(TestCase):
         result = Expression(transcript_expression=None, vaf_rna=-1).get_annotations()[0]
         self.assertEqual(result.value, "NA")
 
-    def test_expression_mutation_tumor_content(self):
-        result = Expression(transcript_expression=12.0, vaf_rna=1.0).get_annotations()[1]
-        self.assertGreater(float(result.value), 0.0)
-        result = Expression(transcript_expression=12.0, vaf_rna=0.0).get_annotations()[1]
-        self.assertEqual(float(result.value), 0.0)
-        result = Expression(transcript_expression=None, vaf_rna=None).get_annotations()[1]
-        self.assertEqual(result.value, "NA")
-        result = Expression(transcript_expression=12.0, vaf_rna=None).get_annotations()[1]
-        self.assertEqual(result.value, "NA")
