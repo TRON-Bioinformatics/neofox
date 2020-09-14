@@ -120,12 +120,9 @@ class NeoantigenAnnotator:
         # Neoantigen fitness metrics
         self.annotations.annotations.extend(
             self.neoantigen_fitness_calculator.get_annotations(self.netmhcpan, self.amplitude))
-        self.annotations.annotations.extend(
-            self.neoantigen_fitness_calculator.get_annotations_mhc2(self.netmhc2pan, self.amplitude))
 
         # Differential Binding
-        self.annotations.annotations.extend(self.differential_binding.get_annotations_dai(self.netmhcpan,
-                                                                                          self.netmhc2pan))
+        self.annotations.annotations.extend(self.differential_binding.get_annotations_dai(self.netmhcpan))
         self.annotations.annotations.extend(self.differential_binding.get_annotations(self.netmhcpan, self.amplitude))
         self.annotations.annotations.extend(
             self.differential_binding.get_annotations_mhc2(self.netmhc2pan, self.amplitude))
@@ -170,7 +167,7 @@ class NeoantigenAnnotator:
 
         # dissimilarity to self-proteome
         self.annotations.annotations.extend(self.dissimilarity_calculator.get_annotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan))
+            netmhcpan=self.netmhcpan))
 
         # vaxrank
         vaxrankscore = vaxrank.VaxRank()
