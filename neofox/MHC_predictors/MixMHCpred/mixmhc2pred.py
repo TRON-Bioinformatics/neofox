@@ -123,14 +123,14 @@ class MixMhc2Pred(AbstractMixMHCpred):
         head_new = ["Peptide", "%Rank", "BestAllele"]
         return head_new, best_ligand
 
-    def run(self, alleles, xmer_wt, xmer_mut):
+    def run(self, alleles, sequence_wt, sequence_mut):
         """Runs MixMHC2pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
         Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
         """
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
-        seqs = self.generate_nmers(xmer_wt=xmer_wt, xmer_mut=xmer_mut, lengths=[13, 14, 15, 16, 17, 18])
+        seqs = self.generate_nmers(xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[13, 14, 15, 16, 17, 18])
         tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
         # try except statement to prevent stop of neofox for mps shorter < 13aa
         # TODO: this needs to be fixed, we could filter the list of nmers by length
