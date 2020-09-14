@@ -130,20 +130,21 @@ class MixMhc2Pred(AbstractMixMHCpred):
         """
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
-        seqs = self.generate_nmers(xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[13, 14, 15, 16, 17, 18])
-        tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
+        potential_ligand_sequences = self.generate_nmers(xmer_wt=sequence_wt, xmer_mut=sequence_mut,
+                                                         lengths=[13, 14, 15, 16, 17, 18])
+        tmp_fasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
         # try except statement to prevent stop of neofox for mps shorter < 13aa
         # TODO: this needs to be fixed, we could filter the list of nmers by length
-        try:
-            self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction)
-        except:
-            pass
-        # TODO: also all of this try-catch needs to be fixed, in general the risk here is that they hide errors
-        try:
-            all_predicted_ligands = self.read_mixmhcpred(tmp_prediction)
-        except:
-            pass
-        if len(all_predicted_ligands) > 0:
+        if len(potential_ligand_sequences) > 0:
+            try:
+                self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction)
+            except:
+                pass
+            # TODO: also all of this try-catch needs to be fixed, in general the risk here is that they hide errors
+            try:
+                all_predicted_ligands = self.read_mixmhcpred(tmp_prediction)
+            except:
+                pass
             best_predicted_ligand = self.extract_best_peptide_per_mutation(all_predicted_ligands)
             self.best_peptide = self.add_best_epitope_info(best_predicted_ligand, "Peptide")
             # TODO: improve how data is fetched so types are maintained
