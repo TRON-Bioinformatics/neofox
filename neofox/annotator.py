@@ -92,6 +92,9 @@ class NeoantigenAnnotator:
             neoantigen.mutation.mutated_aminoacid)
 
         # MHC binding independent features
+        expression_calculator = Expression(
+            transcript_expression=neoantigen.rna_expression, vaf_rna=vaf_rna)
+        self.annotations.annotations.extend(expression_calculator.get_annotations())
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.uniprot.get_annotations(sequence_not_in_uniprot))
 
@@ -178,8 +181,3 @@ class NeoantigenAnnotator:
         self.annotations.timestamp = "{:%Y%m%d%H%M%S%f}".format(datetime.now())
         # TODO: set the hash fro the resources
         self.annotations.annotations = []
-
-    def add_differential_expression_features(self, gene, expression_tumor, tissue):
-        # differential expression
-        gtex_mean, gtex_sum, gtex_sd = self.gtex.get_metrics(gene, tissue)
-        self.annotations.annotations.extend(self.gtex.get_annotations(gtex_mean, gtex_sd, gtex_sum))
