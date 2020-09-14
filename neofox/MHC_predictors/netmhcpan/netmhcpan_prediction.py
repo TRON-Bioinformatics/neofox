@@ -109,13 +109,13 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         header = prediction_tuple[0]
         epitope_data = prediction_tuple[1]
         if rank:
-            mhc_score = header.index("%Rank")
+            mhc_score_column = header.index("%Rank")
         else:
-            mhc_score = header.index("Aff(nM)")
+            mhc_score_column = header.index("Aff(nM)")
         max_score = float(1000000000000)
         best_predicted_epitope = []
         for ii, i in enumerate(epitope_data):
-            mhc_score = float(i[mhc_score])
+            mhc_score = float(i[mhc_score_column])
             if mhc_score < max_score:
                 max_score = mhc_score
                 best_predicted_epitope = i

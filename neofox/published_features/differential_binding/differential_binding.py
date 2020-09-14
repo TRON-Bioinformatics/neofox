@@ -98,10 +98,6 @@ class DifferentialBinding:
             AnnotationFactory.build_annotation(
                 name="DAI_MHCI_rank", value=self.dai(
                     score_mutation=netmhcpan.best4_mhc_score, score_wild_type=netmhcpan.best4_mhc_score_WT)),
-            AnnotationFactory.build_annotation(
-                name="DAI_MHCI_multiple_binding", value=self.dai(
-                    score_mutation=netmhcpan.MHC_score_top10[1],
-                    score_wild_type=netmhcpan.MHC_score_top10_WT[1])),
             # MHC II
             AnnotationFactory.build_annotation(
                 value=self.dai(score_mutation=netmhc2pan.best_mhcII_pan_affinity,
@@ -133,18 +129,6 @@ class DifferentialBinding:
                 score_mutation=netmhcpan.best4_affinity, amplitude=amplitude.amplitude_mhci_affinity,
                 bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                 amplitude_cutoff=amplitude_cutoff_mhci, category="ADN")),
-            AnnotationFactory.build_annotation(value=self.diff_number_binders(
-                num_mutation=netmhcpan.MHC_number_strong_binders, num_wild_type=netmhcpan.MHC_number_strong_binders_WT),
-                name="Difference_number_epitopes_MHCI_strong_binder"),
-            AnnotationFactory.build_annotation(value=self.diff_number_binders(
-                num_mutation=netmhcpan.MHC_number_weak_binders, num_wild_type=netmhcpan.MHC_number_strong_binders_WT),
-                name="Difference_number_epitopes_MHCI_weak_binder"),
-            AnnotationFactory.build_annotation(value=self.ratio_number_binders(
-                num_mutation=netmhcpan.MHC_number_strong_binders, num_wild_type=netmhcpan.MHC_number_strong_binders_WT),
-                name="Ratio_number_epitopes_MHCI_strong_binder"),
-            AnnotationFactory.build_annotation(value=self.ratio_number_binders(
-                num_mutation=netmhcpan.MHC_number_weak_binders, num_wild_type=netmhcpan.MHC_number_weak_binders_WT),
-                name="Ratio_number_epitopes_MHCI_weak_binder")
         ]
 
     def get_annotations_mhc2(self, netmhc2pan: BestAndMultipleBinderMhcII, amplitude: Amplitude) -> List[Annotation]:
@@ -168,20 +152,5 @@ class DifferentialBinding:
                     bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii, amplitude_cutoff=amplitude_cutoff_mhcii,
                     category="ADN"),
                 name="ADN_MHCII"),
-            AnnotationFactory.build_annotation(value=self.diff_number_binders(
-                num_mutation=netmhc2pan.MHCII_number_strong_binders,
-                num_wild_type=netmhc2pan.MHCII_number_strong_binders_WT),
-                name="Difference_number_epitopes_MHCII_strong_binder"),
-            AnnotationFactory.build_annotation(value=self.diff_number_binders(
-                num_mutation=netmhc2pan.MHCII_number_weak_binders,
-                num_wild_type=netmhc2pan.MHCII_number_weak_binders_WT),
-                name="Difference_number_epitopes_MHCII_weak_binder"),
-            AnnotationFactory.build_annotation(value=self.ratio_number_binders(
-                num_mutation=netmhc2pan.MHCII_number_strong_binders,
-                num_wild_type=netmhc2pan.MHCII_number_strong_binders_WT),
-                name="Ratio_number_epitopes_MHCII_strong_binder"),
-            AnnotationFactory.build_annotation(value=self.ratio_number_binders(
-                num_mutation=netmhc2pan.MHCII_number_weak_binders,
-                num_wild_type=netmhc2pan.MHCII_number_weak_binders_WT),
-                name="Ratio_number_epitopes_MHCII_weak_binder")
+
         ]

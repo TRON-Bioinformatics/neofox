@@ -66,17 +66,12 @@ class Amplitude:
         self.amplitude_mhci_affinity_9mer = self.calculate_amplitude_mhc(
             score_mutation=netmhcpan.mhcI_affinity_9mer, score_wild_type=netmhcpan.mhcI_affinity_9mer_WT,
             apply_correction=True)
-        self.amplitude_mhci_MB = self.calculate_amplitude_mhc(
-            score_mutation=netmhcpan.MHC_score_top10[1],
-            score_wild_type=netmhcpan.MHC_score_top10_WT[1])
         # MHC II
         self.amplitude_mhcii_affinity = self.calculate_amplitude_mhc(
             score_mutation=netmhc2pan.best_mhcII_pan_affinity, score_wild_type=netmhc2pan.best_mhcII_affinity_WT,
             apply_correction=True)
         self.amplitude_mhcii_rank = self.calculate_amplitude_mhc(
             score_mutation=netmhc2pan.best_mhcII_pan_score, score_wild_type=netmhc2pan.best_mhcII_pan_score_WT)
-        self.amplitude_mhcii_MB = self.calculate_amplitude_mhc(
-            score_mutation=netmhc2pan.MHCII_score_top10[1], score_wild_type=netmhc2pan.MHCII_score_top10_WT[1])
 
     def get_annotations(self) -> List[Annotation]:
         return [

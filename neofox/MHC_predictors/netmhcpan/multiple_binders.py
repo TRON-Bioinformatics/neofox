@@ -90,3 +90,15 @@ class MultipleBinding:
         """
         return [epi[1] for epi in tuple_epis]
 
+    def determine_number_of_binders(self, list_scores, threshold=2):
+        """
+        Determines the number of HLA binders per mutation based on a threshold. Default is set to 2, which is threshold for weak binding using netmhcpan4.
+        """
+        number_binders = 0
+        for score in list_scores:
+            if float(score) < threshold:
+                number_binders += 1
+        number_binders = number_binders if not len(list_scores) == 0 else None
+        return number_binders
+
+
