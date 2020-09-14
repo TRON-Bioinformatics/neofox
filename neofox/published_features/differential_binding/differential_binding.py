@@ -44,29 +44,6 @@ class DifferentialBinding:
             pass
         return score
 
-    def diff_number_binders(self, num_mutation, num_wild_type):
-        """
-        returns difference of potential candidate epitopes between mutated and wt epitope
-        """
-        difference = None
-        try:
-            difference = num_mutation - num_wild_type
-        except TypeError:
-            pass
-        return difference
-
-    def ratio_number_binders(self, num_mutation, num_wild_type):
-        """
-        returns ratio of number of potential candidate epitopes between mutated and wt epitope.
-        if no WT candidate epitopes, returns number of mutated candidate epitopes per mps
-        """
-        ratio = None
-        try:
-            ratio = num_mutation / num_wild_type
-        except (ZeroDivisionError, TypeError):
-            pass
-        return ratio
-
     def classify_adn_cdn(self, score_mutation, amplitude, bdg_cutoff_classical, bdg_cutoff_alternative,
                          amplitude_cutoff,
                          category):
@@ -85,32 +62,12 @@ class DifferentialBinding:
             pass
         return group
 
-    def get_annotations_dai(self, netmhcpan: BestAndMultipleBinder, netmhc2pan: BestAndMultipleBinderMhcII) -> List[Annotation]:
+    def get_annotations_dai(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
         return [
-            # MHC I
             AnnotationFactory.build_annotation(
                 name="DAI_MHCI_affinity_cutoff500nM", value=self.dai(
                     score_mutation=netmhcpan.best4_affinity, score_wild_type=netmhcpan.best4_affinity_WT,
                     affin_filtering=True)),
-            AnnotationFactory.build_annotation(
-                name="DAI_MHCI_affinity", value=self.dai(
-                    score_mutation=netmhcpan.best4_affinity, score_wild_type=netmhcpan.best4_affinity_WT)),
-            AnnotationFactory.build_annotation(
-                name="DAI_MHCI_rank", value=self.dai(
-                    score_mutation=netmhcpan.best4_mhc_score, score_wild_type=netmhcpan.best4_mhc_score_WT)),
-            # MHC II
-            AnnotationFactory.build_annotation(
-                value=self.dai(score_mutation=netmhc2pan.best_mhcII_pan_affinity,
-                               score_wild_type=netmhc2pan.best_mhcII_affinity_WT, affin_filtering=True),
-                name="DAI_MHCII_affinity_cutoff500nM"),
-            AnnotationFactory.build_annotation(
-                value=self.dai(score_mutation=netmhc2pan.best_mhcII_pan_affinity,
-                               score_wild_type=netmhc2pan.best_mhcII_affinity_WT),
-                name="DAI_MHCII_affinity"),
-            AnnotationFactory.build_annotation(
-                value=self.dai(score_mutation=netmhc2pan.best_mhcII_pan_score,
-                               score_wild_type=netmhc2pan.best_mhcII_pan_score_WT),
-                name="DAI_MHCII_rank")
         ]
 
 
