@@ -149,9 +149,8 @@ class NeoantigenAnnotator:
 
         # IEDB immunogenicity
         self.annotations.annotations.extend(self.iedb_immunogenicity.get_annotations(
-            netmhcpan=self.netmhcpan, netmhcpan2=self.netmhc2pan,
-            mhci_allele=self.netmhcpan.best4_affinity_allele,
-            mhcii_allele=self.netmhc2pan.best_mhcII_pan_allele))
+            netmhcpan=self.netmhcpan,
+            mhci_allele=self.netmhcpan.best4_affinity_allele))
 
         # MixMHCpred
         self.mixmhc.run(
