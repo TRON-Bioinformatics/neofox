@@ -137,9 +137,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(patients[0].identifier, "Pt29")
         self.assertEqual(len(patients[0].mhc_i_alleles), 6)
         self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
-        self.assertEqual(patients[0].estimated_tumor_content, 0.0)
         self.assertEqual(patients[0].is_rna_available, False)
-        self.assertEqual(patients[0].tissue, '')
 
     def test_patients_csv_file2model2(self):
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
@@ -151,9 +149,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(patients[0].identifier, "Pt29")
         self.assertEqual(len(patients[0].mhc_i_alleles), 6)
         self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
-        self.assertEqual(patients[0].estimated_tumor_content, 0.69)
         self.assertEqual(patients[0].is_rna_available, True)
-        self.assertEqual(patients[0].tissue, 'skin')
 
     def test_patients_csv_file2model3(self):
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_patient_info.txt")
@@ -165,9 +161,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(patients[0].identifier, "Ptx")
         self.assertEqual(len(patients[0].mhc_i_alleles), 6)
         self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
-        self.assertEqual(patients[0].estimated_tumor_content, 0.84)
         self.assertEqual(patients[0].is_rna_available, True)
-        self.assertEqual(patients[0].tissue, 'skin')
 
     def test_annotations2short_wide_df(self):
         annotations = [
