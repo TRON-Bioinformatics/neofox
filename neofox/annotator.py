@@ -21,7 +21,6 @@
 from logzero import logger
 from datetime import datetime
 import neofox
-from neofox.annotation_resources.gtex.gtex import GTEx
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
@@ -63,7 +62,6 @@ class NeoantigenAnnotator:
         self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
         self.available_alleles = AvailableAlleles(references)
         self.uniprot = Uniprot(references.uniprot)
-        self.gtex = GTEx()
         self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
 
