@@ -94,16 +94,13 @@ class Patient(betterproto.Message):
 
     # * Patient identifier
     identifier: str = betterproto.string_field(1)
-    # * Estimated tumor content (value between 0 and 1)
-    estimated_tumor_content: float = betterproto.float_field(2)
     # * Is RNA expression available?
-    is_rna_available: bool = betterproto.bool_field(3)
+    is_rna_available: bool = betterproto.bool_field(2)
     # * MHC I alleles
-    mhc_i_alleles: List[str] = betterproto.string_field(4)
+    mhc_i_alleles: List[str] = betterproto.string_field(3)
     # * MHC II alleles
-    mhc_i_i_alleles: List[str] = betterproto.string_field(5)
-    # * Tissue of cancer origin
-    tissue: str = betterproto.string_field(6)
+    mhc_i_i_alleles: List[str] = betterproto.string_field(4)
+
 
 
 @dataclass
