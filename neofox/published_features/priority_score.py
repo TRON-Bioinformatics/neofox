@@ -64,7 +64,7 @@ class PriorityScore:
         return priority_score
 
     def get_annotations(
-            self, netmhcpan: BestAndMultipleBinder, netmhcpan2: BestAndMultipleBinderMhcII,
+            self, netmhcpan: BestAndMultipleBinder,
             mut_not_in_prot, expr, vaf_tum, vaf_transcr) -> List[Annotation]:
         """
         returns number of mismatches between best MHCI / MHC II epitopes (rank) and their corresponding WTs
@@ -75,15 +75,10 @@ class PriorityScore:
             AnnotationFactory.build_annotation(
                 value=num_mismatches_mhc1,
                 name="Number_of_mismatches_MCHI"),
-            AnnotationFactory.build_annotation(
-                value=EpitopeHelper.number_of_mismatches(
-                    epitope_wild_type=netmhcpan2.best_mhcII_pan_epitope_WT,
-                    epitope_mutation=netmhcpan2.best_mhcII_pan_epitope),
-                name="Number_of_mismatches_MHCII"),
             # priority score with rank score
             AnnotationFactory.build_annotation(value=self.calc_priority_score(
                 vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=num_mismatches_mhc1,
                 score_mut=netmhcpan.best4_mhc_score, score_wt=netmhcpan.best4_mhc_score_WT,
                 mut_not_in_prot=mut_not_in_prot),
-                name="Priority_score"),
+                name="Priority_score")
             ]
