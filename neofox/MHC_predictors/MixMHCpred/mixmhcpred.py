@@ -58,11 +58,11 @@ class MixMHCpred(AbstractMixMHCpred):
             "-i", tmpfasta,
             "-o", outtmp])
 
-    def _extract_best_per_pep(self, pred_dat):
+    def _extract_best_per_pep(self, ligand_data_tuple):
         """extract info of best allele prediction for all potential ligands per muatation
         """
-        head = pred_dat[0]
-        predicted_ligands = pred_dat[1]
+        head = ligand_data_tuple[0]
+        predicted_ligands = ligand_data_tuple[1]
         peptides = []
         scores = []
         alleles = []
@@ -84,11 +84,11 @@ class MixMHCpred(AbstractMixMHCpred):
             pass
         return result
 
-    def _extract_best_peptide_per_mutation(self, pred_dat):
+    def _extract_best_peptide_per_mutation(self, ligand_data_tuple):
         """extract best predicted ligand per mutation
         """
-        head = pred_dat[0]
-        predicted_ligands = pred_dat[1]
+        head = ligand_data_tuple[0]
+        predicted_ligands = ligand_data_tuple[1]
         index_peptide = head.index("Peptide")
         index_score = head.index("Score_bestAllele")
         index_allele = head.index("BestAllele")
@@ -103,12 +103,12 @@ class MixMHCpred(AbstractMixMHCpred):
         head_new = ["Peptide", "Score_bestAllele", "%Rank_bestAllele", "BestAllele"]
         return head_new, best_ligand
 
-    def run(self, xmer_wt, xmer_mut, alleles):
+    def run(self, sequence_wt, sequence_mut, alleles):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         """
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred", suffix=".txt")
-        seqs = self.generate_nmers(xmer_wt=xmer_wt, xmer_mut=xmer_mut, lengths=[8, 9, 10, 11])
+        seqs = self.generate_nmers(xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[8, 9, 10, 11])
         tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
         self._mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
         all_predicted_ligands = self.read_mixmhcpred(tmp_prediction)
