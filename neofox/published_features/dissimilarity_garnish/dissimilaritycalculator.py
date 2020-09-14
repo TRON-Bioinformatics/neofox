@@ -64,23 +64,14 @@ class DissimilarityCalculator(BlastpRunner):
         return dissimilarity_score
 
     def get_annotations(
-            self, netmhcpan: BestAndMultipleBinder, netmhcpan2: BestAndMultipleBinderMhcII) -> List[Annotation]:
+            self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
         """
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
         return [
             AnnotationFactory.build_annotation(
                 value=self.calculate_dissimilarity(
-                    mhc_mutation=netmhcpan.best4_affinity_epitope, mhc_affinity=netmhcpan.best4_affinity),
-                name="Dissimilarity_MHCI"),
-            AnnotationFactory.build_annotation(
-                value=self.calculate_dissimilarity(
                     mhc_mutation=netmhcpan.best4_affinity_epitope, mhc_affinity=netmhcpan.best4_affinity,
                     filter_binder=True),
                 name="Dissimilarity_MHCI_cutoff500nM"),
-            AnnotationFactory.build_annotation(
-                value=self.calculate_dissimilarity(
-                    mhc_mutation=netmhcpan2.best_mhcII_pan_affinity_epitope,
-                    mhc_affinity=netmhcpan2.best_mhcII_pan_affinity),
-                name="Dissimilarity_MHCII")
             ]
