@@ -49,7 +49,7 @@ class BestAndMultipleBinder:
         self.best4_affinity_epitope = "-"
         self.best4_affinity_allele = None
         self.best4_affinity_position = None
-        self.epitope_affinities = None 
+        self.epitope_affinities = None
         self.generator_rate = None
         self.mhcI_score_9mer = None
         self.mhcI_score_allele_9mer = None
