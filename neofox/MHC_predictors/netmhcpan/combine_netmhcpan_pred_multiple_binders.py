@@ -37,7 +37,6 @@ class BestAndMultipleBinder:
         """
         self.runner = runner
         self.configuration = configuration
-        self.mean_type = ["arithmetic", "harmonic", "geometric"]
         self._initialise()
 
     def _initialise(self):
