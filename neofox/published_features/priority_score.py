@@ -86,10 +86,4 @@ class PriorityScore:
                 score_mut=netmhcpan.best4_mhc_score, score_wt=netmhcpan.best4_mhc_score_WT,
                 mut_not_in_prot=mut_not_in_prot),
                 name="Priority_score"),
-            # priority score using multiplexed representation score
-            AnnotationFactory.build_annotation(value=self.calc_priority_score(
-                vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=num_mismatches_mhc1,
-                score_mut=netmhcpan.MHC_score_top10[1], score_wt=netmhcpan.MHC_score_top10_WT[1],
-                mut_not_in_prot=mut_not_in_prot),
-                name="Priority_score_multiple_binding")
             ]

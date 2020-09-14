@@ -49,6 +49,7 @@ class BestAndMultipleBinder:
         self.best4_affinity_epitope = "-"
         self.best4_affinity_allele = None
         self.best4_affinity_position = None
+        self.epitope_affinities = None 
         self.generator_rate = None
         self.mhcI_score_9mer = None
         self.mhcI_score_allele_9mer = None
@@ -98,7 +99,7 @@ class BestAndMultipleBinder:
         predicted_neoepitopes = np.filter_binding_predictions(position_of_mutation=position_of_mutation, tmppred=tmp_prediction)
         # multiple binding
         predicted_neoepitopes_transformed = mb.transform_mhc_prediction_output(predicted_neoepitopes)
-
+        self.epitope_affinities = "/".join([str(tup[1]) for tup in predicted_neoepitopes_transformed])
         # best prediction
         best_predicted_epitope_rank = np.minimal_binding_score(predicted_neoepitopes)
         self.best4_mhc_score = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_rank, "%Rank"))
