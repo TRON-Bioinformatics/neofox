@@ -144,14 +144,14 @@ class BestAndMultipleBinder:
         # best prediction
         best_predicted_epitope_rank_wt = \
             np.filter_for_WT_epitope_position(predicted_neoepitopes_wt, self.best4_mhc_epitope,
-                                              position_mutation=self.best4_mhc_position)
+                                              position_epitope=self.best4_mhc_position)
         self.best4_mhc_score_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_rank_wt, "%Rank"))
         self.best4_mhc_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_rank_wt, "Peptide")
         self.best4_mhc_allele_WT = np.add_best_epitope_info(best_predicted_epitope_rank_wt, "HLA")
 
         best_predicted_epitope_affinity_wt = \
             np.filter_for_WT_epitope_position(predicted_neoepitopes_wt, self.best4_affinity_epitope,
-                                              position_mutation=self.best4_affinity_position)
+                                              position_epitope=self.best4_affinity_position)
         self.best4_affinity_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Aff(nM)"))
         self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
         self.best4_affinity_allele_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "HLA")
@@ -159,10 +159,10 @@ class BestAndMultipleBinder:
         predicted_epitopes_9mer_wt = np.filter_for_9mers(predicted_neoepitopes_wt)
         best_predicted_epitope_9mer_rank_wt = \
             np.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, self.mhcI_score_epitope_9mer,
-                                              position_mutation=self.mhcI_score_position_9mer)
+                                              position_epitope=self.mhcI_score_position_9mer)
         best_predicted_epitope_9mer_affinity_wt = \
             np.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, sequence_mut=self.mhcI_affinity_epitope_9mer,
-                                              position_mutation=self.mhcI_affinity_position_9mer)
+                                              position_epitope=self.mhcI_affinity_position_9mer)
         self.mhcI_score_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "%Rank")
         self.mhcI_score_allele_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "HLA")
         self.mhcI_score_epitope_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "Peptide")
