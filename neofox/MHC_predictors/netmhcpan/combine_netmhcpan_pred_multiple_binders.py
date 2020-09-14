@@ -95,7 +95,7 @@ class BestAndMultipleBinder:
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_mut], prefix="tmp_singleseq_")
         # print alleles
         np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        position_of_mutation = np.mut_position_xmer_seq(xmer_mut=sequence_mut, xmer_wt=sequence_wt)
+        position_of_mutation = np.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
         predicted_neoepitopes = np.filter_binding_predictions(position_of_mutation=position_of_mutation, tmppred=tmp_prediction)
         # multiple binding
         predicted_neoepitopes_transformed = mb.transform_mhc_prediction_output(predicted_neoepitopes)
@@ -156,12 +156,12 @@ class BestAndMultipleBinder:
         self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
         self.best4_affinity_allele_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "HLA")
         # best predicted epitope of length 9
-        predicted_epitopes_9mer = np.filter_for_9mers(predicted_neoepitopes)
+        predicted_epitopes_9mer_wt = np.filter_for_9mers(predicted_neoepitopes_wt)
         best_predicted_epitope_9mer_rank_wt = \
-            np.filter_for_WT_epitope_position(predicted_epitopes_9mer, self.mhcI_score_epitope_9mer,
+            np.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, self.mhcI_score_epitope_9mer,
                                               position_mutation=self.mhcI_score_position_9mer)
         best_predicted_epitope_9mer_affinity_wt = \
-            np.filter_for_WT_epitope_position(predicted_epitopes_9mer, sequence_mut=self.mhcI_affinity_epitope_9mer,
+            np.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, sequence_mut=self.mhcI_affinity_epitope_9mer,
                                               position_mutation=self.mhcI_affinity_position_9mer)
         self.mhcI_score_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "%Rank")
         self.mhcI_score_allele_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "HLA")
