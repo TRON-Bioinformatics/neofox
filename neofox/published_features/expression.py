@@ -25,10 +25,8 @@ from neofox.model.wrappers import AnnotationFactory
 
 class Expression:
 
-    def __init__(self, transcript_expression, vaf_rna, tumor_content):
+    def __init__(self, transcript_expression, vaf_rna):
         self.expression = self._get_expression_annotation(transcript_expression, vaf_rna)
-        self.expression_tumor_content_corrected = self._get_expression_tumor_content_corrected_annotation(
-            self.expression, tumor_content)
 
     @staticmethod
     def _get_expression_annotation(transcript_expression: float, vaf_rna: float) -> float:
@@ -43,20 +41,7 @@ class Expression:
             pass
         return expression_mut
 
-    @staticmethod
-    def _get_expression_tumor_content_corrected_annotation(expression_mutation: float, tumor_content: float) -> float:
-        """calculated expression of mutation corrected by tumour content"""
-        expression_mut_tc = None
-        try:
-            expression_mut_tc = expression_mutation / tumor_content
-        except (TypeError, ZeroDivisionError) as e:
-            pass
-        return expression_mut_tc
-
     def get_annotations(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(name="Expression_mutated_transcript", value=self.expression),
-            AnnotationFactory.build_annotation(name="Expression_mutated_transcript_tumor_content",
-                                               value=self.expression_tumor_content_corrected)
         ]
-

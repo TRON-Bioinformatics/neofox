@@ -24,20 +24,7 @@ from neofox import MHC_I, MHC_II
 
 class MultipleBinding:
 
-    def get_means(self, list_numbers):
-        """
-        returns list of arithmetic, harmonic and geometric mean from a list of numbers
-        """
-        results = [None, None, None]
-        if list_numbers is not None and len(list_numbers) > 0:
-            results = [
-                np.mean(list_numbers),
-                stats.hmean(list_numbers),
-                stats.gmean(list_numbers)
-            ]
-        return results
-
-    def generate_epi_tuple(self, prediction_out, mhc=MHC_I):
+    def transform_mhc_prediction_output(self, prediction_out, mhc=MHC_I):
         """
         Takes netmhcpan4 output or netmhcpanII output as neofox (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
         returns tuple of mhc binding rank scores, epitope and HLA allele for all predicted epitopes as list
@@ -54,12 +41,6 @@ class MultipleBinding:
         list_of_tuples.sort(key=lambda x: x[0])     # sort by rank
         return list_of_tuples
 
-    def extract_top10_epis(self, tuple_epis):
-        """
-        this function sorts the predicted epitopes based on the mhc rank score and returns the top10 with lowest mhc binding score
-        """
-        tuple_epis.sort(key=lambda x: float(x[0]))
-        return tuple_epis[0:9]
 
     def check_for_homozygosity(self, patient_alleles):
         """
@@ -119,3 +100,5 @@ class MultipleBinding:
                 number_binders += 1
         number_binders = number_binders if not len(list_scores) == 0 else None
         return number_binders
+
+

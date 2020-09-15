@@ -111,23 +111,13 @@ class NeoantigenFitnessCalculator(BlastpRunner):
 
     def get_annotations(self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude) -> List[Annotation]:
         pathogen_similarity_9mer = self.wrap_pathogen_similarity(mutation=netmhcpan.mhcI_affinity_epitope_9mer)
-        pathogen_similarity_rank = self.wrap_pathogen_similarity(mutation=netmhcpan.best4_mhc_epitope)
-        pathogen_similarity_affinity = self.wrap_pathogen_similarity(mutation=netmhcpan.best4_affinity_epitope)
-
-        position = EpitopeHelper.position_of_mutation_epitope(wild_type=netmhcpan.best4_affinity_epitope_WT,
-                                                              mutation=netmhcpan.best4_affinity_epitope)
         position_9mer = EpitopeHelper.position_of_mutation_epitope(
             wild_type=netmhcpan.mhcI_affinity_epitope_9mer_WT, mutation=netmhcpan.mhcI_affinity_epitope_9mer)
-        position_rank = EpitopeHelper.position_of_mutation_epitope(
-            wild_type=netmhcpan.best4_mhc_score_WT, mutation=netmhcpan.best4_mhc_score)
+
 
         return [
             AnnotationFactory.build_annotation(name="Pathogensimiliarity_MHCI_affinity_9mer",
                                                value=pathogen_similarity_9mer),
-            AnnotationFactory.build_annotation(name="Pathogensimiliarity_MHCI_rank_nmers",
-                                               value=pathogen_similarity_rank),
-            AnnotationFactory.build_annotation(name="Pathogensimiliarity_MHCI_affinity_nmers",
-                                               value=pathogen_similarity_affinity),
             AnnotationFactory.build_annotation(name="Recognition_Potential_MHCI_affinity_9mer",
                                                value=self.calculate_recognition_potential(
                                                    amplitude=amplitude.amplitude_mhci_affinity_9mer,
@@ -135,32 +125,6 @@ class NeoantigenFitnessCalculator(BlastpRunner):
                                                    mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
                                                        position_mhci=position_9mer,
                                                        peptide_length=len(netmhcpan.mhcI_affinity_epitope_9mer)),
-                                                   mhc_affinity_mut=netmhcpan.mhcI_affinity_9mer)),
-            AnnotationFactory.build_annotation(name="Recognition_Potential_MHCI_affinity_nmers",
-                                               value=self.calculate_recognition_potential(
-                                                   amplitude=amplitude.amplitude_mhci_affinity,
-                                                   pathogen_similarity=pathogen_similarity_affinity,
-                                                   mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
-                                                       position_mhci=position,
-                                                       peptide_length=len(netmhcpan.best4_affinity_epitope)))),
-            AnnotationFactory.build_annotation(name="Recognition_Potential_MHCI_rank",
-                                               value=self.calculate_recognition_potential(
-                                                   amplitude=amplitude.amplitude_mhci_rank,
-                                                   pathogen_similarity=pathogen_similarity_rank,
-                                                   mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
-                                                       position_mhci=position_rank,
-                                                       peptide_length=len(netmhcpan.best4_mhc_epitope))))
+                                                   mhc_affinity_mut=netmhcpan.mhcI_affinity_9mer))
         ]
 
-    def get_annotations_mhc2(self, netmhc2pan: BestAndMultipleBinderMhcII, amplitude: Amplitude) -> List[Annotation]:
-
-        pathogen_similarity = self.wrap_pathogen_similarity(mutation=netmhc2pan.best_mhcII_pan_affinity_epitope)
-        return [
-             AnnotationFactory.build_annotation(
-                value=self.wrap_pathogen_similarity(mutation=netmhc2pan.best_mhcII_pan_affinity_epitope),
-                name="Pathogensimiliarity_MHCII_affinity"),
-            AnnotationFactory.build_annotation(value=self.calculate_recognition_potential(
-                amplitude=amplitude.amplitude_mhcii_affinity, pathogen_similarity=pathogen_similarity,
-                mutation_in_anchor=False),
-                name="Recognition_Potential_MHCII_affinity"),
-            ]
