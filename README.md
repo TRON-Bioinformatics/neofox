@@ -31,25 +31,15 @@ Annotation of mutated peptide sequences (mps) with published neo-epitope descrip
 - MixMHCpred 2.0.2
 - MixMHC2pred 1.1.3
 
-## Usage
+## Configuration
+
+Follow the the instructions in `INSTALL.md` to install third-party dependencies and build the references folder.
+
+## Usage from the command line
 
 ```
 neofox --model-file/--icam-file neoantigens.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
 ```
-
-### Configuration
-
-Setup the following environment variables pointing to the required software
-```
-export NEOFOX_BLASTP=/code/ncbi-blast/2.8.1+/bin/blastp
-export NEOFOX_MIXMHC2PRED=/code/net/MixMHC2pred/1.1/MixMHC2pred
-export NEOFOX_MIXMHCPRED=/code/MixMHCpred/2.0.2/MixMHCpred
-export NEOFOX_RSCRIPT=/code/R/3.6.0/bin/Rscript
-export NEOFOX_NETMHC2PAN=/code/net/MHCIIpan/3.2/netMHCIIpan
-export NEOFOX_NETMHCPAN=/code/net/MHCpan/4.0/netMHCpan
-```
-
-Build the reference data as described (here)[neofox/references/build_references.sh] and set the environment variable `NEOFOX_REFERENCE_FOLDER` pointing to the reference folder.
 
 ### Input data
 
@@ -110,6 +100,110 @@ where:
 ### Output data
 
 The output data is returned in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON (`--with-json`).
+
+## Programmatic usage
+
+Import the data models that hold the data
+```
+from neofox.model.neoantigen import Neoantigen, Patient, Gene, Mutation
+```
+
+Build some data
+```
+gene = Gene(assembly="hg19", gene="VCAN", transcript_identifier="uc003kii.3")
+mutation = Mutation(position=1007, wild_type_aminoacid="I", mutated_aminoacid="T", left_flanking_region="DEVLGEPSQDILV", right_flanking_region="DQTRLEATISPET")
+neoantigen = Neoantigen(gene=gene, mutation=mutation, patient_identifier="patient_123", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
+patient = Patient(identifier="patient_123", is_rna_available=True, mhc_i_alleles=["HLA-A*03:01","HLA-A*02:01","HLA-B*07:02","HLA-B*18:01","HLA-C*07:02","HLA-C*12:03"], mhc_i_i_alleles=["HLA-DRB1*11:04","HLA-DRB1*15:01","HLA-DQA1*01:02","HLA-DQA1*05:05","HLA-DQB1*06:02","HLA-DQB1*03:01","HLA-DPA1*01:03","HLA-DPA1*01:03","HLA-DPB1*04:02","HLA-DPB1*04:01"])
+```
+
+Validate your input data
+```
+from neofox.model.validation import ModelValidator
+valid_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
+```
+
+Your data looks now like this
+```
+print(valid_neoantigen.to_json(indent=3))
+{
+   "identifier": "e6KaFWyLbpOP5G6mgna4dw==",
+   "patientIdentifier": "patient_123",
+   "gene": {
+      "assembly": "hg19",
+      "gene": "VCAN",
+      "transcriptIdentifier": "uc003kii.3"
+   },
+   "mutation": {
+      "position": 1007,
+      "wildTypeXmer": "DEVLGEPSQDILVIDQTRLEATISPET",
+      "wildTypeAminoacid": "I",
+      "mutatedXmer": "DEVLGEPSQDILVTDQTRLEATISPET",
+      "mutatedAminoacid": "T",
+      "leftFlankingRegion": "DEVLGEPSQDILV",
+      "sizeLeftFlankingRegion": 13,
+      "rightFlankingRegion": "DQTRLEATISPET",
+      "sizeRightFlankingRegion": 13
+   },
+   "rnaExpression": 0.519506894,
+   "dnaVariantAlleleFrequency": 0.294573643,
+   "rnaVariantAlleleFrequency": 0.857142857
+}
+``` 
+
+Run Neofox feature annotations (one neantigen should take between 10 and 20 seconds to annotate, more neoantigens can profit of parallelization using multiple CPUs)
+```
+from neofox.neofox import NeoFox
+annotations = NeoFox(neoantigens=[valid_neoantigen], patients=[patient], patient_id="patient_123", num_cpus=2).get_annotations()
+[I 200915 21:31:01 neofox:48] Loading data...
+
+[...]
+
+[I 200915 21:31:17 neofox:84] Elapsed time for annotating 1 neoantigens 14 seconds
+```
+
+The resulting annotation look like this
+``` 
+print(annotations[0].to_json(indent=3))
+{
+   "neoantigenIdentifier": "e6KaFWyLbpOP5G6mgna4dw==",
+   "annotations": [
+      {
+         "name": "Expression_mutated_transcript",
+         "value": "0.44529"
+      },
+      {
+         "name": "mutation_not_found_in_proteome",
+         "value": "1"
+      },
+      {
+         "name": "Best_rank_MHCI_score",
+         "value": "2.944"
+      },
+      {
+         "name": "Best_rank_MHCI_score_epitope",
+         "value": "ILVTDQTRL"
+      },
+      {
+         "name": "Best_rank_MHCI_score_allele",
+         "value": "HLA-A*02:01"
+      },
+      {
+         "name": "Best_affinity_MHCI_score",
+         "value": "543.9"
+      },
+
+      [...]
+
+      {
+         "name": "vaxrank_total_score",
+         "value": "0.10522"
+      }
+   ],
+   "annotator": "Neofox",
+   "annotatorVersion": "0.3.0",
+   "timestamp": "20200915213103707536"
+}
+```
 
 ## Developer guide
 
