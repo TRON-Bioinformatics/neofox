@@ -45,7 +45,7 @@ class DissimilarityCalculator(BlastpRunner):
         This function determines the dissimilarity to self-proteome of epitopes as described in Richman et al
         """
         outfile = self.run_blastp(
-            fasta_file=fasta_file, database=os.path.join(self.proteome_db, "homo_sapiens.mod"))
+            fasta_file=fasta_file, database=os.path.join(self.proteome_db, "homo_sapiens"))
         similarity = self.parse_blastp_output(blastp_output_file=outfile, a=32)
         dissimilarity = 1 - similarity
         os.remove(outfile)
