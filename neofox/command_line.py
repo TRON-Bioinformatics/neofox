@@ -32,7 +32,7 @@ def neofox_cli():
     # TODO: once we support the neofox from the models this parameter will not be required
     parser.add_argument('--patient-id', dest='patient_id', help='the patient id for the iCaM file',
                         required=True)
-    parser.add_argument('--patients-data', dest='patients_data',
+    parser.add_argument('--patient-data', dest='patients_data',
                         help='file with data for patients with columns: identifier, estimated_tumor_content, '
                              'is_rna_available, mhc_i_alleles, mhc_ii_alleles, tissue',
                         required=True)

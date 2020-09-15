@@ -104,25 +104,17 @@ message Patient {
 	*/
 	string identifier = 1;
 	/**
-	Estimated tumor content (value between 0 and 1)
-	*/
-	float estimatedTumorContent = 2;
-	/**
 	Is RNA expression available?
 	*/
-	bool isRnaAvailable = 3;
+	bool isRnaAvailable = 2;
 	/**
 	MHC I alleles
 	*/
-	repeated string mhcIAlleles = 4;
+	repeated string mhcIAlleles = 3;
 	/**
 	MHC II alleles
 	*/
-	repeated string mhcIIAlleles = 5;
-	/**
-	Tissue of cancer origin
-	*/
-	string tissue = 6;
+	repeated string mhcIIAlleles = 4;
 }
 
 /**
