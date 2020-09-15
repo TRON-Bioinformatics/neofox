@@ -29,7 +29,7 @@ Annotation of mutated peptide sequences (mps) with published neo-epitope descrip
 - netMHCpan 4.0
 - netMHCIIpan 3.2
 - MixMHCpred 2.0.2
-- MixMHC2pred 1.1
+- MixMHC2pred 1.1.3
 
 ## Usage
 
