@@ -78,10 +78,7 @@ class ModelConverter(object):
             patients_file,
             sep='\t',
             converters={'mhcIAlleles': split_comma_separated_list,
-                        'mhcIIAlleles': split_comma_separated_list,
-                        # TODO: remove this conversion if this is fixed
-                        #  https://github.com/danielgtaylor/python-betterproto/issues/96
-                        'estimatedTumorContent': lambda x: float(x) if x != "NA" else x})
+                        'mhcIIAlleles': split_comma_separated_list})
         return ModelConverter.patient_metadata_csv2objects(df)
 
     @staticmethod

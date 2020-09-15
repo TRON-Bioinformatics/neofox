@@ -1,7 +1,7 @@
 # NeoFox - NEOantigen Feature tOolboX
 
 
-Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope descriptors
+Annotation of mutated peptide sequences (mps) with published neo-epitope descriptors
 
 **Published Descriptors:**
 - netMHCpan *(Jurtz et al, 2017, The Journal of Immunology )*  
@@ -19,15 +19,6 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - MixMHCpred *(Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018; J Immunol.)*
 - MixMHC2pred *(Racle et al, 2019, Nat. Biotech. 2019)*
 - Vaxrank *(Rubinsteyn, 2017, Front Immunol;Wang, 2019, Bioinformatics)*
-
-
-**Novel Potential Descriptors:**  
-- Amnino Acid Index  
-- Differential Expression  
-- Amino acid Frequency  
-- Conservation Scores (e.g PROVEAN: Choi et al, 2012, PLoS One)  
-- Multiplexed Representation  
-
 
 ## NeoFox Requirements
  
@@ -107,50 +98,14 @@ where:
 
 Example of patients data table:
 ```
-identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
-Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
+identifier  mhcIAlleles mhcIIAlleles   isRnaAvailable  
+Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01  True    
 ```
 where:
 - `identifier` - the patient identifier
 - `mhcIAlleles` - the list of MHC I alleles in the patient
 - `mhcIIAlleles` - the list of MHC II alleles in the patient
-- `estimatedTumorContent` - the percentage of estimated tumor content (**optional**)
 - `isRnaAvailable` - whether RNA was available for the analysis. If true then the `VAF_in_RNA` field will be used, else `VAF_in_DNA` will be used. (**optional**)
-- `tissue` - the tissue of the tumor. This is used to extract the gene expression from GTEx, use one from the list below (**optional**)
-
-GTEx tissues:
-```
-adipose tissue
-adrenal gland
-bladder
-blood
-blood vessel
-brain
-breast
-cervix
-colon
-esophagus
-fallopian tube
-heart
-kidney
-liver
-lung
-nerve
-ovary
-pancreas
-pituitary gland
-prostate
-salivary gland
-skeletal muscle
-skin
-small intestine
-spleen
-stomach
-testis
-thyroid
-uterus
-vagina
-```
 
 ### Output data
 

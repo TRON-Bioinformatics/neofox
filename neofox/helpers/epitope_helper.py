@@ -29,7 +29,7 @@ class EpitopeHelper(object):
         """
         length_mut = len(xmer_mut)
         list_peptides = []
-        pos_mut_list = EpitopeHelper.mut_position_xmer_seq(xmer_mut=xmer_mut, xmer_wt=xmer_wt)
+        pos_mut_list = EpitopeHelper.mut_position_xmer_seq(sequence_mut=xmer_mut, sequence_wt=xmer_wt)
         for pos_mut in pos_mut_list:
             for length in lengths:
                 if length <= length_mut:
@@ -41,22 +41,22 @@ class EpitopeHelper(object):
         return list(set([x for x in list_peptides if not x == "" and len(x) >= min(lengths)]))
 
     @staticmethod
-    def mut_position_xmer_seq(xmer_wt, xmer_mut):
+    def mut_position_xmer_seq(sequence_wt, sequence_mut):
         """
         returns position of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
         """
         # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
         pos_mut = []
-        if len(xmer_wt) == len(xmer_mut):
+        if len(sequence_wt) == len(sequence_mut):
             p1 = -1
-            for i, aa in enumerate(xmer_mut):
-                if aa != xmer_wt[i]:
+            for i, aa in enumerate(sequence_mut):
+                if aa != sequence_wt[i]:
                     p1 = i + 1
                     pos_mut.append(p1)
         else:
             p1 = 0
             # in case sequences do not have same length
-            for a1, a2 in zip(xmer_wt, xmer_mut):
+            for a1, a2 in zip(sequence_wt, sequence_mut):
                 if a1 == a2:
                     p1 += 1
                 elif a1 != a2:
