@@ -1,0 +1,54 @@
+##
+## Copyright (c) 2020-2030 Translational Oncology at the Medical Center of the Johannes Gutenberg-University Mainz gGmbH.
+##
+## This file is part of Neofox
+## (see https://github.com/tron-bioinformatics/neofox).
+##
+## This program is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program. If not, see <http://www.gnu.org/licenses/>.##
+image: python:3.7-buster
+
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+    VENV_CACHE_DIR: "$CI_PROJECT_DIR/venv"
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  paths:
+    - $PIP_CACHE_DIR
+    - $VENV_CACHE_DIR
+
+before_script:
+  - apt-get update
+  - apt-get install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
+  - python -V
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - python setup.py bdist_wheel
+    - pip uninstall -y neofox
+    - pip install dist/neofox-*.whl
+    - python -m unittest discover neofox.tests.unit_tests

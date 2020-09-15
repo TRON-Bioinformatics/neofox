@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package neoantigen;
+
+message Gene {
+	/**
+	The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38)
+	*/
+	string assembly = 1;
+	/**
+	The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene
+	*/
+	string gene = 2;
+	/**
+	The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id)
+	*/
+	string transcriptIdentifier = 3;
+}
+
+message Mutation {
+	/**
+	The aminoacid position within the protein. 1-based, starting in the N-terminus
+	*/
+	int32 position = 1;
+	/**
+	Sequence of aminoacids for the wild type xmer
+	*/
+	string wildTypeXmer = 2;
+	/**
+	IUPAC code for the wild type aminoacid in this position
+	*/
+	string wildTypeAminoacid = 3;
+	/**
+	Sequence of aminoacids for the mutated xmer
+	*/
+	string mutatedXmer = 4;
+	/**
+	IUPAC code for the mutated aminoacid in this position
+	*/
+	string mutatedAminoacid = 5;
+	/**
+	The left flanking region of variable size in IUPAC codes
+	*/
+	string leftFlankingRegion = 6;
+	/**
+	The size of the left flanking region
+	*/
+	int32 sizeLeftFlankingRegion = 7;
+	/**
+	The right flanking region of variable size in IUPAC codes
+	*/
+	string rightFlankingRegion = 8;
+	/**
+	The size of the right flanking region
+	*/
+	int32 sizeRightFlankingRegion = 9;
+}
+
+/**
+A neoantigen minimal definition
+*/
+message Neoantigen {
+	/**
+	A unique identifier of a neoantigen
+	*/
+	string identifier = 1;
+	/**
+	Patient identifier
+	*/
+	string patientIdentifier = 2;
+	/**
+	The gene where the neoepitope corresponds
+	*/
+	Gene gene = 3;
+	/**
+	The mutation
+	*/
+	Mutation mutation = 4;
+	/**
+	Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
+	there is no quantitive measurement at the moment.
+	*/
+	bool clonalityEstimation = 5;
+	/**
+	Expression value of the transcript from RNA data. Range [0, +inf].
+	*/
+	float rnaExpression = 6;
+	/**
+	Variant allele frequency from the DNA. Range [0.0, 1.0]
+	*/
+	float dnaVariantAlleleFrequency = 7;
+	/**
+	Variant allele frequency from the RNA. Range [0.0, 1.0]
+	*/
+	float rnaVariantAlleleFrequency = 8;
+}
+
+/**
+The metadata required for analysis for a given patient + its patient identifier
+*/
+message Patient {
+	/**
+	Patient identifier
+	*/
+	string identifier = 1;
+	/**
+	Is RNA expression available?
+	*/
+	bool isRnaAvailable = 2;
+	/**
+	MHC I alleles
+	*/
+	repeated string mhcIAlleles = 3;
+	/**
+	MHC II alleles
+	*/
+	repeated string mhcIIAlleles = 4;
+}
+
+/**
+This is a generic class to hold annotations from INPuT
+*/
+message Annotation {
+	/**
+	The name of the annotation
+	*/
+	string name = 1;
+	/**
+	The value of the annotation
+	TODO: make this better to hold int, float and bool
+	*/
+	string value = 2;
+}
+
+/**
+A set of annotations for a neoantigen
+*/
+message NeoantigenAnnotations {
+	/**
+	A unique identifier of a neoantigen
+	*/
+	string neoantigenIdentifier = 1;
+	/**
+	List of annotations
+	*/
+	repeated Annotation annotations = 2;
+	/**
+	The annotator
+	*/
+	string annotator = 3;
+	/**
+	The version of the annotator
+	*/
+	string annotatorVersion = 4;
+	/**
+	A timestamp determined when the annotation was created
+	*/
+	string timestamp = 5;
+	/**
+	Annotation resources MD5 hash
+	*/
+	string resourcesHash = 6;
+}

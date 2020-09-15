@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<!--
+-- Copyright (c) 2020-2030 Translational Oncology at the Medical Center of the Johannes Gutenberg-University Mainz gGmbH.
+--
+-- This file is part of Neofox
+-- (see https://github.com/tron-bioinformatics/neofox).
+--
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program. If not, see <http://www.gnu.org/licenses/>.-->
+
+<html>
+  <head>
+    <title>Protocol Documentation</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic"/>
+    <style>
+      body {
+        width: 60em;
+        margin: 1em auto;
+        color: #222;
+        font-family: "Ubuntu", sans-serif;
+        padding-bottom: 4em;
+      }
+
+      h1 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      h2 {
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+        margin: 1.5em 0;
+      }
+
+      h3 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      a {
+        text-decoration: none;
+        color: #567e25;
+      }
+
+      table {
+        width: 100%;
+        font-size: 80%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        font-weight: 700;
+        background-color: #dcdcdc;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #fbfbfb;
+      }
+
+      td {
+        border: 1px solid #ccc;
+        padding: 0.5ex 2ex;
+      }
+
+      td p {
+        text-indent: 1em;
+        margin: 0;
+      }
+
+      td p:nth-child(1) {
+        text-indent: 0;  
+      }
+
+       
+      .field-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .field-table td:nth-child(3) {  
+        width: 6em;
+      }
+      .field-table td:nth-child(4) {  
+        width: auto;
+      }
+
+       
+      .extension-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(3) {  
+        width: 10em;
+      }
+      .extension-table td:nth-child(4) {  
+        width: 5em;
+      }
+      .extension-table td:nth-child(5) {  
+        width: auto;
+      }
+
+       
+      .enum-table td:nth-child(1) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(2) {  
+        width: 10em;
+      }
+      .enum-table td:nth-child(3) {  
+        width: auto;
+      }
+
+       
+      .scalar-value-types-table tr {
+        height: 3em;
+      }
+
+       
+      #toc-container ul {
+        list-style-type: none;
+        padding-left: 1em;
+        line-height: 180%;
+        margin: 0;
+      }
+      #toc > li > a {
+        font-weight: bold;
+      }
+
+       
+      .file-heading {
+        width: 100%;
+        display: table;
+        border-bottom: 1px solid #aaa;
+        margin: 4em 0 1.5em 0;
+      }
+      .file-heading h2 {
+        border: none;
+        display: table-cell;
+      }
+      .file-heading a {
+        text-align: right;
+        display: table-cell;
+      }
+
+       
+      .badge {
+        width: 1.6em;
+        height: 1.6em;
+        display: inline-block;
+
+        line-height: 1.6em;
+        text-align: center;
+        font-weight: bold;
+        font-size: 60%;
+
+        color: #89ba48;
+        background-color: #dff0c8;
+
+        margin: 0.5ex 1em 0.5ex -1em;
+        border: 1px solid #fbfbfb;
+        border-radius: 1ex;
+      }
+    </style>
+
+    
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+  </head>
+
+  <body>
+
+    <h1 id="title">Protocol Documentation</h1>
+
+    <h2>Table of Contents</h2>
+
+    <div id="toc-container">
+      <ul id="toc">
+        
+          
+          <li>
+            <a href="#neoantigen.proto">neoantigen.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#neoantigen.Annotation"><span class="badge">M</span>Annotation</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Gene"><span class="badge">M</span>Gene</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Mutation"><span class="badge">M</span>Mutation</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Neoantigen"><span class="badge">M</span>Neoantigen</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.NeoantigenAnnotations"><span class="badge">M</span>NeoantigenAnnotations</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Patient"><span class="badge">M</span>Patient</a>
+                </li>
+              
+              
+              
+              
+            </ul>
+          </li>
+        
+        <li><a href="#scalar-value-types">Scalar Value Types</a></li>
+      </ul>
+    </div>
+
+    
+      
+      <div class="file-heading">
+        <h2 id="neoantigen.proto">neoantigen.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id="neoantigen.Annotation">Annotation</h3>
+        <p></p><p>This is a generic class to hold annotations from INPuT</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The name of the annotation </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The value of the annotation
+TODO: make this better to hold int, float and bool </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Gene">Gene</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>assembly</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>gene</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene </p></td>
+                </tr>
+              
+                <tr>
+                  <td>transcriptIdentifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Mutation">Mutation</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>position</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>
+The aminoacid position within the protein. 1-based, starting in the N-terminus </p></td>
+                </tr>
+              
+                <tr>
+                  <td>wildTypeXmer</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Sequence of aminoacids for the wild type xmer </p></td>
+                </tr>
+              
+                <tr>
+                  <td>wildTypeAminoacid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+IUPAC code for the wild type aminoacid in this position </p></td>
+                </tr>
+              
+                <tr>
+                  <td>mutatedXmer</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Sequence of aminoacids for the mutated xmer </p></td>
+                </tr>
+              
+                <tr>
+                  <td>mutatedAminoacid</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+IUPAC code for the mutated aminoacid in this position </p></td>
+                </tr>
+              
+                <tr>
+                  <td>leftFlankingRegion</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The left flanking region of variable size in IUPAC codes </p></td>
+                </tr>
+              
+                <tr>
+                  <td>sizeLeftFlankingRegion</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>
+The size of the left flanking region </p></td>
+                </tr>
+              
+                <tr>
+                  <td>rightFlankingRegion</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The right flanking region of variable size in IUPAC codes </p></td>
+                </tr>
+              
+                <tr>
+                  <td>sizeRightFlankingRegion</td>
+                  <td><a href="#int32">int32</a></td>
+                  <td></td>
+                  <td><p>
+The size of the right flanking region </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Neoantigen">Neoantigen</h3>
+        <p></p><p>A neoantigen minimal definition</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>identifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+A unique identifier of a neoantigen </p></td>
+                </tr>
+              
+                <tr>
+                  <td>patientIdentifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Patient identifier </p></td>
+                </tr>
+              
+                <tr>
+                  <td>gene</td>
+                  <td><a href="#neoantigen.Gene">Gene</a></td>
+                  <td></td>
+                  <td><p>
+The gene where the neoepitope corresponds </p></td>
+                </tr>
+              
+                <tr>
+                  <td>mutation</td>
+                  <td><a href="#neoantigen.Mutation">Mutation</a></td>
+                  <td></td>
+                  <td><p>
+The mutation </p></td>
+                </tr>
+              
+                <tr>
+                  <td>clonalityEstimation</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>
+Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
+there is no quantitive measurement at the moment. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>rnaExpression</td>
+                  <td><a href="#float">float</a></td>
+                  <td></td>
+                  <td><p>
+Expression value of the transcript from RNA data. Range [0, &#43;inf]. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>dnaVariantAlleleFrequency</td>
+                  <td><a href="#float">float</a></td>
+                  <td></td>
+                  <td><p>
+Variant allele frequency from the DNA. Range [0.0, 1.0] </p></td>
+                </tr>
+              
+                <tr>
+                  <td>rnaVariantAlleleFrequency</td>
+                  <td><a href="#float">float</a></td>
+                  <td></td>
+                  <td><p>
+Variant allele frequency from the RNA. Range [0.0, 1.0] </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.NeoantigenAnnotations">NeoantigenAnnotations</h3>
+        <p></p><p>A set of annotations for a neoantigen</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>neoantigenIdentifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+A unique identifier of a neoantigen </p></td>
+                </tr>
+              
+                <tr>
+                  <td>annotations</td>
+                  <td><a href="#neoantigen.Annotation">Annotation</a></td>
+                  <td>repeated</td>
+                  <td><p>
+List of annotations </p></td>
+                </tr>
+              
+                <tr>
+                  <td>annotator</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The annotator </p></td>
+                </tr>
+              
+                <tr>
+                  <td>annotatorVersion</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+The version of the annotator </p></td>
+                </tr>
+              
+                <tr>
+                  <td>timestamp</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+A timestamp determined when the annotation was created </p></td>
+                </tr>
+              
+                <tr>
+                  <td>resourcesHash</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Annotation resources MD5 hash </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Patient">Patient</h3>
+        <p></p><p>The metadata required for analysis for a given patient + its patient identifier</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>identifier</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Patient identifier </p></td>
+                </tr>
+              
+                <tr>
+                  <td>estimatedTumorContent</td>
+                  <td><a href="#float">float</a></td>
+                  <td></td>
+                  <td><p>
+Estimated tumor content (value between 0 and 1) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>isRnaAvailable</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td></td>
+                  <td><p>
+Is RNA expression available? </p></td>
+                </tr>
+              
+                <tr>
+                  <td>mhcIAlleles</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>
+MHC I alleles </p></td>
+                </tr>
+              
+                <tr>
+                  <td>mhcIIAlleles</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>
+MHC II alleles </p></td>
+                </tr>
+              
+                <tr>
+                  <td>tissue</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>
+Tissue of cancer origin </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+
+      
+
+      
+
+      
+    
+
+    <h2 id="scalar-value-types">Scalar Value Types</h2>
+    <table class="scalar-value-types-table">
+      <thead>
+        <tr><td>.proto Type</td><td>Notes</td><td>C++</td><td>Java</td><td>Python</td><td>Go</td><td>C#</td><td>PHP</td><td>Ruby</td></tr>
+      </thead>
+      <tbody>
+        
+          <tr id="double">
+            <td>double</td>
+            <td></td>
+            <td>double</td>
+            <td>double</td>
+            <td>float</td>
+            <td>float64</td>
+            <td>double</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="float">
+            <td>float</td>
+            <td></td>
+            <td>float</td>
+            <td>float</td>
+            <td>float</td>
+            <td>float32</td>
+            <td>float</td>
+            <td>float</td>
+            <td>Float</td>
+          </tr>
+        
+          <tr id="int32">
+            <td>int32</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="int64">
+            <td>int64</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="uint32">
+            <td>uint32</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int/long</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="uint64">
+            <td>uint64</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint32">
+            <td>sint32</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sint64">
+            <td>sint64</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="fixed32">
+            <td>fixed32</td>
+            <td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>uint32</td>
+            <td>uint</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="fixed64">
+            <td>fixed64</td>
+            <td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>uint64</td>
+            <td>ulong</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="sfixed32">
+            <td>sfixed32</td>
+            <td>Always four bytes.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>integer</td>
+            <td>Bignum or Fixnum (as required)</td>
+          </tr>
+        
+          <tr id="sfixed64">
+            <td>sfixed64</td>
+            <td>Always eight bytes.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>integer/string</td>
+            <td>Bignum</td>
+          </tr>
+        
+          <tr id="bool">
+            <td>bool</td>
+            <td></td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>boolean</td>
+            <td>bool</td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>TrueClass/FalseClass</td>
+          </tr>
+        
+          <tr id="string">
+            <td>string</td>
+            <td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+            <td>string</td>
+            <td>String</td>
+            <td>str/unicode</td>
+            <td>string</td>
+            <td>string</td>
+            <td>string</td>
+            <td>String (UTF-8)</td>
+          </tr>
+        
+          <tr id="bytes">
+            <td>bytes</td>
+            <td>May contain any arbitrary sequence of bytes.</td>
+            <td>string</td>
+            <td>ByteString</td>
+            <td>str</td>
+            <td>[]byte</td>
+            <td>ByteString</td>
+            <td>string</td>
+            <td>String (ASCII-8BIT)</td>
+          </tr>
+        
+      </tbody>
+    </table>
+  </body>
+</html>
+
