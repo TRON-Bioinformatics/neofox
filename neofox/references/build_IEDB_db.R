@@ -4,7 +4,6 @@ library(tidyverse)
 
 args <- commandArgs(trailingOnly = TRUE)
 path_to_file <- args[1]
-path_to_file <- "/home/franlang/refs_test/iedb"
 
 d2 <- read_csv(paste0(path_to_file, "/tcell_full_v3.csv"), skip = 1)
 
