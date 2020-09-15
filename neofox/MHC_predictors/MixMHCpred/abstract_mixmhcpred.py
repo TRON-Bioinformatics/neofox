@@ -80,11 +80,3 @@ class AbstractMixMHCpred(EpitopeHelper):
         except IndexError:
             return None
 
-    def difference_score(self, mut_score, wt_score):
-        """calcualated difference in MixMHCpred scores between mutated and wt"""
-        result = None
-        try:
-            result = wt_score - mut_score
-        except ValueError:
-            pass
-        return result
