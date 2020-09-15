@@ -75,7 +75,7 @@ export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.0.1/MixMHCpred
 
 Configure MixMHCpred as explained in the file `MixMHCpred-2.0.1/README`
 
-### Install MixMHC2pred 1.1
+### Install MixMHC2pred 1.1.3
 
 ```
 wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.1.tar.gz
