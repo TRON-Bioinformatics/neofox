@@ -1,7 +1,7 @@
-# **INPuT - Immunogenictiy Neoantigen Prediction Toolbox**
+# NeoFox - NEOantigen Feature tOolboX
 
 
-Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope descriptors
+Annotation of mutated peptide sequences (mps) with published neo-epitope descriptors
 
 **Published Descriptors:**
 - netMHCpan *(Jurtz et al, 2017, The Journal of Immunology )*  
@@ -20,68 +20,190 @@ Annotation of mutated peptide sequences (mps) with published or novel potential 
 - MixMHC2pred *(Racle et al, 2019, Nat. Biotech. 2019)*
 - Vaxrank *(Rubinsteyn, 2017, Front Immunol;Wang, 2019, Bioinformatics)*
 
-
-**Novel Potential Descriptors:**  
-- Amnino Acid Index  
-- Differential Expression  
-- Amino acid Frequency  
-- Conservation Scores (e.g PROVEAN: Choi et al, 2012, PLoS One)  
-- Multiplexed Representation  
-
-
-## Input Requirements
-
-**Specific Input:**
-- icam_output.txt --> icam output file
-- patient identifier --> the patient identifier to whom all neoantigens in icam output belong
-- patient data --> a table of tab separated values containing metadata on the patient
-  - required fields: identifier, mhcIAlleles, mhcIIAlleles
-  - optional fields: estimatedTumorContent, isRnaAvailable, tissue
-
-**Example of patient data table**
-```
-identifier  mhcIAlleles mhcIIAlleles    estimatedTumorContent   isRnaAvailable  tissue
-Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01   69  True    skin
-```
-
-**Required Columns of iCaM Table:**  
-- 	transcript_expression  
-- 	VAF_in_RNA  
-- 	VAF_in_tumor  
-- 	X..13_AA_.SNV._._.15_AA_to_STOP_.INDEL.
--   substitution  
--   patient.id (e.g Pt1, Ptx)    
-
-**Required Additional Files:**  
-- RNA reference *(/projects/CM27_IND_patients/GTEX_normal_tissue_data/Skin .csv, predict_all_epitopes.py)*  
-- protein database *(/projects/data/human/2018_uniprot_with_isoforms/uniprot_human_with_isoforms.fasta, predict_all_epitopes.py)*  
-- amino acid frequencies *(./new_features/20181108_AA_freq_prot.csv, predict_all_epitopes.py)*  
-- 4mer amino acid frequnecies *(./new_features/20181108_4mer_freq.csv, predict_all_epitopes.py)*  
-- PROVEAN score matrix *(./new_features/PROV_scores_mapped3.csv, predict_all_epitopes.py)*  
-- available HLA I alleles for netmhcpan4 *(./netmhcpan4/MHC_available.csv, predict_all_epitopes.py)*  
-- available HLA II alleles for netmhcIIpan3.2 *(./netmhcIIpan/avail_mhcII.txt, predict_all_epitopes.py)*  
-- aaindex1 *("aa_index/aaindex1", predict_all_epitopes.py)*  
-- aanindex2 *("aa_index/aaindex1", predict_all_epitopes.py)*  
-- available HLA II alleles for MixMHC2pred *("/projects/SUMMIT/WP1.2/input/development/MixMHCpred/Alleles_list_pred2.txt")*
-
+## NeoFox Requirements
+ 
 **Required Software/Tools/Dependencies:**  
-- python2 *(anaconda/2/2018)*
-- BLAST *(/code/ncbi-blast/2.8.1+/bin/blastp, neoantigen_fitness.py)*  
-- netmhcpan *(/code/netMHCpan-4.0/netMHCpan, netmhcpan_prediction.py)*  
-- netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
-- netmhcIIpan *(/code/net/MHCIIpan/3.2/netMHCIIpan, netmhcIIpan_prediction.py)*  
-- MixMHCpred *(/code/MixMHCpred/2.0.2/MixMHCpred, mixmhcpred.py)*
-- Tcell_predictor: python3 + scripts/pickle/mat files of Tcell_predictor tool *(/code/Anaconda/3/2018/bin/python + tool under ./Tcell_predictor, tcellpredictor_wrapper.py )*  
-- Neoag: Neoag R-module *(./neoag-master, neoag_gbm_model.py)* + R *(/code/R/3.6.0/bin/Rscript)*
-- MixMHCpred *(/code/MixMHCpred/2.0.2/)*
-- MixMHC2pred *(/code/net/MixMHC2pred/1.1)*
+- Python 3.7
+- R 3.6.0
+- BLAST 2.8.1
+- netMHCpan 4.0
+- netMHCIIpan 3.2
+- MixMHCpred 2.0.2
+- MixMHC2pred 1.1.3
 
-## **Usage**  
+## Configuration
+
+Follow the the instructions in `INSTALL.md` to install third-party dependencies and build the references folder.
+
+## Usage from the command line
 
 ```
-input --icam-file testseq_head.txt --patient-id Pt123 --patient-data patients.csv [--frameshift False]
+neofox --model-file/--icam-file neoantigens.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
 ```
 
+### Input data
+
+- `--icam-file`: tab-separated values table with neoantigens in iCaM output format
+- `--model-file`: tab-separated values table with neoantigens in Neofox model format described in [protobuf model](neofox/model/neoantigen.proto)
+- `--patient-id`: patient identifier (**optional**, this will be used as the patient id for neoantigens without patient)
+- `--patient data`: a table of tab separated values containing metadata on the patient
+
+**NOTE**: provide either `--icam-file` or `--model-file`
+
+Example of iCaM neoantigens table:
+```
+gene	UCSC_transcript	transcript_expression	substitution	+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)	[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)	VAF_in_tumor	VAF_in_RNA
+VCAN	uc003kii.3	0.519506894	I547T	DEVLGEPSQDILVTDQTRLEATISPET	DEVLGEPSQDILVIDQTRLEATISPET 0.294573643	0.857142857
+```
+where:
+- `gene` is the HGNC gene symbol
+- `UCSC_trancript` is the UCSC transcript id including the version
+- `substitution` represents a single aminoacid substitution with single letter aminoacids (eg: I547T)
+- `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the mutated neoantigen
+- `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent aminoacid sequence in the normal tissue
+- `transcript_expression` the transcript expression (**optional**)
+- `VAF_in_tumor` variant allele frequency in the DNA (**optional**)
+- `VAF_in_RNA` variant allele frequency in the RNA (**optional**, this will be estimated using the `VAF_in_tumor` if not available)
+
+Example of Neofox model neoantigens table:
+```
+gene.assembly	gene.gene	gene.transcriptIdentifier	mutation.leftFlankingRegion	mutation.mutatedAminoacid	mutation.position	mutation.rightFlankingRegion	mutation.wildTypeAminoacid	patientIdentifier   rnaExpression   rnaVariantAlleleFrequency   dnaVariantAlleleFrequency
+hg19	BRCA2	uc003kii.3	AAAAAA	L	935	AAAAA	F	Pt1 4.512   0.4675  0.36103
+hg19	BRCA2	uc003kii.3	AAAAAA	M	518	AAAAA	R	Pt2 0.154   0.015404    0.034404
+hg19	BRCA2	uc003kii.3	AAAAAA	G	285	AAAAA	K	Pt3 8.841207    0.89387 0.51924
+```
+where:
+- `gene.assembly` - the assembly of the reference genome (only hg19 is supported)
+- `gene.gene` - the HGMC gene symbol
+- `gene.transcriptIdentifier` - the UCSC transcript identifier including the version number
+- `mutation.leftFlankingRegion` - the aminoacids flanking the mutation on the left (in IUPAC one letter symbols)
+- `mutation.mutatedAminoacid` - the mutated aminoacid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
+- `mutation.position` - the 1 based position of the mutation in the protein
+- `mutation.rightFlankingRegion` - the aminoacids flanking the mutation on the left (in IUPAC one letter symbols)
+- `mutation.wildTypeAminoacid` - the wild type aminoacid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
+- `patientIdentifier` - the patient identifier
+- `rnaExpression` - the transcript RNA expression (**optional**)
+- `rnaVariantAlleleFrequency` - the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
+- `dnaVariantAlleleFrequency` - the variant allele frequency calculated from the DNA (**optional**)
+
+Example of patients data table:
+```
+identifier  mhcIAlleles mhcIIAlleles   isRnaAvailable  
+Pt29    HLA-A*03:01,HLA-A*02:01,HLA-B*07:02 HLA-DRB1*11:04,HLA-DRB1*15:01  True    
+```
+where:
+- `identifier` - the patient identifier
+- `mhcIAlleles` - the list of MHC I alleles in the patient
+- `mhcIIAlleles` - the list of MHC II alleles in the patient
+- `isRnaAvailable` - whether RNA was available for the analysis. If true then the `VAF_in_RNA` field will be used, else `VAF_in_DNA` will be used. (**optional**)
+
+### Output data
+
+The output data is returned in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON (`--with-json`).
+
+## Programmatic usage
+
+Import the data models that hold the data
+```
+from neofox.model.neoantigen import Neoantigen, Patient, Gene, Mutation
+```
+
+Build some data
+```
+gene = Gene(assembly="hg19", gene="VCAN", transcript_identifier="uc003kii.3")
+mutation = Mutation(position=1007, wild_type_aminoacid="I", mutated_aminoacid="T", left_flanking_region="DEVLGEPSQDILV", right_flanking_region="DQTRLEATISPET")
+neoantigen = Neoantigen(gene=gene, mutation=mutation, patient_identifier="patient_123", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
+patient = Patient(identifier="patient_123", is_rna_available=True, mhc_i_alleles=["HLA-A*03:01","HLA-A*02:01","HLA-B*07:02","HLA-B*18:01","HLA-C*07:02","HLA-C*12:03"], mhc_i_i_alleles=["HLA-DRB1*11:04","HLA-DRB1*15:01","HLA-DQA1*01:02","HLA-DQA1*05:05","HLA-DQB1*06:02","HLA-DQB1*03:01","HLA-DPA1*01:03","HLA-DPA1*01:03","HLA-DPB1*04:02","HLA-DPB1*04:01"])
+```
+
+Validate your input data
+```
+from neofox.model.validation import ModelValidator
+valid_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
+```
+
+Your data looks now like this
+```
+print(valid_neoantigen.to_json(indent=3))
+{
+   "identifier": "e6KaFWyLbpOP5G6mgna4dw==",
+   "patientIdentifier": "patient_123",
+   "gene": {
+      "assembly": "hg19",
+      "gene": "VCAN",
+      "transcriptIdentifier": "uc003kii.3"
+   },
+   "mutation": {
+      "position": 1007,
+      "wildTypeXmer": "DEVLGEPSQDILVIDQTRLEATISPET",
+      "wildTypeAminoacid": "I",
+      "mutatedXmer": "DEVLGEPSQDILVTDQTRLEATISPET",
+      "mutatedAminoacid": "T",
+      "leftFlankingRegion": "DEVLGEPSQDILV",
+      "sizeLeftFlankingRegion": 13,
+      "rightFlankingRegion": "DQTRLEATISPET",
+      "sizeRightFlankingRegion": 13
+   },
+   "rnaExpression": 0.519506894,
+   "dnaVariantAlleleFrequency": 0.294573643,
+   "rnaVariantAlleleFrequency": 0.857142857
+}
+``` 
+
+Run Neofox feature annotations (one neantigen should take between 10 and 20 seconds to annotate, more neoantigens can profit of parallelization using multiple CPUs)
+```
+from neofox.neofox import NeoFox
+annotations = NeoFox(neoantigens=[valid_neoantigen], patients=[patient], patient_id="patient_123", num_cpus=2).get_annotations()
+[I 200915 21:31:01 neofox:48] Loading data...
+
+[...]
+
+[I 200915 21:31:17 neofox:84] Elapsed time for annotating 1 neoantigens 14 seconds
+```
+
+The resulting annotation look like this
+``` 
+print(annotations[0].to_json(indent=3))
+{
+   "neoantigenIdentifier": "e6KaFWyLbpOP5G6mgna4dw==",
+   "annotations": [
+      {
+         "name": "Expression_mutated_transcript",
+         "value": "0.44529"
+      },
+      {
+         "name": "mutation_not_found_in_proteome",
+         "value": "1"
+      },
+      {
+         "name": "Best_rank_MHCI_score",
+         "value": "2.944"
+      },
+      {
+         "name": "Best_rank_MHCI_score_epitope",
+         "value": "ILVTDQTRL"
+      },
+      {
+         "name": "Best_rank_MHCI_score_allele",
+         "value": "HLA-A*02:01"
+      },
+      {
+         "name": "Best_affinity_MHCI_score",
+         "value": "543.9"
+      },
+
+      [...]
+
+      {
+         "name": "vaxrank_total_score",
+         "value": "0.10522"
+      }
+   ],
+   "annotator": "Neofox",
+   "annotatorVersion": "0.3.0",
+   "timestamp": "20200915213103707536"
+}
+```
 
 ## Developer guide
 
@@ -92,41 +214,34 @@ To build the package just run:
 python setup.py bdist_wheel
 ```
 
-This will create an installable wheel file under `dist/input-x.y.z.whl`.
+This will create an installable wheel file under `dist/neofox-x.y.z.whl`.
 
 ### Install the package
 
 Install the wheel file as follows:
 ```
-pip install dist/input-x.y.z.whl
+pip install dist/neofox-x.y.z.whl
 ```
 
 ### Run integration tests
 
-To run the integration tests make sure you have a file `.env` that contains the following variables with the right values:
-```
-export INPUT_REFERENCE_FOLDER=~/addannot_references
-export INPUT_BLASTP=/code/ncbi-blast/2.8.1+/bin/blastp
-export INPUT_MIXMHC2PRED=/code/net/MixMHC2pred/1.1/MixMHC2pred
-export INPUT_MIXMHCPRED=/code/MixMHCpred/2.0.2/MixMHCpred
-export INPUT_RSCRIPT=/code/R/3.6.0/bin/Rscript
-export INPUT_NETMHC2PAN=/code/net/MHCIIpan/3.2/netMHCIIpan
-export INPUT_NETMHCPAN=/code/net/MHCpan/4.0/netMHCpan
-```
-
-The folder `$INPUT_REFERENCE_FOLDER` requires to contain the resources defined above.
+To run the integration tests make sure you have a file `.env` that contains the environment variables described in the configuration section.
 
 Run the integration tests as follows:
 ```
-python -m unittest discover input.tests.integration_tests
+python -m unittest discover neofox.tests.integration_tests
 ```
 
 The integration tests run over some real datasets and they take some time to run.
 
-The integration test that runs the whle program over a relevant dataset can be run as follows:
+The integration test that runs the whole program over a relevant dataset can be run as follows:
 ```
-python -m unittest input.tests.integration_tests.test_input
+python -m unittest neofox.tests.integration_tests.test_neofox
 ```
+
+#### Regression tests
+
+This last test (ie: `test_neofox`) writes its output to a file named `neofox/tests/resources/output_yyyymmddHHMMSS.txt`. If there is an existing file named `neofox/tests/resources/output_previous.txt` then it loads both files in memory and compares them. It outputs whether there are some lost or gained columns and for the common columns it evaluates if the values are the same. If they are the same the file `output_previous.txt` is overwritten by the new file, otherwise it outputs the details of the differing columns.
 
 ### Run unit tests
 
@@ -134,5 +249,9 @@ The unit tests do not have any dependency and they finish in seconds.
 
 Run the unit tests as follows:
 ```
-python -m unittest discover input.tests.unit_tests
+python -m unittest discover neofox.tests.unit_tests
 ```
+
+### Logging
+
+Logs are written to the standard error and to the output folder by default. Optionally they can be written to a file by setting the environment variable `NEOFOX_LOGFILE` pointing to the desired file.

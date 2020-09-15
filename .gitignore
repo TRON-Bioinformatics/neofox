@@ -5,4 +5,5 @@ venv
 .env
 build
 dist
-input.egg-info/
+neofox.egg-info/
+neofox/tests/resources/output*
