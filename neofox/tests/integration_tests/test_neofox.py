@@ -42,7 +42,7 @@ class TestNeofox(TestCase):
     def test_neofox(self):
         """
         This test is equivalent to the command line call:
-        neofox --icam-file /projects/SUMMIT/WP1.2/neofox/development/Pt29.sequences4testing.txt --patient-id Pt29
+        neofox --candidate-file /projects/SUMMIT/WP1.2/neofox/development/Pt29.sequences4testing.txt --patient-id Pt29
         --patients-data ../resources/patient.pt29.csv
 
         NOTE: we will need to check the output when the calculation of resuls and printing to stdout have been decoupled
@@ -61,7 +61,7 @@ class TestNeofox(TestCase):
         output_json_annotations = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.json".format(datetime.now()))
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        neoantigens = ModelConverter.parse_icam_file(input_file)
+        neoantigens = ModelConverter.parse_candidate_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
@@ -83,7 +83,7 @@ class TestNeofox(TestCase):
         patient_id = 'Pt29'
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        neoantigens = ModelConverter.parse_icam_file(input_file)
+        neoantigens = ModelConverter.parse_candidate_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
