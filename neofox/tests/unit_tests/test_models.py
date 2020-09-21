@@ -87,11 +87,11 @@ class ModelConverterTest(TestCase):
         self.assertEqual(annotations_dict.get('annotations')[2].get('value'), 1.1)
         self.assertTrue(annotations_dict.get('neoantigenIdentifier'), ModelValidator.generate_neoantigen_identifier(neoantigen))
 
-    def test_icam2model(self):
-        icam_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
-        with open(icam_file) as f:
+    def test_candidate2model(self):
+        canidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
+        with open(canidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_icam_file(icam_file)
+        neoantigens = ModelConverter().parse_candidate_file(canidate_file)
         self.assertIsNotNone(neoantigens)
         # NOTE: the file contains 2 indels that are filtered out
         self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
@@ -117,13 +117,13 @@ class ModelConverterTest(TestCase):
             self.assertTrue(n.gene.assembly is not None)
 
     def test_overriding_patient_id(self):
-        icam_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
-        with open(icam_file) as f:
+        candidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
+        with open(candidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_icam_file(icam_file, patient_id='patientX')
+        neoantigens = ModelConverter().parse_candidate_file(candidate_file, patient_id='patientX')
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, 'patientX')
-        neoantigens = ModelConverter().parse_icam_file(icam_file)
+        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, None)
 

@@ -33,35 +33,35 @@ import json
 from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, NeoantigenAnnotations
 from neofox.model.validation import ModelValidator
 
-ICAM_FIELD_SUBSTITUTION = 'substitution'
+FIELD_SUBSTITUTION = 'substitution'
 
-ICAM_FIELD_VAF_DNA = 'VAF_in_tumor'
-ICAM_FIELD_VAF_RNA = 'VAF_in_RNA'
-ICAM_FIELD_RNA_EXPRESSION = 'VAF_RNA_raw'
-ICAM_FIELD_TRANSCRIPT_EXPRESSION = 'transcript_expression'
-ICAM_FIELD_TRANSCRIPT = 'UCSC_transcript'
-ICAM_FIELD_GENE = 'gene'
-ICAM_FIELD_WILD_TYPE_XMER = '[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
-ICAM_FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
+FIELD_VAF_DNA = 'VAF_in_tumor'
+FIELD_VAF_RNA = 'VAF_in_RNA'
+FIELD_RNA_EXPRESSION = 'VAF_RNA_raw'
+FIELD_TRANSCRIPT_EXPRESSION = 'transcript_expression'
+FIELD_TRANSCRIPT = 'UCSC_transcript'
+FIELD_GENE = 'gene'
+FIELD_WILD_TYPE_XMER = '[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
+FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 
 
 class ModelConverter(object):
 
     @staticmethod
-    def parse_icam_file(icam_file: str, patient_id: str = None) -> List[Neoantigen]:
+    def parse_candidate_file(candidate_file: str, patient_id: str = None) -> List[Neoantigen]:
         """
-        :param icam_file: the path to an iCaM output file
-        :param patient_id: the patient identifier for all neoantigens in the iCaM file, if not provided it is
+        :param candidate_file: the path to an neoantigen candidate input file
+        :param patient_id: the patient identifier for all neoantigens in the input file, if not provided it is
         expected as column named `patient.id` or `patient`
         :return neoantigens in model objects
         """
-        data = pd.read_csv(icam_file, sep='\t')
-        # filter out indels as the substitution field is reported empty by iCaM
+        data = pd.read_csv(candidate_file, sep='\t')
+        # filter out indels
         data = data[~data['substitution'].isna()]
-        ModelConverter._enrich_icam_table(data)
+        ModelConverter._enrich_candidate_table(data)
         neoantigens = []
-        for _, icam_entry in data.iterrows():
-            neoantigen = ModelConverter._icam_entry2model(icam_entry, patient_id=patient_id)
+        for _, candidate_entry in data.iterrows():
+            neoantigen = ModelConverter._candidate_entry2model(candidate_entry, patient_id=patient_id)
             neoantigens.append(ModelValidator.validate_neoantigen(neoantigen=neoantigen))
         for n in neoantigens:
             ModelValidator.validate(n)
@@ -178,46 +178,46 @@ class ModelConverter(object):
         return dict(nested_dict)
 
     @staticmethod
-    def _icam_entry2model(icam_entry: dict, patient_id: str) -> Neoantigen:
-        """parses an row from an iCaM file into a model object"""
+    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
+        """parses an row from a candidate file into a model object"""
         gene = Gene()
         gene.assembly = 'hg19'
-        gene.gene = icam_entry.get(ICAM_FIELD_GENE)
-        gene.transcript_identifier = icam_entry.get(ICAM_FIELD_TRANSCRIPT)
+        gene.gene = candidate_entry.get(FIELD_GENE)
+        gene.transcript_identifier = candidate_entry.get(FIELD_TRANSCRIPT)
 
         mutation = Mutation()
-        mutation.position = icam_entry.get('position')
-        mutation.wild_type_aminoacid = icam_entry.get('wild_type_aminoacid')
-        mutation.mutated_aminoacid = icam_entry.get('mutated_aminoacid')
-        mutation.left_flanking_region = icam_entry.get('left_flanking_region')
-        mutation.right_flanking_region = icam_entry.get('right_flanking_region')
+        mutation.position = candidate_entry.get('position')
+        mutation.wild_type_aminoacid = candidate_entry.get('wild_type_aminoacid')
+        mutation.mutated_aminoacid = candidate_entry.get('mutated_aminoacid')
+        mutation.left_flanking_region = candidate_entry.get('left_flanking_region')
+        mutation.right_flanking_region = candidate_entry.get('right_flanking_region')
 
         neoantigen = Neoantigen()
-        neoantigen.patient_identifier = patient_id if patient_id else icam_entry.get('patient')
+        neoantigen.patient_identifier = patient_id if patient_id else candidate_entry.get('patient')
         neoantigen.mutation = mutation
         neoantigen.gene = gene
-        # clonality estimation is not coming from iCaM
+        # clonality estimation is not present in candidate file at the moment
         neoantigen.clonality_estimation = None
         # missing RNA expression values are represented as -1
-        vaf_rna_raw = icam_entry.get(ICAM_FIELD_TRANSCRIPT_EXPRESSION)
+        vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
         neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
-        vaf_in_rna = icam_entry.get(ICAM_FIELD_VAF_RNA)
+        vaf_in_rna = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.rna_variant_allele_frequency = vaf_in_rna if vaf_in_rna >= 0 else None
-        neoantigen.dna_variant_allele_frequency = icam_entry.get(ICAM_FIELD_VAF_DNA)
+        neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
         return neoantigen
 
     @staticmethod
-    def _enrich_icam_table(data: pd.DataFrame):
-        """parses some data from the icam table into the right fields in the model objects"""
-        data['wild_type_aminoacid'] = data[ICAM_FIELD_SUBSTITUTION].transform(lambda x: re.search("(\w)\d+\w", x).group(1))
-        data['mutated_aminoacid'] = data[ICAM_FIELD_SUBSTITUTION].transform(lambda x: re.search("\w\d+(\w)", x).group(1))
-        data['position'] = data[ICAM_FIELD_SUBSTITUTION].transform(lambda x: int(re.search("\w(\d+)\w", x).group(1)))
+    def _enrich_candidate_table(data: pd.DataFrame):
+        """parses some data from the candidate table into the right fields in the model objects"""
+        data['wild_type_aminoacid'] = data[FIELD_SUBSTITUTION].transform(lambda x: re.search("(\w)\d+\w", x).group(1))
+        data['mutated_aminoacid'] = data[FIELD_SUBSTITUTION].transform(lambda x: re.search("\w\d+(\w)", x).group(1))
+        data['position'] = data[FIELD_SUBSTITUTION].transform(lambda x: int(re.search("\w(\d+)\w", x).group(1)))
         data['left_flanking_region'] = data[[
-            ICAM_FIELD_MUTATED_XMER, ICAM_FIELD_WILD_TYPE_XMER]].apply(
+            FIELD_MUTATED_XMER, FIELD_WILD_TYPE_XMER]].apply(
             lambda x: ModelConverter._get_matching_region(x[0], x[1]), axis=1)
         data['right_flanking_region'] = data[[
-            ICAM_FIELD_MUTATED_XMER, ICAM_FIELD_WILD_TYPE_XMER]].apply(
+            FIELD_MUTATED_XMER, FIELD_WILD_TYPE_XMER]].apply(
             lambda x: ModelConverter._get_matching_region(x[0], x[1], match=1), axis=1)
 
     @staticmethod

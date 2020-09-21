@@ -38,19 +38,19 @@ Follow the the instructions in `INSTALL.md` to install third-party dependencies 
 ## Usage from the command line
 
 ```
-neofox --model-file/--icam-file neoantigens.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
+neofox --model-file/--candidate-file neoantigens.txt --patient-id Ptx --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
 ```
 
 ### Input data
 
-- `--icam-file`: tab-separated values table with neoantigens in iCaM output format
+- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences
 - `--model-file`: tab-separated values table with neoantigens in Neofox model format described in [protobuf model](neofox/model/neoantigen.proto)
 - `--patient-id`: patient identifier (**optional**, this will be used as the patient id for neoantigens without patient)
 - `--patient data`: a table of tab separated values containing metadata on the patient
 
-**NOTE**: provide either `--icam-file` or `--model-file`
+**NOTE**: provide either `--candidate-file` or `--model-file`
 
-Example of iCaM neoantigens table:
+Example of candidate neoantigens table:
 ```
 gene	UCSC_transcript	transcript_expression	substitution	+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)	[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)	VAF_in_tumor	VAF_in_RNA
 VCAN	uc003kii.3	0.519506894	I547T	DEVLGEPSQDILVTDQTRLEATISPET	DEVLGEPSQDILVIDQTRLEATISPET 0.294573643	0.857142857
