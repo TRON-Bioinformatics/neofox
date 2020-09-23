@@ -18,8 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import base64
 import hashlib
+from typing import List
 
 import betterproto
+from neofox.references.references import ReferenceFolder
 
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient
@@ -61,13 +63,32 @@ class ModelValidator(object):
         return ModelValidator._enrich_neoantigen(neoantigen)
 
     @staticmethod
-    def validate_patient(patient: Patient) -> Patient:
+    def validate_patient(patient: Patient, available_mhc_i_alelles: List[str],
+                         available_mhc_i_i_alelles: List[str]) -> Patient:
 
         # checks format consistency first
         ModelValidator.validate(patient)
 
+        try:
+            # checks MHC I alleles
+            ModelValidator._validate_mhc_i_alleles(patient.mhc_i_alleles, available_mhc_i_alelles)
+
+            # checks MHC II alleles
+            ModelValidator._validate_mhc_i_i_alleles(patient.mhc_i_i_alleles, available_mhc_i_i_alelles)
+
+        except AssertionError as e:
+            raise NeofoxDataValidationException(e)
+
         # TODO: additional patient validation
         return patient
+
+    @staticmethod
+    def _validate_mhc_i_alleles(alleles, available_alleles):
+        pass
+
+    @staticmethod
+    def _validate_mhc_i_i_alleles(alleles, available_alleles):
+        pass
 
     @staticmethod
     def _validate_expression_values(neoantigen):
