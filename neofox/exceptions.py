@@ -30,3 +30,7 @@ class NeofoxCommandException(ValueError):
 
 class NeofoxReferenceException(ValueError):
     pass
+
+
+class NeofoxDataValidationException(ValueError):
+    pass
