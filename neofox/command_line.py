@@ -76,8 +76,7 @@ def neofox_cli():
     # run annotations
 
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
-                         output_prefix = output_prefix, num_cpus=num_cpus
-                         ).get_annotations()
+                         output_prefix=output_prefix, num_cpus=num_cpus).get_annotations()
 
     _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
 

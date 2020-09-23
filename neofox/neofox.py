@@ -26,15 +26,15 @@ from logzero import logger
 from dask.distributed import Client
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
-from neofox.exceptions import NeofoxConfigurationException
+from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
 from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
+from neofox.model.validation import ModelValidator
 
 
 class NeoFox:
 
-
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int, work_folder=None,
-                 output_prefix = None):
+    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int,
+                 work_folder=None, output_prefix=None):
 
         # initialise logs
         if work_folder and os.path.exists(work_folder):
@@ -51,16 +51,41 @@ class NeoFox:
         # TODO: number of threads is hard coded. Is there a better value for this?
         self.dask_client = Client(processes=True, n_workers=num_cpus, threads_per_worker=4)
 
-        if neoantigens is None or patients is None:
+        if neoantigens is None or len(neoantigens) == 0 or patients is None or len(patients) == 0:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
-        self.neoantigens = neoantigens
-        self.patients = {patient.identifier: patient for patient in patients}
+
         # TODO: avoid overriding patient id parameter
-        for n in self.neoantigens:
+        for n in neoantigens:
             if n.patient_identifier is None:
                 n.patient_identifier = patient_id
 
+        # validates input data
+        self.neoantigens = [ModelValidator.validate_neoantigen(n) for n in neoantigens]
+        self.patients = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
+        self._validate_input_data()
+
         logger.info("Data loaded")
+
+    def _validate_input_data(self):
+
+        patient_identifiers_from_neoantigens = set([n.patient_identifier for n in self.neoantigens])
+        patient_identifiers_from_patients = set([p.identifier for p in self.patients.values()])
+
+        # check that there are no repeated neoantigens
+        neoantigen_identifiers = [n.identifier for n in self.neoantigens]
+        if len(neoantigen_identifiers) != len(set(neoantigen_identifiers)):
+            raise NeofoxDataValidationException("There are repeated neoantigens!")
+
+        # checks that no neoantigen is referring to an empty patient
+        if "" in patient_identifiers_from_neoantigens or None in patient_identifiers_from_neoantigens:
+            raise NeofoxDataValidationException(
+                "There are neoantigens missing a reference to a patient")
+
+        # checks that there is no neoantigen referring to a non existing patient
+        missing_patient_identifiers = patient_identifiers_from_neoantigens.difference(patient_identifiers_from_patients)
+        if len(missing_patient_identifiers) > 0:
+            raise NeofoxDataValidationException(
+                "There are neoantigens referring to missing patients: {}".format(missing_patient_identifiers))
 
     def get_annotations(self) -> List[NeoantigenAnnotations]:
         """
