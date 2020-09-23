@@ -46,9 +46,8 @@ from neofox.references.references import ReferenceFolder, DependenciesConfigurat
 
 class NeoantigenAnnotator:
 
-    def __init__(self):
+    def __init__(self, references: ReferenceFolder):
         """class to annotate neoantigens"""
-        references = ReferenceFolder()
         configuration = DependenciesConfiguration()
         runner = Runner()
         self.dissimilarity_calculator = DissimilarityCalculator(

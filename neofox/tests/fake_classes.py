@@ -25,6 +25,9 @@ from neofox.references.references import ReferenceFolder
 
 class FakeReferenceFolder(ReferenceFolder):
 
+    available_mhc_i_alleles = ["A", "B"]
+    available_mhc_i_i_alleles = ["A", "B"]
+
     @staticmethod
     def _check_reference_genome_folder():
         return os.environ.get(neofox.REFERENCE_FOLDER_ENV, "")
