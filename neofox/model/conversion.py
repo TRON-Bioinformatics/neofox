@@ -61,10 +61,7 @@ class ModelConverter(object):
         ModelConverter._enrich_candidate_table(data)
         neoantigens = []
         for _, candidate_entry in data.iterrows():
-            neoantigen = ModelConverter._candidate_entry2model(candidate_entry, patient_id=patient_id)
-            neoantigens.append(ModelValidator.validate_neoantigen(neoantigen=neoantigen))
-        for n in neoantigens:
-            ModelValidator.validate(n)
+            neoantigens.append(ModelConverter._candidate_entry2model(candidate_entry, patient_id=patient_id))
         return neoantigens
 
     @staticmethod
@@ -87,8 +84,7 @@ class ModelConverter(object):
         :param neoantigens_file: the file to neoantigens data CSV file
         :return: the parsed CSV into model objects
         """
-        neoantigens = ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t').fillna(""))
-        return [ModelValidator.validate_neoantigen(neoantigen=n) for n in neoantigens]
+        return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t').fillna(""))
 
     @staticmethod
     def objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:

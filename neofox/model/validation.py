@@ -21,7 +21,8 @@ import hashlib
 
 import betterproto
 
-from neofox.model.neoantigen import Neoantigen, Mutation, Gene
+from neofox.exceptions import NeofoxDataValidationException
+from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
 
@@ -30,7 +31,10 @@ class ModelValidator(object):
     @staticmethod
     def validate(model: betterproto.Message):
         # TODO: make this method capture appropriately validation issues whend dealing with int and float
-        return model.__bytes__()
+        try:
+            model.__bytes__()
+        except Exception as e:
+            raise NeofoxDataValidationException(e)
 
     # TODO: add patient validation: validate GTEx tissue and MHC alleles
 
@@ -40,18 +44,30 @@ class ModelValidator(object):
         # checks format consistency first
         ModelValidator.validate(neoantigen)
 
-        # checks gene
-        # TODO: do we want to verify existence of gene and transcript id?
-        ModelValidator._validate_gene(neoantigen.gene)
+        try:
+            # checks gene
+            # TODO: do we want to verify existence of gene and transcript id?
+            ModelValidator._validate_gene(neoantigen.gene)
 
-        # checks mutation
-        neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
+            # checks mutation
+            neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
 
-        # check the expression values
-        ModelValidator._validate_expression_values(neoantigen)
+            # check the expression values
+            ModelValidator._validate_expression_values(neoantigen)
+        except AssertionError as e:
+            raise NeofoxDataValidationException(e)
 
         # infer other fields from the model
         return ModelValidator._enrich_neoantigen(neoantigen)
+
+    @staticmethod
+    def validate_patient(patient: Patient) -> Patient:
+
+        # checks format consistency first
+        ModelValidator.validate(patient)
+
+        # TODO: additional patient validation
+        return patient
 
     @staticmethod
     def _validate_expression_values(neoantigen):
