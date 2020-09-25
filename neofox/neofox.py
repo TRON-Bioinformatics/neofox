@@ -24,7 +24,8 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
-from neofox.references.references import ReferenceFolder
+
+from neofox.references.references import ReferenceFolder, AvailableAlleles
 
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
@@ -61,8 +62,7 @@ class NeoFox:
         # validates input data
         self.neoantigens = [ModelValidator.validate_neoantigen(n) for n in neoantigens]
         self.patients = {patient.identifier: ModelValidator.validate_patient(
-            patient, available_mhc_i_alelles=self.reference_folder.available_mhc_i,
-            available_mhc_i_i_alelles=self.reference_folder.available_mhc_ii) for patient in patients}
+            patient, available_alleles=reference_folder.get_available_alleles()) for patient in patients}
         self._validate_input_data()
 
         logger.info("Data loaded")

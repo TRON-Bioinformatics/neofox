@@ -20,9 +20,8 @@ import os
 from unittest import TestCase
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox import MHC_I, MHC_II
 from neofox.helpers import intermediate_files
-from neofox.helpers.available_alleles import AvailableAlleles
+from neofox.references.references import AvailableAlleles
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
@@ -34,7 +33,7 @@ class TestNetMhcPanPredictor(TestCase):
     def setUp(self):
         references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
-        self.available_alleles = AvailableAlleles(references=references)
+        self.available_alleles = references.get_available_alleles()
 
     def test_netmhcpan_epitope_iedb(self):
         netmhcpan_predictor = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)

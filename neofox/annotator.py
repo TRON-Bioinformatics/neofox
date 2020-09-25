@@ -22,7 +22,6 @@ from logzero import logger
 from datetime import datetime
 import neofox
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
@@ -41,7 +40,7 @@ from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicit
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration, AvailableAlleles
 
 
 class NeoantigenAnnotator:
@@ -59,7 +58,7 @@ class NeoantigenAnnotator:
         self.mixmhc2 = MixMhc2Pred(runner=runner, configuration=configuration)
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
-        self.available_alleles = AvailableAlleles(references)
+        self.available_alleles = references.get_available_alleles()
         self.uniprot = Uniprot(references.uniprot)
         self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
