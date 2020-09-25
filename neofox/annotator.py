@@ -97,7 +97,7 @@ class NeoantigenAnnotator:
         # HLA I predictions: NetMHCpan
         self.netmhcpan.run(
             sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            alleles=patient.mhc_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_i())
+            alleles=patient.mhc_i_alleles)
         self.annotations.annotations.extend(self.netmhcpan.get_annotations())
 
         # HLA II predictions: NetMHCIIpan
