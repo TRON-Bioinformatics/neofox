@@ -35,32 +35,10 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def check_format_allele(self, allele):
-        """
-        sometimes genotyping may be too detailed. (e.g. HLA-DRB1*04:01:01 should be HLA-DRB1*04:01)
-        :param allele: HLA-allele
-        :return: HLA-allele in correct format
-        """
-        # TODO: was added to netMHCIIpan too --> combine
-        if allele.count(":") > 1:
-            allele_correct = ":".join(allele.split(":")[0:2])
-        else:
-            allele_correct = allele
-        return allele_correct
-
-
-    def mhc_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
+    def mhc_prediction(self, hla_alleles, tmpfasta, tmppred):
         """ Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         """
-        alleles_for_prediction = []
-        for allele in hla_alleles:
-            allele = self.check_format_allele(allele)
-            allele = allele.replace("*", "")
-            if allele in set_available_mhc:
-                alleles_for_prediction.append(allele)
-            else:
-                logger.info(allele + "not available")
-        hla_allele = ",".join(alleles_for_prediction)
+        hla_allele = ",".join(hla_alleles)
         cmd = [
             self.configuration.net_mhc_pan,
             "-a", hla_allele,

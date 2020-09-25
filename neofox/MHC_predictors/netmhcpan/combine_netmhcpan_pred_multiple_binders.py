@@ -83,7 +83,7 @@ class BestAndMultipleBinder:
             phbr_i = stats.hmean(list_best_mhc_scores_per_allele)
         return phbr_i
 
-    def run(self, sequence_wt, sequence_mut, alleles, set_available_mhc):
+    def run(self, sequence_wt, sequence_mut, alleles):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
@@ -94,7 +94,7 @@ class BestAndMultipleBinder:
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_mut], prefix="tmp_singleseq_")
         # print alleles
-        np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
+        np.mhc_prediction(alleles, tmp_fasta, tmp_prediction)
         position_of_mutation = np.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
         predicted_neoepitopes = np.filter_binding_predictions(position_of_mutation=position_of_mutation, tmppred=tmp_prediction)
         # multiple binding
@@ -138,7 +138,7 @@ class BestAndMultipleBinder:
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_wt],
                                                          prefix="tmp_singleseq_")
-        np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
+        np.mhc_prediction(alleles, tmp_fasta, tmp_prediction)
         predicted_neoepitopes_wt = np.filter_binding_predictions(position_of_mutation=position_of_mutation,
                                                               tmppred=tmp_prediction)
         # best prediction
