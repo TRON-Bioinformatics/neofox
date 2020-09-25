@@ -61,6 +61,13 @@ class ReferenceFolder(object):
             self.available_mhc_ii, self.available_mhc_i, self.iedb, self.proteome_db, self.uniprot]
         self._check_resources(self.resources)
         self._log_configuration()
+        self.__available_alleles = None
+
+    def get_available_alleles(self):
+        # this enforces lazy initialisation (useful for testing)
+        if not self.__available_alleles:
+            self.__available_alleles = AvailableAlleles(self)
+        return self.__available_alleles
 
     @staticmethod
     def _check_reference_genome_folder():
@@ -92,3 +99,33 @@ class ReferenceFolder(object):
 
     def _get_reference_file_name(self, file_name_suffix):
         return os.path.join(self.reference_genome_folder, file_name_suffix)
+
+
+class AvailableAlleles(object):
+
+    def __init__(self, references):
+        self.available_mhc_i = self._load_available_hla_alleles(mhc=neofox.MHC_I, references=references)
+        self.available_mhc_ii = self._load_available_hla_alleles(mhc=neofox.MHC_II, references=references)
+
+    def _load_available_hla_alleles(self, references, mhc=neofox.MHC_I):
+        """
+        loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
+        :type references: neofox.references.ReferenceFolder
+        :type mhc: str
+        :rtype list:
+        """
+        if mhc == neofox.MHC_II:
+            fileMHC = references.available_mhc_ii
+        else:
+            fileMHC = references.available_mhc_i
+        set_available_mhc = set()
+        with open(fileMHC) as f:
+            for line in f:
+                set_available_mhc.add(line.strip())
+        return set_available_mhc
+
+    def get_available_mhc_i(self):
+        return self.available_mhc_i
+
+    def get_available_mhc_ii(self):
+        return self.available_mhc_ii

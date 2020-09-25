@@ -16,12 +16,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import re
 import base64
 import hashlib
-from typing import List
-
 import betterproto
-from neofox.references.references import ReferenceFolder
+from logzero import logger
+from neofox.references.references import AvailableAlleles
 
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient
@@ -29,6 +29,8 @@ from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
 
 class ModelValidator(object):
+
+    HLA_ALLELE_PATTERN = re.compile(r"HLA-([A|B|C|E|F|G])\*?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
 
     @staticmethod
     def validate(model: betterproto.Message):
@@ -63,18 +65,17 @@ class ModelValidator(object):
         return ModelValidator._enrich_neoantigen(neoantigen)
 
     @staticmethod
-    def validate_patient(patient: Patient, available_mhc_i_alelles: List[str],
-                         available_mhc_i_i_alelles: List[str]) -> Patient:
+    def validate_patient(patient: Patient, available_alleles: AvailableAlleles = None) -> Patient:
 
         # checks format consistency first
         ModelValidator.validate(patient)
 
         try:
             # checks MHC I alleles
-            ModelValidator._validate_mhc_i_alleles(patient.mhc_i_alleles, available_mhc_i_alelles)
+            patient.mhc_i_alleles = ModelValidator._validate_mhc_i_alleles(patient.mhc_i_alleles, available_alleles)
 
             # checks MHC II alleles
-            ModelValidator._validate_mhc_i_i_alleles(patient.mhc_i_i_alleles, available_mhc_i_i_alelles)
+            ModelValidator._validate_mhc_i_i_alleles(patient.mhc_i_i_alleles, available_alleles)
 
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
@@ -83,12 +84,36 @@ class ModelValidator(object):
         return patient
 
     @staticmethod
-    def _validate_mhc_i_alleles(alleles, available_alleles):
-        pass
+    def _validate_mhc_i_alleles(alleles, available_alleles: AvailableAlleles):
+        valid_alleles = []
+        for a in alleles:
+            valid_allele = ModelValidator._validate_mhc_allele_representation(a)
+            if available_alleles:
+                if valid_allele not in available_alleles.available_mhc_i:
+                    logger.warning(
+                        "MHC I allele {} is not supported by NetMHCpan and no binding or derived features will "
+                        "include it".format(valid_allele))
+                    continue        # not available alleles are removed from the list
+            valid_alleles.append(valid_allele)
+        return valid_alleles
 
     @staticmethod
     def _validate_mhc_i_i_alleles(alleles, available_alleles):
-        pass
+        for a in alleles:
+            if available_alleles:
+                if a not in available_alleles.available_mhc_ii:
+                    logger.warning(
+                        "MHC II allele {} is not supported by NetMHC2pan and no binding or derived features will "
+                        "include it")
+
+    @staticmethod
+    def _validate_mhc_allele_representation(allele: str) -> str:
+        match = ModelValidator.HLA_ALLELE_PATTERN.match(allele)
+        assert match is not None, "Allele does not match HLA allele pattern {}".format(allele)
+        gene = match.group(1)
+        serotype = match.group(2)
+        protein = match.group(3)
+        return "HLA-{gene}{serotype}:{protein}".format(gene=gene, serotype=serotype, protein=protein)
 
     @staticmethod
     def _validate_expression_values(neoantigen):
