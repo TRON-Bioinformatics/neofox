@@ -1,9 +1,8 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Gene, Neoantigen, Patient
+from neofox.model.neoantigen import Gene, Neoantigen, Patient, HlaAllele
 from neofox.model.validation import ModelValidator
-from neofox.tests.fake_classes import FakeAvailableAlleles
 
 
 class TestModelValidator(TestCase):
@@ -50,54 +49,139 @@ class TestModelValidator(TestCase):
         ModelValidator.validate(patient)
 
     def test_mhc_i_allele_validation(self):
-        patient = Patient(identifier="123", mhc_i_alleles=["HLA-A01:01"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="HLA-A01:01")])
         valid_patient = ModelValidator.validate_patient(patient)
         self.assertEqual(patient.mhc_i_alleles[0], valid_patient.mhc_i_alleles[0])
         # adds the colon to homogenise representation
-        patient.mhc_i_alleles = ["HLA-A0101"]
+        patient.mhc_i_alleles = [HlaAllele(name="HLA-A0101")]
         valid_patient = ModelValidator.validate_patient(patient)
-        self.assertEqual("HLA-A01:01", valid_patient.mhc_i_alleles[0])
+        self.assertEqual("HLA-A*01:01", valid_patient.mhc_i_alleles[0].name)
         # removes the star
-        patient.mhc_i_alleles = ["HLA-A*01:01"]
+        patient.mhc_i_alleles = [HlaAllele(name="HLA-A*01:01")]
         valid_patient = ModelValidator.validate_patient(patient)
-        self.assertEqual("HLA-A01:01", valid_patient.mhc_i_alleles[0])
+        self.assertEqual("HLA-A*01:01", valid_patient.mhc_i_alleles[0].name)
         # removes further information
-        patient.mhc_i_alleles = ["HLA-A01:01:02:03N"]
+        patient.mhc_i_alleles = [HlaAllele(name="HLA-A01:01:02:03N")]
         valid_patient = ModelValidator.validate_patient(patient)
-        self.assertEqual("HLA-A01:01", valid_patient.mhc_i_alleles[0])
-        patient.mhc_i_alleles = ["HLA-A01:01:02N"]
+        self.assertEqual("HLA-A*01:01", valid_patient.mhc_i_alleles[0].name)
+        patient.mhc_i_alleles = [HlaAllele(name="HLA-A01:01:02N")]
         valid_patient = ModelValidator.validate_patient(patient)
-        self.assertEqual("HLA-A01:01", valid_patient.mhc_i_alleles[0])
-        patient.mhc_i_alleles = ["HLA-A01:01N"]
+        self.assertEqual("HLA-A*01:01", valid_patient.mhc_i_alleles[0].name)
+        patient.mhc_i_alleles = [HlaAllele(name="HLA-A01:01N")]
         valid_patient = ModelValidator.validate_patient(patient)
-        self.assertEqual("HLA-A01:01", valid_patient.mhc_i_alleles[0])
+        self.assertEqual("HLA-A*01:01", valid_patient.mhc_i_alleles[0].name)
+        patient.mhc_i_alleles = [HlaAllele(gene="A", group="01", protein="01")]
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual("HLA-A*01:01", valid_patient.mhc_i_alleles[0].name)
+
+    def test_mhc_ii_allele_validation(self):
+        patient = Patient(identifier="123",
+                          mhc_i_i_alleles=[HlaAllele(name="HLA-DPA101:01"), HlaAllele(name="HLA-DPB101:01")])
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual(patient.mhc_i_i_alleles[0], valid_patient.mhc_i_i_alleles[0])
+        # adds the colon to homogenise representation
+        patient.mhc_i_i_alleles = [HlaAllele(name="HLA-DPA10101"), HlaAllele(name="HLA-DPB101:01")]
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual("HLA-DPA1*01:01", valid_patient.mhc_i_i_alleles[0].name)
+        # removes the star
+        patient.mhc_i_i_alleles = [HlaAllele(name="HLA-DPA1*01:01"), HlaAllele(name="HLA-DPB101:01")]
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual("HLA-DPA1*01:01", valid_patient.mhc_i_i_alleles[0].name)
+        # removes further information
+        patient.mhc_i_i_alleles = [HlaAllele(name="HLA-DPA101:01:02:03N"), HlaAllele(name="HLA-DPB101:01")]
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual("HLA-DPA1*01:01", valid_patient.mhc_i_i_alleles[0].name)
+        patient.mhc_i_i_alleles = [HlaAllele(name="HLA-DPA101:01:02N"), HlaAllele(name="HLA-DPB101:01")]
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual("HLA-DPA1*01:01", valid_patient.mhc_i_i_alleles[0].name)
+        patient.mhc_i_i_alleles = [HlaAllele(name="HLA-DPA101:01N"), HlaAllele(name="HLA-DPB101:01")]
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual("HLA-DPA1*01:01", valid_patient.mhc_i_i_alleles[0].name)
+        patient.mhc_i_i_alleles = [HlaAllele(gene="DPA1", group="01", protein="01"), HlaAllele(name="HLA-DPB101:01")]
+        valid_patient = ModelValidator.validate_patient(patient)
+        self.assertEqual("HLA-DPA1*01:01", valid_patient.mhc_i_i_alleles[0].name)
 
     def test_invalid_mhc_i_alleles(self):
         # P gene is not valid
-        patient = Patient(identifier="123", mhc_i_alleles=["HLA-P01:01"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="HLA-P01:01")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
         # serotype 1 is not valid
-        patient = Patient(identifier="123", mhc_i_alleles=["HLA-A1:01"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="HLA-A1:01")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
         # no protein information
-        patient = Patient(identifier="123", mhc_i_alleles=["HLA-A01"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="HLA-A01")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
         # bad protein format
-        patient = Patient(identifier="123", mhc_i_alleles=["HLA-A01:ABC"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="HLA-A01:ABC")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
         # wrong organism, only human
-        patient = Patient(identifier="123", mhc_i_alleles=["GOGO-A01:01"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="GOGO-A01:01")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
         # no gene
-        patient = Patient(identifier="123", mhc_i_alleles=["HLA-0123456"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="HLA-0123456")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
         # nonsense
-        patient = Patient(identifier="123", mhc_i_alleles=["nonsense"])
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(name="nonsense")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # missing protein
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="A", group="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # bad protein
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="A", group="01", protein="NaN")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # bad group
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="A", group="NaN", protein="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # non existing gene
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="Z", group="01", protein="01")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
 
-    def test_not_available_mhc_i_alleles(self):
-        patient = Patient(identifier="123", mhc_i_alleles=["HLA-A02:01", "HLA-A03:01"])
-        valid_patient = ModelValidator.validate_patient(
-            patient, available_alleles=FakeAvailableAlleles(available_mch_i=["HLA-A01:01", "HLA-A02:01"]))
-        self.assertTrue("HLA-A02:01" in valid_patient.mhc_i_alleles)
-        self.assertTrue("HLA-A03:01" not in valid_patient.mhc_i_alleles)
+    def test_invalid_mhc_ii_alleles(self):
+        # P gene is not valid
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(name="HLA-DPR01:01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # serotype 1 is not valid
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(name="HLA-DPA11:01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # no protein information
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(name="HLA-DPA101")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # bad protein format
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(name="HLA-DPA101:ABC")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # wrong organism, only human
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(name="GOGO-DPA101:01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # no gene
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(name="HLA-0123456")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # nonsense
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(name="nonsense")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # missing protein
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(gene="DPA1", group="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # bad protein
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(gene="DPA1", group="01", protein="NaN")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # bad group
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(gene="DPA1", group="NaN", protein="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # non existing gene
+        patient = Patient(identifier="123", mhc_i_i_alleles=[HlaAllele(gene="DPA1ZZZZ", group="01", protein="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+
+    def test_invalid_mhc_i_genotype(self):
+        # 3 alleles for gene A
+        patient = Patient(
+            identifier="123",
+            mhc_i_alleles=[HlaAllele(name="HLA-A01:01"), HlaAllele(name="HLA-A01:02"), HlaAllele(name="HLA-A01:03")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+
+    def test_invalid_mhc_ii_genotype(self):
+        # 3 alleles for gene A
+        patient = Patient(
+            identifier="123",
+            mhc_i_i_alleles=[HlaAllele(name="HLA-DPA101:01"), HlaAllele(name="HLA-DPA101:02"),
+                             HlaAllele(name="HLA-DPA101:03")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)

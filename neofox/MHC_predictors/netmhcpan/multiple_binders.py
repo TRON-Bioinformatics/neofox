@@ -16,10 +16,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+from typing import List
+
 import numpy as np
 import scipy.stats as stats
 from logzero import logger
 from neofox import MHC_I, MHC_II
+from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
+from neofox.model.neoantigen import HlaAllele
 
 
 class MultipleBinding:
@@ -41,20 +45,20 @@ class MultipleBinding:
         list_of_tuples.sort(key=lambda x: x[0])     # sort by rank
         return list_of_tuples
 
-
     def check_for_homozygosity(self, patient_alleles):
         """
         returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles. Otherwise retunrs empty list
         """
         return [allele for allele in patient_alleles if patient_alleles.count(allele) > 1]
 
-    def extract_best_epi_per_alelle(self, tuple_epis, alleles):
+    def extract_best_epi_per_alelle(self, tuple_epis, mhc_alleles: List[str]):
         """
         this function returns the predicted epitope with the lowest binding score for each patient allele, considering homozyogosity
         """
-        homo_alleles = self.check_for_homozygosity(alleles)
+        #  TODO: is this working?
+        homo_alleles = self.check_for_homozygosity(mhc_alleles)
         dict_allels = {}
-        for allele in alleles:
+        for allele in mhc_alleles:
             for epi in tuple_epis:
                 if allele == epi[-1]:
                     if allele not in dict_allels:

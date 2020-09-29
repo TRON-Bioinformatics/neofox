@@ -19,7 +19,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 
-from neofox.model.neoantigen import Annotation
+from neofox.references.references import DependenciesConfiguration
+
+from neofox.helpers.runner import Runner
+
+from neofox.model.neoantigen import Annotation, HlaAllele
+from neofox.model.validation import DRB1, DPA1, DPB1, DQA1, DQB1
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
@@ -27,11 +32,7 @@ from neofox.helpers import intermediate_files
 
 class MixMhc2Pred(AbstractMixMHCpred):
 
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self.load_available_alleles()
@@ -41,7 +42,6 @@ class MixMhc2Pred(AbstractMixMHCpred):
         self.best_peptide = None
         self.best_rank = None
         self.best_allele = None
-
 
     def load_available_alleles(self):
         """
@@ -61,46 +61,54 @@ class MixMhc2Pred(AbstractMixMHCpred):
                         available_alleles.append(line1)
         return available_alleles
 
-    def combine_dq_dp_alleles(self, list_alleles):
+    @staticmethod
+    def _combine_dq_dp_alleles(list_alleles: List[str]):
         """ returns patient HLA-DQ/HLA-DP allele combination that are relevant for MixMHC2pred
         """
+        # TODO: we need to clarify the formation of pairs here AA, BB, AB
+        # TODO: what are these triplets?
         alleles_pairs = ["__".join([allele_1, allele_2]) for allele_1 in list_alleles for allele_2 in list_alleles
                               if allele_1 != allele_2]
         alleles_triplets = ["__".join([allele_1, allele_2, allele_3]) for allele_1 in list_alleles
                                  for allele_2 in list_alleles for allele_3 in list_alleles
                                  if allele_1 != allele_2 and allele_1 != allele_3 and allele_2 != allele_3]
-        all_possible_alleles = alleles_pairs + alleles_triplets
-        alleles_for_prediction = [allele for allele in all_possible_alleles if allele in self.available_alleles]
-        return alleles_for_prediction
+        return alleles_pairs + alleles_triplets
 
-    def transform_hla_ii_alleles_for_prediction(self, hla_ii_alleles):
-        """ prepares list of HLA II alleles for prediction in required format
-        """
-        alleles_for_prediction = []
-        alleles_dq = []
-        alleles_dp = []
-        for allele in hla_ii_alleles:
-            allele = allele.replace("*", "_").replace(":", "_").replace("HLA-", "")
-            if allele.startswith("DR"):
-                if allele in self.available_alleles:
-                    alleles_for_prediction.append(allele)
-            elif allele.startswith("DP"):
-                alleles_dp.append(allele)
-            elif allele.startswith("DQ"):
-                alleles_dq.append(allele)
-        dp_alleles_for_prediction = self.combine_dq_dp_alleles(alleles_dp)
-        dq_alleles_for_prediction = self.combine_dq_dp_alleles(alleles_dq)
-        alleles_for_prediction = alleles_for_prediction + dq_alleles_for_prediction + dp_alleles_for_prediction
-        hla_ii_alleles_transformed = " ".join(alleles_for_prediction)
-        return hla_ii_alleles_transformed
+    @staticmethod
+    def _get_mixmhc2_allele_representation(hla_alleles: List[HlaAllele]):
+        return list(map(
+            lambda x: "{gene}_{group}_{protein}".format(gene=x.gene, group=x.group, protein=x.protein), hla_alleles))
 
-    def mixmhc2prediction(self, hla_ii_alleles, tmpfasta, outtmp):
-        """ Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
+    def _transform_hla_ii_alleles_for_prediction(self, mhc_ii_alleles: List[HlaAllele]) -> List[str]:
         """
-        hla_ii_alleles_for_prediction = self.transform_hla_ii_alleles_for_prediction(hla_ii_alleles)
+        prepares list of HLA II alleles for prediction in required format
+        """
+        drb1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DRB1)
+        dpa1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DPA1)
+        dpb1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DPB1)
+        dqa1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DQA1)
+        dqb1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DQB1)
+
+        dp_allele_combinations = self._combine_dq_dp_alleles(
+            self._get_mixmhc2_allele_representation(dpa1_alleles + dpb1_alleles))
+        dq_allele_combinations = self._combine_dq_dp_alleles(
+            self._get_mixmhc2_allele_representation(dqa1_alleles + dqb1_alleles))
+
+        return list(filter(
+            lambda a: a in self.available_alleles,
+            self._get_mixmhc2_allele_representation(drb1_alleles) + dq_allele_combinations + dp_allele_combinations))
+
+    @staticmethod
+    def _get_allele_names_by_gene(mhc_ii_alleles_names: List[HlaAllele], gene) -> List[HlaAllele]:
+        return list(filter(lambda x: x.gene == gene, mhc_ii_alleles_names))
+
+    def mixmhc2prediction(self, hla_ii_alleles: List[HlaAllele], tmpfasta, outtmp):
+        """
+        Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
+        """
         cmd = [
             self.configuration.mix_mhc2_pred,
-            "-a", hla_ii_alleles_for_prediction,
+            "-a", " ".join(self._transform_hla_ii_alleles_for_prediction(hla_ii_alleles)),
             "-i", tmpfasta,
             "-o", outtmp]
         self.runner.run_command(cmd)
@@ -123,8 +131,9 @@ class MixMhc2Pred(AbstractMixMHCpred):
         head_new = ["Peptide", "%Rank", "BestAllele"]
         return head_new, best_ligand
 
-    def run(self, alleles, sequence_wt, sequence_mut):
-        """Runs MixMHC2pred:
+    def run(self, mhc_alleles: List[HlaAllele], sequence_wt, sequence_mut):
+        """
+        Runs MixMHC2pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
         Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
         """
@@ -137,7 +146,7 @@ class MixMhc2Pred(AbstractMixMHCpred):
         # TODO: this needs to be fixed, we could filter the list of nmers by length
         if len(potential_ligand_sequences) > 0:
             try:
-                self.mixmhc2prediction(alleles, tmp_fasta, tmp_prediction)
+                self.mixmhc2prediction(mhc_alleles, tmp_fasta, tmp_prediction)
             except:
                 pass
             # TODO: also all of this try-catch needs to be fixed, in general the risk here is that they hide errors

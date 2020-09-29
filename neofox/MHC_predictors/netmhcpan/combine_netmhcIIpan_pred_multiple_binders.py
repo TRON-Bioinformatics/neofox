@@ -17,13 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List
+from typing import List, Set
 import scipy.stats as stats
+from logzero import logger
 
 import neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction as netmhcIIpan_prediction
 from neofox import MHC_II
 from neofox.helpers import intermediate_files
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, HlaAllele
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan import multiple_binders
 import neofox.helpers.casting as casting
@@ -75,7 +76,7 @@ class BestAndMultipleBinderMhcII:
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
 
-    def run(self, sequence, sequence_reference, alleles, set_available_mhc):
+    def run(self, sequence: str, sequence_reference: str, mhc_alleles: List[HlaAllele], available_mhc: Set):
         """predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         # mutation
@@ -84,15 +85,17 @@ class BestAndMultipleBinderMhcII:
         np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
-        alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
-        np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
+        allele_combinations = np.generate_mhc_ii_alelle_combinations(mhc_alleles)
+        patients_available_alleles = self._get_only_available_combinations(allele_combinations, available_mhc)
+
+        np.mhcII_prediction(patients_available_alleles, tmp_fasta, tmp_prediction)
         position_mutation = np.mut_position_xmer_seq(sequence_wt=sequence_reference, sequence_mut=sequence)
         if len(sequence) >= 15:
             predicted_epitopes = np.filter_binding_predictions(position_mutation, tmp_prediction)
             # multiple binding
             predicted_epitopes_transformed = mb.transform_mhc_prediction_output(predicted_epitopes, mhc=MHC_II)
             best_predicted_epitopes_per_alelle = \
-                mb.extract_best_epi_per_alelle(predicted_epitopes_transformed, alleles_formated)
+                mb.extract_best_epi_per_alelle(predicted_epitopes_transformed, patients_available_alleles)
             self.MHCII_score_best_per_alelle = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
             # best prediction
             best_predicted_epitope_rank = np.minimal_binding_score(predicted_epitopes)
@@ -110,7 +113,7 @@ class BestAndMultipleBinderMhcII:
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta([sequence_reference], prefix="tmp_singleseq_")
-        np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
+        np.mhcII_prediction(patients_available_alleles, tmp_fasta, tmp_prediction)
         if len(sequence_reference) >= 15:
             predicted_epitopes_wt = np.filter_binding_predictions(position_mutation, tmp_prediction)
             # best prediction
@@ -126,6 +129,16 @@ class BestAndMultipleBinderMhcII:
             self.best_mhcII_affinity_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Affinity(nM)"))
             self.best_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
             self.best_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Allele")
+
+    @staticmethod
+    def _get_only_available_combinations(allele_combinations, set_available_mhc):
+        patients_available_alleles = list(filter(lambda x: x in set_available_mhc, allele_combinations))
+        patients_not_available_alleles = list(set(allele_combinations).difference(set(set_available_mhc)))
+        if len(patients_not_available_alleles) > 0:
+            logger.warning(
+                "MHC II alleles {} are not supported by NetMHC2pan and no binding or derived features will "
+                "include it".format(",".join(patients_not_available_alleles)))
+        return patients_available_alleles
 
     def get_annotations(self) -> List[Annotation]:
         annotations =  [

@@ -61,8 +61,7 @@ class NeoFox:
 
         # validates input data
         self.neoantigens = [ModelValidator.validate_neoantigen(n) for n in neoantigens]
-        self.patients = {patient.identifier: ModelValidator.validate_patient(
-            patient, available_alleles=reference_folder.get_available_alleles()) for patient in patients}
+        self.patients = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
         self._validate_input_data()
 
         logger.info("Data loaded")
