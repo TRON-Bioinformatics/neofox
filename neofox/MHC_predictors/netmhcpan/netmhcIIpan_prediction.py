@@ -19,12 +19,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 import tempfile
+from typing import List, Set
 
 from logzero import logger
 
 from neofox.helpers import data_import
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
+from neofox.model.neoantigen import HlaAllele
+from neofox.model.validation import DPB1, DPA1, DRB1, DQA1, DQB1
 
 
 class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
@@ -37,62 +40,41 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def check_format_allele(self, allele):
-        """
-        sometimes genotyping may be too detailed. (e.g. HLA-DRB1*04:01:01 should be HLA-DRB1*04:01)
-        :param allele: HLA-allele
-        :return: HLA-allele in correct format
-        """
-        if allele.count(":") > 1:
-            allele_correct = ":".join(allele.split(":")[0:2])
-        else:
-            allele_correct = allele
-        return allele_correct
-
-    def generate_mhcII_alelles_combination_list(self, hla_alleles, set_available_mhc):
+    def generate_mhc_ii_alelle_combinations(self, hla_alleles: List[HlaAllele]) -> List[str]:
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
-        allels_for_prediction = []
-        dqa_alleles = []
-        dpa_alleles = []
-        dqb_alleles = []
-        dpb_alleles = []
-        for allele in hla_alleles:
-            allele = self.check_format_allele(allele)
-            if allele.startswith("HLA-DRB1"):
-                allele = allele.replace("HLA-", "").replace("*", "_").replace(":", "")
-                if allele in set_available_mhc:
-                    allels_for_prediction.append(allele)
-                else:
-                    logger.warn(allele + " not available")
-            else:
-                allele = allele.replace("*", "").replace(":", "")
-                if allele.startswith("HLA-DPA"):
-                    dpa_alleles.append(allele)
-                elif allele.startswith("HLA-DPB"):
-                    dpb_alleles.append(allele)
-                elif allele.startswith("HLA-DQA"):
-                    dqa_alleles.append(allele)
-                elif allele.startswith("HLA-DQB"):
-                    dqb_alleles.append(allele)
-        dp_alleles = ["-".join([x, y.replace("HLA-", "")]) for x in dpa_alleles for y in dpb_alleles]
-        dq_alleles = ["-".join([x, y.replace("HLA-", "")]) for x in dqa_alleles for y in dqb_alleles]
-        dp_dq_alleles = dp_alleles + dq_alleles
-        for allele in dp_dq_alleles:
-            if allele in set_available_mhc:
-                allels_for_prediction.append(allele)
-        return allels_for_prediction
+        drb1_alleles = list(map(
+            lambda x: self._represent_drb1_allele(x),
+            filter(lambda x: x.gene == DRB1, hla_alleles)))
+        dpa1_alleles = list(filter(lambda x: x.gene == DPA1, hla_alleles))
+        dpb1_alleles = list(filter(lambda x: x.gene == DPB1, hla_alleles))
+        dqa1_alleles = list(filter(lambda x: x.gene == DQA1, hla_alleles))
+        dqb1_alleles = list(filter(lambda x: x.gene == DQB1, hla_alleles))
+        dp_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dpa1_alleles for b in dpb1_alleles]
+        dq_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dqa1_alleles for b in dqb1_alleles]
 
-    def mhcII_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
+        return drb1_alleles + dp_alleles + dq_alleles
+
+    @staticmethod
+    def _represent_drb1_allele(hla_allele: HlaAllele):
+        return "{gene}_{group}{protein}".format(
+            gene=hla_allele.gene, group=hla_allele.group, protein=hla_allele.protein)
+
+    @staticmethod
+    def _represent_dp_and_dq_allele(hla_a_allele: HlaAllele, hla_b_allele: HlaAllele):
+        return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
+            gene_a=hla_a_allele.gene, group_a=hla_a_allele.group, protein_a=hla_a_allele.protein,
+            gene_b=hla_b_allele.gene, group_b=hla_b_allele.group, protein_b=hla_b_allele.protein)
+
+    def mhcII_prediction(self, hla_alleles: List[str], tmpfasta, tmppred):
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file.
         """
-        alleles_for_prediction = self.generate_mhcII_alelles_combination_list(hla_alleles, set_available_mhc)
-        hla_allele = ",".join(alleles_for_prediction)
+        # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command([
             self.configuration.net_mhc2_pan,
-            "-a", hla_allele,
+            "-a", ",".join(hla_alleles),
             "-f", tmpfasta,
             "-tdir", tmp_folder,
             "-dirty"])
@@ -164,3 +146,19 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 epitopes_wt.append(i)
         all_epitopes_wt = (header, epitopes_wt)
         return self.minimal_binding_score(all_epitopes_wt)
+
+    @staticmethod
+    def _get_alleles_netmhcpan_representation(hla_alleles: List[HlaAllele]) -> List[str]:
+        return list(map(lambda x: "HLA-{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
+                        hla_alleles))
+
+    @staticmethod
+    def _get_only_available_alleles(hla_alleles: List[str], set_available_mhc: Set[str]) -> str:
+        patients_available_alleles = ",".join(list(filter(
+            lambda x: x in set_available_mhc,
+            AbstractNetMhcPanPredictor._get_alleles_netmhcpan_representation(hla_alleles))))
+        patients_not_available_alleles = list(set(hla_alleles).difference(set(set_available_mhc)))
+        if len(patients_not_available_alleles) > 0:
+            logger.warning("Some alleles from the patient are not available in netmhcpan: {}".format(
+                ",".join(patients_not_available_alleles)))
+        return patients_available_alleles

@@ -91,4 +91,8 @@ For building the reference data we will need `makeblastdb`, set the environment 
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
 ```
 
+Set the environment variable `NEOFOX_REFERENCE_FOLDER` pointing to your references folder.
+
 Run the script in the neofox repository `neofox/references/build_references.sh` from your reference folder.
+
+

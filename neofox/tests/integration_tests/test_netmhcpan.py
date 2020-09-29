@@ -42,14 +42,15 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhcpan_predictor.mhc_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction, hla_alleles=TEST_HLAI_ALLELES)
+            tmpfasta=tmp_fasta, tmppred=tmp_prediction, hla_alleles=TEST_HLAI_ALLELES,
+            set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.assertTrue(os.path.exists(tmp_prediction))
-        self.assertEqual(166, len(open(tmp_prediction).readlines()))
+        self.assertEqual(19, len(open(tmp_prediction).readlines()))
         header, rows = netmhcpan_predictor.filter_binding_predictions([4], tmp_prediction)
         self.assertEqual(14, len(header))  # output has 14 columns
         for r in rows:
             self.assertEqual(14, len(r))  # each row has 14 columns
-        self.assertEqual(165, len(rows))
+        self.assertEqual(18, len(rows))
 
     def test_netmhcpan_too_small_epitope(self):
         netmhcpan_predictor = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
@@ -57,10 +58,12 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhcpan_predictor.mhc_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction, hla_alleles=TEST_HLAI_ALLELES)
+            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
+            hla_alleles=TEST_HLAI_ALLELES,
+            set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.assertTrue(os.path.exists(tmp_prediction))
         # TODO: this is writing ot the output file "No;peptides;derived;from;protein;ID;seq1;len;4.;Skipped"
-        self.assertEqual(55, len(open(tmp_prediction).readlines()))
+        self.assertEqual(6, len(open(tmp_prediction).readlines()))
 
         # TODO: it crashes here as it fails to parse the header. Fix and remove the try-except
         try:
@@ -79,16 +82,16 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhc2pan_predictor.mhcII_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction, hla_alleles=TEST_HLAII_ALLELES,
-            set_available_mhc=self.available_alleles.get_available_mhc_ii())
+            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
+            hla_alleles=netmhc2pan_predictor.generate_mhc_ii_alelle_combinations(TEST_HLAII_ALLELES))
         self.assertTrue(os.path.exists(tmp_prediction))
-        self.assertEqual(20, len(open(tmp_prediction).readlines()))
+        self.assertEqual(3, len(open(tmp_prediction).readlines()))
 
         header, rows = netmhc2pan_predictor.filter_binding_predictions([4], tmp_prediction)
         self.assertEqual(12, len(header))  # output has 14 columns
         for r in rows:
             self.assertTrue(len(r) <= 12 or len(r) >= 10)  # each row has 10 or 12 columns
-        self.assertEqual(19, len(rows))
+        self.assertEqual(2, len(rows))
 
     def test_netmhc2pan_too_small_epitope(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
@@ -97,8 +100,8 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhc2pan_predictor.mhcII_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction, hla_alleles=TEST_HLAII_ALLELES,
-            set_available_mhc=self.available_alleles.get_available_mhc_ii())
+            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
+            hla_alleles=netmhc2pan_predictor.generate_mhc_ii_alelle_combinations(TEST_HLAII_ALLELES))
         self.assertTrue(os.path.exists(tmp_prediction))
         self.assertEqual(1, len(open(tmp_prediction).readlines()))
 
