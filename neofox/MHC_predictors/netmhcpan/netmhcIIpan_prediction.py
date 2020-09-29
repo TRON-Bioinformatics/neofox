@@ -28,6 +28,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
 from neofox.model.neoantigen import HlaAllele
 from neofox.model.validation import DPB1, DPA1, DRB1, DQA1, DQB1
+from neofox.model.wrappers import get_alleles_by_gene
 
 
 class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
@@ -44,13 +45,11 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
-        drb1_alleles = list(map(
-            lambda x: self._represent_drb1_allele(x),
-            filter(lambda x: x.gene == DRB1, hla_alleles)))
-        dpa1_alleles = list(filter(lambda x: x.gene == DPA1, hla_alleles))
-        dpb1_alleles = list(filter(lambda x: x.gene == DPB1, hla_alleles))
-        dqa1_alleles = list(filter(lambda x: x.gene == DQA1, hla_alleles))
-        dqb1_alleles = list(filter(lambda x: x.gene == DQB1, hla_alleles))
+        drb1_alleles = list(map(lambda x: self._represent_drb1_allele(x), get_alleles_by_gene(hla_alleles, DRB1)))
+        dpa1_alleles = get_alleles_by_gene(hla_alleles, DPA1)
+        dpb1_alleles = get_alleles_by_gene(hla_alleles, DPB1)
+        dqa1_alleles = get_alleles_by_gene(hla_alleles, DQA1)
+        dqb1_alleles = get_alleles_by_gene(hla_alleles, DQB1)
         dp_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dpa1_alleles for b in dpb1_alleles]
         dq_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dqa1_alleles for b in dqb1_alleles]
 
