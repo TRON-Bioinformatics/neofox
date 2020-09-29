@@ -25,7 +25,7 @@ from neofox.helpers.runner import Runner
 
 from neofox.model.neoantigen import Annotation, HlaAllele
 from neofox.model.validation import DRB1, DPA1, DPB1, DQA1, DQB1
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.wrappers import AnnotationFactory, get_alleles_by_gene
 from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
 
@@ -83,11 +83,11 @@ class MixMhc2Pred(AbstractMixMHCpred):
         """
         prepares list of HLA II alleles for prediction in required format
         """
-        drb1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DRB1)
-        dpa1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DPA1)
-        dpb1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DPB1)
-        dqa1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DQA1)
-        dqb1_alleles = self._get_allele_names_by_gene(mhc_ii_alleles, DQB1)
+        drb1_alleles = get_alleles_by_gene(mhc_ii_alleles, DRB1)
+        dpa1_alleles = get_alleles_by_gene(mhc_ii_alleles, DPA1)
+        dpb1_alleles = get_alleles_by_gene(mhc_ii_alleles, DPB1)
+        dqa1_alleles = get_alleles_by_gene(mhc_ii_alleles, DQA1)
+        dqb1_alleles = get_alleles_by_gene(mhc_ii_alleles, DQB1)
 
         dp_allele_combinations = self._combine_dq_dp_alleles(
             self._get_mixmhc2_allele_representation(dpa1_alleles + dpb1_alleles))
@@ -97,10 +97,6 @@ class MixMhc2Pred(AbstractMixMHCpred):
         return list(filter(
             lambda a: a in self.available_alleles,
             self._get_mixmhc2_allele_representation(drb1_alleles) + dq_allele_combinations + dp_allele_combinations))
-
-    @staticmethod
-    def _get_allele_names_by_gene(mhc_ii_alleles_names: List[HlaAllele], gene) -> List[HlaAllele]:
-        return list(filter(lambda x: x.gene == gene, mhc_ii_alleles_names))
 
     def mixmhc2prediction(self, hla_ii_alleles: List[HlaAllele], tmpfasta, outtmp):
         """
