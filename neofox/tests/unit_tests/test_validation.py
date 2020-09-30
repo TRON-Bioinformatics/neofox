@@ -185,3 +185,17 @@ class TestModelValidator(TestCase):
             mhc_i_i_alleles=[HlaAllele(name="HLA-DPA101:01"), HlaAllele(name="HLA-DPA101:02"),
                              HlaAllele(name="HLA-DPA101:03")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+
+    def test_empty_patient_identifier(self):
+        patient = Patient(identifier=None)
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        patient = Patient(identifier="")
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        patient = Patient(identifier="   ")
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+
+    def test_bad_is_rna_available(self):
+        ModelValidator.validate_patient(Patient(identifier="123", is_rna_available=True))
+        ModelValidator.validate_patient(Patient(identifier="123", is_rna_available=False))
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient,
+                          Patient(identifier="123", is_rna_available="False"))
