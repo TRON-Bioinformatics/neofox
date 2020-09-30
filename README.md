@@ -31,9 +31,15 @@ Annotation of mutated peptide sequences (mps) with published neo-epitope descrip
 - MixMHCpred 2.0.2
 - MixMHC2pred 1.1.3
 
+## Installation
+
+```
+pip install neofox
+```
+
 ## Configuration
 
-Follow the the instructions in `INSTALL.md` to install third-party dependencies and build the references folder.
+Follow the the instructions in `INSTALL.md` to install third-party dependencies and configure the references folder.
 
 ## Usage from the command line
 

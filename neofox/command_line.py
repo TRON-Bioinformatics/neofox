@@ -22,9 +22,29 @@ from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
 
+from neofox.references.installer import NeofoxReferenceInstaller
+
+
+def neofox_configure():
+    parser = ArgumentParser(
+        description='install the references required for neofox')
+    parser.add_argument('--reference-folder', dest='reference_folder',
+                        help='the folder with the references required for Neofox', required=True)
+
+    args = parser.parse_args()
+    reference_folder = args.reference_folder
+
+    # makes sure that the output folder exists
+    os.makedirs(reference_folder, exist_ok=True)
+
+    logger.info("Starting the installation of references")
+    NeofoxReferenceInstaller(reference_folder=reference_folder).install()
+    logger.info("Finished the installation of references!")
+
 
 def neofox_cli():
-    parser = ArgumentParser(description='adds patient information given in sample file of a cohort to neoantigen candidate file')
+    parser = ArgumentParser(
+        description='adds patient information given in sample file of a cohort to neoantigen candidate file')
     parser.add_argument('--model-file', dest='model_file',
                         help='input tabular file with neoantigen candidates represented by neoantigen model')
     parser.add_argument('--candidate-file', dest='candidate_file',
@@ -93,6 +113,7 @@ def _read_data(candidate_file, model_file, patients_data):
         neoantigens = ModelConverter.parse_neoantigens_file(model_file)
     patients = ModelConverter.parse_patients_file(patients_data)
     return neoantigens, patients
+
 
 def _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
