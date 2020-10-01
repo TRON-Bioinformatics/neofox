@@ -135,6 +135,13 @@ class TestModelValidator(TestCase):
         # non existing gene
         patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="Z", group="01", protein="01")])
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        # MHC I non classical
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="E", group="01", protein="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="F", group="01", protein="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
+        patient = Patient(identifier="123", mhc_i_alleles=[HlaAllele(gene="G", group="01", protein="01")])
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_patient, patient)
 
     def test_invalid_mhc_ii_alleles(self):
         # P gene is not valid
