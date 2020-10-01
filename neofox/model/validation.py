@@ -40,7 +40,7 @@ class ModelValidator(object):
 
     HLA_ALLELE_PATTERN = re.compile(
         r"(?:HLA-)(\w+)\*?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
-    VALID_MHC_I_GENES = ["A", "B", "C", "E", "F", "G"]
+    VALID_MHC_I_GENES = ["A", "B", "C"]     # only MHC I classical
     VALID_MHC_II_GENES = [DRB1, DPA1, DPB1, DQA1, DQB1]
 
     @staticmethod
