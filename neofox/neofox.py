@@ -24,6 +24,9 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
+
+from neofox.references.references import ReferenceFolder, AvailableAlleles
+
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
@@ -34,22 +37,19 @@ from neofox.model.validation import ModelValidator
 class NeoFox:
 
     def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int,
-                 work_folder=None, output_prefix=None):
+                 work_folder=None, output_prefix=None, reference_folder: ReferenceFolder = None):
 
         # initialise logs
-        if work_folder and os.path.exists(work_folder):
-            logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
-        else:
-            logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
-        if logfile is not None:
-            logzero.logfile(logfile)
-        # TODO: this does not work
-        logzero.loglevel(logging.DEBUG)
-        logger.info("Loading data...")
+        self._initialise_logs(output_prefix, work_folder)
 
         # initialise dask
         # TODO: number of threads is hard coded. Is there a better value for this?
         self.dask_client = Client(processes=True, n_workers=num_cpus, threads_per_worker=4)
+
+        # intialize references folder
+        # NOTE: uses the reference folder passed as a parameter if exists, this is here to make it testable with a fake
+        # reference folder
+        self.reference_folder = reference_folder if reference_folder else ReferenceFolder()
 
         if neoantigens is None or len(neoantigens) == 0 or patients is None or len(patients) == 0:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
@@ -65,6 +65,17 @@ class NeoFox:
         self._validate_input_data()
 
         logger.info("Data loaded")
+
+    def _initialise_logs(self, output_prefix, work_folder):
+        if work_folder and os.path.exists(work_folder):
+            logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
+        else:
+            logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
+        if logfile is not None:
+            logzero.logfile(logfile)
+        # TODO: this does not work
+        logzero.loglevel(logging.DEBUG)
+        logger.info("Loading data...")
 
     def _validate_input_data(self):
 
@@ -101,7 +112,7 @@ class NeoFox:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            futures.append(self.dask_client.submit(NeoFox.annotate_neoantigen, neoantigen, patient))
+            futures.append(self.dask_client.submit(NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder))
 
         annotations = self.dask_client.gather(futures)
         end = time.time()
@@ -110,10 +121,10 @@ class NeoFox:
         return annotations
 
     @staticmethod
-    def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient):
+    def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient, reference_folder: ReferenceFolder):
         logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
         start = time.time()
-        annotation = NeoantigenAnnotator().get_annotation(neoantigen, patient)
+        annotation = NeoantigenAnnotator(reference_folder).get_annotation(neoantigen, patient)
         end = time.time()
         logger.info("Elapsed time for annotating neoantigen {}: {} seconds".format(
             neoantigen.identifier, int(end - start)))

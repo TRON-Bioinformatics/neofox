@@ -125,7 +125,10 @@ class ModelConverter(object):
         """transforms an patients CSV into a list of objects"""
         patients = []
         for _, row in dataframe.iterrows():
-            patients.append(Patient().from_dict(row.to_dict()))
+            patient_dict = row.to_dict()
+            patient_dict['mhcIAlleles'] = [{'name': a} for a in patient_dict['mhcIAlleles']]
+            patient_dict['mhcIIAlleles'] = [{'name': a} for a in patient_dict['mhcIIAlleles']]
+            patients.append(Patient().from_dict(patient_dict))
         return patients
 
     @staticmethod
