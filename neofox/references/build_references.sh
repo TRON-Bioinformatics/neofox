@@ -18,7 +18,6 @@
 ## You should have received a copy of the GNU General Public License
 ## along with this program. If not, see <http://www.gnu.org/licenses/>.##
 
-
 # checks that required environment variables are defined
 if [ -z "$NEOFOX_NETMHCPAN" ]
 then
@@ -44,11 +43,8 @@ then
       exit 1
 fi
 
-if [ -z "$NEOFOX_RSCRIPT" ]
-then
-      echo "\$NEOFOX_RSCRIPT is empty"
-      exit 1
-fi
+# black magic to fetch the folder where the scripts to build the reference are
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 
 # available MHC alleles netMHCpan
@@ -61,7 +57,7 @@ $NEOFOX_NETMHC2PAN -list  > "$NEOFOX_REFERENCE_FOLDER"/avail_mhcII.txt
 mkdir "$NEOFOX_REFERENCE_FOLDER"/iedb
 wget "http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip" -O "$NEOFOX_REFERENCE_FOLDER"/iedb/Iedb.zip
 unzip "$NEOFOX_REFERENCE_FOLDER"/iedb/Iedb.zip -d "$NEOFOX_REFERENCE_FOLDER"/iedb/
-$NEOFOX_RSCRIPT "$NEOFOX_REFERENCE_FOLDER"/build_IEDB_db.R "$NEOFOX_REFERENCE_FOLDER"/iedb/
+python $DIR/build_IEDB_db.py "$NEOFOX_REFERENCE_FOLDER"/iedb/tcell_full_v3.csv "$NEOFOX_REFERENCE_FOLDER"/iedb/IEDB.fasta
 $NEOFOX_MAKEBLASTDB -in "$NEOFOX_REFERENCE_FOLDER"/iedb/IEDB.fasta -dbtype prot -parse_seqids -out "$NEOFOX_REFERENCE_FOLDER"/iedb/iedb
 
 # human proteome database
