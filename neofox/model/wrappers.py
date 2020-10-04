@@ -16,7 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from neofox.model.neoantigen import Annotation
+from typing import List
+
+from neofox.model.neoantigen import Annotation, HlaAllele
 
 NOT_AVAILABLE_VALUE = "NA"
 
@@ -36,3 +38,8 @@ class AnnotationFactory(object):
         if value is None:
             value = NOT_AVAILABLE_VALUE
         return Annotation(name=name, value=value)
+
+
+def get_alleles_by_gene(mhc_ii_alleles_names: List[HlaAllele], gene) -> List[HlaAllele]:
+    return list(filter(lambda x: x.gene == gene, mhc_ii_alleles_names))
+

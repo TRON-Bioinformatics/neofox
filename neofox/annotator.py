@@ -22,7 +22,6 @@ from logzero import logger
 from datetime import datetime
 import neofox
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
@@ -41,14 +40,13 @@ from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicit
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration, AvailableAlleles
 
 
 class NeoantigenAnnotator:
 
-    def __init__(self):
+    def __init__(self, references: ReferenceFolder):
         """class to annotate neoantigens"""
-        references = ReferenceFolder()
         configuration = DependenciesConfiguration()
         runner = Runner()
         self.dissimilarity_calculator = DissimilarityCalculator(
@@ -60,7 +58,7 @@ class NeoantigenAnnotator:
         self.mixmhc2 = MixMhc2Pred(runner=runner, configuration=configuration)
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
-        self.available_alleles = AvailableAlleles(references)
+        self.available_alleles = references.get_available_alleles()
         self.uniprot = Uniprot(references.uniprot)
         self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
@@ -99,13 +97,13 @@ class NeoantigenAnnotator:
         # HLA I predictions: NetMHCpan
         self.netmhcpan.run(
             sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            alleles=patient.mhc_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_i())
+            mhc_alleles=patient.mhc_i_alleles, available_mhc_alleles=self.available_alleles.get_available_mhc_i())
         self.annotations.annotations.extend(self.netmhcpan.get_annotations())
 
         # HLA II predictions: NetMHCIIpan
         self.netmhc2pan.run(
             sequence=neoantigen.mutation.mutated_xmer, sequence_reference=neoantigen.mutation.wild_type_xmer,
-            alleles=patient.mhc_i_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_ii())
+            mhc_alleles=patient.mhc_i_i_alleles, available_mhc=self.available_alleles.get_available_mhc_ii())
         self.annotations.annotations.extend(self.netmhc2pan.get_annotations())
 
         # Amplitude
@@ -150,12 +148,12 @@ class NeoantigenAnnotator:
         # MixMHCpred
         self.mixmhc.run(
             sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
-            alleles=patient.mhc_i_alleles)
+            mhc_alleles=patient.mhc_i_alleles)
         self.annotations.annotations.extend(self.mixmhc.get_annotations())
 
         # MixMHC2pred
         self.mixmhc2.run(
-            alleles=patient.mhc_i_i_alleles, sequence_wt=neoantigen.mutation.wild_type_xmer,
+            mhc_alleles=patient.mhc_i_i_alleles, sequence_wt=neoantigen.mutation.wild_type_xmer,
             sequence_mut=neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.mixmhc2.get_annotations())
 
