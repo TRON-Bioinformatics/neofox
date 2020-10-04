@@ -62,7 +62,7 @@ class ModelValidator(object):
         try:
             # checks gene
             # TODO: do we want to verify existence of gene and transcript id?
-            ModelValidator._validate_gene(neoantigen.gene)
+            neoantigen.gene = ModelValidator._validate_gene(neoantigen.gene)
 
             # checks mutation
             neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
@@ -82,6 +82,11 @@ class ModelValidator(object):
         ModelValidator.validate(patient)
 
         try:
+            # checks that patient id is not empty considering white spaces
+            patient_id = patient.identifier.strip() if patient.identifier else patient.identifier
+            assert patient_id is not None and patient_id != "", "Patient identifier is empty"
+            patient.identifier = patient_id
+
             # checks MHC I alleles
             patient.mhc_i_alleles = ModelValidator._validate_mhc_alleles(
                 patient.mhc_i_alleles, ModelValidator.VALID_MHC_I_GENES)
@@ -93,7 +98,6 @@ class ModelValidator(object):
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
 
-        # TODO: additional patient validation
         return patient
 
     @staticmethod
@@ -148,15 +152,20 @@ class ModelValidator(object):
         # checks aminoacids
         mutation.mutated_aminoacid = ModelValidator._validate_aminoacid(mutation.mutated_aminoacid)
         mutation.wild_type_aminoacid = ModelValidator._validate_aminoacid(mutation.wild_type_aminoacid)
+
         # checks left and right flanking regions
         assert mutation.left_flanking_region is not None, "Empty left flanking region"
+        mutation.left_flanking_region = mutation.left_flanking_region.strip()
         assert len(mutation.left_flanking_region) > 0, "Empty left flanking region"
         for aa in mutation.left_flanking_region:
             ModelValidator._validate_aminoacid(aa)
+
         assert mutation.right_flanking_region is not None, "Empty right flanking region"
+        mutation.right_flanking_region = mutation.right_flanking_region.strip()
         assert len(mutation.right_flanking_region) > 0, "Empty right flanking region"
         for aa in mutation.right_flanking_region:
             ModelValidator._validate_aminoacid(aa)
+
         # checks the position
         assert mutation.position is not None, "Empty position"
         assert isinstance(mutation.position, int), "Position must be an integer"
@@ -164,11 +173,26 @@ class ModelValidator(object):
         return mutation
 
     @staticmethod
-    def _validate_gene(gene: Gene):
-        assert gene.gene is not None and len(gene.gene) > 0, "Empty gene symbol"
-        assert gene.transcript_identifier is not None and len(gene.transcript_identifier) > 0, \
+    def _validate_gene(gene: Gene) -> Gene:
+
+        # TODO: validate that gene symbol exists
+        gene_name = gene.gene.strip() if gene.gene else gene.gene
+        assert gene_name is not None and len(gene_name) > 0, "Empty gene symbol"
+        gene.gene = gene_name
+
+        # TODO: validate that transcript identifier exists
+        transcript_identifier = gene.transcript_identifier.strip() if gene.transcript_identifier \
+            else gene.transcript_identifier
+        assert transcript_identifier is not None and len(transcript_identifier) > 0, \
             "Empty transcript identifier"
-        assert gene.assembly is None or gene.assembly == "hg19", "Other reference genome than hg19 is not supported"
+        gene.transcript_identifier = transcript_identifier
+
+        # TODO: support other assemblies
+        assembly = gene.assembly if gene.assembly else "hg19"
+        assert assembly == "hg19", "Other reference genome than hg19 is not supported"
+        gene.assembly = assembly
+
+        return gene
 
     @staticmethod
     def _validate_vaf(vaf):
@@ -192,6 +216,7 @@ class ModelValidator(object):
     @staticmethod
     def _validate_aminoacid(aminoacid):
         assert aminoacid is not None, "Aminoacid field cannot be empty"
+        aminoacid = aminoacid.strip()
         assert isinstance(aminoacid, str), "Aminoacid has to be a string"
         if len(aminoacid) == 3:
             assert aminoacid in IUPACData.protein_letters_3to1_extended.keys(), \
