@@ -135,7 +135,6 @@ class IedbFastaBuilder:
         filtered_iedb.loc[:, "antigen_id"] = filtered_iedb.loc[:, "Antigen IRI"].transform(
             lambda x: x.replace("http://www.ncbi.nlm.nih.gov/protein/", "", regex=True).replace(
                 "https://ontology.iedb.org/ontology/", "", regex=True))
-        logger.info(filtered_iedb.loc[:, "antigen_id"])
         filtered_iedb.loc[:, "organism_id"] = filtered_iedb.loc[:, "Organism IRI"].transform(
             lambda x: x.replace("http://purl.obolibrary.org/obo/NCBITaxon_", "", regex=True))
         filtered_iedb.loc[:, "fasta_header"] = filtered_iedb.apply(
