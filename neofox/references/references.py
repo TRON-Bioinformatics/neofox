@@ -22,28 +22,36 @@ import neofox
 from neofox.exceptions import NeofoxConfigurationException
 
 
-class DependenciesConfiguration(object):
+def _check_and_load_binary(variable_name):
+    variable_value = os.environ.get(variable_name, "")
+    if not variable_value:
+        raise NeofoxConfigurationException(
+            "Please, set the environment variable ${} pointing to the right binary!".format(
+                variable_name))
+    if not os.path.exists(variable_value):
+        raise NeofoxConfigurationException("The provided binary '{}' in ${} does not exist!".format(
+            variable_value, variable_name))
+    return variable_value
+
+
+class DependenciesConfiguration:
 
     def __init__(self):
-        self.blastp = self._check_and_load_binary(neofox.NEOFOX_BLASTP_ENV)
-        self.mix_mhc2_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHC2PRED_ENV)
+        self.blastp = _check_and_load_binary(neofox.NEOFOX_BLASTP_ENV)
+        self.mix_mhc2_pred = _check_and_load_binary(neofox.NEOFOX_MIXMHC2PRED_ENV)
         self.mix_mhc2_pred_alleles_list = os.path.join(os.path.dirname(self.mix_mhc2_pred), 'Alleles_list.txt')
-        self.mix_mhc_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHCPRED_ENV)
-        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
-        self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
-        self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
+        self.mix_mhc_pred = _check_and_load_binary(neofox.NEOFOX_MIXMHCPRED_ENV)
+        self.rscript = _check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
+        self.net_mhc2_pan = _check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
+        self.net_mhc_pan = _check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
 
-    @staticmethod
-    def _check_and_load_binary(variable_name):
-        variable_value = os.environ.get(variable_name, "")
-        if not variable_value:
-            raise NeofoxConfigurationException(
-                "Please, set the environment variable ${} pointing to the right binary!".format(
-                    variable_name))
-        if not os.path.exists(variable_value):
-            raise NeofoxConfigurationException("The provided binary '{}' in ${} does not exist!".format(
-                variable_value, variable_name))
-        return variable_value
+
+class DependenciesConfigurationForInstaller:
+
+    def __init__(self):
+        self.net_mhc2_pan = _check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
+        self.net_mhc_pan = _check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
+        self.make_blastdb = _check_and_load_binary(neofox.NEOFOX_MAKEBLASTDB_ENV)
 
 
 class ReferenceFolder(object):
@@ -55,7 +63,7 @@ class ReferenceFolder(object):
         self.available_mhc_i = self._get_reference_file_name('MHC_available.csv')
         self.iedb = self._get_reference_file_name('iedb')
         self.proteome_db = self._get_reference_file_name('proteome_db')
-        self.uniprot = self._get_reference_file_name('uniprot_human_with_isoforms.fasta')
+        self.uniprot = self._get_reference_file_name('proteome_db/Homo_sapiens.fa')
 
         self.resources = [
             self.available_mhc_ii, self.available_mhc_i, self.iedb, self.proteome_db, self.uniprot]
