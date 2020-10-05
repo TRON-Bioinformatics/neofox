@@ -20,10 +20,13 @@ import os
 
 import neofox
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from neofox.references.references import ReferenceFolder
+from neofox.references.references import ReferenceFolder, AvailableAlleles
 
 
 class FakeReferenceFolder(ReferenceFolder):
+
+    available_mhc_i_alleles = ["A", "B"]
+    available_mhc_ii_alleles = ["A", "B"]
 
     @staticmethod
     def _check_reference_genome_folder():
@@ -33,6 +36,10 @@ class FakeReferenceFolder(ReferenceFolder):
     def _check_resources(resources):
         pass
 
+    def get_available_alleles(self):
+        return FakeAvailableAlleles(
+            available_mch_i=self.available_mhc_i_alleles, available_mch_ii=self.available_mhc_ii_alleles)
+
 
 class FakeBestAndMultipleBinder(BestAndMultipleBinder):
 
@@ -40,3 +47,16 @@ class FakeBestAndMultipleBinder(BestAndMultipleBinder):
         self.best4_affinity_epitope = mutated_epitope
         self.best4_affinity = affinity
         self.best4_affinity_epitope_WT = wild_type_epitope
+
+
+class FakeAvailableAlleles(AvailableAlleles):
+
+    def __init__(self, available_mch_i=[], available_mch_ii=[]):
+        self.available_mhc_i = available_mch_i
+        self.available_mhc_ii = available_mch_ii
+
+    def get_available_mhc_i(self):
+        return self.available_mhc_i
+
+    def get_available_mhc_ii(self):
+        return self.available_mhc_ii

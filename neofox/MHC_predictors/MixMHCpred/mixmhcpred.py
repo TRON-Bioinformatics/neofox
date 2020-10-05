@@ -19,7 +19,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 from logzero import logger
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, HlaAllele
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
@@ -42,19 +42,18 @@ class MixMHCpred(AbstractMixMHCpred):
         self.best_rank = None
         self.best_allele = None
 
+    @staticmethod
+    def _get_mixmhc_allele_representation(hla_alleles: List[HlaAllele]):
+        return list(map(
+            lambda x: "{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein), hla_alleles))
 
-    def _mixmhcprediction(self, hla_alleles, tmpfasta, outtmp):
-        """ Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
+    def _mixmhcprediction(self, hla_alleles: List[HlaAllele], tmpfasta, outtmp):
         """
-        allels_for_prediction = []
-        for allele in hla_alleles:
-            allele = allele.replace("*", "")
-            allele = allele.replace("HLA-", "")
-            allels_for_prediction.append(allele)
-        hla_allele = ",".join(allels_for_prediction)
+        Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
+        """
         self.runner.run_command(cmd=[
             self.configuration.mix_mhc_pred,
-            "-a", hla_allele,
+            "-a", ",".join(self._get_mixmhc_allele_representation(hla_alleles)),
             "-i", tmpfasta,
             "-o", outtmp])
 
@@ -77,14 +76,14 @@ class MixMHCpred(AbstractMixMHCpred):
         head_new = ["Peptide", "Score_bestAllele", "%Rank_bestAllele", "BestAllele"]
         return head_new, best_ligand
 
-    def run(self, sequence_wt, sequence_mut, alleles):
+    def run(self, sequence_wt, sequence_mut, mhc_alleles: List[HlaAllele]):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         """
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred", suffix=".txt")
         seqs = self.generate_nmers(xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[8, 9, 10, 11])
         tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
-        self._mixmhcprediction(alleles, tmp_fasta, tmp_prediction)
+        self._mixmhcprediction(mhc_alleles, tmp_fasta, tmp_prediction)
         all_predicted_ligands = self.read_mixmhcpred(tmp_prediction)
         if len(all_predicted_ligands[1]) > 0:
             best_predicted_ligand = self._extract_best_peptide_per_mutation(all_predicted_ligands)

@@ -66,12 +66,6 @@ class ModelConverterTest(TestCase):
         neoantigen2 = ModelConverter.neoantigens_csv2object(csv_data)
         self.assertEqual(neoantigen, neoantigen2)
 
-    def test_patient_csv2model(self):
-        patients = [get_random_patient() for _ in range(5)]
-        csv_data = ModelConverter.objects2dataframe(patients)
-        patients2 = ModelConverter.patient_metadata_csv2objects(csv_data)
-        self._assert_lists_equal(patients, patients2)
-
     def test_neoantigen_annotations(self):
         neoantigen = get_random_neoantigen()
         annotations = NeoantigenAnnotations()
@@ -159,9 +153,11 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Ptx")
-        self.assertEqual(len(patients[0].mhc_i_alleles), 6)
-        self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
-        self.assertEqual(patients[0].is_rna_available, True)
+        self.assertEqual(6, len(patients[0].mhc_i_alleles))
+        self.assertTrue("HLA-A*03:01" in [a.name for a in patients[0].mhc_i_alleles])
+        self.assertEqual(10, len(patients[0].mhc_i_i_alleles))
+        self.assertTrue("HLA-DQA1*04:01" in [a.name for a in patients[0].mhc_i_i_alleles])
+        self.assertTrue(patients[0].is_rna_available)
 
     def test_annotations2short_wide_df(self):
         annotations = [

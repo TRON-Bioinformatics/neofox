@@ -17,14 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List
+from typing import List, Set
 import scipy.stats as stats
-
+from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 import neofox.MHC_predictors.netmhcpan.multiple_binders as multiple_binders
 import neofox.MHC_predictors.netmhcpan.netmhcpan_prediction as netmhcpan_prediction
 from neofox.helpers import intermediate_files
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, HlaAllele
 from neofox.model.wrappers import AnnotationFactory
 import neofox.helpers.casting as casting
 
@@ -83,7 +83,7 @@ class BestAndMultipleBinder:
             phbr_i = stats.hmean(list_best_mhc_scores_per_allele)
         return phbr_i
 
-    def run(self, sequence_wt, sequence_mut, alleles, set_available_mhc):
+    def run(self, sequence_wt: str, sequence_mut: str, mhc_alleles: List[HlaAllele], available_mhc_alleles: Set):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
@@ -94,7 +94,7 @@ class BestAndMultipleBinder:
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_mut], prefix="tmp_singleseq_")
         # print alleles
-        np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
+        np.mhc_prediction(mhc_alleles, available_mhc_alleles, tmp_fasta, tmp_prediction)
         position_of_mutation = np.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
         predicted_neoepitopes = np.filter_binding_predictions(position_of_mutation=position_of_mutation, tmppred=tmp_prediction)
         # multiple binding
@@ -126,7 +126,8 @@ class BestAndMultipleBinder:
         # multiple binding based on affinity
         all_affinities = mb.affinities_to_list(predicted_neoepitopes_transformed)
         self.generator_rate = mb.determine_number_of_binders(list_scores=all_affinities, threshold=50)
-        best_epitopes_per_allele = mb.extract_best_epi_per_alelle(predicted_neoepitopes_transformed, alleles)
+        best_epitopes_per_allele = mb.extract_best_epi_per_alelle(
+            predicted_neoepitopes_transformed, NetMhcPanPredictor.get_alleles_netmhcpan_representation(mhc_alleles))
         # PHBR-I
         best_epitopes_per_allele = mb.scores_to_list(best_epitopes_per_allele)
         self.phbr_i = self.calculate_phbr_i(best_epitopes_per_allele)
@@ -138,7 +139,7 @@ class BestAndMultipleBinder:
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_wt],
                                                          prefix="tmp_singleseq_")
-        np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
+        np.mhc_prediction(mhc_alleles, available_mhc_alleles, tmp_fasta, tmp_prediction)
         predicted_neoepitopes_wt = np.filter_binding_predictions(position_of_mutation=position_of_mutation,
                                                               tmppred=tmp_prediction)
         # best prediction
