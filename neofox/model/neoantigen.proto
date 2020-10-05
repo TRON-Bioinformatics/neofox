@@ -110,11 +110,11 @@ message Patient {
 	/**
 	MHC I alleles
 	*/
-	repeated string mhcIAlleles = 3;
+	repeated HlaAllele mhcIAlleles = 3;
 	/**
 	MHC II alleles
 	*/
-	repeated string mhcIIAlleles = 4;
+	repeated HlaAllele mhcIIAlleles = 4;
 }
 
 /**
@@ -160,4 +160,27 @@ message NeoantigenAnnotations {
 	Annotation resources MD5 hash
 	*/
 	string resourcesHash = 6;
+}
+
+/**
+HLA allele representation. It does not include non synonymous changes to the sequence, changes in the non coding region
+or changes in expression.
+ */
+message HlaAllele {
+	/**
+	HLA allele name according to http://hla.alleles.org/nomenclature/naming.html
+	 */
+	string name = 1;
+	/**
+	The gene from either MHC I or II.
+	 */
+	string gene = 2;
+	/**
+	A group of alleles defined by a common serotype
+	 */
+	string group = 3;
+	/**
+	A specific HLA protein
+	 */
+	string protein = 4;
 }
