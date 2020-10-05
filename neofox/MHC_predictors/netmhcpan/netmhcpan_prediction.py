@@ -24,7 +24,7 @@ from logzero import logger
 from neofox.helpers import data_import
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
-from neofox.model.neoantigen import HlaAllele
+from neofox.model.neoantigen import MhcOneMolecule
 
 
 class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
@@ -37,12 +37,12 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def mhc_prediction(self, hla_alleles: List[HlaAllele], set_available_mhc: Set, tmpfasta, tmppred):
+    def mhc_prediction(self, mhc_molecules: List[MhcOneMolecule], set_available_mhc: Set, tmpfasta, tmppred):
         """ Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         """
         cmd = [
             self.configuration.net_mhc_pan,
-            "-a", self._get_only_available_alleles(hla_alleles, set_available_mhc),
+            "-a", self._get_only_available_alleles(mhc_molecules, set_available_mhc),
             "-f", tmpfasta,
             "-BA"]
         lines, _ = self.runner.run_command(cmd)
@@ -147,13 +147,13 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         return self.minimal_binding_score(all_epitopes_wt)
 
     @staticmethod
-    def get_alleles_netmhcpan_representation(hla_alleles: List[HlaAllele]) -> List[str]:
+    def get_alleles_netmhcpan_representation(mhc_molecules: List[MhcOneMolecule]) -> List[str]:
         return list(map(lambda x: "HLA-{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
-                        hla_alleles))
+                        [a for m in mhc_molecules for a in m.gene.alleles]))
 
     @staticmethod
-    def _get_only_available_alleles(hla_alleles: List[HlaAllele], set_available_mhc: Set[str]) -> str:
-        hla_alleles_names = NetMhcPanPredictor.get_alleles_netmhcpan_representation(hla_alleles)
+    def _get_only_available_alleles(mhc_molecules: List[MhcOneMolecule], set_available_mhc: Set[str]) -> str:
+        hla_alleles_names = NetMhcPanPredictor.get_alleles_netmhcpan_representation(mhc_molecules)
         patients_available_alleles = ",".join(list(filter(lambda x: x in set_available_mhc, hla_alleles_names)))
         patients_not_available_alleles = list(set(hla_alleles_names).difference(set(set_available_mhc)))
         if len(patients_not_available_alleles) > 0:

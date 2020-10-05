@@ -16,10 +16,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from neofox.model.neoantigen import HlaAllele
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelConverter
 
-TEST_HLAI_ALLELES = ModelValidator._validate_mhc_alleles([HlaAllele(name=a) for a in [
+
+TEST_HLAI_ALLELES = [ModelConverter.parse_mhc_allele(a) for a in [
     'HLA-A*24:02', 'HLA-A*02:01', 'HLA-B*15:01', 'HLA-B*44:02', 'HLA-C*07:02', 'HLA-C*05:01'
     #'HLA-A*24:02', 'HLA-B*27:05', 'HLA-B*52:01', 'HLA-C*01:02', 'HLA-C*12:02',
     #'HLA-A*01:01', 'HLA-B*56:01', 'HLA-B*38:01', 'HLA-C*01:02', 'HLA-C*06:02',
@@ -30,9 +30,9 @@ TEST_HLAI_ALLELES = ModelValidator._validate_mhc_alleles([HlaAllele(name=a) for 
     #'HLA-A*03:01', 'HLA-A*01:01', 'HLA-B*08:01', 'HLA-B*35:01', 'HLA-C*07:01', 'HLA-C*04:01',
     #'HLA-A*24:02', 'HLA-A*68:01', 'HLA-B*35:03', 'HLA-B*13:02', 'HLA-C*06:02', 'HLA-C*04:01',
     #'HLA-A*01:01', 'HLA-B*37:01', 'HLA-B*08:01', 'HLA-C*06:02', 'HLA-C*07:01'
-    ]], ModelValidator.VALID_MHC_I_GENES)
+    ]]
 
-TEST_HLAII_ALLELES = ModelValidator._validate_mhc_alleles([HlaAllele(name=a) for a in [
+TEST_HLAII_ALLELES = [ModelConverter.parse_mhc_allele(a) for a in [
     'HLA-DRB1*04:01', 'HLA-DRB1*04:04', 'HLA-DQB1*03:01', 'HLA-DQB1*03:02',
     #'HLA-DRB1*11:01', 'HLA-DRB1*01:01', 'HLA-DQB1*05:01', 'HLA-DQB1*03:01',
     #'HLA-DRB1*11:04', 'HLA-DRB1*07:01', 'HLA-DQB1*02:02', 'HLA-DQB1*03:01',
@@ -43,4 +43,4 @@ TEST_HLAII_ALLELES = ModelValidator._validate_mhc_alleles([HlaAllele(name=a) for
     #'HLA-DRB1*03:01', 'HLA-DRB1*07:01', 'HLA-DQB1*02:02', 'HLA-DQB1*02:01',
     #'HLA-DRB1*15:01', 'HLA-DRB1*12:01', 'HLA-DQB1*06:02', 'HLA-DQB1*03:01',
     #'HLA-DRB1*11:01', 'HLA-DRB1*03:01', 'HLA-DQB1*03:01', 'HLA-DQB1*02:01'
-    ]], ModelValidator.VALID_MHC_II_GENES)
+    ]]

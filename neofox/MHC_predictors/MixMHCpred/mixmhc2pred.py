@@ -23,8 +23,7 @@ from neofox.references.references import DependenciesConfiguration
 
 from neofox.helpers.runner import Runner
 
-from neofox.model.neoantigen import Annotation, HlaAllele
-from neofox.model.validation import DRB1, DPA1, DPB1, DQA1, DQB1
+from neofox.model.neoantigen import Annotation, MhcTwoMolecule, MhcTwoGeneName, MhcAllele
 from neofox.model.wrappers import AnnotationFactory, get_alleles_by_gene
 from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
@@ -75,19 +74,19 @@ class MixMhc2Pred(AbstractMixMHCpred):
         return alleles_pairs + alleles_triplets
 
     @staticmethod
-    def _get_mixmhc2_allele_representation(hla_alleles: List[HlaAllele]):
+    def _get_mixmhc2_allele_representation(hla_alleles: List[MhcAllele]):
         return list(map(
             lambda x: "{gene}_{group}_{protein}".format(gene=x.gene, group=x.group, protein=x.protein), hla_alleles))
 
-    def _transform_hla_ii_alleles_for_prediction(self, mhc_ii_alleles: List[HlaAllele]) -> List[str]:
+    def _transform_hla_ii_alleles_for_prediction(self, mhc_molecules: List[MhcTwoMolecule]) -> List[str]:
         """
         prepares list of HLA II alleles for prediction in required format
         """
-        drb1_alleles = get_alleles_by_gene(mhc_ii_alleles, DRB1)
-        dpa1_alleles = get_alleles_by_gene(mhc_ii_alleles, DPA1)
-        dpb1_alleles = get_alleles_by_gene(mhc_ii_alleles, DPB1)
-        dqa1_alleles = get_alleles_by_gene(mhc_ii_alleles, DQA1)
-        dqb1_alleles = get_alleles_by_gene(mhc_ii_alleles, DQB1)
+        drb1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DRB1)
+        dpa1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DPA1)
+        dpb1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DPB1)
+        dqa1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DQA1)
+        dqb1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DQB1)
 
         dp_allele_combinations = self._combine_dq_dp_alleles(
             self._get_mixmhc2_allele_representation(dpa1_alleles + dpb1_alleles))
@@ -98,13 +97,13 @@ class MixMhc2Pred(AbstractMixMHCpred):
             lambda a: a in self.available_alleles,
             self._get_mixmhc2_allele_representation(drb1_alleles) + dq_allele_combinations + dp_allele_combinations))
 
-    def mixmhc2prediction(self, hla_ii_alleles: List[HlaAllele], tmpfasta, outtmp):
+    def mixmhc2prediction(self, mhc_molecules: List[MhcTwoMolecule], tmpfasta, outtmp):
         """
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         """
         cmd = [
             self.configuration.mix_mhc2_pred,
-            "-a", " ".join(self._transform_hla_ii_alleles_for_prediction(hla_ii_alleles)),
+            "-a", " ".join(self._transform_hla_ii_alleles_for_prediction(mhc_molecules)),
             "-i", tmpfasta,
             "-o", outtmp]
         self.runner.run_command(cmd)
@@ -127,7 +126,7 @@ class MixMhc2Pred(AbstractMixMHCpred):
         head_new = ["Peptide", "%Rank", "BestAllele"]
         return head_new, best_ligand
 
-    def run(self, mhc_alleles: List[HlaAllele], sequence_wt, sequence_mut):
+    def run(self, mhc_molecules: List[MhcTwoMolecule], sequence_wt, sequence_mut):
         """
         Runs MixMHC2pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
@@ -142,7 +141,7 @@ class MixMhc2Pred(AbstractMixMHCpred):
         # TODO: this needs to be fixed, we could filter the list of nmers by length
         if len(potential_ligand_sequences) > 0:
             try:
-                self.mixmhc2prediction(mhc_alleles, tmp_fasta, tmp_prediction)
+                self.mixmhc2prediction(mhc_molecules, tmp_fasta, tmp_prediction)
             except:
                 pass
             # TODO: also all of this try-catch needs to be fixed, in general the risk here is that they hide errors

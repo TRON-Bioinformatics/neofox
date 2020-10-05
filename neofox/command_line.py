@@ -94,6 +94,7 @@ def _read_data(candidate_file, model_file, patients_data):
     patients = ModelConverter.parse_patients_file(patients_data)
     return neoantigens, patients
 
+
 def _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter

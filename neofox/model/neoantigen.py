@@ -7,6 +7,49 @@ from typing import List
 import betterproto
 
 
+class Zygosity(betterproto.Enum):
+    """* The zygosity of a given gene"""
+
+    # * Two equal copies of the gene
+    HOMOZYGOUS = 0
+    # * Two different copies of the gene
+    HETEROZYGOUS = 1
+    # * Only one copy of the gene
+    HEMIZYGOUS = 2
+    # * No copy of the gene
+    LOSS = 3
+
+
+class MhcOneGeneName(betterproto.Enum):
+    """* Valid names for MHC I classic genes"""
+
+    A = 0
+    B = 1
+    C = 2
+
+
+class MhcTwoGeneName(betterproto.Enum):
+    """
+    * Valid names for MHC II classic genes. DRA is not included in this list as
+    it does not have much variability in the population and for our purpose is
+    considered constant.
+    """
+
+    DRB1 = 0
+    DPA1 = 1
+    DPB1 = 2
+    DQA1 = 3
+    DQB1 = 4
+
+
+class MhcTwoMoleculeName(betterproto.Enum):
+    """* Valid names for MHC II classic molecules"""
+
+    DR = 0
+    DP = 1
+    DQ = 2
+
+
 @dataclass
 class Gene(betterproto.Message):
     # * The genome assembly to which the gene definition refers to (e.g.: GRCh37,
@@ -78,10 +121,10 @@ class Patient(betterproto.Message):
     identifier: str = betterproto.string_field(1)
     # * Is RNA expression available?
     is_rna_available: bool = betterproto.bool_field(2)
-    # * MHC I alleles
-    mhc_i_alleles: List["HlaAllele"] = betterproto.message_field(3)
-    # * MHC II alleles
-    mhc_i_i_alleles: List["HlaAllele"] = betterproto.message_field(4)
+    # * MHC I classic molecules
+    mhc_one_molecules: List["MhcOneMolecule"] = betterproto.message_field(3)
+    # * MHC II classic molecules
+    mhc_two_molecules: List["MhcTwoMolecule"] = betterproto.message_field(4)
 
 
 @dataclass
@@ -114,16 +157,63 @@ class NeoantigenAnnotations(betterproto.Message):
 
 
 @dataclass
-class HlaAllele(betterproto.Message):
+class MhcOneMolecule(betterproto.Message):
+    """* MHC I molecule"""
+
+    # * MHC I molecule name (ie: the name of MHC I molecules and genes are the
+    # same)
+    name: "MhcOneGeneName" = betterproto.enum_field(1)
+    # * Associated MHC I gene
+    gene: "MhcOneGene" = betterproto.message_field(2)
+
+
+@dataclass
+class MhcOneGene(betterproto.Message):
+    """* MHC I gene"""
+
+    # * The name of the MHC I gene
+    name: "MhcOneGeneName" = betterproto.enum_field(1)
+    # * Zygosity of the gene
+    zygosity: "Zygosity" = betterproto.enum_field(2)
+    # * The alleles of the gene
+    alleles: List["MhcAllele"] = betterproto.message_field(3)
+
+
+@dataclass
+class MhcTwoMolecule(betterproto.Message):
+    """* MHC II molecule"""
+
+    # * MHC II molecule name
+    name: "MhcTwoMoleculeName" = betterproto.enum_field(1)
+    # * List of MHC II genes
+    genes: List["MhcTwoGene"] = betterproto.message_field(2)
+
+
+@dataclass
+class MhcTwoGene(betterproto.Message):
+    """* MHC II gene"""
+
+    # * MHC II gene name
+    name: "MhcTwoGeneName" = betterproto.enum_field(1)
+    # * Zygosity og the gene
+    zygosity: "Zygosity" = betterproto.enum_field(2)
+    # * The alleles of the gene
+    alleles: List["MhcAllele"] = betterproto.message_field(3)
+
+
+@dataclass
+class MhcAllele(betterproto.Message):
     """
-    * HLA allele representation. It does not include non synonymous changes to
+    * MHC allele representation. It does not include non synonymous changes to
     the sequence, changes in the non coding region or changes in expression.
     """
 
     # * HLA allele name according to
     # http://hla.alleles.org/nomenclature/naming.html
     name: str = betterproto.string_field(1)
-    # * The gene from either MHC I or II.
+    # * The gene from either MHC I or II (this information is redundant with the
+    # MhcOneGene.name and MhcTwoGene.name but it is convenient to have this at
+    # this level too, code will check for data coherence)
     gene: str = betterproto.string_field(2)
     # * A group of alleles defined by a common serotype
     group: str = betterproto.string_field(3)

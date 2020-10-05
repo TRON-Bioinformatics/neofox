@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Gene, Neoantigen, Patient, HlaAllele
+from neofox.model.neoantigen import Gene, Neoantigen, Patient
 from neofox.model.validation import ModelValidator
 
 
