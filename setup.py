@@ -35,7 +35,8 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'neofox=neofox.command_line:neofox_cli'
+            'neofox=neofox.command_line:neofox_cli',
+            'neofox-configure=neofox.command_line:neofox_configure'
         ],
     },
     author_email="franziska.lang@tron-mainz.de",
