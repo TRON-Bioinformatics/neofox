@@ -23,7 +23,6 @@ import scipy.stats as stats
 from logzero import logger
 from neofox import MHC_I, MHC_II
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
-from neofox.model.neoantigen import HlaAllele
 
 
 class MultipleBinding:

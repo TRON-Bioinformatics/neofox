@@ -24,7 +24,7 @@ from logzero import logger
 import neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction as netmhcIIpan_prediction
 from neofox import MHC_II
 from neofox.helpers import intermediate_files
-from neofox.model.neoantigen import Annotation, HlaAllele
+from neofox.model.neoantigen import Annotation, MhcTwoMolecule
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan import multiple_binders
 import neofox.helpers.casting as casting
@@ -76,7 +76,7 @@ class BestAndMultipleBinderMhcII:
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
 
-    def run(self, sequence: str, sequence_reference: str, mhc_alleles: List[HlaAllele], available_mhc: Set):
+    def run(self, sequence: str, sequence_reference: str, mhc_molecules: List[MhcTwoMolecule], available_mhc: Set):
         """predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         # mutation
@@ -85,7 +85,7 @@ class BestAndMultipleBinderMhcII:
         np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         mb = multiple_binders.MultipleBinding()
         tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
-        allele_combinations = np.generate_mhc_ii_alelle_combinations(mhc_alleles)
+        allele_combinations = np.generate_mhc_ii_alelle_combinations(mhc_molecules)
         patients_available_alleles = self._get_only_available_combinations(allele_combinations, available_mhc)
 
         np.mhcII_prediction(patients_available_alleles, tmp_fasta, tmp_prediction)

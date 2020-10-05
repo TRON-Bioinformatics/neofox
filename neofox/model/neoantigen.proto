@@ -108,13 +108,13 @@ message Patient {
 	*/
 	bool isRnaAvailable = 2;
 	/**
-	MHC I alleles
+	MHC I classic molecules
 	*/
-	repeated HlaAllele mhcIAlleles = 3;
+	repeated MhcOneMolecule mhcOneMolecules = 3;
 	/**
-	MHC II alleles
+	MHC II classic molecules
 	*/
-	repeated HlaAllele mhcIIAlleles = 4;
+	repeated MhcTwoMolecule mhcTwoMolecules = 4;
 }
 
 /**
@@ -163,16 +163,134 @@ message NeoantigenAnnotations {
 }
 
 /**
-HLA allele representation. It does not include non synonymous changes to the sequence, changes in the non coding region
+The zygosity of a given gene
+ */
+enum Zygosity {
+	/**
+	Two equal copies of the gene
+	 */
+  HOMOZYGOUS = 0;
+  /**
+  Two different copies of the gene
+   */
+  HETEROZYGOUS = 1;
+  /**
+  Only one copy of the gene
+   */
+  HEMIZYGOUS = 2;
+  /**
+  No copy of the gene
+   */
+  LOSS = 3;
+}
+
+/**
+Valid names for MHC I classic genes
+ */
+enum MhcOneGeneName {
+	A = 0;
+	B = 1;
+	C = 2;
+}
+
+/**
+Valid names for MHC II classic genes.
+DRA is not included in this list as it does not have much variability in the population and for our purpose is
+considered constant.
+ */
+enum MhcTwoGeneName {
+	DRB1 = 0;
+	DPA1 = 1;
+	DPB1 = 2;
+	DQA1 = 3;
+	DQB1 = 4;
+}
+
+/**
+Valid names for MHC II classic molecules
+ */
+enum MhcTwoMoleculeName {
+	DR = 0;
+	DP = 1;
+	DQ = 2;
+}
+
+/**
+MHC I molecule
+ */
+message MhcOneMolecule {
+	/**
+	MHC I molecule name (ie: the name of MHC I molecules and genes are the same)
+	 */
+	MhcOneGeneName name = 1;
+	/**
+	Associated MHC I gene
+	 */
+	MhcOneGene gene = 2;
+}
+
+/**
+MHC I gene
+ */
+message MhcOneGene {
+	/**
+	The name of the MHC I gene
+	 */
+	MhcOneGeneName name = 1;
+	/**
+	Zygosity of the gene
+	 */
+	Zygosity zygosity = 2;
+	/**
+	The alleles of the gene
+	 */
+	repeated MhcAllele alleles = 3;
+}
+
+/**
+MHC II molecule
+ */
+message MhcTwoMolecule {
+	/**
+	MHC II molecule name
+	 */
+	MhcTwoMoleculeName name = 1;
+	/**
+	List of MHC II genes
+	 */
+	repeated MhcTwoGene genes = 2;
+}
+
+/**
+MHC II gene
+ */
+message MhcTwoGene {
+	/**
+	MHC II gene name
+	 */
+	MhcTwoGeneName name = 1;
+	/**
+	Zygosity og the gene
+	 */
+	Zygosity zygosity = 2;
+	/**
+	The alleles of the gene
+	 */
+	repeated MhcAllele alleles = 3;
+}
+
+/**
+MHC allele representation. It does not include non synonymous changes to the sequence, changes in the non coding region
 or changes in expression.
  */
-message HlaAllele {
+message MhcAllele {
 	/**
 	HLA allele name according to http://hla.alleles.org/nomenclature/naming.html
 	 */
 	string name = 1;
 	/**
-	The gene from either MHC I or II.
+	The gene from either MHC I or II (this information is redundant with the MhcOneGene.name and MhcTwoGene.name but it
+	is convenient to have this at this level too, code will check for data coherence)
 	 */
 	string gene = 2;
 	/**

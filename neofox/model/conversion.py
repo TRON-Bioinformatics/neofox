@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from itertools import islice
 from typing import List
 
 import pandas as pd
@@ -26,12 +25,10 @@ from pandas.io.json import json_normalize
 import re
 import difflib
 from collections import defaultdict
-import hashlib
-import base64
 import json
+from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, NeoantigenAnnotations, MhcOneMolecule, \
+    MhcTwoMolecule, MhcAllele, MhcOneGeneName, MhcOneGene, Zygosity, MhcTwoMoleculeName, MhcTwoGene, MhcTwoGeneName
 
-from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, NeoantigenAnnotations
-from neofox.model.validation import ModelValidator
 
 FIELD_SUBSTITUTION = 'substitution'
 
@@ -46,6 +43,9 @@ FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 
 
 class ModelConverter(object):
+
+    HLA_ALLELE_PATTERN = re.compile(
+        r"(?:HLA-)(\w+)\*?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
 
     @staticmethod
     def parse_candidate_file(candidate_file: str, patient_id: str = None) -> List[Neoantigen]:
@@ -126,9 +126,10 @@ class ModelConverter(object):
         patients = []
         for _, row in dataframe.iterrows():
             patient_dict = row.to_dict()
-            patient_dict['mhcIAlleles'] = [{'name': a} for a in patient_dict['mhcIAlleles']]
-            patient_dict['mhcIIAlleles'] = [{'name': a} for a in patient_dict['mhcIIAlleles']]
-            patients.append(Patient().from_dict(patient_dict))
+            patient = Patient().from_dict(patient_dict)
+            patient.mhc_one_molecules = ModelConverter._parse_mhc_one_alleles(patient_dict['mhcIAlleles'])
+            patient.mhc_two_molecules = ModelConverter._parse_mhc_two_alleles(patient_dict['mhcIIAlleles'])
+            patients.append(patient)
         return patients
 
     @staticmethod
@@ -220,8 +221,75 @@ class ModelConverter(object):
             lambda x: ModelConverter._get_matching_region(x[0], x[1], match=1), axis=1)
 
     @staticmethod
-    def _get_matching_region(sequence1: str, sequence2: str, match: int =0) -> str:
+    def _get_matching_region(sequence1: str, sequence2: str, match: int = 0) -> str:
         """fetches an aligned block within two sequences"""
         match = difflib.SequenceMatcher(None, sequence1, sequence2).get_matching_blocks()[match]
         return sequence1[match.a : match.a + match.size]
 
+    @staticmethod
+    def _parse_mhc_one_alleles(alleles: List[str]) -> List[MhcOneMolecule]:
+        molecules = []
+        parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
+        ModelConverter._validate_mhc_one_alleles(parsed_alleles)
+        # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
+        for gene_name in MhcOneGeneName:
+            gene_alleles = list(filter(lambda a: a.gene == gene_name.name, parsed_alleles))
+            zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
+            if zygosity == Zygosity.HOMOZYGOUS:
+                gene_alleles = [gene_alleles[0]]   # we don't want repeated instances of the same allele
+            molecules.append(MhcOneMolecule(
+                name=gene_name, gene=MhcOneGene(name=gene_name, zygosity=zygosity, alleles=gene_alleles)))
+        return molecules
+
+    @staticmethod
+    def _parse_mhc_two_alleles(alleles: List[str]) -> List[MhcTwoMolecule]:
+        molecules = []
+        parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
+        ModelConverter._validate_mhc_two_alleles(parsed_alleles)
+        # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
+        for molecule_name in MhcTwoMoleculeName:
+            molecule_alleles = list(filter(lambda a: molecule_name.name in a.gene, parsed_alleles))
+            genes = []
+            for gene_name in MhcTwoGeneName:
+                gene_alleles = list(filter(lambda a: a.gene == gene_name.name, molecule_alleles))
+                zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
+                if zygosity == Zygosity.HOMOZYGOUS:
+                    gene_alleles = [gene_alleles[0]]  # we don't want repeated instances of the same allele
+                genes.append(MhcTwoGene(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
+            molecules.append(MhcTwoMolecule(name=molecule_name, genes=genes))
+        return molecules
+
+    @staticmethod
+    def parse_mhc_allele(allele: str) -> MhcAllele:
+        # infers gene, group and protein from the name
+        match = ModelConverter.HLA_ALLELE_PATTERN.match(allele)
+        assert match is not None, "Allele does not match HLA allele pattern {}".format(allele)
+        gene = match.group(1)
+        group = match.group(2)
+        protein = match.group(3)
+        name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)
+        return MhcAllele(name=name, gene=gene, group=group, protein=protein)
+
+    @staticmethod
+    def _get_zygosity_from_alleles(alleles: List[MhcAllele]) -> Zygosity:
+        assert len(set([a.gene for a in alleles])) <= 1, "Trying to get zygosity from alleles of different genes"
+        assert len(alleles) <= 2, "More than 2 alleles for gene {}".format(alleles[0].gene)
+        if len(alleles) == 2 and alleles[0].name == alleles[1].name:
+            zygosity = Zygosity.HOMOZYGOUS
+        elif len(alleles) == 2:
+            zygosity = Zygosity.HETEROZYGOUS
+        elif len(alleles) == 1:
+            zygosity = Zygosity.HEMIZYGOUS
+        else:
+            zygosity = Zygosity.LOSS
+        return zygosity
+
+    @staticmethod
+    def _validate_mhc_one_alleles(parsed_alleles: List[MhcAllele]):
+        for a in parsed_alleles:
+            assert a.gene in MhcOneGeneName.__members__, "Gene from MHC I allele is not valid: {}".format(a.gene)
+
+    @staticmethod
+    def _validate_mhc_two_alleles(parsed_alleles: List[MhcAllele]):
+        for a in parsed_alleles:
+            assert a.gene in MhcTwoGeneName.__members__, "Gene from MHC II allele is not valid: {}".format(a.gene)

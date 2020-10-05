@@ -21,7 +21,7 @@ import random
 import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
-from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, HlaAllele
+from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, MhcAllele
 
 
 def _mock_file_existence(existing_files=[], unexisting_files=[]):
@@ -77,8 +77,8 @@ def get_random_patient():
     patient.is_rna_available = np.random.choice([True, False], 1)[0]
     patient.identifier = 'Pt12345'
     patient.mhc_i_alleles = [
-        HlaAllele(gene='A', group="01", protein="01"), HlaAllele(gene='B', group="01", protein="01")]
+        MhcAllele(gene='A', group="01", protein="01"), MhcAllele(gene='B', group="01", protein="01")]
     patient.mhc_i_i_alleles = [
-        HlaAllele(gene='DPA1', group="01", protein="01"), HlaAllele(gene='DPB1', group="01", protein="01")]
+        MhcAllele(gene='DPA1', group="01", protein="01"), MhcAllele(gene='DPB1', group="01", protein="01")]
     patient.tissue = 'skin'
     return patient

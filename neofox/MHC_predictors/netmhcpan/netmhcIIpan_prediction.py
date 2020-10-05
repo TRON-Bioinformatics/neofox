@@ -26,8 +26,7 @@ from logzero import logger
 from neofox.helpers import data_import
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
-from neofox.model.neoantigen import HlaAllele
-from neofox.model.validation import DPB1, DPA1, DRB1, DQA1, DQB1
+from neofox.model.neoantigen import MhcTwoMolecule, MhcTwoGeneName, MhcAllele
 from neofox.model.wrappers import get_alleles_by_gene
 
 
@@ -41,27 +40,28 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def generate_mhc_ii_alelle_combinations(self, hla_alleles: List[HlaAllele]) -> List[str]:
+    def generate_mhc_ii_alelle_combinations(self, mhc_molecules: List[MhcTwoMolecule]) -> List[str]:
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
-        drb1_alleles = list(map(lambda x: self._represent_drb1_allele(x), get_alleles_by_gene(hla_alleles, DRB1)))
-        dpa1_alleles = get_alleles_by_gene(hla_alleles, DPA1)
-        dpb1_alleles = get_alleles_by_gene(hla_alleles, DPB1)
-        dqa1_alleles = get_alleles_by_gene(hla_alleles, DQA1)
-        dqb1_alleles = get_alleles_by_gene(hla_alleles, DQB1)
+        drb1_alleles = list(map(lambda x: self._represent_drb1_allele(x),
+                                get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DRB1)))
+        dpa1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DPA1)
+        dpb1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DPB1)
+        dqa1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DQA1)
+        dqb1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DQB1)
         dp_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dpa1_alleles for b in dpb1_alleles]
         dq_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dqa1_alleles for b in dqb1_alleles]
 
         return drb1_alleles + dp_alleles + dq_alleles
 
     @staticmethod
-    def _represent_drb1_allele(hla_allele: HlaAllele):
+    def _represent_drb1_allele(hla_allele: MhcAllele):
         return "{gene}_{group}{protein}".format(
             gene=hla_allele.gene, group=hla_allele.group, protein=hla_allele.protein)
 
     @staticmethod
-    def _represent_dp_and_dq_allele(hla_a_allele: HlaAllele, hla_b_allele: HlaAllele):
+    def _represent_dp_and_dq_allele(hla_a_allele: MhcAllele, hla_b_allele: MhcAllele):
         return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
             gene_a=hla_a_allele.gene, group_a=hla_a_allele.group, protein_a=hla_a_allele.protein,
             gene_b=hla_b_allele.gene, group_b=hla_b_allele.group, protein_b=hla_b_allele.protein)
@@ -145,19 +145,3 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 epitopes_wt.append(i)
         all_epitopes_wt = (header, epitopes_wt)
         return self.minimal_binding_score(all_epitopes_wt)
-
-    @staticmethod
-    def _get_alleles_netmhcpan_representation(hla_alleles: List[HlaAllele]) -> List[str]:
-        return list(map(lambda x: "HLA-{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
-                        hla_alleles))
-
-    @staticmethod
-    def _get_only_available_alleles(hla_alleles: List[str], set_available_mhc: Set[str]) -> str:
-        patients_available_alleles = ",".join(list(filter(
-            lambda x: x in set_available_mhc,
-            AbstractNetMhcPanPredictor._get_alleles_netmhcpan_representation(hla_alleles))))
-        patients_not_available_alleles = list(set(hla_alleles).difference(set(set_available_mhc)))
-        if len(patients_not_available_alleles) > 0:
-            logger.warning("Some alleles from the patient are not available in netmhcpan: {}".format(
-                ",".join(patients_not_available_alleles)))
-        return patients_available_alleles

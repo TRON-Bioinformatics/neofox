@@ -19,29 +19,16 @@
 import re
 import base64
 import hashlib
-from typing import List, Tuple
+from typing import List
 
 import betterproto
-from logzero import logger
-from neofox.references.references import AvailableAlleles
-
+from neofox.model.conversion import ModelConverter
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, HlaAllele
+from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, MhcAllele
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
-
-DQB1 = "DQB1"
-DQA1 = "DQA1"
-DPB1 = "DPB1"
-DPA1 = "DPA1"
-DRB1 = "DRB1"
 
 
 class ModelValidator(object):
-
-    HLA_ALLELE_PATTERN = re.compile(
-        r"(?:HLA-)(\w+)\*?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
-    VALID_MHC_I_GENES = ["A", "B", "C"]     # only MHC I classical
-    VALID_MHC_II_GENES = [DRB1, DPA1, DPB1, DQA1, DQB1]
 
     @staticmethod
     def validate(model: betterproto.Message):
@@ -87,13 +74,11 @@ class ModelValidator(object):
             assert patient_id is not None and patient_id != "", "Patient identifier is empty"
             patient.identifier = patient_id
 
+            # TODO: validate new model with molecules, genes and alleles
             # checks MHC I alleles
-            patient.mhc_i_alleles = ModelValidator._validate_mhc_alleles(
-                patient.mhc_i_alleles, ModelValidator.VALID_MHC_I_GENES)
-
+            #patient.mhc_i_alleles = ModelValidator._validate_mhc_alleles(patient.mhc_i_alleles)
             # checks MHC II alleles
-            patient.mhc_i_i_alleles = ModelValidator._validate_mhc_alleles(
-                patient.mhc_i_i_alleles, ModelValidator.VALID_MHC_II_GENES)
+            #patient.mhc_i_i_alleles = ModelValidator._validate_mhc_alleles(patient.mhc_i_i_alleles)
 
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
@@ -101,31 +86,28 @@ class ModelValidator(object):
         return patient
 
     @staticmethod
-    def _validate_mhc_alleles(alleles: List[HlaAllele], valid_genes: List[str]):
+    def _validate_mhc_alleles(alleles: List[MhcAllele]):
 
         # parses the individual alleles and perform some individual validation
-        parsed_alleles = [ModelValidator._validate_mhc_allele_representation(
-            a, valid_genes=valid_genes) for a in alleles]
-
+        parsed_alleles = [ModelValidator._validate_mhc_allele_representation(a) for a in alleles]
         # checks the genotypes for MHC I genes
-        for g in valid_genes:
+        unique_genes = set([a.gene for a in parsed_alleles])
+        for g in unique_genes:
             assert len(list(filter(lambda x: x.gene == g, parsed_alleles))) <= 2, \
                 "MHC I gene {} has more than 2 alleles".format(g)
         return parsed_alleles
 
     @staticmethod
-    def _validate_mhc_allele_representation(allele: HlaAllele, valid_genes: List[str]) -> HlaAllele:
+    def _validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
         if allele.name:
             # infers gene, group and protein from the name
-            match = ModelValidator.HLA_ALLELE_PATTERN.match(allele.name)
+            match = ModelConverter.HLA_ALLELE_PATTERN.match(allele.name)
             assert match is not None, "Allele does not match HLA allele pattern {}".format(allele.name)
             gene = match.group(1)
-            assert gene in valid_genes, "HLA gene not valid {}".format(gene)
             group = match.group(2)
             protein = match.group(3)
         elif allele.gene and allele.group and allele.protein:
             # infers name from gene, group and protein
-            assert allele.gene in valid_genes, "HLA gene not valid {}".format(allele.gene)
             gene = allele.gene
             group = allele.group
             protein = allele.protein
@@ -135,10 +117,10 @@ class ModelValidator(object):
 
         # builds the final allele representation and validates it just in case
         name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)
-        match = ModelValidator.HLA_ALLELE_PATTERN.match(name)
+        match = ModelConverter.HLA_ALLELE_PATTERN.match(name)
         assert match is not None, "Allele does not match HLA allele pattern {}".format(name)
 
-        return HlaAllele(name=name, gene=gene, group=group, protein=protein)
+        return MhcAllele(name=name, gene=gene, group=group, protein=protein)
 
     @staticmethod
     def _validate_expression_values(neoantigen):

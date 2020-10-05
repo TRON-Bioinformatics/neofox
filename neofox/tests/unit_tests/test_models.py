@@ -129,8 +129,10 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Pt29")
-        self.assertEqual(len(patients[0].mhc_i_alleles), 6)
-        self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
+        self.assertEqual(3, len(patients[0].mhc_one_molecules))
+        self.assertEqual(6, len([a for m in patients[0].mhc_one_molecules for a in m.gene.alleles]))
+        self.assertEqual(3, len(patients[0].mhc_two_molecules))
+        self.assertEqual(9, len([a for m in patients[0].mhc_two_molecules for g in m.genes for a in g.alleles]))
         self.assertEqual(patients[0].is_rna_available, False)
 
     def test_patients_csv_file2model2(self):
@@ -141,8 +143,10 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Pt29")
-        self.assertEqual(len(patients[0].mhc_i_alleles), 6)
-        self.assertEqual(len(patients[0].mhc_i_i_alleles), 10)
+        self.assertEqual(3, len(patients[0].mhc_one_molecules))
+        self.assertEqual(6, len([a for m in patients[0].mhc_one_molecules for a in m.gene.alleles]))
+        self.assertEqual(3, len(patients[0].mhc_two_molecules))
+        self.assertEqual(9, len([a for m in patients[0].mhc_two_molecules for g in m.genes for a in g.alleles]))
         self.assertEqual(patients[0].is_rna_available, True)
 
     def test_patients_csv_file2model3(self):
@@ -153,10 +157,13 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Ptx")
-        self.assertEqual(6, len(patients[0].mhc_i_alleles))
-        self.assertTrue("HLA-A*03:01" in [a.name for a in patients[0].mhc_i_alleles])
-        self.assertEqual(10, len(patients[0].mhc_i_i_alleles))
-        self.assertTrue("HLA-DQA1*04:01" in [a.name for a in patients[0].mhc_i_i_alleles])
+        self.assertEqual(3, len(patients[0].mhc_one_molecules))
+        self.assertEqual(6, len([a for m in patients[0].mhc_one_molecules for a in m.gene.alleles]))
+        self.assertEqual(3, len(patients[0].mhc_two_molecules))
+        self.assertEqual(10, len([a for m in patients[0].mhc_two_molecules for g in m.genes for a in g.alleles]))
+        self.assertTrue("HLA-A*03:01" in [a.name for m in patients[0].mhc_one_molecules for a in m.gene.alleles])
+        self.assertTrue("HLA-DQA1*04:01" in
+                        [a.name for m in patients[0].mhc_two_molecules for g in m.genes for a in g.alleles])
         self.assertTrue(patients[0].is_rna_available)
 
     def test_annotations2short_wide_df(self):
