@@ -110,11 +110,11 @@ message Patient {
 	/**
 	MHC I classic molecules
 	*/
-	repeated MhcOneMolecule mhcOneMolecules = 3;
+	repeated MhcOne mhcOne = 3;
 	/**
 	MHC II classic molecules
 	*/
-	repeated MhcTwoMolecule mhcTwoMolecules = 4;
+	repeated MhcTwo mhcTwo = 4;
 }
 
 /**
@@ -209,16 +209,16 @@ enum MhcTwoGeneName {
 /**
 Valid names for MHC II classic molecules
  */
-enum MhcTwoMoleculeName {
+enum MhcTwoName {
 	DR = 0;
 	DP = 1;
 	DQ = 2;
 }
 
 /**
-MHC I molecule
+MHC I
  */
-message MhcOneMolecule {
+message MhcOne {
 	/**
 	MHC I molecule name (ie: the name of MHC I molecules and genes are the same)
 	 */
@@ -242,9 +242,27 @@ message MhcOneGene {
 	 */
 	Zygosity zygosity = 2;
 	/**
-	The alleles of the gene
+	The alleles of the gene (0, 1 or 2)
 	 */
 	repeated MhcAllele alleles = 3;
+}
+
+/**
+MHC II
+ */
+message MhcTwo {
+	/**
+	MHC II molecule name
+	 */
+	MhcTwoName name = 1;
+	/**
+	List of MHC II genes
+	 */
+	repeated MhcTwoGene genes = 2;
+	/**
+	Different combinations of MHC II alleles building different molecules
+	 */
+	repeated MhcTwoMolecule molecules = 3;
 }
 
 /**
@@ -252,13 +270,17 @@ MHC II molecule
  */
 message MhcTwoMolecule {
 	/**
-	MHC II molecule name
+	Name to refer to the MHC II molecule
 	 */
-	MhcTwoMoleculeName name = 1;
+	string name = 1;
 	/**
-	List of MHC II genes
+	The alpha chain of the molecule
 	 */
-	repeated MhcTwoGene genes = 2;
+	MhcAllele alphaChain = 2;
+	/**
+	The beta chain of the molecule
+	 */
+	MhcAllele betaChain = 3;
 }
 
 /**
@@ -270,11 +292,11 @@ message MhcTwoGene {
 	 */
 	MhcTwoGeneName name = 1;
 	/**
-	Zygosity og the gene
+	Zygosity of the gene
 	 */
 	Zygosity zygosity = 2;
 	/**
-	The alleles of the gene
+	The alleles of the gene (0, 1 or 2)
 	 */
 	repeated MhcAllele alleles = 3;
 }

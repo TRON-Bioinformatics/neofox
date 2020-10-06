@@ -26,7 +26,7 @@ from logzero import logger
 from neofox.helpers import data_import
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
-from neofox.model.neoantigen import MhcTwoMolecule, MhcTwoGeneName, MhcAllele
+from neofox.model.neoantigen import MhcTwo, MhcTwoGeneName, MhcAllele, MhcTwoName
 from neofox.model.wrappers import get_alleles_by_gene
 
 
@@ -40,20 +40,15 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def generate_mhc_ii_alelle_combinations(self, mhc_molecules: List[MhcTwoMolecule]) -> List[str]:
+    def generate_mhc_ii_alelle_combinations(self, mhcs: List[MhcTwo]) -> List[str]:
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
-        drb1_alleles = list(map(lambda x: self._represent_drb1_allele(x),
-                                get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DRB1)))
-        dpa1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DPA1)
-        dpb1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DPB1)
-        dqa1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DQA1)
-        dqb1_alleles = get_alleles_by_gene(mhc_molecules, MhcTwoGeneName.DQB1)
-        dp_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dpa1_alleles for b in dpb1_alleles]
-        dq_alleles = [self._represent_dp_and_dq_allele(a, b) for a in dqa1_alleles for b in dqb1_alleles]
-
-        return drb1_alleles + dp_alleles + dq_alleles
+        dp_dq_molecules = [self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
+                           for mhc in mhcs if mhc.name != MhcTwoName.DR for m in mhc.molecules]
+        dr_molecules = [self._represent_drb1_allele(m.beta_chain)
+                        for mhc in mhcs if mhc.name == MhcTwoName.DR for m in mhc.molecules]
+        return dp_dq_molecules + dr_molecules
 
     @staticmethod
     def _represent_drb1_allele(hla_allele: MhcAllele):

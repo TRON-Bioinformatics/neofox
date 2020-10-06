@@ -42,7 +42,7 @@ class MhcTwoGeneName(betterproto.Enum):
     DQB1 = 4
 
 
-class MhcTwoMoleculeName(betterproto.Enum):
+class MhcTwoName(betterproto.Enum):
     """* Valid names for MHC II classic molecules"""
 
     DR = 0
@@ -122,9 +122,9 @@ class Patient(betterproto.Message):
     # * Is RNA expression available?
     is_rna_available: bool = betterproto.bool_field(2)
     # * MHC I classic molecules
-    mhc_one_molecules: List["MhcOneMolecule"] = betterproto.message_field(3)
+    mhc_one: List["MhcOne"] = betterproto.message_field(3)
     # * MHC II classic molecules
-    mhc_two_molecules: List["MhcTwoMolecule"] = betterproto.message_field(4)
+    mhc_two: List["MhcTwo"] = betterproto.message_field(4)
 
 
 @dataclass
@@ -157,8 +157,8 @@ class NeoantigenAnnotations(betterproto.Message):
 
 
 @dataclass
-class MhcOneMolecule(betterproto.Message):
-    """* MHC I molecule"""
+class MhcOne(betterproto.Message):
+    """* MHC I"""
 
     # * MHC I molecule name (ie: the name of MHC I molecules and genes are the
     # same)
@@ -175,18 +175,32 @@ class MhcOneGene(betterproto.Message):
     name: "MhcOneGeneName" = betterproto.enum_field(1)
     # * Zygosity of the gene
     zygosity: "Zygosity" = betterproto.enum_field(2)
-    # * The alleles of the gene
+    # * The alleles of the gene (0, 1 or 2)
     alleles: List["MhcAllele"] = betterproto.message_field(3)
+
+
+@dataclass
+class MhcTwo(betterproto.Message):
+    """* MHC II"""
+
+    # * MHC II molecule name
+    name: "MhcTwoName" = betterproto.enum_field(1)
+    # * List of MHC II genes
+    genes: List["MhcTwoGene"] = betterproto.message_field(2)
+    # * Different combinations of MHC II alleles building different molecules
+    molecules: List["MhcTwoMolecule"] = betterproto.message_field(3)
 
 
 @dataclass
 class MhcTwoMolecule(betterproto.Message):
     """* MHC II molecule"""
 
-    # * MHC II molecule name
-    name: "MhcTwoMoleculeName" = betterproto.enum_field(1)
-    # * List of MHC II genes
-    genes: List["MhcTwoGene"] = betterproto.message_field(2)
+    # * Name to refer to the MHC II molecule
+    name: str = betterproto.string_field(1)
+    # * The alpha chain of the molecule
+    alpha_chain: "MhcAllele" = betterproto.message_field(2)
+    # * The beta chain of the molecule
+    beta_chain: "MhcAllele" = betterproto.message_field(3)
 
 
 @dataclass
@@ -195,9 +209,9 @@ class MhcTwoGene(betterproto.Message):
 
     # * MHC II gene name
     name: "MhcTwoGeneName" = betterproto.enum_field(1)
-    # * Zygosity og the gene
+    # * Zygosity of the gene
     zygosity: "Zygosity" = betterproto.enum_field(2)
-    # * The alleles of the gene
+    # * The alleles of the gene (0, 1 or 2)
     alleles: List["MhcAllele"] = betterproto.message_field(3)
 
 

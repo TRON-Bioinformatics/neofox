@@ -24,7 +24,7 @@ from logzero import logger
 from neofox.helpers import data_import
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
-from neofox.model.neoantigen import MhcOneMolecule
+from neofox.model.neoantigen import MhcOne
 
 
 class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
@@ -37,7 +37,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def mhc_prediction(self, mhc_molecules: List[MhcOneMolecule], set_available_mhc: Set, tmpfasta, tmppred):
+    def mhc_prediction(self, mhc_molecules: List[MhcOne], set_available_mhc: Set, tmpfasta, tmppred):
         """ Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         """
         cmd = [
@@ -147,12 +147,12 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         return self.minimal_binding_score(all_epitopes_wt)
 
     @staticmethod
-    def get_alleles_netmhcpan_representation(mhc_molecules: List[MhcOneMolecule]) -> List[str]:
+    def get_alleles_netmhcpan_representation(mhc_molecules: List[MhcOne]) -> List[str]:
         return list(map(lambda x: "HLA-{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
                         [a for m in mhc_molecules for a in m.gene.alleles]))
 
     @staticmethod
-    def _get_only_available_alleles(mhc_molecules: List[MhcOneMolecule], set_available_mhc: Set[str]) -> str:
+    def _get_only_available_alleles(mhc_molecules: List[MhcOne], set_available_mhc: Set[str]) -> str:
         hla_alleles_names = NetMhcPanPredictor.get_alleles_netmhcpan_representation(mhc_molecules)
         patients_available_alleles = ",".join(list(filter(lambda x: x in set_available_mhc, hla_alleles_names)))
         patients_not_available_alleles = list(set(hla_alleles_names).difference(set(set_available_mhc)))
