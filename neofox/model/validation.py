@@ -24,7 +24,7 @@ from typing import List
 import betterproto
 from neofox.model.conversion import ModelConverter
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, MhcAllele
+from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, MhcAllele, MhcTwoMolecule
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
 
@@ -89,7 +89,7 @@ class ModelValidator(object):
     def _validate_mhc_alleles(alleles: List[MhcAllele]):
 
         # parses the individual alleles and perform some individual validation
-        parsed_alleles = [ModelValidator._validate_mhc_allele_representation(a) for a in alleles]
+        parsed_alleles = [ModelValidator.validate_mhc_allele_representation(a) for a in alleles]
         # checks the genotypes for MHC I genes
         unique_genes = set([a.gene for a in parsed_alleles])
         for g in unique_genes:
@@ -98,7 +98,7 @@ class ModelValidator(object):
         return parsed_alleles
 
     @staticmethod
-    def _validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
+    def validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
         if allele.name:
             # infers gene, group and protein from the name
             match = ModelConverter.HLA_ALLELE_PATTERN.match(allele.name)
@@ -121,6 +121,28 @@ class ModelValidator(object):
         assert match is not None, "Allele does not match HLA allele pattern {}".format(name)
 
         return MhcAllele(name=name, gene=gene, group=group, protein=protein)
+
+    @staticmethod
+    def validate_mhc_two_molecule_representation(molecule: MhcTwoMolecule) -> MhcTwoMolecule:
+        if molecule.name:
+            # infers alpha and beta chains
+            match = ModelConverter.HLA_MOLECULE_PATTERN.match(molecule.name)
+            assert match is not None, "Molecule does not match HLA molecule pattern {}".format(molecule.name)
+            alpha_chain = ModelValidator.validate_mhc_allele_representation(match.group(1))
+            beta_chain = ModelValidator.validate_mhc_allele_representation(match.group(2))
+        elif molecule.alpha_chain and molecule.beta_chain:
+            # infers name from gene, group and protein
+            alpha_chain = ModelValidator.validate_mhc_allele_representation(molecule.alpha_chain)
+            beta_chain = ModelValidator.validate_mhc_allele_representation(molecule.beta_chain)
+        else:
+            raise NeofoxDataValidationException("HLA molecule missing required fields")
+
+        # builds the final allele representation and validates it just in case
+        name = ModelConverter.get_mhc_two_molecule_name(molecule.alpha_chain, molecule.beta_chain)
+        match = ModelConverter.HLA_ALLELE_PATTERN.match(name)
+        assert match is not None, "Molecule does not match HLA molecule pattern {}".format(name)
+
+        return MhcTwoMolecule(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
 
     @staticmethod
     def _validate_expression_values(neoantigen):

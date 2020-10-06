@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from neofox.model.neoantigen import Annotation, MhcOneMolecule, MhcAllele
+from neofox.model.neoantigen import Annotation, MhcOne, MhcAllele
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
@@ -46,7 +46,7 @@ class MixMHCpred(AbstractMixMHCpred):
         return list(map(
             lambda x: "{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein), mhc_alleles))
 
-    def _mixmhcprediction(self, mhc_molecules: List[MhcOneMolecule], tmpfasta, outtmp):
+    def _mixmhcprediction(self, mhc_molecules: List[MhcOne], tmpfasta, outtmp):
         """
         Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
         """
@@ -75,14 +75,14 @@ class MixMHCpred(AbstractMixMHCpred):
         head_new = ["Peptide", "Score_bestAllele", "%Rank_bestAllele", "BestAllele"]
         return head_new, best_ligand
 
-    def run(self, sequence_wt, sequence_mut, mhc_molecules: List[MhcOneMolecule]):
+    def run(self, sequence_wt, sequence_mut, mhc: List[MhcOne]):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         """
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="mixmhcpred", suffix=".txt")
         seqs = self.generate_nmers(xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[8, 9, 10, 11])
         tmp_fasta = intermediate_files.create_temp_fasta(seqs, prefix="tmp_sequence_")
-        self._mixmhcprediction(mhc_molecules, tmp_fasta, tmp_prediction)
+        self._mixmhcprediction(mhc, tmp_fasta, tmp_prediction)
         all_predicted_ligands = self.read_mixmhcpred(tmp_prediction)
         if len(all_predicted_ligands[1]) > 0:
             best_predicted_ligand = self._extract_best_peptide_per_mutation(all_predicted_ligands)

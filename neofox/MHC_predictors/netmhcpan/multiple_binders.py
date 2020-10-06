@@ -16,84 +16,148 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List
-
-import numpy as np
-import scipy.stats as stats
-from logzero import logger
-from neofox import MHC_I, MHC_II
-from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
+from collections import defaultdict
+from typing import List, Tuple
+from neofox.model.neoantigen import MhcAllele, MhcOne, Zygosity, MhcTwo
+from neofox.model.validation import ModelValidator
 
 
 class MultipleBinding:
 
-    def transform_mhc_prediction_output(self, prediction_out, mhc=MHC_I):
+    @staticmethod
+    def transform_mhc_prediction_output(prediction_out):
         """
-        Takes netmhcpan4 output or netmhcpanII output as neofox (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
+        Takes netmhcpan4 output as neofox (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
         returns tuple of mhc binding rank scores, epitope and HLA allele for all predicted epitopes as list
         """
-        pred_data = prediction_out[1]
-        list_of_tuples = []
-        for ii, i in enumerate(pred_data):
-            if mhc == MHC_II:
-                # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((float(i[9]), float(i[8]), i[2], i[1]))
-            else:
-                # rank, affinity, epitope sequence, allele
-                list_of_tuples.append((float(i[13]), float(i[12]), i[2], i[1]))
+        # TODO: this method is parsing netmhcpan and netmhc2pan output format in a data structure. Move this out to
+        #  the NetMhcPan and NetMhc2Pan objects
+        list_of_tuples = [(float(i[13]), float(i[12]), i[2], 
+                           ModelValidator.validate_mhc_allele_representation(MhcAllele(name=i[1]))) 
+                          for i in prediction_out[1]]
+        list_of_tuples.sort(key=lambda x: x[0])  # sort by rank
+        return list_of_tuples
+    
+    @staticmethod
+    def transform_mhc_two_prediction_output(prediction_out):
+        """
+        Takes netmhcpanII output as neofox (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
+        returns tuple of mhc binding rank scores, epitope and HLA allele for all predicted epitopes as list
+        """
+        # TODO: this method is parsing netmhcpan and netmhc2pan output format in a data structure. Move this out to
+        #  the NetMhcPan and NetMhc2Pan objects
+        # rank, affinity, epitope sequence, allele combination
+        list_of_tuples = [(float(i[9]), float(i[8]), i[2],
+                           ModelValidator.validate_mhc_two_molecule_representation(i[1])) for i in prediction_out[1]]
         list_of_tuples.sort(key=lambda x: x[0])     # sort by rank
         return list_of_tuples
 
-    def check_for_homozygosity(self, patient_alleles):
+    @staticmethod
+    def _get_homozygous_mhc_one_alleles(mhc_molecules: List[MhcOne]) -> List[str]:
         """
-        returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles. Otherwise retunrs empty list
+        Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
+        Otherwise retunrs empty list
         """
-        return [allele for allele in patient_alleles if patient_alleles.count(allele) > 1]
+        return [a.name for m in mhc_molecules for a in m.gene.alleles if m.gene.zygosity == Zygosity.HOMOZYGOUS]
 
-    def extract_best_epi_per_alelle(self, tuple_epis, mhc_alleles: List[str]):
+    @staticmethod
+    def _get_heterozygous_or_hemizygous_mhc_one_alleles(mhc_molecules: List[MhcOne]) -> List[str]:
         """
-        this function returns the predicted epitope with the lowest binding score for each patient allele, considering homozyogosity
+        Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
+        Otherwise retunrs empty list
         """
-        #  TODO: is this working?
-        homo_alleles = self.check_for_homozygosity(mhc_alleles)
-        dict_allels = {}
-        for allele in mhc_alleles:
-            for epi in tuple_epis:
-                if allele == epi[-1]:
-                    if allele not in dict_allels:
-                        dict_allels[allele] = [epi]
-                    else:
-                        dict_allels[allele].append(epi)
+        return [a.name for m in mhc_molecules for a in m.gene.alleles
+                if m.gene.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]]
+
+    @staticmethod
+    def _get_homozygous_mhc_two_alleles(mhc_molecules: List[MhcTwo]) -> List[str]:
+        """
+        Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
+        Otherwise retunrs empty list
+        """
+        return [a.name for m in mhc_molecules for g in m.genes for a in g.alleles if g.zygosity == Zygosity.HOMOZYGOUS]
+
+    @staticmethod
+    def _get_heterozygous_or_hemizygous_mhc_two_alleles(mhc_molecules: List[MhcTwo]) -> List[str]:
+        """
+        Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
+        Otherwise retunrs empty list
+        """
+        return [a.name for m in mhc_molecules for g in m.genes for a in g.alleles
+                if g.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]]
+
+    @staticmethod
+    def extract_best_epitope_per_alelle(tuple_epitopes: List[Tuple], mhc_molecules: List[MhcOne]):
+        """
+        This function returns the predicted epitope with the lowest binding score for each patient allele,
+        considering homozyogosity
+        """
+        homozygous_alleles = MultipleBinding._get_homozygous_mhc_one_alleles(mhc_molecules)
+        hetero_hemizygous_alleles = MultipleBinding._get_heterozygous_or_hemizygous_mhc_one_alleles(mhc_molecules)
+        return MultipleBinding._get_sorted_epitopes(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes)
+
+    @staticmethod
+    def _get_sorted_epitopes(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes):
+
+        # groups epitopes by allele
+        epitopes_by_allele = defaultdict(lambda: [])
+        for epitope in tuple_epitopes:
+            epitopes_by_allele.get(epitope[-1].name).append(epitope)
+
+        # chooses the best epitope per allele anc considers zygosity
         best_epis_per_allele = []
-        for allele in dict_allels:
-            dict_allels[allele].sort(key=lambda x: float(x[0]))
-            best_epis_per_allele.append(dict_allels[allele][0])
-            if allele in homo_alleles:
-                # append homozygous allleles two times
-                homo_numbers = homo_alleles.count(allele)
-                if homo_numbers == 1:
-                    best_epis_per_allele.append(dict_allels[allele][0])
-                else:
-                    homo_best_epi = dict_allels[allele][0]
-                    homo_best_epi_all = []
-                    # allele already one time represented in list --> add n-t times
-                    [homo_best_epi_all.append(tuple(homo_best_epi)) for i in range(homo_numbers - 1)]
-                    best_epis_per_allele.extend(tuple(homo_best_epi_all))
+        for allele, epitopes in epitopes_by_allele.items():
+            epitopes.sort(key=lambda x: float(x[0]))    # sort by rank to choose the best epitope
+            best_epitope = epitopes[0]
+            if best_epitope[-1].name in hetero_hemizygous_alleles:
+                best_epis_per_allele.append(best_epitope)  # adds the epitope once
+            if best_epitope[-1].name in homozygous_alleles:
+                best_epis_per_allele.append(best_epitope)
+                best_epis_per_allele.append(best_epitope)  # adds the epitope twice
         return best_epis_per_allele
+    
+    @staticmethod
+    def _get_sorted_epitopes_mhc_two(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes):
 
-    def scores_to_list(self, tuple_epis):
-        """
-        Takes list of epitope tuple as neofox and returns a list of mhc rank scores of these tuples
-        """
-        return [epi[0] for epi in tuple_epis]
+        # groups epitopes by allele
+        epitopes_by_allele = {}
+        for epitope in tuple_epitopes:
+            epitopes_by_allele.get(epitope[-1].name, []).append(epitope)
 
-    def affinities_to_list(self, tuple_epis):
-        """
-        Takes list of epitope tuple as neofox and returns a list of mhc rank scores of these tuples
-        """
-        return [epi[1] for epi in tuple_epis]
+        # chooses the best epitope per allele anc considers zygosity
+        best_epitopes_per_allele = []
+        for allele, epitopes in epitopes_by_allele.items():
+            epitopes.sort(key=lambda x: float(x[0]))    # sort by rank to choose the best epitope
+            best_epitope = epitopes[0]
+            num_repetitions = 0
+            if best_epitope[-1].alpha_chain.name in hetero_hemizygous_alleles or \
+                    best_epitope[-1].beta_chain.name in hetero_hemizygous_alleles:
+                # adds the epitope once if alleles heterozygous
+                num_repetitions = 1
+            if best_epitope[-1].alpha_chain.name in homozygous_alleles or \
+                    best_epitope[-1].beta_chain.name in homozygous_alleles:
+                # adds the epitope twice if one allele is homozygous
+                num_repetitions = 2
+            if best_epitope[-1].alpha_chain.name in homozygous_alleles and \
+                    best_epitope[-1].beta_chain.name in homozygous_alleles:
+                # adds the epitope four times if both alleles are homozygous
+                num_repetitions = 4
+            best_epitopes_per_allele.extend([best_epitope for _ in range(num_repetitions)])
+        return best_epitopes_per_allele
 
-    def determine_number_of_binders(self, list_scores, threshold=2):
+    @staticmethod
+    def extract_best_epitope_per_mhc_two_alelle(tuple_epitopes: List[Tuple], mhc_molecules: List[MhcTwo]):
+        """
+        This function returns the predicted epitope with the lowest binding score for each patient allele,
+        considering homozyogosity
+        """
+        homozygous_alleles = MultipleBinding._get_homozygous_mhc_two_alleles(mhc_molecules)
+        hetero_hemizygous_alleles = MultipleBinding._get_heterozygous_or_hemizygous_mhc_two_alleles(mhc_molecules)
+        return MultipleBinding._get_sorted_epitopes_mhc_two(
+            hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes)
+
+    @staticmethod
+    def determine_number_of_binders(list_scores, threshold=2):
         """
         Determines the number of HLA binders per mutation based on a threshold. Default is set to 2, which is threshold for weak binding using netmhcpan4.
         """

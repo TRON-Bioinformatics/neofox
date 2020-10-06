@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from neofox.model.neoantigen import Annotation, MhcTwoMolecule, MhcTwoGeneName, MhcAllele
+from neofox.model.neoantigen import Annotation, MhcTwo, MhcTwoGeneName, MhcAllele
 
 NOT_AVAILABLE_VALUE = "NA"
 
@@ -39,6 +39,6 @@ class AnnotationFactory(object):
         return Annotation(name=name, value=value)
 
 
-def get_alleles_by_gene(mhc_molecules: List[MhcTwoMolecule], gene: MhcTwoGeneName) -> List[MhcAllele]:
+def get_alleles_by_gene(mhc_molecules: List[MhcTwo], gene: MhcTwoGeneName) -> List[MhcAllele]:
     return [a for m in mhc_molecules for g in m.genes if g.name == gene for a in g.alleles]
 
