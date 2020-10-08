@@ -16,15 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import re
 import base64
 import hashlib
-from typing import List
-
 import betterproto
 from neofox.model.conversion import ModelConverter
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, MhcAllele, MhcTwoMolecule
+from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, MhcAllele, MhcTwoMolecule, MhcOne, \
+    MhcOneGeneName, Zygosity, MhcTwo, MhcTwoName, MhcTwoGeneName
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
 
@@ -75,10 +73,12 @@ class ModelValidator(object):
             patient.identifier = patient_id
 
             # TODO: validate new model with molecules, genes and alleles
-            # checks MHC I alleles
-            #patient.mhc_i_alleles = ModelValidator._validate_mhc_alleles(patient.mhc_i_alleles)
-            # checks MHC II alleles
-            #patient.mhc_i_i_alleles = ModelValidator._validate_mhc_alleles(patient.mhc_i_i_alleles)
+            # checks MHC I
+            for m in patient.mhc_one:
+                patient.mhc_one = ModelValidator._validate_mhc_one(m)
+            # checks MHC II
+            for m in patient.mhc_two:
+                patient.mhc_two = ModelValidator._validate_mhc_two(m)
 
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
@@ -86,61 +86,120 @@ class ModelValidator(object):
         return patient
 
     @staticmethod
-    def _validate_mhc_alleles(alleles: List[MhcAllele]):
+    def _validate_mhc_one(mhc_one: MhcOne) -> MhcOne:
+        assert mhc_one.name in MhcOneGeneName, "Invalid MHC I name"
+        gene = mhc_one.gene
+        assert gene.name in MhcOneGeneName, "Invalid gene name from MHC I"
+        assert gene.zygosity in Zygosity, "Invalid zygosity"
+        assert mhc_one.name == gene.name, "Gene {} inside MHC I referring to gene {}".format(
+            gene.name.name, mhc_one.name.name)
+        alleles = gene.alleles
+        if gene.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
+            assert len(alleles) == 1, "An homozygous gene must have 1 allele and not {}".format(len(alleles))
+        elif gene.zygosity == Zygosity.HETEROZYGOUS:
+            assert len(alleles) == 2, "An heterozygous or hemizygous gene must have 2 alleles and not {}".format(
+                len(alleles))
+        elif gene.zygosity == Zygosity.LOSS:
+            assert len(alleles) == 0, "An lost gene must have 0 alleles and not {}".format(
+                len(alleles))
+        validated_alleles = []
+        for allele in alleles:
+            validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
+            validated_alleles.append(validated_allele)
+            assert validated_allele.gene == gene.name.name, \
+                "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, gene.name.name)
+        gene.alleles = validated_alleles
+        return mhc_one
 
-        # parses the individual alleles and perform some individual validation
-        parsed_alleles = [ModelValidator.validate_mhc_allele_representation(a) for a in alleles]
-        # checks the genotypes for MHC I genes
-        unique_genes = set([a.gene for a in parsed_alleles])
-        for g in unique_genes:
-            assert len(list(filter(lambda x: x.gene == g, parsed_alleles))) <= 2, \
-                "MHC I gene {} has more than 2 alleles".format(g)
-        return parsed_alleles
+    @staticmethod
+    def _validate_mhc_two(mhc_two: MhcTwo) -> MhcTwo:
+        assert mhc_two.name in MhcTwoName, "Invalid MHC II name"
+        genes = mhc_two.genes
+        for gene in genes:
+            assert gene.name in MhcTwoGeneName, "Invalid gene name from MHC II"
+            assert gene.name in ModelConverter.GENES_BY_MOLECULE.get(mhc_two.name), \
+                "Gene {} referring to molecule {}".format(gene.name, mhc_two.name.name)
+            assert gene.zygosity in Zygosity, "Invalid zygosity"
+            alleles = gene.alleles
+            if gene.zygosity == Zygosity.HOMOZYGOUS:
+                assert len(alleles) == 1, "An homozygous gene must have 1 allele and not {}".format(len(alleles))
+            elif gene.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]:
+                assert len(alleles) == 2, "An heterozygous or hemizygous gene must have 2 alleles and not {}".format(
+                    len(alleles))
+            elif gene.zygosity == Zygosity.LOSS:
+                assert len(alleles) == 0, "An lost gene must have 0 alleles and not {}".format(
+                    len(alleles))
+            validated_alleles = []
+            for allele in alleles:
+                validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
+                validated_alleles.append(validated_allele)
+                assert validated_allele.gene == gene.name.name, \
+                    "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, gene.name.name)
+            gene.alleles = validated_alleles
+        molecules = mhc_two.molecules
+        validated_molecules = []
+        for molecule in molecules:
+            validated_molecule = ModelValidator.validate_mhc_two_molecule_representation(molecule)
+            validated_molecules.append(validated_molecule)
+            assert validated_molecule.alpha_chain.name in [a.name for g in genes for a in g.alleles], \
+                "Alpha chain allele not present in th list of alleles"
+            assert validated_molecule.beta_chain.name in [a.name for g in genes for a in g.alleles], \
+                "Beta chain allele not present in th list of alleles"
+        mhc_two.molecules = validated_molecules
+        return mhc_two
 
     @staticmethod
     def validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
-        if allele.name:
-            # infers gene, group and protein from the name
-            match = ModelConverter.HLA_ALLELE_PATTERN.match(allele.name)
-            assert match is not None, "Allele does not match HLA allele pattern {}".format(allele.name)
-            gene = match.group(1)
-            group = match.group(2)
-            protein = match.group(3)
-        elif allele.gene and allele.group and allele.protein:
-            # infers name from gene, group and protein
-            gene = allele.gene
-            group = allele.group
-            protein = allele.protein
-        else:
-            raise NeofoxDataValidationException("HLA allele missing required fields, either name or gene, group and "
-                                                "protein must be provided")
+        try:
+            if allele.name:
+                # infers gene, group and protein from the name
+                match = ModelConverter.HLA_ALLELE_PATTERN.match(allele.name)
+                assert match is not None, "Allele does not match HLA allele pattern {}".format(allele.name)
+                gene = match.group(1)
+                group = match.group(2)
+                protein = match.group(3)
+            elif allele.gene and allele.group and allele.protein:
+                # infers name from gene, group and protein
+                gene = allele.gene
+                group = allele.group
+                protein = allele.protein
+            else:
+                raise NeofoxDataValidationException("HLA allele missing required fields, either name or gene, group and "
+                                                    "protein must be provided")
 
-        # builds the final allele representation and validates it just in case
-        name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)
-        match = ModelConverter.HLA_ALLELE_PATTERN.match(name)
-        assert match is not None, "Allele does not match HLA allele pattern {}".format(name)
+            assert gene in list(MhcOneGeneName.__members__.keys()) + list(MhcTwoGeneName.__members__.keys()), \
+                "Gene not from classic MHC: {}".format(gene)
+            # builds the final allele representation and validates it just in case
+            name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)
+            match = ModelConverter.HLA_ALLELE_PATTERN.match(name)
+            assert match is not None, "Allele does not match HLA allele pattern {}".format(name)
+        except AssertionError as e:
+            raise NeofoxDataValidationException(e)
 
         return MhcAllele(name=name, gene=gene, group=group, protein=protein)
 
     @staticmethod
     def validate_mhc_two_molecule_representation(molecule: MhcTwoMolecule) -> MhcTwoMolecule:
-        if molecule.name:
-            # infers alpha and beta chains
-            match = ModelConverter.HLA_MOLECULE_PATTERN.match(molecule.name)
-            assert match is not None, "Molecule does not match HLA molecule pattern {}".format(molecule.name)
-            alpha_chain = ModelValidator.validate_mhc_allele_representation(match.group(1))
-            beta_chain = ModelValidator.validate_mhc_allele_representation(match.group(2))
-        elif molecule.alpha_chain and molecule.beta_chain:
-            # infers name from gene, group and protein
-            alpha_chain = ModelValidator.validate_mhc_allele_representation(molecule.alpha_chain)
-            beta_chain = ModelValidator.validate_mhc_allele_representation(molecule.beta_chain)
-        else:
-            raise NeofoxDataValidationException("HLA molecule missing required fields")
+        try:
+            if molecule.name:
+                # infers alpha and beta chains
+                match = ModelConverter.HLA_MOLECULE_PATTERN.match(molecule.name)
+                assert match is not None, "Molecule does not match HLA molecule pattern {}".format(molecule.name)
+                alpha_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
+                beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(2)))
+            elif molecule.alpha_chain and molecule.beta_chain:
+                # infers name from gene, group and protein
+                alpha_chain = ModelValidator.validate_mhc_allele_representation(molecule.alpha_chain)
+                beta_chain = ModelValidator.validate_mhc_allele_representation(molecule.beta_chain)
+            else:
+                raise NeofoxDataValidationException("HLA molecule missing required fields")
 
-        # builds the final allele representation and validates it just in case
-        name = ModelConverter.get_mhc_two_molecule_name(molecule.alpha_chain, molecule.beta_chain)
-        match = ModelConverter.HLA_ALLELE_PATTERN.match(name)
-        assert match is not None, "Molecule does not match HLA molecule pattern {}".format(name)
+            # builds the final allele representation and validates it just in case
+            name = ModelConverter.get_mhc_two_molecule_name(alpha_chain, beta_chain)
+            match = ModelConverter.HLA_MOLECULE_PATTERN.match(name)
+            assert match is not None, "Molecule does not match HLA molecule pattern {}".format(name)
+        except AssertionError as e:
+            raise NeofoxDataValidationException(e)
 
         return MhcTwoMolecule(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
 
