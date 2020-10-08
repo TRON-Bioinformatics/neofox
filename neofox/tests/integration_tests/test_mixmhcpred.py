@@ -24,7 +24,7 @@ from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCp
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
-from neofox.tests import TEST_HLAI_ALLELES, TEST_HLAII_ALLELES
+from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO
 
 
 class TestMixMHCPred(TestCase):
@@ -38,7 +38,7 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 9
         mutated = 'NLVPMVATV'
         wild_type = 'NLVPIVATV'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc_alleles=TEST_HLAI_ALLELES[0:5])
+        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
         self.assertIsNotNone(mixmhcpred.best_peptide)
         self.assertIsNotNone(mixmhcpred.best_score)
         self.assertIsNotNone(mixmhcpred.best_rank)
@@ -48,7 +48,7 @@ class TestMixMHCPred(TestCase):
         mixmhcpred = MixMHCpred(runner=self.runner, configuration=self.configuration)
         mutated = 'NLVP'
         wild_type = 'NLVP'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc_alleles=TEST_HLAI_ALLELES)
+        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
         self.assertEqual(None, mixmhcpred.best_peptide)
 
     def test_mixmhcpred2_epitope_iedb(self):
@@ -56,7 +56,7 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFFKNIVTPR'
         wild_type = 'ENPVVHIFKNIVTPR'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc_alleles=TEST_HLAII_ALLELES)
+        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
         self.assertIsNotNone(mixmhcpred.best_peptide)
         self.assertIsNotNone(mixmhcpred.best_rank)
         self.assertIsNotNone(mixmhcpred.best_allele)
@@ -67,7 +67,7 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFF'
         wild_type = 'ENPVVHFF'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc_alleles=TEST_HLAII_ALLELES)
+        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
         self.assertEqual(None, mixmhcpred.best_peptide)
 
     def test_generate_nmers(self):

@@ -250,6 +250,19 @@ class TestModelValidator(TestCase):
         self._assert_valid_patient(patient=Patient(
             identifier="123",
             mhc_two=[MhcTwo(
+                name=MhcTwoName.DR, genes=[
+                    MhcTwoGene(
+                        name=MhcTwoGeneName.DRB1, zygosity=Zygosity.HOMOZYGOUS,
+                        alleles=[MhcAllele(name="HLA-DRB1*01:01")],
+                    )
+                ], molecules=[
+                    MhcTwoMolecule(name="HLA-DRB1*01:01")
+                ])
+            ])
+        )
+        self._assert_valid_patient(patient=Patient(
+            identifier="123",
+            mhc_two=[MhcTwo(
                 name=MhcTwoName.DQ, genes=[
                     MhcTwoGene(
                         name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,

@@ -74,11 +74,15 @@ class ModelValidator(object):
 
             # TODO: validate new model with molecules, genes and alleles
             # checks MHC I
+            validated_mhc_ones = []
             for m in patient.mhc_one:
-                patient.mhc_one = ModelValidator._validate_mhc_one(m)
+                validated_mhc_ones.append(ModelValidator._validate_mhc_one(m))
+            patient.mhc_one = validated_mhc_ones
             # checks MHC II
+            validated_mhc_twos = []
             for m in patient.mhc_two:
-                patient.mhc_two = ModelValidator._validate_mhc_two(m)
+                validated_mhc_twos.append(ModelValidator._validate_mhc_two(m))
+            patient.mhc_two = validated_mhc_twos
 
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
@@ -141,8 +145,9 @@ class ModelValidator(object):
         for molecule in molecules:
             validated_molecule = ModelValidator.validate_mhc_two_molecule_representation(molecule)
             validated_molecules.append(validated_molecule)
-            assert validated_molecule.alpha_chain.name in [a.name for g in genes for a in g.alleles], \
-                "Alpha chain allele not present in th list of alleles"
+            if mhc_two.name != MhcTwoName.DR:
+                assert validated_molecule.alpha_chain.name in [a.name for g in genes for a in g.alleles], \
+                    "Alpha chain allele not present in th list of alleles"
             assert validated_molecule.beta_chain.name in [a.name for g in genes for a in g.alleles], \
                 "Beta chain allele not present in th list of alleles"
         mhc_two.molecules = validated_molecules
@@ -184,9 +189,14 @@ class ModelValidator(object):
             if molecule.name:
                 # infers alpha and beta chains
                 match = ModelConverter.HLA_MOLECULE_PATTERN.match(molecule.name)
-                assert match is not None, "Molecule does not match HLA molecule pattern {}".format(molecule.name)
-                alpha_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
-                beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(2)))
+                if match:
+                    alpha_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
+                    beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(2)))
+                else:
+                    match = ModelConverter.HLA_DR_MOLECULE_PATTERN.match(molecule.name)
+                    assert match is not None, "Molecule does not match HLA molecule pattern {}".format(molecule.name)
+                    alpha_chain = MhcAllele()
+                    beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
             elif molecule.alpha_chain and molecule.beta_chain:
                 # infers name from gene, group and protein
                 alpha_chain = ModelValidator.validate_mhc_allele_representation(molecule.alpha_chain)
@@ -197,7 +207,9 @@ class ModelValidator(object):
             # builds the final allele representation and validates it just in case
             name = ModelConverter.get_mhc_two_molecule_name(alpha_chain, beta_chain)
             match = ModelConverter.HLA_MOLECULE_PATTERN.match(name)
-            assert match is not None, "Molecule does not match HLA molecule pattern {}".format(name)
+            match2 = ModelConverter.HLA_DR_MOLECULE_PATTERN.match(name)
+            assert match is not None or match2 is not None, \
+                "Molecule does not match HLA molecule pattern {}".format(name)
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
 

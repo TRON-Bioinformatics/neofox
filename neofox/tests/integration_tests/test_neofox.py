@@ -64,7 +64,7 @@ class TestNeofox(TestCase):
         neoantigens = ModelConverter.parse_candidate_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
 
         # writes output
         ModelConverter.annotations2short_wide_table(
@@ -86,7 +86,7 @@ class TestNeofox(TestCase):
         neoantigens = ModelConverter.parse_candidate_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
         self.assertEqual(1, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
@@ -100,7 +100,7 @@ class TestNeofox(TestCase):
         neoantigens = ModelConverter.parse_neoantigens_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
