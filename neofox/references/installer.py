@@ -64,10 +64,10 @@ class NeofoxReferenceInstaller(object):
         IedbFastaBuilder(os.path.join(self.reference_folder, "iedb/tcell_full_v3.csv"), iedb_fasta).build_fasta()
 
         # run makeblastdb on iedb fasta
-        cmd = "{makeblastdb} -in {iedb_fasta} -dbtype prot -parse_seqids -out {iedb_folder}".format(
+        cmd = "{makeblastdb} -in {iedb_fasta} -dbtype prot -out {iedb_folder}".format(
             makeblastdb=self.config.make_blastdb,
             iedb_fasta=iedb_fasta,
-            iedb_folder=os.path.join(iedb_folder, "iedb"))
+            iedb_folder=os.path.join(iedb_folder, "iedb_blast_db"))
         self._run_command(cmd)
 
     def _set_proteome(self):
@@ -128,8 +128,20 @@ class IedbFastaBuilder:
 
         # sets values for identifiers and sequences
         filtered_iedb["seq"] = filtered_iedb["Description"].transform(lambda x: x.strip())
-        filtered_iedb["fasta_header"] = filtered_iedb["Epitope IRI"].transform(
-            lambda x: x.replace("http://www.iedb.org/epitope/", ""))
+        # build fasta header: 449|FL-160-2 protein - Trypanosoma cruzi|JH0823|Trypanosoma cruzi|5693
+        # epitope id|Antigen Name|antigen_id|Organism Name|organism_id
+        filtered_iedb.loc[:, "epitope_id"] = filtered_iedb.loc[:, "Epitope IRI"].transform(
+            lambda x: x.replace("http://www.iedb.org/epitope/", "", regex=True))
+        filtered_iedb.loc[:, "antigen_id"] = filtered_iedb.loc[:, "Antigen IRI"].transform(
+            lambda x: x.replace("http://www.ncbi.nlm.nih.gov/protein/", "", regex=True).replace(
+                "https://ontology.iedb.org/ontology/", "", regex=True))
+        filtered_iedb.loc[:, "organism_id"] = filtered_iedb.loc[:, "Organism IRI"].transform(
+            lambda x: x.replace("http://purl.obolibrary.org/obo/NCBITaxon_", "", regex=True))
+        filtered_iedb.loc[:, "fasta_header"] = filtered_iedb.apply(
+            lambda row: ">{epitope_id}|{antigen_name}|{antigen_id}|{organism_name}|{organism_id}".format(
+                epitope_id=str(row["epitope_id"]), antigen_name=row["Antigen Name"], antigen_id=str(row["antigen_id"]),
+                organism_name=row["Organism Name"], organism_id=str(row["organism_id"])), axis=1
+        )
         filtered_iedb.drop_duplicates(subset="seq", keep="last", inplace=True)
 
         # writes output FASTA file
