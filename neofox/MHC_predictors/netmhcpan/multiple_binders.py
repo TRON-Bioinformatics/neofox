@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from collections import defaultdict
 from typing import List, Tuple
-from neofox.model.neoantigen import MhcAllele, MhcOne, Zygosity, MhcTwo
+from neofox.model.neoantigen import MhcAllele, MhcOne, Zygosity, MhcTwo, MhcTwoMolecule
 from neofox.model.validation import ModelValidator
 
 
@@ -48,7 +48,8 @@ class MultipleBinding:
         #  the NetMhcPan and NetMhc2Pan objects
         # rank, affinity, epitope sequence, allele combination
         list_of_tuples = [(float(i[9]), float(i[8]), i[2],
-                           ModelValidator.validate_mhc_two_molecule_representation(i[1])) for i in prediction_out[1]]
+                           ModelValidator.validate_mhc_two_molecule_representation(MhcTwoMolecule(name=i[1])))
+                          for i in prediction_out[1]]
         list_of_tuples.sort(key=lambda x: x[0])     # sort by rank
         return list_of_tuples
 
@@ -100,9 +101,9 @@ class MultipleBinding:
     def _get_sorted_epitopes(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes):
 
         # groups epitopes by allele
-        epitopes_by_allele = defaultdict(lambda: [])
+        epitopes_by_allele = {}
         for epitope in tuple_epitopes:
-            epitopes_by_allele.get(epitope[-1].name).append(epitope)
+            epitopes_by_allele.get(epitope[-1].name, []).append(epitope)
 
         # chooses the best epitope per allele anc considers zygosity
         best_epis_per_allele = []

@@ -44,8 +44,10 @@ FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 class ModelConverter(object):
 
     HLA_ALLELE_PATTERN = re.compile(
-        r"(?:HLA-)?(\w+)\*?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
-    HLA_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(.+)-(.+)")
+        r"(?:HLA-)?([A-Z0-9]+)[\*|_]?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
+    HLA_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})-"
+                                      r"([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})")
+    HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}:?[0-9]{2,})")
     GENES_BY_MOLECULE = {
         MhcTwoName.DR: [MhcTwoGeneName.DRB1],
         MhcTwoName.DP: [MhcTwoGeneName.DPA1, MhcTwoGeneName.DPB1],
@@ -288,7 +290,11 @@ class ModelConverter(object):
 
     @staticmethod
     def get_mhc_two_molecule_name(a: MhcAllele, b: MhcAllele):
-        return "{}-{}".format(a.name, b.name.replace("HLA-", ""))
+        # NOTE: this is needed as jus setting alpha chain to None wouldn't work with protobuf
+        if a is not None and a.name:
+            return "{}-{}".format(a.name, b.name.replace("HLA-", ""))
+        else:
+            return b.name
 
     @staticmethod
     def parse_mhc_allele(allele: str) -> MhcAllele:
