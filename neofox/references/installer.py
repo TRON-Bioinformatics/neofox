@@ -90,7 +90,8 @@ class NeofoxReferenceInstaller(object):
 
         # download proteome
         proteome_compressed_file = os.path.join(self.reference_folder, PROTEOME_DB_FOLDER, "%s.gz" % HOMO_SAPIENS_FASTA)
-        ftp_url = "ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz"
+        #ftp_url = "ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz"
+        ftp_url = "ftp://ftp.ensembl.org/pub/grch37/release-101/fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.pep.all.fa.gz"
         cmd = "wget {ftp_url} -O {proteome_file}".format(ftp_url=ftp_url, proteome_file=proteome_compressed_file)
         self._run_command(cmd)
 

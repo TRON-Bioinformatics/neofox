@@ -108,18 +108,24 @@ class TestNeofox(TestCase):
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
         if os.path.exists(previous_file):
-            previous_df = pd.read_csv(previous_file, sep="\t")
-            new_df = pd.read_csv(new_file, sep="\t")
-            self._check_rows(new_df, previous_df)
-            shared_columns = self._check_columns(new_df, previous_df)
-            has_error = False
-            for c in shared_columns:
-                has_error |= self._check_values(c, new_df, previous_df)
-            self.assertFalse(has_error)
+            NeofoxChecker(previous_file, new_file)
         else:
             logger.warning("No previous file to compare output with")
         # copies the new file to the previous file for the next execution only if no values were different
         shutil.copyfile(new_file, previous_file)
+
+
+class NeofoxChecker:
+
+    def __init__(self, previous_file, new_file):
+        previous_df = pd.read_csv(previous_file, sep="\t")
+        new_df = pd.read_csv(new_file, sep="\t")
+        self._check_rows(new_df, previous_df)
+        shared_columns = self._check_columns(new_df, previous_df)
+        has_error = False
+        for c in shared_columns:
+            has_error |= self._check_values(c, new_df, previous_df)
+        assert not has_error, "The regression test contains errors"
 
     def _check_values(self, column_name, new_df, previous_df):
         error = False
@@ -162,9 +168,9 @@ class TestNeofox(TestCase):
         if len(gained_columns) > 0:
             logger.warning("There are {} gained columns: {}".format(len(gained_columns), gained_columns))
         # fails the test if there are no shared columns
-        self.assertTrue(len(shared_columns) > 0)
+        assert len(shared_columns) > 0, "No shared columns"
         return shared_columns
 
     def _check_rows(self, new_df, previous_df):
         # fails the test if the number of rows differ
-        self.assertEqual(previous_df.shape[0], new_df.shape[0], "Mismatching number of rows")
+        assert previous_df.shape[0] == new_df.shape[0], "Mismatching number of rows"
