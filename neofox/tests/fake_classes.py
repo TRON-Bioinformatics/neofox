@@ -32,8 +32,7 @@ class FakeReferenceFolder(ReferenceFolder):
     def _check_reference_genome_folder():
         return os.environ.get(neofox.REFERENCE_FOLDER_ENV, "")
 
-    @staticmethod
-    def _check_resources(resources):
+    def _check_resources(self):
         pass
 
     def get_available_alleles(self):

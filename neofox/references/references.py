@@ -66,8 +66,21 @@ class ReferenceFolder(object):
         self.uniprot = self._get_reference_file_name('proteome_db/Homo_sapiens.fa')
 
         self.resources = [
-            self.available_mhc_ii, self.available_mhc_i, self.iedb, self.proteome_db, self.uniprot]
-        self._check_resources(self.resources)
+            self.available_mhc_ii,
+            self.available_mhc_i,
+            self.iedb,
+            self.proteome_db,
+            self.uniprot,
+            os.path.join(self.iedb, "IEDB.fasta"),
+            os.path.join(self.proteome_db, "Homo_sapiens.fa"),
+            os.path.join(self.proteome_db, "homo_sapiens.phr"),
+            os.path.join(self.proteome_db, "homo_sapiens.pin"),
+            os.path.join(self.proteome_db, "homo_sapiens.pog"),
+            os.path.join(self.proteome_db, "homo_sapiens.psd"),
+            os.path.join(self.proteome_db, "homo_sapiens.psi"),
+            os.path.join(self.proteome_db, "homo_sapiens.psq")
+        ]
+        self._check_resources()
         self._log_configuration()
         self.__available_alleles = None
 
@@ -79,8 +92,8 @@ class ReferenceFolder(object):
 
     @staticmethod
     def _check_reference_genome_folder():
-        reference_genome_folder = os.environ.get(neofox.REFERENCE_FOLDER_ENV, "")
-        if not reference_genome_folder:
+        reference_genome_folder = os.environ.get(neofox.REFERENCE_FOLDER_ENV)
+        if reference_genome_folder is None:
             raise NeofoxConfigurationException(
                 "Please, set the environment variable ${} pointing to the reference genome folder!".format(
                     neofox.REFERENCE_FOLDER_ENV))
@@ -89,15 +102,20 @@ class ReferenceFolder(object):
                 reference_genome_folder, neofox.REFERENCE_FOLDER_ENV))
         return reference_genome_folder
 
-    @staticmethod
-    def _check_resources(resources):
+    def _check_resources(self):
+        # check existence of all resources explicitly defined
         missing_resources = []
-        for r in resources:
+        for r in self.resources:
             if not os.path.exists(r):
                 missing_resources.append(r)
         if len(missing_resources) > 0:
             raise NeofoxConfigurationException(
                 "Missing resources in the reference folder: {}".format(str(missing_resources)))
+
+    def _check_reference_file(self, folder, filename):
+        if not os.path.exists(os.path.join(folder, filename)):
+            raise NeofoxConfigurationException(
+                "Missing {} file, please review the installation of the references".format(filename))
 
     def _log_configuration(self):
         logger.info("Reference genome folder: {}".format(self.reference_genome_folder))
@@ -115,7 +133,7 @@ class AvailableAlleles(object):
         self.available_mhc_i = self._load_available_hla_alleles(mhc=neofox.MHC_I, references=references)
         self.available_mhc_ii = self._load_available_hla_alleles(mhc=neofox.MHC_II, references=references)
 
-    def _load_available_hla_alleles(self, references, mhc=neofox.MHC_I):
+    def _load_available_hla_alleles(self, references: ReferenceFolder, mhc=neofox.MHC_I):
         """
         loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
         :type references: neofox.references.ReferenceFolder
