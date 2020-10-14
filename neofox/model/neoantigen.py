@@ -20,7 +20,7 @@ class Zygosity(betterproto.Enum):
     LOSS = 3
 
 
-class MhcOneGeneName(betterproto.Enum):
+class MhcOneName(betterproto.Enum):
     """*Valid names for MHC I classic genes"""
 
     A = 0
@@ -160,7 +160,7 @@ class MhcOne(betterproto.Message):
     """*Models MHC I alleles related to the same MHC I gene"""
 
     # *MHC I gene name
-    name: "MhcOneGeneName" = betterproto.enum_field(1)
+    name: "MhcOneName" = betterproto.enum_field(1)
     # *Zygosity of the gene
     zygosity: "Zygosity" = betterproto.enum_field(2)
     # *The alleles of the gene (0, 1 or 2)

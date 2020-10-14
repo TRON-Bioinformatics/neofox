@@ -22,7 +22,7 @@ import betterproto
 from neofox.model.conversion import ModelConverter
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele, MhcTwoMolecule, MhcOne, \
-    MhcOneGeneName, Zygosity, MhcTwo, MhcTwoName, MhcTwoGeneName
+    MhcOneName, Zygosity, MhcTwo, MhcTwoName, MhcTwoGeneName
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
 
@@ -91,7 +91,7 @@ class ModelValidator(object):
 
     @staticmethod
     def _validate_mhc_one(mhc_one: MhcOne) -> MhcOne:
-        assert mhc_one.name in MhcOneGeneName, "Invalid MHC I name"
+        assert mhc_one.name in MhcOneName, "Invalid MHC I name"
         assert mhc_one.zygosity in Zygosity, "Invalid zygosity"
         alleles = mhc_one.alleles
         if mhc_one.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
@@ -168,7 +168,7 @@ class ModelValidator(object):
                 raise NeofoxDataValidationException("HLA allele missing required fields, either name or gene, group and "
                                                     "protein must be provided")
 
-            assert gene in list(MhcOneGeneName.__members__.keys()) + list(MhcTwoGeneName.__members__.keys()), \
+            assert gene in list(MhcOneName.__members__.keys()) + list(MhcTwoGeneName.__members__.keys()), \
                 "Gene not from classic MHC: {}".format(gene)
             # builds the final allele representation and validates it just in case
             name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)

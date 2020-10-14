@@ -187,7 +187,7 @@ enum Zygosity {
 /**
 Valid names for MHC I classic genes
  */
-enum MhcOneGeneName {
+enum MhcOneName {
 	A = 0;
 	B = 1;
 	C = 2;
@@ -222,7 +222,7 @@ message MhcOne {
 	/**
 	MHC I gene name
 	 */
-	MhcOneGeneName name = 1;
+	MhcOneName name = 1;
 	/**
 	Zygosity of the gene
 	 */
