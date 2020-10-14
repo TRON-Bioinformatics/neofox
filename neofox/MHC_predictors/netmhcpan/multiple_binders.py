@@ -59,7 +59,7 @@ class MultipleBinding:
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
         Otherwise retunrs empty list
         """
-        return [a.name for m in mhc_molecules for a in m.gene.alleles if m.gene.zygosity == Zygosity.HOMOZYGOUS]
+        return [a.name for m in mhc_molecules for a in m.alleles if m.zygosity == Zygosity.HOMOZYGOUS]
 
     @staticmethod
     def _get_heterozygous_or_hemizygous_mhc_one_alleles(mhc_molecules: List[MhcOne]) -> List[str]:
@@ -67,8 +67,8 @@ class MultipleBinding:
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
         Otherwise retunrs empty list
         """
-        return [a.name for m in mhc_molecules for a in m.gene.alleles
-                if m.gene.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]]
+        return [a.name for m in mhc_molecules for a in m.alleles
+                if m.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]]
 
     @staticmethod
     def _get_homozygous_mhc_two_alleles(mhc_molecules: List[MhcTwo]) -> List[str]:

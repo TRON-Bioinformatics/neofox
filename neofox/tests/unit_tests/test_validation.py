@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, MhcOne, MhcOneGeneName, MhcOneGene, Zygosity, \
+from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, MhcOne, MhcOneGeneName, Zygosity, \
     MhcTwo, MhcTwoName, MhcTwoGeneName, MhcTwoGene, MhcTwoMolecule
 from neofox.model.validation import ModelValidator
 
@@ -148,15 +148,12 @@ class TestModelValidator(TestCase):
     def test_valid_mhc_i_genotype(self):
         self._assert_valid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(name=MhcOneGeneName.A, gene=MhcOneGene(
-                        name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
-                        alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")])),
-                     MhcOne(name=MhcOneGeneName.B, gene=MhcOneGene(
-                         name=MhcOneGeneName.B, zygosity=Zygosity.HOMOZYGOUS,
-                         alleles=[MhcAllele(name="HLA-B01:01")])),
-                     MhcOne(name=MhcOneGeneName.C, gene=MhcOneGene(
-                         name=MhcOneGeneName.C, zygosity=Zygosity.HEMIZYGOUS,
-                         alleles=[MhcAllele(name="HLA-C01:01")]))
+            mhc_one=[MhcOne(name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
+                            alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]),
+                     MhcOne(name=MhcOneGeneName.B, zygosity=Zygosity.HOMOZYGOUS,
+                            alleles=[MhcAllele(name="HLA-B01:01")]),
+                     MhcOne(name=MhcOneGeneName.C, zygosity=Zygosity.HEMIZYGOUS,
+                            alleles=[MhcAllele(name="HLA-C01:01")])
                      ]
         ))
 
@@ -165,60 +162,40 @@ class TestModelValidator(TestCase):
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, gene=MhcOneGene(
-                    name=MhcOneGeneName.A, zygosity=Zygosity.HOMOZYGOUS,
-                    alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02"), MhcAllele(name="HLA-A01:03")]
-                )
+                name=MhcOneGeneName.A, zygosity=Zygosity.HOMOZYGOUS,
+                alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02"), MhcAllele(name="HLA-A01:03")]
             )]
         ))
         # 2 alleles for homozygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, gene=MhcOneGene(
-                    name=MhcOneGeneName.A, zygosity=Zygosity.HOMOZYGOUS,
-                    alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
-                )
+                name=MhcOneGeneName.A, zygosity=Zygosity.HOMOZYGOUS,
+                alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
             )]
         ))
         # 1 alleles for heterozygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, gene=MhcOneGene(
-                    name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
-                    alleles=[MhcAllele(name="HLA-A01:01")]
-                )
+                name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
+                alleles=[MhcAllele(name="HLA-A01:01")]
             )]
         ))
         # 1 alleles for hemizygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, gene=MhcOneGene(
-                    name=MhcOneGeneName.A, zygosity=Zygosity.HEMIZYGOUS,
-                    alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
-                )
+                name=MhcOneGeneName.A, zygosity=Zygosity.HEMIZYGOUS,
+                alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
             )]
         ))
         # alleles referring to a different gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, gene=MhcOneGene(
-                    name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
-                    alleles=[MhcAllele(name="HLA-B01:01"), MhcAllele(name="HLA-B01:02")]
-                )
-            )]
-        ))
-        # MHC and gene referring to different entities
-        self._assert_invalid_patient(patient=Patient(
-            identifier="123",
-            mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, gene=MhcOneGene(
-                    name=MhcOneGeneName.B, zygosity=Zygosity.HETEROZYGOUS,
-                    alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
-                )
+                name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
+                alleles=[MhcAllele(name="HLA-B01:01"), MhcAllele(name="HLA-B01:02")]
             )]
         ))
 

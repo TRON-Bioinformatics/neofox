@@ -27,7 +27,7 @@ import difflib
 from collections import defaultdict
 import json
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, NeoantigenAnnotations, MhcTwoName, \
-    MhcTwoGeneName, Zygosity, MhcTwoGene, MhcTwo, MhcTwoMolecule, MhcAllele, MhcOneGeneName, MhcOne, MhcOneGene
+    MhcTwoGeneName, Zygosity, MhcTwoGene, MhcTwo, MhcTwoMolecule, MhcAllele, MhcOneGeneName, MhcOne
 
 FIELD_SUBSTITUTION = 'substitution'
 
@@ -244,8 +244,7 @@ class ModelConverter(object):
             zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
             if zygosity == Zygosity.HOMOZYGOUS:
                 gene_alleles = [gene_alleles[0]]   # we don't want repeated instances of the same allele
-            molecules.append(MhcOne(
-                name=gene_name, gene=MhcOneGene(name=gene_name, zygosity=zygosity, alleles=gene_alleles)))
+            molecules.append(MhcOne(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
         return molecules
 
     @staticmethod

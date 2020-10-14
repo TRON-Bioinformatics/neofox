@@ -8,20 +8,20 @@ import betterproto
 
 
 class Zygosity(betterproto.Enum):
-    """* The zygosity of a given gene"""
+    """*The zygosity of a given gene"""
 
-    # * Two equal copies of the gene
+    # *Two equal copies of the gene
     HOMOZYGOUS = 0
-    # * Two different copies of the gene
+    # *Two different copies of the gene
     HETEROZYGOUS = 1
-    # * Only one copy of the gene
+    # *Only one copy of the gene
     HEMIZYGOUS = 2
-    # * No copy of the gene
+    # *No copy of the gene
     LOSS = 3
 
 
 class MhcOneGeneName(betterproto.Enum):
-    """* Valid names for MHC I classic genes"""
+    """*Valid names for MHC I classic genes"""
 
     A = 0
     B = 1
@@ -30,9 +30,9 @@ class MhcOneGeneName(betterproto.Enum):
 
 class MhcTwoGeneName(betterproto.Enum):
     """
-    * Valid names for MHC II classic genes. DRA is not included in this list as
-    it does not have much variability in the population and for our purpose is
-    considered constant.
+    *Valid names for MHC II classic genes.DRA is not included in this list as
+    it does not have much variability in the population and for our purpose
+    isconsidered constant.
     """
 
     DRB1 = 0
@@ -43,7 +43,7 @@ class MhcTwoGeneName(betterproto.Enum):
 
 
 class MhcTwoName(betterproto.Enum):
-    """* Valid names for MHC II classic molecules"""
+    """*Valid names for MHC II classic molecules"""
 
     DR = 0
     DP = 1
@@ -52,184 +52,175 @@ class MhcTwoName(betterproto.Enum):
 
 @dataclass
 class Transcript(betterproto.Message):
-    # * The transcript identifier to which this neoepitope definition refers
+    # *The transcript identifier to which this neoepitope definition refers
     # (e.g.: Ensembl transcript id)
     identifier: str = betterproto.string_field(1)
-    # * The genome assembly to which the gene definition refers to (e.g.: GRCh37,
+    # *The genome assembly to which the gene definition refers to (e.g.: GRCh37,
     # GRCh38)
     assembly: str = betterproto.string_field(2)
-    # * The gene symbol or gene identifier, optional as the transcript
+    # *The gene symbol or gene identifier, optional as the transcript
     # unequivocally identifies a gene
     gene: str = betterproto.string_field(3)
 
 
 @dataclass
 class Mutation(betterproto.Message):
-    # * The aminoacid position within the protein. 1-based, starting in the
+    # *The aminoacid position within the protein. 1-based, starting in the
     # N-terminus
     position: int = betterproto.int32_field(1)
-    # * Sequence of aminoacids for the wild type xmer
+    # *Sequence of aminoacids for the wild type xmer
     wild_type_xmer: str = betterproto.string_field(2)
-    # * IUPAC code for the wild type aminoacid in this position
+    # *IUPAC code for the wild type aminoacid in this position
     wild_type_aminoacid: str = betterproto.string_field(3)
-    # * Sequence of aminoacids for the mutated xmer
+    # *Sequence of aminoacids for the mutated xmer
     mutated_xmer: str = betterproto.string_field(4)
-    # * IUPAC code for the mutated aminoacid in this position
+    # *IUPAC code for the mutated aminoacid in this position
     mutated_aminoacid: str = betterproto.string_field(5)
-    # * The left flanking region of variable size in IUPAC codes
+    # *The left flanking region of variable size in IUPAC codes
     left_flanking_region: str = betterproto.string_field(6)
-    # * The size of the left flanking region
+    # *The size of the left flanking region
     size_left_flanking_region: int = betterproto.int32_field(7)
-    # * The right flanking region of variable size in IUPAC codes
+    # *The right flanking region of variable size in IUPAC codes
     right_flanking_region: str = betterproto.string_field(8)
-    # * The size of the right flanking region
+    # *The size of the right flanking region
     size_right_flanking_region: int = betterproto.int32_field(9)
 
 
 @dataclass
 class Neoantigen(betterproto.Message):
-    """* A neoantigen minimal definition"""
+    """*A neoantigen minimal definition"""
 
-    # * A unique identifier of a neoantigen
+    # *A unique identifier of a neoantigen
     identifier: str = betterproto.string_field(1)
-    # * Patient identifier
+    # *Patient identifier
     patient_identifier: str = betterproto.string_field(2)
-    # * The transcript where the neoepitope was observed
+    # *The transcript where the neoepitope was observed
     transcript: "Transcript" = betterproto.message_field(3)
-    # * The mutation
+    # *The mutation
     mutation: "Mutation" = betterproto.message_field(4)
-    # * Clonality estimation. At the moment this is a boolean indicating whether
-    # there is clonality or not, there is no quantitive measurement at the
-    # moment.
+    # *Clonality estimation. At the moment this is a boolean indicating whether
+    # there is clonality or not,there is no quantitive measurement at the moment.
     clonality_estimation: bool = betterproto.bool_field(5)
-    # * Expression value of the transcript from RNA data. Range [0, +inf].
+    # *Expression value of the transcript from RNA data. Range [0, +inf].
     rna_expression: float = betterproto.float_field(6)
-    # * Variant allele frequency from the DNA. Range [0.0, 1.0]
+    # *Variant allele frequency from the DNA. Range [0.0, 1.0]
     dna_variant_allele_frequency: float = betterproto.float_field(7)
-    # * Variant allele frequency from the RNA. Range [0.0, 1.0]
+    # *Variant allele frequency from the RNA. Range [0.0, 1.0]
     rna_variant_allele_frequency: float = betterproto.float_field(8)
 
 
 @dataclass
 class Patient(betterproto.Message):
     """
-    * The metadata required for analysis for a given patient + its patient
+    *The metadata required for analysis for a given patient + its patient
     identifier
     """
 
-    # * Patient identifier
+    # *Patient identifier
     identifier: str = betterproto.string_field(1)
-    # * Is RNA expression available?
+    # *Is RNA expression available?
     is_rna_available: bool = betterproto.bool_field(2)
-    # * MHC I classic molecules
+    # *MHC I classic molecules
     mhc_one: List["MhcOne"] = betterproto.message_field(3)
-    # * MHC II classic molecules
+    # *MHC II classic molecules
     mhc_two: List["MhcTwo"] = betterproto.message_field(4)
 
 
 @dataclass
 class Annotation(betterproto.Message):
-    """* This is a generic class to hold annotations from INPuT"""
+    """*This is a generic class to hold annotations from INPuT"""
 
-    # * The name of the annotation
+    # *The name of the annotation
     name: str = betterproto.string_field(1)
-    # * The value of the annotation TODO: make this better to hold int, float and
+    # *The value of the annotationTODO: make this better to hold int, float and
     # bool
     value: str = betterproto.string_field(2)
 
 
 @dataclass
 class NeoantigenAnnotations(betterproto.Message):
-    """* A set of annotations for a neoantigen"""
+    """*A set of annotations for a neoantigen"""
 
-    # * A unique identifier of a neoantigen
+    # *A unique identifier of a neoantigen
     neoantigen_identifier: str = betterproto.string_field(1)
-    # * List of annotations
+    # *List of annotations
     annotations: List["Annotation"] = betterproto.message_field(2)
-    # * The annotator
+    # *The annotator
     annotator: str = betterproto.string_field(3)
-    # * The version of the annotator
+    # *The version of the annotator
     annotator_version: str = betterproto.string_field(4)
-    # * A timestamp determined when the annotation was created
+    # *A timestamp determined when the annotation was created
     timestamp: str = betterproto.string_field(5)
-    # * Annotation resources MD5 hash
+    # *Annotation resources MD5 hash
     resources_hash: str = betterproto.string_field(6)
 
 
 @dataclass
 class MhcOne(betterproto.Message):
-    """* MHC I"""
+    """*Models MHC I alleles related to the same MHC I gene"""
 
-    # * MHC I molecule name (ie: the name of MHC I molecules and genes are the
-    # same)
+    # *MHC I gene name
     name: "MhcOneGeneName" = betterproto.enum_field(1)
-    # * Associated MHC I gene
-    gene: "MhcOneGene" = betterproto.message_field(2)
-
-
-@dataclass
-class MhcOneGene(betterproto.Message):
-    """* MHC I gene"""
-
-    # * The name of the MHC I gene
-    name: "MhcOneGeneName" = betterproto.enum_field(1)
-    # * Zygosity of the gene
+    # *Zygosity of the gene
     zygosity: "Zygosity" = betterproto.enum_field(2)
-    # * The alleles of the gene (0, 1 or 2)
+    # *The alleles of the gene (0, 1 or 2)
     alleles: List["MhcAllele"] = betterproto.message_field(3)
 
 
 @dataclass
 class MhcTwo(betterproto.Message):
-    """* MHC II"""
+    """*Models MHC II alleles related to the same MHC II"""
 
-    # * MHC II molecule name
+    # *MHC II molecule name
     name: "MhcTwoName" = betterproto.enum_field(1)
-    # * List of MHC II genes
+    # *List of MHC II genes
     genes: List["MhcTwoGene"] = betterproto.message_field(2)
-    # * Different combinations of MHC II alleles building different molecules
+    # *Different combinations of MHC II alleles building different molecules
     molecules: List["MhcTwoMolecule"] = betterproto.message_field(3)
 
 
 @dataclass
 class MhcTwoMolecule(betterproto.Message):
-    """* MHC II molecule"""
+    """*MHC II molecule"""
 
-    # * Name to refer to the MHC II molecule
+    # *Name to refer to the MHC II molecule
     name: str = betterproto.string_field(1)
-    # * The alpha chain of the molecule
+    # *The alpha chain of the molecule
     alpha_chain: "MhcAllele" = betterproto.message_field(2)
-    # * The beta chain of the molecule
+    # *The beta chain of the molecule
     beta_chain: "MhcAllele" = betterproto.message_field(3)
 
 
 @dataclass
 class MhcTwoGene(betterproto.Message):
-    """* MHC II gene"""
+    """*MHC II gene"""
 
-    # * MHC II gene name
+    # *MHC II gene name
     name: "MhcTwoGeneName" = betterproto.enum_field(1)
-    # * Zygosity of the gene
+    # *Zygosity of the gene
     zygosity: "Zygosity" = betterproto.enum_field(2)
-    # * The alleles of the gene (0, 1 or 2)
+    # *The alleles of the gene (0, 1 or 2)
     alleles: List["MhcAllele"] = betterproto.message_field(3)
 
 
 @dataclass
 class MhcAllele(betterproto.Message):
     """
-    * MHC allele representation. It does not include non synonymous changes to
-    the sequence, changes in the non coding region or changes in expression.
+    *MHC allele representation. It does not include non synonymous changes to
+    the sequence, changes in the non coding regionor changes in expression. See
+    http://hla.alleles.org/nomenclature/naming.html for details
     """
 
-    # * HLA allele name according to
-    # http://hla.alleles.org/nomenclature/naming.html
+    # *HLA allele full name (e.g.: HLA-A*01:01)
     name: str = betterproto.string_field(1)
-    # * The gene from either MHC I or II (this information is redundant with the
-    # MhcOneGene.name and MhcTwoGene.name but it is convenient to have this at
+    # *The gene from either MHC I or II (this information is redundant with the
+    # MhcOneGene.name and MhcTwoGene.name but itis convenient to have this at
     # this level too, code will check for data coherence)
     gene: str = betterproto.string_field(2)
-    # * A group of alleles defined by a common serotype
+    # *A group of alleles defined by a common serotype ie: Serological antigen
+    # carried by an allotype
     group: str = betterproto.string_field(3)
-    # * A specific HLA protein
+    # *A specific HLA protein. Alleles whose numbers differ in group and protein
+    # must differ in one or more nucleotidesubstitutions that change the amino
+    # acid sequence of the encoded protein.
     protein: str = betterproto.string_field(4)

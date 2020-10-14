@@ -216,25 +216,11 @@ enum MhcTwoName {
 }
 
 /**
-Models MHC I molecule
+Models MHC I alleles related to the same MHC I gene
  */
 message MhcOne {
 	/**
-	MHC I molecule name (ie: the name of MHC I molecules and genes are the same)
-	 */
-	MhcOneGeneName name = 1;
-	/**
-	Associated MHC I gene
-	 */
-	MhcOneGene gene = 2;
-}
-
-/**
-Models MHC I alleles related to the same MHC I gene
- */
-message MhcOneGene {
-	/**
-	The name of the MHC I gene
+	MHC I gene name
 	 */
 	MhcOneGeneName name = 1;
 	/**
@@ -248,7 +234,7 @@ message MhcOneGene {
 }
 
 /**
-MHC II
+Models MHC II alleles related to the same MHC II
  */
 message MhcTwo {
 	/**
