@@ -216,7 +216,7 @@ enum MhcTwoName {
 }
 
 /**
-MHC I
+Models MHC I molecule
  */
 message MhcOne {
 	/**
@@ -230,7 +230,7 @@ message MhcOne {
 }
 
 /**
-MHC I gene
+Models MHC I alleles related to the same MHC I gene
  */
 message MhcOneGene {
 	/**
@@ -303,11 +303,11 @@ message MhcTwoGene {
 
 /**
 MHC allele representation. It does not include non synonymous changes to the sequence, changes in the non coding region
-or changes in expression.
+or changes in expression. See http://hla.alleles.org/nomenclature/naming.html for details
  */
 message MhcAllele {
 	/**
-	HLA allele name according to http://hla.alleles.org/nomenclature/naming.html
+	HLA allele full name (e.g.: HLA-A*01:01)
 	 */
 	string name = 1;
 	/**
