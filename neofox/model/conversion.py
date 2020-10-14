@@ -27,7 +27,7 @@ import difflib
 from collections import defaultdict
 import json
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, NeoantigenAnnotations, MhcTwoName, \
-    MhcTwoGeneName, Zygosity, MhcTwoGene, MhcTwo, MhcTwoMolecule, MhcAllele, MhcOneGeneName, MhcOne
+    MhcTwoGeneName, Zygosity, MhcTwoGene, MhcTwo, MhcTwoMolecule, MhcAllele, MhcOneName, MhcOne
 
 FIELD_SUBSTITUTION = 'substitution'
 
@@ -239,7 +239,7 @@ class ModelConverter(object):
         parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
         ModelConverter._validate_mhc_one_alleles(parsed_alleles)
         # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-        for gene_name in MhcOneGeneName:
+        for gene_name in MhcOneName:
             gene_alleles = list(filter(lambda a: a.gene == gene_name.name, parsed_alleles))
             zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
             if zygosity == Zygosity.HOMOZYGOUS:
@@ -323,7 +323,7 @@ class ModelConverter(object):
     @staticmethod
     def _validate_mhc_one_alleles(parsed_alleles: List[MhcAllele]):
         for a in parsed_alleles:
-            assert a.gene in MhcOneGeneName.__members__, "Gene from MHC I allele is not valid: {}".format(a.gene)
+            assert a.gene in MhcOneName.__members__, "Gene from MHC I allele is not valid: {}".format(a.gene)
 
     @staticmethod
     def _validate_mhc_two_alleles(parsed_alleles: List[MhcAllele]):

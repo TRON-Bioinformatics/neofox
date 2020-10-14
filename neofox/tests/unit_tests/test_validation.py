@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, MhcOne, MhcOneGeneName, Zygosity, \
+from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, MhcOne, MhcOneName, Zygosity, \
     MhcTwo, MhcTwoName, MhcTwoGeneName, MhcTwoGene, MhcTwoMolecule
 from neofox.model.validation import ModelValidator
 
@@ -148,11 +148,11 @@ class TestModelValidator(TestCase):
     def test_valid_mhc_i_genotype(self):
         self._assert_valid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
+            mhc_one=[MhcOne(name=MhcOneName.A, zygosity=Zygosity.HETEROZYGOUS,
                             alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]),
-                     MhcOne(name=MhcOneGeneName.B, zygosity=Zygosity.HOMOZYGOUS,
+                     MhcOne(name=MhcOneName.B, zygosity=Zygosity.HOMOZYGOUS,
                             alleles=[MhcAllele(name="HLA-B01:01")]),
-                     MhcOne(name=MhcOneGeneName.C, zygosity=Zygosity.HEMIZYGOUS,
+                     MhcOne(name=MhcOneName.C, zygosity=Zygosity.HEMIZYGOUS,
                             alleles=[MhcAllele(name="HLA-C01:01")])
                      ]
         ))
@@ -162,7 +162,7 @@ class TestModelValidator(TestCase):
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, zygosity=Zygosity.HOMOZYGOUS,
+                name=MhcOneName.A, zygosity=Zygosity.HOMOZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02"), MhcAllele(name="HLA-A01:03")]
             )]
         ))
@@ -170,7 +170,7 @@ class TestModelValidator(TestCase):
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, zygosity=Zygosity.HOMOZYGOUS,
+                name=MhcOneName.A, zygosity=Zygosity.HOMOZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
             )]
         ))
@@ -178,7 +178,7 @@ class TestModelValidator(TestCase):
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
+                name=MhcOneName.A, zygosity=Zygosity.HETEROZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01")]
             )]
         ))
@@ -186,7 +186,7 @@ class TestModelValidator(TestCase):
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, zygosity=Zygosity.HEMIZYGOUS,
+                name=MhcOneName.A, zygosity=Zygosity.HEMIZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
             )]
         ))
@@ -194,7 +194,7 @@ class TestModelValidator(TestCase):
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
             mhc_one=[MhcOne(
-                name=MhcOneGeneName.A, zygosity=Zygosity.HETEROZYGOUS,
+                name=MhcOneName.A, zygosity=Zygosity.HETEROZYGOUS,
                 alleles=[MhcAllele(name="HLA-B01:01"), MhcAllele(name="HLA-B01:02")]
             )]
         ))
