@@ -21,6 +21,15 @@ from logzero import logger
 import neofox
 from neofox.exceptions import NeofoxConfigurationException
 
+PREFIX_HOMO_SAPIENS = "homo_sapiens"
+HOMO_SAPIENS_FASTA = "Homo_sapiens.fa"
+IEDB_FASTA = "IEDB.fasta"
+PROTEOME_DB_FOLDER = 'proteome_db'
+IEDB_FOLDER = 'iedb'
+IEDB_BLAST_PREFIX = "iedb_blast_db"
+NETMHCPAN_AVAILABLE_ALLELES_FILE = 'netmhcpan_available_alleles.txt'
+NETMHC2PAN_AVAILABLE_ALLELES_FILE = 'netmhc2pan_available_alleles.txt'
+
 
 class AbstractDependenciesConfiguration:
 
@@ -66,11 +75,11 @@ class ReferenceFolder(object):
     def __init__(self):
         self.reference_genome_folder = self._check_reference_genome_folder()
         # sets the right file names for the resources
-        self.available_mhc_ii = self._get_reference_file_name('avail_mhcII.txt')
-        self.available_mhc_i = self._get_reference_file_name('MHC_available.csv')
-        self.iedb = self._get_reference_file_name('iedb')
-        self.proteome_db = self._get_reference_file_name('proteome_db')
-        self.uniprot = self._get_reference_file_name('proteome_db/Homo_sapiens.fa')
+        self.available_mhc_ii = self._get_reference_file_name(NETMHC2PAN_AVAILABLE_ALLELES_FILE)
+        self.available_mhc_i = self._get_reference_file_name(NETMHCPAN_AVAILABLE_ALLELES_FILE)
+        self.iedb = self._get_reference_file_name(IEDB_FOLDER)
+        self.proteome_db = self._get_reference_file_name(PROTEOME_DB_FOLDER)
+        self.uniprot = self._get_reference_file_name(os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_FASTA))
 
         self.resources = [
             self.available_mhc_ii,
@@ -78,14 +87,17 @@ class ReferenceFolder(object):
             self.iedb,
             self.proteome_db,
             self.uniprot,
-            os.path.join(self.iedb, "IEDB.fasta"),
-            os.path.join(self.proteome_db, "Homo_sapiens.fa"),
-            os.path.join(self.proteome_db, "homo_sapiens.phr"),
-            os.path.join(self.proteome_db, "homo_sapiens.pin"),
-            os.path.join(self.proteome_db, "homo_sapiens.pog"),
-            os.path.join(self.proteome_db, "homo_sapiens.psd"),
-            os.path.join(self.proteome_db, "homo_sapiens.psi"),
-            os.path.join(self.proteome_db, "homo_sapiens.psq")
+            os.path.join(self.iedb, IEDB_FASTA),
+            os.path.join(self.iedb, "{}.phr".format(IEDB_BLAST_PREFIX)),
+            os.path.join(self.iedb, "{}.pin".format(IEDB_BLAST_PREFIX)),
+            os.path.join(self.iedb, "{}.psq".format(IEDB_BLAST_PREFIX)),
+            os.path.join(self.proteome_db, HOMO_SAPIENS_FASTA),
+            os.path.join(self.proteome_db, "%s.phr" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.pin" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.pog" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.psd" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.psi" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.psq" % PREFIX_HOMO_SAPIENS)
         ]
         self._check_resources()
         self._log_configuration()
