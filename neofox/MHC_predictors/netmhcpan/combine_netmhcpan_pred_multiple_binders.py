@@ -24,7 +24,7 @@ from neofox.MHC_predictors.netmhcpan.multiple_binders import MultipleBinding
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.helpers import intermediate_files
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation, MhcOne
+from neofox.model.neoantigen import Annotation, Mhc1
 from neofox.model.wrappers import AnnotationFactory
 import neofox.helpers.casting as casting
 
@@ -83,7 +83,7 @@ class BestAndMultipleBinder:
             phbr_i = stats.hmean(list_best_mhc_scores_per_allele)
         return phbr_i
 
-    def run(self, sequence_wt: str, sequence_mut: str, mhc: List[MhcOne], available_mhc_alleles: Set):
+    def run(self, sequence_wt: str, sequence_mut: str, mhc: List[Mhc1], available_mhc_alleles: Set):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """

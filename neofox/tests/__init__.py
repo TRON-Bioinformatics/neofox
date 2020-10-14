@@ -18,9 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from neofox.model.conversion import ModelConverter
 
-TEST_MHC_ONE = ModelConverter.parse_mhc_one_alleles(
+TEST_MHC_ONE = ModelConverter.parse_mhc1_alleles(
     ['HLA-A*24:02', 'HLA-A*02:01', 'HLA-B*15:01', 'HLA-B*44:02', 'HLA-C*07:02', 'HLA-C*05:01'])
 
-TEST_MHC_TWO = ModelConverter.parse_mhc_two_alleles(
+TEST_MHC_TWO = ModelConverter.parse_mhc2_alleles(
     ['HLA-DRB1*04:01', 'HLA-DRB1*04:04', 'HLA-DQB1*03:01', 'HLA-DQB1*03:02'])
 

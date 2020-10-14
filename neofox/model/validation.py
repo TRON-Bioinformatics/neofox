@@ -21,8 +21,8 @@ import hashlib
 import betterproto
 from neofox.model.conversion import ModelConverter
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele, MhcTwoMolecule, MhcOne, \
-    MhcOneName, Zygosity, MhcTwo, MhcTwoName, MhcTwoGeneName
+from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele, Mhc2Molecule, Mhc1, \
+    Mhc1Name, Zygosity, Mhc2, Mhc2Name, Mhc2GeneName
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
 
@@ -74,15 +74,15 @@ class ModelValidator(object):
 
             # TODO: validate new model with molecules, genes and alleles
             # checks MHC I
-            validated_mhc_ones = []
-            for m in patient.mhc_one:
-                validated_mhc_ones.append(ModelValidator._validate_mhc_one(m))
-            patient.mhc_one = validated_mhc_ones
+            validated_mhc1s = []
+            for m in patient.mhc1:
+                validated_mhc1s.append(ModelValidator._validate_mhc1(m))
+            patient.mhc1 = validated_mhc1s
             # checks MHC II
-            validated_mhc_twos = []
-            for m in patient.mhc_two:
-                validated_mhc_twos.append(ModelValidator._validate_mhc_two(m))
-            patient.mhc_two = validated_mhc_twos
+            validated_mhc2s = []
+            for m in patient.mhc2:
+                validated_mhc2s.append(ModelValidator._validate_mhc2(m))
+            patient.mhc2 = validated_mhc2s
 
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
@@ -90,35 +90,35 @@ class ModelValidator(object):
         return patient
 
     @staticmethod
-    def _validate_mhc_one(mhc_one: MhcOne) -> MhcOne:
-        assert mhc_one.name in MhcOneName, "Invalid MHC I name"
-        assert mhc_one.zygosity in Zygosity, "Invalid zygosity"
-        alleles = mhc_one.alleles
-        if mhc_one.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
+    def _validate_mhc1(mhc1: Mhc1) -> Mhc1:
+        assert mhc1.name in Mhc1Name, "Invalid MHC I name"
+        assert mhc1.zygosity in Zygosity, "Invalid zygosity"
+        alleles = mhc1.alleles
+        if mhc1.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
             assert len(alleles) == 1, "An homozygous gene must have 1 allele and not {}".format(len(alleles))
-        elif mhc_one.zygosity == Zygosity.HETEROZYGOUS:
+        elif mhc1.zygosity == Zygosity.HETEROZYGOUS:
             assert len(alleles) == 2, "An heterozygous or hemizygous gene must have 2 alleles and not {}".format(
                 len(alleles))
-        elif mhc_one.zygosity == Zygosity.LOSS:
+        elif mhc1.zygosity == Zygosity.LOSS:
             assert len(alleles) == 0, "An lost gene must have 0 alleles and not {}".format(
                 len(alleles))
         validated_alleles = []
         for allele in alleles:
             validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
             validated_alleles.append(validated_allele)
-            assert validated_allele.gene == mhc_one.name.name, \
-                "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, mhc_one.name.name)
-        mhc_one.alleles = validated_alleles
-        return mhc_one
+            assert validated_allele.gene == mhc1.name.name, \
+                "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, mhc1.name.name)
+        mhc1.alleles = validated_alleles
+        return mhc1
 
     @staticmethod
-    def _validate_mhc_two(mhc_two: MhcTwo) -> MhcTwo:
-        assert mhc_two.name in MhcTwoName, "Invalid MHC II name"
-        genes = mhc_two.genes
+    def _validate_mhc2(mhc2: Mhc2) -> Mhc2:
+        assert mhc2.name in Mhc2Name, "Invalid MHC II name"
+        genes = mhc2.genes
         for gene in genes:
-            assert gene.name in MhcTwoGeneName, "Invalid gene name from MHC II"
-            assert gene.name in ModelConverter.GENES_BY_MOLECULE.get(mhc_two.name), \
-                "Gene {} referring to molecule {}".format(gene.name, mhc_two.name.name)
+            assert gene.name in Mhc2GeneName, "Invalid gene name from MHC II"
+            assert gene.name in ModelConverter.GENES_BY_MOLECULE.get(mhc2.name), \
+                "Gene {} referring to molecule {}".format(gene.name, mhc2.name.name)
             assert gene.zygosity in Zygosity, "Invalid zygosity"
             alleles = gene.alleles
             if gene.zygosity == Zygosity.HOMOZYGOUS:
@@ -136,18 +136,18 @@ class ModelValidator(object):
                 assert validated_allele.gene == gene.name.name, \
                     "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, gene.name.name)
             gene.alleles = validated_alleles
-        molecules = mhc_two.molecules
+        molecules = mhc2.molecules
         validated_molecules = []
         for molecule in molecules:
-            validated_molecule = ModelValidator.validate_mhc_two_molecule_representation(molecule)
+            validated_molecule = ModelValidator.validate_mhc2_molecule_representation(molecule)
             validated_molecules.append(validated_molecule)
-            if mhc_two.name != MhcTwoName.DR:
+            if mhc2.name != Mhc2Name.DR:
                 assert validated_molecule.alpha_chain.name in [a.name for g in genes for a in g.alleles], \
                     "Alpha chain allele not present in th list of alleles"
             assert validated_molecule.beta_chain.name in [a.name for g in genes for a in g.alleles], \
                 "Beta chain allele not present in th list of alleles"
-        mhc_two.molecules = validated_molecules
-        return mhc_two
+        mhc2.molecules = validated_molecules
+        return mhc2
 
     @staticmethod
     def validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
@@ -168,7 +168,7 @@ class ModelValidator(object):
                 raise NeofoxDataValidationException("HLA allele missing required fields, either name or gene, group and "
                                                     "protein must be provided")
 
-            assert gene in list(MhcOneName.__members__.keys()) + list(MhcTwoGeneName.__members__.keys()), \
+            assert gene in list(Mhc1Name.__members__.keys()) + list(Mhc2GeneName.__members__.keys()), \
                 "Gene not from classic MHC: {}".format(gene)
             # builds the final allele representation and validates it just in case
             name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)
@@ -180,7 +180,7 @@ class ModelValidator(object):
         return MhcAllele(name=name, gene=gene, group=group, protein=protein)
 
     @staticmethod
-    def validate_mhc_two_molecule_representation(molecule: MhcTwoMolecule) -> MhcTwoMolecule:
+    def validate_mhc2_molecule_representation(molecule: Mhc2Molecule) -> Mhc2Molecule:
         try:
             if molecule.name:
                 # infers alpha and beta chains
@@ -201,7 +201,7 @@ class ModelValidator(object):
                 raise NeofoxDataValidationException("HLA molecule missing required fields")
 
             # builds the final allele representation and validates it just in case
-            name = ModelConverter.get_mhc_two_molecule_name(alpha_chain, beta_chain)
+            name = ModelConverter.get_mhc2_molecule_name(alpha_chain, beta_chain)
             match = ModelConverter.HLA_MOLECULE_PATTERN.match(name)
             match2 = ModelConverter.HLA_DR_MOLECULE_PATTERN.match(name)
             assert match is not None or match2 is not None, \
@@ -209,7 +209,7 @@ class ModelValidator(object):
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
 
-        return MhcTwoMolecule(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
+        return Mhc2Molecule(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
 
     @staticmethod
     def _validate_expression_values(neoantigen):

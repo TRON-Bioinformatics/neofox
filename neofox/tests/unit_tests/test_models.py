@@ -24,7 +24,7 @@ import pandas as pd
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
-    MhcTwoName
+    Mhc2Name
 from neofox.model.validation import ModelValidator
 from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
 
@@ -148,10 +148,10 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Pt29")
-        self.assertEqual(3, len(patients[0].mhc_one))
-        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.alleles]))
-        self.assertEqual(3, len(patients[0].mhc_two))
-        self.assertEqual(9, len([a for m in patients[0].mhc_two for g in m.genes for a in g.alleles]))
+        self.assertEqual(3, len(patients[0].mhc1))
+        self.assertEqual(6, len([a for m in patients[0].mhc1 for a in m.alleles]))
+        self.assertEqual(3, len(patients[0].mhc2))
+        self.assertEqual(9, len([a for m in patients[0].mhc2 for g in m.genes for a in g.alleles]))
         self.assertEqual(patients[0].is_rna_available, False)
 
     def test_patients_csv_file2model2(self):
@@ -162,10 +162,10 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Pt29")
-        self.assertEqual(3, len(patients[0].mhc_one))
-        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.alleles]))
-        self.assertEqual(3, len(patients[0].mhc_two))
-        self.assertEqual(9, len([a for m in patients[0].mhc_two for g in m.genes for a in g.alleles]))
+        self.assertEqual(3, len(patients[0].mhc1))
+        self.assertEqual(6, len([a for m in patients[0].mhc1 for a in m.alleles]))
+        self.assertEqual(3, len(patients[0].mhc2))
+        self.assertEqual(9, len([a for m in patients[0].mhc2 for g in m.genes for a in g.alleles]))
         self.assertEqual(patients[0].is_rna_available, True)
 
     def test_patients_csv_file2model3(self):
@@ -176,13 +176,13 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Ptx")
-        self.assertEqual(3, len(patients[0].mhc_one))
-        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.alleles]))
-        self.assertEqual(3, len(patients[0].mhc_two))
-        self.assertEqual(10, len([a for m in patients[0].mhc_two for g in m.genes for a in g.alleles]))
-        self.assertTrue("HLA-A*03:01" in [a.name for m in patients[0].mhc_one for a in m.alleles])
+        self.assertEqual(3, len(patients[0].mhc1))
+        self.assertEqual(6, len([a for m in patients[0].mhc1 for a in m.alleles]))
+        self.assertEqual(3, len(patients[0].mhc2))
+        self.assertEqual(10, len([a for m in patients[0].mhc2 for g in m.genes for a in g.alleles]))
+        self.assertTrue("HLA-A*03:01" in [a.name for m in patients[0].mhc1 for a in m.alleles])
         self.assertTrue("HLA-DQA1*04:01" in
-                        [a.name for m in patients[0].mhc_two for g in m.genes for a in g.alleles])
+                        [a.name for m in patients[0].mhc2 for g in m.genes for a in g.alleles])
         self.assertTrue(patients[0].is_rna_available)
 
     def test_annotations2short_wide_df(self):
@@ -212,124 +212,124 @@ class ModelConverterTest(TestCase):
         self.assertEqual(df_annotations.shape[0], 8)
         self.assertEqual(df_annotations.shape[1], 3)
 
-    def test_parse_mhc_one_heterozygous_alleles(self):
-        mhc_ones = ModelConverter.parse_mhc_one_alleles(
+    def test_parse_mhc1_heterozygous_alleles(self):
+        mhc1s = ModelConverter.parse_mhc1_alleles(
             ["HLA-A*01:01", "HLA-A*01:02", "HLA-B*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
-        self.assertEqual(3, len(mhc_ones))
-        for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.HETEROZYGOUS, mhc_one.zygosity)
-            self.assertEqual(2, len(mhc_one.alleles))
+        self.assertEqual(3, len(mhc1s))
+        for mhc1 in mhc1s:
+            self.assertEqual(Zygosity.HETEROZYGOUS, mhc1.zygosity)
+            self.assertEqual(2, len(mhc1.alleles))
 
-    def test_parse_mhc_one_homozygous_alleles(self):
-        mhc_ones = ModelConverter.parse_mhc_one_alleles(
+    def test_parse_mhc1_homozygous_alleles(self):
+        mhc1s = ModelConverter.parse_mhc1_alleles(
             ["HLA-A*01:01", "HLA-A0101", "HLA-B*01:01", "HLA-B*01:01", "HLA-C*01:01", "HLA-C*01:01"])
-        self.assertEqual(3, len(mhc_ones))
-        for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.HOMOZYGOUS, mhc_one.zygosity)
-            self.assertEqual(1, len(mhc_one.alleles))
+        self.assertEqual(3, len(mhc1s))
+        for mhc1 in mhc1s:
+            self.assertEqual(Zygosity.HOMOZYGOUS, mhc1.zygosity)
+            self.assertEqual(1, len(mhc1.alleles))
 
-    def test_parse_mhc_one_hemizygous_alleles(self):
-        mhc_ones = ModelConverter.parse_mhc_one_alleles(["HLA-A*01:01", "HLA-B*01:01", "HLA-C*01:01"])
-        self.assertEqual(3, len(mhc_ones))
-        for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.HEMIZYGOUS, mhc_one.zygosity)
-            self.assertEqual(1, len(mhc_one.alleles))
+    def test_parse_mhc1_hemizygous_alleles(self):
+        mhc1s = ModelConverter.parse_mhc1_alleles(["HLA-A*01:01", "HLA-B*01:01", "HLA-C*01:01"])
+        self.assertEqual(3, len(mhc1s))
+        for mhc1 in mhc1s:
+            self.assertEqual(Zygosity.HEMIZYGOUS, mhc1.zygosity)
+            self.assertEqual(1, len(mhc1.alleles))
 
-    def test_parse_mhc_one_loss_alleles(self):
-        mhc_ones = ModelConverter.parse_mhc_one_alleles([])
-        self.assertEqual(3, len(mhc_ones))
-        for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.LOSS, mhc_one.zygosity)
-            self.assertEqual(0, len(mhc_one.alleles))
+    def test_parse_mhc1_loss_alleles(self):
+        mhc1s = ModelConverter.parse_mhc1_alleles([])
+        self.assertEqual(3, len(mhc1s))
+        for mhc1 in mhc1s:
+            self.assertEqual(Zygosity.LOSS, mhc1.zygosity)
+            self.assertEqual(0, len(mhc1.alleles))
 
-    def test_parse_mhc_one_bad_format_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc_one_alleles,
+    def test_parse_mhc1_bad_format_fails(self):
+        self.assertRaises(AssertionError, ModelConverter.parse_mhc1_alleles,
                           ["c.12345C>G", "HLA-A*01:02", "HLA-A*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
-    def test_parse_mhc_one_too_many_alleles_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc_one_alleles,
+    def test_parse_mhc1_too_many_alleles_fails(self):
+        self.assertRaises(AssertionError, ModelConverter.parse_mhc1_alleles,
                           ["HLA-A*01:01", "HLA-A*01:02", "HLA-A*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
-    def test_parse_mhc_one_bad_gene_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc_one_alleles,
+    def test_parse_mhc1_bad_gene_fails(self):
+        self.assertRaises(AssertionError, ModelConverter.parse_mhc1_alleles,
                           ["HLA-A*01:01", "HLA-A*01:02", "HLA-G*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
-    def test_parse_mhc_two_heterozygous_alleles(self):
-        mhc_twos = ModelConverter.parse_mhc_two_alleles(
+    def test_parse_mhc2_heterozygous_alleles(self):
+        mhc2s = ModelConverter.parse_mhc2_alleles(
             ["HLA-DRB1*01:01", "HLA-DRB1*01:02", "HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01",
              "HLA-DPB1*01:02", "HLA-DQA1*01:01", "HLA-DQA1*01:02", "HLA-DQB1*01:01",
              "HLA-DQB1*01:02"])
-        self.assertEqual(3, len(mhc_twos))
-        for mhc_two in mhc_twos:
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 2, len(mhc_two.genes))
-            for gene in mhc_two.genes:
+        self.assertEqual(3, len(mhc2s))
+        for mhc2 in mhc2s:
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
+            for gene in mhc2.genes:
                 self.assertEqual(2, len(gene.alleles))
                 self.assertEqual(Zygosity.HETEROZYGOUS, gene.zygosity)
-            self.assertEqual(2 if mhc_two.name == MhcTwoName.DR else 4, len(mhc_two.molecules))
-            self._assert_molecules(mhc_two)
+            self.assertEqual(2 if mhc2.name == Mhc2Name.DR else 4, len(mhc2.molecules))
+            self._assert_molecules(mhc2)
 
-    def test_parse_mhc_two_homozygous_alleles(self):
-        mhc_twos = ModelConverter.parse_mhc_two_alleles(
+    def test_parse_mhc2_homozygous_alleles(self):
+        mhc2s = ModelConverter.parse_mhc2_alleles(
             ["HLA-DRB1*01:01", "HLA-DRB1*01:01", "HLA-DPA1*01:01", "HLA-DPA1*01:01", "HLA-DPB1*01:01",
              "HLA-DPB1*01:01", "HLA-DQA1*01:01", "HLA-DQA1*01:01", "HLA-DQB1*01:01",
              "HLA-DQB1*01:01"])
-        self.assertEqual(3, len(mhc_twos))
-        for mhc_two in mhc_twos:
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 2, len(mhc_two.genes))
-            for gene in mhc_two.genes:
+        self.assertEqual(3, len(mhc2s))
+        for mhc2 in mhc2s:
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
+            for gene in mhc2.genes:
                 self.assertEqual(1, len(gene.alleles))
                 self.assertEqual(Zygosity.HOMOZYGOUS, gene.zygosity)
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 1, len(mhc_two.molecules))
-            self._assert_molecules(mhc_two)
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 1, len(mhc2.molecules))
+            self._assert_molecules(mhc2)
 
-    def test_parse_mhc_two_hemizygous_alleles(self):
-        mhc_twos = ModelConverter.parse_mhc_two_alleles(
+    def test_parse_mhc2_hemizygous_alleles(self):
+        mhc2s = ModelConverter.parse_mhc2_alleles(
             ["HLA-DRB1*01:01", "HLA-DPA1*01:01", "HLA-DPB1*01:01", "HLA-DQA1*01:01", "HLA-DQB1*01:01"])
-        self.assertEqual(3, len(mhc_twos))
-        for mhc_two in mhc_twos:
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 2, len(mhc_two.genes))
-            for gene in mhc_two.genes:
+        self.assertEqual(3, len(mhc2s))
+        for mhc2 in mhc2s:
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
+            for gene in mhc2.genes:
                 self.assertEqual(1, len(gene.alleles))
                 self.assertEqual(Zygosity.HEMIZYGOUS, gene.zygosity)
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 1, len(mhc_two.molecules))
-            self._assert_molecules(mhc_two)
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 1, len(mhc2.molecules))
+            self._assert_molecules(mhc2)
 
-    def test_parse_mhc_two_hetero_and_homozygous_alleles(self):
-        mhc_twos = ModelConverter.parse_mhc_two_alleles(
+    def test_parse_mhc2_hetero_and_homozygous_alleles(self):
+        mhc2s = ModelConverter.parse_mhc2_alleles(
             ["HLA-DRB1*01:01", "HLA-DRB1*01:01", "HLA-DPA1*01:01", "HLA-DPA1*01:01", "HLA-DPB1*01:01",
              "HLA-DPB1*01:02", "HLA-DQA1*01:01", "HLA-DQA1*01:01", "HLA-DQB1*01:01", "HLA-DQB1*01:02"])
-        self.assertEqual(3, len(mhc_twos))
-        for mhc_two in mhc_twos:
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 2, len(mhc_two.genes))
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 2, len(mhc_two.molecules))
+        self.assertEqual(3, len(mhc2s))
+        for mhc2 in mhc2s:
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.molecules))
 
-    def test_parse_mhc_two_loss(self):
-        mhc_twos = ModelConverter.parse_mhc_two_alleles([])
-        self.assertEqual(3, len(mhc_twos))
-        for mhc_two in mhc_twos:
-            self.assertEqual(1 if mhc_two.name == MhcTwoName.DR else 2, len(mhc_two.genes))
-            for gene in mhc_two.genes:
+    def test_parse_mhc2_loss(self):
+        mhc2s = ModelConverter.parse_mhc2_alleles([])
+        self.assertEqual(3, len(mhc2s))
+        for mhc2 in mhc2s:
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
+            for gene in mhc2.genes:
                 self.assertEqual(Zygosity.LOSS, gene.zygosity)
                 self.assertEqual(0, len(gene.alleles))
-            self.assertEqual(0, len(mhc_two.molecules))
+            self.assertEqual(0, len(mhc2.molecules))
 
-    def test_parse_mhc_two_bad_format_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc_two_alleles,
+    def test_parse_mhc2_bad_format_fails(self):
+        self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
                           ["c.12345C>G", "HLA-DRB1*01:01", "HLA-DPA1*01:01", "HLA-DPA1*01:01", "HLA-DPB1*01:01",
                            "HLA-DPB1*01:02", "HLA-DQA1*01:01", "HLA-DQA1*01:01", "HLA-DQB1*01:01", "HLA-DQB1*01:02"])
 
-    def test_parse_mhc_two_too_many_alleles_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc_two_alleles,
+    def test_parse_mhc2_too_many_alleles_fails(self):
+        self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
                           ["HLA-DRB1*01:01", "HLA-DRB1*01:02", "HLA-DRB1*01:03", "HLA-DPA1*01:01", "HLA-DPA1*01:01",
                            "HLA-DPB1*01:01", "HLA-DPB1*01:02", "HLA-DQA1*01:01", "HLA-DQA1*01:01", "HLA-DQB1*01:01"])
 
-    def test_parse_mhc_two_bad_gene_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc_two_alleles,
+    def test_parse_mhc2_bad_gene_fails(self):
+        self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
                           ["HLA-A*01:01", "HLA-A*01:02", "HLA-G*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
-    def _assert_molecules(self, mhc_two):
-        for molecule in mhc_two.molecules:
-            if mhc_two.name == MhcTwoName.DR:
+    def _assert_molecules(self, mhc2):
+        for molecule in mhc2.molecules:
+            if mhc2.name == Mhc2Name.DR:
                 self.assertIsNone(molecule.alpha_chain)
             else:
                 self.assertIsNotNone(molecule.alpha_chain)

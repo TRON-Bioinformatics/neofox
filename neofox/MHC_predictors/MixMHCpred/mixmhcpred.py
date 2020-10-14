@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from neofox.model.neoantigen import Annotation, MhcOne, MhcAllele
+from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
@@ -46,7 +46,7 @@ class MixMHCpred(AbstractMixMHCpred):
         return list(map(
             lambda x: "{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein), mhc_alleles))
 
-    def _mixmhcprediction(self, mhc_molecules: List[MhcOne], tmpfasta, outtmp):
+    def _mixmhcprediction(self, mhc_molecules: List[Mhc1], tmpfasta, outtmp):
         """
         Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
         """
@@ -75,7 +75,7 @@ class MixMHCpred(AbstractMixMHCpred):
         head_new = ["Peptide", "Score_bestAllele", "%Rank_bestAllele", "BestAllele"]
         return head_new, best_ligand
 
-    def run(self, sequence_wt, sequence_mut, mhc: List[MhcOne]):
+    def run(self, sequence_wt, sequence_mut, mhc: List[Mhc1]):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         """
         self._initialise()
