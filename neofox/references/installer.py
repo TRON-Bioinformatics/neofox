@@ -11,10 +11,11 @@ from logzero import logger
 
 class NeofoxReferenceInstaller(object):
 
-    def __init__(self, reference_folder):
+    def __init__(self, reference_folder, skip_r_dependencies=True):
         self.config = DependenciesConfigurationForInstaller()
         self.runner = Runner()
         self.reference_folder = reference_folder
+        self.skip_r_dependencies = skip_r_dependencies
 
     def install(self):
         # ensures the reference folder exists
@@ -24,6 +25,10 @@ class NeofoxReferenceInstaller(object):
         self._set_netmhc2pan_alleles()
         self._set_iedb()
         self._set_proteome()
+        if not self.skip_r_dependencies:
+            self._install_r_dependencies()
+        else:
+            logger.warning("R dependencies will need to be installed manually")
 
     def _set_netmhcpan_alleles(self):
         # available MHC alleles netMHCpan
@@ -102,6 +107,13 @@ class NeofoxReferenceInstaller(object):
         output_folder = os.path.join(self.reference_folder, PROTEOME_DB_FOLDER, PREFIX_HOMO_SAPIENS)
         cmd = "{makeblastdb} -in {proteome_file} -dbtype prot -parse_seqids -out {output_folder}".format(
             makeblastdb=self.config.make_blastdb, proteome_file=proteome_file, output_folder=output_folder)
+        self._run_command(cmd)
+
+    def _install_r_dependencies(self):
+        logger.info("Installing R dependencies...")
+        cmd = "{rscript} --vanilla {dependencies_file}".format(
+            rscript=self.config.rscript,
+            dependencies_file=os.path.join(os.path.abspath(os.path.dirname(__file__)), "install_r_dependencies.R"))
         self._run_command(cmd)
 
     def _run_command(self, cmd):

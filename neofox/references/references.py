@@ -68,6 +68,7 @@ class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
         self.make_blastdb = self._check_and_load_binary(neofox.NEOFOX_MAKEBLASTDB_ENV)
+        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
 
 
 class ReferenceFolder(object):
