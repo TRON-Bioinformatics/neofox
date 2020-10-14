@@ -149,7 +149,7 @@ class ModelConverterTest(TestCase):
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Pt29")
         self.assertEqual(3, len(patients[0].mhc_one))
-        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.gene.alleles]))
+        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.alleles]))
         self.assertEqual(3, len(patients[0].mhc_two))
         self.assertEqual(9, len([a for m in patients[0].mhc_two for g in m.genes for a in g.alleles]))
         self.assertEqual(patients[0].is_rna_available, False)
@@ -163,7 +163,7 @@ class ModelConverterTest(TestCase):
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Pt29")
         self.assertEqual(3, len(patients[0].mhc_one))
-        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.gene.alleles]))
+        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.alleles]))
         self.assertEqual(3, len(patients[0].mhc_two))
         self.assertEqual(9, len([a for m in patients[0].mhc_two for g in m.genes for a in g.alleles]))
         self.assertEqual(patients[0].is_rna_available, True)
@@ -177,10 +177,10 @@ class ModelConverterTest(TestCase):
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Ptx")
         self.assertEqual(3, len(patients[0].mhc_one))
-        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.gene.alleles]))
+        self.assertEqual(6, len([a for m in patients[0].mhc_one for a in m.alleles]))
         self.assertEqual(3, len(patients[0].mhc_two))
         self.assertEqual(10, len([a for m in patients[0].mhc_two for g in m.genes for a in g.alleles]))
-        self.assertTrue("HLA-A*03:01" in [a.name for m in patients[0].mhc_one for a in m.gene.alleles])
+        self.assertTrue("HLA-A*03:01" in [a.name for m in patients[0].mhc_one for a in m.alleles])
         self.assertTrue("HLA-DQA1*04:01" in
                         [a.name for m in patients[0].mhc_two for g in m.genes for a in g.alleles])
         self.assertTrue(patients[0].is_rna_available)
@@ -217,30 +217,30 @@ class ModelConverterTest(TestCase):
             ["HLA-A*01:01", "HLA-A*01:02", "HLA-B*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
         self.assertEqual(3, len(mhc_ones))
         for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.HETEROZYGOUS, mhc_one.gene.zygosity)
-            self.assertEqual(2, len(mhc_one.gene.alleles))
+            self.assertEqual(Zygosity.HETEROZYGOUS, mhc_one.zygosity)
+            self.assertEqual(2, len(mhc_one.alleles))
 
     def test_parse_mhc_one_homozygous_alleles(self):
         mhc_ones = ModelConverter.parse_mhc_one_alleles(
             ["HLA-A*01:01", "HLA-A0101", "HLA-B*01:01", "HLA-B*01:01", "HLA-C*01:01", "HLA-C*01:01"])
         self.assertEqual(3, len(mhc_ones))
         for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.HOMOZYGOUS, mhc_one.gene.zygosity)
-            self.assertEqual(1, len(mhc_one.gene.alleles))
+            self.assertEqual(Zygosity.HOMOZYGOUS, mhc_one.zygosity)
+            self.assertEqual(1, len(mhc_one.alleles))
 
     def test_parse_mhc_one_hemizygous_alleles(self):
         mhc_ones = ModelConverter.parse_mhc_one_alleles(["HLA-A*01:01", "HLA-B*01:01", "HLA-C*01:01"])
         self.assertEqual(3, len(mhc_ones))
         for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.HEMIZYGOUS, mhc_one.gene.zygosity)
-            self.assertEqual(1, len(mhc_one.gene.alleles))
+            self.assertEqual(Zygosity.HEMIZYGOUS, mhc_one.zygosity)
+            self.assertEqual(1, len(mhc_one.alleles))
 
     def test_parse_mhc_one_loss_alleles(self):
         mhc_ones = ModelConverter.parse_mhc_one_alleles([])
         self.assertEqual(3, len(mhc_ones))
         for mhc_one in mhc_ones:
-            self.assertEqual(Zygosity.LOSS, mhc_one.gene.zygosity)
-            self.assertEqual(0, len(mhc_one.gene.alleles))
+            self.assertEqual(Zygosity.LOSS, mhc_one.zygosity)
+            self.assertEqual(0, len(mhc_one.alleles))
 
     def test_parse_mhc_one_bad_format_fails(self):
         self.assertRaises(AssertionError, ModelConverter.parse_mhc_one_alleles,

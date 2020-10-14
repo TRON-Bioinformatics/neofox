@@ -149,7 +149,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
     @staticmethod
     def get_alleles_netmhcpan_representation(mhc_molecules: List[MhcOne]) -> List[str]:
         return list(map(lambda x: "HLA-{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
-                        [a for m in mhc_molecules for a in m.gene.alleles]))
+                        [a for m in mhc_molecules for a in m.alleles]))
 
     @staticmethod
     def _get_only_available_alleles(mhc_molecules: List[MhcOne], set_available_mhc: Set[str]) -> str:

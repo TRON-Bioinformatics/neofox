@@ -92,27 +92,23 @@ class ModelValidator(object):
     @staticmethod
     def _validate_mhc_one(mhc_one: MhcOne) -> MhcOne:
         assert mhc_one.name in MhcOneGeneName, "Invalid MHC I name"
-        gene = mhc_one.gene
-        assert gene.name in MhcOneGeneName, "Invalid gene name from MHC I"
-        assert gene.zygosity in Zygosity, "Invalid zygosity"
-        assert mhc_one.name == gene.name, "Gene {} inside MHC I referring to gene {}".format(
-            gene.name.name, mhc_one.name.name)
-        alleles = gene.alleles
-        if gene.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
+        assert mhc_one.zygosity in Zygosity, "Invalid zygosity"
+        alleles = mhc_one.alleles
+        if mhc_one.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
             assert len(alleles) == 1, "An homozygous gene must have 1 allele and not {}".format(len(alleles))
-        elif gene.zygosity == Zygosity.HETEROZYGOUS:
+        elif mhc_one.zygosity == Zygosity.HETEROZYGOUS:
             assert len(alleles) == 2, "An heterozygous or hemizygous gene must have 2 alleles and not {}".format(
                 len(alleles))
-        elif gene.zygosity == Zygosity.LOSS:
+        elif mhc_one.zygosity == Zygosity.LOSS:
             assert len(alleles) == 0, "An lost gene must have 0 alleles and not {}".format(
                 len(alleles))
         validated_alleles = []
         for allele in alleles:
             validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
             validated_alleles.append(validated_allele)
-            assert validated_allele.gene == gene.name.name, \
-                "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, gene.name.name)
-        gene.alleles = validated_alleles
+            assert validated_allele.gene == mhc_one.name.name, \
+                "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, mhc_one.name.name)
+        mhc_one.alleles = validated_alleles
         return mhc_one
 
     @staticmethod

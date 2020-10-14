@@ -52,7 +52,7 @@ class MixMHCpred(AbstractMixMHCpred):
         """
         self.runner.run_command(cmd=[
             self.configuration.mix_mhc_pred,
-            "-a", ",".join(self._get_mixmhc_allele_representation([a for m in mhc_molecules for a in m.gene.alleles])),
+            "-a", ",".join(self._get_mixmhc_allele_representation([a for m in mhc_molecules for a in m.alleles])),
             "-i", tmpfasta,
             "-o", outtmp])
 
