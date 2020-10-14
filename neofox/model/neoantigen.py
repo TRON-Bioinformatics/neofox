@@ -51,16 +51,16 @@ class MhcTwoName(betterproto.Enum):
 
 
 @dataclass
-class Gene(betterproto.Message):
-    # * The genome assembly to which the gene definition refers to (e.g.: GRCh37,
-    # GRCh38)
-    assembly: str = betterproto.string_field(1)
-    # * The gene symbol or gene identifier, optional as the transcript
-    # unequivocally identifies a gene
-    gene: str = betterproto.string_field(2)
+class Transcript(betterproto.Message):
     # * The transcript identifier to which this neoepitope definition refers
     # (e.g.: Ensembl transcript id)
-    transcript_identifier: str = betterproto.string_field(3)
+    identifier: str = betterproto.string_field(1)
+    # * The genome assembly to which the gene definition refers to (e.g.: GRCh37,
+    # GRCh38)
+    assembly: str = betterproto.string_field(2)
+    # * The gene symbol or gene identifier, optional as the transcript
+    # unequivocally identifies a gene
+    gene: str = betterproto.string_field(3)
 
 
 @dataclass
@@ -94,8 +94,8 @@ class Neoantigen(betterproto.Message):
     identifier: str = betterproto.string_field(1)
     # * Patient identifier
     patient_identifier: str = betterproto.string_field(2)
-    # * The gene where the neoepitope corresponds
-    gene: "Gene" = betterproto.message_field(3)
+    # * The transcript where the neoepitope was observed
+    transcript: "Transcript" = betterproto.message_field(3)
     # * The mutation
     mutation: "Mutation" = betterproto.message_field(4)
     # * Clonality estimation. At the moment this is a boolean indicating whether

@@ -21,7 +21,7 @@ import hashlib
 import betterproto
 from neofox.model.conversion import ModelConverter
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient, MhcAllele, MhcTwoMolecule, MhcOne, \
+from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele, MhcTwoMolecule, MhcOne, \
     MhcOneGeneName, Zygosity, MhcTwo, MhcTwoName, MhcTwoGeneName
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
@@ -47,7 +47,7 @@ class ModelValidator(object):
         try:
             # checks gene
             # TODO: do we want to verify existence of gene and transcript id?
-            neoantigen.gene = ModelValidator._validate_gene(neoantigen.gene)
+            neoantigen.transcript = ModelValidator._validate_transcript(neoantigen.transcript)
 
             # checks mutation
             neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
@@ -248,26 +248,24 @@ class ModelValidator(object):
         return mutation
 
     @staticmethod
-    def _validate_gene(gene: Gene) -> Gene:
+    def _validate_transcript(transcript: Transcript) -> Transcript:
 
         # TODO: validate that gene symbol exists
-        gene_name = gene.gene.strip() if gene.gene else gene.gene
+        gene_name = transcript.gene.strip() if transcript.gene else transcript.gene
         assert gene_name is not None and len(gene_name) > 0, "Empty gene symbol"
-        gene.gene = gene_name
+        transcript.gene = gene_name
 
         # TODO: validate that transcript identifier exists
-        transcript_identifier = gene.transcript_identifier.strip() if gene.transcript_identifier \
-            else gene.transcript_identifier
-        assert transcript_identifier is not None and len(transcript_identifier) > 0, \
-            "Empty transcript identifier"
-        gene.transcript_identifier = transcript_identifier
+        transcript_identifier = transcript.identifier.strip() if transcript.identifier else transcript.identifier
+        assert transcript_identifier is not None and len(transcript_identifier) > 0, "Empty transcript identifier"
+        transcript.identifier = transcript_identifier
 
         # TODO: support other assemblies
-        assembly = gene.assembly if gene.assembly else "hg19"
+        assembly = transcript.assembly if transcript.assembly else "hg19"
         assert assembly == "hg19", "Other reference genome than hg19 is not supported"
-        gene.assembly = assembly
+        transcript.assembly = assembly
 
-        return gene
+        return transcript
 
     @staticmethod
     def _validate_vaf(vaf):
