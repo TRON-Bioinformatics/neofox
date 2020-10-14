@@ -316,11 +316,12 @@ message MhcAllele {
 	 */
 	string gene = 2;
 	/**
-	A group of alleles defined by a common serotype
+	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype
 	 */
 	string group = 3;
 	/**
-	A specific HLA protein
+	A specific HLA protein. Alleles whose numbers differ in group and protein must differ in one or more nucleotide
+	substitutions that change the amino acid sequence of the encoded protein.
 	 */
 	string protein = 4;
 }
