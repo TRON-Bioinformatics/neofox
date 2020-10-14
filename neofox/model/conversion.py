@@ -26,8 +26,8 @@ import re
 import difflib
 from collections import defaultdict
 import json
-from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, NeoantigenAnnotations, MhcOne, \
-    MhcTwo, MhcAllele, MhcOneGeneName, MhcOneGene, Zygosity, MhcTwoName, MhcTwoGene, MhcTwoGeneName, MhcTwoMolecule
+from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, NeoantigenAnnotations, MhcTwoName, \
+    MhcTwoGeneName, Zygosity, MhcTwoGene, MhcTwo, MhcTwoMolecule, MhcAllele, MhcOneGeneName, MhcOne, MhcOneGene
 
 FIELD_SUBSTITUTION = 'substitution'
 
@@ -187,10 +187,10 @@ class ModelConverter(object):
     @staticmethod
     def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
         """parses an row from a candidate file into a model object"""
-        gene = Gene()
-        gene.assembly = 'hg19'
-        gene.gene = candidate_entry.get(FIELD_GENE)
-        gene.transcript_identifier = candidate_entry.get(FIELD_TRANSCRIPT)
+        transcript = Transcript()
+        transcript.assembly = 'hg19'
+        transcript.gene = candidate_entry.get(FIELD_GENE)
+        transcript.identifier = candidate_entry.get(FIELD_TRANSCRIPT)
 
         mutation = Mutation()
         mutation.position = candidate_entry.get('position')
@@ -202,7 +202,7 @@ class ModelConverter(object):
         neoantigen = Neoantigen()
         neoantigen.patient_identifier = patient_id if patient_id else candidate_entry.get('patient')
         neoantigen.mutation = mutation
-        neoantigen.gene = gene
+        neoantigen.transcript = transcript
         # clonality estimation is not present in candidate file at the moment
         neoantigen.clonality_estimation = None
         # missing RNA expression values are represented as -1

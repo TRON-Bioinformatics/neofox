@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Gene, Neoantigen, Patient, MhcAllele, MhcOne, MhcOneGeneName, MhcOneGene, Zygosity, \
+from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, MhcOne, MhcOneGeneName, MhcOneGene, Zygosity, \
     MhcTwo, MhcTwoName, MhcTwoGeneName, MhcTwoGene, MhcTwoMolecule
 from neofox.model.validation import ModelValidator
 
@@ -9,11 +9,11 @@ from neofox.model.validation import ModelValidator
 class TestModelValidator(TestCase):
 
     def test_bad_type_raises_exception(self):
-        gene = Gene(
+        transcript = Transcript(
             gene="BRCA2",
-            transcript_identifier=12345,        # this should be a string instead of an integer
+            identifier=12345,        # this should be a string instead of an integer
             assembly="hg19")
-        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, gene)
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, transcript)
 
         neoantigen = Neoantigen(
             patient_identifier="1234",
@@ -26,18 +26,18 @@ class TestModelValidator(TestCase):
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, patient)
 
         # TODO: make validation capture this data types errors!
-        gene = Gene(
+        transcript = Transcript(
             gene="BRCA2",
-            transcript_identifier=["12345"],    # this should be a string instead of a list of strings
+            identifier=["12345"],    # this should be a string instead of a list of strings
             assembly="hg19")
-        ModelValidator.validate(gene)
+        ModelValidator.validate(transcript)
 
     def test_good_data_does_not_raise_exceptions(self):
-        gene = Gene(
+        transcript = Transcript(
             gene="BRCA2",
-            transcript_identifier="12345",
+            identifier="12345",
             assembly="hg19")
-        ModelValidator.validate(gene)
+        ModelValidator.validate(transcript)
 
         neoantigen = Neoantigen(
             patient_identifier="1234",

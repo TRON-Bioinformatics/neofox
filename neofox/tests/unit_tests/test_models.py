@@ -23,7 +23,7 @@ import pandas as pd
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import Neoantigen, Gene, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
+from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
     MhcTwoName
 from neofox.model.validation import ModelValidator
 from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
@@ -59,7 +59,7 @@ class ModelConverterTest(TestCase):
         flat_dict = ModelConverter.object2flat_dict(neoantigen)
         self.assertIsNotNone(flat_dict)
         self.assertEqual(neoantigen.dna_variant_allele_frequency, flat_dict['dna_variant_allele_frequency'])
-        self.assertEqual(neoantigen.gene.transcript_identifier, flat_dict['gene.transcript_identifier'])
+        self.assertEqual(neoantigen.transcript.identifier, flat_dict['transcript.identifier'])
 
     def test_model2csv2model(self):
         neoantigen = get_random_neoantigen()
@@ -92,9 +92,9 @@ class ModelConverterTest(TestCase):
         self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
         for n in neoantigens:
             self.assertIsInstance(n, Neoantigen)
-            self.assertIsInstance(n.gene, Gene)
+            self.assertIsInstance(n.transcript, Transcript)
             self.assertIsInstance(n.mutation, Mutation)
-            self.assertTrue(n.gene.transcript_identifier is not None and len(n.gene.transcript_identifier) > 0)
+            self.assertTrue(n.transcript.identifier is not None and len(n.transcript.identifier) > 0)
             self.assertTrue(n.mutation.mutated_aminoacid is not None and len(n.mutation.mutated_aminoacid) == 1)
             self.assertTrue(n.rna_variant_allele_frequency is None or
                             (0 <= n.rna_variant_allele_frequency <= 1))
@@ -107,9 +107,27 @@ class ModelConverterTest(TestCase):
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
-            self.assertTrue(n.gene.gene is not None)
-            self.assertTrue(n.gene.transcript_identifier is not None)
-            self.assertTrue(n.gene.assembly is not None)
+            self.assertNotEmpty(n.transcript)
+            self.assertNotEmpty(n.mutation)
+            self.assertNotEmpty(n.patient_identifier)
+            self.assertNotEmpty(n.rna_expression)
+            self.assertNotEmpty(n.rna_variant_allele_frequency)
+            self.assertNotEmpty(n.dna_variant_allele_frequency)
+            self.assertNotEmpty(n.clonality_estimation)
+            self.assertTrue(isinstance(n.transcript, Transcript))
+            self.assertNotEmpty(n.transcript.assembly)
+            self.assertNotEmpty(n.transcript.identifier)
+            self.assertNotEmpty(n.transcript.assembly)
+            self.assertTrue(isinstance(n.mutation, Mutation))
+            self.assertNotEmpty(n.mutation.position)
+            self.assertNotEmpty(n.mutation.mutated_aminoacid)
+            self.assertNotEmpty(n.mutation.wild_type_aminoacid)
+            self.assertNotEmpty(n.mutation.left_flanking_region)
+            self.assertNotEmpty(n.mutation.right_flanking_region)
+
+    def assertNotEmpty(self, value):
+        self.assertIsNotNone(value)
+        self.assertNotEqual(value, "")
 
     def test_overriding_patient_id(self):
         candidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
