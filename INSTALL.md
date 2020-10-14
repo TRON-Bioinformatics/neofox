@@ -4,16 +4,6 @@ This installation instructions were tested on Ubuntu 18.04.
 
 Python 3.7 and R 3.6.0 should be preinstalled.
 
-R requires the following libraries:
-```
-lattice
-ggplot2
-caret
-Peptides
-doParallel
-gbm
-```
-
 Set the environment variable pointing to `Rscript`.
 ```
 export NEOFOX_RSCRIPT=`which Rscript`
@@ -91,7 +81,19 @@ For building the reference data we will need `makeblastdb`, set the environment 
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
 ```
 
+NetMhcPan, NetMhc2Pan and Rscript are also required to install the references, see above.
+
 Run the following to configure nefox:
 ```
 neofox-configure --reference-folder /your/neofox/folder
+```
+
+Unless indicated otherwise some R dependencies will be installed by the installer. These dependencies are the following in case they need to be installed manually:
+```
+lattice
+ggplot2
+caret
+Peptides
+doParallel
+gbm
 ```
