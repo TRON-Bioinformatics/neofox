@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from collections import defaultdict
 from typing import List, Tuple
-from neofox.model.neoantigen import MhcAllele, MhcOne, Zygosity, MhcTwo, MhcTwoMolecule
+from neofox.model.neoantigen import MhcAllele, Mhc1, Zygosity, Mhc2, Mhc2Molecule
 from neofox.model.validation import ModelValidator
 
 
@@ -39,7 +39,7 @@ class MultipleBinding:
         return list_of_tuples
     
     @staticmethod
-    def transform_mhc_two_prediction_output(prediction_out):
+    def transform_mhc2_prediction_output(prediction_out):
         """
         Takes netmhcpanII output as neofox (parsed with Netmhc[II]panBestPrediction().filter_binding_predictions) and
         returns tuple of mhc binding rank scores, epitope and HLA allele for all predicted epitopes as list
@@ -48,13 +48,13 @@ class MultipleBinding:
         #  the NetMhcPan and NetMhc2Pan objects
         # rank, affinity, epitope sequence, allele combination
         list_of_tuples = [(float(i[9]), float(i[8]), i[2],
-                           ModelValidator.validate_mhc_two_molecule_representation(MhcTwoMolecule(name=i[1])))
+                           ModelValidator.validate_mhc2_molecule_representation(Mhc2Molecule(name=i[1])))
                           for i in prediction_out[1]]
         list_of_tuples.sort(key=lambda x: x[0])     # sort by rank
         return list_of_tuples
 
     @staticmethod
-    def _get_homozygous_mhc_one_alleles(mhc_molecules: List[MhcOne]) -> List[str]:
+    def _get_homozygous_mhc1_alleles(mhc_molecules: List[Mhc1]) -> List[str]:
         """
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
         Otherwise retunrs empty list
@@ -62,7 +62,7 @@ class MultipleBinding:
         return [a.name for m in mhc_molecules for a in m.alleles if m.zygosity == Zygosity.HOMOZYGOUS]
 
     @staticmethod
-    def _get_heterozygous_or_hemizygous_mhc_one_alleles(mhc_molecules: List[MhcOne]) -> List[str]:
+    def _get_heterozygous_or_hemizygous_mhc1_alleles(mhc_molecules: List[Mhc1]) -> List[str]:
         """
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
         Otherwise retunrs empty list
@@ -71,7 +71,7 @@ class MultipleBinding:
                 if m.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]]
 
     @staticmethod
-    def _get_homozygous_mhc_two_alleles(mhc_molecules: List[MhcTwo]) -> List[str]:
+    def _get_homozygous_mhc2_alleles(mhc_molecules: List[Mhc2]) -> List[str]:
         """
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
         Otherwise retunrs empty list
@@ -79,7 +79,7 @@ class MultipleBinding:
         return [a.name for m in mhc_molecules for g in m.genes for a in g.alleles if g.zygosity == Zygosity.HOMOZYGOUS]
 
     @staticmethod
-    def _get_heterozygous_or_hemizygous_mhc_two_alleles(mhc_molecules: List[MhcTwo]) -> List[str]:
+    def _get_heterozygous_or_hemizygous_mhc2_alleles(mhc_molecules: List[Mhc2]) -> List[str]:
         """
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
         Otherwise retunrs empty list
@@ -88,13 +88,13 @@ class MultipleBinding:
                 if g.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]]
 
     @staticmethod
-    def extract_best_epitope_per_alelle(tuple_epitopes: List[Tuple], mhc_molecules: List[MhcOne]):
+    def extract_best_epitope_per_alelle(tuple_epitopes: List[Tuple], mhc_molecules: List[Mhc1]):
         """
         This function returns the predicted epitope with the lowest binding score for each patient allele,
         considering homozyogosity
         """
-        homozygous_alleles = MultipleBinding._get_homozygous_mhc_one_alleles(mhc_molecules)
-        hetero_hemizygous_alleles = MultipleBinding._get_heterozygous_or_hemizygous_mhc_one_alleles(mhc_molecules)
+        homozygous_alleles = MultipleBinding._get_homozygous_mhc1_alleles(mhc_molecules)
+        hetero_hemizygous_alleles = MultipleBinding._get_heterozygous_or_hemizygous_mhc1_alleles(mhc_molecules)
         return MultipleBinding._get_sorted_epitopes(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes)
 
     @staticmethod
@@ -118,7 +118,7 @@ class MultipleBinding:
         return best_epis_per_allele
     
     @staticmethod
-    def _get_sorted_epitopes_mhc_two(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes):
+    def _get_sorted_epitopes_mhc2(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes):
 
         # groups epitopes by allele
         epitopes_by_allele = {}
@@ -147,14 +147,14 @@ class MultipleBinding:
         return best_epitopes_per_allele
 
     @staticmethod
-    def extract_best_epitope_per_mhc_two_alelle(tuple_epitopes: List[Tuple], mhc_molecules: List[MhcTwo]):
+    def extract_best_epitope_per_mhc2_alelle(tuple_epitopes: List[Tuple], mhc_molecules: List[Mhc2]):
         """
         This function returns the predicted epitope with the lowest binding score for each patient allele,
         considering homozyogosity
         """
-        homozygous_alleles = MultipleBinding._get_homozygous_mhc_two_alleles(mhc_molecules)
-        hetero_hemizygous_alleles = MultipleBinding._get_heterozygous_or_hemizygous_mhc_two_alleles(mhc_molecules)
-        return MultipleBinding._get_sorted_epitopes_mhc_two(
+        homozygous_alleles = MultipleBinding._get_homozygous_mhc2_alleles(mhc_molecules)
+        hetero_hemizygous_alleles = MultipleBinding._get_heterozygous_or_hemizygous_mhc2_alleles(mhc_molecules)
+        return MultipleBinding._get_sorted_epitopes_mhc2(
             hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes)
 
     @staticmethod

@@ -26,7 +26,7 @@ from logzero import logger
 from neofox.helpers import data_import
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
-from neofox.model.neoantigen import MhcTwo, MhcTwoGeneName, MhcAllele, MhcTwoName
+from neofox.model.neoantigen import Mhc2, Mhc2GeneName, MhcAllele, Mhc2Name
 from neofox.model.wrappers import get_alleles_by_gene
 
 
@@ -40,14 +40,14 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def generate_mhc_ii_alelle_combinations(self, mhcs: List[MhcTwo]) -> List[str]:
+    def generate_mhc_ii_alelle_combinations(self, mhcs: List[Mhc2]) -> List[str]:
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
         dp_dq_molecules = [self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
-                           for mhc in mhcs if mhc.name != MhcTwoName.DR for m in mhc.molecules]
+                           for mhc in mhcs if mhc.name != Mhc2Name.DR for m in mhc.molecules]
         dr_molecules = [self._represent_drb1_allele(m.beta_chain)
-                        for mhc in mhcs if mhc.name == MhcTwoName.DR for m in mhc.molecules]
+                        for mhc in mhcs if mhc.name == Mhc2Name.DR for m in mhc.molecules]
         return dp_dq_molecules + dr_molecules
 
     @staticmethod

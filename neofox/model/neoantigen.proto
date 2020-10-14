@@ -110,11 +110,11 @@ message Patient {
 	/**
 	MHC I classic molecules
 	*/
-	repeated MhcOne mhcOne = 3;
+	repeated Mhc1 mhc1 = 3;
 	/**
 	MHC II classic molecules
 	*/
-	repeated MhcTwo mhcTwo = 4;
+	repeated Mhc2 mhc2 = 4;
 }
 
 /**
@@ -187,7 +187,7 @@ enum Zygosity {
 /**
 Valid names for MHC I classic genes
  */
-enum MhcOneName {
+enum Mhc1Name {
 	A = 0;
 	B = 1;
 	C = 2;
@@ -198,7 +198,7 @@ Valid names for MHC II classic genes.
 DRA is not included in this list as it does not have much variability in the population and for our purpose is
 considered constant.
  */
-enum MhcTwoGeneName {
+enum Mhc2GeneName {
 	DRB1 = 0;
 	DPA1 = 1;
 	DPB1 = 2;
@@ -209,7 +209,7 @@ enum MhcTwoGeneName {
 /**
 Valid names for MHC II classic molecules
  */
-enum MhcTwoName {
+enum Mhc2Name {
 	DR = 0;
 	DP = 1;
 	DQ = 2;
@@ -218,11 +218,11 @@ enum MhcTwoName {
 /**
 Models MHC I alleles related to the same MHC I gene
  */
-message MhcOne {
+message Mhc1 {
 	/**
 	MHC I gene name
 	 */
-	MhcOneName name = 1;
+	Mhc1Name name = 1;
 	/**
 	Zygosity of the gene
 	 */
@@ -236,25 +236,25 @@ message MhcOne {
 /**
 Models MHC II alleles related to the same MHC II
  */
-message MhcTwo {
+message Mhc2 {
 	/**
 	MHC II molecule name
 	 */
-	MhcTwoName name = 1;
+	Mhc2Name name = 1;
 	/**
 	List of MHC II genes
 	 */
-	repeated MhcTwoGene genes = 2;
+	repeated Mhc2Gene genes = 2;
 	/**
 	Different combinations of MHC II alleles building different molecules
 	 */
-	repeated MhcTwoMolecule molecules = 3;
+	repeated Mhc2Molecule molecules = 3;
 }
 
 /**
 MHC II molecule
  */
-message MhcTwoMolecule {
+message Mhc2Molecule {
 	/**
 	Name to refer to the MHC II molecule
 	 */
@@ -272,11 +272,11 @@ message MhcTwoMolecule {
 /**
 MHC II gene
  */
-message MhcTwoGene {
+message Mhc2Gene {
 	/**
 	MHC II gene name
 	 */
-	MhcTwoGeneName name = 1;
+	Mhc2GeneName name = 1;
 	/**
 	Zygosity of the gene
 	 */
@@ -297,7 +297,7 @@ message MhcAllele {
 	 */
 	string name = 1;
 	/**
-	The gene from either MHC I or II (this information is redundant with the MhcOneGene.name and MhcTwoGene.name but it
+	The gene from either MHC I or II (this information is redundant with the Mhc1Gene.name and Mhc2Gene.name but it
 	is convenient to have this at this level too, code will check for data coherence)
 	 */
 	string gene = 2;

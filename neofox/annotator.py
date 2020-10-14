@@ -97,13 +97,13 @@ class NeoantigenAnnotator:
         # HLA I predictions: NetMHCpan
         self.netmhcpan.run(
             sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            mhc=patient.mhc_one, available_mhc_alleles=self.available_alleles.get_available_mhc_i())
+            mhc=patient.mhc1, available_mhc_alleles=self.available_alleles.get_available_mhc_i())
         self.annotations.annotations.extend(self.netmhcpan.get_annotations())
 
         # HLA II predictions: NetMHCIIpan
         self.netmhc2pan.run(
             sequence=neoantigen.mutation.mutated_xmer, sequence_reference=neoantigen.mutation.wild_type_xmer,
-            mhc=patient.mhc_two, available_mhc=self.available_alleles.get_available_mhc_ii())
+            mhc=patient.mhc2, available_mhc=self.available_alleles.get_available_mhc_ii())
         self.annotations.annotations.extend(self.netmhc2pan.get_annotations())
 
         # Amplitude
@@ -148,12 +148,12 @@ class NeoantigenAnnotator:
         # MixMHCpred
         self.mixmhc.run(
             sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
-            mhc=patient.mhc_one)
+            mhc=patient.mhc1)
         self.annotations.annotations.extend(self.mixmhc.get_annotations())
 
         # MixMHC2pred
         self.mixmhc2.run(
-            mhc=patient.mhc_two, sequence_wt=neoantigen.mutation.wild_type_xmer,
+            mhc=patient.mhc2, sequence_wt=neoantigen.mutation.wild_type_xmer,
             sequence_mut=neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.mixmhc2.get_annotations())
 

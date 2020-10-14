@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, MhcOne, MhcOneName, Zygosity, \
-    MhcTwo, MhcTwoName, MhcTwoGeneName, MhcTwoGene, MhcTwoMolecule
+from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, Mhc1, Mhc1Name, Zygosity, \
+    Mhc2, Mhc2Name, Mhc2GeneName, Mhc2Gene, Mhc2Molecule
 from neofox.model.validation import ModelValidator
 
 
@@ -51,9 +51,9 @@ class TestModelValidator(TestCase):
 
     def test_enum_with_wrong_value(self):
         # fails when a string is passed to the enum
-        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, MhcOne(name="SOMETHING"))
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, Mhc1(name="SOMETHING"))
         # FIXME: does not fail if any integer is passed!
-        ModelValidator.validate(MhcOne(name=9))
+        ModelValidator.validate(Mhc1(name=9))
 
     def test_mhc_i_allele_validation(self):
         # adds the star
@@ -148,11 +148,11 @@ class TestModelValidator(TestCase):
     def test_valid_mhc_i_genotype(self):
         self._assert_valid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(name=MhcOneName.A, zygosity=Zygosity.HETEROZYGOUS,
+            mhc1=[Mhc1(name=Mhc1Name.A, zygosity=Zygosity.HETEROZYGOUS,
                             alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]),
-                     MhcOne(name=MhcOneName.B, zygosity=Zygosity.HOMOZYGOUS,
+                     Mhc1(name=Mhc1Name.B, zygosity=Zygosity.HOMOZYGOUS,
                             alleles=[MhcAllele(name="HLA-B01:01")]),
-                     MhcOne(name=MhcOneName.C, zygosity=Zygosity.HEMIZYGOUS,
+                     Mhc1(name=Mhc1Name.C, zygosity=Zygosity.HEMIZYGOUS,
                             alleles=[MhcAllele(name="HLA-C01:01")])
                      ]
         ))
@@ -161,40 +161,40 @@ class TestModelValidator(TestCase):
         # 3 alleles for gene A
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(
-                name=MhcOneName.A, zygosity=Zygosity.HOMOZYGOUS,
+            mhc1=[Mhc1(
+                name=Mhc1Name.A, zygosity=Zygosity.HOMOZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02"), MhcAllele(name="HLA-A01:03")]
             )]
         ))
         # 2 alleles for homozygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(
-                name=MhcOneName.A, zygosity=Zygosity.HOMOZYGOUS,
+            mhc1=[Mhc1(
+                name=Mhc1Name.A, zygosity=Zygosity.HOMOZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
             )]
         ))
         # 1 alleles for heterozygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(
-                name=MhcOneName.A, zygosity=Zygosity.HETEROZYGOUS,
+            mhc1=[Mhc1(
+                name=Mhc1Name.A, zygosity=Zygosity.HETEROZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01")]
             )]
         ))
         # 1 alleles for hemizygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(
-                name=MhcOneName.A, zygosity=Zygosity.HEMIZYGOUS,
+            mhc1=[Mhc1(
+                name=Mhc1Name.A, zygosity=Zygosity.HEMIZYGOUS,
                 alleles=[MhcAllele(name="HLA-A01:01"), MhcAllele(name="HLA-A01:02")]
             )]
         ))
         # alleles referring to a different gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_one=[MhcOne(
-                name=MhcOneName.A, zygosity=Zygosity.HETEROZYGOUS,
+            mhc1=[Mhc1(
+                name=Mhc1Name.A, zygosity=Zygosity.HETEROZYGOUS,
                 alleles=[MhcAllele(name="HLA-B01:01"), MhcAllele(name="HLA-B01:02")]
             )]
         ))
@@ -208,51 +208,51 @@ class TestModelValidator(TestCase):
     def test_valid_mhc_ii_genotype(self):
         self._assert_valid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01"), MhcAllele(name="HLA-DQA1*01:02")],
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
                 ], molecules=[
-                    MhcTwoMolecule(name="HLA-DQA1*01:01-DQB1*01:01"),
-                    MhcTwoMolecule(name="HLA-DQA1*01:02-DQB1*01:01")
+                    Mhc2Molecule(name="HLA-DQA1*01:01-DQB1*01:01"),
+                    Mhc2Molecule(name="HLA-DQA1*01:02-DQB1*01:01")
                 ])
             ])
         )
         self._assert_valid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DR, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DRB1, zygosity=Zygosity.HOMOZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DR, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DRB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DRB1*01:01")],
                     )
                 ], molecules=[
-                    MhcTwoMolecule(name="HLA-DRB1*01:01")
+                    Mhc2Molecule(name="HLA-DRB1*01:01")
                 ])
             ])
         )
         self._assert_valid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01"), MhcAllele(name="HLA-DQA1*01:02")],
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
                 ], molecules=[
-                    MhcTwoMolecule(
+                    Mhc2Molecule(
                         alpha_chain=MhcAllele(name="HLA-DQA1*01:01"), beta_chain=MhcAllele(name="HLA-DQB1*01:01")),
-                    MhcTwoMolecule(
+                    Mhc2Molecule(
                         alpha_chain=MhcAllele(name="HLA-DQA1*01:02"), beta_chain=MhcAllele(name="HLA-DQB1*01:01"))
                 ])
             ])
@@ -262,15 +262,15 @@ class TestModelValidator(TestCase):
         # 3 alleles for gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01"), MhcAllele(name="HLA-DQA1*01:02"),
                                  MhcAllele(name="HLA-DQA1*01:03")]
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
                 ])
@@ -279,14 +279,14 @@ class TestModelValidator(TestCase):
         # 2 alleles for homozygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01"), MhcAllele(name="HLA-DQA1*01:02")]
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01"), MhcAllele(name="HLA-DQB1*01:02")]
                     )
                 ])
@@ -295,14 +295,14 @@ class TestModelValidator(TestCase):
         # 1 alleles for heterozygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01")]
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
                 ])
@@ -311,14 +311,14 @@ class TestModelValidator(TestCase):
         # 1 alleles for hemizygous gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01")]
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HEMIZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HEMIZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
                 ])
@@ -327,14 +327,14 @@ class TestModelValidator(TestCase):
         # alleles referring to a different gene
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HEMIZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HEMIZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01")]
                     )
                 ])
@@ -343,14 +343,14 @@ class TestModelValidator(TestCase):
         # MHC and gene referring to different entities
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DP, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DP, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01")]
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HEMIZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HEMIZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
                 ])
@@ -359,19 +359,19 @@ class TestModelValidator(TestCase):
         # Molecules refer to alleles not in the MHC
         self._assert_invalid_patient(patient=Patient(
             identifier="123",
-            mhc_two=[MhcTwo(
-                name=MhcTwoName.DQ, genes=[
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+            mhc2=[Mhc2(
+                name=Mhc2Name.DQ, genes=[
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQA1*01:01"), MhcAllele(name="HLA-DQA1*01:02")],
                     ),
-                    MhcTwoGene(
-                        name=MhcTwoGeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                    Mhc2Gene(
+                        name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
                 ], molecules=[
-                    MhcTwoMolecule(name="HLA-DQA1*01:04-DQB1*01:01"),
-                    MhcTwoMolecule(name="HLA-DQA1*01:08-DQB1*01:01")
+                    Mhc2Molecule(name="HLA-DQA1*01:04-DQB1*01:01"),
+                    Mhc2Molecule(name="HLA-DQA1*01:08-DQB1*01:01")
                 ])
             ])
         )
