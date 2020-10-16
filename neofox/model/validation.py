@@ -21,7 +21,7 @@ import hashlib
 import betterproto
 from neofox.model.conversion import ModelConverter
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele, Mhc2Molecule, Mhc1, \
+from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele, Mhc2Isoform, Mhc1, \
     Mhc1Name, Zygosity, Mhc2, Mhc2Name, Mhc2GeneName
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein, IUPACData
 
@@ -72,7 +72,7 @@ class ModelValidator(object):
             assert patient_id is not None and patient_id != "", "Patient identifier is empty"
             patient.identifier = patient_id
 
-            # TODO: validate new model with molecules, genes and alleles
+            # TODO: validate new model with isoforms, genes and alleles
             # checks MHC I
             validated_mhc1s = []
             for m in patient.mhc1:
@@ -118,7 +118,7 @@ class ModelValidator(object):
         for gene in genes:
             assert gene.name in Mhc2GeneName, "Invalid gene name from MHC II"
             assert gene.name in ModelConverter.GENES_BY_MOLECULE.get(mhc2.name), \
-                "Gene {} referring to molecule {}".format(gene.name, mhc2.name.name)
+                "Gene {} referring to isoform {}".format(gene.name, mhc2.name.name)
             assert gene.zygosity in Zygosity, "Invalid zygosity"
             alleles = gene.alleles
             if gene.zygosity == Zygosity.HOMOZYGOUS:
@@ -136,17 +136,17 @@ class ModelValidator(object):
                 assert validated_allele.gene == gene.name.name, \
                     "The allele referring to gene {} is inside gene {}".format(validated_allele.gene, gene.name.name)
             gene.alleles = validated_alleles
-        molecules = mhc2.molecules
-        validated_molecules = []
-        for molecule in molecules:
-            validated_molecule = ModelValidator.validate_mhc2_molecule_representation(molecule)
-            validated_molecules.append(validated_molecule)
+        isoforms = mhc2.isoforms
+        validated_isoforms = []
+        for isoform in isoforms:
+            validated_isoform = ModelValidator.validate_mhc2_isoform_representation(isoform)
+            validated_isoforms.append(validated_isoform)
             if mhc2.name != Mhc2Name.DR:
-                assert validated_molecule.alpha_chain.name in [a.name for g in genes for a in g.alleles], \
+                assert validated_isoform.alpha_chain.name in [a.name for g in genes for a in g.alleles], \
                     "Alpha chain allele not present in th list of alleles"
-            assert validated_molecule.beta_chain.name in [a.name for g in genes for a in g.alleles], \
+            assert validated_isoform.beta_chain.name in [a.name for g in genes for a in g.alleles], \
                 "Beta chain allele not present in th list of alleles"
-        mhc2.molecules = validated_molecules
+        mhc2.isoforms = validated_isoforms
         return mhc2
 
     @staticmethod
@@ -180,36 +180,36 @@ class ModelValidator(object):
         return MhcAllele(name=name, gene=gene, group=group, protein=protein)
 
     @staticmethod
-    def validate_mhc2_molecule_representation(molecule: Mhc2Molecule) -> Mhc2Molecule:
+    def validate_mhc2_isoform_representation(isoform: Mhc2Isoform) -> Mhc2Isoform:
         try:
-            if molecule.name:
+            if isoform.name:
                 # infers alpha and beta chains
-                match = ModelConverter.HLA_MOLECULE_PATTERN.match(molecule.name)
+                match = ModelConverter.HLA_MOLECULE_PATTERN.match(isoform.name)
                 if match:
                     alpha_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
                     beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(2)))
                 else:
-                    match = ModelConverter.HLA_DR_MOLECULE_PATTERN.match(molecule.name)
-                    assert match is not None, "Molecule does not match HLA molecule pattern {}".format(molecule.name)
+                    match = ModelConverter.HLA_DR_MOLECULE_PATTERN.match(isoform.name)
+                    assert match is not None, "Molecule does not match HLA isoform pattern {}".format(isoform.name)
                     alpha_chain = MhcAllele()
                     beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
-            elif molecule.alpha_chain and molecule.beta_chain:
+            elif isoform.alpha_chain and isoform.beta_chain:
                 # infers name from gene, group and protein
-                alpha_chain = ModelValidator.validate_mhc_allele_representation(molecule.alpha_chain)
-                beta_chain = ModelValidator.validate_mhc_allele_representation(molecule.beta_chain)
+                alpha_chain = ModelValidator.validate_mhc_allele_representation(isoform.alpha_chain)
+                beta_chain = ModelValidator.validate_mhc_allele_representation(isoform.beta_chain)
             else:
-                raise NeofoxDataValidationException("HLA molecule missing required fields")
+                raise NeofoxDataValidationException("HLA isoform missing required fields")
 
             # builds the final allele representation and validates it just in case
-            name = ModelConverter.get_mhc2_molecule_name(alpha_chain, beta_chain)
+            name = ModelConverter.get_mhc2_isoform_name(alpha_chain, beta_chain)
             match = ModelConverter.HLA_MOLECULE_PATTERN.match(name)
             match2 = ModelConverter.HLA_DR_MOLECULE_PATTERN.match(name)
             assert match is not None or match2 is not None, \
-                "Molecule does not match HLA molecule pattern {}".format(name)
+                "Molecule does not match HLA isoform pattern {}".format(name)
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
 
-        return Mhc2Molecule(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
+        return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
 
     @staticmethod
     def _validate_expression_values(neoantigen):

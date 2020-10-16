@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, Mhc1, Mhc1Name, Zygosity, \
-    Mhc2, Mhc2Name, Mhc2GeneName, Mhc2Gene, Mhc2Molecule
+    Mhc2, Mhc2Name, Mhc2GeneName, Mhc2Gene, Mhc2Isoform
 from neofox.model.validation import ModelValidator
 
 
@@ -218,9 +218,9 @@ class TestModelValidator(TestCase):
                         name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
-                ], molecules=[
-                    Mhc2Molecule(name="HLA-DQA1*01:01-DQB1*01:01"),
-                    Mhc2Molecule(name="HLA-DQA1*01:02-DQB1*01:01")
+                ], isoforms=[
+                    Mhc2Isoform(name="HLA-DQA1*01:01-DQB1*01:01"),
+                    Mhc2Isoform(name="HLA-DQA1*01:02-DQB1*01:01")
                 ])
             ])
         )
@@ -232,8 +232,8 @@ class TestModelValidator(TestCase):
                         name=Mhc2GeneName.DRB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DRB1*01:01")],
                     )
-                ], molecules=[
-                    Mhc2Molecule(name="HLA-DRB1*01:01")
+                ], isoforms=[
+                    Mhc2Isoform(name="HLA-DRB1*01:01")
                 ])
             ])
         )
@@ -249,10 +249,10 @@ class TestModelValidator(TestCase):
                         name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
-                ], molecules=[
-                    Mhc2Molecule(
+                ], isoforms=[
+                    Mhc2Isoform(
                         alpha_chain=MhcAllele(name="HLA-DQA1*01:01"), beta_chain=MhcAllele(name="HLA-DQB1*01:01")),
-                    Mhc2Molecule(
+                    Mhc2Isoform(
                         alpha_chain=MhcAllele(name="HLA-DQA1*01:02"), beta_chain=MhcAllele(name="HLA-DQB1*01:01"))
                 ])
             ])
@@ -369,9 +369,9 @@ class TestModelValidator(TestCase):
                         name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[MhcAllele(name="HLA-DQB1*01:01")]
                     )
-                ], molecules=[
-                    Mhc2Molecule(name="HLA-DQA1*01:04-DQB1*01:01"),
-                    Mhc2Molecule(name="HLA-DQA1*01:08-DQB1*01:01")
+                ], isoforms=[
+                    Mhc2Isoform(name="HLA-DQA1*01:04-DQB1*01:01"),
+                    Mhc2Isoform(name="HLA-DQA1*01:08-DQB1*01:01")
                 ])
             ])
         )

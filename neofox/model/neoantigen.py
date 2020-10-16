@@ -157,7 +157,10 @@ class NeoantigenAnnotations(betterproto.Message):
 
 @dataclass
 class Mhc1(betterproto.Message):
-    """*Models MHC I alleles related to the same MHC I gene"""
+    """
+    *Models MHC I alleles related to the same MHC I gene, i.e. 2 alleles/2
+    isoforms per gene
+    """
 
     # *MHC I gene name
     name: "Mhc1Name" = betterproto.enum_field(1)
@@ -169,25 +172,28 @@ class Mhc1(betterproto.Message):
 
 @dataclass
 class Mhc2(betterproto.Message):
-    """*Models MHC II alleles related to the same MHC II"""
+    """
+    *Models MHC II alleles related to the same MHC II protein, i.e. 4 isoforms
+    related to 2 genes with 2 alleles each
+    """
 
     # *MHC II molecule name
     name: "Mhc2Name" = betterproto.enum_field(1)
     # *List of MHC II genes
     genes: List["Mhc2Gene"] = betterproto.message_field(2)
-    # *Different combinations of MHC II alleles building different molecules
-    molecules: List["Mhc2Molecule"] = betterproto.message_field(3)
+    # *Different combinations of MHC II alleles building different isoforms
+    isoforms: List["Mhc2Isoform"] = betterproto.message_field(3)
 
 
 @dataclass
-class Mhc2Molecule(betterproto.Message):
-    """*MHC II molecule"""
+class Mhc2Isoform(betterproto.Message):
+    """*MHC II isoform"""
 
-    # *Name to refer to the MHC II molecule
+    # *Name to refer to the MHC II isoform
     name: str = betterproto.string_field(1)
-    # *The alpha chain of the molecule
+    # *The alpha chain of the isoform
     alpha_chain: "MhcAllele" = betterproto.message_field(2)
-    # *The beta chain of the molecule
+    # *The beta chain of the isoform
     beta_chain: "MhcAllele" = betterproto.message_field(3)
 
 
@@ -211,16 +217,16 @@ class MhcAllele(betterproto.Message):
     http://hla.alleles.org/nomenclature/naming.html for details
     """
 
-    # *HLA allele full name (e.g.: HLA-A*01:01)
+    # *HLA allele full name (e.g.: HLA-DRB1*13:01)
     name: str = betterproto.string_field(1)
-    # *The gene from either MHC I or II (this information is redundant with the
-    # Mhc1Gene.name and Mhc2Gene.name but itis convenient to have this at this
-    # level too, code will check for data coherence)
+    # *The gene from either MHC I or II (e.g. DRB1) (this information is
+    # redundant with the Mhc1Gene.name and Mhc2Gene.namebut it is convenient to
+    # have this at this level too, code will check for data coherence)
     gene: str = betterproto.string_field(2)
     # *A group of alleles defined by a common serotype ie: Serological antigen
-    # carried by an allotype
+    # carried by an allotype (e.g. 13)
     group: str = betterproto.string_field(3)
-    # *A specific HLA protein. Alleles whose numbers differ in group and protein
-    # must differ in one or more nucleotidesubstitutions that change the amino
-    # acid sequence of the encoded protein.
+    # *A specific HLA protein (e.g. 01). Alleles whose numbers differ in group
+    # and protein must differ in one or more nucleotidesubstitutions that change
+    # the amino acid sequence of the encoded protein.
     protein: str = betterproto.string_field(4)

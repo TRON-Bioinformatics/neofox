@@ -97,13 +97,13 @@ class MixMhc2Pred(AbstractMixMHCpred):
                 self._get_mixmhc2_allele_representation(drb1_alleles) + dq_allele_combinations + dp_allele_combinations
                 if a in self.available_alleles]
 
-    def mixmhc2prediction(self, mhc_molecules: List[Mhc2], tmpfasta, outtmp):
+    def mixmhc2prediction(self, mhc_isoforms: List[Mhc2], tmpfasta, outtmp):
         """
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         """
         cmd = [
             self.configuration.mix_mhc2_pred,
-            "-a", " ".join(self._transform_hla_ii_alleles_for_prediction(mhc_molecules)),
+            "-a", " ".join(self._transform_hla_ii_alleles_for_prediction(mhc_isoforms)),
             "-i", tmpfasta,
             "-o", outtmp]
         self.runner.run_command(cmd)

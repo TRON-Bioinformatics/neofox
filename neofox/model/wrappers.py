@@ -39,6 +39,6 @@ class AnnotationFactory(object):
         return Annotation(name=name, value=value)
 
 
-def get_alleles_by_gene(mhc_molecules: List[Mhc2], gene: Mhc2GeneName) -> List[MhcAllele]:
-    return [a for m in mhc_molecules for g in m.genes if g.name == gene for a in g.alleles]
+def get_alleles_by_gene(mhc_isoforms: List[Mhc2], gene: Mhc2GeneName) -> List[MhcAllele]:
+    return [a for m in mhc_isoforms for g in m.genes if g.name == gene for a in g.alleles]
 

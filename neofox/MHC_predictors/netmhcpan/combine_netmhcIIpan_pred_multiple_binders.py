@@ -85,9 +85,9 @@ class BestAndMultipleBinderMhcII:
         tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
         allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(mhc)
         # TODO: migrate the available alleles into the model for alleles
-        patient_mhc2_molecules = self._get_only_available_combinations(allele_combinations, available_mhc)
+        patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, available_mhc)
 
-        netmhc2pan.mhcII_prediction(patient_mhc2_molecules, tmp_fasta, tmp_prediction)
+        netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
         position_mutation = netmhc2pan.mut_position_xmer_seq(sequence_wt=sequence_reference, sequence_mut=sequence)
         if len(sequence) >= 15:
             predicted_epitopes = netmhc2pan.filter_binding_predictions(position_mutation, tmp_prediction)
@@ -112,7 +112,7 @@ class BestAndMultipleBinderMhcII:
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         netmhc2pan = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta([sequence_reference], prefix="tmp_singleseq_")
-        netmhc2pan.mhcII_prediction(patient_mhc2_molecules, tmp_fasta, tmp_prediction)
+        netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
         if len(sequence_reference) >= 15:
             predicted_epitopes_wt = netmhc2pan.filter_binding_predictions(position_mutation, tmp_prediction)
             # best prediction
