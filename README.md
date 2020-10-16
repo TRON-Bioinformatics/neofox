@@ -1,5 +1,8 @@
 # NeoFox - NEOantigen Feature tOolboX
 
+[![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
+[![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
+
 
 Annotation of mutated peptide sequences (mps) with published neo-epitope descriptors
 
