@@ -265,8 +265,8 @@ class ModelConverterTest(TestCase):
             for gene in mhc2.genes:
                 self.assertEqual(2, len(gene.alleles))
                 self.assertEqual(Zygosity.HETEROZYGOUS, gene.zygosity)
-            self.assertEqual(2 if mhc2.name == Mhc2Name.DR else 4, len(mhc2.molecules))
-            self._assert_molecules(mhc2)
+            self.assertEqual(2 if mhc2.name == Mhc2Name.DR else 4, len(mhc2.isoforms))
+            self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_homozygous_alleles(self):
         mhc2s = ModelConverter.parse_mhc2_alleles(
@@ -279,8 +279,8 @@ class ModelConverterTest(TestCase):
             for gene in mhc2.genes:
                 self.assertEqual(1, len(gene.alleles))
                 self.assertEqual(Zygosity.HOMOZYGOUS, gene.zygosity)
-            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 1, len(mhc2.molecules))
-            self._assert_molecules(mhc2)
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 1, len(mhc2.isoforms))
+            self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_hemizygous_alleles(self):
         mhc2s = ModelConverter.parse_mhc2_alleles(
@@ -291,8 +291,8 @@ class ModelConverterTest(TestCase):
             for gene in mhc2.genes:
                 self.assertEqual(1, len(gene.alleles))
                 self.assertEqual(Zygosity.HEMIZYGOUS, gene.zygosity)
-            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 1, len(mhc2.molecules))
-            self._assert_molecules(mhc2)
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 1, len(mhc2.isoforms))
+            self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_hetero_and_homozygous_alleles(self):
         mhc2s = ModelConverter.parse_mhc2_alleles(
@@ -301,7 +301,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(3, len(mhc2s))
         for mhc2 in mhc2s:
             self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
-            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.molecules))
+            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.isoforms))
 
     def test_parse_mhc2_loss(self):
         mhc2s = ModelConverter.parse_mhc2_alleles([])
@@ -311,7 +311,7 @@ class ModelConverterTest(TestCase):
             for gene in mhc2.genes:
                 self.assertEqual(Zygosity.LOSS, gene.zygosity)
                 self.assertEqual(0, len(gene.alleles))
-            self.assertEqual(0, len(mhc2.molecules))
+            self.assertEqual(0, len(mhc2.isoforms))
 
     def test_parse_mhc2_bad_format_fails(self):
         self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
@@ -327,13 +327,13 @@ class ModelConverterTest(TestCase):
         self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
                           ["HLA-A*01:01", "HLA-A*01:02", "HLA-G*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
-    def _assert_molecules(self, mhc2):
-        for molecule in mhc2.molecules:
+    def _assert_isoforms(self, mhc2):
+        for isoform in mhc2.isoforms:
             if mhc2.name == Mhc2Name.DR:
-                self.assertIsNone(molecule.alpha_chain)
+                self.assertIsNone(isoform.alpha_chain)
             else:
-                self.assertIsNotNone(molecule.alpha_chain)
-            self.assertIsNotNone(molecule.beta_chain)
+                self.assertIsNotNone(isoform.alpha_chain)
+            self.assertIsNotNone(isoform.beta_chain)
 
     def _assert_lists_equal(self, neoantigens, neoantigens2):
         self.assertEqual(len(neoantigens), len(neoantigens2))

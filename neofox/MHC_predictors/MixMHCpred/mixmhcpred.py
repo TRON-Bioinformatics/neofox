@@ -46,13 +46,13 @@ class MixMHCpred(AbstractMixMHCpred):
         return list(map(
             lambda x: "{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein), mhc_alleles))
 
-    def _mixmhcprediction(self, mhc_molecules: List[Mhc1], tmpfasta, outtmp):
+    def _mixmhcprediction(self, mhc_isoforms: List[Mhc1], tmpfasta, outtmp):
         """
         Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
         """
         self.runner.run_command(cmd=[
             self.configuration.mix_mhc_pred,
-            "-a", ",".join(self._get_mixmhc_allele_representation([a for m in mhc_molecules for a in m.alleles])),
+            "-a", ",".join(self._get_mixmhc_allele_representation([a for m in mhc_isoforms for a in m.alleles])),
             "-i", tmpfasta,
             "-o", outtmp])
 

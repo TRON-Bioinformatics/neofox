@@ -44,11 +44,11 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
-        dp_dq_molecules = [self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
-                           for mhc in mhcs if mhc.name != Mhc2Name.DR for m in mhc.molecules]
-        dr_molecules = [self._represent_drb1_allele(m.beta_chain)
-                        for mhc in mhcs if mhc.name == Mhc2Name.DR for m in mhc.molecules]
-        return dp_dq_molecules + dr_molecules
+        dp_dq_isoforms = [self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
+                           for mhc in mhcs if mhc.name != Mhc2Name.DR for m in mhc.isoforms]
+        dr_isoforms = [self._represent_drb1_allele(m.beta_chain)
+                        for mhc in mhcs if mhc.name == Mhc2Name.DR for m in mhc.isoforms]
+        return dp_dq_isoforms + dr_isoforms
 
     @staticmethod
     def _represent_drb1_allele(hla_allele: MhcAllele):

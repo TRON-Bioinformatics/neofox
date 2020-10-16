@@ -216,7 +216,7 @@ enum Mhc2Name {
 }
 
 /**
-Models MHC I alleles related to the same MHC I gene
+Models MHC I alleles related to the same MHC I gene, i.e. 2 alleles/2 isoforms per gene
  */
 message Mhc1 {
 	/**
@@ -234,7 +234,7 @@ message Mhc1 {
 }
 
 /**
-Models MHC II alleles related to the same MHC II
+Models MHC II alleles related to the same MHC II protein, i.e. 4 isoforms related to 2 genes with 2 alleles each
  */
 message Mhc2 {
 	/**
@@ -246,25 +246,25 @@ message Mhc2 {
 	 */
 	repeated Mhc2Gene genes = 2;
 	/**
-	Different combinations of MHC II alleles building different molecules
+	Different combinations of MHC II alleles building different isoforms
 	 */
-	repeated Mhc2Molecule molecules = 3;
+	repeated Mhc2Isoform isoforms = 3;
 }
 
 /**
-MHC II molecule
+MHC II isoform
  */
-message Mhc2Molecule {
+message Mhc2Isoform {
 	/**
-	Name to refer to the MHC II molecule
+	Name to refer to the MHC II isoform
 	 */
 	string name = 1;
 	/**
-	The alpha chain of the molecule
+	The alpha chain of the isoform
 	 */
 	MhcAllele alphaChain = 2;
 	/**
-	The beta chain of the molecule
+	The beta chain of the isoform
 	 */
 	MhcAllele betaChain = 3;
 }
@@ -293,20 +293,20 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
  */
 message MhcAllele {
 	/**
-	HLA allele full name (e.g.: HLA-A*01:01)
+	HLA allele full name (e.g.: HLA-DRB1*13:01)
 	 */
 	string name = 1;
 	/**
-	The gene from either MHC I or II (this information is redundant with the Mhc1Gene.name and Mhc2Gene.name but it
-	is convenient to have this at this level too, code will check for data coherence)
+	The gene from either MHC I or II (e.g. DRB1) (this information is redundant with the Mhc1Gene.name and Mhc2Gene.name
+	but it is convenient to have this at this level too, code will check for data coherence)
 	 */
 	string gene = 2;
 	/**
-	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype
+	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. 13)
 	 */
 	string group = 3;
 	/**
-	A specific HLA protein. Alleles whose numbers differ in group and protein must differ in one or more nucleotide
+	A specific HLA protein (e.g. 01). Alleles whose numbers differ in group and protein must differ in one or more nucleotide
 	substitutions that change the amino acid sequence of the encoded protein.
 	 */
 	string protein = 4;

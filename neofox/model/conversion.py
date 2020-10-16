@@ -27,7 +27,7 @@ import difflib
 from collections import defaultdict
 import json
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, NeoantigenAnnotations, Mhc2Name, \
-    Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Molecule, MhcAllele, Mhc1Name, Mhc1
+    Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Isoform, MhcAllele, Mhc1Name, Mhc1
 
 FIELD_SUBSTITUTION = 'substitution'
 
@@ -235,7 +235,7 @@ class ModelConverter(object):
 
     @staticmethod
     def parse_mhc1_alleles(alleles: List[str]) -> List[Mhc1]:
-        molecules = []
+        isoforms = []
         parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
         ModelConverter._validate_mhc1_alleles(parsed_alleles)
         # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
@@ -244,8 +244,8 @@ class ModelConverter(object):
             zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
             if zygosity == Zygosity.HOMOZYGOUS:
                 gene_alleles = [gene_alleles[0]]   # we don't want repeated instances of the same allele
-            molecules.append(Mhc1(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
-        return molecules
+            isoforms.append(Mhc1(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
+        return isoforms
 
     @staticmethod
     def parse_mhc2_alleles(alleles: List[str]) -> List[Mhc2]:
@@ -253,42 +253,42 @@ class ModelConverter(object):
         parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
         ModelConverter._validate_mhc2_alleles(parsed_alleles)
         # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-        for molecule_name in Mhc2Name:
-            molecule_alleles = list(filter(lambda a: molecule_name.name in a.gene, parsed_alleles))
+        for isoform_name in Mhc2Name:
+            isoform_alleles = list(filter(lambda a: isoform_name.name in a.gene, parsed_alleles))
             genes = []
-            for gene_name in ModelConverter.GENES_BY_MOLECULE.get(molecule_name):
-                gene_alleles = list(filter(lambda a: a.gene == gene_name.name, molecule_alleles))
+            for gene_name in ModelConverter.GENES_BY_MOLECULE.get(isoform_name):
+                gene_alleles = list(filter(lambda a: a.gene == gene_name.name, isoform_alleles))
                 zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
                 if zygosity == Zygosity.HOMOZYGOUS:
                     gene_alleles = [gene_alleles[0]]  # we don't want repeated instances of the same allele
                 genes.append(Mhc2Gene(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
-            molecules = ModelConverter._get_mhc2_molecules(molecule_name, genes)
-            mhc2s.append(Mhc2(name=molecule_name, genes=genes, molecules=molecules))
+            isoforms = ModelConverter._get_mhc2_isoforms(isoform_name, genes)
+            mhc2s.append(Mhc2(name=isoform_name, genes=genes, isoforms=isoforms))
         return mhc2s
 
     @staticmethod
-    def _get_mhc2_molecules(molecule_name: Mhc2Name, genes: List[Mhc2Gene]) -> List[Mhc2Molecule]:
-        molecules = []
-        if molecule_name == Mhc2Name.DR:
+    def _get_mhc2_isoforms(isoform_name: Mhc2Name, genes: List[Mhc2Gene]) -> List[Mhc2Isoform]:
+        isoforms = []
+        if isoform_name == Mhc2Name.DR:
             assert len(genes) <= 1, "More than one gene provided for MHC II DR"
             # alpha chain of the MHC II DR is not modelled as it is constant
-            molecules = [Mhc2Molecule(name=a.name, alpha_chain=None, beta_chain=a) for g in genes for a in g.alleles]
-        elif molecule_name == Mhc2Name.DP:
+            isoforms = [Mhc2Isoform(name=a.name, alpha_chain=None, beta_chain=a) for g in genes for a in g.alleles]
+        elif isoform_name == Mhc2Name.DP:
             assert len(genes) <= 2, "More than two genes provided for MHC II DP"
             alpha_alleles = [a for g in genes if g.name == Mhc2GeneName.DPA1 for a in g.alleles]
             beta_alleles = [a for g in genes if g.name == Mhc2GeneName.DPB1 for a in g.alleles]
-            molecules = [Mhc2Molecule(name=ModelConverter.get_mhc2_molecule_name(a, b),
+            isoforms = [Mhc2Isoform(name=ModelConverter.get_mhc2_isoform_name(a, b),
                                         alpha_chain=a, beta_chain=b) for a in alpha_alleles for b in beta_alleles]
-        elif molecule_name == Mhc2Name.DQ:
+        elif isoform_name == Mhc2Name.DQ:
             assert len(genes) <= 2, "More than two genes provided for MHC II DQ"
             alpha_alleles = [a for g in genes if g.name == Mhc2GeneName.DQA1 for a in g.alleles]
             beta_alleles = [a for g in genes if g.name == Mhc2GeneName.DQB1 for a in g.alleles]
-            molecules = [Mhc2Molecule(name=ModelConverter.get_mhc2_molecule_name(a, b),
+            isoforms = [Mhc2Isoform(name=ModelConverter.get_mhc2_isoform_name(a, b),
                                         alpha_chain=a, beta_chain=b) for a in alpha_alleles for b in beta_alleles]
-        return molecules
+        return isoforms
 
     @staticmethod
-    def get_mhc2_molecule_name(a: MhcAllele, b: MhcAllele):
+    def get_mhc2_isoform_name(a: MhcAllele, b: MhcAllele):
         # NOTE: this is needed as jus setting alpha chain to None wouldn't work with protobuf
         if a is not None and a.name:
             return "{}-{}".format(a.name, b.name.replace("HLA-", ""))
