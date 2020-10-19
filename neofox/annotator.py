@@ -40,14 +40,13 @@ from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicit
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration, AvailableAlleles
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 
 
 class NeoantigenAnnotator:
 
-    def __init__(self, references: ReferenceFolder):
+    def __init__(self, references: ReferenceFolder, configuration: DependenciesConfiguration):
         """class to annotate neoantigens"""
-        configuration = DependenciesConfiguration()
         runner = Runner()
         self.dissimilarity_calculator = DissimilarityCalculator(
             runner=runner, configuration=configuration, proteome_db=references.proteome_db)

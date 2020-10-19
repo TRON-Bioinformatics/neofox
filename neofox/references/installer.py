@@ -3,16 +3,19 @@ import os
 import pandas as pd
 from neofox.exceptions import NeofoxReferenceException
 from neofox.helpers.runner import Runner
-from neofox.references.references import DependenciesConfigurationForInstaller
+from neofox.references.references import DependenciesConfigurationForInstaller, NETMHCPAN_AVAILABLE_ALLELES_FILE, \
+    NETMHC2PAN_AVAILABLE_ALLELES_FILE, IEDB_FOLDER, PROTEOME_DB_FOLDER, IEDB_BLAST_PREFIX, IEDB_FASTA, \
+    HOMO_SAPIENS_FASTA, PREFIX_HOMO_SAPIENS
 from logzero import logger
 
 
 class NeofoxReferenceInstaller(object):
 
-    def __init__(self, reference_folder):
+    def __init__(self, reference_folder, install_r_dependencies=False):
         self.config = DependenciesConfigurationForInstaller()
         self.runner = Runner()
         self.reference_folder = reference_folder
+        self.install_r_dependencies = install_r_dependencies
 
     def install(self):
         # ensures the reference folder exists
@@ -22,19 +25,27 @@ class NeofoxReferenceInstaller(object):
         self._set_netmhc2pan_alleles()
         self._set_iedb()
         self._set_proteome()
+        if self.install_r_dependencies:
+            self._install_r_dependencies()
+        else:
+            logger.warning("R dependencies will need to be installed manually")
 
     def _set_netmhcpan_alleles(self):
         # available MHC alleles netMHCpan
         # $NEOFOX_NETMHCPAN -listMHC | grep "HLA-" > "$NEOFOX_REFERENCE_FOLDER"/MHC_available.csv
         logger.info("Fetching available alleles from NetMHCpan")
-        cmd = '{} -listMHC | grep "HLA-" > {}/MHC_available.csv'.format(self.config.net_mhc_pan, self.reference_folder)
+        available_alleles_file = os.path.join(self.reference_folder, NETMHCPAN_AVAILABLE_ALLELES_FILE)
+        cmd = '{netmhcpan} -listMHC | grep "HLA-" > {available_alleles_file}'.format(
+            netmhcpan=self.config.net_mhc_pan, available_alleles_file=available_alleles_file)
         self._run_command(cmd)
 
     def _set_netmhc2pan_alleles(self):
         # available MHCII alleles netMHCIIpan
         # $NEOFOX_NETMHC2PAN -list  > "$NEOFOX_REFERENCE_FOLDER"/avail_mhcII.txt
         logger.info("Fetching available alleles from NetMHC2pan")
-        cmd = '{} -list > {}/avail_mhcII.txt'.format(self.config.net_mhc2_pan, self.reference_folder)
+        available_alleles_file = os.path.join(self.reference_folder, NETMHC2PAN_AVAILABLE_ALLELES_FILE)
+        cmd = '{netmhc2pan} -list > {available_alleles_file}'.format(
+            netmhc2pan=self.config.net_mhc2_pan, available_alleles_file=available_alleles_file)
         self._run_command(cmd)
 
     def _set_iedb(self):
@@ -47,27 +58,28 @@ class NeofoxReferenceInstaller(object):
 
         logger.info("Configuring IEDB")
 
-        os.makedirs(os.path.join(self.reference_folder, "iedb"), exist_ok=True)
+        os.makedirs(os.path.join(self.reference_folder, IEDB_FOLDER), exist_ok=True)
 
         # download IEDB
-        iedb_zip = os.path.join(self.reference_folder, "iedb/Iedb.zip")
+        iedb_zip = os.path.join(self.reference_folder, IEDB_FOLDER, "Iedb.zip")
         cmd = 'wget "http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip" -O {}'.format(iedb_zip)
         self._run_command(cmd)
 
         # unzip IEDB
-        iedb_folder = os.path.join(self.reference_folder, "iedb")
-        cmd = "unzip {iedb_zip} -d {iedb_folder}".format(iedb_zip=iedb_zip, iedb_folder=iedb_folder)
+        path_to_iedb_folder = os.path.join(self.reference_folder, IEDB_FOLDER)
+        cmd = "unzip -o {iedb_zip} -d {iedb_folder}".format(iedb_zip=iedb_zip, iedb_folder=path_to_iedb_folder)
         self._run_command(cmd)
 
         # transforms IEDB into fasta
-        iedb_fasta = os.path.join(self.reference_folder, "iedb/IEDB.fasta")
-        IedbFastaBuilder(os.path.join(self.reference_folder, "iedb/tcell_full_v3.csv"), iedb_fasta).build_fasta()
+        iedb_tcell_csv =os.path.join(self.reference_folder, IEDB_FOLDER, "tcell_full_v3.csv")
+        iedb_fasta = os.path.join(self.reference_folder, IEDB_FOLDER, IEDB_FASTA)
+        IedbFastaBuilder(iedb_tcell_csv, iedb_fasta).build_fasta()
 
         # run makeblastdb on iedb fasta
         cmd = "{makeblastdb} -in {iedb_fasta} -dbtype prot -out {iedb_folder}".format(
             makeblastdb=self.config.make_blastdb,
             iedb_fasta=iedb_fasta,
-            iedb_folder=os.path.join(iedb_folder, "iedb_blast_db"))
+            iedb_folder=os.path.join(path_to_iedb_folder, IEDB_BLAST_PREFIX))
         self._run_command(cmd)
 
     def _set_proteome(self):
@@ -79,21 +91,29 @@ class NeofoxReferenceInstaller(object):
 
         logger.info("Configuring the proteome DB")
 
-        os.makedirs(os.path.join(self.reference_folder, "proteome_db"))
+        os.makedirs(os.path.join(self.reference_folder, PROTEOME_DB_FOLDER))
 
         # download proteome
-        proteome_compressed_file = os.path.join(self.reference_folder, "proteome_db/Homo_sapiens.fa.gz")
-        ftp_url = "ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz"
+        proteome_compressed_file = os.path.join(self.reference_folder, PROTEOME_DB_FOLDER, "%s.gz" % HOMO_SAPIENS_FASTA)
+        #ftp_url = "ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz"
+        ftp_url = "ftp://ftp.ensembl.org/pub/grch37/release-101/fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.pep.all.fa.gz"
         cmd = "wget {ftp_url} -O {proteome_file}".format(ftp_url=ftp_url, proteome_file=proteome_compressed_file)
         self._run_command(cmd)
 
-        cmd = "gunzip {proteome_file}".format(proteome_file=proteome_compressed_file)
+        cmd = "gunzip -f {proteome_file}".format(proteome_file=proteome_compressed_file)
         self._run_command(cmd)
 
-        proteome_file = os.path.join(self.reference_folder, "proteome_db/Homo_sapiens.fa")
-        output_folder = os.path.join(self.reference_folder, "proteome_db/homo_sapiens")
+        proteome_file = os.path.join(self.reference_folder, PROTEOME_DB_FOLDER, HOMO_SAPIENS_FASTA)
+        output_folder = os.path.join(self.reference_folder, PROTEOME_DB_FOLDER, PREFIX_HOMO_SAPIENS)
         cmd = "{makeblastdb} -in {proteome_file} -dbtype prot -parse_seqids -out {output_folder}".format(
             makeblastdb=self.config.make_blastdb, proteome_file=proteome_file, output_folder=output_folder)
+        self._run_command(cmd)
+
+    def _install_r_dependencies(self):
+        logger.info("Installing R dependencies...")
+        cmd = "{rscript} --vanilla {dependencies_file}".format(
+            rscript=self.config.rscript,
+            dependencies_file=os.path.join(os.path.abspath(os.path.dirname(__file__)), "install_r_dependencies.R"))
         self._run_command(cmd)
 
     def _run_command(self, cmd):
@@ -127,7 +147,7 @@ class IedbFastaBuilder:
             ]
 
         # sets values for identifiers and sequences
-        filtered_iedb["seq"] = filtered_iedb["Description"].transform(lambda x: x.strip())
+        filtered_iedb.loc[:, "seq"] = filtered_iedb.loc[:, "Description"].transform(lambda x: x.strip())
         # build fasta header: 449|FL-160-2 protein - Trypanosoma cruzi|JH0823|Trypanosoma cruzi|5693
         # epitope id|Antigen Name|antigen_id|Organism Name|organism_id
         filtered_iedb.loc[:, "epitope_id"] = filtered_iedb.loc[:, "Epitope IRI"].transform(

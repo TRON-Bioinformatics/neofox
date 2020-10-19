@@ -21,37 +21,54 @@ from logzero import logger
 import neofox
 from neofox.exceptions import NeofoxConfigurationException
 
-
-def _check_and_load_binary(variable_name):
-    variable_value = os.environ.get(variable_name, "")
-    if not variable_value:
-        raise NeofoxConfigurationException(
-            "Please, set the environment variable ${} pointing to the right binary!".format(
-                variable_name))
-    if not os.path.exists(variable_value):
-        raise NeofoxConfigurationException("The provided binary '{}' in ${} does not exist!".format(
-            variable_value, variable_name))
-    return variable_value
+PREFIX_HOMO_SAPIENS = "homo_sapiens"
+HOMO_SAPIENS_FASTA = "Homo_sapiens.fa"
+IEDB_FASTA = "IEDB.fasta"
+PROTEOME_DB_FOLDER = 'proteome_db'
+IEDB_FOLDER = 'iedb'
+IEDB_BLAST_PREFIX = "iedb_blast_db"
+NETMHCPAN_AVAILABLE_ALLELES_FILE = 'netmhcpan_available_alleles.txt'
+NETMHC2PAN_AVAILABLE_ALLELES_FILE = 'netmhc2pan_available_alleles.txt'
 
 
-class DependenciesConfiguration:
+class AbstractDependenciesConfiguration:
+
+    def _check_and_load_binary(self, variable_name):
+        variable_value = os.environ.get(variable_name)
+        if variable_value is None:
+            raise NeofoxConfigurationException(
+                "Please, set the environment variable ${} pointing to the right binary!".format(
+                    variable_name))
+        # checks that the file exists
+        if not os.path.exists(variable_value):
+            raise NeofoxConfigurationException("The provided binary '{}' in ${} does not exist!".format(
+                variable_value, variable_name))
+        # checks that it is executable
+        if not os.access(variable_value, os.X_OK):
+            raise NeofoxConfigurationException("The provided binary '{}' in ${} is not executable!".format(
+                variable_value, variable_name))
+        return variable_value
+
+
+class DependenciesConfiguration(AbstractDependenciesConfiguration):
 
     def __init__(self):
-        self.blastp = _check_and_load_binary(neofox.NEOFOX_BLASTP_ENV)
-        self.mix_mhc2_pred = _check_and_load_binary(neofox.NEOFOX_MIXMHC2PRED_ENV)
+        self.blastp = self._check_and_load_binary(neofox.NEOFOX_BLASTP_ENV)
+        self.mix_mhc2_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHC2PRED_ENV)
         self.mix_mhc2_pred_alleles_list = os.path.join(os.path.dirname(self.mix_mhc2_pred), 'Alleles_list.txt')
-        self.mix_mhc_pred = _check_and_load_binary(neofox.NEOFOX_MIXMHCPRED_ENV)
-        self.rscript = _check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
-        self.net_mhc2_pan = _check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
-        self.net_mhc_pan = _check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
+        self.mix_mhc_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHCPRED_ENV)
+        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
+        self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
+        self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
 
 
-class DependenciesConfigurationForInstaller:
+class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):
 
     def __init__(self):
-        self.net_mhc2_pan = _check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
-        self.net_mhc_pan = _check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
-        self.make_blastdb = _check_and_load_binary(neofox.NEOFOX_MAKEBLASTDB_ENV)
+        self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
+        self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
+        self.make_blastdb = self._check_and_load_binary(neofox.NEOFOX_MAKEBLASTDB_ENV)
+        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
 
 
 class ReferenceFolder(object):
@@ -59,15 +76,31 @@ class ReferenceFolder(object):
     def __init__(self):
         self.reference_genome_folder = self._check_reference_genome_folder()
         # sets the right file names for the resources
-        self.available_mhc_ii = self._get_reference_file_name('avail_mhcII.txt')
-        self.available_mhc_i = self._get_reference_file_name('MHC_available.csv')
-        self.iedb = self._get_reference_file_name('iedb')
-        self.proteome_db = self._get_reference_file_name('proteome_db')
-        self.uniprot = self._get_reference_file_name('proteome_db/Homo_sapiens.fa')
+        self.available_mhc_ii = self._get_reference_file_name(NETMHC2PAN_AVAILABLE_ALLELES_FILE)
+        self.available_mhc_i = self._get_reference_file_name(NETMHCPAN_AVAILABLE_ALLELES_FILE)
+        self.iedb = self._get_reference_file_name(IEDB_FOLDER)
+        self.proteome_db = self._get_reference_file_name(PROTEOME_DB_FOLDER)
+        self.uniprot = self._get_reference_file_name(os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_FASTA))
 
         self.resources = [
-            self.available_mhc_ii, self.available_mhc_i, self.iedb, self.proteome_db, self.uniprot]
-        self._check_resources(self.resources)
+            self.available_mhc_ii,
+            self.available_mhc_i,
+            self.iedb,
+            self.proteome_db,
+            self.uniprot,
+            os.path.join(self.iedb, IEDB_FASTA),
+            os.path.join(self.iedb, "{}.phr".format(IEDB_BLAST_PREFIX)),
+            os.path.join(self.iedb, "{}.pin".format(IEDB_BLAST_PREFIX)),
+            os.path.join(self.iedb, "{}.psq".format(IEDB_BLAST_PREFIX)),
+            os.path.join(self.proteome_db, HOMO_SAPIENS_FASTA),
+            os.path.join(self.proteome_db, "%s.phr" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.pin" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.pog" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.psd" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.psi" % PREFIX_HOMO_SAPIENS),
+            os.path.join(self.proteome_db, "%s.psq" % PREFIX_HOMO_SAPIENS)
+        ]
+        self._check_resources()
         self._log_configuration()
         self.__available_alleles = None
 
@@ -79,8 +112,8 @@ class ReferenceFolder(object):
 
     @staticmethod
     def _check_reference_genome_folder():
-        reference_genome_folder = os.environ.get(neofox.REFERENCE_FOLDER_ENV, "")
-        if not reference_genome_folder:
+        reference_genome_folder = os.environ.get(neofox.REFERENCE_FOLDER_ENV)
+        if reference_genome_folder is None:
             raise NeofoxConfigurationException(
                 "Please, set the environment variable ${} pointing to the reference genome folder!".format(
                     neofox.REFERENCE_FOLDER_ENV))
@@ -89,15 +122,20 @@ class ReferenceFolder(object):
                 reference_genome_folder, neofox.REFERENCE_FOLDER_ENV))
         return reference_genome_folder
 
-    @staticmethod
-    def _check_resources(resources):
+    def _check_resources(self):
+        # check existence of all resources explicitly defined
         missing_resources = []
-        for r in resources:
+        for r in self.resources:
             if not os.path.exists(r):
                 missing_resources.append(r)
         if len(missing_resources) > 0:
             raise NeofoxConfigurationException(
                 "Missing resources in the reference folder: {}".format(str(missing_resources)))
+
+    def _check_reference_file(self, folder, filename):
+        if not os.path.exists(os.path.join(folder, filename)):
+            raise NeofoxConfigurationException(
+                "Missing {} file, please review the installation of the references".format(filename))
 
     def _log_configuration(self):
         logger.info("Reference genome folder: {}".format(self.reference_genome_folder))
@@ -115,7 +153,7 @@ class AvailableAlleles(object):
         self.available_mhc_i = self._load_available_hla_alleles(mhc=neofox.MHC_I, references=references)
         self.available_mhc_ii = self._load_available_hla_alleles(mhc=neofox.MHC_II, references=references)
 
-    def _load_available_hla_alleles(self, references, mhc=neofox.MHC_I):
+    def _load_available_hla_alleles(self, references: ReferenceFolder, mhc=neofox.MHC_I):
         """
         loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
         :type references: neofox.references.ReferenceFolder
