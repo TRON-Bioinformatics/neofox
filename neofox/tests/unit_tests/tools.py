@@ -77,8 +77,8 @@ def get_random_patient():
     patient.is_rna_available = np.random.choice([True, False], 1)[0]
     patient.identifier = 'Pt12345'
     patient.mhc_i_alleles = [
-        MhcAllele(gene='A', group="01", protein="01"), MhcAllele(gene='B', group="01", protein="01")]
+        MhcAllele(name='HLA-A:01:01'), MhcAllele(name='HLA-B:01:01')]
     patient.mhc_i_i_alleles = [
-        MhcAllele(gene='DPA1', group="01", protein="01"), MhcAllele(gene='DPB1', group="01", protein="01")]
+        MhcAllele(name='HLA-DPA1:01:01'), MhcAllele(name='HLA-DPB1:01:01')]
     patient.tissue = 'skin'
     return patient

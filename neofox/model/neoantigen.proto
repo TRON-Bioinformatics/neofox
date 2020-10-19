@@ -293,21 +293,23 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
  */
 message MhcAllele {
 	/**
-	HLA allele full name (e.g.: HLA-DRB1*13:01)
+	HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This will be parsed into name, gene and group.
 	 */
-	string name = 1;
+	string fullName = 1;
 	/**
-	The gene from either MHC I or II (e.g. DRB1) (this information is redundant with the Mhc1Gene.name and Mhc2Gene.name
-	but it is convenient to have this at this level too, code will check for data coherence)
+	A specific HLA protein (e.g. HLA-DRB1*13:01). Alleles whose numbers differ in group and protein must differ in one
+	or more nucleotide substitutions that change the amino acid sequence of the encoded protein.
+	This name is normalized to avoid different representations of the same allele. For instance both HLA-DRB113:01 and
+	HLA-DRB1*13:01:02:03N will be transformed into their normalised version HLA-DRB1*13:01.
 	 */
-	string gene = 2;
+	string name = 2;
 	/**
-	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. 13)
+	The gene from either MHC I or II (e.g. DRB1, A) (this information is redundant with the Mhc1Gene.name and
+	Mhc2Gene.name but it is convenient to have this at this level too, code will check for data coherence)
 	 */
-	string group = 3;
+	string gene = 3;
 	/**
-	A specific HLA protein (e.g. 01). Alleles whose numbers differ in group and protein must differ in one or more nucleotide
-	substitutions that change the amino acid sequence of the encoded protein.
+	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. HLA-DRB1*13)
 	 */
-	string protein = 4;
+	string group = 4;
 }

@@ -68,7 +68,6 @@ class TestModelValidator(TestCase):
         self._assert_allele_validation(expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01:02:03N"))
         self._assert_allele_validation(expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01:02N"))
         self._assert_allele_validation(expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01N"))
-        self._assert_allele_validation(expected="HLA-A*01:01", allele=MhcAllele(gene="A", group="01", protein="01"))
 
     def _assert_allele_validation(self, allele, expected):
         validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
@@ -87,8 +86,6 @@ class TestModelValidator(TestCase):
         self._assert_allele_validation(expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA101:01:02:03N"))
         self._assert_allele_validation(expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA101:01:02N"))
         self._assert_allele_validation(expected="HLA-DPB1*01:01", allele=MhcAllele(name="HLA-DPB101:01"))
-        self._assert_allele_validation(expected="HLA-DPA1*01:01",
-                                       allele=MhcAllele(gene="DPA1", group="01", protein="01"))
 
     def test_invalid_mhc_i_alleles(self):
         # P gene is not valid
@@ -107,16 +104,6 @@ class TestModelValidator(TestCase):
         self._assert_invalid_allele(MhcAllele(name="nonsense"))
         # missing protein
         self._assert_invalid_allele(MhcAllele(gene="A", group="01"))
-        # bad protein
-        self._assert_invalid_allele(MhcAllele(gene="A", group="01", protein="NaN"))
-        # bad group
-        self._assert_invalid_allele(MhcAllele(gene="A", group="NaN", protein="01"))
-        # non existing gene
-        self._assert_invalid_allele(MhcAllele(gene="Z", group="01", protein="01"))
-        # MHC I non classical
-        self._assert_invalid_allele(MhcAllele(gene="E", group="01", protein="01"))
-        self._assert_invalid_allele(MhcAllele(gene="F", group="01", protein="01"))
-        self._assert_invalid_allele(MhcAllele(gene="G", group="01", protein="01"))
 
     def _assert_invalid_allele(self, allele):
         self.assertRaises(NeofoxDataValidationException, ModelValidator.validate_mhc_allele_representation, allele)
@@ -138,12 +125,6 @@ class TestModelValidator(TestCase):
         self._assert_invalid_allele(MhcAllele(name="nonsense"))
         # missing protein
         self._assert_invalid_allele(MhcAllele(gene="DPA1", group="01"))
-        # bad protein
-        self._assert_invalid_allele(MhcAllele(gene="DPA1", group="01", protein="NaN"))
-        # bad group
-        self._assert_invalid_allele(MhcAllele(gene="DPA1", group="NaN", protein="01"))
-        # non existing gene
-        self._assert_invalid_allele(MhcAllele(gene="DPA1ZZZZ", group="01", protein="01"))
 
     def test_valid_mhc_i_genotype(self):
         self._assert_valid_patient(patient=Patient(

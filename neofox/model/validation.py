@@ -152,18 +152,22 @@ class ModelValidator(object):
     @staticmethod
     def validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
         try:
-            if allele.name:
+            if allele.full_name:
+                # infers gene, group and protein from the name
+                match = ModelConverter.HLA_ALLELE_PATTERN.match(allele.full_name)
+                assert match is not None, "Allele does not match HLA allele pattern {}".format(allele.name)
+                gene = match.group(1)
+                group_digits = match.group(2)
+                protein = match.group(3)
+                full_name = allele.full_name
+            elif allele.name:
                 # infers gene, group and protein from the name
                 match = ModelConverter.HLA_ALLELE_PATTERN.match(allele.name)
                 assert match is not None, "Allele does not match HLA allele pattern {}".format(allele.name)
                 gene = match.group(1)
-                group = match.group(2)
+                group_digits = match.group(2)
                 protein = match.group(3)
-            elif allele.gene and allele.group and allele.protein:
-                # infers name from gene, group and protein
-                gene = allele.gene
-                group = allele.group
-                protein = allele.protein
+                full_name = None
             else:
                 raise NeofoxDataValidationException("HLA allele missing required fields, either name or gene, group and "
                                                     "protein must be provided")
@@ -171,13 +175,14 @@ class ModelValidator(object):
             assert gene in list(Mhc1Name.__members__.keys()) + list(Mhc2GeneName.__members__.keys()), \
                 "Gene not from classic MHC: {}".format(gene)
             # builds the final allele representation and validates it just in case
-            name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)
+            name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group_digits, protein=protein)
+            group = "HLA-{gene}*{serotype}".format(gene=gene, serotype=group_digits)
             match = ModelConverter.HLA_ALLELE_PATTERN.match(name)
             assert match is not None, "Allele does not match HLA allele pattern {}".format(name)
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
 
-        return MhcAllele(name=name, gene=gene, group=group, protein=protein)
+        return MhcAllele(full_name=full_name if full_name else name, name=name, gene=gene, group=group)
 
     @staticmethod
     def validate_mhc2_isoform_representation(isoform: Mhc2Isoform) -> Mhc2Isoform:
