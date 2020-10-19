@@ -88,7 +88,7 @@ Run the following to configure nefox:
 neofox-configure --reference-folder /your/neofox/folder
 ```
 
-Unless indicated by flag `--skip-r-dependencies` some R dependencies will be installed by the installer. These dependencies are the following in case they need to be installed manually:
+Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R dependencies. These dependencies are the following:
 ```
 lattice
 ggplot2
