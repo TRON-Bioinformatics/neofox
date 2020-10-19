@@ -217,16 +217,20 @@ class MhcAllele(betterproto.Message):
     http://hla.alleles.org/nomenclature/naming.html for details
     """
 
-    # *HLA allele full name (e.g.: HLA-DRB1*13:01)
-    name: str = betterproto.string_field(1)
-    # *The gene from either MHC I or II (e.g. DRB1) (this information is
-    # redundant with the Mhc1Gene.name and Mhc2Gene.namebut it is convenient to
+    # *HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This
+    # will be parsed into name, gene and group.
+    full_name: str = betterproto.string_field(1)
+    # *A specific HLA protein (e.g. HLA-DRB1*13:01). Alleles whose numbers differ
+    # in group and protein must differ in oneor more nucleotide substitutions
+    # that change the amino acid sequence of the encoded protein.This name is
+    # normalized to avoid different representations of the same allele. For
+    # instance both HLA-DRB113:01 andHLA-DRB1*13:01:02:03N will be transformed
+    # into their normalised version HLA-DRB1*13:01.
+    name: str = betterproto.string_field(2)
+    # *The gene from either MHC I or II (e.g. DRB1, A) (this information is
+    # redundant with the Mhc1Gene.name andMhc2Gene.name but it is convenient to
     # have this at this level too, code will check for data coherence)
-    gene: str = betterproto.string_field(2)
+    gene: str = betterproto.string_field(3)
     # *A group of alleles defined by a common serotype ie: Serological antigen
-    # carried by an allotype (e.g. 13)
-    group: str = betterproto.string_field(3)
-    # *A specific HLA protein (e.g. 01). Alleles whose numbers differ in group
-    # and protein must differ in one or more nucleotidesubstitutions that change
-    # the amino acid sequence of the encoded protein.
-    protein: str = betterproto.string_field(4)
+    # carried by an allotype (e.g. HLA-DRB1*13)
+    group: str = betterproto.string_field(4)
