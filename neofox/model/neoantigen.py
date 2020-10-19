@@ -128,7 +128,7 @@ class Patient(betterproto.Message):
 
 @dataclass
 class Annotation(betterproto.Message):
-    """*This is a generic class to hold annotations from INPuT"""
+    """*This is a generic class to hold annotations from Neofox"""
 
     # *The name of the annotation
     name: str = betterproto.string_field(1)

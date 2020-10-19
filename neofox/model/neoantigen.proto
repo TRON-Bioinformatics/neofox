@@ -118,7 +118,7 @@ message Patient {
 }
 
 /**
-This is a generic class to hold annotations from INPuT
+This is a generic class to hold annotations from Neofox
 */
 message Annotation {
 	/**
