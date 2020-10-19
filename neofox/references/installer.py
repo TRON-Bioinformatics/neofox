@@ -11,11 +11,11 @@ from logzero import logger
 
 class NeofoxReferenceInstaller(object):
 
-    def __init__(self, reference_folder, skip_r_dependencies=True):
+    def __init__(self, reference_folder, install_r_dependencies=False):
         self.config = DependenciesConfigurationForInstaller()
         self.runner = Runner()
         self.reference_folder = reference_folder
-        self.skip_r_dependencies = skip_r_dependencies
+        self.install_r_dependencies = install_r_dependencies
 
     def install(self):
         # ensures the reference folder exists
@@ -25,7 +25,7 @@ class NeofoxReferenceInstaller(object):
         self._set_netmhc2pan_alleles()
         self._set_iedb()
         self._set_proteome()
-        if not self.skip_r_dependencies:
+        if self.install_r_dependencies:
             self._install_r_dependencies()
         else:
             logger.warning("R dependencies will need to be installed manually")

@@ -30,19 +30,18 @@ def neofox_configure():
         description='install the references required for neofox')
     parser.add_argument('--reference-folder', dest='reference_folder',
                         help='the folder with the references required for Neofox', required=True)
-    parser.add_argument('--skip-r-dependencies', dest="skip_r_dependencies", action='store_true',
-                        help="you can skip the installation of R packages using this option and install the"
-                             "packages afterwards manually")
+    parser.add_argument('--install-r-dependencies', dest="install_r_dependencies", action='store_true',
+                        help="install the R dependencies automatically")
 
     args = parser.parse_args()
     reference_folder = args.reference_folder
-    skip_r_dependencies = args.skip_r_dependencies
+    install_r_dependencies = args.install_r_dependencies
 
     # makes sure that the output folder exists
     os.makedirs(reference_folder, exist_ok=True)
 
     logger.info("Starting the installation of references")
-    NeofoxReferenceInstaller(reference_folder=reference_folder, skip_r_dependencies=skip_r_dependencies).install()
+    NeofoxReferenceInstaller(reference_folder=reference_folder, install_r_dependencies=install_r_dependencies).install()
     logger.info("Finished the installation succesfully!")
 
 
