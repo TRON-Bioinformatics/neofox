@@ -81,14 +81,14 @@ For building the reference data we will need `makeblastdb`, set the environment 
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
 ```
 
-NetMhcPan, NetMhc2Pan and Rscript are also required to install the references, see above.
+netMhcPan, netMhcIIPan and Rscript are also required to install the references, see above.
 
 Run the following to configure nefox:
 ```
 neofox-configure --reference-folder /your/neofox/folder
 ```
 
-Unless indicated otherwise some R dependencies will be installed by the installer. These dependencies are the following in case they need to be installed manually:
+Unless indicated by flag `--skip-r-dependencies` some R dependencies will be installed by the installer. These dependencies are the following in case they need to be installed manually:
 ```
 lattice
 ggplot2
