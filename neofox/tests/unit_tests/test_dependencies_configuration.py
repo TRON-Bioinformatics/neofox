@@ -38,10 +38,11 @@ class TestDependenciesConfiguration(TestCase):
             neofox.NEOFOX_MIXMHC2PRED_ENV: '/path/to/mixmhc2pred'
         }
         self.non_existing = '/path/to/nothing'
-        test_tools._mock_file_existence(
-            existing_files=self.variables.values(),
-            unexisting_files=[self.non_existing]
-        )
+        self.non_executable = '/path/to/something/not/executable'
+        test_tools.mock_file_existence(existing_files=list(self.variables.values()) + [self.non_executable],
+                                       non_existing_files=[self.non_existing])
+        test_tools.mock_file_is_executable(executable_files=list(self.variables.values()),
+                                           non_executable_files=[self.non_executable])
 
     def _load_env_variables(self):
         for k, v in self.variables.items():
@@ -65,6 +66,13 @@ class TestDependenciesConfiguration(TestCase):
         self._load_env_variables()
         for v in self.variables.keys():
             os.environ[v] = self.non_existing
+            with self.assertRaises(NeofoxConfigurationException):
+                DependenciesConfiguration()
+
+    def test_non_executable_variable(self):
+        self._load_env_variables()
+        for v in self.variables.keys():
+            os.environ[v] = self.non_executable
             with self.assertRaises(NeofoxConfigurationException):
                 DependenciesConfiguration()
 

@@ -4,3 +4,4 @@ include neofox/published_features/Tcell_predictor/amino-acids-features.pickle
 include neofox/published_features/Tcell_predictor/genes-expression.pickle
 include neofox/published_features/Tcell_predictor/SIRdata.mat
 include neofox/published_features/Tcell_predictor/Classifier.pickle
+include neofox/references/install_r_dependencies.R
