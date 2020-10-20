@@ -20,7 +20,7 @@ import os
 
 import neofox
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from neofox.references.references import ReferenceFolder, AvailableAlleles
+from neofox.references.references import ReferenceFolder, AvailableAlleles, DependenciesConfiguration
 
 
 class FakeReferenceFolder(ReferenceFolder):
@@ -32,13 +32,18 @@ class FakeReferenceFolder(ReferenceFolder):
     def _check_reference_genome_folder():
         return os.environ.get(neofox.REFERENCE_FOLDER_ENV, "")
 
-    @staticmethod
-    def _check_resources(resources):
+    def _check_resources(self):
         pass
 
     def get_available_alleles(self):
         return FakeAvailableAlleles(
             available_mch_i=self.available_mhc_i_alleles, available_mch_ii=self.available_mhc_ii_alleles)
+
+
+class FakeDependenciesConfiguration(DependenciesConfiguration):
+
+    def _check_and_load_binary(self, variable_name):
+        return os.environ.get(variable_name, "some_non_empty_fake_value")
 
 
 class FakeBestAndMultipleBinder(BestAndMultipleBinder):

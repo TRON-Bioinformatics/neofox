@@ -24,18 +24,32 @@ from mock import Mock
 from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele
 
 
-def _mock_file_existence(existing_files=[], unexisting_files=[]):
+def mock_file_existence(existing_files=[], non_existing_files=[]):
     original_os_path_exists = os.path.exists
 
     def side_effect(filename):
         if filename in existing_files:
             return True
-        elif filename in unexisting_files:
+        elif filename in non_existing_files:
             return False
         else:
             return original_os_path_exists(filename)
 
     os.path.exists = Mock(side_effect=side_effect)
+
+
+def mock_file_is_executable(executable_files=[], non_executable_files=[]):
+    original_os_access = os.access
+
+    def side_effect(filename, mode):
+        if filename in executable_files and mode == os.X_OK:
+            return True
+        elif filename in non_executable_files and mode == os.X_OK:
+            return False
+        else:
+            return original_os_access(filename, mode)
+
+    os.access = Mock(side_effect=side_effect)
 
 
 def head(file_name, n=10):
