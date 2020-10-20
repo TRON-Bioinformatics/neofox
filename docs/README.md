@@ -1,0 +1,1 @@
+To generate the documentation run `make html` from the `docs` folder.

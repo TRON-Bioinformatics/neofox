@@ -7,7 +7,13 @@ Python 3.7 and R 3.6.0 should be preinstalled.
 Set the environment variable pointing to `Rscript`.
 ```
 export NEOFOX_RSCRIPT=`which Rscript`
-``` 
+```
+
+## Install Neofox
+
+```
+pip install neofox
+```
 
 ## Install third-party dependencies
 

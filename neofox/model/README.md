@@ -23,7 +23,7 @@ Documentation is generated using this tool https://github.com/pseudomuto/protoc-
 
 Run:
 ```
-protoc --doc_out=. --doc_opt=html,neoantigen.html neoantigen.proto
+protoc --doc_out=. --doc_opt=html,../../docs/build/html/neoantigen.html neoantigen.proto
 ```
 
 

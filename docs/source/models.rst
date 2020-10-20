@@ -1,5 +1,6 @@
+###########
 Data models
-===========
+###########
 
 Protocol buffers is employed to model Neofox's input and output data: neoantigens, Major Histocompatibility Complex (MHC) alleles and annotations.
 
@@ -7,5 +8,5 @@ Protocol buffers is employed to model Neofox's input and output data: neoantigen
   :width: 800
   :alt: Neofox data models
 
-.. raw:: html
-   :file: ../../neofox/model/neoantigen.html
+
+`Protocol buffers documentation <neoantigen.html>`_
