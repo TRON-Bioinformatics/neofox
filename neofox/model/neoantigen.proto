@@ -294,14 +294,16 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 message MhcAllele {
 	/**
 	HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This will be parsed into name, gene and group.
-	Any digit format is allowed for this field (ie: 4, 6 or 8 digits).
+	Any digit format is allowed for this field (ie: 4, 6 or 8 digits), 2 digits names are not specific enough for our
+	purpose and thus invalid
 	 */
 	string fullName = 1;
 	/**
 	A specific HLA protein (e.g. HLA-DRB1*13:01). Alleles whose numbers differ in group and protein must differ in one
 	or more nucleotide substitutions that change the amino acid sequence of the encoded protein.
 	This name is normalized to avoid different representations of the same allele. For instance both HLA-DRB113:01 and
-	HLA-DRB1*13:01:02:03N will be transformed into their normalised version HLA-DRB1*13:01.
+	HLA-DRB1*13:01:02:03N will be transformed into their normalised version HLA-DRB1*13:01. This name is also truncated
+	to 4 digits. 2 digits names are not specific enough for our purpose and thus invalid
 	 */
 	string name = 2;
 	/**
