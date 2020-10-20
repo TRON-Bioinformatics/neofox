@@ -22,9 +22,32 @@ from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
 
+from neofox.references.installer import NeofoxReferenceInstaller
+
+
+def neofox_configure():
+    parser = ArgumentParser(
+        description='install the references required for neofox')
+    parser.add_argument('--reference-folder', dest='reference_folder',
+                        help='the folder with the references required for Neofox', required=True)
+    parser.add_argument('--install-r-dependencies', dest="install_r_dependencies", action='store_true',
+                        help="install the R dependencies automatically")
+
+    args = parser.parse_args()
+    reference_folder = args.reference_folder
+    install_r_dependencies = args.install_r_dependencies
+
+    # makes sure that the output folder exists
+    os.makedirs(reference_folder, exist_ok=True)
+
+    logger.info("Starting the installation of references")
+    NeofoxReferenceInstaller(reference_folder=reference_folder, install_r_dependencies=install_r_dependencies).install()
+    logger.info("Finished the installation succesfully!")
+
 
 def neofox_cli():
-    parser = ArgumentParser(description='adds patient information given in sample file of a cohort to neoantigen candidate file')
+    parser = ArgumentParser(
+        description='adds patient information given in sample file of a cohort to neoantigen candidate file')
     parser.add_argument('--model-file', dest='model_file',
                         help='input tabular file with neoantigen candidates represented by neoantigen model')
     parser.add_argument('--candidate-file', dest='candidate_file',

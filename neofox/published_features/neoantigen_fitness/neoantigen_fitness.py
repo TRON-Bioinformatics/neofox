@@ -32,6 +32,7 @@ from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from neofox.published_features.differential_binding.amplitude import Amplitude
+from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class NeoantigenFitnessCalculator(BlastpRunner):
@@ -50,7 +51,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         This function determines the PATHOGENSIMILARITY of epitopes according to Balachandran et al. using a blast
         search against the IEDB pathogenepitope database
         """
-        outfile = self.run_blastp(fasta_file=fasta_file, database=os.path.join(self.iedb, "iedb_blast_db"))
+        outfile = self.run_blastp(fasta_file=fasta_file, database=os.path.join(self.iedb, IEDB_BLAST_PREFIX))
         similarity = self.parse_blastp_output(blastp_output_file=outfile)
         os.remove(outfile)
         return similarity

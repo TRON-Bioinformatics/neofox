@@ -25,7 +25,7 @@ from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient
 import neofox
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
 from neofox.neofox import NeoFox
-from neofox.tests.fake_classes import FakeReferenceFolder
+from neofox.tests.fake_classes import FakeReferenceFolder, FakeDependenciesConfiguration
 
 
 class TestNeofox(TestCase):
@@ -52,39 +52,39 @@ class TestNeofox(TestCase):
         neoantigen.mutation.wild_type_aminoacid = "XXX"     # should be a valid aminoacid
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[neoantigen], patient_id=None, patients=[self._get_test_patient()], num_cpus=1,
-                   reference_folder=FakeReferenceFolder())
+                   reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
 
     def test_validation_captures_bad_patient(self):
         patient = self._get_test_patient()
         patient.identifier = 12345      # should be a string
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[self._get_test_neoantigen()], patient_id=None, patients=[patient], num_cpus=1,
-                   reference_folder=FakeReferenceFolder())
+                   reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
 
     def test_valid_data_does_not_raise_exceptions(self):
         NeoFox(neoantigens=[self._get_test_neoantigen()], patient_id=None, patients=[self._get_test_patient()],
-               num_cpus=1, reference_folder=FakeReferenceFolder())
+               num_cpus=1, reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
 
     def test_neoantigens_referring_to_non_existing_patients(self):
         neoantigen = self._get_test_neoantigen()
         neoantigen.patient_identifier = "I am not patient"     # should be a valid aminoacid
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[neoantigen], patient_id=None, patients=[self._get_test_patient()], num_cpus=1,
-                   reference_folder=FakeReferenceFolder())
+                   reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
         neoantigen.patient_identifier = None
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[neoantigen], patient_id=None, patients=[self._get_test_patient()], num_cpus=1,
-                   reference_folder=FakeReferenceFolder())
+                   reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
         neoantigen.patient_identifier = ""
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[neoantigen], patient_id=None, patients=[self._get_test_patient()], num_cpus=1,
-                   reference_folder=FakeReferenceFolder())
+                   reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
 
     def test_repeated_neoantigens(self):
         neoantigen = self._get_test_neoantigen()
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[neoantigen, neoantigen], patient_id=None, patients=[self._get_test_patient()],
-                   num_cpus=1, reference_folder=FakeReferenceFolder())
+                   num_cpus=1, reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
 
     def _get_test_neoantigen(self):
         return Neoantigen(
