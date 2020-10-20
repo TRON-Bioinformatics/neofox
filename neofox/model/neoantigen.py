@@ -232,5 +232,7 @@ class MhcAllele(betterproto.Message):
     # have this at this level too, code will check for data coherence)
     gene: str = betterproto.string_field(3)
     # *A group of alleles defined by a common serotype ie: Serological antigen
-    # carried by an allotype (e.g. HLA-DRB1*13)
+    # carried by an allotype (e.g. 13 from HLA-DRB1*13)
     group: str = betterproto.string_field(4)
+    # *A specific protein (e.g.: 02 from HLA-DRB1*13:02)
+    protein: str = betterproto.string_field(5)

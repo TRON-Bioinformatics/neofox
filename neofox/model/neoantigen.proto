@@ -309,7 +309,11 @@ message MhcAllele {
 	 */
 	string gene = 3;
 	/**
-	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. HLA-DRB1*13)
+	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. 13 from HLA-DRB1*13)
 	 */
 	string group = 4;
+	/**
+	A specific protein (e.g.: 02 from HLA-DRB1*13:02)
+	 */
+	string protein = 5;
 }
