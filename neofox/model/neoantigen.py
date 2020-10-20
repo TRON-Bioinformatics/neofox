@@ -219,14 +219,17 @@ class MhcAllele(betterproto.Message):
 
     # *HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This
     # will be parsed into name, gene and group.Any digit format is allowed for
-    # this field (ie: 4, 6 or 8 digits).
+    # this field (ie: 4, 6 or 8 digits), 2 digits names are not specific enough
+    # for ourpurpose and thus invalid
     full_name: str = betterproto.string_field(1)
     # *A specific HLA protein (e.g. HLA-DRB1*13:01). Alleles whose numbers differ
     # in group and protein must differ in oneor more nucleotide substitutions
     # that change the amino acid sequence of the encoded protein.This name is
     # normalized to avoid different representations of the same allele. For
     # instance both HLA-DRB113:01 andHLA-DRB1*13:01:02:03N will be transformed
-    # into their normalised version HLA-DRB1*13:01.
+    # into their normalised version HLA-DRB1*13:01. This name is also truncatedto
+    # 4 digits. 2 digits names are not specific enough for our purpose and thus
+    # invalid
     name: str = betterproto.string_field(2)
     # *The gene from either MHC I or II (e.g. DRB1, A) (this information is
     # redundant with the Mhc1Gene.name andMhc2Gene.name but it is convenient to
