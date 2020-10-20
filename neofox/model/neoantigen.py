@@ -218,7 +218,8 @@ class MhcAllele(betterproto.Message):
     """
 
     # *HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This
-    # will be parsed into name, gene and group.
+    # will be parsed into name, gene and group.Any digit format is allowed for
+    # this field (ie: 4, 6 or 8 digits).
     full_name: str = betterproto.string_field(1)
     # *A specific HLA protein (e.g. HLA-DRB1*13:01). Alleles whose numbers differ
     # in group and protein must differ in oneor more nucleotide substitutions
