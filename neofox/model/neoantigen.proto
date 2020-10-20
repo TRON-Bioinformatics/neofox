@@ -294,6 +294,7 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 message MhcAllele {
 	/**
 	HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This will be parsed into name, gene and group.
+	Any digit format is allowed for this field (ie: 4, 6 or 8 digits).
 	 */
 	string fullName = 1;
 	/**

@@ -121,7 +121,7 @@ class NeoantigenAnnotator:
 
         # T cell predictor
         self.annotations.annotations.extend(self.tcell_predictor.get_annotations(
-            gene=neoantigen.gene.gene, substitution=substitution, netmhcpan=self.netmhcpan))
+            gene=neoantigen.transcript.gene, substitution=substitution, netmhcpan=self.netmhcpan))
 
         # self-similarity
         self.annotations.annotations.extend(self.self_similarity.get_annnotations(
