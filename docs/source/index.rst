@@ -15,11 +15,3 @@ NeoFox - NEOantigen Feature tOolboX
    developer_guide
    models
    api_usage
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
