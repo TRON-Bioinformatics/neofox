@@ -3,7 +3,7 @@
 venv-win
 venv
 .env
-build
+build/
 dist
 neofox.egg-info/
 neofox/tests/resources/output*

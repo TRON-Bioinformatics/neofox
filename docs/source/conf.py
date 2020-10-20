@@ -22,7 +22,8 @@ copyright = '2020, Franziska Lang & Pablo Riesgo Ferreiro'
 author = 'Franziska Lang & Pablo Riesgo Ferreiro'
 
 # The full version, including alpha/beta/rc tags
-release = '0.4.0'
+import neofox
+release = neofox.VERSION
 
 
 # -- General configuration ---------------------------------------------------

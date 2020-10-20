@@ -12,8 +12,9 @@ NeoFox - NEOantigen Feature tOolboX
 
    readme
    install
+   developer_guide
    models
-   analysis/test
+   api_usage
 
 
 Indices and tables
