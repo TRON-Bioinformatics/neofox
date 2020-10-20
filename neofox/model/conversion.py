@@ -301,10 +301,10 @@ class ModelConverter(object):
         match = ModelConverter.HLA_ALLELE_PATTERN.match(allele)
         assert match is not None, "Allele does not match HLA allele pattern {}".format(allele)
         gene = match.group(1)
-        group_digits = match.group(2)
-        group = "HLA-{gene}*{serotype}".format(gene=gene, serotype=group_digits)
+        group = match.group(2)
         protein = match.group(3)
-        name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group_digits, protein=protein)
+        # builds a normalized representation of the allele
+        name = "HLA-{gene}*{serotype}:{protein}".format(gene=gene, serotype=group, protein=protein)
         # ensures that full name stores the complete allele as provided but normalizes
         # its representation
         full_name = name
@@ -317,7 +317,7 @@ class ModelConverter(object):
                 expression_change = match.group(6)
                 if expression_change is not None and expression_change != "":
                     full_name = full_name + expression_change
-        return MhcAllele(full_name=full_name, name=name, gene=gene, group=group)
+        return MhcAllele(full_name=full_name, name=name, gene=gene, group=group, protein=protein)
 
     @staticmethod
     def _get_zygosity_from_alleles(alleles: List[MhcAllele]) -> Zygosity:
