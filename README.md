@@ -76,15 +76,15 @@ where:
 
 Example of Neofox model neoantigens table:
 ```
-gene.assembly	gene.gene	gene.transcriptIdentifier	mutation.leftFlankingRegion	mutation.mutatedAminoacid	mutation.position	mutation.rightFlankingRegion	mutation.wildTypeAminoacid	patientIdentifier   rnaExpression   rnaVariantAlleleFrequency   dnaVariantAlleleFrequency
+transcript.assembly	transcript.gene	transcript.identifier	mutation.leftFlankingRegion	mutation.mutatedAminoacid	mutation.position	mutation.rightFlankingRegion	mutation.wildTypeAminoacid	patientIdentifier   rnaExpression   rnaVariantAlleleFrequency   dnaVariantAlleleFrequency
 hg19	BRCA2	uc003kii.3	AAAAAA	L	935	AAAAA	F	Pt1 4.512   0.4675  0.36103
 hg19	BRCA2	uc003kii.3	AAAAAA	M	518	AAAAA	R	Pt2 0.154   0.015404    0.034404
 hg19	BRCA2	uc003kii.3	AAAAAA	G	285	AAAAA	K	Pt3 8.841207    0.89387 0.51924
 ```
 where:
-- `gene.assembly` - the assembly of the reference genome (only hg19 is supported)
-- `gene.gene` - the HGMC gene symbol
-- `gene.transcriptIdentifier` - the UCSC transcript identifier including the version number
+- `transcript.assembly` - the assembly of the reference genome (only hg19 is supported)
+- `transcript.gene` - the HGMC gene symbol
+- `transcript.identifier` - the UCSC transcript identifier including the version number
 - `mutation.leftFlankingRegion` - the aminoacids flanking the mutation on the left (in IUPAC one letter symbols)
 - `mutation.mutatedAminoacid` - the mutated aminoacid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
 - `mutation.position` - the 1 based position of the mutation in the protein
