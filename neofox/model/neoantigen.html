@@ -1,22 +1,4 @@
 <!DOCTYPE html>
-<!--
--- Copyright (c) 2020-2030 Translational Oncology at the Medical Center of the Johannes Gutenberg-University Mainz gGmbH.
---
--- This file is part of Neofox
--- (see https://github.com/tron-bioinformatics/neofox).
---
--- This program is free software: you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation, either version 3 of the License, or
--- (at your option) any later version.
---
--- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with this program. If not, see <http://www.gnu.org/licenses/>.-->
 
 <html>
   <head>
@@ -201,7 +183,23 @@
                 </li>
               
                 <li>
-                  <a href="#neoantigen.Gene"><span class="badge">M</span>Gene</a>
+                  <a href="#neoantigen.Mhc1"><span class="badge">M</span>Mhc1</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Mhc2"><span class="badge">M</span>Mhc2</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Mhc2Gene"><span class="badge">M</span>Mhc2Gene</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Mhc2Isoform"><span class="badge">M</span>Mhc2Isoform</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.MhcAllele"><span class="badge">M</span>MhcAllele</a>
                 </li>
               
                 <li>
@@ -220,6 +218,26 @@
                   <a href="#neoantigen.Patient"><span class="badge">M</span>Patient</a>
                 </li>
               
+                <li>
+                  <a href="#neoantigen.Transcript"><span class="badge">M</span>Transcript</a>
+                </li>
+              
+              
+                <li>
+                  <a href="#neoantigen.Mhc1Name"><span class="badge">E</span>Mhc1Name</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Mhc2GeneName"><span class="badge">E</span>Mhc2GeneName</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Mhc2Name"><span class="badge">E</span>Mhc2Name</a>
+                </li>
+              
+                <li>
+                  <a href="#neoantigen.Zygosity"><span class="badge">E</span>Zygosity</a>
+                </li>
               
               
               
@@ -239,7 +257,7 @@
 
       
         <h3 id="neoantigen.Annotation">Annotation</h3>
-        <p></p><p>This is a generic class to hold annotations from INPuT</p>
+        <p>This is a generic class to hold annotations from Neofox</p>
 
         
           <table class="field-table">
@@ -252,16 +270,14 @@
                   <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The name of the annotation </p></td>
+                  <td><p>The name of the annotation </p></td>
                 </tr>
               
                 <tr>
                   <td>value</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The value of the annotation
+                  <td><p>The value of the annotation
 TODO: make this better to hold int, float and bool </p></td>
                 </tr>
               
@@ -272,8 +288,8 @@ TODO: make this better to hold int, float and bool </p></td>
 
         
       
-        <h3 id="neoantigen.Gene">Gene</h3>
-        <p></p>
+        <h3 id="neoantigen.Mhc1">Mhc1</h3>
+        <p>Models MHC I alleles related to the same MHC I gene, i.e. 2 alleles/2 isoforms per gene</p>
 
         
           <table class="field-table">
@@ -283,27 +299,197 @@ TODO: make this better to hold int, float and bool </p></td>
             <tbody>
               
                 <tr>
-                  <td>assembly</td>
+                  <td>name</td>
+                  <td><a href="#neoantigen.Mhc1Name">Mhc1Name</a></td>
+                  <td></td>
+                  <td><p>MHC I gene name </p></td>
+                </tr>
+              
+                <tr>
+                  <td>zygosity</td>
+                  <td><a href="#neoantigen.Zygosity">Zygosity</a></td>
+                  <td></td>
+                  <td><p>Zygosity of the gene </p></td>
+                </tr>
+              
+                <tr>
+                  <td>alleles</td>
+                  <td><a href="#neoantigen.MhcAllele">MhcAllele</a></td>
+                  <td>repeated</td>
+                  <td><p>The alleles of the gene (0, 1 or 2) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Mhc2">Mhc2</h3>
+        <p>Models MHC II alleles related to the same MHC II protein, i.e. 4 isoforms related to 2 genes with 2 alleles each</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#neoantigen.Mhc2Name">Mhc2Name</a></td>
+                  <td></td>
+                  <td><p>MHC II molecule name </p></td>
+                </tr>
+              
+                <tr>
+                  <td>genes</td>
+                  <td><a href="#neoantigen.Mhc2Gene">Mhc2Gene</a></td>
+                  <td>repeated</td>
+                  <td><p>List of MHC II genes </p></td>
+                </tr>
+              
+                <tr>
+                  <td>isoforms</td>
+                  <td><a href="#neoantigen.Mhc2Isoform">Mhc2Isoform</a></td>
+                  <td>repeated</td>
+                  <td><p>Different combinations of MHC II alleles building different isoforms </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Mhc2Gene">Mhc2Gene</h3>
+        <p>MHC II gene</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#neoantigen.Mhc2GeneName">Mhc2GeneName</a></td>
+                  <td></td>
+                  <td><p>MHC II gene name </p></td>
+                </tr>
+              
+                <tr>
+                  <td>zygosity</td>
+                  <td><a href="#neoantigen.Zygosity">Zygosity</a></td>
+                  <td></td>
+                  <td><p>Zygosity of the gene </p></td>
+                </tr>
+              
+                <tr>
+                  <td>alleles</td>
+                  <td><a href="#neoantigen.MhcAllele">MhcAllele</a></td>
+                  <td>repeated</td>
+                  <td><p>The alleles of the gene (0, 1 or 2) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Mhc2Isoform">Mhc2Isoform</h3>
+        <p>MHC II isoform</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>name</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38) </p></td>
+                  <td><p>Name to refer to the MHC II isoform </p></td>
+                </tr>
+              
+                <tr>
+                  <td>alphaChain</td>
+                  <td><a href="#neoantigen.MhcAllele">MhcAllele</a></td>
+                  <td></td>
+                  <td><p>The alpha chain of the isoform </p></td>
+                </tr>
+              
+                <tr>
+                  <td>betaChain</td>
+                  <td><a href="#neoantigen.MhcAllele">MhcAllele</a></td>
+                  <td></td>
+                  <td><p>The beta chain of the isoform </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.MhcAllele">MhcAllele</h3>
+        <p>MHC allele representation. It does not include non synonymous changes to the sequence, changes in the non coding region</p><p>or changes in expression. See http://hla.alleles.org/nomenclature/naming.html for details</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>fullName</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This will be parsed into name, gene and group.
+Any digit format is allowed for this field (ie: 4, 6 or 8 digits), 2 digits names are not specific enough for our
+purpose and thus invalid </p></td>
+                </tr>
+              
+                <tr>
+                  <td>name</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A specific HLA protein (e.g. HLA-DRB1*13:01). Alleles whose numbers differ in group and protein must differ in one
+or more nucleotide substitutions that change the amino acid sequence of the encoded protein.
+This name is normalized to avoid different representations of the same allele. For instance both HLA-DRB113:01 and
+HLA-DRB1*13:01:02:03N will be transformed into their normalised version HLA-DRB1*13:01. This name is also truncated
+to 4 digits. 2 digits names are not specific enough for our purpose and thus invalid </p></td>
                 </tr>
               
                 <tr>
                   <td>gene</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene </p></td>
+                  <td><p>The gene from either MHC I or II (e.g. DRB1, A) (this information is redundant with the Mhc1Gene.name and
+Mhc2Gene.name but it is convenient to have this at this level too, code will check for data coherence) </p></td>
                 </tr>
               
                 <tr>
-                  <td>transcriptIdentifier</td>
+                  <td>group</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id) </p></td>
+                  <td><p>A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. 13 from HLA-DRB1*13) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>protein</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>A specific protein (e.g.: 02 from HLA-DRB1*13:02) </p></td>
                 </tr>
               
             </tbody>
@@ -327,72 +513,63 @@ The transcript identifier to which this neoepitope definition refers (e.g.: Ense
                   <td>position</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p>
-The aminoacid position within the protein. 1-based, starting in the N-terminus </p></td>
+                  <td><p>The aminoacid position within the protein. 1-based, starting in the N-terminus </p></td>
                 </tr>
               
                 <tr>
                   <td>wildTypeXmer</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-Sequence of aminoacids for the wild type xmer </p></td>
+                  <td><p>Sequence of aminoacids for the wild type xmer </p></td>
                 </tr>
               
                 <tr>
                   <td>wildTypeAminoacid</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-IUPAC code for the wild type aminoacid in this position </p></td>
+                  <td><p>IUPAC code for the wild type aminoacid in this position </p></td>
                 </tr>
               
                 <tr>
                   <td>mutatedXmer</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-Sequence of aminoacids for the mutated xmer </p></td>
+                  <td><p>Sequence of aminoacids for the mutated xmer </p></td>
                 </tr>
               
                 <tr>
                   <td>mutatedAminoacid</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-IUPAC code for the mutated aminoacid in this position </p></td>
+                  <td><p>IUPAC code for the mutated aminoacid in this position </p></td>
                 </tr>
               
                 <tr>
                   <td>leftFlankingRegion</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The left flanking region of variable size in IUPAC codes </p></td>
+                  <td><p>The left flanking region of variable size in IUPAC codes </p></td>
                 </tr>
               
                 <tr>
                   <td>sizeLeftFlankingRegion</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p>
-The size of the left flanking region </p></td>
+                  <td><p>The size of the left flanking region </p></td>
                 </tr>
               
                 <tr>
                   <td>rightFlankingRegion</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The right flanking region of variable size in IUPAC codes </p></td>
+                  <td><p>The right flanking region of variable size in IUPAC codes </p></td>
                 </tr>
               
                 <tr>
                   <td>sizeRightFlankingRegion</td>
                   <td><a href="#int32">int32</a></td>
                   <td></td>
-                  <td><p>
-The size of the right flanking region </p></td>
+                  <td><p>The size of the right flanking region </p></td>
                 </tr>
               
             </tbody>
@@ -403,7 +580,7 @@ The size of the right flanking region </p></td>
         
       
         <h3 id="neoantigen.Neoantigen">Neoantigen</h3>
-        <p></p><p>A neoantigen minimal definition</p>
+        <p>A neoantigen minimal definition</p>
 
         
           <table class="field-table">
@@ -416,40 +593,35 @@ The size of the right flanking region </p></td>
                   <td>identifier</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-A unique identifier of a neoantigen </p></td>
+                  <td><p>A unique identifier of a neoantigen </p></td>
                 </tr>
               
                 <tr>
                   <td>patientIdentifier</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-Patient identifier </p></td>
+                  <td><p>Patient identifier </p></td>
                 </tr>
               
                 <tr>
-                  <td>gene</td>
-                  <td><a href="#neoantigen.Gene">Gene</a></td>
+                  <td>transcript</td>
+                  <td><a href="#neoantigen.Transcript">Transcript</a></td>
                   <td></td>
-                  <td><p>
-The gene where the neoepitope corresponds </p></td>
+                  <td><p>The transcript where the neoepitope was observed </p></td>
                 </tr>
               
                 <tr>
                   <td>mutation</td>
                   <td><a href="#neoantigen.Mutation">Mutation</a></td>
                   <td></td>
-                  <td><p>
-The mutation </p></td>
+                  <td><p>The mutation </p></td>
                 </tr>
               
                 <tr>
                   <td>clonalityEstimation</td>
                   <td><a href="#bool">bool</a></td>
                   <td></td>
-                  <td><p>
-Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
+                  <td><p>Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
 there is no quantitive measurement at the moment. </p></td>
                 </tr>
               
@@ -457,24 +629,21 @@ there is no quantitive measurement at the moment. </p></td>
                   <td>rnaExpression</td>
                   <td><a href="#float">float</a></td>
                   <td></td>
-                  <td><p>
-Expression value of the transcript from RNA data. Range [0, &#43;inf]. </p></td>
+                  <td><p>Expression value of the transcript from RNA data. Range [0, &#43;inf]. </p></td>
                 </tr>
               
                 <tr>
                   <td>dnaVariantAlleleFrequency</td>
                   <td><a href="#float">float</a></td>
                   <td></td>
-                  <td><p>
-Variant allele frequency from the DNA. Range [0.0, 1.0] </p></td>
+                  <td><p>Variant allele frequency from the DNA. Range [0.0, 1.0] </p></td>
                 </tr>
               
                 <tr>
                   <td>rnaVariantAlleleFrequency</td>
                   <td><a href="#float">float</a></td>
                   <td></td>
-                  <td><p>
-Variant allele frequency from the RNA. Range [0.0, 1.0] </p></td>
+                  <td><p>Variant allele frequency from the RNA. Range [0.0, 1.0] </p></td>
                 </tr>
               
             </tbody>
@@ -485,7 +654,7 @@ Variant allele frequency from the RNA. Range [0.0, 1.0] </p></td>
         
       
         <h3 id="neoantigen.NeoantigenAnnotations">NeoantigenAnnotations</h3>
-        <p></p><p>A set of annotations for a neoantigen</p>
+        <p>A set of annotations for a neoantigen</p>
 
         
           <table class="field-table">
@@ -498,48 +667,42 @@ Variant allele frequency from the RNA. Range [0.0, 1.0] </p></td>
                   <td>neoantigenIdentifier</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-A unique identifier of a neoantigen </p></td>
+                  <td><p>A unique identifier of a neoantigen </p></td>
                 </tr>
               
                 <tr>
                   <td>annotations</td>
                   <td><a href="#neoantigen.Annotation">Annotation</a></td>
                   <td>repeated</td>
-                  <td><p>
-List of annotations </p></td>
+                  <td><p>List of annotations </p></td>
                 </tr>
               
                 <tr>
                   <td>annotator</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The annotator </p></td>
+                  <td><p>The annotator </p></td>
                 </tr>
               
                 <tr>
                   <td>annotatorVersion</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-The version of the annotator </p></td>
+                  <td><p>The version of the annotator </p></td>
                 </tr>
               
                 <tr>
                   <td>timestamp</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-A timestamp determined when the annotation was created </p></td>
+                  <td><p>A timestamp determined when the annotation was created </p></td>
                 </tr>
               
                 <tr>
                   <td>resourcesHash</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-Annotation resources MD5 hash </p></td>
+                  <td><p>Annotation resources MD5 hash </p></td>
                 </tr>
               
             </tbody>
@@ -550,7 +713,7 @@ Annotation resources MD5 hash </p></td>
         
       
         <h3 id="neoantigen.Patient">Patient</h3>
-        <p></p><p>The metadata required for analysis for a given patient + its patient identifier</p>
+        <p>The metadata required for analysis for a given patient + its patient identifier</p>
 
         
           <table class="field-table">
@@ -563,48 +726,66 @@ Annotation resources MD5 hash </p></td>
                   <td>identifier</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-Patient identifier </p></td>
-                </tr>
-              
-                <tr>
-                  <td>estimatedTumorContent</td>
-                  <td><a href="#float">float</a></td>
-                  <td></td>
-                  <td><p>
-Estimated tumor content (value between 0 and 1) </p></td>
+                  <td><p>Patient identifier </p></td>
                 </tr>
               
                 <tr>
                   <td>isRnaAvailable</td>
                   <td><a href="#bool">bool</a></td>
                   <td></td>
-                  <td><p>
-Is RNA expression available? </p></td>
+                  <td><p>Is RNA expression available? </p></td>
                 </tr>
               
                 <tr>
-                  <td>mhcIAlleles</td>
-                  <td><a href="#string">string</a></td>
+                  <td>mhc1</td>
+                  <td><a href="#neoantigen.Mhc1">Mhc1</a></td>
                   <td>repeated</td>
-                  <td><p>
-MHC I alleles </p></td>
+                  <td><p>MHC I classic molecules </p></td>
                 </tr>
               
                 <tr>
-                  <td>mhcIIAlleles</td>
-                  <td><a href="#string">string</a></td>
+                  <td>mhc2</td>
+                  <td><a href="#neoantigen.Mhc2">Mhc2</a></td>
                   <td>repeated</td>
-                  <td><p>
-MHC II alleles </p></td>
+                  <td><p>MHC II classic molecules </p></td>
                 </tr>
               
+            </tbody>
+          </table>
+
+          
+
+        
+      
+        <h3 id="neoantigen.Transcript">Transcript</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
                 <tr>
-                  <td>tissue</td>
+                  <td>identifier</td>
                   <td><a href="#string">string</a></td>
                   <td></td>
-                  <td><p>
-Tissue of cancer origin </p></td>
+                  <td><p>The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>assembly</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38) </p></td>
+                </tr>
+              
+                <tr>
+                  <td>gene</td>
+                  <td><a href="#string">string</a></td>
+                  <td></td>
+                  <td><p>The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene </p></td>
                 </tr>
               
             </tbody>
@@ -615,6 +796,140 @@ Tissue of cancer origin </p></td>
         
       
 
+      
+        <h3 id="neoantigen.Mhc1Name">Mhc1Name</h3>
+        <p>Valid names for MHC I classic genes</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Name</td><td>Number</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>A</td>
+                <td>0</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>B</td>
+                <td>1</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>C</td>
+                <td>2</td>
+                <td><p></p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      
+        <h3 id="neoantigen.Mhc2GeneName">Mhc2GeneName</h3>
+        <p>Valid names for MHC II classic genes.</p><p>DRA is not included in this list as it does not have much variability in the population and for our purpose is</p><p>considered constant.</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Name</td><td>Number</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>DRB1</td>
+                <td>0</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>DPA1</td>
+                <td>1</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>DPB1</td>
+                <td>2</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>DQA1</td>
+                <td>3</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>DQB1</td>
+                <td>4</td>
+                <td><p></p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      
+        <h3 id="neoantigen.Mhc2Name">Mhc2Name</h3>
+        <p>Valid names for MHC II classic molecules</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Name</td><td>Number</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>DR</td>
+                <td>0</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>DP</td>
+                <td>1</td>
+                <td><p></p></td>
+              </tr>
+            
+              <tr>
+                <td>DQ</td>
+                <td>2</td>
+                <td><p></p></td>
+              </tr>
+            
+          </tbody>
+        </table>
+      
+        <h3 id="neoantigen.Zygosity">Zygosity</h3>
+        <p>The zygosity of a given gene</p>
+        <table class="enum-table">
+          <thead>
+            <tr><td>Name</td><td>Number</td><td>Description</td></tr>
+          </thead>
+          <tbody>
+            
+              <tr>
+                <td>HOMOZYGOUS</td>
+                <td>0</td>
+                <td><p>Two equal copies of the gene</p></td>
+              </tr>
+            
+              <tr>
+                <td>HETEROZYGOUS</td>
+                <td>1</td>
+                <td><p>Two different copies of the gene</p></td>
+              </tr>
+            
+              <tr>
+                <td>HEMIZYGOUS</td>
+                <td>2</td>
+                <td><p>Only one copy of the gene</p></td>
+              </tr>
+            
+              <tr>
+                <td>LOSS</td>
+                <td>3</td>
+                <td><p>No copy of the gene</p></td>
+              </tr>
+            
+          </tbody>
+        </table>
       
 
       

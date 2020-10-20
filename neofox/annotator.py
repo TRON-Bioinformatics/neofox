@@ -96,13 +96,13 @@ class NeoantigenAnnotator:
         # HLA I predictions: NetMHCpan
         self.netmhcpan.run(
             sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            mhc_alleles=patient.mhc_i_alleles, available_mhc_alleles=self.available_alleles.get_available_mhc_i())
+            mhc=patient.mhc1, available_mhc_alleles=self.available_alleles.get_available_mhc_i())
         self.annotations.annotations.extend(self.netmhcpan.get_annotations())
 
         # HLA II predictions: NetMHCIIpan
         self.netmhc2pan.run(
             sequence=neoantigen.mutation.mutated_xmer, sequence_reference=neoantigen.mutation.wild_type_xmer,
-            mhc_alleles=patient.mhc_i_i_alleles, available_mhc=self.available_alleles.get_available_mhc_ii())
+            mhc=patient.mhc2, available_mhc=self.available_alleles.get_available_mhc_ii())
         self.annotations.annotations.extend(self.netmhc2pan.get_annotations())
 
         # Amplitude
@@ -121,7 +121,7 @@ class NeoantigenAnnotator:
 
         # T cell predictor
         self.annotations.annotations.extend(self.tcell_predictor.get_annotations(
-            gene=neoantigen.gene.gene, substitution=substitution, netmhcpan=self.netmhcpan))
+            gene=neoantigen.transcript.gene, substitution=substitution, netmhcpan=self.netmhcpan))
 
         # self-similarity
         self.annotations.annotations.extend(self.self_similarity.get_annnotations(
@@ -147,12 +147,12 @@ class NeoantigenAnnotator:
         # MixMHCpred
         self.mixmhc.run(
             sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
-            mhc_alleles=patient.mhc_i_alleles)
+            mhc=patient.mhc1)
         self.annotations.annotations.extend(self.mixmhc.get_annotations())
 
         # MixMHC2pred
         self.mixmhc2.run(
-            mhc_alleles=patient.mhc_i_i_alleles, sequence_wt=neoantigen.mutation.wild_type_xmer,
+            mhc=patient.mhc2, sequence_wt=neoantigen.mutation.wild_type_xmer,
             sequence_mut=neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.mixmhc2.get_annotations())
 
