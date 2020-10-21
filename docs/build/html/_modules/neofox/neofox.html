@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>neofox.neofox &mdash; Neofox 0.4.0.dev1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> Neofox
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">NeoFox - NEOantigen Feature tOolboX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Data models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api_usage.html">Programmatic usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../neofox.html">Neofox package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Neofox</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>neofox.neofox</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for neofox.neofox</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2020-2030 Translational Oncology at the Medical Center of the Johannes Gutenberg-University Mainz gGmbH.</span>
+<span class="c1">#</span>
+<span class="c1"># This file is part of Neofox</span>
+<span class="c1"># (see https://github.com/tron-bioinformatics/neofox).</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.#</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">logzero</span>
+<span class="kn">from</span> <span class="nn">logzero</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">Client</span>
+
+<span class="kn">from</span> <span class="nn">neofox.references.references</span> <span class="kn">import</span> <span class="n">ReferenceFolder</span><span class="p">,</span> <span class="n">AvailableAlleles</span><span class="p">,</span> <span class="n">DependenciesConfiguration</span>
+
+<span class="kn">from</span> <span class="nn">neofox</span> <span class="kn">import</span> <span class="n">NEOFOX_LOG_FILE_ENV</span>
+<span class="kn">from</span> <span class="nn">neofox.annotator</span> <span class="kn">import</span> <span class="n">NeoantigenAnnotator</span>
+<span class="kn">from</span> <span class="nn">neofox.exceptions</span> <span class="kn">import</span> <span class="n">NeofoxConfigurationException</span><span class="p">,</span> <span class="n">NeofoxDataValidationException</span>
+<span class="kn">from</span> <span class="nn">neofox.model.neoantigen</span> <span class="kn">import</span> <span class="n">NeoantigenAnnotations</span><span class="p">,</span> <span class="n">Neoantigen</span><span class="p">,</span> <span class="n">Patient</span>
+<span class="kn">from</span> <span class="nn">neofox.model.validation</span> <span class="kn">import</span> <span class="n">ModelValidator</span>
+
+
+<div class="viewcode-block" id="NeoFox"><a class="viewcode-back" href="../../neofox.html#neofox.neofox.NeoFox">[docs]</a><span class="k">class</span> <span class="nc">NeoFox</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">neoantigens</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Neoantigen</span><span class="p">],</span> <span class="n">patient_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">patients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Patient</span><span class="p">],</span> <span class="n">num_cpus</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">work_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_prefix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reference_folder</span><span class="p">:</span> <span class="n">ReferenceFolder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">configuration</span><span class="p">:</span> <span class="n">DependenciesConfiguration</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="c1"># initialise logs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialise_logs</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">,</span> <span class="n">work_folder</span><span class="p">)</span>
+
+        <span class="c1"># initialise dask</span>
+        <span class="c1"># TODO: number of threads is hard coded. Is there a better value for this?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dask_client</span> <span class="o">=</span> <span class="n">Client</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_workers</span><span class="o">=</span><span class="n">num_cpus</span><span class="p">,</span> <span class="n">threads_per_worker</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="c1"># intialize references folder and configuration</span>
+        <span class="c1"># NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it</span>
+        <span class="c1"># testable with fake objects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_folder</span> <span class="o">=</span> <span class="n">reference_folder</span> <span class="k">if</span> <span class="n">reference_folder</span> <span class="k">else</span> <span class="n">ReferenceFolder</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span> <span class="o">=</span> <span class="n">configuration</span> <span class="k">if</span> <span class="n">configuration</span> <span class="k">else</span> <span class="n">DependenciesConfiguration</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">neoantigens</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">neoantigens</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">patients</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">patients</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NeofoxConfigurationException</span><span class="p">(</span><span class="s2">&quot;Missing input data to run Neofox&quot;</span><span class="p">)</span>
+
+        <span class="c1"># TODO: avoid overriding patient id parameter</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neoantigens</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">patient_identifier</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">patient_identifier</span> <span class="o">=</span> <span class="n">patient_id</span>
+
+        <span class="c1"># validates input data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neoantigens</span> <span class="o">=</span> <span class="p">[</span><span class="n">ModelValidator</span><span class="o">.</span><span class="n">validate_neoantigen</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neoantigens</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patients</span> <span class="o">=</span> <span class="p">{</span><span class="n">patient</span><span class="o">.</span><span class="n">identifier</span><span class="p">:</span> <span class="n">ModelValidator</span><span class="o">.</span><span class="n">validate_patient</span><span class="p">(</span><span class="n">patient</span><span class="p">)</span> <span class="k">for</span> <span class="n">patient</span> <span class="ow">in</span> <span class="n">patients</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_input_data</span><span class="p">()</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Data loaded&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_initialise_logs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_prefix</span><span class="p">,</span> <span class="n">work_folder</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">work_folder</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">work_folder</span><span class="p">):</span>
+            <span class="n">logfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">work_folder</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">.log&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_prefix</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">NEOFOX_LOG_FILE_ENV</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">logfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logzero</span><span class="o">.</span><span class="n">logfile</span><span class="p">(</span><span class="n">logfile</span><span class="p">)</span>
+        <span class="c1"># TODO: this does not work</span>
+        <span class="n">logzero</span><span class="o">.</span><span class="n">loglevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Loading data...&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">patient_identifiers_from_neoantigens</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">patient_identifier</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neoantigens</span><span class="p">])</span>
+        <span class="n">patient_identifiers_from_patients</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">identifier</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">patients</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
+
+        <span class="c1"># check that there are no repeated neoantigens</span>
+        <span class="n">neoantigen_identifiers</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">identifier</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neoantigens</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neoantigen_identifiers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">neoantigen_identifiers</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">NeofoxDataValidationException</span><span class="p">(</span><span class="s2">&quot;There are repeated neoantigens!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># checks that no neoantigen is referring to an empty patient</span>
+        <span class="k">if</span> <span class="s2">&quot;&quot;</span> <span class="ow">in</span> <span class="n">patient_identifiers_from_neoantigens</span> <span class="ow">or</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">patient_identifiers_from_neoantigens</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NeofoxDataValidationException</span><span class="p">(</span>
+                <span class="s2">&quot;There are neoantigens missing a reference to a patient&quot;</span><span class="p">)</span>
+
+        <span class="c1"># checks that there is no neoantigen referring to a non existing patient</span>
+        <span class="n">missing_patient_identifiers</span> <span class="o">=</span> <span class="n">patient_identifiers_from_neoantigens</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">patient_identifiers_from_patients</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_patient_identifiers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NeofoxDataValidationException</span><span class="p">(</span>
+                <span class="s2">&quot;There are neoantigens referring to missing patients: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">missing_patient_identifiers</span><span class="p">))</span>
+
+<div class="viewcode-block" id="NeoFox.get_annotations"><a class="viewcode-back" href="../../neofox.html#neofox.neofox.NeoFox.get_annotations">[docs]</a>    <span class="k">def</span> <span class="nf">get_annotations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">NeoantigenAnnotations</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,</span>
+<span class="sd">        calls epitope class --&gt; determination of epitope properties,</span>
+<span class="sd">        write to txt file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting NeoFox annotations...&quot;</span><span class="p">)</span>
+        <span class="c1"># feature calculation for each epitope</span>
+        <span class="n">futures</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">neoantigen</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">neoantigens</span><span class="p">:</span>
+            <span class="n">patient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">patients</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">neoantigen</span><span class="o">.</span><span class="n">patient_identifier</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Neoantigen: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">neoantigen</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">3</span><span class="p">)))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Patient: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">patient</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">3</span><span class="p">)))</span>
+            <span class="n">futures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dask_client</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span>
+                <span class="n">NeoFox</span><span class="o">.</span><span class="n">annotate_neoantigen</span><span class="p">,</span> <span class="n">neoantigen</span><span class="p">,</span> <span class="n">patient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="p">))</span>
+
+        <span class="n">annotations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dask_client</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">futures</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Elapsed time for annotating </span><span class="si">{}</span><span class="s2"> neoantigens </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neoantigens</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">annotations</span></div>
+
+<div class="viewcode-block" id="NeoFox.annotate_neoantigen"><a class="viewcode-back" href="../../neofox.html#neofox.neofox.NeoFox.annotate_neoantigen">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">annotate_neoantigen</span><span class="p">(</span><span class="n">neoantigen</span><span class="p">:</span> <span class="n">Neoantigen</span><span class="p">,</span> <span class="n">patient</span><span class="p">:</span> <span class="n">Patient</span><span class="p">,</span> <span class="n">reference_folder</span><span class="p">:</span> <span class="n">ReferenceFolder</span><span class="p">,</span>
+                            <span class="n">configuration</span><span class="p">:</span> <span class="n">DependenciesConfiguration</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting neoantigen annotation: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">neoantigen</span><span class="o">.</span><span class="n">identifier</span><span class="p">))</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">annotation</span> <span class="o">=</span> <span class="n">NeoantigenAnnotator</span><span class="p">(</span><span class="n">reference_folder</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span><span class="o">.</span><span class="n">get_annotation</span><span class="p">(</span><span class="n">neoantigen</span><span class="p">,</span> <span class="n">patient</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Elapsed time for annotating neoantigen </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">neoantigen</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">annotation</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Franziska Lang &amp; Pablo Riesgo Ferreiro
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
