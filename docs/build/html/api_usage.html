@@ -1,0 +1,1404 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Programmatic usage &mdash; Neofox 0.4.0.dev1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Neofox package" href="neofox.html" />
+    <link rel="prev" title="Data models" href="models.html" />
+    <link href="_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Neofox
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">NeoFox - NEOantigen Feature tOolboX</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Data models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Programmatic usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#Create-a-neoantigen">Create a neoantigen</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Validate-a-neoantigen">Validate a neoantigen</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Create-a-patient">Create a patient</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Validate-a-patient">Validate a patient</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#Run-Neofox">Run Neofox</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Transform-the-annotations-into-a-data-frame">Transform the annotations into a data frame</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="neofox.html">Neofox package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Neofox</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Programmatic usage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api_usage.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Programmatic-usage">
+<h1>Programmatic usage<a class="headerlink" href="#Programmatic-usage" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">neofox.model.conversion</span> <span class="kn">import</span> <span class="n">ModelConverter</span>
+<span class="kn">from</span> <span class="nn">neofox.model.validation</span> <span class="kn">import</span> <span class="n">ModelValidator</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Create-a-neoantigen">
+<h2>Create a neoantigen<a class="headerlink" href="#Create-a-neoantigen" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">neofox.model.neoantigen</span> <span class="kn">import</span> <span class="n">Neoantigen</span><span class="p">,</span> <span class="n">Transcript</span><span class="p">,</span> <span class="n">Mutation</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">transcript</span> <span class="o">=</span> <span class="n">Transcript</span><span class="p">(</span><span class="n">assembly</span><span class="o">=</span><span class="s2">&quot;hg19&quot;</span><span class="p">,</span> <span class="n">gene</span><span class="o">=</span><span class="s2">&quot;VCAN&quot;</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;uc003kii.3&quot;</span><span class="p">)</span>
+<span class="n">mutation</span> <span class="o">=</span> <span class="n">Mutation</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="mi">1007</span><span class="p">,</span> <span class="n">wild_type_aminoacid</span><span class="o">=</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="n">mutated_aminoacid</span><span class="o">=</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">left_flanking_region</span><span class="o">=</span><span class="s2">&quot;DEVLGEPSQDILV&quot;</span><span class="p">,</span> <span class="n">right_flanking_region</span><span class="o">=</span><span class="s2">&quot;DQTRLEATISPET&quot;</span><span class="p">)</span>
+<span class="n">neoantigen</span> <span class="o">=</span> <span class="n">Neoantigen</span><span class="p">(</span><span class="n">transcript</span><span class="o">=</span><span class="n">transcript</span><span class="p">,</span> <span class="n">mutation</span><span class="o">=</span><span class="n">mutation</span><span class="p">,</span> <span class="n">patient_identifier</span><span class="o">=</span><span class="s2">&quot;P123&quot;</span><span class="p">,</span> <span class="n">rna_expression</span><span class="o">=</span><span class="mf">0.519506894</span><span class="p">,</span> <span class="n">rna_variant_allele_frequency</span><span class="o">=</span><span class="mf">0.857142857</span><span class="p">,</span> <span class="n">dna_variant_allele_frequency</span><span class="o">=</span><span class="mf">0.294573643</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Validate-a-neoantigen">
+<h3>Validate a neoantigen<a class="headerlink" href="#Validate-a-neoantigen" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">validated_neoantigen</span> <span class="o">=</span> <span class="n">ModelValidator</span><span class="o">.</span><span class="n">validate_neoantigen</span><span class="p">(</span><span class="n">neoantigen</span><span class="o">=</span><span class="n">neoantigen</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">validated_neoantigen</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+  &#34;identifier&#34;: &#34;jETwpX0R9iEiQz2SMpHkPQ==&#34;,
+  &#34;patientIdentifier&#34;: &#34;P123&#34;,
+  &#34;transcript&#34;: {
+    &#34;identifier&#34;: &#34;uc003kii.3&#34;,
+    &#34;assembly&#34;: &#34;hg19&#34;,
+    &#34;gene&#34;: &#34;VCAN&#34;
+  },
+  &#34;mutation&#34;: {
+    &#34;position&#34;: 1007,
+    &#34;wildTypeXmer&#34;: &#34;DEVLGEPSQDILVIDQTRLEATISPET&#34;,
+    &#34;wildTypeAminoacid&#34;: &#34;I&#34;,
+    &#34;mutatedXmer&#34;: &#34;DEVLGEPSQDILVTDQTRLEATISPET&#34;,
+    &#34;mutatedAminoacid&#34;: &#34;T&#34;,
+    &#34;leftFlankingRegion&#34;: &#34;DEVLGEPSQDILV&#34;,
+    &#34;sizeLeftFlankingRegion&#34;: 13,
+    &#34;rightFlankingRegion&#34;: &#34;DQTRLEATISPET&#34;,
+    &#34;sizeRightFlankingRegion&#34;: 13
+  },
+  &#34;rnaExpression&#34;: 0.519506894,
+  &#34;dnaVariantAlleleFrequency&#34;: 0.294573643,
+  &#34;rnaVariantAlleleFrequency&#34;: 0.857142857
+}
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Create-a-patient">
+<h2>Create a patient<a class="headerlink" href="#Create-a-patient" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">neofox.model.neoantigen</span> <span class="kn">import</span> <span class="n">Patient</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># define the MHC I alleles of the patient and parse them into the object representation</span>
+<span class="n">mhc1</span> <span class="o">=</span> <span class="n">ModelConverter</span><span class="o">.</span><span class="n">parse_mhc1_alleles</span><span class="p">([</span><span class="s2">&quot;HLA-A*01:01:02:03N&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-A*01:02:02:03N&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-B*01:01:02:03N&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-B*01:01:02:04N&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-C*01:01&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># MHC allele names will be normalised into 4 digits names</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">mhc1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{
+  &#34;zygosity&#34;: &#34;HETEROZYGOUS&#34;,
+  &#34;alleles&#34;: [
+    {
+      &#34;fullName&#34;: &#34;HLA-A*01:01:02:03N&#34;,
+      &#34;name&#34;: &#34;HLA-A*01:01&#34;,
+      &#34;gene&#34;: &#34;A&#34;,
+      &#34;group&#34;: &#34;01&#34;,
+      &#34;protein&#34;: &#34;01&#34;
+    },
+    {
+      &#34;fullName&#34;: &#34;HLA-A*01:02:02:03N&#34;,
+      &#34;name&#34;: &#34;HLA-A*01:02&#34;,
+      &#34;gene&#34;: &#34;A&#34;,
+      &#34;group&#34;: &#34;01&#34;,
+      &#34;protein&#34;: &#34;02&#34;
+    }
+  ]
+}
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># define the MHC II alleles of the patient and parse them into the object representation</span>
+<span class="n">mhc2</span> <span class="o">=</span> <span class="n">ModelConverter</span><span class="o">.</span><span class="n">parse_mhc2_alleles</span><span class="p">([</span><span class="s2">&quot;HLA-DPA1*01:01&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-DPA1*01:02&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-DPB1*01:01&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-DPB1*01:01&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-DRB1*01:01&quot;</span><span class="p">,</span> <span class="s2">&quot;HLA-DRB1*01:01&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="nb">print</span><span class="p">(</span><span class="n">mhc2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">AttributeError</span>                            Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-48-ab8478a95705&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-fg">----&gt; 1</span><span class="ansi-red-fg"> </span>print<span class="ansi-blue-fg">(</span>mhc2<span class="ansi-blue-fg">[</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>to_json<span class="ansi-blue-fg">(</span>indent<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">2</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">~/src/addannot/venv/lib/python3.6/site-packages/betterproto/__init__.py</span> in <span class="ansi-cyan-fg">to_json</span><span class="ansi-blue-fg">(self, indent)</span>
+<span class="ansi-green-intense-fg ansi-bold">    925</span>     <span class="ansi-green-fg">def</span> to_json<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> indent<span class="ansi-blue-fg">:</span> Union<span class="ansi-blue-fg">[</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> int<span class="ansi-blue-fg">,</span> str<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span> <span class="ansi-blue-fg">-&gt;</span> str<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    926</span>         <span class="ansi-blue-fg">&#34;&#34;&#34;Returns the encoded JSON representation of this message instance.&#34;&#34;&#34;</span>
+<span class="ansi-green-fg">--&gt; 927</span><span class="ansi-red-fg">         </span><span class="ansi-green-fg">return</span> json<span class="ansi-blue-fg">.</span>dumps<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>to_dict<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span> indent<span class="ansi-blue-fg">=</span>indent<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    928</span>
+<span class="ansi-green-intense-fg ansi-bold">    929</span>     <span class="ansi-green-fg">def</span> from_json<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">:</span> T<span class="ansi-blue-fg">,</span> value<span class="ansi-blue-fg">:</span> Union<span class="ansi-blue-fg">[</span>str<span class="ansi-blue-fg">,</span> bytes<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span> <span class="ansi-blue-fg">-&gt;</span> T<span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/src/addannot/venv/lib/python3.6/site-packages/betterproto/__init__.py</span> in <span class="ansi-cyan-fg">to_dict</span><span class="ansi-blue-fg">(self, casing, include_default_values)</span>
+<span class="ansi-green-intense-fg ansi-bold">    827</span>                 <span class="ansi-green-fg">elif</span> isinstance<span class="ansi-blue-fg">(</span>v<span class="ansi-blue-fg">,</span> list<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    828</span>                     <span class="ansi-red-fg"># Convert each item.</span>
+<span class="ansi-green-fg">--&gt; 829</span><span class="ansi-red-fg">                     </span>v <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span>i<span class="ansi-blue-fg">.</span>to_dict<span class="ansi-blue-fg">(</span>casing<span class="ansi-blue-fg">,</span> include_default_values<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">for</span> i <span class="ansi-green-fg">in</span> v<span class="ansi-blue-fg">]</span>
+<span class="ansi-green-intense-fg ansi-bold">    830</span>                     <span class="ansi-green-fg">if</span> v <span class="ansi-green-fg">or</span> include_default_values<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    831</span>                         output<span class="ansi-blue-fg">[</span>cased_name<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">=</span> v
+
+<span class="ansi-green-fg">~/src/addannot/venv/lib/python3.6/site-packages/betterproto/__init__.py</span> in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-fg">(.0)</span>
+<span class="ansi-green-intense-fg ansi-bold">    827</span>                 <span class="ansi-green-fg">elif</span> isinstance<span class="ansi-blue-fg">(</span>v<span class="ansi-blue-fg">,</span> list<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    828</span>                     <span class="ansi-red-fg"># Convert each item.</span>
+<span class="ansi-green-fg">--&gt; 829</span><span class="ansi-red-fg">                     </span>v <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span>i<span class="ansi-blue-fg">.</span>to_dict<span class="ansi-blue-fg">(</span>casing<span class="ansi-blue-fg">,</span> include_default_values<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">for</span> i <span class="ansi-green-fg">in</span> v<span class="ansi-blue-fg">]</span>
+<span class="ansi-green-intense-fg ansi-bold">    830</span>                     <span class="ansi-green-fg">if</span> v <span class="ansi-green-fg">or</span> include_default_values<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    831</span>                         output<span class="ansi-blue-fg">[</span>cased_name<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">=</span> v
+
+<span class="ansi-green-fg">~/src/addannot/venv/lib/python3.6/site-packages/betterproto/__init__.py</span> in <span class="ansi-cyan-fg">to_dict</span><span class="ansi-blue-fg">(self, casing, include_default_values)</span>
+<span class="ansi-green-intense-fg ansi-bold">    831</span>                         output<span class="ansi-blue-fg">[</span>cased_name<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">=</span> v
+<span class="ansi-green-intense-fg ansi-bold">    832</span>                 <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 833</span><span class="ansi-red-fg">                     </span><span class="ansi-green-fg">if</span> v<span class="ansi-blue-fg">.</span>_serialized_on_wire <span class="ansi-green-fg">or</span> include_default_values<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    834</span>                         output<span class="ansi-blue-fg">[</span>cased_name<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">=</span> v<span class="ansi-blue-fg">.</span>to_dict<span class="ansi-blue-fg">(</span>casing<span class="ansi-blue-fg">,</span> include_default_values<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    835</span>             <span class="ansi-green-fg">elif</span> meta<span class="ansi-blue-fg">.</span>proto_type <span class="ansi-blue-fg">==</span> <span class="ansi-blue-fg">&#34;map&#34;</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-red-fg">AttributeError</span>: &#39;NoneType&#39; object has no attribute &#39;_serialized_on_wire&#39;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">mhc2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Mhc2(name=&lt;Mhc2Name.DR: 0&gt;, genes=[Mhc2Gene(name=&lt;Mhc2GeneName.DRB1: 0&gt;, zygosity=&lt;Zygosity.HOMOZYGOUS: 0&gt;, alleles=[MhcAllele(full_name=&#39;HLA-DRB1*01:01&#39;, name=&#39;HLA-DRB1*01:01&#39;, gene=&#39;DRB1&#39;, group=&#39;01&#39;, protein=&#39;01&#39;)])], isoforms=[Mhc2Isoform(name=&#39;HLA-DRB1*01:01&#39;, alpha_chain=None, beta_chain=MhcAllele(full_name=&#39;HLA-DRB1*01:01&#39;, name=&#39;HLA-DRB1*01:01&#39;, gene=&#39;DRB1&#39;, group=&#39;01&#39;, protein=&#39;01&#39;))])
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">patient</span> <span class="o">=</span> <span class="n">Patient</span><span class="p">(</span><span class="n">identifier</span><span class="o">=</span><span class="s2">&quot;P123&quot;</span><span class="p">,</span> <span class="n">is_rna_available</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mhc1</span><span class="o">=</span><span class="n">mhc1</span><span class="p">,</span> <span class="n">mhc2</span><span class="o">=</span><span class="n">mhc2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Validate-a-patient">
+<h3>Validate a patient<a class="headerlink" href="#Validate-a-patient" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">neofox.model.validation</span> <span class="kn">import</span> <span class="n">ModelValidator</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">validated_patient</span> <span class="o">=</span> <span class="n">ModelValidator</span><span class="o">.</span><span class="n">validate_patient</span><span class="p">(</span><span class="n">patient</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Run-Neofox">
+<h2>Run Neofox<a class="headerlink" href="#Run-Neofox" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">neofox.neofox</span> <span class="kn">import</span> <span class="n">NeoFox</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: numpy.ufunc size changed, may indicate binary incompatibility. Expected 192 from C header, got 216 from PyObject
+  return f(*args, **kwds)
+/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: numpy.ufunc size changed, may indicate binary incompatibility. Expected 192 from C header, got 216 from PyObject
+  return f(*args, **kwds)
+/usr/lib/python3.6/importlib/_bootstrap.py:219: RuntimeWarning: numpy.ufunc size changed, may indicate binary incompatibility. Expected 192 from C header, got 216 from PyObject
+  return f(*args, **kwds)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">annotations</span> <span class="o">=</span> <span class="n">NeoFox</span><span class="p">(</span><span class="n">neoantigens</span><span class="o">=</span><span class="p">[</span><span class="n">validated_neoantigen</span><span class="p">],</span> <span class="n">patients</span><span class="o">=</span><span class="p">[</span><span class="n">validated_patient</span><span class="p">],</span> <span class="n">patient_id</span><span class="o">=</span><span class="s2">&quot;P123&quot;</span><span class="p">,</span> <span class="n">num_cpus</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">get_annotations</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[I 201020 22:58:59 neofox:80] Loading data...
+/home/priesgo/src/addannot/venv/lib/python3.6/site-packages/distributed/node.py:173: UserWarning: Port 8787 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 46855 instead
+  http_address[&#34;port&#34;], self.http_server.port
+[I 201020 22:59:00 references:141] Reference genome folder: /home/priesgo/neofox_install/reference_data_5
+[I 201020 22:59:00 references:142] Resources
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/netmhc2pan_available_alleles.txt
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/netmhcpan_available_alleles.txt
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/iedb
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/Homo_sapiens.fa
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/iedb/IEDB.fasta
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/iedb/iedb_blast_db.phr
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/iedb/iedb_blast_db.pin
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/iedb/iedb_blast_db.psq
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/Homo_sapiens.fa
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/homo_sapiens.phr
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/homo_sapiens.pin
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/homo_sapiens.pog
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/homo_sapiens.psd
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/homo_sapiens.psi
+[I 201020 22:59:00 references:144] /home/priesgo/neofox_install/reference_data_5/proteome_db/homo_sapiens.psq
+[I 201020 22:59:00 neofox:69] Data loaded
+[I 201020 22:59:00 neofox:109] Starting NeoFox annotations...
+[D 201020 22:59:00 neofox:115] Neoantigen: {
+       &#34;identifier&#34;: &#34;jETwpX0R9iEiQz2SMpHkPQ==&#34;,
+       &#34;patientIdentifier&#34;: &#34;P123&#34;,
+       &#34;transcript&#34;: {
+          &#34;identifier&#34;: &#34;uc003kii.3&#34;,
+          &#34;assembly&#34;: &#34;hg19&#34;,
+          &#34;gene&#34;: &#34;VCAN&#34;
+       },
+       &#34;mutation&#34;: {
+          &#34;position&#34;: 1007,
+          &#34;wildTypeXmer&#34;: &#34;DEVLGEPSQDILVIDQTRLEATISPET&#34;,
+          &#34;wildTypeAminoacid&#34;: &#34;I&#34;,
+          &#34;mutatedXmer&#34;: &#34;DEVLGEPSQDILVTDQTRLEATISPET&#34;,
+          &#34;mutatedAminoacid&#34;: &#34;T&#34;,
+          &#34;leftFlankingRegion&#34;: &#34;DEVLGEPSQDILV&#34;,
+          &#34;sizeLeftFlankingRegion&#34;: 13,
+          &#34;rightFlankingRegion&#34;: &#34;DQTRLEATISPET&#34;,
+          &#34;sizeRightFlankingRegion&#34;: 13
+       },
+       &#34;rnaExpression&#34;: 0.519506894,
+       &#34;dnaVariantAlleleFrequency&#34;: 0.294573643,
+       &#34;rnaVariantAlleleFrequency&#34;: 0.857142857
+    }
+[D 201020 22:59:00 neofox:116] Patient: {
+       &#34;identifier&#34;: &#34;P123&#34;,
+       &#34;isRnaAvailable&#34;: true,
+       &#34;mhc1&#34;: [
+          {
+             &#34;zygosity&#34;: &#34;HETEROZYGOUS&#34;,
+             &#34;alleles&#34;: [
+                {
+                   &#34;fullName&#34;: &#34;HLA-A*01:01:02:03N&#34;,
+                   &#34;name&#34;: &#34;HLA-A*01:01&#34;,
+                   &#34;gene&#34;: &#34;A&#34;,
+                   &#34;group&#34;: &#34;01&#34;,
+                   &#34;protein&#34;: &#34;01&#34;
+                },
+                {
+                   &#34;fullName&#34;: &#34;HLA-A*01:02:02:03N&#34;,
+                   &#34;name&#34;: &#34;HLA-A*01:02&#34;,
+                   &#34;gene&#34;: &#34;A&#34;,
+                   &#34;group&#34;: &#34;01&#34;,
+                   &#34;protein&#34;: &#34;02&#34;
+                }
+             ]
+          },
+          {
+             &#34;name&#34;: &#34;B&#34;,
+             &#34;alleles&#34;: [
+                {
+                   &#34;fullName&#34;: &#34;HLA-B*01:01:02:04N&#34;,
+                   &#34;name&#34;: &#34;HLA-B*01:01&#34;,
+                   &#34;gene&#34;: &#34;B&#34;,
+                   &#34;group&#34;: &#34;01&#34;,
+                   &#34;protein&#34;: &#34;01&#34;
+                }
+             ]
+          },
+          {
+             &#34;name&#34;: &#34;C&#34;,
+             &#34;zygosity&#34;: &#34;HEMIZYGOUS&#34;,
+             &#34;alleles&#34;: [
+                {
+                   &#34;fullName&#34;: &#34;HLA-C*01:01&#34;,
+                   &#34;name&#34;: &#34;HLA-C*01:01&#34;,
+                   &#34;gene&#34;: &#34;C&#34;,
+                   &#34;group&#34;: &#34;01&#34;,
+                   &#34;protein&#34;: &#34;01&#34;
+                }
+             ]
+          }
+       ],
+       &#34;mhc2&#34;: [
+          {
+             &#34;genes&#34;: [
+                {
+                   &#34;alleles&#34;: [
+                      {
+                         &#34;fullName&#34;: &#34;HLA-DRB1*01:01&#34;,
+                         &#34;name&#34;: &#34;HLA-DRB1*01:01&#34;,
+                         &#34;gene&#34;: &#34;DRB1&#34;,
+                         &#34;group&#34;: &#34;01&#34;,
+                         &#34;protein&#34;: &#34;01&#34;
+                      }
+                   ]
+                }
+             ],
+             &#34;isoforms&#34;: [
+                {
+                   &#34;name&#34;: &#34;HLA-DRB1*01:01&#34;,
+                   &#34;betaChain&#34;: {
+                      &#34;fullName&#34;: &#34;HLA-DRB1*01:01&#34;,
+                      &#34;name&#34;: &#34;HLA-DRB1*01:01&#34;,
+                      &#34;gene&#34;: &#34;DRB1&#34;,
+                      &#34;group&#34;: &#34;01&#34;,
+                      &#34;protein&#34;: &#34;01&#34;
+                   }
+                }
+             ]
+          },
+          {
+             &#34;name&#34;: &#34;DP&#34;,
+             &#34;genes&#34;: [
+                {
+                   &#34;name&#34;: &#34;DPA1&#34;,
+                   &#34;zygosity&#34;: &#34;HETEROZYGOUS&#34;,
+                   &#34;alleles&#34;: [
+                      {
+                         &#34;fullName&#34;: &#34;HLA-DPA1*01:01&#34;,
+                         &#34;name&#34;: &#34;HLA-DPA1*01:01&#34;,
+                         &#34;gene&#34;: &#34;DPA1&#34;,
+                         &#34;group&#34;: &#34;01&#34;,
+                         &#34;protein&#34;: &#34;01&#34;
+                      },
+                      {
+                         &#34;fullName&#34;: &#34;HLA-DPA1*01:02&#34;,
+                         &#34;name&#34;: &#34;HLA-DPA1*01:02&#34;,
+                         &#34;gene&#34;: &#34;DPA1&#34;,
+                         &#34;group&#34;: &#34;01&#34;,
+                         &#34;protein&#34;: &#34;02&#34;
+                      }
+                   ]
+                },
+                {
+                   &#34;name&#34;: &#34;DPB1&#34;,
+                   &#34;alleles&#34;: [
+                      {
+                         &#34;fullName&#34;: &#34;HLA-DPB1*01:01&#34;,
+                         &#34;name&#34;: &#34;HLA-DPB1*01:01&#34;,
+                         &#34;gene&#34;: &#34;DPB1&#34;,
+                         &#34;group&#34;: &#34;01&#34;,
+                         &#34;protein&#34;: &#34;01&#34;
+                      }
+                   ]
+                }
+             ],
+             &#34;isoforms&#34;: [
+                {
+                   &#34;name&#34;: &#34;HLA-DPA1*01:01-DPB1*01:01&#34;,
+                   &#34;alphaChain&#34;: {
+                      &#34;fullName&#34;: &#34;HLA-DPA1*01:01&#34;,
+                      &#34;name&#34;: &#34;HLA-DPA1*01:01&#34;,
+                      &#34;gene&#34;: &#34;DPA1&#34;,
+                      &#34;group&#34;: &#34;01&#34;,
+                      &#34;protein&#34;: &#34;01&#34;
+                   },
+                   &#34;betaChain&#34;: {
+                      &#34;fullName&#34;: &#34;HLA-DPB1*01:01&#34;,
+                      &#34;name&#34;: &#34;HLA-DPB1*01:01&#34;,
+                      &#34;gene&#34;: &#34;DPB1&#34;,
+                      &#34;group&#34;: &#34;01&#34;,
+                      &#34;protein&#34;: &#34;01&#34;
+                   }
+                },
+                {
+                   &#34;name&#34;: &#34;HLA-DPA1*01:02-DPB1*01:01&#34;,
+                   &#34;alphaChain&#34;: {
+                      &#34;fullName&#34;: &#34;HLA-DPA1*01:02&#34;,
+                      &#34;name&#34;: &#34;HLA-DPA1*01:02&#34;,
+                      &#34;gene&#34;: &#34;DPA1&#34;,
+                      &#34;group&#34;: &#34;01&#34;,
+                      &#34;protein&#34;: &#34;02&#34;
+                   },
+                   &#34;betaChain&#34;: {
+                      &#34;fullName&#34;: &#34;HLA-DPB1*01:01&#34;,
+                      &#34;name&#34;: &#34;HLA-DPB1*01:01&#34;,
+                      &#34;gene&#34;: &#34;DPB1&#34;,
+                      &#34;group&#34;: &#34;01&#34;,
+                      &#34;protein&#34;: &#34;01&#34;
+                   }
+                }
+             ]
+          },
+          {
+             &#34;name&#34;: &#34;DQ&#34;,
+             &#34;genes&#34;: [
+                {
+                   &#34;name&#34;: &#34;DQA1&#34;,
+                   &#34;zygosity&#34;: &#34;LOSS&#34;
+                },
+                {
+                   &#34;name&#34;: &#34;DQB1&#34;,
+                   &#34;zygosity&#34;: &#34;LOSS&#34;
+                }
+             ]
+          }
+       ]
+    }
+[I 201020 22:59:07 neofox:123] Elapsed time for annotating 1 neoantigens 7 seconds
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">annotations</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[NeoantigenAnnotations(neoantigen_identifier=&#39;jETwpX0R9iEiQz2SMpHkPQ==&#39;, annotations=[Annotation(name=&#39;Expression_mutated_transcript&#39;, value=&#39;0.44529&#39;), Annotation(name=&#39;mutation_not_found_in_proteome&#39;, value=&#39;1&#39;), Annotation(name=&#39;Best_rank_MHCI_score&#39;, value=&#39;0.4384&#39;), Annotation(name=&#39;Best_rank_MHCI_score_epitope&#39;, value=&#39;VTDQTRLEA&#39;), Annotation(name=&#39;Best_rank_MHCI_score_allele&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_affinity_MHCI_score&#39;, value=&#39;874.8&#39;), Annotation(name=&#39;Best_affinity_MHCI_epitope&#39;, value=&#39;VTDQTRLEA&#39;), Annotation(name=&#39;Best_affinity_MHCI_allele&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_rank_MHCI_9mer_score&#39;, value=&#39;0.4384&#39;), Annotation(name=&#39;Best_rank_MHCI_9mer_epitope&#39;, value=&#39;VTDQTRLEA&#39;), Annotation(name=&#39;Best_rank_MHCI_9mer_allele&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_affinity_MHCI_9mer_score&#39;, value=&#39;874.8&#39;), Annotation(name=&#39;Best_affinity_MHCI_9mer_allele&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_affinity_MHCI_9mer_epitope&#39;, value=&#39;VTDQTRLEA&#39;), Annotation(name=&#39;Best_affinity_MHCI_score_WT&#39;, value=&#39;6296.8&#39;), Annotation(name=&#39;Best_affinity_MHCI_epitope_WT&#39;, value=&#39;VIDQTRLEA&#39;), Annotation(name=&#39;Best_affinity_MHCI_allele_WT&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_rank_MHCI_score_WT&#39;, value=&#39;1.8897&#39;), Annotation(name=&#39;Best_rank_MHCI_score_epitope_WT&#39;, value=&#39;VIDQTRLEA&#39;), Annotation(name=&#39;Best_rank_MHCI_score_allele_WT&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_rank_MHCI_9mer_score_WT&#39;, value=&#39;1.8897&#39;), Annotation(name=&#39;Best_rank_MHCI_9mer_epitope_WT&#39;, value=&#39;VIDQTRLEA&#39;), Annotation(name=&#39;Best_rank_MHCI_9mer_allele_WT&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_affinity_MHCI_9mer_score_WT&#39;, value=&#39;6296.8&#39;), Annotation(name=&#39;Best_affinity_MHCI_9mer_allele_WT&#39;, value=&#39;HLA-A*01:01&#39;), Annotation(name=&#39;Best_affinity_MHCI_9mer_epitope_WT&#39;, value=&#39;VIDQTRLEA&#39;), Annotation(name=&#39;Generator_rate&#39;, value=&#39;0&#39;), Annotation(name=&#39;PHBR-I&#39;, value=&#39;NA&#39;), Annotation(name=&#39;Best_affinity_MHCI_9mer_position_mutation&#39;, value=&#39;2&#39;), Annotation(name=&#39;Best_rank_MHCII_score&#39;, value=&#39;65&#39;), Annotation(name=&#39;Best_rank_MHCII_score_epitope&#39;, value=&#39;SQDILVTDQTRLEAT&#39;), Annotation(name=&#39;Best_rank_MHCII_score_allele&#39;, value=&#39;DRB1_0101&#39;), Annotation(name=&#39;Best_affinity_MHCII_score&#39;, value=&#39;647.81&#39;), Annotation(name=&#39;Best_affinity_MHCII_epitope&#39;, value=&#39;SQDILVTDQTRLEAT&#39;), Annotation(name=&#39;Best_affinity_MHCII_allele&#39;, value=&#39;DRB1_0101&#39;), Annotation(name=&#39;Best_rank_MHCII_score_WT&#39;, value=&#39;46&#39;), Annotation(name=&#39;Best_rank_MHCII_score_epitope_WT&#39;, value=&#39;SQDILVIDQTRLEAT&#39;), Annotation(name=&#39;Best_rank_MHCII_score_allele_WT&#39;, value=&#39;DRB1_0101&#39;), Annotation(name=&#39;Best_affinity_MHCII_score_WT&#39;, value=&#39;269.19&#39;), Annotation(name=&#39;Best_affinity_MHCII_epitope_WT&#39;, value=&#39;SQDILVIDQTRLEAT&#39;), Annotation(name=&#39;Best_affinity_MHCII_allele_WT&#39;, value=&#39;DRB1_0101&#39;), Annotation(name=&#39;PHBR-II&#39;, value=&#39;NA&#39;), Annotation(name=&#39;Amplitude_MHCI_affinity_9mer&#39;, value=&#39;2.4915&#39;), Annotation(name=&#39;Amplitude_MHCI_affinity&#39;, value=&#39;2.4915&#39;), Annotation(name=&#39;Pathogensimiliarity_MHCI_affinity_9mer&#39;, value=&#39;0&#39;), Annotation(name=&#39;Recognition_Potential_MHCI_affinity_9mer&#39;, value=&#39;NA&#39;), Annotation(name=&#39;DAI_MHCI_affinity_cutoff500nM&#39;, value=&#39;NA&#39;), Annotation(name=&#39;CDN_MHCI&#39;, value=&#39;0&#39;), Annotation(name=&#39;ADN_MHCI&#39;, value=&#39;0&#39;), Annotation(name=&#39;CDN_MHCII&#39;, value=&#39;0&#39;), Annotation(name=&#39;ADN_MHCII&#39;, value=&#39;0&#39;), Annotation(name=&#39;Tcell_predictor_score_cutoff500nM&#39;, value=&#39;NA&#39;), Annotation(name=&#39;Improved_Binder_MHCI&#39;, value=&#39;1&#39;), Annotation(name=&#39;Selfsimilarity_MHCI_conserved_binder&#39;, value=&#39;NA&#39;), Annotation(name=&#39;Number_of_mismatches_MCHI&#39;, value=&#39;1&#39;), Annotation(name=&#39;Priority_score&#39;, value=&#39;0.09596&#39;), Annotation(name=&#39;Neoag_immunogenicity&#39;, value=&#39;NA&#39;), Annotation(name=&#39;IEDB_Immunogenicity_MHCI_cutoff500nM&#39;, value=&#39;NA&#39;), Annotation(name=&#39;MixMHCpred_best_peptide&#39;, value=&#39;NA&#39;), Annotation(name=&#39;MixMHCpred_best_score&#39;, value=&#39;NA&#39;), Annotation(name=&#39;MixMHCpred_best_rank&#39;, value=&#39;NA&#39;), Annotation(name=&#39;MixMHCpred_best_allele&#39;, value=&#39;NA&#39;), Annotation(name=&#39;MixMHC2pred_best_peptide&#39;, value=&#39;DEVLGEPSQDILVT&#39;), Annotation(name=&#39;MixMHC2pred_best_rank&#39;, value=&#39;2.818&#39;), Annotation(name=&#39;MixMHC2pred_best_allele&#39;, value=&#39;DRB1_01_01&#39;), Annotation(name=&#39;Dissimilarity_MHCI_cutoff500nM&#39;, value=&#39;NA&#39;), Annotation(name=&#39;vaxrank_binding_score&#39;, value=&#39;0.0322&#39;), Annotation(name=&#39;vaxrank_total_score&#39;, value=&#39;0.01434&#39;)], annotator=&#39;Neofox&#39;, annotator_version=&#39;0.4.0.dev1&#39;, timestamp=&#39;20201020225902062657&#39;, resources_hash=&#39;&#39;)]
+</pre></div></div>
+</div>
+<div class="section" id="Transform-the-annotations-into-a-data-frame">
+<h3>Transform the annotations into a data frame<a class="headerlink" href="#Transform-the-annotations-into-a-data-frame" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">annotations_ts</span> <span class="o">=</span> <span class="n">ModelConverter</span><span class="o">.</span><span class="n">annotations2tall_skinny_table</span><span class="p">(</span><span class="n">neoantigen_annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">annotations_ts</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>value</th>
+      <th>neoantigen_identifier</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Expression_mutated_transcript</td>
+      <td>0.44529</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>mutation_not_found_in_proteome</td>
+      <td>1</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Best_rank_MHCI_score</td>
+      <td>0.4384</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Best_rank_MHCI_score_epitope</td>
+      <td>VTDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Best_rank_MHCI_score_allele</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Best_affinity_MHCI_score</td>
+      <td>874.8</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Best_affinity_MHCI_epitope</td>
+      <td>VTDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Best_affinity_MHCI_allele</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Best_rank_MHCI_9mer_score</td>
+      <td>0.4384</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Best_rank_MHCI_9mer_epitope</td>
+      <td>VTDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Best_rank_MHCI_9mer_allele</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Best_affinity_MHCI_9mer_score</td>
+      <td>874.8</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Best_affinity_MHCI_9mer_allele</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Best_affinity_MHCI_9mer_epitope</td>
+      <td>VTDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Best_affinity_MHCI_score_WT</td>
+      <td>6296.8</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Best_affinity_MHCI_epitope_WT</td>
+      <td>VIDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Best_affinity_MHCI_allele_WT</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>Best_rank_MHCI_score_WT</td>
+      <td>1.8897</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>Best_rank_MHCI_score_epitope_WT</td>
+      <td>VIDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>Best_rank_MHCI_score_allele_WT</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>Best_rank_MHCI_9mer_score_WT</td>
+      <td>1.8897</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>Best_rank_MHCI_9mer_epitope_WT</td>
+      <td>VIDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>Best_rank_MHCI_9mer_allele_WT</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>Best_affinity_MHCI_9mer_score_WT</td>
+      <td>6296.8</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>Best_affinity_MHCI_9mer_allele_WT</td>
+      <td>HLA-A*01:01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>Best_affinity_MHCI_9mer_epitope_WT</td>
+      <td>VIDQTRLEA</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>Generator_rate</td>
+      <td>0</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>Best_affinity_MHCI_9mer_position_mutation</td>
+      <td>2</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>Best_rank_MHCII_score</td>
+      <td>65</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>Best_rank_MHCII_score_epitope</td>
+      <td>SQDILVTDQTRLEAT</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>Best_rank_MHCII_score_allele</td>
+      <td>DRB1_0101</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>Best_affinity_MHCII_score</td>
+      <td>647.81</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>Best_affinity_MHCII_epitope</td>
+      <td>SQDILVTDQTRLEAT</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>Best_affinity_MHCII_allele</td>
+      <td>DRB1_0101</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>Best_rank_MHCII_score_WT</td>
+      <td>46</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>Best_rank_MHCII_score_epitope_WT</td>
+      <td>SQDILVIDQTRLEAT</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>Best_rank_MHCII_score_allele_WT</td>
+      <td>DRB1_0101</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>Best_affinity_MHCII_score_WT</td>
+      <td>269.19</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>Best_affinity_MHCII_epitope_WT</td>
+      <td>SQDILVIDQTRLEAT</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>40</th>
+      <td>Best_affinity_MHCII_allele_WT</td>
+      <td>DRB1_0101</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>42</th>
+      <td>Amplitude_MHCI_affinity_9mer</td>
+      <td>2.4915</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>43</th>
+      <td>Amplitude_MHCI_affinity</td>
+      <td>2.4915</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>44</th>
+      <td>Pathogensimiliarity_MHCI_affinity_9mer</td>
+      <td>0</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>47</th>
+      <td>CDN_MHCI</td>
+      <td>0</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>48</th>
+      <td>ADN_MHCI</td>
+      <td>0</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>CDN_MHCII</td>
+      <td>0</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>50</th>
+      <td>ADN_MHCII</td>
+      <td>0</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>52</th>
+      <td>Improved_Binder_MHCI</td>
+      <td>1</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>54</th>
+      <td>Number_of_mismatches_MCHI</td>
+      <td>1</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>55</th>
+      <td>Priority_score</td>
+      <td>0.09596</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>62</th>
+      <td>MixMHC2pred_best_peptide</td>
+      <td>DEVLGEPSQDILVT</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>63</th>
+      <td>MixMHC2pred_best_rank</td>
+      <td>2.818</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>MixMHC2pred_best_allele</td>
+      <td>DRB1_01_01</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>66</th>
+      <td>vaxrank_binding_score</td>
+      <td>0.0322</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>vaxrank_total_score</td>
+      <td>0.01434</td>
+      <td>jETwpX0R9iEiQz2SMpHkPQ==</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="neofox.html" class="btn btn-neutral float-right" title="Neofox package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="models.html" class="btn btn-neutral float-left" title="Data models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Franziska Lang &amp; Pablo Riesgo Ferreiro
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
