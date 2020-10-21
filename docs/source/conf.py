@@ -35,7 +35,10 @@ extensions = [
     'm2r2',
     #'recommonmark'
     'nbsphinx',
-    'sphinx.ext.mathjax'
+    'sphinx.ext.mathjax',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.autodoc'
 ]
 
 source_suffix = [".rst", ".md"]
