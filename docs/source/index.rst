@@ -15,4 +15,4 @@ NeoFox - NEOantigen Feature tOolboX
    developer_guide
    models
    api_usage
-   modules
+   neofox

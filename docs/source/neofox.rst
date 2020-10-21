@@ -1,4 +1,4 @@
-neofox package
+Neofox package
 ==============
 
 Subpackages
