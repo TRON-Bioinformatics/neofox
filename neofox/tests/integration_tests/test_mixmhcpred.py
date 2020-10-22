@@ -18,9 +18,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
 from logzero import logger
+from neofox.helpers.epitope_helper import EpitopeHelper
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
@@ -38,18 +38,20 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 9
         mutated = 'NLVPMVATV'
         wild_type = 'NLVPIVATV'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
-        self.assertIsNotNone(mixmhcpred.best_peptide)
-        self.assertIsNotNone(mixmhcpred.best_score)
-        self.assertIsNotNone(mixmhcpred.best_rank)
-        self.assertIsNotNone(mixmhcpred.best_allele)
+        best_peptide, best_rank, best_allele, best_score = mixmhcpred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
+        self.assertEquals('NLVPMVATV', best_peptide)
+        self.assertAlmostEqual(0.306957, best_score, delta=0.00001)
+        self.assertEquals(0.6, best_rank)
+        self.assertEquals('A0201', best_allele)
 
     def test_mixmhcpred_too_small_epitope(self):
         mixmhcpred = MixMHCpred(runner=self.runner, configuration=self.configuration)
         mutated = 'NLVP'
         wild_type = 'NLVP'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
-        self.assertEqual(None, mixmhcpred.best_peptide)
+        best_peptide, best_rank, best_allele, best_score = mixmhcpred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
+        self.assertEqual(None, best_peptide)
 
     def test_mixmhcpred2_epitope_iedb(self):
         mixmhcpred = MixMhc2Pred(runner=self.runner, configuration=self.configuration)
@@ -71,7 +73,7 @@ class TestMixMHCPred(TestCase):
         self.assertEqual(None, best_peptide)
 
     def test_generate_nmers(self):
-        result = AbstractMixMHCpred.generate_nmers(
+        result = EpitopeHelper.generate_nmers(
             xmer_wt="DDDDDDDDD", xmer_mut="DDDDDVDDD", lengths=[8, 9, 10, 11])
         self.assertIsNotNone(result)
         self.assertEqual(3, len(result))

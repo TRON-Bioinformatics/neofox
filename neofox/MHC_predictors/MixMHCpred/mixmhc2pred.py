@@ -19,19 +19,24 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 
+from neofox.helpers.epitope_helper import EpitopeHelper
+
 from neofox.references.references import DependenciesConfiguration
 
 from neofox.helpers.runner import Runner
 
 from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele
 from neofox.model.wrappers import AnnotationFactory, get_alleles_by_gene
-from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.helpers import intermediate_files
 import pandas as pd
 import os
 
+ALLELE = "BestAllele"
+PEPTIDE = "Peptide"
+RANK = "%Rank_best"
 
-class MixMhc2Pred(AbstractMixMHCpred):
+
+class MixMhc2Pred:
 
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration):
         self.runner = runner
@@ -83,10 +88,11 @@ class MixMhc2Pred(AbstractMixMHCpred):
                 self._get_mixmhc2_allele_representation(drb1_alleles) + dq_allele_combinations + dp_allele_combinations
                 if a in self.available_alleles]
 
-    def _mixmhc2prediction(self, mhc_isoforms: List[Mhc2], tmpfasta) -> pd.DataFrame:
+    def _mixmhc2prediction(self, mhc_isoforms: List[Mhc2], potential_ligand_sequences) -> pd.DataFrame:
         """
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         """
+        tmpfasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
         cmd = [
             self.configuration.mix_mhc2_pred,
@@ -107,18 +113,17 @@ class MixMhc2Pred(AbstractMixMHCpred):
         best_peptide = None
         best_rank = None
         best_allele = None
-        potential_ligand_sequences = self.generate_nmers(xmer_wt=sequence_wt, xmer_mut=sequence_mut,
-                                                         lengths=[13, 14, 15, 16, 17, 18])
-        tmp_fasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
-        # try except statement to prevent stop of neofox for mps shorter < 13aa
-        # TODO: this needs to be fixed, we could filter the list of nmers by length
-        if len(potential_ligand_sequences) > 0:
-            results = self._mixmhc2prediction(mhc, tmp_fasta)
-            # get best result by rank
-            best_result = results[results["%Rank_best"] == results["%Rank_best"].min()]
-            best_peptide = best_result["Peptide"].iloc[0]
-            best_rank = best_result["%Rank_best"].iloc[0]
-            best_allele = best_result["BestAllele"].iloc[0]
+        potential_ligand_sequences = EpitopeHelper.generate_nmers(
+            xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[13, 14, 15, 16, 17, 18])
+        # filter mps shorter < 13aa
+        filtered_sequences = list(filter(lambda x: len(x) >= 13, potential_ligand_sequences))
+        if len(filtered_sequences) > 0:
+            results = self._mixmhc2prediction(mhc, filtered_sequences)
+            # get best result by minimum rank
+            best_result = results[results[RANK] == results[RANK].min()]
+            best_peptide = best_result[PEPTIDE].iloc[0]
+            best_rank = best_result[RANK].iloc[0]
+            best_allele = best_result[ALLELE].iloc[0]
         return best_peptide, best_rank, best_allele
 
     def get_annotations(self, mhc: List[Mhc2], sequence_wt, sequence_mut) -> List[Annotation]:
