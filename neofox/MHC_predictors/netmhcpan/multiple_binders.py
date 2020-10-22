@@ -19,7 +19,7 @@
 from collections import defaultdict
 from typing import List, Tuple
 from neofox.model.neoantigen import MhcAllele, Mhc1, Zygosity, Mhc2, Mhc2Isoform
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelValidator
 
 
 class MultipleBinding:

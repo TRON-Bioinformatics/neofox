@@ -127,7 +127,7 @@ patient = Patient(identifier="patient_123", is_rna_available=True, mhc_i_alleles
 
 Validate your input data
 ```
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelValidator
 valid_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
 ```
 

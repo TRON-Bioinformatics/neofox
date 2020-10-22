@@ -31,7 +31,7 @@ from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
 from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelValidator
 
 
 class NeoFox:

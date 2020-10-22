@@ -25,7 +25,7 @@ import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
     Mhc2Name
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelValidator
 from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
 
 
@@ -86,7 +86,7 @@ class ModelConverterTest(TestCase):
         canidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         with open(canidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(canidate_file)
+        neoantigens, external_annotations = ModelConverter().parse_candidate_file(canidate_file)
         self.assertIsNotNone(neoantigens)
         # NOTE: the file contains 2 indels that are filtered out
         self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
@@ -100,6 +100,17 @@ class ModelConverterTest(TestCase):
                             (0 <= n.rna_variant_allele_frequency <= 1))
             self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
             self.assertTrue(0 <= n.dna_variant_allele_frequency <= 1)
+
+        # test external annotations
+        for neoantigen_annotation in external_annotations:
+            self.assertIsInstance(neoantigen_annotation, NeoantigenAnnotations)
+            self.assertNotEmpty(neoantigen_annotation.neoantigen_identifier)
+            self.assertEqual(neoantigen_annotation.annotator, "External")
+            self.assertEqual(49, len(neoantigen_annotation.annotations))
+            for a in neoantigen_annotation.annotations:
+                self.assertIsInstance(a, Annotation)
+                self.assertNotEmpty(a.name)
+                self.assertNotEmpty(a.value)
 
     def test_csv2model(self):
         neoantigens_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
@@ -133,10 +144,10 @@ class ModelConverterTest(TestCase):
         candidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         with open(candidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(candidate_file, patient_id='patientX')
+        neoantigens, external_annotations = ModelConverter().parse_candidate_file(candidate_file, patient_id='patientX')
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, 'patientX')
-        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
+        neoantigens, external_annotations = ModelConverter().parse_candidate_file(candidate_file)
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, None)
 

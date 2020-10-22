@@ -17,7 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
+from typing import Tuple, List
+
 from logzero import logger
+from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
+
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
@@ -94,28 +98,30 @@ def neofox_cli():
     # makes sure that the output folder exists
     os.makedirs(output_folder, exist_ok=True)
 
-    neoantigens, patients = _read_data(candidate_file, model_file, patients_data)
+    # reads the input data
+    neoantigens, patients, external_annotations = _read_data(candidate_file, model_file, patients_data)
 
     # run annotations
-
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
                          output_prefix=output_prefix, num_cpus=num_cpus).get_annotations()
 
-    _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
+    _write_results(annotations + external_annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
 
     logger.info("Finished NeoFox")
 
 
-def _read_data(candidate_file, model_file, patients_data):
+def _read_data(candidate_file, model_file, patients_data) -> \
+        Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
     # parse the input data
+    external_annotations = []
     if candidate_file is not None:
-        neoantigens = ModelConverter.parse_candidate_file(candidate_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
     else:
         neoantigens = ModelConverter.parse_neoantigens_file(model_file)
     patients = ModelConverter.parse_patients_file(patients_data)
-    return neoantigens, patients
+    return neoantigens, patients, external_annotations
 
 
 def _write_results(annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts):
