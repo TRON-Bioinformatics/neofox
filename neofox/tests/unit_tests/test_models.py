@@ -22,7 +22,7 @@ import pkg_resources
 import pandas as pd
 
 import neofox.tests
-from neofox.model.conversion import ModelConverter
+from neofox.model.conversion import ModelConverter, EXTERNAL_ANNOTATIONS_NAME
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
     Mhc2Name
 from neofox.model.conversion import ModelValidator
@@ -82,7 +82,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(annotations_dict.get('annotations')[2].get('value'), 1.1)
         self.assertTrue(annotations_dict.get('neoantigenIdentifier'), ModelValidator.generate_neoantigen_identifier(neoantigen))
 
-    def test_candidate2model(self):
+    def test_candidate_neoantigens2model(self):
         canidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         with open(canidate_file) as f:
             self.count_lines = len(f.readlines())
@@ -102,19 +102,22 @@ class ModelConverterTest(TestCase):
             self.assertTrue(0 <= n.dna_variant_allele_frequency <= 1)
 
         # test external annotations
+        self._assert_external_annotations(expected_number_external_annotations=49, external_annotations=external_annotations)
+
+    def _assert_external_annotations(self, expected_number_external_annotations, external_annotations):
         for neoantigen_annotation in external_annotations:
             self.assertIsInstance(neoantigen_annotation, NeoantigenAnnotations)
             self.assertNotEmpty(neoantigen_annotation.neoantigen_identifier)
-            self.assertEqual(neoantigen_annotation.annotator, "External")
-            self.assertEqual(49, len(neoantigen_annotation.annotations))
+            self.assertEqual(neoantigen_annotation.annotator, EXTERNAL_ANNOTATIONS_NAME)
+            self.assertEqual(expected_number_external_annotations, len(neoantigen_annotation.annotations))
             for a in neoantigen_annotation.annotations:
                 self.assertIsInstance(a, Annotation)
                 self.assertNotEmpty(a.name)
                 self.assertNotEmpty(a.value)
 
-    def test_csv2model(self):
+    def test_csv_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
-        neoantigens = ModelConverter.parse_neoantigens_file(neoantigens_file)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(neoantigens_file)
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
@@ -135,6 +138,9 @@ class ModelConverterTest(TestCase):
             self.assertNotEmpty(n.mutation.wild_type_aminoacid)
             self.assertNotEmpty(n.mutation.left_flanking_region)
             self.assertNotEmpty(n.mutation.right_flanking_region)
+
+        # test external annotations
+        self._assert_external_annotations(expected_number_external_annotations=2, external_annotations=external_annotations)
 
     def assertNotEmpty(self, value):
         self.assertIsNotNone(value)

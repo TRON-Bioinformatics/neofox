@@ -115,11 +115,10 @@ def _read_data(candidate_file, model_file, patients_data) -> \
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
     # parse the input data
-    external_annotations = []
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
     else:
-        neoantigens = ModelConverter.parse_neoantigens_file(model_file)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
     patients = ModelConverter.parse_patients_file(patients_data)
     return neoantigens, patients, external_annotations
 

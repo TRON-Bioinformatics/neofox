@@ -21,6 +21,7 @@ import hashlib
 from typing import List, Tuple
 import pandas as pd
 import betterproto
+import stringcase
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 from Bio.Data import IUPACData
 from betterproto import Casing
@@ -34,6 +35,8 @@ from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, N
     Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Isoform, MhcAllele, Mhc1Name, Mhc1, Annotation
 from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, GENES_BY_MOLECULE, \
     get_mhc2_isoform_name
+
+EXTERNAL_ANNOTATIONS_NAME = "External"
 
 FIELD_SUBSTITUTION = 'substitution'
 
@@ -70,7 +73,7 @@ class ModelConverter(object):
             external_annotations.append(NeoantigenAnnotations(
                 neoantigen_identifier=neoantigen.identifier,
                 annotations=[Annotation(name=name, value=value) for name, value in candidate_entry.iteritems()],
-                annotator="External"))
+                annotator=EXTERNAL_ANNOTATIONS_NAME))
         return neoantigens, external_annotations
 
     @staticmethod
@@ -88,7 +91,7 @@ class ModelConverter(object):
         return ModelConverter.patient_metadata_csv2objects(df)
 
     @staticmethod
-    def parse_neoantigens_file(neoantigens_file: str) -> List[Neoantigen]:
+    def parse_neoantigens_file(neoantigens_file: str) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
         :param neoantigens_file: the file to neoantigens data CSV file
         :return: the parsed CSV into model objects
@@ -142,12 +145,21 @@ class ModelConverter(object):
         return patients
 
     @staticmethod
-    def neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
+    def neoantigens_csv2objects(dataframe: pd.DataFrame) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """transforms an patients CSV into a list of objects"""
         neoantigens = []
+        external_annotations = []
         for _, row in dataframe.iterrows():
-            neoantigens.append(Neoantigen().from_dict(ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())))
-        return neoantigens
+            nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
+            neoantigen = ModelValidator.validate_neoantigen(Neoantigen().from_dict(nested_dict))
+            neoantigens.append(neoantigen)
+            external_annotation_names = set([stringcase.snakecase(k) for k in nested_dict.keys()]).difference(
+                set(Neoantigen.__annotations__.keys()))
+            external_annotations.append(NeoantigenAnnotations(
+                neoantigen_identifier=neoantigen.identifier,
+                annotations=[Annotation(name=name, value=nested_dict.get(name)) for name in external_annotation_names],
+                annotator=EXTERNAL_ANNOTATIONS_NAME))
+        return neoantigens, external_annotations
 
     @staticmethod
     def annotations2short_wide_table(
