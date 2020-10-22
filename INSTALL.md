@@ -13,11 +13,11 @@ export NEOFOX_RSCRIPT=`which Rscript`
 
 ### Install BLASTP
 
-The version of BLASTP that was tested is 2.8.1, other versions may work but that is untested.
+The version of BLASTP that was tested is 2.10.1, other versions may work but that is untested.
 ```
-wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.8.1/ncbi-blast-2.8.1+-x64-linux.tar.gz
-tar -xvf ncbi-blast-2.8.1+-x64-linux.tar.gz
-export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.8.1+/bin/blastp
+wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.10.1/ncbi-blast-2.10.1+-x64-linux.tar.gz
+tar -xvf ncbi-blast-2.10.1+-x64-linux.tar.gz
+export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.10.1+/bin/blastp
 ```
 
 ### Install NetMHCpan 4.0
