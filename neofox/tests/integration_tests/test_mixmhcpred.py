@@ -56,10 +56,10 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFFKNIVTPR'
         wild_type = 'ENPVVHIFKNIVTPR'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
-        self.assertIsNotNone(mixmhcpred.best_peptide)
-        self.assertIsNotNone(mixmhcpred.best_rank)
-        self.assertIsNotNone(mixmhcpred.best_allele)
+        best_peptide, best_rank, best_allele = mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
+        self.assertEquals('NPVVHFFKNIVTPR', best_peptide)
+        self.assertEquals(0.855, best_rank)
+        self.assertEquals('DRB1_04_04', best_allele)
 
 
     def test_mixmhcpred2_too_small_epitope(self):
@@ -67,8 +67,8 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFF'
         wild_type = 'ENPVVHFF'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
-        self.assertEqual(None, mixmhcpred.best_peptide)
+        best_peptide, best_rank, best_allele = mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
+        self.assertEqual(None, best_peptide)
 
     def test_generate_nmers(self):
         result = AbstractMixMHCpred.generate_nmers(
