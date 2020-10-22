@@ -97,7 +97,7 @@ class TestNeofox(TestCase):
         patient_id = 'Pt29'
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        neoantigens = ModelConverter.parse_neoantigens_file(input_file)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()

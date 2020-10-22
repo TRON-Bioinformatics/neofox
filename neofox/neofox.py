@@ -24,9 +24,7 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
-
-from neofox.references.references import ReferenceFolder, AvailableAlleles, DependenciesConfiguration
-
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
