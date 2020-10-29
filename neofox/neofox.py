@@ -24,14 +24,12 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
-
-from neofox.references.references import ReferenceFolder, AvailableAlleles, DependenciesConfiguration
-
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
 from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelValidator
 
 
 class NeoFox:
