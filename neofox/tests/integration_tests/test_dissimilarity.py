@@ -56,5 +56,4 @@ class TestDissimilarity(TestCase):
             runner=self.runner, configuration=self.configuration, proteome_db=self.references.proteome_db) \
             .calculate_dissimilarity(
             mhc_mutation='LFTSPIMTKSAEMIV', mhc_affinity='430')
-        print(result)
-        self.assertGreater(result, 0.0)
+        self.assertEqual(9.713825893542527e-06, result)

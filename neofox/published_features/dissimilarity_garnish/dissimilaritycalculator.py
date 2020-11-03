@@ -40,28 +40,16 @@ class DissimilarityCalculator(BlastpRunner):
         super().__init__(runner=runner, configuration=configuration)
         self.proteome_db = proteome_db
 
-    def _dissimilarity(self, fasta_file):
-        """
-        This function determines the dissimilarity to self-proteome of epitopes as described in Richman et al
-        """
-        outfile = self.run_blastp(
-            fasta_file=fasta_file, database=os.path.join(self.proteome_db, "homo_sapiens"))
-        similarity = self.parse_blastp_output(blastp_output_file=outfile, a=32)
-        dissimilarity = 1 - similarity
-        os.remove(outfile)
-        return dissimilarity
-
     def calculate_dissimilarity(self, mhc_mutation, mhc_affinity, filter_binder=False):
         """
         wrapper for dissimilarity calculation
         """
-        dissimilarity_score = None
+        dissimilarity = None
         if mhc_mutation != "-" and (not filter_binder or not mhc_affinity >= 500):
-            fastafile = intermediate_files.create_temp_fasta(sequences=[mhc_mutation], prefix="tmp_dissimilarity_",
-                                                             comment_prefix='M_')
-            dissimilarity_score = self._dissimilarity(fastafile)
-            os.remove(fastafile)
-        return dissimilarity_score
+            similarity = self.run_blastp(
+                peptide=mhc_mutation, database=os.path.join(self.proteome_db, "homo_sapiens"), a=32)
+            dissimilarity = 1 - similarity
+        return dissimilarity
 
     def get_annotations(
             self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
