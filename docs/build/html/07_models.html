@@ -1,0 +1,1016 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data models &mdash; Neofox 0.4.0.dev1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Developer guide" href="06_developer_guide.html" />
+    <link href="_static/style.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Neofox
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="01_overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_installation.html">Installation instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_input_data.html">Input data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_output_data.html">Output data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_developer_guide.html">Developer guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">neoantigen.proto</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Annotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Mhc1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Mhc2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Mhc2Gene</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Mhc2Isoform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">MhcAllele</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id26">Mutation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id35">Neoantigen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id42">NeoantigenAnnotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id49">Patient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id54">Transcript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id58">Mhc1Name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id59">Mhc2GeneName</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id60">Mhc2Name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id61">Zygosity</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id62">Scalar Value Types</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Neofox</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Data models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/07_models.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="data-models">
+<h1>Data models<a class="headerlink" href="#data-models" title="Permalink to this headline">¶</a></h1>
+<p><span class="raw-html-m2r"><a name="top"></a></span></p>
+<p>Protocol Buffers is employed to model Neofox’s input and output data: neoantigens, Major Histocompatibility Complex (MHC) alleles, patients and output annotations.</p>
+<a class="reference external image-reference" href="../figures/neofox_model.png"><img alt="Neofox model" src="_images/neofox_model.png" /></a>
+<div class="section" id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="#neoantigen.proto">neoantigen.proto</a></p>
+<ul>
+<li><p><a class="reference external" href="#neoantigen.Annotation">Annotation</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mhc1">Mhc1</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mhc2">Mhc2</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mhc2Gene">Mhc2Gene</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mhc2Isoform">Mhc2Isoform</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.MhcAllele">MhcAllele</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mutation">Mutation</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Neoantigen">Neoantigen</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.NeoantigenAnnotations">NeoantigenAnnotations</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Patient">Patient</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Transcript">Transcript</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mhc1Name">Mhc1Name</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mhc2GeneName">Mhc2GeneName</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Mhc2Name">Mhc2Name</a></p></li>
+<li><p><a class="reference external" href="#neoantigen.Zygosity">Zygosity</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#scalar-value-types">Scalar Value Types</a></p></li>
+</ul>
+<p><span class="raw-html-m2r"><a name="neoantigen.proto"></a></span></p>
+<p align="right"><a href="#top">Top</a></p></div>
+<div class="section" id="id1">
+<h2>neoantigen.proto<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><span class="raw-html-m2r"><a name="neoantigen.Annotation"></a></span></p>
+<div class="section" id="id2">
+<h3>Annotation<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>This is a generic class to hold annotations from Neofox</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>name</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The name of the annotation</p></td>
+</tr>
+<tr class="row-odd"><td><p>value</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The value of the annotation TODO: make this better to hold int, float and bool</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Mhc1"></a></span></p>
+</div>
+<div class="section" id="id4">
+<h3>Mhc1<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>Models MHC I alleles related to the same MHC I gene, i.e. 2 alleles/2 isoforms per gene</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>name</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mhc1Name">Mhc1Name</a></p></td>
+<td></td>
+<td><p>MHC I gene name</p></td>
+</tr>
+<tr class="row-odd"><td><p>zygosity</p></td>
+<td><p><a class="reference external" href="#neoantigen.Zygosity">Zygosity</a></p></td>
+<td></td>
+<td><p>Zygosity of the gene</p></td>
+</tr>
+<tr class="row-even"><td><p>alleles</p></td>
+<td><p><a class="reference external" href="#neoantigen.MhcAllele">MhcAllele</a></p></td>
+<td><p>repeated</p></td>
+<td><p>The alleles of the gene (0, 1 or 2)</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Mhc2"></a></span></p>
+</div>
+<div class="section" id="id8">
+<h3>Mhc2<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>Models MHC II alleles related to the same MHC II protein, i.e. 4 isoforms related to 2 genes with 2 alleles each</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>name</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mhc2Name">Mhc2Name</a></p></td>
+<td></td>
+<td><p>MHC II molecule name</p></td>
+</tr>
+<tr class="row-odd"><td><p>genes</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mhc2Gene">Mhc2Gene</a></p></td>
+<td><p>repeated</p></td>
+<td><p>List of MHC II genes</p></td>
+</tr>
+<tr class="row-even"><td><p>isoforms</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mhc2Isoform">Mhc2Isoform</a></p></td>
+<td><p>repeated</p></td>
+<td><p>Different combinations of MHC II alleles building different isoforms</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Mhc2Gene"></a></span></p>
+</div>
+<div class="section" id="id12">
+<h3>Mhc2Gene<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p>MHC II gene</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>name</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mhc2GeneName">Mhc2GeneName</a></p></td>
+<td></td>
+<td><p>MHC II gene name</p></td>
+</tr>
+<tr class="row-odd"><td><p>zygosity</p></td>
+<td><p><a class="reference external" href="#neoantigen.Zygosity">Zygosity</a></p></td>
+<td></td>
+<td><p>Zygosity of the gene</p></td>
+</tr>
+<tr class="row-even"><td><p>alleles</p></td>
+<td><p><a class="reference external" href="#neoantigen.MhcAllele">MhcAllele</a></p></td>
+<td><p>repeated</p></td>
+<td><p>The alleles of the gene (0, 1 or 2)</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Mhc2Isoform"></a></span></p>
+</div>
+<div class="section" id="id16">
+<h3>Mhc2Isoform<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p>MHC II isoform</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>name</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>Name to refer to the MHC II isoform</p></td>
+</tr>
+<tr class="row-odd"><td><p>alphaChain</p></td>
+<td><p><a class="reference external" href="#neoantigen.MhcAllele">MhcAllele</a></p></td>
+<td></td>
+<td><p>The alpha chain of the isoform</p></td>
+</tr>
+<tr class="row-even"><td><p>betaChain</p></td>
+<td><p><a class="reference external" href="#neoantigen.MhcAllele">MhcAllele</a></p></td>
+<td></td>
+<td><p>The beta chain of the isoform</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.MhcAllele"></a></span></p>
+</div>
+<div class="section" id="id20">
+<h3>MhcAllele<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<p>MHC allele representation. It does not include non synonymous changes to the sequence, changes in the non coding region
+or changes in expression. See <a class="reference external" href="http://hla.alleles.org/nomenclature/naming.html">http://hla.alleles.org/nomenclature/naming.html</a> for details</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>fullName</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This will be parsed into name, gene and group. Any digit format is allowed for this field (ie: 4, 6 or 8 digits), 2 digits names are not specific enough for our purpose and thus invalid</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>A specific HLA protein (e.g. HLA-DRB1<em>13:01). Alleles whose numbers differ in group and protein must differ in one or more nucleotide substitutions that change the amino acid sequence of the encoded protein. This name is normalized to avoid different representations of the same allele. For instance both HLA-DRB113:01 and HLA-DRB1</em>13:01:02:03N will be transformed into their normalised version HLA-DRB1*13:01. This name is also truncated to 4 digits. 2 digits names are not specific enough for our purpose and thus invalid</p></td>
+</tr>
+<tr class="row-even"><td><p>gene</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The gene from either MHC I or II (e.g. DRB1, A) (this information is redundant with the Mhc1Gene.name and Mhc2Gene.name but it is convenient to have this at this level too, code will check for data coherence)</p></td>
+</tr>
+<tr class="row-odd"><td><p>group</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. 13 from HLA-DRB1*13)</p></td>
+</tr>
+<tr class="row-even"><td><p>protein</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>A specific protein (e.g.: 02 from HLA-DRB1*13:02)</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Mutation"></a></span></p>
+</div>
+<div class="section" id="id26">
+<h3>Mutation<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>position</p></td>
+<td><p><a class="reference external" href="#int32">int32</a></p></td>
+<td></td>
+<td><p>The aminoacid position within the protein. 1-based, starting in the N-terminus</p></td>
+</tr>
+<tr class="row-odd"><td><p>wildTypeXmer</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>Sequence of aminoacids for the wild type xmer</p></td>
+</tr>
+<tr class="row-even"><td><p>wildTypeAminoacid</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>IUPAC code for the wild type aminoacid in this position</p></td>
+</tr>
+<tr class="row-odd"><td><p>mutatedXmer</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>Sequence of aminoacids for the mutated xmer</p></td>
+</tr>
+<tr class="row-even"><td><p>mutatedAminoacid</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>IUPAC code for the mutated aminoacid in this position</p></td>
+</tr>
+<tr class="row-odd"><td><p>leftFlankingRegion</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The left flanking region of variable size in IUPAC codes</p></td>
+</tr>
+<tr class="row-even"><td><p>sizeLeftFlankingRegion</p></td>
+<td><p><a class="reference external" href="#int32">int32</a></p></td>
+<td></td>
+<td><p>The size of the left flanking region</p></td>
+</tr>
+<tr class="row-odd"><td><p>rightFlankingRegion</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The right flanking region of variable size in IUPAC codes</p></td>
+</tr>
+<tr class="row-even"><td><p>sizeRightFlankingRegion</p></td>
+<td><p><a class="reference external" href="#int32">int32</a></p></td>
+<td></td>
+<td><p>The size of the right flanking region</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Neoantigen"></a></span></p>
+</div>
+<div class="section" id="id35">
+<h3>Neoantigen<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
+<p>A neoantigen minimal definition</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>identifier</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>A unique identifier of a neoantigen</p></td>
+</tr>
+<tr class="row-odd"><td><p>patientIdentifier</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>Patient identifier</p></td>
+</tr>
+<tr class="row-even"><td><p>transcript</p></td>
+<td><p><a class="reference external" href="#neoantigen.Transcript">Transcript</a></p></td>
+<td></td>
+<td><p>The transcript where the neoepitope was observed</p></td>
+</tr>
+<tr class="row-odd"><td><p>mutation</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mutation">Mutation</a></p></td>
+<td></td>
+<td><p>The mutation</p></td>
+</tr>
+<tr class="row-even"><td><p>clonalityEstimation</p></td>
+<td><p><a class="reference external" href="#bool">bool</a></p></td>
+<td></td>
+<td><p>Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not, there is no quantitive measurement at the moment.</p></td>
+</tr>
+<tr class="row-odd"><td><p>rnaExpression</p></td>
+<td><p><a class="reference external" href="#float">float</a></p></td>
+<td></td>
+<td><p>Expression value of the transcript from RNA data. Range [0, +inf].</p></td>
+</tr>
+<tr class="row-even"><td><p>dnaVariantAlleleFrequency</p></td>
+<td><p><a class="reference external" href="#float">float</a></p></td>
+<td></td>
+<td><p>Variant allele frequency from the DNA. Range [0.0, 1.0]</p></td>
+</tr>
+<tr class="row-odd"><td><p>rnaVariantAlleleFrequency</p></td>
+<td><p><a class="reference external" href="#float">float</a></p></td>
+<td></td>
+<td><p>Variant allele frequency from the RNA. Range [0.0, 1.0]</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.NeoantigenAnnotations"></a></span></p>
+</div>
+<div class="section" id="id42">
+<h3>NeoantigenAnnotations<a class="headerlink" href="#id42" title="Permalink to this headline">¶</a></h3>
+<p>A set of annotations for a neoantigen</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>neoantigenIdentifier</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>A unique identifier of a neoantigen</p></td>
+</tr>
+<tr class="row-odd"><td><p>annotations</p></td>
+<td><p><a class="reference external" href="#neoantigen.Annotation">Annotation</a></p></td>
+<td><p>repeated</p></td>
+<td><p>List of annotations</p></td>
+</tr>
+<tr class="row-even"><td><p>annotator</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The annotator</p></td>
+</tr>
+<tr class="row-odd"><td><p>annotatorVersion</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The version of the annotator</p></td>
+</tr>
+<tr class="row-even"><td><p>timestamp</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>A timestamp determined when the annotation was created</p></td>
+</tr>
+<tr class="row-odd"><td><p>resourcesHash</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>Annotation resources MD5 hash</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Patient"></a></span></p>
+</div>
+<div class="section" id="id49">
+<h3>Patient<a class="headerlink" href="#id49" title="Permalink to this headline">¶</a></h3>
+<p>The metadata required for analysis for a given patient + its patient identifier</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>identifier</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>Patient identifier</p></td>
+</tr>
+<tr class="row-odd"><td><p>isRnaAvailable</p></td>
+<td><p><a class="reference external" href="#bool">bool</a></p></td>
+<td></td>
+<td><p>Is RNA expression available?</p></td>
+</tr>
+<tr class="row-even"><td><p>mhc1</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mhc1">Mhc1</a></p></td>
+<td><p>repeated</p></td>
+<td><p>MHC I classic molecules</p></td>
+</tr>
+<tr class="row-odd"><td><p>mhc2</p></td>
+<td><p><a class="reference external" href="#neoantigen.Mhc2">Mhc2</a></p></td>
+<td><p>repeated</p></td>
+<td><p>MHC II classic molecules</p></td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html-m2r"><a name="neoantigen.Transcript"></a></span></p>
+</div>
+<div class="section" id="id54">
+<h3>Transcript<a class="headerlink" href="#id54" title="Permalink to this headline">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Label</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>identifier</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id)</p></td>
+</tr>
+<tr class="row-odd"><td><p>assembly</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38)</p></td>
+</tr>
+<tr class="row-even"><td><p>gene</p></td>
+<td><p><a class="reference external" href="#string">string</a></p></td>
+<td></td>
+<td><p>The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene</p></td>
+</tr>
+</tbody>
+</table>
+<!-- end messages --><p><span class="raw-html-m2r"><a name="neoantigen.Mhc1Name"></a></span></p>
+</div>
+<div class="section" id="id58">
+<h3>Mhc1Name<a class="headerlink" href="#id58" title="Permalink to this headline">¶</a></h3>
+<p>Valid names for MHC I classic genes</p>
+<p><span class="raw-html-m2r"><a name="neoantigen.Mhc2GeneName"></a></span></p>
+</div>
+<div class="section" id="id59">
+<h3>Mhc2GeneName<a class="headerlink" href="#id59" title="Permalink to this headline">¶</a></h3>
+<p>Valid names for MHC II classic genes.
+DRA is not included in this list as it does not have much variability in the population and for our purpose is
+considered constant.</p>
+<p><span class="raw-html-m2r"><a name="neoantigen.Mhc2Name"></a></span></p>
+</div>
+<div class="section" id="id60">
+<h3>Mhc2Name<a class="headerlink" href="#id60" title="Permalink to this headline">¶</a></h3>
+<p>Valid names for MHC II classic molecules</p>
+<p><span class="raw-html-m2r"><a name="neoantigen.Zygosity"></a></span></p>
+</div>
+<div class="section" id="id61">
+<h3>Zygosity<a class="headerlink" href="#id61" title="Permalink to this headline">¶</a></h3>
+<p>The zygosity of a given gene</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Number</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HOMOZYGOUS</p></td>
+<td><p>0</p></td>
+<td><p>Two equal copies of the gene</p></td>
+</tr>
+<tr class="row-odd"><td><p>HETEROZYGOUS</p></td>
+<td><p>1</p></td>
+<td><p>Two different copies of the gene</p></td>
+</tr>
+<tr class="row-even"><td><p>HEMIZYGOUS</p></td>
+<td><p>2</p></td>
+<td><p>Only one copy of the gene</p></td>
+</tr>
+<tr class="row-odd"><td><p>LOSS</p></td>
+<td><p>3</p></td>
+<td><p>No copy of the gene</p></td>
+</tr>
+</tbody>
+</table>
+<!-- end enums --><!-- end HasExtensions --><!-- end services --></div>
+</div>
+<div class="section" id="id62">
+<h2>Scalar Value Types<a class="headerlink" href="#id62" title="Permalink to this headline">¶</a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>.proto Type</p></th>
+<th class="head"><p>Notes</p></th>
+<th class="head"><p>C++</p></th>
+<th class="head"><p>Java</p></th>
+<th class="head"><p>Python</p></th>
+<th class="head"><p>Go</p></th>
+<th class="head"><p>C#</p></th>
+<th class="head"><p>PHP</p></th>
+<th class="head"><p>Ruby</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="double" /></span> double</p></td>
+<td></td>
+<td><p>double</p></td>
+<td><p>double</p></td>
+<td><p>float</p></td>
+<td><p>float64</p></td>
+<td><p>double</p></td>
+<td><p>float</p></td>
+<td><p>Float</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="raw-html-m2r"><a name="float" /></span> float</p></td>
+<td></td>
+<td><p>float</p></td>
+<td><p>float</p></td>
+<td><p>float</p></td>
+<td><p>float32</p></td>
+<td><p>float</p></td>
+<td><p>float</p></td>
+<td><p>Float</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="int32" /></span> int32</p></td>
+<td><p>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</p></td>
+<td><p>int32</p></td>
+<td><p>int</p></td>
+<td><p>int</p></td>
+<td><p>int32</p></td>
+<td><p>int</p></td>
+<td><p>integer</p></td>
+<td><p>Bignum or Fixnum (as required)</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="raw-html-m2r"><a name="int64" /></span> int64</p></td>
+<td><p>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</p></td>
+<td><p>int64</p></td>
+<td><p>long</p></td>
+<td><p>int/long</p></td>
+<td><p>int64</p></td>
+<td><p>long</p></td>
+<td><p>integer/string</p></td>
+<td><p>Bignum</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="uint32" /></span> uint32</p></td>
+<td><p>Uses variable-length encoding.</p></td>
+<td><p>uint32</p></td>
+<td><p>int</p></td>
+<td><p>int/long</p></td>
+<td><p>uint32</p></td>
+<td><p>uint</p></td>
+<td><p>integer</p></td>
+<td><p>Bignum or Fixnum (as required)</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="raw-html-m2r"><a name="uint64" /></span> uint64</p></td>
+<td><p>Uses variable-length encoding.</p></td>
+<td><p>uint64</p></td>
+<td><p>long</p></td>
+<td><p>int/long</p></td>
+<td><p>uint64</p></td>
+<td><p>ulong</p></td>
+<td><p>integer/string</p></td>
+<td><p>Bignum or Fixnum (as required)</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="sint32" /></span> sint32</p></td>
+<td><p>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</p></td>
+<td><p>int32</p></td>
+<td><p>int</p></td>
+<td><p>int</p></td>
+<td><p>int32</p></td>
+<td><p>int</p></td>
+<td><p>integer</p></td>
+<td><p>Bignum or Fixnum (as required)</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="raw-html-m2r"><a name="sint64" /></span> sint64</p></td>
+<td><p>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</p></td>
+<td><p>int64</p></td>
+<td><p>long</p></td>
+<td><p>int/long</p></td>
+<td><p>int64</p></td>
+<td><p>long</p></td>
+<td><p>integer/string</p></td>
+<td><p>Bignum</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="fixed32" /></span> fixed32</p></td>
+<td><p>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</p></td>
+<td><p>uint32</p></td>
+<td><p>int</p></td>
+<td><p>int</p></td>
+<td><p>uint32</p></td>
+<td><p>uint</p></td>
+<td><p>integer</p></td>
+<td><p>Bignum or Fixnum (as required)</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="raw-html-m2r"><a name="fixed64" /></span> fixed64</p></td>
+<td><p>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</p></td>
+<td><p>uint64</p></td>
+<td><p>long</p></td>
+<td><p>int/long</p></td>
+<td><p>uint64</p></td>
+<td><p>ulong</p></td>
+<td><p>integer/string</p></td>
+<td><p>Bignum</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="sfixed32" /></span> sfixed32</p></td>
+<td><p>Always four bytes.</p></td>
+<td><p>int32</p></td>
+<td><p>int</p></td>
+<td><p>int</p></td>
+<td><p>int32</p></td>
+<td><p>int</p></td>
+<td><p>integer</p></td>
+<td><p>Bignum or Fixnum (as required)</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="raw-html-m2r"><a name="sfixed64" /></span> sfixed64</p></td>
+<td><p>Always eight bytes.</p></td>
+<td><p>int64</p></td>
+<td><p>long</p></td>
+<td><p>int/long</p></td>
+<td><p>int64</p></td>
+<td><p>long</p></td>
+<td><p>integer/string</p></td>
+<td><p>Bignum</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="bool" /></span> bool</p></td>
+<td></td>
+<td><p>bool</p></td>
+<td><p>boolean</p></td>
+<td><p>boolean</p></td>
+<td><p>bool</p></td>
+<td><p>bool</p></td>
+<td><p>boolean</p></td>
+<td><p>TrueClass/FalseClass</p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="raw-html-m2r"><a name="string" /></span> string</p></td>
+<td><p>A string must always contain UTF-8 encoded or 7-bit ASCII text.</p></td>
+<td><p>string</p></td>
+<td><p>String</p></td>
+<td><p>str/unicode</p></td>
+<td><p>string</p></td>
+<td><p>string</p></td>
+<td><p>string</p></td>
+<td><p>String (UTF-8)</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="raw-html-m2r"><a name="bytes" /></span> bytes</p></td>
+<td><p>May contain any arbitrary sequence of bytes.</p></td>
+<td><p>string</p></td>
+<td><p>ByteString</p></td>
+<td><p>str</p></td>
+<td><p>[]byte</p></td>
+<td><p>ByteString</p></td>
+<td><p>string</p></td>
+<td><p>String (ASCII-8BIT)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="06_developer_guide.html" class="btn btn-neutral float-left" title="Developer guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, TRON – Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz - Computational Medicine group
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Neofox'
-copyright = '2020, Franziska Lang & Pablo Riesgo Ferreiro'
+copyright = '2020, TRON – Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz - Computational Medicine group'
 author = 'Franziska Lang & Pablo Riesgo Ferreiro'
 
 # The full version, including alpha/beta/rc tags
