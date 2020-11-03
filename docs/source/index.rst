@@ -12,8 +12,6 @@ NeoFox - NEOantigen Feature tOolboX
 
    01_overview
    02_installation
-   03_input_data
-   04_usage
-   05_output_data
-   06_developer_guide
-   07_models
+   03_user_guide
+   04_developer_guide
+   05_models
