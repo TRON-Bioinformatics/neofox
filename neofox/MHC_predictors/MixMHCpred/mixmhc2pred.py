@@ -30,6 +30,7 @@ from neofox.model.wrappers import AnnotationFactory, get_alleles_by_gene
 from neofox.helpers import intermediate_files
 import pandas as pd
 import os
+from logzero import logger
 
 ALLELE = "BestAllele"
 PEPTIDE = "Peptide"
@@ -121,9 +122,12 @@ class MixMhc2Pred:
             results = self._mixmhc2prediction(mhc, filtered_sequences)
             # get best result by minimum rank
             best_result = results[results[RANK] == results[RANK].min()]
-            best_peptide = best_result[PEPTIDE].iloc[0]
-            best_rank = best_result[RANK].iloc[0]
-            best_allele = best_result[ALLELE].iloc[0]
+            try:
+                best_peptide = best_result[PEPTIDE].iat[0]
+                best_rank = best_result[RANK].iat[0]
+                best_allele = best_result[ALLELE].iat[0]
+            except IndexError:
+                logger.info("MixMHC2pred returned no best result")
         return best_peptide, best_rank, best_allele
 
     def get_annotations(self, mhc: List[Mhc2], sequence_wt, sequence_mut) -> List[Annotation]:

@@ -26,13 +26,11 @@ from neofox.model.wrappers import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
 import os
+from logzero import logger
 
 ALLELE = "BestAllele"
-
 RANK = "%Rank_bestAllele"
-
 PEPTIDE = "Peptide"
-
 SCORE = "Score_bestAllele"
 
 
@@ -79,10 +77,13 @@ class MixMHCpred:
             results = self._mixmhcprediction(mhc, potential_ligand_sequences)
             # get best result by maximum score
             best_result = results[results[SCORE] == results[SCORE].max()]
-            best_peptide = best_result[PEPTIDE].iloc[0]
-            best_rank = best_result[RANK].iloc[0]
-            best_allele = best_result[ALLELE].iloc[0]
-            best_score = best_result[SCORE].iloc[0]
+            try:
+                best_peptide = best_result[PEPTIDE].iat[0]
+                best_rank = best_result[RANK].iat[0]
+                best_allele = best_result[ALLELE].iat[0]
+                best_score = best_result[SCORE].iat[0]
+            except IndexError:
+                logger.info("MixMHCpred returned no best result")
         return best_peptide, best_rank, best_allele, best_score
 
     def get_annotations(self, sequence_wt, sequence_mut, mhc: List[Mhc1]) -> List[Annotation]:
