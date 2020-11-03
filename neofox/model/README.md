@@ -1,4 +1,4 @@
-
+# Data models
 
 ## Compiling the models and generating source code
 
@@ -19,11 +19,18 @@ This will generate `neoantigen.py` and `__init__.py` files.
 
 ## Documentation
 
-Documentation is generated using this tool https://github.com/pseudomuto/protoc-gen-doc. Follow the instructions in the README for installation and then add the binary to your PATH.
+Documentation is generated using this tool https://github.com/pseudomuto/protoc-gen-doc.
 
-Run:
+Run the following to generate markdown documentation:
 ```
-protoc --doc_out=. --doc_opt=html,../../docs/build/html/neoantigen.html neoantigen.proto
+sudo docker run --rm   -v $(pwd):/out   -v $(pwd):/protos pseudomuto/protoc-gen-doc --doc_opt=/protos/models_template.tmpl,models.md
+```
+
+Using `/protos/models_template.tmpl` template allows us to customise the markdown output.
+
+To integrate this documentation into the package documentation copy it into the right folder:
+```
+cp models.md ../../docs/source/07_models.md
 ```
 
 

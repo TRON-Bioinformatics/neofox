@@ -7,12 +7,13 @@ NeoFox - NEOantigen Feature tOolboX
 ===================================
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Contents:
 
-   readme
-   install
-   developer_guide
-   models
-   api_usage
-   neofox
+   01_overview
+   02_installation
+   03_input_data
+   04_usage
+   05_output_data
+   06_developer_guide
+   07_models
