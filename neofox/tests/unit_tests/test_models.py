@@ -22,10 +22,10 @@ import pkg_resources
 import pandas as pd
 
 import neofox.tests
-from neofox.model.conversion import ModelConverter
+from neofox.model.conversion import ModelConverter, EXTERNAL_ANNOTATIONS_NAME
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
     Mhc2Name
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelValidator
 from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
 
 
@@ -82,11 +82,11 @@ class ModelConverterTest(TestCase):
         self.assertEqual(annotations_dict.get('annotations')[2].get('value'), 1.1)
         self.assertTrue(annotations_dict.get('neoantigenIdentifier'), ModelValidator.generate_neoantigen_identifier(neoantigen))
 
-    def test_candidate2model(self):
+    def test_candidate_neoantigens2model(self):
         canidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         with open(canidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(canidate_file)
+        neoantigens, external_annotations = ModelConverter().parse_candidate_file(canidate_file)
         self.assertIsNotNone(neoantigens)
         # NOTE: the file contains 2 indels that are filtered out
         self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
@@ -101,9 +101,23 @@ class ModelConverterTest(TestCase):
             self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
             self.assertTrue(0 <= n.dna_variant_allele_frequency <= 1)
 
-    def test_csv2model(self):
+        # test external annotations
+        self._assert_external_annotations(expected_number_external_annotations=49, external_annotations=external_annotations)
+
+    def _assert_external_annotations(self, expected_number_external_annotations, external_annotations):
+        for neoantigen_annotation in external_annotations:
+            self.assertIsInstance(neoantigen_annotation, NeoantigenAnnotations)
+            self.assertNotEmpty(neoantigen_annotation.neoantigen_identifier)
+            self.assertEqual(neoantigen_annotation.annotator, EXTERNAL_ANNOTATIONS_NAME)
+            self.assertEqual(expected_number_external_annotations, len(neoantigen_annotation.annotations))
+            for a in neoantigen_annotation.annotations:
+                self.assertIsInstance(a, Annotation)
+                self.assertNotEmpty(a.name)
+                self.assertNotEmpty(a.value)
+
+    def test_csv_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
-        neoantigens = ModelConverter.parse_neoantigens_file(neoantigens_file)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(neoantigens_file)
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
@@ -125,6 +139,9 @@ class ModelConverterTest(TestCase):
             self.assertNotEmpty(n.mutation.left_flanking_region)
             self.assertNotEmpty(n.mutation.right_flanking_region)
 
+        # test external annotations
+        self._assert_external_annotations(expected_number_external_annotations=2, external_annotations=external_annotations)
+
     def assertNotEmpty(self, value):
         self.assertIsNotNone(value)
         self.assertNotEqual(value, "")
@@ -133,10 +150,10 @@ class ModelConverterTest(TestCase):
         candidate_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         with open(candidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(candidate_file, patient_id='patientX')
+        neoantigens, external_annotations = ModelConverter().parse_candidate_file(candidate_file, patient_id='patientX')
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, 'patientX')
-        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
+        neoantigens, external_annotations = ModelConverter().parse_candidate_file(candidate_file)
         for n in neoantigens:
             self.assertEqual(n.patient_identifier, None)
 
