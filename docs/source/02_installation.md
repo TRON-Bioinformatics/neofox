@@ -1,4 +1,4 @@
-# Installation instructions
+# Installation
 
 This installation instructions were tested on Ubuntu 18.04.
 

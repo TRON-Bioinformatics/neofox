@@ -17,8 +17,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Neofox'
-copyright = '2020, TRON – Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz - Computational Medicine group'
+project = 'NeoFox'
+copyright = '2020, TRON – Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz - Computational Medicine'
 author = 'Franziska Lang & Pablo Riesgo Ferreiro'
 
 # The full version, including alpha/beta/rc tags
@@ -57,7 +57,37 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+#html_theme = 'sphinx_rtd_theme'
+
+#html_theme = 'insipid'
+#html_theme_options = {
+#    'body_centered': False,
+#    'body_max_width': None,
+#    'breadcrumbs': True,
+#    'right_buttons': ['repo-buttom.html', 'tron-buttom.html']
+#}
+#html_context = {
+#    'display_github': True,
+#    'github_user': 'TRON-Bioinformatics',
+#    'github_repo': 'neofox',
+#}
+
+
+html_theme = 'pydata_sphinx_theme'
+html_copy_source = False
+#html_add_permalinks = '\N{SECTION SIGN}'
+
+
+html_theme_options = {
+  "github_url": "https://github.com/TRON-bioinformatics/neofox",
+  "external_links": [
+      {"name": "TRON", "url": "https://tron-mainz.de", "img": "_templates/tron-small.svg"}
+  ]
+
+}
+
+html_logo = '_templates/tron.svg'
+html_favicon = '_templates/tron_small.svg'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
