@@ -151,13 +151,18 @@ class NeofoxChecker:
         return error
 
     def _check_single_value(self, s1, s2):
-        if isinstance(s1, float) or isinstance(s1, np.float):
+        is_float_s1 = self._is_float(s1)
+        is_float_s2 = self._is_float(s2)
+        if is_float_s1 and is_float_s2:
             # equality of NaN is never true so we force it
             # relative tolerance set to consider equal very close floats
             is_equal = True if np.isnan(s1) and np.isnan(s2) else math.isclose(s1, s2, rel_tol=0.0001)
         else:
             is_equal = s1 == s2
         return is_equal
+
+    def _is_float(self, s1):
+        return isinstance(s1, float) or isinstance(s1, np.float)
 
     def _check_columns(self, new_df, previous_df):
         shared_columns = set(previous_df.columns).intersection(set(new_df.columns))
