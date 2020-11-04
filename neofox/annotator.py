@@ -145,16 +145,14 @@ class NeoantigenAnnotator:
             mhci_allele=self.netmhcpan.best4_affinity_allele))
 
         # MixMHCpred
-        self.mixmhc.run(
+        self.annotations.annotations.extend(self.mixmhc.get_annotations(
             sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
-            mhc=patient.mhc1)
-        self.annotations.annotations.extend(self.mixmhc.get_annotations())
+            mhc=patient.mhc1))
 
         # MixMHC2pred
-        self.mixmhc2.run(
+        self.annotations.annotations.extend(self.mixmhc2.get_annotations(
             mhc=patient.mhc2, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            sequence_mut=neoantigen.mutation.mutated_xmer)
-        self.annotations.annotations.extend(self.mixmhc2.get_annotations())
+            sequence_mut=neoantigen.mutation.mutated_xmer))
 
         # dissimilarity to self-proteome
         self.annotations.annotations.extend(self.dissimilarity_calculator.get_annotations(
