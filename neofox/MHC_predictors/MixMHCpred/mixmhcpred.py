@@ -19,6 +19,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 
+from neofox.exceptions import NeofoxCommandException
+from pandas.errors import EmptyDataError
+
 from neofox.helpers.epitope_helper import EpitopeHelper
 
 from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele
@@ -60,7 +63,12 @@ class MixMHCpred:
             "-a", ",".join(self._get_mixmhc_allele_representation([a for m in mhc_isoforms for a in m.alleles])),
             "-i", tmpfasta,
             "-o", outtmp])
-        results = pd.read_csv(outtmp, sep="\t", comment="#")
+        try:
+            results = pd.read_csv(outtmp, sep="\t", comment="#")
+        except EmptyDataError:
+            message = "Results from MixMHCpred are empty, something went wrong"
+            logger.error(message)
+            raise NeofoxCommandException(message)
         os.remove(outtmp)
         return results
 

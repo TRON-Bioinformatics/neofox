@@ -19,6 +19,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 
+from neofox.exceptions import NeofoxCommandException
+from pandas.errors import EmptyDataError
+
 from neofox.helpers.epitope_helper import EpitopeHelper
 
 from neofox.references.references import DependenciesConfiguration
@@ -101,7 +104,12 @@ class MixMhc2Pred:
             "-i", tmpfasta,
             "-o", outtmp]
         self.runner.run_command(cmd)
-        results = pd.read_csv(outtmp, sep="\t", comment="#")
+        try:
+            results = pd.read_csv(outtmp, sep="\t", comment="#")
+        except EmptyDataError:
+            message = "Results from MixMHC2pred are empty, something went wrong"
+            logger.error(message)
+            raise NeofoxCommandException(message)
         os.remove(outtmp)
         return results
 
