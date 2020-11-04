@@ -1,4 +1,4 @@
-# Installation instructions
+# Installation
 
 This installation instructions were tested on Ubuntu 18.04.
 
@@ -7,7 +7,13 @@ Python 3.7 and R 3.6.0 should be preinstalled.
 Set the environment variable pointing to `Rscript`.
 ```
 export NEOFOX_RSCRIPT=`which Rscript`
-``` 
+```
+
+## Install Neofox
+
+```
+pip install neofox
+```
 
 ## Install third-party dependencies
 
