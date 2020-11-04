@@ -1,4 +1,4 @@
-# Installation instructions
+# Installation
 
 This installation instructions were tested on Ubuntu 18.04.
 
@@ -7,17 +7,23 @@ Python 3.7 and R 3.6.0 should be preinstalled.
 Set the environment variable pointing to `Rscript`.
 ```
 export NEOFOX_RSCRIPT=`which Rscript`
-``` 
+```
+
+## Install Neofox
+
+```
+pip install neofox
+```
 
 ## Install third-party dependencies
 
 ### Install BLASTP
 
-The version of BLASTP that was tested is 2.8.1, other versions may work but that is untested.
+The version of BLASTP that was tested is 2.10.1, other versions may work but that is untested.
 ```
-wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.8.1/ncbi-blast-2.8.1+-x64-linux.tar.gz
-tar -xvf ncbi-blast-2.8.1+-x64-linux.tar.gz
-export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.8.1+/bin/blastp
+wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.10.1/ncbi-blast-2.10.1+-x64-linux.tar.gz
+tar -xvf ncbi-blast-2.10.1+-x64-linux.tar.gz
+export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.10.1+/bin/blastp
 ```
 
 ### Install NetMHCpan 4.0

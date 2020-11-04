@@ -3,7 +3,7 @@ from unittest import TestCase
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, Mhc1, Mhc1Name, Zygosity, \
     Mhc2, Mhc2Name, Mhc2GeneName, Mhc2Gene, Mhc2Isoform
-from neofox.model.validation import ModelValidator
+from neofox.model.conversion import ModelValidator
 
 
 class TestModelValidator(TestCase):
