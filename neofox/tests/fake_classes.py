@@ -42,7 +42,7 @@ class FakeReferenceFolder(ReferenceFolder):
 
 class FakeDependenciesConfiguration(DependenciesConfiguration):
 
-    def _check_and_load_binary(self, variable_name):
+    def _check_and_load_binary(self, variable_name, optional=False):
         return os.environ.get(variable_name, "some_non_empty_fake_value")
 
 
