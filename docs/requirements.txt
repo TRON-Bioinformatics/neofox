@@ -1,0 +1,9 @@
+Sphinx==3.2.1
+m2r2==0.2.5
+nbsphinx==0.8.0
+pandoc==1.0.2
+ipython==7.16.1
+ipykernel==5.3.4
+#sphinx_rtd_theme==0.5.0
+#insipid_sphinx_theme==0.2.1
+pydata-sphinx-theme==0.4.1
