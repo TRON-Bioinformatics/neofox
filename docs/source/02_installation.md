@@ -61,7 +61,7 @@ sudo apt-get install tcsh
 Configure NetMHCpan as explained in the file `netMHCIIpan-3.2/netMHCIIpan-3.2.readme`
          
 
-### Install MixMHCpred 2.1
+### Install MixMHCpred 2.1 (recommended but optional)
 
 ```
 wget https://github.com/GfellerLab/MixMHCpred/archive/v2.1.tar.gz
@@ -71,7 +71,7 @@ export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.1/MixMHCpred
 
 Configure MixMHCpred as explained in the file `MixMHCpred-2.0.1/README`
 
-### Install MixMHC2pred 1.2
+### Install MixMHC2pred 1.2 (recommended but optional)
 ```
 wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
 tar -xvf v1.2.tar.gz

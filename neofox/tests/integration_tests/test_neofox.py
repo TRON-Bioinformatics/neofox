@@ -19,6 +19,8 @@
 from unittest import TestCase
 from datetime import datetime
 import pkg_resources
+from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
+
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import NeoantigenAnnotations
@@ -38,6 +40,11 @@ class TestNeofox(TestCase):
         self.references, self.configuration = integration_test_tools.load_references()
         # self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         # self.runner = Runner()
+        self.patient_id = 'Pt29'
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
+        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
+        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        self.patients = ModelConverter.parse_patients_file(patients_file)
 
     def test_neofox(self):
         """
@@ -46,10 +53,7 @@ class TestNeofox(TestCase):
         --patients-data ../resources/patient.pt29.csv
 
         NOTE: we will need to check the output when the calculation of resuls and printing to stdout have been decoupled
-        :return:
         """
-        patient_id = 'Pt29'
-        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
         output_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.txt".format(datetime.now()))
         output_file_tall_skinny = pkg_resources.resource_filename(
@@ -60,19 +64,30 @@ class TestNeofox(TestCase):
             neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.json".format(datetime.now()))
         output_json_annotations = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.json".format(datetime.now()))
-        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
-        patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
+            neoantigens=self.neoantigens, patient_id=self.patient_id,
+            patients=self.patients, num_cpus=1).get_annotations()
+        annotation_names = [a.name for n in annotations for a in n.annotations]
+
+        # check it does contain any of the MixMHCpred annotations
+        self.assertIn("MixMHC2pred_best_peptide", annotation_names)
+        self.assertIn("MixMHC2pred_best_rank", annotation_names)
+        self.assertIn("MixMHC2pred_best_allele", annotation_names)
+        self.assertIn("MixMHCpred_best_peptide", annotation_names)
+        self.assertIn("MixMHCpred_best_score", annotation_names)
+        self.assertIn("MixMHCpred_best_rank", annotation_names)
+        self.assertIn("MixMHCpred_best_allele", annotation_names)
+        # checks it does have some of the NetMHCpan annotations
+        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
+        self.assertIn("Best_rank_MHCII_score", annotation_names)
 
         # writes output
         ModelConverter.annotations2short_wide_table(
-            neoantigen_annotations=annotations, neoantigens=neoantigens).to_csv(output_file, sep='\t', index=False)
+            neoantigen_annotations=annotations, neoantigens=self.neoantigens).to_csv(output_file, sep='\t', index=False)
         ModelConverter.annotations2tall_skinny_table(annotations).to_csv(output_file_tall_skinny, sep='\t', index=False)
-        ModelConverter.objects2dataframe(neoantigens).to_csv(output_file_neoantigens, sep='\t', index=False)
+        ModelConverter.objects2dataframe(self.neoantigens).to_csv(output_file_neoantigens, sep='\t', index=False)
         ModelConverter.objects2json(annotations, output_json_annotations)
-        ModelConverter.objects2json(neoantigens, output_json_neoantigens)
+        ModelConverter.objects2json(self.neoantigens, output_json_neoantigens)
 
         # regression test
         self._regression_test_on_output_file(new_file=output_file)
@@ -80,13 +95,10 @@ class TestNeofox(TestCase):
     def test_neofox_only_one_neoantigen(self):
         """
         """
-        patient_id = 'Pt29'
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
-        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
-        patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
+            neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
         self.assertEqual(1, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
@@ -94,16 +106,36 @@ class TestNeofox(TestCase):
     def test_neofox_model_input(self):
         """
         """
-        patient_id = 'Pt29'
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
-        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
-        patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
+            neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
+
+    def test_neofox_without_mixmhcpreds(self):
+        """
+        This test aims at testing neofox when MixMHCpred and MixMHC2pred are not configured. As these are optional it
+        shoudl just run, but without these annotations in the output
+        """
+        del os.environ[NEOFOX_MIXMHCPRED_ENV]
+        del os.environ[NEOFOX_MIXMHC2PRED_ENV]
+        annotations = NeoFox(
+            neoantigens=self.neoantigens, patient_id=self.patient_id,
+            patients=self.patients, num_cpus=1).get_annotations()
+        annotation_names = [a.name for n in annotations for a in n.annotations ]
+        # check it does not contain any of the MixMHCpred annotations
+        self.assertNotIn("MixMHC2pred_best_peptide", annotation_names)
+        self.assertNotIn("MixMHC2pred_best_rank", annotation_names)
+        self.assertNotIn("MixMHC2pred_best_allele", annotation_names)
+        self.assertNotIn("MixMHCpred_best_peptide", annotation_names)
+        self.assertNotIn("MixMHCpred_best_score", annotation_names)
+        self.assertNotIn("MixMHCpred_best_rank", annotation_names)
+        self.assertNotIn("MixMHCpred_best_allele", annotation_names)
+        # checks it does have some of the NetMHCpan annotations
+        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
+        self.assertIn("Best_rank_MHCII_score", annotation_names)
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")

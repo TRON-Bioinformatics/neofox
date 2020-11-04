@@ -33,20 +33,21 @@ NETMHC2PAN_AVAILABLE_ALLELES_FILE = 'netmhc2pan_available_alleles.txt'
 
 class AbstractDependenciesConfiguration:
 
-    def _check_and_load_binary(self, variable_name):
+    def _check_and_load_binary(self, variable_name, optional=False):
         variable_value = os.environ.get(variable_name)
-        if variable_value is None:
+        if not optional and variable_value is None:
             raise NeofoxConfigurationException(
                 "Please, set the environment variable ${} pointing to the right binary!".format(
                     variable_name))
         # checks that the file exists
-        if not os.path.exists(variable_value):
-            raise NeofoxConfigurationException("The provided binary '{}' in ${} does not exist!".format(
-                variable_value, variable_name))
-        # checks that it is executable
-        if not os.access(variable_value, os.X_OK):
-            raise NeofoxConfigurationException("The provided binary '{}' in ${} is not executable!".format(
-                variable_value, variable_name))
+        if variable_value is not None:  # only optional variables can be None at this stage
+            if not os.path.exists(variable_value):
+                raise NeofoxConfigurationException("The provided binary '{}' in ${} does not exist!".format(
+                    variable_value, variable_name))
+            # checks that it is executable
+            if not os.access(variable_value, os.X_OK):
+                raise NeofoxConfigurationException("The provided binary '{}' in ${} is not executable!".format(
+                    variable_value, variable_name))
         return variable_value
 
 
@@ -54,9 +55,12 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
 
     def __init__(self):
         self.blastp = self._check_and_load_binary(neofox.NEOFOX_BLASTP_ENV)
-        self.mix_mhc2_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHC2PRED_ENV)
-        self.mix_mhc2_pred_alleles_list = os.path.join(os.path.dirname(self.mix_mhc2_pred), 'Alleles_list.txt')
-        self.mix_mhc_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHCPRED_ENV)
+        self.mix_mhc2_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHC2PRED_ENV, optional=True)
+        if self.mix_mhc2_pred is not None:
+            self.mix_mhc2_pred_alleles_list = os.path.join(os.path.dirname(self.mix_mhc2_pred), 'Alleles_list.txt')
+        else:
+            self.mix_mhc2_pred_alleles_list = None
+        self.mix_mhc_pred = self._check_and_load_binary(neofox.NEOFOX_MIXMHCPRED_ENV, optional=True)
         self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
