@@ -8,3 +8,4 @@ build/*
 neofox.egg-info/
 neofox/tests/resources/output*
 **/dask-worker-space
+docs/build
