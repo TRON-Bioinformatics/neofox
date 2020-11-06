@@ -2,6 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
+[![Downloads](https://crate.io/packages/neofox)](https://crate.io/packages/neofox)
 
 
 Annotation of mutated peptide sequences (mps) with published neo-epitope descriptors
