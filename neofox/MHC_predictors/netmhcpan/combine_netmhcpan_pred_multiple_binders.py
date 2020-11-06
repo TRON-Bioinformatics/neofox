@@ -17,14 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List
+from typing import List, Set
 import scipy.stats as stats
 
-import neofox.MHC_predictors.netmhcpan.multiple_binders as multiple_binders
-import neofox.MHC_predictors.netmhcpan.netmhcpan_prediction as netmhcpan_prediction
+from neofox.MHC_predictors.netmhcpan.multiple_binders import MultipleBinding
+from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.helpers import intermediate_files
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, Mhc1
 from neofox.model.wrappers import AnnotationFactory
 import neofox.helpers.casting as casting
 
@@ -83,92 +83,91 @@ class BestAndMultipleBinder:
             phbr_i = stats.hmean(list_best_mhc_scores_per_allele)
         return phbr_i
 
-    def run(self, sequence_wt, sequence_mut, alleles, set_available_mhc):
+    def run(self, sequence_wt: str, sequence_mut: str, mhc: List[Mhc1], available_mhc_alleles: Set):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         # mutation
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
-        mb = multiple_binders.MultipleBinding()
+        netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_mut], prefix="tmp_singleseq_")
         # print alleles
-        np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        position_of_mutation = np.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
-        predicted_neoepitopes = np.filter_binding_predictions(position_of_mutation=position_of_mutation, tmppred=tmp_prediction)
+        netmhcpan.mhc_prediction(mhc, available_mhc_alleles, tmp_fasta, tmp_prediction)
+        position_of_mutation = netmhcpan.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
+        predicted_neoepitopes = netmhcpan.filter_binding_predictions(position_of_mutation=position_of_mutation, tmppred=tmp_prediction)
         # multiple binding
-        predicted_neoepitopes_transformed = mb.transform_mhc_prediction_output(predicted_neoepitopes)
-        self.epitope_affinities = "/".join([str(tup[1]) for tup in predicted_neoepitopes_transformed])
+        predicted_neoepitopes_transformed = MultipleBinding.transform_mhc_prediction_output(predicted_neoepitopes)
+        self.epitope_affinities = "/".join([str(epitope[1]) for epitope in predicted_neoepitopes_transformed])
         # best prediction
-        best_predicted_epitope_rank = np.minimal_binding_score(predicted_neoepitopes)
-        self.best4_mhc_score = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_rank, "%Rank"))
-        self.best4_mhc_epitope = np.add_best_epitope_info(best_predicted_epitope_rank, "Peptide")
-        self.best4_mhc_allele = np.add_best_epitope_info(best_predicted_epitope_rank, "HLA")
-        self.best4_mhc_position = np.add_best_epitope_info(best_predicted_epitope_rank, "Pos")
-        best_predicted_epitope_affinity = np.minimal_binding_score(predicted_neoepitopes, rank=False)
-        self.best4_affinity = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_affinity, "Aff(nM)"))
-        self.best4_affinity_epitope = np.add_best_epitope_info(best_predicted_epitope_affinity, "Peptide")
-        self.best4_affinity_allele = np.add_best_epitope_info(best_predicted_epitope_affinity, "HLA")
-        self.best4_affinity_position = np.add_best_epitope_info(best_predicted_epitope_affinity, "Pos")
+        best_predicted_epitope_rank = netmhcpan.minimal_binding_score(predicted_neoepitopes)
+        self.best4_mhc_score = casting.to_float(netmhcpan.add_best_epitope_info(best_predicted_epitope_rank, "%Rank"))
+        self.best4_mhc_epitope = netmhcpan.add_best_epitope_info(best_predicted_epitope_rank, "Peptide")
+        self.best4_mhc_allele = netmhcpan.add_best_epitope_info(best_predicted_epitope_rank, "HLA")
+        self.best4_mhc_position = netmhcpan.add_best_epitope_info(best_predicted_epitope_rank, "Pos")
+        best_predicted_epitope_affinity = netmhcpan.minimal_binding_score(predicted_neoepitopes, rank=False)
+        self.best4_affinity = casting.to_float(netmhcpan.add_best_epitope_info(best_predicted_epitope_affinity, "Aff(nM)"))
+        self.best4_affinity_epitope = netmhcpan.add_best_epitope_info(best_predicted_epitope_affinity, "Peptide")
+        self.best4_affinity_allele = netmhcpan.add_best_epitope_info(best_predicted_epitope_affinity, "HLA")
+        self.best4_affinity_position = netmhcpan.add_best_epitope_info(best_predicted_epitope_affinity, "Pos")
         # best predicted epitope of length 9
-        predicted_epitopes_9mer = np.filter_for_9mers(predicted_neoepitopes)
-        best_predicted_epitope_9mer_rank = np.minimal_binding_score(predicted_epitopes_9mer)
-        self.mhcI_score_9mer = np.add_best_epitope_info(best_predicted_epitope_9mer_rank, "%Rank")
-        self.mhcI_score_allele_9mer = np.add_best_epitope_info(best_predicted_epitope_9mer_rank, "HLA")
-        self.mhcI_score_position_9mer = np.add_best_epitope_info(best_predicted_epitope_9mer_rank, "Pos")
-        self.mhcI_score_epitope_9mer = np.add_best_epitope_info(best_predicted_epitope_9mer_rank, "Peptide")
-        best_predicted_epitope_9mer_affinity = np.minimal_binding_score(predicted_epitopes_9mer, rank=False)
-        self.mhcI_affinity_9mer = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "Aff(nM)"))
-        self.mhcI_affinity_allele_9mer = np.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "HLA")
-        self.mhcI_affinity_position_9mer = np.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "Pos")
-        self.mhcI_affinity_epitope_9mer = np.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "Peptide")
+        predicted_epitopes_9mer = netmhcpan.filter_for_9mers(predicted_neoepitopes)
+        best_predicted_epitope_9mer_rank = netmhcpan.minimal_binding_score(predicted_epitopes_9mer)
+        self.mhcI_score_9mer = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_rank, "%Rank")
+        self.mhcI_score_allele_9mer = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_rank, "HLA")
+        self.mhcI_score_position_9mer = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_rank, "Pos")
+        self.mhcI_score_epitope_9mer = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_rank, "Peptide")
+        best_predicted_epitope_9mer_affinity = netmhcpan.minimal_binding_score(predicted_epitopes_9mer, rank=False)
+        self.mhcI_affinity_9mer = casting.to_float(netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "Aff(nM)"))
+        self.mhcI_affinity_allele_9mer = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "HLA")
+        self.mhcI_affinity_position_9mer = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "Pos")
+        self.mhcI_affinity_epitope_9mer = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_affinity, "Peptide")
         # multiple binding based on affinity
-        all_affinities = mb.affinities_to_list(predicted_neoepitopes_transformed)
-        self.generator_rate = mb.determine_number_of_binders(list_scores=all_affinities, threshold=50)
-        best_epitopes_per_allele = mb.extract_best_epi_per_alelle(predicted_neoepitopes_transformed, alleles)
+        all_affinities = [epitope[1] for epitope in predicted_neoepitopes_transformed]
+        self.generator_rate = MultipleBinding.determine_number_of_binders(list_scores=all_affinities, threshold=50)
+        best_epitopes_per_allele = MultipleBinding.extract_best_epitope_per_alelle(
+            predicted_neoepitopes_transformed, mhc)
         # PHBR-I
-        best_epitopes_per_allele = mb.scores_to_list(best_epitopes_per_allele)
+        best_epitopes_per_allele = [epitope[0] for epitope in best_epitopes_per_allele]
         self.phbr_i = self.calculate_phbr_i(best_epitopes_per_allele)
 
 
         # wt
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        np = netmhcpan_prediction.NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
-        mb = multiple_binders.MultipleBinding()
+        netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_wt],
                                                          prefix="tmp_singleseq_")
-        np.mhc_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        predicted_neoepitopes_wt = np.filter_binding_predictions(position_of_mutation=position_of_mutation,
+        netmhcpan.mhc_prediction(mhc, available_mhc_alleles, tmp_fasta, tmp_prediction)
+        predicted_neoepitopes_wt = netmhcpan.filter_binding_predictions(position_of_mutation=position_of_mutation,
                                                               tmppred=tmp_prediction)
         # best prediction
         best_predicted_epitope_rank_wt = \
-            np.filter_for_WT_epitope_position(predicted_neoepitopes_wt, self.best4_mhc_epitope,
+            netmhcpan.filter_for_WT_epitope_position(predicted_neoepitopes_wt, self.best4_mhc_epitope,
                                               position_epitope=self.best4_mhc_position)
-        self.best4_mhc_score_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_rank_wt, "%Rank"))
-        self.best4_mhc_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_rank_wt, "Peptide")
-        self.best4_mhc_allele_WT = np.add_best_epitope_info(best_predicted_epitope_rank_wt, "HLA")
+        self.best4_mhc_score_WT = casting.to_float(netmhcpan.add_best_epitope_info(best_predicted_epitope_rank_wt, "%Rank"))
+        self.best4_mhc_epitope_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_rank_wt, "Peptide")
+        self.best4_mhc_allele_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_rank_wt, "HLA")
 
         best_predicted_epitope_affinity_wt = \
-            np.filter_for_WT_epitope_position(predicted_neoepitopes_wt, self.best4_affinity_epitope,
+            netmhcpan.filter_for_WT_epitope_position(predicted_neoepitopes_wt, self.best4_affinity_epitope,
                                               position_epitope=self.best4_affinity_position)
-        self.best4_affinity_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Aff(nM)"))
-        self.best4_affinity_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
-        self.best4_affinity_allele_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "HLA")
+        self.best4_affinity_WT = casting.to_float(netmhcpan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Aff(nM)"))
+        self.best4_affinity_epitope_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
+        self.best4_affinity_allele_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "HLA")
         # best predicted epitope of length 9
-        predicted_epitopes_9mer_wt = np.filter_for_9mers(predicted_neoepitopes_wt)
+        predicted_epitopes_9mer_wt = netmhcpan.filter_for_9mers(predicted_neoepitopes_wt)
         best_predicted_epitope_9mer_rank_wt = \
-            np.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, self.mhcI_score_epitope_9mer,
+            netmhcpan.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, self.mhcI_score_epitope_9mer,
                                               position_epitope=self.mhcI_score_position_9mer)
         best_predicted_epitope_9mer_affinity_wt = \
-            np.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, sequence_mut=self.mhcI_affinity_epitope_9mer,
+            netmhcpan.filter_for_WT_epitope_position(predicted_epitopes_9mer_wt, sequence_mut=self.mhcI_affinity_epitope_9mer,
                                               position_epitope=self.mhcI_affinity_position_9mer)
-        self.mhcI_score_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "%Rank")
-        self.mhcI_score_allele_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "HLA")
-        self.mhcI_score_epitope_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "Peptide")
-        self.mhcI_affinity_9mer_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_9mer_affinity_wt, "Aff(nM)"))
-        self.mhcI_affinity_allele_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_affinity_wt, "HLA")
-        self.mhcI_affinity_epitope_9mer_WT = np.add_best_epitope_info(best_predicted_epitope_9mer_affinity_wt, "Peptide")
+        self.mhcI_score_9mer_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "%Rank")
+        self.mhcI_score_allele_9mer_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "HLA")
+        self.mhcI_score_epitope_9mer_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_rank_wt, "Peptide")
+        self.mhcI_affinity_9mer_WT = casting.to_float(netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_affinity_wt, "Aff(nM)"))
+        self.mhcI_affinity_allele_9mer_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_affinity_wt, "HLA")
+        self.mhcI_affinity_epitope_9mer_WT = netmhcpan.add_best_epitope_info(best_predicted_epitope_9mer_affinity_wt, "Peptide")
 
     def get_annotations(self) -> List[Annotation]:
         annotations = [AnnotationFactory.build_annotation(value=self.best4_mhc_score, name="Best_rank_MHCI_score"),

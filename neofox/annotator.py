@@ -22,7 +22,6 @@ from logzero import logger
 from datetime import datetime
 import neofox
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.helpers.available_alleles import AvailableAlleles
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
@@ -46,10 +45,8 @@ from neofox.references.references import ReferenceFolder, DependenciesConfigurat
 
 class NeoantigenAnnotator:
 
-    def __init__(self):
+    def __init__(self, references: ReferenceFolder, configuration: DependenciesConfiguration):
         """class to annotate neoantigens"""
-        references = ReferenceFolder()
-        configuration = DependenciesConfiguration()
         runner = Runner()
         self.dissimilarity_calculator = DissimilarityCalculator(
             runner=runner, configuration=configuration, proteome_db=references.proteome_db)
@@ -60,7 +57,7 @@ class NeoantigenAnnotator:
         self.mixmhc2 = MixMhc2Pred(runner=runner, configuration=configuration)
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
-        self.available_alleles = AvailableAlleles(references)
+        self.available_alleles = references.get_available_alleles()
         self.uniprot = Uniprot(references.uniprot)
         self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
@@ -99,13 +96,13 @@ class NeoantigenAnnotator:
         # HLA I predictions: NetMHCpan
         self.netmhcpan.run(
             sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            alleles=patient.mhc_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_i())
+            mhc=patient.mhc1, available_mhc_alleles=self.available_alleles.get_available_mhc_i())
         self.annotations.annotations.extend(self.netmhcpan.get_annotations())
 
         # HLA II predictions: NetMHCIIpan
         self.netmhc2pan.run(
             sequence=neoantigen.mutation.mutated_xmer, sequence_reference=neoantigen.mutation.wild_type_xmer,
-            alleles=patient.mhc_i_i_alleles, set_available_mhc=self.available_alleles.get_available_mhc_ii())
+            mhc=patient.mhc2, available_mhc=self.available_alleles.get_available_mhc_ii())
         self.annotations.annotations.extend(self.netmhc2pan.get_annotations())
 
         # Amplitude
@@ -124,7 +121,7 @@ class NeoantigenAnnotator:
 
         # T cell predictor
         self.annotations.annotations.extend(self.tcell_predictor.get_annotations(
-            gene=neoantigen.gene.gene, substitution=substitution, netmhcpan=self.netmhcpan))
+            gene=neoantigen.transcript.gene, substitution=substitution, netmhcpan=self.netmhcpan))
 
         # self-similarity
         self.annotations.annotations.extend(self.self_similarity.get_annnotations(
@@ -148,16 +145,14 @@ class NeoantigenAnnotator:
             mhci_allele=self.netmhcpan.best4_affinity_allele))
 
         # MixMHCpred
-        self.mixmhc.run(
+        self.annotations.annotations.extend(self.mixmhc.get_annotations(
             sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
-            alleles=patient.mhc_i_alleles)
-        self.annotations.annotations.extend(self.mixmhc.get_annotations())
+            mhc=patient.mhc1))
 
         # MixMHC2pred
-        self.mixmhc2.run(
-            alleles=patient.mhc_i_i_alleles, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            sequence_mut=neoantigen.mutation.mutated_xmer)
-        self.annotations.annotations.extend(self.mixmhc2.get_annotations())
+        self.annotations.annotations.extend(self.mixmhc2.get_annotations(
+            mhc=patient.mhc2, sequence_wt=neoantigen.mutation.wild_type_xmer,
+            sequence_mut=neoantigen.mutation.mutated_xmer))
 
         # dissimilarity to self-proteome
         self.annotations.annotations.extend(self.dissimilarity_calculator.get_annotations(

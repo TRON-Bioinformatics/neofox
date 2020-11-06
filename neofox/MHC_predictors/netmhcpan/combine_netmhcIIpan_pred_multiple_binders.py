@@ -17,15 +17,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List
+from typing import List, Set
 import scipy.stats as stats
-
-import neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction as netmhcIIpan_prediction
+from logzero import logger
 from neofox import MHC_II
+from neofox.MHC_predictors.netmhcpan.multiple_binders import MultipleBinding
+from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.helpers import intermediate_files
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan import multiple_binders
 import neofox.helpers.casting as casting
 
 
@@ -63,69 +63,81 @@ class BestAndMultipleBinderMhcII:
         applying different types of means (harmonic ==> PHRB-II, Marty et al).
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         """
-        multbind = multiple_binders.MultipleBinding()
+        # TODO: what is this method actually doing?
         mhc_ii_alleles_with_best_scores_new = list(mhc_ii_alleles_with_best_scores)
         phbr_ii = None
         for allele_with_score in mhc_ii_alleles_with_best_scores:
-            if allele_with_score[-1].startswith("DRB1"):
+            if allele_with_score[-1].gene == Mhc2GeneName.DRB1.name:
                 mhc_ii_alleles_with_best_scores_new.append(allele_with_score)
         if len(mhc_ii_alleles_with_best_scores_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
-            best_mhc_ii_scores_per_allele = multbind.scores_to_list(mhc_ii_alleles_with_best_scores_new)
+            best_mhc_ii_scores_per_allele = [epitope[0] for epitope in mhc_ii_alleles_with_best_scores_new]
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
 
-    def run(self, sequence, sequence_reference, alleles, set_available_mhc):
+    def run(self, sequence: str, sequence_reference: str, mhc: List[Mhc2], available_mhc: Set):
         """predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         # mutation
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
-        mb = multiple_binders.MultipleBinding()
+        netmhc2pan = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
-        alleles_formated = np.generate_mhcII_alelles_combination_list(alleles, set_available_mhc)
-        np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
-        position_mutation = np.mut_position_xmer_seq(sequence_wt=sequence_reference, sequence_mut=sequence)
+        allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(mhc)
+        # TODO: migrate the available alleles into the model for alleles
+        patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, available_mhc)
+
+        netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
+        position_mutation = netmhc2pan.mut_position_xmer_seq(sequence_wt=sequence_reference, sequence_mut=sequence)
         if len(sequence) >= 15:
-            predicted_epitopes = np.filter_binding_predictions(position_mutation, tmp_prediction)
+            predicted_epitopes = netmhc2pan.filter_binding_predictions(position_mutation, tmp_prediction)
             # multiple binding
-            predicted_epitopes_transformed = mb.transform_mhc_prediction_output(predicted_epitopes, mhc=MHC_II)
-            best_predicted_epitopes_per_alelle = \
-                mb.extract_best_epi_per_alelle(predicted_epitopes_transformed, alleles_formated)
+            predicted_epitopes_transformed = MultipleBinding.transform_mhc2_prediction_output(predicted_epitopes)
+            best_predicted_epitopes_per_alelle = MultipleBinding.extract_best_epitope_per_mhc2_alelle(
+                predicted_epitopes_transformed, mhc)
             self.MHCII_score_best_per_alelle = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
             # best prediction
-            best_predicted_epitope_rank = np.minimal_binding_score(predicted_epitopes)
-            self.best_mhcII_pan_score = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_rank, "%Rank"))
-            self.best_mhcII_pan_epitope = np.add_best_epitope_info(best_predicted_epitope_rank, "Peptide")
-            self.best_mhcII_pan_allele = np.add_best_epitope_info(best_predicted_epitope_rank, "Allele")
-            self.best_mhcII_pan_position = np.add_best_epitope_info(best_predicted_epitope_rank, "Seq")
-            best_predicted_epitope_affinity = np.minimal_binding_score(predicted_epitopes, rank=False)
-            self.best_mhcII_pan_affinity = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_affinity, "Affinity(nM)"))
-            self.best_mhcII_pan_affinity_epitope = np.add_best_epitope_info(best_predicted_epitope_affinity, "Peptide")
-            self.best_mhcII_pan_affinity_allele = np.add_best_epitope_info(best_predicted_epitope_affinity, "Allele")
-            self.best_mhcII_pan_affinity_position = np.add_best_epitope_info(best_predicted_epitope_affinity, "Seq")
+            best_predicted_epitope_rank = netmhc2pan.minimal_binding_score(predicted_epitopes)
+            self.best_mhcII_pan_score = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "%Rank"))
+            self.best_mhcII_pan_epitope = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "Peptide")
+            self.best_mhcII_pan_allele = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "Allele")
+            self.best_mhcII_pan_position = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "Seq")
+            best_predicted_epitope_affinity = netmhc2pan.minimal_binding_score(predicted_epitopes, rank=False)
+            self.best_mhcII_pan_affinity = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Affinity(nM)"))
+            self.best_mhcII_pan_affinity_epitope = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Peptide")
+            self.best_mhcII_pan_affinity_allele = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Allele")
+            self.best_mhcII_pan_affinity_position = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Seq")
 
         # wt
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        np = netmhcIIpan_prediction.NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
+        netmhc2pan = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta([sequence_reference], prefix="tmp_singleseq_")
-        np.mhcII_prediction(alleles, set_available_mhc, tmp_fasta, tmp_prediction)
+        netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
         if len(sequence_reference) >= 15:
-            predicted_epitopes_wt = np.filter_binding_predictions(position_mutation, tmp_prediction)
+            predicted_epitopes_wt = netmhc2pan.filter_binding_predictions(position_mutation, tmp_prediction)
             # best prediction
             best_predicted_epitope_rank_wt = \
-                np.filter_for_wt_epitope_position(predicted_epitopes_wt, self.best_mhcII_pan_epitope,
+                netmhc2pan.filter_for_wt_epitope_position(predicted_epitopes_wt, self.best_mhcII_pan_epitope,
                                                   position_epitope_in_xmer=self.best_mhcII_pan_position)
-            self.best_mhcII_pan_score_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_rank_wt, "%Rank"))
-            self.best_mhcII_pan_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_rank_wt, "Peptide")
-            self.best_mhcII_pan_allele_WT = np.add_best_epitope_info(best_predicted_epitope_rank_wt, "Allele")
+            self.best_mhcII_pan_score_WT = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank_wt, "%Rank"))
+            self.best_mhcII_pan_epitope_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank_wt, "Peptide")
+            self.best_mhcII_pan_allele_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank_wt, "Allele")
             best_predicted_epitope_affinity_wt = \
-                np.filter_for_wt_epitope_position(predicted_epitopes_wt, self.best_mhcII_pan_affinity_epitope,
+                netmhc2pan.filter_for_wt_epitope_position(predicted_epitopes_wt, self.best_mhcII_pan_affinity_epitope,
                                                   position_epitope_in_xmer=self.best_mhcII_pan_affinity_position)
-            self.best_mhcII_affinity_WT = casting.to_float(np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Affinity(nM)"))
-            self.best_mhcII_affinity_epitope_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
-            self.best_mhcII_affinity_allele_WT = np.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Allele")
+            self.best_mhcII_affinity_WT = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Affinity(nM)"))
+            self.best_mhcII_affinity_epitope_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
+            self.best_mhcII_affinity_allele_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Allele")
+
+    @staticmethod
+    def _get_only_available_combinations(allele_combinations, set_available_mhc):
+        patients_available_alleles = list(set(allele_combinations).intersection(set(set_available_mhc)))
+        patients_not_available_alleles = list(set(allele_combinations).difference(set(set_available_mhc)))
+        if len(patients_not_available_alleles) > 0:
+            logger.warning(
+                "MHC II alleles {} are not supported by NetMHC2pan and no binding or derived features will "
+                "include it".format(",".join(patients_not_available_alleles)))
+        return patients_available_alleles
 
     def get_annotations(self) -> List[Annotation]:
         annotations =  [

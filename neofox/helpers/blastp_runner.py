@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from neofox.helpers import intermediate_files
 from neofox.published_features.neoantigen_fitness.aligner import Aligner
+import os
 
 
 class BlastpRunner(object):
@@ -30,25 +31,31 @@ class BlastpRunner(object):
         self.runner = runner
         self.configuration = configuration
 
-    def run_blastp(self, fasta_file, database):
-        '''
+    def run_blastp(self, peptide, database, a=26) -> int:
+        """
         This function runs BLASTP on a given database
-        '''
+        """
+        input_fasta = intermediate_files.create_temp_fasta(
+            sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix='M_')
         outfile = intermediate_files.create_temp_file(prefix="tmp_blastp_", suffix=".xml")
         self.runner.run_command(cmd=[
             self.configuration.blastp,
             "-gapopen", "11",
             "-gapextend", "1",
             "-outfmt", "5",
-            "-query", fasta_file,
+            "-query", input_fasta,
             "-out", outfile,
             "-db", database,
             "-evalue", "100000000"])
-        return outfile
 
-    def parse_blastp_output(self, blastp_output_file, **kwargs) -> int:
+        score = self._parse_blastp_output(outfile, a=a)
+        os.remove(outfile)
+        os.remove(input_fasta)
+        return score
+
+    def _parse_blastp_output(self, blastp_output_file, a) -> int:
         aligner = Aligner()
         # set a to 32 for dissimilarity
         aligner.readAllBlastAlignments(blastp_output_file)
-        aligner.computeR(**kwargs)
+        aligner.computeR(a=a)
         return aligner.Ri.get(1, 0)  # NOTE: returns 0 when not present

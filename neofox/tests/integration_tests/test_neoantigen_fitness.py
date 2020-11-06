@@ -38,14 +38,13 @@ class TestNeoantigenFitness(TestCase):
 
     def test_pathogen_similarity(self):
         # tests a pathogen sequence and expects 1.0 similarity
-        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation='FIAGLIAIV')
+        result = self.neoantigen_fitness_calculator.get_pathogen_similarity(mutation='FIAGLIAIV')
         self.assertEqual(1.0, result)
         # tests a modified pathogen sequence and expects something between 0 and 1
-        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation='FIAGDAAIV')
-        self.assertLess(float(result), 1.0)
-        self.assertGreater(float(result), 0.0)
+        result = self.neoantigen_fitness_calculator.get_pathogen_similarity(mutation='FIAGDAAIV')
+        self.assertEqual(0.9923850668756105, result)
         # tests a non pathogen sequence and expects 0 similarity
-        result = self.neoantigen_fitness_calculator.wrap_pathogen_similarity(mutation='DDDDDMMDD')
+        result = self.neoantigen_fitness_calculator.get_pathogen_similarity(mutation='DDDDDMMDD')
         self.assertEqual(0, result)
 
     def test_amplitude_mhc(self):

@@ -1,33 +1,29 @@
-# Installation instructions
+# Installation
 
 This installation instructions were tested on Ubuntu 18.04.
 
 Python 3.7 and R 3.6.0 should be preinstalled.
 
-R requires the following libraries:
-```
-lattice
-ggplot2
-caret
-Peptides
-doParallel
-gbm
-```
-
 Set the environment variable pointing to `Rscript`.
 ```
 export NEOFOX_RSCRIPT=`which Rscript`
-``` 
+```
+
+## Install Neofox
+
+```
+pip install neofox
+```
 
 ## Install third-party dependencies
 
 ### Install BLASTP
 
-The version of BLASTP that was tested is 2.8.1, other versions may work but that is untested.
+The version of BLASTP that was tested is 2.10.1, other versions may work but that is untested.
 ```
-wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.8.1/ncbi-blast-2.8.1+-x64-linux.tar.gz
-tar -xvf ncbi-blast-2.8.1+-x64-linux.tar.gz
-export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.8.1+/bin/blastp
+wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.10.1/ncbi-blast-2.10.1+-x64-linux.tar.gz
+tar -xvf ncbi-blast-2.10.1+-x64-linux.tar.gz
+export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.10.1+/bin/blastp
 ```
 
 ### Install NetMHCpan 4.0
@@ -65,25 +61,24 @@ sudo apt-get install tcsh
 Configure NetMHCpan as explained in the file `netMHCIIpan-3.2/netMHCIIpan-3.2.readme`
          
 
-### Install MixMHCpred 2.0.1
+### Install MixMHCpred 2.1
 
 ```
-wget https://github.com/GfellerLab/MixMHCpred/archive/v2.0.1.tar.gz
-tar -xvf v2.0.1.tar.gz
-export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.0.1/MixMHCpred
+wget https://github.com/GfellerLab/MixMHCpred/archive/v2.1.tar.gz
+tar -xvf v2.1.tar.gz
+export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.1/MixMHCpred
 ```
 
 Configure MixMHCpred as explained in the file `MixMHCpred-2.0.1/README`
 
-### Install MixMHC2pred 1.1.3
-
+### Install MixMHC2pred 1.2
 ```
-wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.1.tar.gz
-tar -xvf v1.1.tar.gz
-export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.1/MixMHC2pred_unix
+wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
+tar -xvf v1.2.tar.gz
+export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 
-## Install references
+## Configure references
 
 For building the reference data we will need `makeblastdb`, set the environment variable required for building the reference:
 
@@ -91,4 +86,19 @@ For building the reference data we will need `makeblastdb`, set the environment 
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
 ```
 
-Run the script in the neofox repository `neofox/references/build_references.sh` from your reference folder.
+netMhcPan, netMhcIIPan and Rscript are also required to install the references, see above.
+
+Run the following to configure nefox:
+```
+neofox-configure --reference-folder /your/neofox/folder
+```
+
+Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R dependencies. These dependencies are the following:
+```
+lattice
+ggplot2
+caret
+Peptides
+doParallel
+gbm
+```

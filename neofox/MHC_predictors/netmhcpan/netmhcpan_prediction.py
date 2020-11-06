@@ -17,12 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+from typing import List, Set
 
 from logzero import logger
 
 from neofox.helpers import data_import
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
+from neofox.model.neoantigen import Mhc1
 
 
 class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
@@ -35,35 +37,12 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def check_format_allele(self, allele):
-        """
-        sometimes genotyping may be too detailed. (e.g. HLA-DRB1*04:01:01 should be HLA-DRB1*04:01)
-        :param allele: HLA-allele
-        :return: HLA-allele in correct format
-        """
-        # TODO: was added to netMHCIIpan too --> combine
-        if allele.count(":") > 1:
-            allele_correct = ":".join(allele.split(":")[0:2])
-        else:
-            allele_correct = allele
-        return allele_correct
-
-
-    def mhc_prediction(self, hla_alleles, set_available_mhc, tmpfasta, tmppred):
+    def mhc_prediction(self, mhc_isoforms: List[Mhc1], set_available_mhc: Set, tmpfasta, tmppred):
         """ Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         """
-        alleles_for_prediction = []
-        for allele in hla_alleles:
-            allele = self.check_format_allele(allele)
-            allele = allele.replace("*", "")
-            if allele in set_available_mhc:
-                alleles_for_prediction.append(allele)
-            else:
-                logger.info(allele + "not available")
-        hla_allele = ",".join(alleles_for_prediction)
         cmd = [
             self.configuration.net_mhc_pan,
-            "-a", hla_allele,
+            "-a", self._get_only_available_alleles(mhc_isoforms, set_available_mhc),
             "-f", tmpfasta,
             "-BA"]
         lines, _ = self.runner.run_command(cmd)
@@ -121,7 +100,6 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 best_predicted_epitope = i
         return header, best_predicted_epitope
 
-
     def filter_for_9mers(self, prediction_tuple):
         """returns only predicted 9mers
         """
@@ -167,3 +145,19 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 epitopes_wt.append(i)
         all_epitopes_wt = (header, epitopes_wt)
         return self.minimal_binding_score(all_epitopes_wt)
+
+    @staticmethod
+    def get_alleles_netmhcpan_representation(mhc_isoforms: List[Mhc1]) -> List[str]:
+        return list(map(lambda x: "HLA-{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
+                        [a for m in mhc_isoforms for a in m.alleles]))
+
+    @staticmethod
+    def _get_only_available_alleles(mhc_isoforms: List[Mhc1], set_available_mhc: Set[str]) -> str:
+        hla_alleles_names = NetMhcPanPredictor.get_alleles_netmhcpan_representation(mhc_isoforms)
+        patients_available_alleles = ",".join(list(filter(lambda x: x in set_available_mhc, hla_alleles_names)))
+        patients_not_available_alleles = list(set(hla_alleles_names).difference(set(set_available_mhc)))
+        if len(patients_not_available_alleles) > 0:
+            logger.warning(
+                "MHC I alleles {} are not supported by NetMHC2pan and no binding or derived features will "
+                "include it".format(",".join(patients_not_available_alleles)))
+        return patients_available_alleles
