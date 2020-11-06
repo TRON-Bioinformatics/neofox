@@ -54,13 +54,21 @@ class NeoantigenAnnotator:
             runner=runner, configuration=configuration, iedb=references.iedb)
         self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
         self.netmhc2pan = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
-        self.mixmhc2 = MixMhc2Pred(runner=runner, configuration=configuration)
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
-        self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
         self.available_alleles = references.get_available_alleles()
         self.uniprot = Uniprot(references.uniprot)
         self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
+
+        # make MixMHCpred and MixMHC2pred optional
+        self.mixmhc2 = None
+        if configuration.mix_mhc2_pred is not None:
+            self.mixmhc2 = MixMhc2Pred(runner=runner, configuration=configuration)
+        self.mixmhc = None
+        if configuration.mix_mhc2_pred is not None:
+            self.mixmhc = MixMHCpred(runner=runner, configuration=configuration)
+
+
 
         # NOTE: these resources do not read any file thus can be initialised fast
         self.differential_binding = DifferentialBinding()
@@ -145,14 +153,16 @@ class NeoantigenAnnotator:
             mhci_allele=self.netmhcpan.best4_affinity_allele))
 
         # MixMHCpred
-        self.annotations.annotations.extend(self.mixmhc.get_annotations(
-            sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
-            mhc=patient.mhc1))
+        if self.mixmhc is not None:
+            self.annotations.annotations.extend(self.mixmhc.get_annotations(
+                sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
+                mhc=patient.mhc1))
 
         # MixMHC2pred
-        self.annotations.annotations.extend(self.mixmhc2.get_annotations(
-            mhc=patient.mhc2, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            sequence_mut=neoantigen.mutation.mutated_xmer))
+        if self.mixmhc2 is not None:
+            self.annotations.annotations.extend(self.mixmhc2.get_annotations(
+                mhc=patient.mhc2, sequence_wt=neoantigen.mutation.wild_type_xmer,
+                sequence_mut=neoantigen.mutation.mutated_xmer))
 
         # dissimilarity to self-proteome
         self.annotations.annotations.extend(self.dissimilarity_calculator.get_annotations(
