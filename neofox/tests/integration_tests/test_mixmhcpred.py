@@ -18,13 +18,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
 from logzero import logger
+from neofox.helpers.epitope_helper import EpitopeHelper
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.MHC_predictors.MixMHCpred.abstract_mixmhcpred import AbstractMixMHCpred
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
-from neofox.tests import TEST_HLAI_ALLELES, TEST_HLAII_ALLELES
+from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO, TEST_MHC_ONE_SMALL
 
 
 class TestMixMHCPred(TestCase):
@@ -32,46 +32,73 @@ class TestMixMHCPred(TestCase):
     def setUp(self):
         self.references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
+        self.mixmhcpred = MixMHCpred(runner=self.runner, configuration=self.configuration)
+        self.mixmhc2pred = MixMhc2Pred(runner=self.runner, configuration=self.configuration)
 
     def test_mixmhcpred_epitope_iedb(self):
-        mixmhcpred = MixMHCpred(runner=self.runner, configuration=self.configuration)
         # this is an epitope from IEDB of length 9
         mutated = 'NLVPMVATV'
         wild_type = 'NLVPIVATV'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, alleles=TEST_HLAI_ALLELES[0:5])
-        self.assertIsNotNone(mixmhcpred.best_peptide)
-        self.assertIsNotNone(mixmhcpred.best_score)
-        self.assertIsNotNone(mixmhcpred.best_rank)
-        self.assertIsNotNone(mixmhcpred.best_allele)
+        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
+        self.assertEquals('NLVPMVATV', best_peptide)
+        self.assertAlmostEqual(0.306957, best_score, delta=0.00001)
+        self.assertEquals(0.6, best_rank)
+        self.assertEquals('A0201', best_allele)
 
     def test_mixmhcpred_too_small_epitope(self):
-        mixmhcpred = MixMHCpred(runner=self.runner, configuration=self.configuration)
         mutated = 'NLVP'
-        wild_type = 'NLVP'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, alleles=TEST_HLAI_ALLELES)
-        self.assertEqual(None, mixmhcpred.best_peptide)
+        wild_type = 'NLNP'
+        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
+        self.assertIsNone(best_peptide)
+        self.assertIsNone(best_score)
+        self.assertIsNone(best_rank)
+        self.assertIsNone(best_allele)
+
+    def test_mixmhcpred_no_mutation(self):
+        mutated = 'NNNNNNNNN'
+        wild_type = 'NNNNNNNNN'
+        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_ONE)
+        self.assertIsNone(best_peptide)
+        self.assertIsNone(best_score)
+        self.assertIsNone(best_rank)
+        self.assertIsNone(best_allele)
 
     def test_mixmhcpred2_epitope_iedb(self):
-        mixmhcpred = MixMhc2Pred(runner=self.runner, configuration=self.configuration)
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFFKNIVTPR'
         wild_type = 'ENPVVHIFKNIVTPR'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, alleles=TEST_HLAII_ALLELES)
-        self.assertIsNotNone(mixmhcpred.best_peptide)
-        self.assertIsNotNone(mixmhcpred.best_rank)
-        self.assertIsNotNone(mixmhcpred.best_allele)
+        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
+        self.assertEquals('NPVVHFFKNIVTPR', best_peptide)
+        self.assertEquals(0.855, best_rank)
+        self.assertEquals('DRB1_04_04', best_allele)
 
 
     def test_mixmhcpred2_too_small_epitope(self):
-        mixmhcpred = MixMhc2Pred(runner=self.runner, configuration=self.configuration)
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFF'
         wild_type = 'ENPVVHFF'
-        mixmhcpred.run(sequence_wt=wild_type, sequence_mut=mutated, alleles=TEST_HLAII_ALLELES)
-        self.assertEqual(None, mixmhcpred.best_peptide)
+        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
+        self.assertIsNone(best_peptide)
+        self.assertIsNone(best_rank)
+        self.assertIsNone(best_allele)
+
+    def test_mixmhcpred2_no_mutation(self):
+        # this is an epitope from IEDB of length 15
+        mutated = 'ENPVVHFFKNIVTPR'
+        wild_type = 'ENPVVHFFKNIVTPR'
+        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
+            sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
+        self.assertIsNone(best_peptide)
+        self.assertIsNone(best_rank)
+        self.assertIsNone(best_allele)
 
     def test_generate_nmers(self):
-        result = AbstractMixMHCpred.generate_nmers(
+        result = EpitopeHelper.generate_nmers(
             xmer_wt="DDDDDDDDD", xmer_mut="DDDDDVDDD", lengths=[8, 9, 10, 11])
         self.assertIsNotNone(result)
         self.assertEqual(3, len(result))

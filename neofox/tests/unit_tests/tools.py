@@ -21,21 +21,35 @@ import random
 import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
-from neofox.model.neoantigen import Neoantigen, Mutation, Gene, Patient
+from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele
 
 
-def _mock_file_existence(existing_files=[], unexisting_files=[]):
+def mock_file_existence(existing_files=[], non_existing_files=[]):
     original_os_path_exists = os.path.exists
 
     def side_effect(filename):
         if filename in existing_files:
             return True
-        elif filename in unexisting_files:
+        elif filename in non_existing_files:
             return False
         else:
             return original_os_path_exists(filename)
 
     os.path.exists = Mock(side_effect=side_effect)
+
+
+def mock_file_is_executable(executable_files=[], non_executable_files=[]):
+    original_os_access = os.access
+
+    def side_effect(filename, mode):
+        if filename in executable_files and mode == os.X_OK:
+            return True
+        elif filename in non_executable_files and mode == os.X_OK:
+            return False
+        else:
+            return original_os_access(filename, mode)
+
+    os.access = Mock(side_effect=side_effect)
 
 
 def head(file_name, n=10):
@@ -63,11 +77,11 @@ def get_random_neoantigen():
     mutation.right_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
     mutation.position = np.random.randint(0, 1000)
     neoantigen.mutation = mutation
-    gene = Gene()
-    gene.gene = "BRCA2"
-    gene.transcript_identifier = "ENST1234567"
-    gene.assembly = "hg19"
-    neoantigen.gene = gene
+    transcript = Transcript()
+    transcript.gene = "BRCA2"
+    transcript.identifier = "ENST1234567"
+    transcript.assembly = "hg19"
+    neoantigen.gene = transcript
     return neoantigen
 
 
@@ -76,7 +90,9 @@ def get_random_patient():
     patient.estimated_tumor_content = np.random.uniform(0, 1)
     patient.is_rna_available = np.random.choice([True, False], 1)[0]
     patient.identifier = 'Pt12345'
-    patient.mhc_i_alleles = ['A', 'B', 'C']
-    patient.mhc_i_i_alleles = ['X', 'Y']
+    patient.mhc_i_alleles = [
+        MhcAllele(gene='A', group="01", protein="01"), MhcAllele(gene='B', group="01", protein="01")]
+    patient.mhc_i_i_alleles = [
+        MhcAllele(gene='DPA1', group="01", protein="01"), MhcAllele(gene='DPB1', group="01", protein="01")]
     patient.tissue = 'skin'
     return patient

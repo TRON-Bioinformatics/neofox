@@ -1,0 +1,6 @@
+install.packages("lattice", repo="http://cran.rstudio.com/")
+install.packages("ggplot2", repo="http://cran.rstudio.com/")
+install.packages("caret", repo="http://cran.rstudio.com/")
+install.packages("Peptides", repo="http://cran.rstudio.com/")
+install.packages("doParallel", repo="http://cran.rstudio.com/")
+install.packages("gbm", repo="http://cran.rstudio.com/")

@@ -42,7 +42,7 @@ class TestNeofox(TestCase):
     def test_neofox(self):
         """
         This test is equivalent to the command line call:
-        neofox --icam-file /projects/SUMMIT/WP1.2/neofox/development/Pt29.sequences4testing.txt --patient-id Pt29
+        neofox --candidate-file /projects/SUMMIT/WP1.2/neofox/development/Pt29.sequences4testing.txt --patient-id Pt29
         --patients-data ../resources/patient.pt29.csv
 
         NOTE: we will need to check the output when the calculation of resuls and printing to stdout have been decoupled
@@ -61,10 +61,10 @@ class TestNeofox(TestCase):
         output_json_annotations = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.json".format(datetime.now()))
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        neoantigens = ModelConverter.parse_icam_file(input_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
 
         # writes output
         ModelConverter.annotations2short_wide_table(
@@ -83,10 +83,10 @@ class TestNeofox(TestCase):
         patient_id = 'Pt29'
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        neoantigens = ModelConverter.parse_icam_file(input_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
         self.assertEqual(1, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
@@ -97,10 +97,10 @@ class TestNeofox(TestCase):
         patient_id = 'Pt29'
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        neoantigens = ModelConverter.parse_neoantigens_file(input_file)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
         patients = ModelConverter.parse_patients_file(patients_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=2).get_annotations()
+            neoantigens=neoantigens, patient_id=patient_id, patients=patients, num_cpus=1).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
@@ -108,18 +108,24 @@ class TestNeofox(TestCase):
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
         if os.path.exists(previous_file):
-            previous_df = pd.read_csv(previous_file, sep="\t")
-            new_df = pd.read_csv(new_file, sep="\t")
-            self._check_rows(new_df, previous_df)
-            shared_columns = self._check_columns(new_df, previous_df)
-            has_error = False
-            for c in shared_columns:
-                has_error |= self._check_values(c, new_df, previous_df)
-            self.assertFalse(has_error)
+            NeofoxChecker(previous_file, new_file)
         else:
             logger.warning("No previous file to compare output with")
         # copies the new file to the previous file for the next execution only if no values were different
         shutil.copyfile(new_file, previous_file)
+
+
+class NeofoxChecker:
+
+    def __init__(self, previous_file, new_file):
+        previous_df = pd.read_csv(previous_file, sep="\t")
+        new_df = pd.read_csv(new_file, sep="\t")
+        self._check_rows(new_df, previous_df)
+        shared_columns = self._check_columns(new_df, previous_df)
+        has_error = False
+        for c in shared_columns:
+            has_error |= self._check_values(c, new_df, previous_df)
+        assert not has_error, "The regression test contains errors"
 
     def _check_values(self, column_name, new_df, previous_df):
         error = False
@@ -145,13 +151,18 @@ class TestNeofox(TestCase):
         return error
 
     def _check_single_value(self, s1, s2):
-        if isinstance(s1, float) or isinstance(s1, np.float):
+        is_float_s1 = self._is_float(s1)
+        is_float_s2 = self._is_float(s2)
+        if is_float_s1 and is_float_s2:
             # equality of NaN is never true so we force it
             # relative tolerance set to consider equal very close floats
             is_equal = True if np.isnan(s1) and np.isnan(s2) else math.isclose(s1, s2, rel_tol=0.0001)
         else:
             is_equal = s1 == s2
         return is_equal
+
+    def _is_float(self, s1):
+        return isinstance(s1, float) or isinstance(s1, np.float)
 
     def _check_columns(self, new_df, previous_df):
         shared_columns = set(previous_df.columns).intersection(set(new_df.columns))
@@ -162,9 +173,9 @@ class TestNeofox(TestCase):
         if len(gained_columns) > 0:
             logger.warning("There are {} gained columns: {}".format(len(gained_columns), gained_columns))
         # fails the test if there are no shared columns
-        self.assertTrue(len(shared_columns) > 0)
+        assert len(shared_columns) > 0, "No shared columns"
         return shared_columns
 
     def _check_rows(self, new_df, previous_df):
         # fails the test if the number of rows differ
-        self.assertEqual(previous_df.shape[0], new_df.shape[0], "Mismatching number of rows")
+        assert previous_df.shape[0] == new_df.shape[0], "Mismatching number of rows"

@@ -16,9 +16,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from neofox.model.neoantigen import Annotation
+from typing import List
+from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mhc2Name
+import re
 
 NOT_AVAILABLE_VALUE = "NA"
+
+HLA_ALLELE_PATTERN = re.compile(
+    r"(?:HLA-)?([A-Z0-9]+)[\*|_]?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
+HLA_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})-"
+                                  r"([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})")
+HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}:?[0-9]{2,})")
+GENES_BY_MOLECULE = {
+    Mhc2Name.DR: [Mhc2GeneName.DRB1],
+    Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
+    Mhc2Name.DQ: [Mhc2GeneName.DQA1, Mhc2GeneName.DQB1],
+}
 
 
 class AnnotationFactory(object):
@@ -36,3 +49,15 @@ class AnnotationFactory(object):
         if value is None:
             value = NOT_AVAILABLE_VALUE
         return Annotation(name=name, value=value)
+
+
+def get_alleles_by_gene(mhc_isoforms: List[Mhc2], gene: Mhc2GeneName) -> List[MhcAllele]:
+    return [a for m in mhc_isoforms for g in m.genes if g.name == gene for a in g.alleles]
+
+
+def get_mhc2_isoform_name(a: MhcAllele, b: MhcAllele):
+    # NOTE: this is needed as jus setting alpha chain to None wouldn't work with protobuf
+    if a is not None and a.name:
+        return "{}-{}".format(a.name, b.name.replace("HLA-", ""))
+    else:
+        return b.name

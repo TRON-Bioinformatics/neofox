@@ -24,19 +24,49 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
-from neofox.exceptions import NeofoxConfigurationException
+from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
 from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
+from neofox.model.conversion import ModelValidator
 
 
 class NeoFox:
 
-
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int, work_folder=None,
-                 output_prefix = None):
+    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int,
+                 work_folder=None, output_prefix=None, reference_folder: ReferenceFolder = None,
+                 configuration: DependenciesConfiguration = None):
 
         # initialise logs
+        self._initialise_logs(output_prefix, work_folder)
+
+        # initialise dask
+        # TODO: number of threads is hard coded. Is there a better value for this?
+        self.dask_client = Client(processes=True, n_workers=num_cpus, threads_per_worker=4)
+
+        # intialize references folder and configuration
+        # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
+        # testable with fake objects
+        self.reference_folder = reference_folder if reference_folder else ReferenceFolder()
+        self.configuration = configuration if configuration else DependenciesConfiguration()
+
+        if neoantigens is None or len(neoantigens) == 0 or patients is None or len(patients) == 0:
+            raise NeofoxConfigurationException("Missing input data to run Neofox")
+
+        # TODO: avoid overriding patient id parameter
+        for n in neoantigens:
+            if n.patient_identifier is None:
+                n.patient_identifier = patient_id
+
+        # validates input data
+        self.neoantigens = [ModelValidator.validate_neoantigen(n) for n in neoantigens]
+        self.patients = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
+        self._validate_input_data()
+
+        logger.info("Data loaded")
+
+    def _initialise_logs(self, output_prefix, work_folder):
         if work_folder and os.path.exists(work_folder):
             logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
         else:
@@ -47,20 +77,26 @@ class NeoFox:
         logzero.loglevel(logging.DEBUG)
         logger.info("Loading data...")
 
-        # initialise dask
-        # TODO: number of threads is hard coded. Is there a better value for this?
-        self.dask_client = Client(processes=True, n_workers=num_cpus, threads_per_worker=4)
+    def _validate_input_data(self):
 
-        if neoantigens is None or patients is None:
-            raise NeofoxConfigurationException("Missing input data to run Neofox")
-        self.neoantigens = neoantigens
-        self.patients = {patient.identifier: patient for patient in patients}
-        # TODO: avoid overriding patient id parameter
-        for n in self.neoantigens:
-            if n.patient_identifier is None:
-                n.patient_identifier = patient_id
+        patient_identifiers_from_neoantigens = set([n.patient_identifier for n in self.neoantigens])
+        patient_identifiers_from_patients = set([p.identifier for p in self.patients.values()])
 
-        logger.info("Data loaded")
+        # check that there are no repeated neoantigens
+        neoantigen_identifiers = [n.identifier for n in self.neoantigens]
+        if len(neoantigen_identifiers) != len(set(neoantigen_identifiers)):
+            raise NeofoxDataValidationException("There are repeated neoantigens!")
+
+        # checks that no neoantigen is referring to an empty patient
+        if "" in patient_identifiers_from_neoantigens or None in patient_identifiers_from_neoantigens:
+            raise NeofoxDataValidationException(
+                "There are neoantigens missing a reference to a patient")
+
+        # checks that there is no neoantigen referring to a non existing patient
+        missing_patient_identifiers = patient_identifiers_from_neoantigens.difference(patient_identifiers_from_patients)
+        if len(missing_patient_identifiers) > 0:
+            raise NeofoxDataValidationException(
+                "There are neoantigens referring to missing patients: {}".format(missing_patient_identifiers))
 
     def get_annotations(self) -> List[NeoantigenAnnotations]:
         """
@@ -76,7 +112,8 @@ class NeoFox:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            futures.append(self.dask_client.submit(NeoFox.annotate_neoantigen, neoantigen, patient))
+            futures.append(self.dask_client.submit(
+                NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration))
 
         annotations = self.dask_client.gather(futures)
         end = time.time()
@@ -85,10 +122,11 @@ class NeoFox:
         return annotations
 
     @staticmethod
-    def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient):
+    def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient, reference_folder: ReferenceFolder,
+                            configuration: DependenciesConfiguration):
         logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
         start = time.time()
-        annotation = NeoantigenAnnotator().get_annotation(neoantigen, patient)
+        annotation = NeoantigenAnnotator(reference_folder, configuration).get_annotation(neoantigen, patient)
         end = time.time()
         logger.info("Elapsed time for annotating neoantigen {}: {} seconds".format(
             neoantigen.identifier, int(end - start)))

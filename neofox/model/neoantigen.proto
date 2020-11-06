@@ -2,19 +2,19 @@ syntax = "proto3";
 
 package neoantigen;
 
-message Gene {
-	/**
-	The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38)
-	*/
-	string assembly = 1;
-	/**
-	The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene
-	*/
-	string gene = 2;
+message Transcript {
 	/**
 	The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id)
 	*/
-	string transcriptIdentifier = 3;
+	string identifier = 1;
+	/**
+	The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38)
+	*/
+	string assembly = 2;
+	/**
+	The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene
+	*/
+	string gene = 3;
 }
 
 message Mutation {
@@ -69,9 +69,9 @@ message Neoantigen {
 	*/
 	string patientIdentifier = 2;
 	/**
-	The gene where the neoepitope corresponds
+	The transcript where the neoepitope was observed
 	*/
-	Gene gene = 3;
+	Transcript transcript = 3;
 	/**
 	The mutation
 	*/
@@ -108,17 +108,17 @@ message Patient {
 	*/
 	bool isRnaAvailable = 2;
 	/**
-	MHC I alleles
+	MHC I classic molecules
 	*/
-	repeated string mhcIAlleles = 3;
+	repeated Mhc1 mhc1 = 3;
 	/**
-	MHC II alleles
+	MHC II classic molecules
 	*/
-	repeated string mhcIIAlleles = 4;
+	repeated Mhc2 mhc2 = 4;
 }
 
 /**
-This is a generic class to hold annotations from INPuT
+This is a generic class to hold annotations from Neofox
 */
 message Annotation {
 	/**
@@ -160,4 +160,163 @@ message NeoantigenAnnotations {
 	Annotation resources MD5 hash
 	*/
 	string resourcesHash = 6;
+}
+
+/**
+The zygosity of a given gene
+ */
+enum Zygosity {
+	/**
+	Two equal copies of the gene
+	 */
+  HOMOZYGOUS = 0;
+  /**
+  Two different copies of the gene
+   */
+  HETEROZYGOUS = 1;
+  /**
+  Only one copy of the gene
+   */
+  HEMIZYGOUS = 2;
+  /**
+  No copy of the gene
+   */
+  LOSS = 3;
+}
+
+/**
+Valid names for MHC I classic genes
+ */
+enum Mhc1Name {
+	A = 0;
+	B = 1;
+	C = 2;
+}
+
+/**
+Valid names for MHC II classic genes.
+DRA is not included in this list as it does not have much variability in the population and for our purpose is
+considered constant.
+ */
+enum Mhc2GeneName {
+	DRB1 = 0;
+	DPA1 = 1;
+	DPB1 = 2;
+	DQA1 = 3;
+	DQB1 = 4;
+}
+
+/**
+Valid names for MHC II classic molecules
+ */
+enum Mhc2Name {
+	DR = 0;
+	DP = 1;
+	DQ = 2;
+}
+
+/**
+Models MHC I alleles related to the same MHC I gene, i.e. 2 alleles/2 isoforms per gene
+ */
+message Mhc1 {
+	/**
+	MHC I gene name
+	 */
+	Mhc1Name name = 1;
+	/**
+	Zygosity of the gene
+	 */
+	Zygosity zygosity = 2;
+	/**
+	The alleles of the gene (0, 1 or 2)
+	 */
+	repeated MhcAllele alleles = 3;
+}
+
+/**
+Models MHC II alleles related to the same MHC II protein, i.e. 4 isoforms related to 2 genes with 2 alleles each
+ */
+message Mhc2 {
+	/**
+	MHC II molecule name
+	 */
+	Mhc2Name name = 1;
+	/**
+	List of MHC II genes
+	 */
+	repeated Mhc2Gene genes = 2;
+	/**
+	Different combinations of MHC II alleles building different isoforms
+	 */
+	repeated Mhc2Isoform isoforms = 3;
+}
+
+/**
+MHC II isoform
+ */
+message Mhc2Isoform {
+	/**
+	Name to refer to the MHC II isoform
+	 */
+	string name = 1;
+	/**
+	The alpha chain of the isoform
+	 */
+	MhcAllele alphaChain = 2;
+	/**
+	The beta chain of the isoform
+	 */
+	MhcAllele betaChain = 3;
+}
+
+/**
+MHC II gene
+ */
+message Mhc2Gene {
+	/**
+	MHC II gene name
+	 */
+	Mhc2GeneName name = 1;
+	/**
+	Zygosity of the gene
+	 */
+	Zygosity zygosity = 2;
+	/**
+	The alleles of the gene (0, 1 or 2)
+	 */
+	repeated MhcAllele alleles = 3;
+}
+
+/**
+MHC allele representation. It does not include non synonymous changes to the sequence, changes in the non coding region
+or changes in expression. See http://hla.alleles.org/nomenclature/naming.html for details
+ */
+message MhcAllele {
+	/**
+	HLA full name as provided by the user (e.g.: HLA-DRB1*13:01:02:03N). This will be parsed into name, gene and group.
+	Any digit format is allowed for this field (ie: 4, 6 or 8 digits), 2 digits names are not specific enough for our
+	purpose and thus invalid
+	 */
+	string fullName = 1;
+	/**
+	A specific HLA protein (e.g. HLA-DRB1*13:01). Alleles whose numbers differ in group and protein must differ in one
+	or more nucleotide substitutions that change the amino acid sequence of the encoded protein.
+	This name is normalized to avoid different representations of the same allele. For instance both HLA-DRB113:01 and
+	HLA-DRB1*13:01:02:03N will be transformed into their normalised version HLA-DRB1*13:01. This name is also truncated
+	to 4 digits. 2 digits names are not specific enough for our purpose and thus invalid
+	 */
+	string name = 2;
+	/**
+	The gene from either MHC I or II (e.g. DRB1, A) (this information is redundant with the Mhc1Gene.name and
+	Mhc2Gene.name but it is convenient to have this at this level too, code will check for data coherence)
+	 */
+	string gene = 3;
+	/**
+	A group of alleles defined by a common serotype ie: Serological antigen carried by an allotype (e.g. 13 from HLA-DRB1*13)
+	 */
+	string group = 4;
+	/**
+	A specific protein (e.g.: 02 from HLA-DRB1*13:02)
+	 */
+	string protein = 5;
 }

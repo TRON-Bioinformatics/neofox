@@ -49,13 +49,13 @@ class TestReferenceFolder(TestCase):
             ReferenceFolder()
 
     def test_all_resources_exist(self):
-        test_tools._mock_file_existence(existing_files=self.fake_reference_folder.resources)
+        test_tools.mock_file_existence(existing_files=self.fake_reference_folder.resources)
         ReferenceFolder()
 
     def test_one_resource_do_not_exist(self):
-        test_tools._mock_file_existence(
+        test_tools.mock_file_existence(
             existing_files=self.fake_reference_folder.resources[1:len(self.fake_reference_folder.resources)],
-            unexisting_files=[self.fake_reference_folder.resources[0]]
+            non_existing_files=[self.fake_reference_folder.resources[0]]
         )
         with self.assertRaises(NeofoxConfigurationException):
             ReferenceFolder()
