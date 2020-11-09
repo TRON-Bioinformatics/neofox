@@ -29,6 +29,8 @@ IEDB_FOLDER = 'iedb'
 IEDB_BLAST_PREFIX = "iedb_blast_db"
 NETMHCPAN_AVAILABLE_ALLELES_FILE = 'netmhcpan_available_alleles.txt'
 NETMHC2PAN_AVAILABLE_ALLELES_FILE = 'netmhc2pan_available_alleles.txt'
+TCGA_GENE_EXPRESSION_FILE = 'tcga_exp_summary_modified.tab.gz'
+TCGA_INDEX_FILE = 'tcga_cohort_code.tab'
 
 
 class AbstractDependenciesConfiguration:
@@ -85,6 +87,8 @@ class ReferenceFolder(object):
         self.iedb = self._get_reference_file_name(IEDB_FOLDER)
         self.proteome_db = self._get_reference_file_name(PROTEOME_DB_FOLDER)
         self.uniprot = self._get_reference_file_name(os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_FASTA))
+        self.tcga_expression = self._get_reference_file_name(TCGA_GENE_EXPRESSION_FILE)
+        self.tcga_cohort_index = self._get_reference_file_name(TCGA_INDEX_FILE)
 
         self.resources = [
             self.available_mhc_ii,
@@ -92,6 +96,8 @@ class ReferenceFolder(object):
             self.iedb,
             self.proteome_db,
             self.uniprot,
+            self.tcga_expression,
+            self.tcga_cohort_index,
             os.path.join(self.iedb, IEDB_FASTA),
             os.path.join(self.iedb, "{}.phr".format(IEDB_BLAST_PREFIX)),
             os.path.join(self.iedb, "{}.pin".format(IEDB_BLAST_PREFIX)),
