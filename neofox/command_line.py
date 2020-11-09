@@ -106,6 +106,9 @@ def neofox_cli():
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
                          output_prefix=output_prefix, num_cpus=num_cpus).get_annotations()
 
+    logger.info(annotations + external_annotations)
+    # TODO: something wrong here --> external annotations were not in the output before these changes
+    # TODO: now 2 rows per neoantigen
     _write_results(annotations + external_annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
 
     logger.info("Finished NeoFox")
@@ -123,25 +126,7 @@ def _read_data(candidate_file, model_file, patients_data) -> \
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file, patients_dict)
     else:
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file, patients)
-
-
-    # impute gene expression if RNA-seq data is not available for a patient
-    '''
-        for patient in patients:
-        if not patient.is_rna_available:
-            references = ReferenceFolder()
-            expression_annotator = ExpressionAnnotator(references.tcga_expression, references.tcga_cohort_index)
-            neoantigens_new = neoantigens
-            neoantigens = []
-            for neoantigen in neoantigens_new:
-                if neoantigen.patient_identifier == patient.identifier:
-                    logger.info("SDFOSPDGHPÖDFUIGNÖJDFBG")
-                    neoantigen.rna_expression = expression_annotator. \
-                        get_gene_expression_annotation(gene_name=neoantigen.transcript.gene,
-                                                       tcga_cohort=patient.tumor_type)
-                neoantigens.append(neoantigen)
-    '''
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file, patients_dict)
 
     return neoantigens, patients, external_annotations
 

@@ -95,12 +95,13 @@ class ModelConverter(object):
         return ModelConverter.patient_metadata_csv2objects(df)
 
     @staticmethod
-    def parse_neoantigens_file(neoantigens_file: str) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
+    def parse_neoantigens_file(neoantigens_file: str, patients_dict: dict) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
+        :param patients_dict:
         :param neoantigens_file: the file to neoantigens data CSV file
         :return: the parsed CSV into model objects
         """
-        return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t').fillna(""))
+        return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t').fillna(""), patients_dict)
 
     @staticmethod
     def objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:
@@ -149,13 +150,18 @@ class ModelConverter(object):
         return patients
 
     @staticmethod
-    def neoantigens_csv2objects(dataframe: pd.DataFrame) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
+    def neoantigens_csv2objects(dataframe: pd.DataFrame, patients_dict: dict) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """transforms an patients CSV into a list of objects"""
         neoantigens = []
         external_annotations = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
             neoantigen = ModelValidator.validate_neoantigen(Neoantigen().from_dict(nested_dict))
+            patient = patients_dict.get(neoantigen.patient_identifier)
+            # impute gene expression if RNA-seq data is not available for a patient
+            if not patient.is_rna_available:
+                vaf_rna_raw = ModelConverter._substitute_expression(neoantigen, patient)
+                neoantigen.rna_expression = vaf_rna_raw
             neoantigens.append(neoantigen)
             external_annotation_names = set([stringcase.snakecase(k) for k in nested_dict.keys()]).difference(
                 set(Neoantigen.__annotations__.keys()))
@@ -185,7 +191,7 @@ class ModelConverter(object):
         for na in neoantigen_annotations:
             df = pd.DataFrame([a.to_dict() for a in na.annotations])
             df['neoantigen_identifier'] = na.neoantigen_identifier
-            dfs.append(df[df.value != "NA"])    # avoid writing NA values
+            dfs.append(df[df.value != "NA"])  # avoid writing NA values
         return pd.concat(dfs)
 
     @staticmethod
@@ -227,18 +233,22 @@ class ModelConverter(object):
         logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
         patient = patients_dict.get(neoantigen.patient_identifier)
+        # impute gene expression if RNA-seq data is not available for a patient
         if not patient.is_rna_available:
-            references = ReferenceFolder()
-            expression_annotator = ExpressionAnnotator(references.tcga_expression, references.tcga_cohort_index)
-            neoantigen.rna_expression = expression_annotator. \
-                get_gene_expression_annotation(gene_name=neoantigen.transcript.gene,
-                                               tcga_cohort=patient.tumor_type)
+            vaf_rna_raw = ModelConverter._substitute_expression(neoantigen=neoantigen, patient=patient)
         neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
         vaf_in_rna = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.rna_variant_allele_frequency = vaf_in_rna if vaf_in_rna >= 0 else None
         neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
         return ModelValidator.validate_neoantigen(neoantigen)
+
+    @staticmethod
+    def _substitute_expression(neoantigen: Neoantigen, patient: Patient) -> float:
+        references = ReferenceFolder()
+        expression_annotator = ExpressionAnnotator(references.tcga_expression, references.tcga_cohort_index)
+        return (expression_annotator.get_gene_expression_annotation(gene_name=neoantigen.transcript.gene,
+                                                                    tcga_cohort=patient.tumor_type))
 
     @staticmethod
     def _enrich_candidate_table(data: pd.DataFrame):
@@ -257,7 +267,7 @@ class ModelConverter(object):
     def _get_matching_region(sequence1: str, sequence2: str, match: int = 0) -> str:
         """fetches an aligned block within two sequences"""
         match = difflib.SequenceMatcher(None, sequence1, sequence2).get_matching_blocks()[match]
-        return sequence1[match.a : match.a + match.size]
+        return sequence1[match.a: match.a + match.size]
 
     @staticmethod
     def parse_mhc1_alleles(alleles: List[str]) -> List[Mhc1]:
@@ -269,7 +279,7 @@ class ModelConverter(object):
             gene_alleles = list(filter(lambda a: a.gene == gene_name.name, parsed_alleles))
             zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
             if zygosity == Zygosity.HOMOZYGOUS:
-                gene_alleles = [gene_alleles[0]]   # we don't want repeated instances of the same allele
+                gene_alleles = [gene_alleles[0]]  # we don't want repeated instances of the same allele
             isoforms.append(Mhc1(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
         return isoforms
 
@@ -304,13 +314,13 @@ class ModelConverter(object):
             alpha_alleles = [a for g in genes if g.name == Mhc2GeneName.DPA1 for a in g.alleles]
             beta_alleles = [a for g in genes if g.name == Mhc2GeneName.DPB1 for a in g.alleles]
             isoforms = [Mhc2Isoform(name=get_mhc2_isoform_name(a, b),
-                                        alpha_chain=a, beta_chain=b) for a in alpha_alleles for b in beta_alleles]
+                                    alpha_chain=a, beta_chain=b) for a in alpha_alleles for b in beta_alleles]
         elif isoform_name == Mhc2Name.DQ:
             assert len(genes) <= 2, "More than two genes provided for MHC II DQ"
             alpha_alleles = [a for g in genes if g.name == Mhc2GeneName.DQA1 for a in g.alleles]
             beta_alleles = [a for g in genes if g.name == Mhc2GeneName.DQB1 for a in g.alleles]
             isoforms = [Mhc2Isoform(name=get_mhc2_isoform_name(a, b),
-                                        alpha_chain=a, beta_chain=b) for a in alpha_alleles for b in beta_alleles]
+                                    alpha_chain=a, beta_chain=b) for a in alpha_alleles for b in beta_alleles]
         return isoforms
 
     @staticmethod
@@ -644,6 +654,5 @@ class ModelValidator(object):
 
     @staticmethod
     def generate_neoantigen_identifier(neoantigen: Neoantigen) -> str:
-        neoantigen.identifier = None    # this needs to be done otherwise we cannot rreproduce the id after it is set
+        neoantigen.identifier = None  # this needs to be done otherwise we cannot rreproduce the id after it is set
         return base64.b64encode(hashlib.md5(neoantigen.to_json().encode('utf8')).digest()).decode('utf8')
-
