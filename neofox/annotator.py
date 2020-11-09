@@ -81,25 +81,17 @@ class NeoantigenAnnotator:
 
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> NeoantigenAnnotations:
         """Calculate new epitope features and add to dictonary that stores all properties"""
-
+        self._initialise_annotations(neoantigen)
         # decides which VAF to use
         vaf_rna = neoantigen.rna_variant_allele_frequency
         if not patient.is_rna_available:
             logger.warning("Using the DNA VAF to estimate the RNA VAF as the patient does not have RNA available")
             # TODO: overwrite value in the neoantigen object
             vaf_rna = neoantigen.dna_variant_allele_frequency
-            logger.warning("Substitution with gene expression from TCGA")
-            neoantigen.rna_expression = self.expression_annotator.\
-                get_gene_expression_annotation(gene_name=neoantigen.transcript.gene, tcga_cohort=patient.tumor_type)
-        logger.warning(neoantigen.rna_expression)
-        logger.warning(neoantigen)
         # TODO: this is needed by the T cell predictor, move this construction inside by passing the neoantigen
         substitution = "{}{}{}".format(
             neoantigen.mutation.wild_type_aminoacid, neoantigen.mutation.position,
             neoantigen.mutation.mutated_aminoacid)
-
-        self._initialise_annotations(neoantigen)
-        logger.warning(self.annotations.annotations)
 
         # MHC binding independent features
         expression_calculator = Expression(
