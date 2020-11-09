@@ -27,7 +27,8 @@ from neofox.neofox import NeoFox
 import os
 
 from neofox.references.installer import NeofoxReferenceInstaller
-
+from neofox.expression_imputation import ExpressionAnnotator
+from neofox.references.references import ReferenceFolder
 
 def neofox_configure():
     parser = ArgumentParser(
@@ -114,12 +115,34 @@ def _read_data(candidate_file, model_file, patients_data) -> \
         Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
+    patients = ModelConverter.parse_patients_file(patients_data)
+    logger.info(patients)
+    from neofox.neofox import ModelValidator
+    patients_dict = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
     # parse the input data
     if candidate_file is not None:
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file, patients_dict)
     else:
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
-    patients = ModelConverter.parse_patients_file(patients_data)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file, patients)
+
+
+    # impute gene expression if RNA-seq data is not available for a patient
+    '''
+        for patient in patients:
+        if not patient.is_rna_available:
+            references = ReferenceFolder()
+            expression_annotator = ExpressionAnnotator(references.tcga_expression, references.tcga_cohort_index)
+            neoantigens_new = neoantigens
+            neoantigens = []
+            for neoantigen in neoantigens_new:
+                if neoantigen.patient_identifier == patient.identifier:
+                    logger.info("SDFOSPDGHPÖDFUIGNÖJDFBG")
+                    neoantigen.rna_expression = expression_annotator. \
+                        get_gene_expression_annotation(gene_name=neoantigen.transcript.gene,
+                                                       tcga_cohort=patient.tumor_type)
+                neoantigens.append(neoantigen)
+    '''
+
     return neoantigens, patients, external_annotations
 
 

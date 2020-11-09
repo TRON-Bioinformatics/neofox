@@ -27,6 +27,7 @@ from Bio.Data import IUPACData
 from betterproto import Casing
 from neofox.exceptions import NeofoxDataValidationException
 from pandas.io.json import json_normalize
+from logzero import logger
 import re
 import difflib
 from collections import defaultdict
@@ -35,6 +36,8 @@ from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, N
     Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Isoform, MhcAllele, Mhc1Name, Mhc1, Annotation
 from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, GENES_BY_MOLECULE, \
     get_mhc2_isoform_name
+from neofox.expression_imputation import ExpressionAnnotator
+from neofox.references.references import ReferenceFolder
 
 EXTERNAL_ANNOTATIONS_NAME = "External"
 
@@ -53,9 +56,10 @@ FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 class ModelConverter(object):
 
     @staticmethod
-    def parse_candidate_file(candidate_file: str, patient_id: str = None) -> \
+    def parse_candidate_file(candidate_file: str, patients_dict: dict, patient_id: str = None) -> \
             Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
+        :param patients: a list of patient objects. this is required for imputation with gene expression
         :param candidate_file: the path to an neoantigen candidate input file
         :param patient_id: the patient identifier for all neoantigens in the input file, if not provided it is
         expected as column named `patient.id` or `patient`
@@ -68,7 +72,7 @@ class ModelConverter(object):
         neoantigens = []
         external_annotations = []
         for _, candidate_entry in data.iterrows():
-            neoantigen = ModelConverter._candidate_entry2model(candidate_entry, patient_id=patient_id)
+            neoantigen = ModelConverter._candidate_entry2model(candidate_entry, patients_dict, patient_id=patient_id)
             neoantigens.append(neoantigen)
             external_annotations.append(NeoantigenAnnotations(
                 neoantigen_identifier=neoantigen.identifier,
@@ -199,7 +203,7 @@ class ModelConverter(object):
         return dict(nested_dict)
 
     @staticmethod
-    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
+    def _candidate_entry2model(candidate_entry: dict, patients_dict: dict, patient_id: str) -> Neoantigen:
         """parses an row from a candidate file into a model object"""
         transcript = Transcript()
         transcript.assembly = 'hg19'
@@ -220,7 +224,15 @@ class ModelConverter(object):
         # clonality estimation is not present in candidate file at the moment
         neoantigen.clonality_estimation = None
         # missing RNA expression values are represented as -1
+        logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
+        patient = patients_dict.get(neoantigen.patient_identifier)
+        if not patient.is_rna_available:
+            references = ReferenceFolder()
+            expression_annotator = ExpressionAnnotator(references.tcga_expression, references.tcga_cohort_index)
+            neoantigen.rna_expression = expression_annotator. \
+                get_gene_expression_annotation(gene_name=neoantigen.transcript.gene,
+                                               tcga_cohort=patient.tumor_type)
         neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
         vaf_in_rna = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.rna_variant_allele_frequency = vaf_in_rna if vaf_in_rna >= 0 else None
