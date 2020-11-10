@@ -56,15 +56,15 @@ class TestNeofox(TestCase):
         NOTE: we will need to check the output when the calculation of resuls and printing to stdout have been decoupled
         """
         output_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.txt".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}_neoantigen_candidates_annotated.tsv".format(datetime.now()))
         output_file_tall_skinny = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.txt".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.tsv".format(datetime.now()))
         output_file_neoantigens = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.txt".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.tsv".format(datetime.now()))
         output_json_neoantigens = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.json".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_candidates.json".format(datetime.now()))
         output_json_annotations = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.json".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.json".format(datetime.now()))
         annotations = NeoFox(
             neoantigens=self.neoantigens, patient_id=self.patient_id,
             patients=self.patients, num_cpus=1).get_annotations()
