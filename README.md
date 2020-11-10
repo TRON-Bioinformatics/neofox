@@ -5,7 +5,7 @@
 [![Downloads](https://crate.io/packages/neofox)](https://crate.io/packages/neofox)
 
 
-Annotation of mutated peptide sequences (mps) with published neo-epitope descriptors
+Annotation of neoantigen candidate sequences with published neo-epitope descriptors
 
 **Published Descriptors:**
 - netMHCpan *(Jurtz et al, 2017, The Journal of Immunology )*  
@@ -46,7 +46,7 @@ neofox --model-file/--candidate-file neoantigens.txt --patient-id Ptx --patient-
 
 - `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences
 - `--model-file`: tab-separated values table with neoantigens in Neofox model format described in [protobuf model](neofox/model/neoantigen.proto)
-- `--patient-id`: patient identifier (**optional**, this will be used as the patient id for neoantigens without patient)
+- `--patient-id`: patient identifier (**optional**, this will be used as the patient id the column `patient` is missing the candidate input file)
 - `--patient data`: a table of tab separated values containing metadata on the patient
 
 **NOTE**: provide either `--candidate-file` or `--model-file`
@@ -57,6 +57,7 @@ gene	UCSC_transcript	transcript_expression	substitution	+-13_AA_(SNV)_/_-15_AA_t
 VCAN	uc003kii.3	0.519506894	I547T	DEVLGEPSQDILVTDQTRLEATISPET	DEVLGEPSQDILVIDQTRLEATISPET 0.294573643	0.857142857
 ```
 where:
+- `patient` is the patient id (**optional**). If this column is not provided, `--patient-id` must be given as input. Of note, providing this column allows to put the neoantigen candidates of several patients into one table.
 - `gene` is the HGNC gene symbol
 - `UCSC_trancript` is the UCSC transcript id including the version
 - `substitution` represents a single amino acid substitution with single letter amino acids (eg: I547T)
