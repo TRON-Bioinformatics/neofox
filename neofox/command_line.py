@@ -105,11 +105,10 @@ def neofox_cli():
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
                          output_prefix=output_prefix, num_cpus=num_cpus).get_annotations()
+    # combine neoantigen feature annotations and potential user-specific external annotation
+    neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
 
-    logger.info(annotations + external_annotations)
-    # TODO: something wrong here --> external annotations were not in the output before these changes
-    # TODO: now 2 rows per neoantigen
-    _write_results(annotations + external_annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
+    _write_results(neoantigen_annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
 
     logger.info("Finished NeoFox")
 
@@ -149,3 +148,13 @@ def _write_results(annotations, neoantigens, output_folder, output_prefix, with_
             annotations, os.path.join(output_folder, "{}_features.json".format(output_prefix)))
         ModelConverter.objects2json(
             neoantigens, os.path.join(output_folder, "{}_neoantigens.json".format(output_prefix)))
+
+def _combine_features_with_external_annotations(annotations: List[NeoantigenAnnotations],
+                                                external_annotations: List[NeoantigenAnnotations]) -> List[NeoantigenAnnotations]:
+    final_annotations = []
+    for annotation in annotations:
+        for annotation_extern in external_annotations:
+            if annotation.neoantigen_identifier == annotation_extern.neoantigen_identifier:
+                annotation.annotations = annotation.annotations + annotation_extern.annotations
+        final_annotations.append(annotation)
+    return final_annotations
