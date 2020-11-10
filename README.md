@@ -32,8 +32,8 @@ Annotation of neoantigen candidate sequences with published neo-epitope descript
 - BLAST 2.8.1
 - netMHCpan 4.0
 - netMHCIIpan 3.2
-- MixMHCpred 2.0.2
-- MixMHC2pred 1.1.3
+- MixMHCpred 2.1
+- MixMHC2pred 1.2
 
 
 ## Usage from the command line
