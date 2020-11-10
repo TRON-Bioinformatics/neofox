@@ -20,21 +20,23 @@
 
 import pysam
 from logzero import logger
+import os
 
-from neofox.model.neoantigen import Annotation
-from neofox.model.wrappers import AnnotationFactory
-
+EXPRESSION_FILE = 'tcga_exp_summary_modified.tab.gz'
+COHORT_INDEX_FILE = 'tcga_cohort_code.tab'
 
 class ExpressionAnnotator(object):
 
-    def __init__(self, expression_file, tcga_cohort_index_file):
+    def __init__(self):
         """
         The expression file is tab separated values file compressed with bgzip and tabix indexed on the gene name and the
         TCGA cohort (encoded as an integer.
         The header of the file is as follows:
         #Gene_Symbol    TCGA_Cohort     Median_Exp      Exp_90p Exp_10p Study_Name
         """
-        self.cohort_indices = self._load_tcga_cohort_indices(tcga_cohort_index_file)
+        expression_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), EXPRESSION_FILE)
+        cohort_index_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), COHORT_INDEX_FILE)
+        self.cohort_indices = self._load_tcga_cohort_indices(cohort_index_file)
         self.expression = pysam.TabixFile(expression_file)
 
     def _load_tcga_cohort_indices(self, tcga_cohort_index_file):

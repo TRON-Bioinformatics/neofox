@@ -36,8 +36,8 @@ from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, N
     Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Isoform, MhcAllele, Mhc1Name, Mhc1, Annotation
 from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, GENES_BY_MOLECULE, \
     get_mhc2_isoform_name
-from neofox.expression_imputation import ExpressionAnnotator
-from neofox.references.references import ReferenceFolder
+from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
+
 
 EXTERNAL_ANNOTATIONS_NAME = "External"
 
@@ -56,10 +56,9 @@ FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 class ModelConverter(object):
 
     @staticmethod
-    def parse_candidate_file(candidate_file: str, patients_dict: dict, patient_id: str = None) -> \
+    def parse_candidate_file(candidate_file: str, patient_id: str = None) -> \
             Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
-        :param patients_dict: dictionary of patients objects with patient ids as keys
         :param candidate_file: the path to an neoantigen candidate input file
         :param patient_id: the patient identifier for all neoantigens in the input file, if not provided it is
         expected as column named `patient.id` or `patient`
@@ -72,7 +71,7 @@ class ModelConverter(object):
         neoantigens = []
         external_annotations = []
         for _, candidate_entry in data.iterrows():
-            neoantigen = ModelConverter._candidate_entry2model(candidate_entry, patients_dict, patient_id=patient_id)
+            neoantigen = ModelConverter._candidate_entry2model(candidate_entry, patient_id=patient_id)
             neoantigens.append(neoantigen)
             external_annotations.append(NeoantigenAnnotations(
                 neoantigen_identifier=neoantigen.identifier,
@@ -95,13 +94,13 @@ class ModelConverter(object):
         return ModelConverter.patient_metadata_csv2objects(df)
 
     @staticmethod
-    def parse_neoantigens_file(neoantigens_file: str, patients_dict: dict) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
+    def parse_neoantigens_file(neoantigens_file: str) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
         :param patients_dict:
         :param neoantigens_file: the file to neoantigens data CSV file
         :return: the parsed CSV into model objects
         """
-        return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t').fillna(""), patients_dict)
+        return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t').fillna(""))
 
     @staticmethod
     def objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:
@@ -150,18 +149,13 @@ class ModelConverter(object):
         return patients
 
     @staticmethod
-    def neoantigens_csv2objects(dataframe: pd.DataFrame, patients_dict: dict) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
+    def neoantigens_csv2objects(dataframe: pd.DataFrame) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """transforms an patients CSV into a list of objects"""
         neoantigens = []
         external_annotations = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
             neoantigen = ModelValidator.validate_neoantigen(Neoantigen().from_dict(nested_dict))
-            patient = patients_dict.get(neoantigen.patient_identifier)
-            # impute gene expression if RNA-seq data is not available for a patient
-            if not patient.is_rna_available:
-                vaf_rna_raw = ModelConverter._substitute_expression(neoantigen, patient)
-                neoantigen.rna_expression = vaf_rna_raw
             neoantigens.append(neoantigen)
             external_annotation_names = set([stringcase.snakecase(k) for k in nested_dict.keys()]).difference(
                 set(Neoantigen.__annotations__.keys()))
@@ -209,7 +203,7 @@ class ModelConverter(object):
         return dict(nested_dict)
 
     @staticmethod
-    def _candidate_entry2model(candidate_entry: dict, patients_dict: dict, patient_id: str) -> Neoantigen:
+    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
         """parses an row from a candidate file into a model object"""
         transcript = Transcript()
         transcript.assembly = 'hg19'
@@ -232,10 +226,6 @@ class ModelConverter(object):
         # missing RNA expression values are represented as -1
         logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
-        patient = patients_dict.get(neoantigen.patient_identifier)
-        # impute gene expression if RNA-seq data is not available for a patient
-        if not patient.is_rna_available:
-            vaf_rna_raw = ModelConverter._substitute_expression(neoantigen=neoantigen, patient=patient)
         neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
         vaf_in_rna = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.rna_variant_allele_frequency = vaf_in_rna if vaf_in_rna >= 0 else None
@@ -244,12 +234,20 @@ class ModelConverter(object):
         return ModelValidator.validate_neoantigen(neoantigen)
 
     @staticmethod
-    def _substitute_expression(neoantigen: Neoantigen, patient: Patient) -> float:
-        references = ReferenceFolder()
-        # TODO: initialise this only once and not all neoantigens
-        expression_annotator = ExpressionAnnotator(references.tcga_expression, references.tcga_cohort_index)
-        return (expression_annotator.get_gene_expression_annotation(gene_name=neoantigen.transcript.gene,
-                                                                    tcga_cohort=patient.tumor_type))
+    def conditional_substitute_expression(neoantigens: List[Neoantigen], patients: List[Patient]) -> List[Neoantigen]:
+        expression_annotator = ExpressionAnnotator()
+        patients = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
+        neoantigens_transformed = []
+        for neoantigen in neoantigens:
+            expression_value = neoantigen.rna_expression
+            patient = patients[neoantigen.patient_identifier]
+            neoantigen_transformed = neoantigen
+            if not patient.is_rna_available:
+                expression_value = expression_annotator.\
+                    get_gene_expression_annotation(gene_name=neoantigen.transcript.gene, tcga_cohort=patient.tumor_type)
+            neoantigen_transformed.rna_expression = expression_value
+            neoantigens_transformed.append(neoantigen_transformed)
+        return neoantigens_transformed
 
     @staticmethod
     def _enrich_candidate_table(data: pd.DataFrame):
