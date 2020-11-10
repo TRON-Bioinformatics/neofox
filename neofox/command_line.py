@@ -25,7 +25,6 @@ from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
-from neofox.neofox import ModelValidator
 from neofox.model.conversion import ModelConverter
 
 from neofox.references.installer import NeofoxReferenceInstaller
@@ -138,18 +137,18 @@ def _write_results(annotations, neoantigens, output_folder, output_prefix, with_
     # writes the output
     if with_sw:
         ModelConverter.annotations2short_wide_table(annotations, neoantigens).to_csv(
-            os.path.join(output_folder, "{}_neoantigens_features_short_wide.tsv".format(output_prefix)), sep='\t',
+            os.path.join(output_folder, "{}_neoantigen_candidates_annotated.tsv".format(output_prefix)), sep='\t',
             index=False)
     if with_ts:
         ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
-            os.path.join(output_folder, "{}_features_tall_skinny.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neoantigen_features.tsv".format(output_prefix)), sep='\t', index=False)
         ModelConverter.objects2dataframe(neoantigens).to_csv(
-            os.path.join(output_folder, "{}_neoantigens.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neoantigen_candidates.tsv".format(output_prefix)), sep='\t', index=False)
     if with_json:
         ModelConverter.objects2json(
-            annotations, os.path.join(output_folder, "{}_features.json".format(output_prefix)))
+            annotations, os.path.join(output_folder, "{}_neoantigen_features.json".format(output_prefix)))
         ModelConverter.objects2json(
-            neoantigens, os.path.join(output_folder, "{}_neoantigens.json".format(output_prefix)))
+            neoantigens, os.path.join(output_folder, "{}_neoantigen_candidates.json".format(output_prefix)))
 
 
 def _combine_features_with_external_annotations(annotations: List[NeoantigenAnnotations],
