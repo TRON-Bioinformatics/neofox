@@ -29,7 +29,7 @@ Annotation of neoantigen candidate sequences with published neo-epitope descript
 **Required Software/Tools/Dependencies:**  
 - Python 3.7
 - R 3.6.0
-- BLAST 2.8.1
+- BLAST 2.10.1
 - netMHCpan 4.0
 - netMHCIIpan 3.2
 - MixMHCpred 2.1
