@@ -62,7 +62,7 @@ where:
 - `substitution` represents a single amino acid substitution with single letter amino acids (eg: I547T)
 - `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the mutated neoantigen
 - `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent amino acid sequence in the normal tissue
-- `transcript_expression` the transcript expression. Should be NA if no value available
+- `transcript_expression` the transcript expression. Should be empty if no value available
 - `VAF_in_tumor` variant allele frequency in the DNA (**optional**)
 - `VAF_in_RNA` variant allele frequency in the RNA (**optional**, this will be estimated using the `VAF_in_tumor` if not available)
 
@@ -83,7 +83,7 @@ where:
 - `mutation.rightFlankingRegion` - the amino acids flanking the mutation on the left (in IUPAC one letter symbols)
 - `mutation.wildTypeAminoacid` - the wild type amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
 - `patientIdentifier` - the patient identifier
-- `rnaExpression` - the transcript expression. Should be NA if no value available
+- `rnaExpression` - the transcript expression. Should be empty if no value available
 - `rnaVariantAlleleFrequency` - the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
 - `dnaVariantAlleleFrequency` - the variant allele frequency calculated from the DNA (**optional**)
 

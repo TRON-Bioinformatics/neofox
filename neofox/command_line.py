@@ -119,6 +119,7 @@ def _read_data(candidate_file, model_file, patients_data) -> \
     from neofox.model.conversion import ModelConverter
     patients = ModelConverter.parse_patients_file(patients_data)
     logger.info(patients)
+    # TODO: put at the top
     from neofox.neofox import ModelValidator
     patients_dict = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
     # parse the input data

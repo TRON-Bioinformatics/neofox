@@ -246,6 +246,7 @@ class ModelConverter(object):
     @staticmethod
     def _substitute_expression(neoantigen: Neoantigen, patient: Patient) -> float:
         references = ReferenceFolder()
+        # TODO: initialise this only once and not all neoantigens
         expression_annotator = ExpressionAnnotator(references.tcga_expression, references.tcga_cohort_index)
         return (expression_annotator.get_gene_expression_annotation(gene_name=neoantigen.transcript.gene,
                                                                     tcga_cohort=patient.tumor_type))
