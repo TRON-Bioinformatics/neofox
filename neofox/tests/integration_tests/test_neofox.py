@@ -41,10 +41,12 @@ class TestNeofox(TestCase):
         # self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         # self.runner = Runner()
         self.patient_id = 'Pt29'
-        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
-        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_candidate_file.txt")
+        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_patient_file.txt")
         self.patients = ModelConverter.parse_patients_file(patients_file)
+        self.patients_dict = {patient.identifier: patient for patient in self.patients}
+        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file, self.patients_dict)
+
 
     def test_neofox(self):
         """
@@ -96,7 +98,7 @@ class TestNeofox(TestCase):
         """
         """
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file, self.patients_dict)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
         self.assertEqual(1, len(annotations))
@@ -106,8 +108,8 @@ class TestNeofox(TestCase):
     def test_neofox_model_input(self):
         """
         """
-        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_model_file.txt")
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file, self.patients_dict)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
         self.assertEqual(5, len(annotations))

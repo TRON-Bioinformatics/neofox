@@ -59,7 +59,7 @@ class ModelConverter(object):
     def parse_candidate_file(candidate_file: str, patients_dict: dict, patient_id: str = None) -> \
             Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
-        :param patients: a list of patient objects. this is required for imputation with gene expression
+        :param patients_dict: dictionary of patients objects with patient ids as keys
         :param candidate_file: the path to an neoantigen candidate input file
         :param patient_id: the patient identifier for all neoantigens in the input file, if not provided it is
         expected as column named `patient.id` or `patient`
