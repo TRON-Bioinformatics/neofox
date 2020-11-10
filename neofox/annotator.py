@@ -21,7 +21,6 @@
 from logzero import logger
 from datetime import datetime
 import neofox
-from neofox.expression_imputation import ExpressionAnnotator
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
@@ -49,8 +48,6 @@ class NeoantigenAnnotator:
     def __init__(self, references: ReferenceFolder, configuration: DependenciesConfiguration):
         """class to annotate neoantigens"""
         runner = Runner()
-        self.expression_annotator = ExpressionAnnotator(expression_file=references.tcga_expression,
-                                                        tcga_cohort_index_file=references.tcga_cohort_index)
         self.dissimilarity_calculator = DissimilarityCalculator(
             runner=runner, configuration=configuration, proteome_db=references.proteome_db)
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(

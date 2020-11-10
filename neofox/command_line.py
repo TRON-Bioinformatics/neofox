@@ -25,10 +25,11 @@ from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
+from neofox.neofox import ModelValidator
+from neofox.model.conversion import ModelConverter
 
 from neofox.references.installer import NeofoxReferenceInstaller
-from neofox.expression_imputation import ExpressionAnnotator
-from neofox.references.references import ReferenceFolder
+
 
 def neofox_configure():
     parser = ArgumentParser(
@@ -100,7 +101,11 @@ def neofox_cli():
     os.makedirs(output_folder, exist_ok=True)
 
     # reads the input data
-    neoantigens, patients, external_annotations = _read_data(candidate_file, model_file, patients_data)
+    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, patients_data)
+
+    # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
+    # otherwise original values is reported
+    neoantigens = ModelConverter.conditional_substitute_expression(neoantigens_pre, patients)
 
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
@@ -115,18 +120,15 @@ def neofox_cli():
 
 def _read_data(candidate_file, model_file, patients_data) -> \
         Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
-    # NOTE: this import here is a compromise solution so the help of the command line responds faster
-    from neofox.model.conversion import ModelConverter
+    # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data)
     logger.info(patients)
-    # TODO: put at the top
-    from neofox.neofox import ModelValidator
     patients_dict = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
-    # parse the input data
+    # parse the neoantigen candidate data
     if candidate_file is not None:
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file, patients_dict)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
     else:
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file, patients_dict)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
 
     return neoantigens, patients, external_annotations
 
