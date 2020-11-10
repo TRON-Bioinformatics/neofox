@@ -102,7 +102,7 @@ class ModelConverterTest(TestCase):
             self.assertTrue(0 <= n.dna_variant_allele_frequency <= 1)
 
         # test external annotations
-        self._assert_external_annotations(expected_number_external_annotations=49, external_annotations=external_annotations)
+        self._assert_external_annotations(expected_number_external_annotations=50, external_annotations=external_annotations)
 
     def _assert_external_annotations(self, expected_number_external_annotations, external_annotations):
         for neoantigen_annotation in external_annotations:
@@ -155,7 +155,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(n.patient_identifier, 'patientX')
         neoantigens, external_annotations = ModelConverter().parse_candidate_file(candidate_file)
         for n in neoantigens:
-            self.assertEqual(n.patient_identifier, None)
+            self.assertEqual(n.patient_identifier, "Ptx")
 
     def test_patients_csv_file2model(self):
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/alleles.Pt29.csv")
