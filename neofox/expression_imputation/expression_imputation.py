@@ -21,9 +21,11 @@
 import pysam
 from logzero import logger
 import os
+import pandas as pd
 
 EXPRESSION_FILE = 'tcga_exp_summary_modified.tab.gz'
 COHORT_INDEX_FILE = 'tcga_cohort_code.tab'
+
 
 class ExpressionAnnotator(object):
 
@@ -40,14 +42,9 @@ class ExpressionAnnotator(object):
         self.expression = pysam.TabixFile(expression_file)
 
     def _load_tcga_cohort_indices(self, tcga_cohort_index_file):
-        data = {}
-        # TODO: try pandas
-        with open(tcga_cohort_index_file, "rt") as p:
-            for line in p:
-                if not line.startswith("TCGA_Cohort"):
-                    splitted_line = line.rstrip("\n").split("\t")
-                    data[splitted_line[1]] = int(splitted_line[0])
-        return data
+        data = pd.read_csv(tcga_cohort_index_file, sep='\t')
+        dictionary = data.set_index('cohort').T.to_dict('records')[0]
+        return dictionary
 
     def get_gene_expression_annotation(self, gene_name: str, tcga_cohort: str) -> float:
         """

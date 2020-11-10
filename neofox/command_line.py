@@ -123,7 +123,6 @@ def _read_data(candidate_file, model_file, patients_data) -> \
     # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data)
     logger.info(patients)
-    patients_dict = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
@@ -151,6 +150,7 @@ def _write_results(annotations, neoantigens, output_folder, output_prefix, with_
             annotations, os.path.join(output_folder, "{}_features.json".format(output_prefix)))
         ModelConverter.objects2json(
             neoantigens, os.path.join(output_folder, "{}_neoantigens.json".format(output_prefix)))
+
 
 def _combine_features_with_external_annotations(annotations: List[NeoantigenAnnotations],
                                                 external_annotations: List[NeoantigenAnnotations]) -> List[NeoantigenAnnotations]:

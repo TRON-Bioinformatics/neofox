@@ -61,7 +61,7 @@ def import_dat_general(in_file):
                     continue
                 else:
                     data.append(w)
-    logger.info("reading neofox done {} items; {}  columns".format(len(data), len(data[0])))
+    logger.info("reading input done {} items; {}  columns".format(len(data), len(data[0])))
     header = [x.strip('"').strip("\r").strip('"') for x in header]
     data = [[y.strip('"').strip("\r").strip('"') for y in x] for x in data]
     return header, data

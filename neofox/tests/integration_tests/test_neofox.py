@@ -45,8 +45,7 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_patient_file.txt")
         self.patients = ModelConverter.parse_patients_file(patients_file)
         self.patients_dict = {patient.identifier: patient for patient in self.patients}
-        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file, self.patients_dict)
-
+        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
 
     def test_neofox(self):
         """
@@ -98,18 +97,34 @@ class TestNeofox(TestCase):
         """
         """
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file, self.patients_dict)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
         self.assertEqual(1, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
 
+    def test_neofox_no_expression_imputation(self):
+        neoantigens_imputed = ModelConverter.conditional_substitute_expression(self.neoantigens, self.patients)
+        for neoantigen in self.neoantigens:
+            for neoantigen_imputed in neoantigens_imputed:
+                if neoantigen.identifier == neoantigen_imputed.identifier:
+                    self.assertEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
+
+    def test_neofox_with_expression_imputation(self):
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_candidate_file_Pty.txt")
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        neoantigens_imputed = ModelConverter.conditional_substitute_expression(neoantigens, self.patients)
+        for neoantigen in self.neoantigens:
+            for neoantigen_imputed in neoantigens_imputed:
+                if neoantigen.identifier == neoantigen_imputed.identifier:
+                    self.assertFalse(neoantigen.rna_expression == neoantigen_imputed.rna_expression)
+
     def test_neofox_model_input(self):
         """
         """
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_model_file.txt")
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file, self.patients_dict)
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
         self.assertEqual(5, len(annotations))
@@ -126,7 +141,7 @@ class TestNeofox(TestCase):
         annotations = NeoFox(
             neoantigens=self.neoantigens, patient_id=self.patient_id,
             patients=self.patients, num_cpus=1).get_annotations()
-        annotation_names = [a.name for n in annotations for a in n.annotations ]
+        annotation_names = [a.name for n in annotations for a in n.annotations]
         # check it does not contain any of the MixMHCpred annotations
         self.assertNotIn("MixMHC2pred_best_peptide", annotation_names)
         self.assertNotIn("MixMHC2pred_best_rank", annotation_names)
