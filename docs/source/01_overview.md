@@ -29,7 +29,7 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 | neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
   
 \
-Besides comprehensive annotation of neoantigen candidates, another attribute of NeoFox is the creation of biological meaningful representations of neoantigens and other biological units as programmatic models.  
+Besides comprehensive annotation of neoantigen candidates, another attribute of NeoFox is the creation of biological meaningful representations of neoantigens and other biological entities as programmatic models.  
 Here, Protocol buffers is employed to model Neofox's input and output data: neoantigens, patients, MHC alleles and neoantigen feature annotations (Figure 1). Of note, this modelling allows users to expand NeoFox by customized neoantigen features, e.g. for benchmarking studies.   
 \
 **Figure 1**
