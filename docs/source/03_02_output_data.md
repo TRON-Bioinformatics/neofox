@@ -1,5 +1,11 @@
 # Output data
 
-**TODO**
+## General information
+NeoFox supports several output formats: `short-wide-table`,  `tall-skinny-table` and `json`. The user can decide for one format or retrieve the annotations in all formats.  
 
-Write here an output description
+## Short-wide table 
+## Tall-skinny table
+## json
+
+
+## 
