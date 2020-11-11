@@ -435,14 +435,6 @@ class ModelValidator(object):
         return patient
 
     @staticmethod
-    def validate_tumor_type(tumor_type: str, cohort_indices) -> str:
-        assert tumor_type is not None, "Empty tumor type"
-        assert tumor_type in cohort_indices, \
-            "Tumor type does not follow the TCGA abbrevation or is not supported. Tumor type must be one of " \
-            "the following: {}".format(', '.join(cohort_indices.keys()))
-        return tumor_type
-
-    @staticmethod
     def _validate_mhc1(mhc1: Mhc1) -> Mhc1:
         assert mhc1.name in Mhc1Name, "Invalid MHC I name"
         assert mhc1.zygosity in Zygosity, "Invalid zygosity"
