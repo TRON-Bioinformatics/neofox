@@ -23,8 +23,6 @@ from logzero import logger
 import os
 import pandas as pd
 
-from neofox.model.conversion import ModelValidator
-
 EXPRESSION_FILE = 'tcga_exp_summary_modified.tab.gz'
 COHORT_INDEX_FILE = 'tcga_cohort_code.tab'
 
@@ -55,7 +53,6 @@ class ExpressionAnnotator(object):
         :param tcga_cohort: cancer entity, needs to be on of the available TCGA cohorts
         :return: the gene expression
         """
-        tcga_cohort = ModelValidator.validate_tumor_type(tcga_cohort, self.cohort_indices)
         expression_value = None
         try:
             cohort_index = self.cohort_indices[tcga_cohort]
