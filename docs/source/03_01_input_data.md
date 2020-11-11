@@ -16,6 +16,7 @@ We allow two different tabular formats of neoantigen candidate file: in `model-f
    | hg19                | BRCA2           | uc003kii.3            | AAAAAA                      | L                         | 935               | AAAAA                        | F                          | Ptx               | 4.512         | 0.4675                    | 0.36103                   |
    | hg19                | BRCA2           | uc003kii.3            | AAAAAA                      | M                         | 518               | AAAAA                        | R                          | Ptx               | 0.154         | 0.015404                  | 0.034404                  |
    | hg19                | BRCA2           | uc003kii.3            | AAAAAA                      | G                         | 285               | AAAAA                        | K                          | Ptx               | 8.841207      | 0.89387                   | 0.51924                   |
+   
    where:
    - `transcript.assembly` - the assembly of the reference genome (only hg19 is supported)
    - `transcript.gene` - the HGMC gene symbol   
