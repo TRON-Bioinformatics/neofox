@@ -1,13 +1,13 @@
 # Output data
 
 ## General information
-NeoFox returns the neoantigen candidates and their annotated features as output. Several output formats are supported: [short-wide table](#short-wide-table ), [tall-skinny table](#tall-skinny-table) and [json](#json). The user can choose only one format or get the neoantigen annotations in all formats.  
+NeoFox returns the neoantigen candidates and their annotated features as output. Several output formats are supported: [short-wide](#short-wide-format ) or [tall-skinny](#tall-skinny-format) tabular format or in [json](#json-format) format. The user can choose one preferred format or get the neoantigen annotations in all formats.  
 
 Despite different structures, all three formats provide the same content. The following table describes the meaning occuring in the output:  
   
 **TABLE 1** 
 
-| Column   Name                             | Description                                                                                                                                                                                                                            | Related to Neoantigen   Feature/Paper |
+| Column   Name                             | Description                                                                                                                                                                                                                            | Feature group/ Paper                  |
 |-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
 | identifier                                | unique neoantigen id given by   NeoFox                                                                                                                                                                                                 | -                                     |
 | clonalityEstimation                       | clonality value, not supported   and empty at the moment                                                                                                                                                                               | -                                     |
@@ -98,8 +98,8 @@ Despite different structures, all three formats provide the same content. The fo
 | vaxrank_binding_score                     | total binding score of vaxrank                                                                                                                                                                                                         | vaxrank                               |
 | vaxrank_total_score                       | product of total binding score   and expression score Of note, originally the root of the number of reads   supporting the mutation are used in the original implementation. To simplify,   the expression normalised to VAF is used.  | vaxrank                               |
 
-## Short-wide table 
-If the `-with-short-wide-table` flag is selected, an output table with the suffix *_neoantigen_candidates_annotated.tsv* is created. This table contains the neoantigen candidate information, neoantigen feature annotation and if some user-specific additional columns were provided in the input table, these external annotation.  
+## Short-wide format
+If the `--with-short-wide-table` flag is selected, an output table with the suffix "*_neoantigen_candidates_annotated.tsv*" is created. This table contains the neoantigen candidate information, neoantigen feature annotation and if some user-specific additional columns were provided in the input table, these external annotation.  
 This is a dummy example:  
 
 | identifier               | clonalityEstimation | dnaVariantAlleleFrequency | mutation.leftFlankingRegion | mutation.mutatedAminoacid | mutation.mutatedXmer        | mutation.position | mutation.rightFlankingRegion | mutation.sizeLeftFlankingRegion | mutation.sizeRightFlankingRegion | mutation.wildTypeAminoacid | mutation.wildTypeXmer       | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | transcript.assembly | transcript.gene | transcript.identifier | Expression_mutated_transcript | mutation_not_found_in_proteome | Best_rank_MHCI_score | Best_rank_MHCI_score_epitope | Best_rank_MHCI_score_allele | Best_affinity_MHCI_score | Best_affinity_MHCI_epitope | Best_affinity_MHCI_allele | Best_rank_MHCI_9mer_score | Best_rank_MHCI_9mer_epitope | Best_rank_MHCI_9mer_allele | Best_affinity_MHCI_9mer_score | Best_affinity_MHCI_9mer_allele | Best_affinity_MHCI_9mer_epitope | Best_affinity_MHCI_score_WT | Best_affinity_MHCI_epitope_WT | Best_affinity_MHCI_allele_WT | Best_rank_MHCI_score_WT | Best_rank_MHCI_score_epitope_WT | Best_rank_MHCI_score_allele_WT | Best_rank_MHCI_9mer_score_WT | Best_rank_MHCI_9mer_epitope_WT | Best_rank_MHCI_9mer_allele_WT | Best_affinity_MHCI_9mer_score_WT | Best_affinity_MHCI_9mer_allele_WT | Best_affinity_MHCI_9mer_epitope_WT | Generator_rate | PHBR-I | Best_affinity_MHCI_9mer_position_mutation | Best_rank_MHCII_score | Best_rank_MHCII_score_epitope | Best_rank_MHCII_score_allele | Best_affinity_MHCII_score | Best_affinity_MHCII_epitope | Best_affinity_MHCII_allele | Best_rank_MHCII_score_WT | Best_rank_MHCII_score_epitope_WT | Best_rank_MHCII_score_allele_WT | Best_affinity_MHCII_score_WT | Best_affinity_MHCII_epitope_WT | Best_affinity_MHCII_allele_WT | PHBR-II | Amplitude_MHCI_affinity_9mer | Amplitude_MHCI_affinity | Pathogensimiliarity_MHCI_affinity_9mer | Recognition_Potential_MHCI_affinity_9mer | DAI_MHCI_affinity_cutoff500nM | CDN_MHCI | ADN_MHCI | CDN_MHCII | ADN_MHCII | Tcell_predictor_score_cutoff500nM | Improved_Binder_MHCI | Selfsimilarity_MHCI_conserved_binder | Number_of_mismatches_MCHI | Priority_score | Neoag_immunogenicity | IEDB_Immunogenicity_MHCI_cutoff500nM | MixMHCpred_best_peptide | MixMHCpred_best_score | MixMHCpred_best_rank | MixMHCpred_best_allele | MixMHC2pred_best_peptide | MixMHC2pred_best_rank | MixMHC2pred_best_allele | Dissimilarity_MHCI_cutoff500nM | vaxrank_binding_score | vaxrank_total_score |
@@ -109,10 +109,10 @@ This is a dummy example:
 | DpB/Cpa8bFAM/+MMVGHpqA== |                     | 0.85365854                | MTEYKLVVVGA                 | C                         | MTEYKLVVVGACGVGKSALTIQLIQ   | 12                | GVGKSALTIQLIQ                | 11                              | 13                               | G                          | MTEYKLVVVGAGGVGKSALTIQLIQ   | Ptx               | 42.8566628    | 0.96442688                | hg19                | NRAS            | uc009wgu.3            | 41.332                        | 1                              | 0.5422               | VVGACGVGK                    | HLA-A*03:01                 | 159.6                    | VVGACGVGK                  | HLA-A*03:01               | 0.5422                    | VVGACGVGK                   | HLA-A*03:01                | 159.6                         | HLA-A*03:01                    | VVGACGVGK                       | 201.7                       | VVGAGGVGK                     | HLA-A*03:01                  | 0.6478                  | VVGAGGVGK                       | HLA-A*03:01                    | 0.6478                       | VVGAGGVGK                      | HLA-A*03:01                   | 201.7                            | HLA-A*03:01                       | VVGAGGVGK                          | 0              | NA     | 5                                         | 30                    | ACGVGKSALTIQLIQ               | HLA-DQA10401-DQB10302        | 745.9                     | MTEYKLVVVGACGVG             | DRB1_0801                  | 30                       | AGGVGKSALTIQLIQ                  | HLA-DQA10401-DQB10302           | 488.39                       | MTEYKLVVVGAGGVG                | DRB1_0801                     | NA      | 1.1917                       | 1.1917                  | 0                                      | 0                                        | 42.1                          | 0        | 0        | 0         | 0         | 0.50688787                        | 0                    | 0.93305215                           | 1                         | 0.42703        | 71.94313             | 0.08441                              | VVGACGVGK               | 0.22889               | 2                    | A0301                  | TEYKLVVVGACGVG           | 2.01                  | DRB1_08_01              | 0                              | 1.6547                | 68.393              |
 
 
-## Tall-skinny table
-If the `-with-tall-skinny-table` flag is selected, an output table with the suffix *_neoantigen_candidates.tsv* is created. This file contains neoantigen candidate information in short-wide format. Furthermore, a second file with the suffix *"_neoantigen_features.tsv"* ic created. This file contains the annotated neoantigen features in tall-skinny format. 
+## Tall-skinny format
+If the `--with-tall-skinny-table` flag is selected, an output table with the suffix "*_neoantigen_candidates.tsv*" is created. This file contains neoantigen candidate information in short-wide format. Furthermore, a second file with the suffix *"_neoantigen_features.tsv"* ic created. This file contains the annotated neoantigen features in tall-skinny format. 
 
-This is a dummy example of a *_neoantigen_candidates.tsv* file with headers following the descriptions in **TABLE 1**:  
+This is a dummy example of a "*_neoantigen_candidates.tsv"*" file with headers following the descriptions in **TABLE 1**:  
 
 | clonalityEstimation | dnaVariantAlleleFrequency | identifier               | mutation.leftFlankingRegion | mutation.mutatedAminoacid | mutation.mutatedXmer        | mutation.position | mutation.rightFlankingRegion | mutation.sizeLeftFlankingRegion | mutation.sizeRightFlankingRegion | mutation.wildTypeAminoacid | mutation.wildTypeXmer       | patientIdentifier | rnaExpression      | rnaVariantAlleleFrequency | transcript.assembly | transcript.gene | transcript.identifier |
 |---------------------|---------------------------|--------------------------|-----------------------------|---------------------------|-----------------------------|-------------------|------------------------------|---------------------------------|----------------------------------|----------------------------|-----------------------------|-------------------|--------------------|---------------------------|---------------------|-----------------|-----------------------|
@@ -139,13 +139,13 @@ This is the head of a dummy *"_neoantigen_features.tsv"* file:
 where:
 - name: name of the neoantigen feature, which follow the descriptions given in **TABLE 1**.
 - value: value of the noenantigen feaature
-- neoantigen_identifier: unique neoantigen id given by NeoFox and the same as `identifier` in the  *_neoantigen_candidates.tsv* file.
+- neoantigen_identifier: unique neoantigen id given by NeoFox and the same as `identifier` in the  "*_neoantigen_candidates.tsv*" file.
 
 
-## JSON
-If the `-with-json` flag is selected, an output file with the suffix *_neoantigen_candidates.json* is created. This file contains neoantigen candidate information in JSON format. Furthermore, a second file with the suffix *"_neoantigen_features.json"* is created. This file contains the annotated neoantigen features in JSON format. The names within the models are described in **TABLE 1**.   
+## JSON format
+If the `--with-json` flag is selected, an output file with the suffix "*_neoantigen_candidates.json*" is created. This file contains neoantigen candidate information in JSON format. Furthermore, a second file with the suffix *"_neoantigen_features.json"* is created. This file contains the annotated neoantigen features in JSON format. The names within the models are described in **TABLE 1**.   
 \
-This is a dummy example of a *_neoantigen_candidates.json* file. This file contains a list of neoantigen candidate models (for further information, please see [here](/05_models.md). To simplify, only one full neoantigen candidate model is shown:
+This is a dummy example of a "*_neoantigen_candidates.json*" file. This file contains a list of neoantigen candidate models (for further information, please see [here](05_models.md). To simplify, only one full neoantigen candidate model is shown:
 ```json
 [{
     "identifier": "fMtSioNERLpCaSEFUFaIiQ==",
@@ -175,7 +175,7 @@ This is a dummy example of a *_neoantigen_candidates.json* file. This file conta
 }]
 ```  
 
-This is a dummy example of a *"_neoantigen_features.json"* file. This file contains a list of neoantigen annotation models (for further information, please see [here](/05_models.md). To simplify, only a part of a  neoantigen annotation model is shown:
+This is a dummy example of a *"_neoantigen_features.json"* file. This file contains a list of neoantigen annotation models (for further information, please see [here](05_models.md). To simplify, only a part of a  neoantigen annotation model is shown:
 
 ````json
 [{

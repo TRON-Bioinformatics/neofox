@@ -37,9 +37,9 @@ Here, Protocol buffers is employed to model Neofox's input and output data: neoa
 \
 \
 \
-*For detailed information about the required input data, output data and usage please refer to the [User guide](/03_user_guide.rst).*  
+*For detailed information about the required input data, output data and usage please refer to the [User guide](03_user_guide.rst).*  
   
-The data models are described in more detail [here](/05_models.md).
+The data models are described in more detail [here](05_models.md).
 
 ## Contact information
 For questions, please contact Franziska Lang ([franziska.lang@tron-mainz.de](mailto:franziska.lang@tron-mainz.de)) or Pablo Riesgo Ferreiro ([pablo.riesgoferreiro@tron-mainz.de](mailto:pablo.riesgoferreiro@tron-mainz.de)).
