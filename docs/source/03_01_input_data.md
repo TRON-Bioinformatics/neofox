@@ -29,7 +29,9 @@ We allow two different tabular formats of the neoantigen candidate file: in `mod
    - `patientIdentifier` - the patient identifier
    - `rnaExpression` - the transcript expression. Should be empty if no value available
    - `rnaVariantAlleleFrequency` - the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
-   - `dnaVariantAlleleFrequency` - the variant allele frequency calculated from the DNA (**optional**)
+   - `dnaVariantAlleleFrequency` - the variant allele frequency calculated from the DNA (**optional**)  
+
+
 
 2. **candidate-file format**  
    Alternatively, neoantigen candidates can be provided in `candidate-file` format. This is an dummy example:  
@@ -94,9 +96,11 @@ where:
 
 ## JSON format
 
-This is an example of a neoantigen candidate in JSON format: 
-`
-{
+## Neoantigen candidates in JSON format 
+Besides tabular format, neoantigen candidates can be provided as a list of neoantigen models in JSON format as shown below. To simplify, only one full neoantigen model is shown. The terminology follows the descriptions for the [model file](#tabular-format). For a more detailed description of the models, please refer to [here](05_models.md):  
+
+````json
+[{
   "identifier": "jETwpX0R9iEiQz2SMpHkPQ==",
   "patientIdentifier": "P123",
   "transcript": {
@@ -118,15 +122,19 @@ This is an example of a neoantigen candidate in JSON format:
   "rnaExpression": 0.519506894,
   "dnaVariantAlleleFrequency": 0.294573643,
   "rnaVariantAlleleFrequency": 0.857142857
-}
-`
+}, {
+    next_neoantigen_candidate
+}]
+```` 
 
-This is an example of a patient in JSON format: 
+## Patient file in JSON format 
+This is an example of a patient file with patient. Note that the patient models contain models of the MHC I and MHC II alleles. These models are shown in more details [here](05_models.md) in JSON format. To simplify, only one full patient model is shown: 
 
-`
-{
+````json
+[{
        "identifier": "P123",
        "isRnaAvailable": true,
+       "tumor_type": true,
        "mhc1": [
           {
              "zygosity": "HETEROZYGOUS",
@@ -288,5 +296,8 @@ This is an example of a patient in JSON format:
              ]
           }
        ]
-    }
-`
+    }, {
+    next_patient
+}]
+````
+
