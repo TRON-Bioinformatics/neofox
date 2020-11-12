@@ -6,7 +6,7 @@ Of note, the neoantigen candidate file may contain additional user-specific inpu
 
 ## Tabular format
 ### File with neonatigen candidates
-We allow two different tabular formats of neoantigen candidate file: in `model-file` or `candidate-file`format. Other columns are allowed and will be kept during the annotation process.   
+We allow two different tabular formats of the neoantigen candidate file: in `model-file` or `candidate-file`format. The neoantigen candidate input file must follow one of these designs. However, additional user-specific columns are allowed and will be kept during the annotation process.   
 
 1. **model-file format**  
    This is an dummy example of a table with neoantigen candidates in `model-file` format:  
@@ -44,8 +44,8 @@ We allow two different tabular formats of neoantigen candidate file: in `model-f
    - `gene` is the HGNC gene symbol
    - `UCSC_trancript` is the UCSC transcript id including the version. (The user can enter a non-UCSC transcript id, if no UCSC transcript id is available)
    - `substitution` represents a single amino acid substitution with single letter amino acids (eg: I547T)
-   - `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites
-   - `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent non-mutated amino acid sequence
+   - `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
+   - `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
    - `transcript_expression` the transcript expression. Should be empty if no value available
    - `VAF_in_tumor` variant allele frequency in the DNA (**optional**)
    - `VAF_in_RNA` variant allele frequency in the RNA (**optional**, this will be estimated using the `VAF_in_tumor` if not available)
