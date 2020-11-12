@@ -31,6 +31,7 @@ NETMHCPAN_AVAILABLE_ALLELES_FILE = 'netmhcpan_available_alleles.txt'
 NETMHC2PAN_AVAILABLE_ALLELES_FILE = 'netmhc2pan_available_alleles.txt'
 
 
+
 class AbstractDependenciesConfiguration:
 
     def _check_and_load_binary(self, variable_name, optional=False):
@@ -85,6 +86,7 @@ class ReferenceFolder(object):
         self.iedb = self._get_reference_file_name(IEDB_FOLDER)
         self.proteome_db = self._get_reference_file_name(PROTEOME_DB_FOLDER)
         self.uniprot = self._get_reference_file_name(os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_FASTA))
+
 
         self.resources = [
             self.available_mhc_ii,

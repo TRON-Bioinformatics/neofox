@@ -41,10 +41,11 @@ class TestNeofox(TestCase):
         # self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         # self.runner = Runner()
         self.patient_id = 'Pt29'
-        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data.txt")
-        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/patient.Pt29.csv")
-        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_candidate_file.txt")
+        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_patient_file.txt")
         self.patients = ModelConverter.parse_patients_file(patients_file)
+        self.patients_dict = {patient.identifier: patient for patient in self.patients}
+        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
 
     def test_neofox(self):
         """
@@ -55,15 +56,15 @@ class TestNeofox(TestCase):
         NOTE: we will need to check the output when the calculation of resuls and printing to stdout have been decoupled
         """
         output_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.txt".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}_neoantigen_candidates_annotated.tsv".format(datetime.now()))
         output_file_tall_skinny = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.txt".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.tsv".format(datetime.now()))
         output_file_neoantigens = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.txt".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.tsv".format(datetime.now()))
         output_json_neoantigens = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigens.json".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_candidates.json".format(datetime.now()))
         output_json_annotations = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.annotations.json".format(datetime.now()))
+            neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.json".format(datetime.now()))
         annotations = NeoFox(
             neoantigens=self.neoantigens, patient_id=self.patient_id,
             patients=self.patients, num_cpus=1).get_annotations()
@@ -103,10 +104,26 @@ class TestNeofox(TestCase):
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
 
+    def test_neofox_no_expression_imputation(self):
+        neoantigens_imputed = ModelConverter.conditional_substitute_expression(self.neoantigens, self.patients)
+        for neoantigen in self.neoantigens:
+            for neoantigen_imputed in neoantigens_imputed:
+                if neoantigen.identifier == neoantigen_imputed.identifier:
+                    self.assertEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
+
+    def test_neofox_with_expression_imputation(self):
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_candidate_file_Pty.txt")
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        neoantigens_imputed = ModelConverter.conditional_substitute_expression(neoantigens, self.patients)
+        for neoantigen in self.neoantigens:
+            for neoantigen_imputed in neoantigens_imputed:
+                if neoantigen.identifier == neoantigen_imputed.identifier:
+                    self.assertFalse(neoantigen.rna_expression == neoantigen_imputed.rna_expression)
+
     def test_neofox_model_input(self):
         """
         """
-        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_model.txt")
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_model_file.txt")
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
         annotations = NeoFox(
             neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
@@ -124,7 +141,7 @@ class TestNeofox(TestCase):
         annotations = NeoFox(
             neoantigens=self.neoantigens, patient_id=self.patient_id,
             patients=self.patients, num_cpus=1).get_annotations()
-        annotation_names = [a.name for n in annotations for a in n.annotations ]
+        annotation_names = [a.name for n in annotations for a in n.annotations]
         # check it does not contain any of the MixMHCpred annotations
         self.assertNotIn("MixMHC2pred_best_peptide", annotation_names)
         self.assertNotIn("MixMHC2pred_best_rank", annotation_names)
