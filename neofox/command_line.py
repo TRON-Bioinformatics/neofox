@@ -25,6 +25,7 @@ from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
+from neofox.model.conversion import ModelConverter
 
 from neofox.references.installer import NeofoxReferenceInstaller
 
@@ -99,27 +100,34 @@ def neofox_cli():
     os.makedirs(output_folder, exist_ok=True)
 
     # reads the input data
-    neoantigens, patients, external_annotations = _read_data(candidate_file, model_file, patients_data)
+    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, patients_data)
+
+    # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
+    # otherwise original values is reported
+    neoantigens = ModelConverter.conditional_substitute_expression(neoantigens_pre, patients)
 
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
                          output_prefix=output_prefix, num_cpus=num_cpus).get_annotations()
+    # combine neoantigen feature annotations and potential user-specific external annotation
+    neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
 
-    _write_results(annotations + external_annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
+    _write_results(neoantigen_annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts)
 
     logger.info("Finished NeoFox")
 
 
 def _read_data(candidate_file, model_file, patients_data) -> \
         Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
-    # NOTE: this import here is a compromise solution so the help of the command line responds faster
-    from neofox.model.conversion import ModelConverter
-    # parse the input data
+    # parse patient data
+    patients = ModelConverter.parse_patients_file(patients_data)
+    logger.info(patients)
+    # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
     else:
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
-    patients = ModelConverter.parse_patients_file(patients_data)
+
     return neoantigens, patients, external_annotations
 
 
@@ -129,15 +137,26 @@ def _write_results(annotations, neoantigens, output_folder, output_prefix, with_
     # writes the output
     if with_sw:
         ModelConverter.annotations2short_wide_table(annotations, neoantigens).to_csv(
-            os.path.join(output_folder, "{}_neoantigens_features_short_wide.tsv".format(output_prefix)), sep='\t',
+            os.path.join(output_folder, "{}_neoantigen_candidates_annotated.tsv".format(output_prefix)), sep='\t',
             index=False)
     if with_ts:
         ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
-            os.path.join(output_folder, "{}_features_tall_skinny.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neoantigen_features.tsv".format(output_prefix)), sep='\t', index=False)
         ModelConverter.objects2dataframe(neoantigens).to_csv(
-            os.path.join(output_folder, "{}_neoantigens.tsv".format(output_prefix)), sep='\t', index=False)
+            os.path.join(output_folder, "{}_neoantigen_candidates.tsv".format(output_prefix)), sep='\t', index=False)
     if with_json:
         ModelConverter.objects2json(
-            annotations, os.path.join(output_folder, "{}_features.json".format(output_prefix)))
+            annotations, os.path.join(output_folder, "{}_neoantigen_features.json".format(output_prefix)))
         ModelConverter.objects2json(
-            neoantigens, os.path.join(output_folder, "{}_neoantigens.json".format(output_prefix)))
+            neoantigens, os.path.join(output_folder, "{}_neoantigen_candidates.json".format(output_prefix)))
+
+
+def _combine_features_with_external_annotations(annotations: List[NeoantigenAnnotations],
+                                                external_annotations: List[NeoantigenAnnotations]) -> List[NeoantigenAnnotations]:
+    final_annotations = []
+    for annotation in annotations:
+        for annotation_extern in external_annotations:
+            if annotation.neoantigen_identifier == annotation_extern.neoantigen_identifier:
+                annotation.annotations = annotation.annotations + annotation_extern.annotations
+        final_annotations.append(annotation)
+    return final_annotations
