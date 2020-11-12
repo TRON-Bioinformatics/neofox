@@ -24,7 +24,7 @@ We allow two different tabular formats of neoantigen candidate file: in `model-f
    - `mutation.leftFlankingRegion` - the amino acids flanking the mutation on the left (in IUPAC one letter symbols)
    - `mutation.mutatedAminoacid` - the mutated amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
    - `mutation.position` - the 1 based position of the mutation in the protein
-   - `mutation.rightFlankingRegion` - the amino acids flanking the mutation on the left (in IUPAC one letter symbols)
+   - `mutation.rightFlankingRegion` - the amino acids flanking the mutation on the right (in IUPAC one letter symbols)
    - `mutation.wildTypeAminoacid` - the wild type amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
    - `patientIdentifier` - the patient identifier
    - `rnaExpression` - the transcript expression. Should be empty if no value available
@@ -94,4 +94,199 @@ where:
 
 ## JSON format
 
+This is an example of a neoantigen candidate in JSON format: 
+`
+{
+  "identifier": "jETwpX0R9iEiQz2SMpHkPQ==",
+  "patientIdentifier": "P123",
+  "transcript": {
+    "identifier": "uc003kii.3",
+    "assembly": "hg19",
+    "gene": "VCAN"
+  },
+  "mutation": {
+    "position": 1007,
+    "wildTypeXmer": "DEVLGEPSQDILVIDQTRLEATISPET",
+    "wildTypeAminoacid": "I",
+    "mutatedXmer": "DEVLGEPSQDILVTDQTRLEATISPET",
+    "mutatedAminoacid": "T",
+    "leftFlankingRegion": "DEVLGEPSQDILV",
+    "sizeLeftFlankingRegion": 13,
+    "rightFlankingRegion": "DQTRLEATISPET",
+    "sizeRightFlankingRegion": 13
+  },
+  "rnaExpression": 0.519506894,
+  "dnaVariantAlleleFrequency": 0.294573643,
+  "rnaVariantAlleleFrequency": 0.857142857
+}
+`
 
+This is an example of a patient in JSON format: 
+
+`
+{
+       "identifier": "P123",
+       "isRnaAvailable": true,
+       "mhc1": [
+          {
+             "zygosity": "HETEROZYGOUS",
+             "alleles": [
+                {
+                   "fullName": "HLA-A*01:01:02:03N",
+                   "name": "HLA-A*01:01",
+                   "gene": "A",
+                   "group": "01",
+                   "protein": "01"
+                },
+                {
+                   "fullName": "HLA-A*01:02:02:03N",
+                   "name": "HLA-A*01:02",
+                   "gene": "A",
+                   "group": "01",
+                   "protein": "02"
+                }
+             ]
+          },
+          {
+             "name": "B",
+             "alleles": [
+                {
+                   "fullName": "HLA-B*01:01:02:04N",
+                   "name": "HLA-B*01:01",
+                   "gene": "B",
+                   "group": "01",
+                   "protein": "01"
+                }
+             ]
+          },
+          {
+             "name": "C",
+             "zygosity": "HEMIZYGOUS",
+             "alleles": [
+                {
+                   "fullName": "HLA-C*01:01",
+                   "name": "HLA-C*01:01",
+                   "gene": "C",
+                   "group": "01",
+                   "protein": "01"
+                }
+             ]
+          }
+       ],
+       "mhc2": [
+          {
+             "genes": [
+                {
+                   "alleles": [
+                      {
+                         "fullName": "HLA-DRB1*01:01",
+                         "name": "HLA-DRB1*01:01",
+                         "gene": "DRB1",
+                         "group": "01",
+                         "protein": "01"
+                      }
+                   ]
+                }
+             ],
+             "isoforms": [
+                {
+                   "name": "HLA-DRB1*01:01",
+                   "betaChain": {
+                      "fullName": "HLA-DRB1*01:01",
+                      "name": "HLA-DRB1*01:01",
+                      "gene": "DRB1",
+                      "group": "01",
+                      "protein": "01"
+                   }
+                }
+             ]
+          },
+          {
+             "name": "DP",
+             "genes": [
+                {
+                   "name": "DPA1",
+                   "zygosity": "HETEROZYGOUS",
+                   "alleles": [
+                      {
+                         "fullName": "HLA-DPA1*01:01",
+                         "name": "HLA-DPA1*01:01",
+                         "gene": "DPA1",
+                         "group": "01",
+                         "protein": "01"
+                      },
+                      {
+                         "fullName": "HLA-DPA1*01:02",
+                         "name": "HLA-DPA1*01:02",
+                         "gene": "DPA1",
+                         "group": "01",
+                         "protein": "02"
+                      }
+                   ]
+                },
+                {
+                   "name": "DPB1",
+                   "alleles": [
+                      {
+                         "fullName": "HLA-DPB1*01:01",
+                         "name": "HLA-DPB1*01:01",
+                         "gene": "DPB1",
+                         "group": "01",
+                         "protein": "01"
+                      }
+                   ]
+                }
+             ],
+             "isoforms": [
+                {
+                   "name": "HLA-DPA1*01:01-DPB1*01:01",
+                   "alphaChain": {
+                      "fullName": "HLA-DPA1*01:01",
+                      "name": "HLA-DPA1*01:01",
+                      "gene": "DPA1",
+                      "group": "01",
+                      "protein": "01"
+                   },
+                   "betaChain": {
+                      "fullName": "HLA-DPB1*01:01",
+                      "name": "HLA-DPB1*01:01",
+                      "gene": "DPB1",
+                      "group": "01",
+                      "protein": "01"
+                   }
+                },
+                {
+                   "name": "HLA-DPA1*01:02-DPB1*01:01",
+                   "alphaChain": {
+                      "fullName": "HLA-DPA1*01:02",
+                      "name": "HLA-DPA1*01:02",
+                      "gene": "DPA1",
+                      "group": "01",
+                      "protein": "02"
+                   },
+                   "betaChain": {
+                      "fullName": "HLA-DPB1*01:01",
+                      "name": "HLA-DPB1*01:01",
+                      "gene": "DPB1",
+                      "group": "01",
+                      "protein": "01"
+                   }
+                }
+             ]
+          },
+          {
+             "name": "DQ",
+             "genes": [
+                {
+                   "name": "DQA1",
+                   "zygosity": "LOSS"
+                },
+                {
+                   "name": "DQB1",
+                   "zygosity": "LOSS"
+                }
+             ]
+          }
+       ]
+    }
+`
