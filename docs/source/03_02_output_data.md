@@ -133,7 +133,8 @@ This is the head of a dummy *"_neoantigen_features.tsv"* file:
 | Best_affinity_MHCI_allele      | HLA-C\*16:01 | fMtSioNERLpCaSEFUFaIiQ== |
 | Best_rank_MHCI_9mer_score      | 6.2525       | fMtSioNERLpCaSEFUFaIiQ== |
 | Best_rank_MHCI_9mer_epitope    | ILVTDQTRL    | fMtSioNERLpCaSEFUFaIiQ== |
-| Best_rank_MHCI_9mer_allele     | HLA-C\*16:01 | fMtSioNERLpCaSEFUFaIiQ== |
+| Best_rank_MHCI_9mer_allele     | HLA-C\*16:01 | fMtSioNERLpCaSEFUFaIiQ== |  
+
 \
 where:
 - name: name of the neoantigen feature, which follow the descriptions given in **TABLE 1**.
