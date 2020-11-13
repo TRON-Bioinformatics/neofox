@@ -49,7 +49,7 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
     from neofox.neofox import NeoFox
    ````    
 2. **Create a neoantigen model**  
-    Create a neoantigen candidate model based on Transcript and Mutation model. Initialise each of these models by passing the required information. The following shows a dummy example:
+    Create a neoantigen candidate model based on Transcript and Mutation model. Initialise each of these models by passing the required information:
     ````python
     # model the transcript related to the neoantigen candidate
     transcript = Transcript(assembly="hg19", gene="VCAN", identifier="uc003kii.3")
@@ -59,9 +59,9 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
     neoantigen = Neoantigen(transcript=transcript, mutation=mutation, patient_identifier="Ptx", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
     ````   
    where:  
-       - `transcript`: Transcript model created by `Transcript()` (explanation of the parameters is provided [here](05_models.md#transcript))  
-       - `mutation`: Mutation model created by `Mutation()` (explanation of the parameters is provided [here](05_models.md#mutation))  
-       - `neoantigen`: Neoantigen candidate model by `Neoantigen()` (explanation of the parameters is provided [here](05_models.md#neoantigen))
+       - `transcript`: Transcript model, created with `Transcript()` (explanation of the parameters is provided [here](05_models.md#transcript))  
+       - `mutation`: Mutation model, created with `Mutation()` (explanation of the parameters is provided [here](05_models.md#mutation))  
+       - `neoantigen`: Neoantigen candidate model, created with `Neoantigen()` (explanation of the parameters is provided [here](05_models.md#neoantigen))
 
 3. **Validate the neoantigen model**  
     Check for validity of the entered parameters into the neoantigen models and the validity of the full neoantigen model:   
@@ -74,15 +74,15 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
     Create a patient model based on models for MHC I and MHC II alleles. Initialise each of these models by passing the required information. The following shows a dummy example:
     ````python
     # model the MHC I alleles of a patient 
-    mhc1 = ModelConverter.parse_mhc1_alleles(["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"])
+    mhc1 = ModelConverter.parse_mhc1_alleles(alleles=["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"])
     # model the MHC II alleles of a patient
-    mhc2 = ModelConverter.parse_mhc2_alleles(["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"])
+    mhc2 = ModelConverter.parse_mhc2_alleles(alleles=["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"])
     patient = Patient(identifier="P123", is_rna_available=True, mhc1=mhc1, mhc2=mhc2)
    ````
       where:  
-       - `mhc1`: Model of MHC class I alleles. Single alleles for HLA-A, HLA-B and HLA-C should be provided with *at least 4digits* but more digits are allowed. Homozygous alleles should be added twice. (more details about this model are provided [here](05_models.md#mhc1))  
-       - `mhc2`: Mutation model. Single alleles for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1 should be provided with *at least 4digits* but more digits are allowed. Homozygous alleles should be added twice. (more deteails are provided [here](05_models.md#mhc2))   
-       - `patient`: Patient model (explanation of the parameters is provided [here](05_models.md#patient))
+       - `mhc1`: Model of MHC class I alleles, created with `ModelConverter.parse_mhc1_alleles()`. Single alleles for HLA-A, HLA-B and HLA-C should be provided with *at least 4-digits* but more digits are allowed. Homozygous alleles should be added twice. (more details about this model are provided [here](05_models.md#mhc1))  
+       - `mhc2`: Model of MHC class II alleles, created with `ModelConverter.parse_mhc2_alleles()`. Single alleles for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1 should be provided with *at least 4-digits* but more digits are allowed. Homozygous alleles should be added twice. (more deteails are provided [here](05_models.md#mhc2))   
+       - `patient`: Patient model  created with `Patient()`(explanation of the parameters is provided [here](05_models.md#patient))
        
 5. **Validate the patient model**  
     Check for validity of the patient model: 
