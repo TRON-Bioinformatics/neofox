@@ -39,3 +39,82 @@ neofox --model-file neoantigens_candidates.tab --patient-id Ptx --patient-data p
 ````
 
 ## API
+NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain step by step the use of NeoFox by API using an example.  
+
+1. **Import requirements**   
+    ````python
+    from neofox.model.conversion import ModelConverter
+    from neofox.model.conversion import ModelValidator
+    from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient
+    from neofox.neofox import NeoFox
+   ````    
+2. **Create a neoantigen model**  
+    Create a neoantigen candidate model based on Transcript and Mutation model. Initialise each of these models by passing the required information. The following shows a dummy example:
+    ````python
+    # model the transcript related to the neoantigen candidate
+    transcript = Transcript(assembly="hg19", gene="VCAN", identifier="uc003kii.3")
+    # model the mutation related to the neoantigen candidate
+    mutation = Mutation(position=1007, wild_type_aminoacid="I", mutated_aminoacid="T", left_flanking_region="DEVLGEPSQDILV", right_flanking_region="DQTRLEATISPET")
+    # create a neoantigen candidate model using the transcript and mutation model
+    neoantigen = Neoantigen(transcript=transcript, mutation=mutation, patient_identifier="Ptx", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
+    ````   
+   where:  
+       - transcript: Transcript model (explanation of the parameters is provided [here](05_models.md#transcript))  
+       - mutation: Mutation model (explanation of the parameters is provided [here](05_models.md#mutation))  
+       - neoantigen: Neoantigen candidate model (explanation of the parameters is provided [here](05_models.md#neoantigen))
+
+3. **Validate the neoantigen model**  
+    Check for validity of the entered parameters into the neoantigen models and the validity of the full neoantigen model:   
+    ````python
+    validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen=neoantigen)
+   ````
+
+4. **Create a patient model**  
+    Create a patient model based on models for MHC I and MHC II alleles. Initialise each of these models by passing the required information. The following shows a dummy example:
+    ````python
+    # create MHC I model for the patient
+    mhc1 = ModelConverter.parse_mhc1_alleles(["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"])
+    # create MHC II model for the patient
+    mhc2 = ModelConverter.parse_mhc2_alleles(["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"])
+    patient = Patient(identifier="P123", is_rna_available=True, mhc1=mhc1, mhc2=mhc2)
+   ````
+      where:  
+       - mhc1: Model of MHC class I alleles (explanation is provided [here](05_models.md#mhc1)). Single alleles should be provided with *at least 4digits* but more digits are allowed.  
+       - mhc2: Mutation model (explanation is provided [here](05_models.md#mhc2))  Single alleles should be provided with *at least 4digits* but more digits are allowed  
+       - patient: Patient model (explanation of the parameters is provided [here](05_models.md#patient))
+       
+5. **Validate the patient model**  
+    Check for validity of the entered parameters into the patient models and the validity of the full patient model: 
+    ````python
+    validated_patient = ModelValidator.validate_patient(patient)
+   ````
+   
+6. **Run NeoFox**  
+    Run NeoFox by passing the validated neoantigen object and the validated patient object to get the neoantigen features. The output is a list of type `NeoantigenAnnotations`:  
+    ````python
+    annotations = NeoFox(neoantigens=[validated_neoantigen], patients=[validated_patient], num_cpus=2).get_annotations()
+   ````  
+      where:  
+       - `anotations`: list of type `NeoantigenAnnotations`, i.e. a list of neoantigen features and there values for a given neoantigen candidate (further explanation is provided [here](05_models.md#neoantigenannotations))  
+       - `neoantigens`: a list of validated neoantigen objects  
+       - `patients`: a list of validated patient objects  
+       - `num_cpus`: number of CPUs to use (*optional*)
+       
+7. **Transformation of output**   
+    Depending on the use case, the user can transform the resulting neoantigen feature annotations into the formats described [here](03_02_output_data.md).
+    ````python
+   # short-wide 
+   annotations_sw = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens = [validated_neoantigen])
+   # tall-skinny
+   annotations_ts = ModelConverter.annotations2tall_skinny_table(neoantigen_annotations=annotations)
+   # JSON 
+   annotations_json = ModelConverter.objects2json(model_objects=annotations)
+   ````
+   
+   Neoantigen obejcts can be transformed into other formats, too. In case, of our example:  
+   ````python
+    # convert neoantigens into data frame
+   neoantigens_df = ModelConverter.objects2dataframe(model_objects=[validated_neoantigen])
+   # convert neoantigens into JSON format 
+   neoantiges_json = ModelConverter.objects2json(model_objects=[validated_neoantigen]
+   ```` 
