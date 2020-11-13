@@ -1,6 +1,6 @@
 # Overview
 
-Welcome to the documentation of NeoFox!
+Welcome to the documentation of **NeoFox**!
 
 ## About NeoFox
 Neoantigens are tumour-specific antigens encoded by somatic mutations and their break down (neoepitopes) are presented by the Major Histocompatibility Complex (MHC) on the surface of tumor cells products to T-cells which recognize these neoepitope sequences. This neoantigen-specfic T-cell recognition may induce a potent anti-tumoral response why neoantigens are highly interesting targets for cancer immunotherapy. Conventionally, candidates for neoantigens are predicted by mutation calling from whole exome sequencing and translating the mutation profiles into amino acid sequences. For the final step, algorithms that predict the likelihood of a neoantigen candidate sequence to be indeed a true neoantigen are required .  
@@ -29,7 +29,7 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 | neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
   
 \
-Besides comprehensive annotation of neoantigen candidates, another attribute of NeoFox is the creation of biological meaningful representations of neoantigens and other biological entities as programmatic models.  
+Besides comprehensive annotation of neoantigen candidates, NeoFox creates biological meaningful representations of neoantigens and other biological entities as programmatic models.  
 Here, Protocol buffers is employed to model Neofox's input and output data: neoantigens, patients, MHC alleles and neoantigen feature annotations (Figure 1). Of note, this modelling allows users to expand NeoFox by customized neoantigen features, e.g. for benchmarking studies.   
 \
 **Figure 1**
@@ -37,9 +37,11 @@ Here, Protocol buffers is employed to model Neofox's input and output data: neoa
 \
 \
 \
-*For detailed information about the required input data, output data and usage please refer to the [User guide](03_user_guide.rst).*  
+For detailed information about the required input data, output data and usage please refer to the [User guide](03_user_guide.rst).  
   
 The data models are described in more detail [here](05_models.md).
+
+Happy annotation and modelling!
 
 ## Contact information
 For questions, please contact Franziska Lang ([franziska.lang@tron-mainz.de](mailto:franziska.lang@tron-mainz.de)) or Pablo Riesgo Ferreiro ([pablo.riesgoferreiro@tron-mainz.de](mailto:pablo.riesgoferreiro@tron-mainz.de)).

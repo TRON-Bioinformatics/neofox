@@ -1,10 +1,10 @@
 # Usage
 
 ## General information
-There are two ways to use NeoFox for annotation of neoantigen candidates with neoantigen features: directly from the command line [command line](#command-line) or [programmatically](#api). 
+There are two ways to use NeoFox for annotation of neoantigen candidates with neoantigen features: directly from the [command line](#command-line) or [programmatically](#api). 
 
 ## Command line
-To call NeoFox from the command line, please use the following command:  
+To call NeoFox from the command line, use the following command:  
 
 ````commandline
 neofox --model-file/--candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-id Ptx --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
@@ -39,7 +39,7 @@ neofox --model-file neoantigens_candidates.tab --patient-id Ptx --patient-data p
 ````
 
 ## API
-NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain the use of NeoFox by API step by step with the help of a dummy example.  
+NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain the use of NeoFox by API step by step with the help of a dummy example that includes building models from scratch. The models can be created based on files, too. In this case, ignore step 2-5 and refer to the note on the bottom of this paragraph.   
 
 1. **Import requirements**   
     ````python
@@ -116,10 +116,39 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
    
 **PLEASE NOTE THE FOLLOWING HINTS**:   
 - process multiple neoantigens by passing a list of validated neoantigens and a list of validated patients to `NeoFox().get_annotations()` in step 6.
-- Only the transformation of the annotation with `ModelConverter.annotations2short_wide_table()` will keep both information of neoantigen candidates and annotated features values. with Neoantigen objects can be transformed into other formats, too when `ModelConverter.annotations2tall_skinny_table()` or `ModelConverter.objects2json()` were used. In case of our example:  
+- only the transformation of the annotation with `ModelConverter.annotations2short_wide_table()` will keep both information of neoantigen candidates and annotated features values. with Neoantigen objects can be transformed into other formats, too when `ModelConverter.annotations2tall_skinny_table()` or `ModelConverter.objects2json()` were used. In case of our example:  
    ````python
     # convert neoantigens into data frame
    neoantigens_df = ModelConverter.objects2dataframe(model_objects=[validated_neoantigen])
    # convert neoantigens into JSON format 
    neoantiges_json = ModelConverter.objects2json(model_objects=[validated_neoantigen]
-   ```` 
+   ````   
+- instead of creating neoantigen or patient models (step2-5), tabular or json files containing this information can be passed:  
+  The neoantigen candidates can be provided in [**model-file format**](03_01_input_data.md#file-with-neonatigen-candidates)
+  ````python
+  model_file = "/path/to/neoantigen_candidates.tab"
+  neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(neoantigens_file=model_file)
+  ````
+  or in [**candidate-file format**](03_01_input_data.md#file-with-neonatigen-candidates)
+  ````python
+  candidate_file = "/path/to/neoantigen_candidates.tab"
+  neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file=candidate_file)    
+  ````
+  or in [**JSON format**](03_01_input_data.md#neoantigen-candidates-in-json-format). 
+   ````python
+    # NEEDS TO BE IMPLEMENTED 
+  ````  
+  The patient information can be provided in [**tabular format**](03_01_input_data.md#file-with-patient-information)
+   ````python
+   patient_file = "/path/to/patients.tab"
+  patients = ModelConverter.parse_patients_file(patients_data)
+   ````  
+  or [**JSON format**](03_01_input_data.md#patient-file-in-json-format)
+     ````python
+    # NEEDS TO BE IMPLEMENTED 
+  ````  
+  Then, run NeoFox as explained in step 6 by calling:
+  ````python
+  annotations = NeoFox(neoantigens=neoantigens, patients=patients, num_cpus=2).get_annotations()
+  ````
+  
