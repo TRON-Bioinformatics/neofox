@@ -59,35 +59,37 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
     neoantigen = Neoantigen(transcript=transcript, mutation=mutation, patient_identifier="Ptx", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
     ````   
    where:  
-       - transcript: Transcript model (explanation of the parameters is provided [here](05_models.md#transcript))  
-       - mutation: Mutation model (explanation of the parameters is provided [here](05_models.md#mutation))  
-       - neoantigen: Neoantigen candidate model (explanation of the parameters is provided [here](05_models.md#neoantigen))
+       - `transcript`: Transcript model created by `Transcript()` (explanation of the parameters is provided [here](05_models.md#transcript))  
+       - `mutation`: Mutation model created by `Mutation()` (explanation of the parameters is provided [here](05_models.md#mutation))  
+       - `neoantigen`: Neoantigen candidate model by `Neoantigen()` (explanation of the parameters is provided [here](05_models.md#neoantigen))
 
 3. **Validate the neoantigen model**  
     Check for validity of the entered parameters into the neoantigen models and the validity of the full neoantigen model:   
     ````python
     validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen=neoantigen)
-   ````
+   ````  
+   note: `ModelValidator.validate_neoantigen(neoantigen)` will internally validate the transcript and mutation model.
 
 4. **Create a patient model**  
     Create a patient model based on models for MHC I and MHC II alleles. Initialise each of these models by passing the required information. The following shows a dummy example:
     ````python
-    # create MHC I model for the patient
+    # model the MHC I alleles of a patient 
     mhc1 = ModelConverter.parse_mhc1_alleles(["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"])
-    # create MHC II model for the patient
+    # model the MHC II alleles of a patient
     mhc2 = ModelConverter.parse_mhc2_alleles(["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"])
     patient = Patient(identifier="P123", is_rna_available=True, mhc1=mhc1, mhc2=mhc2)
    ````
       where:  
-       - mhc1: Model of MHC class I alleles. Single alleles should be provided with *at least 4digits* but more digits are allowed. (more details are provided [here](05_models.md#mhc1))  
-       - mhc2: Mutation model. Single alleles should be provided with *at least 4digits* but more digits are allowed. (more deteails are provided [here](05_models.md#mhc2))   
-       - patient: Patient model (explanation of the parameters is provided [here](05_models.md#patient))
+       - `mhc1`: Model of MHC class I alleles. Single alleles for HLA-A, HLA-B and HLA-C should be provided with *at least 4digits* but more digits are allowed. Homozygous alleles should be added twice. (more details about this model are provided [here](05_models.md#mhc1))  
+       - `mhc2`: Mutation model. Single alleles for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1 should be provided with *at least 4digits* but more digits are allowed. Homozygous alleles should be added twice. (more deteails are provided [here](05_models.md#mhc2))   
+       - `patient`: Patient model (explanation of the parameters is provided [here](05_models.md#patient))
        
 5. **Validate the patient model**  
-    Check for validity of the entered parameters into the patient models and the validity of the full patient model: 
+    Check for validity of the patient model: 
     ````python
-    validated_patient = ModelValidator.validate_patient(patient)
-   ````
+    validated_patient = ModelValidator.validate_patient(patient=patient)
+   ````  
+   note: `ModelValidator.validate_patient(patient)` will internally validate MHC I and MHC II alleles.
    
 6. **Run NeoFox**  
     Run NeoFox by passing the validated neoantigen object and the validated patient object to get the neoantigen features. The output is a list of type `NeoantigenAnnotations`:  
@@ -111,13 +113,13 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
    annotations_json = ModelConverter.objects2json(model_objects=annotations)
    ````
    
-   Neoantigen obejcts can be transformed into other formats, too. In case, of our example:  
+   
+**PLEASE NOTE THE FOLLOWING HINTS**:   
+- process multiple neoantigens by passing a list of validated neoantigens and a list of validated patients to `NeoFox().get_annotations()` in step 6.
+- Only the transformation of the annotation with `ModelConverter.annotations2short_wide_table()` will keep both information of neoantigen candidates and annotated features values. with Neoantigen objects can be transformed into other formats, too when `ModelConverter.annotations2tall_skinny_table()` or `ModelConverter.objects2json()` were used. In case of our example:  
    ````python
     # convert neoantigens into data frame
    neoantigens_df = ModelConverter.objects2dataframe(model_objects=[validated_neoantigen])
    # convert neoantigens into JSON format 
    neoantiges_json = ModelConverter.objects2json(model_objects=[validated_neoantigen]
    ```` 
-   
-**PLEASE NOTE THE FOLLOWING HINTS**:   
-- process multiple neoantigens by passing a list of validated neonatigens and a list of validated patients to `NeoFox().get_annotations()` in step 6.

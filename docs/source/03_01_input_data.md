@@ -102,7 +102,7 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 ````json
 [{
   "identifier": "jETwpX0R9iEiQz2SMpHkPQ==",
-  "patientIdentifier": "P123",
+  "patientIdentifier": "Ptx",
   "transcript": {
     "identifier": "uc003kii.3",
     "assembly": "hg19",
@@ -132,11 +132,12 @@ This is an example of a patient file with patient. Note that the patient models 
 
 ````json
 [{
-       "identifier": "P123",
+       "identifier": "Ptx",
        "isRnaAvailable": true,
-       "tumor_type": true,
+       "tumor_type": "HNSC",
        "mhc1": [
           {
+             "name": "A",
              "zygosity": "HETEROZYGOUS",
              "alleles": [
                 {
@@ -157,6 +158,7 @@ This is an example of a patient file with patient. Note that the patient models 
           },
           {
              "name": "B",
+             "zygosity": "HOMOZYGOUS",
              "alleles": [
                 {
                    "fullName": "HLA-B*01:01:02:04N",
