@@ -39,7 +39,7 @@ neofox --model-file neoantigens_candidates.tab --patient-id Ptx --patient-data p
 ````
 
 ## API
-NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain step by step the use of NeoFox by API using an example.  
+NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain the use of NeoFox by API step by step with the help of a dummy example.  
 
 1. **Import requirements**   
     ````python
@@ -79,8 +79,8 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
     patient = Patient(identifier="P123", is_rna_available=True, mhc1=mhc1, mhc2=mhc2)
    ````
       where:  
-       - mhc1: Model of MHC class I alleles (explanation is provided [here](05_models.md#mhc1)). Single alleles should be provided with *at least 4digits* but more digits are allowed.  
-       - mhc2: Mutation model (explanation is provided [here](05_models.md#mhc2))  Single alleles should be provided with *at least 4digits* but more digits are allowed  
+       - mhc1: Model of MHC class I alleles. Single alleles should be provided with *at least 4digits* but more digits are allowed. (more details are provided [here](05_models.md#mhc1))  
+       - mhc2: Mutation model. Single alleles should be provided with *at least 4digits* but more digits are allowed. (more deteails are provided [here](05_models.md#mhc2))   
        - patient: Patient model (explanation of the parameters is provided [here](05_models.md#patient))
        
 5. **Validate the patient model**  
@@ -95,16 +95,16 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
     annotations = NeoFox(neoantigens=[validated_neoantigen], patients=[validated_patient], num_cpus=2).get_annotations()
    ````  
       where:  
-       - `anotations`: list of type `NeoantigenAnnotations`, i.e. a list of neoantigen features and there values for a given neoantigen candidate (further explanation is provided [here](05_models.md#neoantigenannotations))  
+       - `anotations`: list of type `NeoantigenAnnotations`, i.e. a list of neoantigen features and there values for given neoantigen candidates (further explanation is provided [here](05_models.md#neoantigenannotations))  
        - `neoantigens`: a list of validated neoantigen objects  
        - `patients`: a list of validated patient objects  
        - `num_cpus`: number of CPUs to use (*optional*)
        
-7. **Transformation of output**   
+7. **Transformation of the output**   
     Depending on the use case, the user can transform the resulting neoantigen feature annotations into the formats described [here](03_02_output_data.md).
     ````python
    # short-wide 
-   annotations_sw = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens = [validated_neoantigen])
+   annotations_sw = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens=[validated_neoantigen])
    # tall-skinny
    annotations_ts = ModelConverter.annotations2tall_skinny_table(neoantigen_annotations=annotations)
    # JSON 
@@ -118,3 +118,6 @@ NeoFox can be used programmatically and by that integrated into existing tools. 
    # convert neoantigens into JSON format 
    neoantiges_json = ModelConverter.objects2json(model_objects=[validated_neoantigen]
    ```` 
+   
+**PLEASE NOTE THE FOLLOWING HINTS**:   
+- process multiple neoantigens by passing a list of validated neonatigens and a list of validated patients to `NeoFox().get_annotations()` in step 6.
