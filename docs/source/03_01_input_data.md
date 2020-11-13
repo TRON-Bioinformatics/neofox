@@ -1,12 +1,12 @@
 # Input data
 
 ## General information
-NeoFox requires two input files: a file with neoantigen candidates that derive from point mutation and a file with patient data. These files can be provided either in tabular format when using the the command lined or in JSON format when using the API.  
+NeoFox requires two input files: a file with neoantigen candidates that derive from point mutation and a file with patient data. These files can be provided either in tabular format in JSON format.  
 Of note, the neoantigen candidate file may contain additional user-specific input that will be kept during the annotation process.
 
 ## Tabular format
 ### File with neonatigen candidates
-We allow two different tabular formats of the neoantigen candidate file: in `model-file` or `candidate-file`format. The neoantigen candidate input file must follow one of these designs. However, additional user-specific columns are allowed and will be kept during the annotation process.   
+We allow two different tabular formats of the neoantigen candidate file: `model-file` or `candidate-file` format. The neoantigen candidate input file must follow one of these designs. However, additional user-specific columns are allowed and will be kept during the annotation process.   
 
 1. **model-file format**  
    This is an dummy example of a table with neoantigen candidates in `model-file` format:  
@@ -64,8 +64,8 @@ This is an dummy example of a patient file in tabular format:
 
 where:
 - `identifier` - the patient identifier
-- `mhcIAlleles` - the list of MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, an allele should be added twice.
-- `mhcIIAlleles` - the list of MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, an allele should be added twice.
+- `mhcIAlleles` - "," separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, an allele should be added twice.
+- `mhcIIAlleles` - "," separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, an allele should be added twice.
 - `isRnaAvailable` - whether RNA was available for the analysis. ***If  false, then expression value will be imputed from TCGA gene expression data.*** If true, then the `VAF_in_RNA` field will be used, else `VAF_in_DNA` will be used.
 - `tumorType` - tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
 
