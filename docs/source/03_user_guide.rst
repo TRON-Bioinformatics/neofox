@@ -1,6 +1,8 @@
 User guide
 ==========
 
+Welcome to a guide through NeoFox and the world of neoantigen feature annotation! This guide will provide insights into required input data, usage and the resulting output data. 
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
