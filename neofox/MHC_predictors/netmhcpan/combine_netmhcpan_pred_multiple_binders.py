@@ -72,6 +72,8 @@ class BestAndMultipleBinder:
         self.mhcI_affinity_9mer_WT = None
         self.mhcI_affinity_allele_9mer_WT = None
         self.mhcI_affinity_epitope_9mer_WT = None
+        self.position_9mer = None
+        self.mutation_in_anchor_9mer = None
 
     def calculate_phbr_i(self, best_mhc_scores_per_allele):
         """returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
@@ -230,6 +232,11 @@ class BestAndMultipleBinder:
         """
         position_9mer = EpitopeHelper.position_of_mutation_epitope(
             wild_type=self.mhcI_affinity_epitope_9mer_WT, mutation=self.mhcI_affinity_epitope_9mer)
+        mutation_in_anchor_9mer = EpitopeHelper.position_in_anchor_position(
+                                                       position_mhci=position_9mer,
+                                                       peptide_length=len(self.mhcI_affinity_epitope_9mer))
         return [
             AnnotationFactory.build_annotation(value=position_9mer, name="Best_affinity_MHCI_9mer_position_mutation"),
+            AnnotationFactory.build_annotation(value=mutation_in_anchor_9mer,
+                                               name="Best_affinity_MHCI_9mer_anchor_mutated")
             ]

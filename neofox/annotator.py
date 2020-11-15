@@ -112,6 +112,7 @@ class NeoantigenAnnotator:
         # Amplitude
         self.amplitude.run(netmhcpan=self.netmhcpan, netmhc2pan=self.netmhc2pan)
         self.annotations.annotations.extend(self.amplitude.get_annotations())
+        self.annotations.annotations.extend(self.amplitude.get_annotations_mhc2())
 
         # Neoantigen fitness
         self.annotations.annotations.extend(
