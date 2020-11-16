@@ -20,7 +20,6 @@
 from typing import List, Set
 import scipy.stats as stats
 from logzero import logger
-from neofox import MHC_II
 from neofox.MHC_predictors.netmhcpan.multiple_binders import MultipleBinding
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.helpers import intermediate_files
@@ -58,25 +57,26 @@ class BestAndMultipleBinderMhcII:
         self.best_mhcII_affinity_epitope_WT = "-"
         self.best_mhcII_affinity_allele_WT = None
 
-    def calculate_phbr_ii(self, mhc_ii_alleles_with_best_scores):
-        """returns list of multiple binding scores for mhcII considering best epitope per allele,
-        applying different types of means (harmonic ==> PHRB-II, Marty et al).
-        2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
+    def calculate_phbr_ii(self, best_epitope_per_allele_mhc2):
         """
-        # TODO: what is this method actually doing?
-        mhc_ii_alleles_with_best_scores_new = list(mhc_ii_alleles_with_best_scores)
+        harmonic mean of best MHC II binding scores per MHC II allele
+        :param best_epitope_per_allele_mhc2: list of best MHC II epitopes per allele
+        :return: PHBR-II score, Marty et al
+        """
+        best_epitope_per_allele_mhc2_new = list(best_epitope_per_allele_mhc2)
         phbr_ii = None
-        for allele_with_score in mhc_ii_alleles_with_best_scores:
-            if allele_with_score[-1].gene == Mhc2GeneName.DRB1.name:
-                mhc_ii_alleles_with_best_scores_new.append(allele_with_score)
-        if len(mhc_ii_alleles_with_best_scores_new) == 12:
+        for allele_with_score in best_epitope_per_allele_mhc2:
+            # add DRB1
+            if allele_with_score[-1].beta_chain.gene == "DRB1":
+                best_epitope_per_allele_mhc2_new.append(allele_with_score)
+        if len(best_epitope_per_allele_mhc2_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
-            best_mhc_ii_scores_per_allele = [epitope[0] for epitope in mhc_ii_alleles_with_best_scores_new]
+            best_mhc_ii_scores_per_allele = [epitope[0] for epitope in best_epitope_per_allele_mhc2_new]
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
 
     def run(self, sequence_mut: str, sequence_wt: str, mhc2_alleles_patient: List[Mhc2], mhc2_alleles_available: Set):
-        """predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
+        """predicts MHC II epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         # mutation
         self._initialise()

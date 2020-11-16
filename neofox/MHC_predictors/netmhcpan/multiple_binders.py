@@ -124,7 +124,8 @@ class MultipleBinding:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for epitope in tuple_epitopes:
-            epitopes_by_allele.get(epitope[-1].name, []).append(epitope)
+            allele = epitope[-1].name
+            epitopes_by_allele.setdefault(allele, []).append(epitope)
 
         # chooses the best epitope per allele anc considers zygosity
         best_epitopes_per_allele = []

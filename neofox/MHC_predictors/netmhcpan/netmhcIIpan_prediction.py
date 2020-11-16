@@ -40,14 +40,14 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def generate_mhc_ii_alelle_combinations(self, mhcs: List[Mhc2]) -> List[str]:
+    def generate_mhc_ii_alelle_combinations(self, mhc_alleles: List[Mhc2]) -> List[str]:
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
         dp_dq_isoforms = [self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
-                           for mhc in mhcs if mhc.name != Mhc2Name.DR for m in mhc.isoforms]
+                          for mhc in mhc_alleles if mhc.name != Mhc2Name.DR for m in mhc.isoforms]
         dr_isoforms = [self._represent_drb1_allele(m.beta_chain)
-                        for mhc in mhcs if mhc.name == Mhc2Name.DR for m in mhc.isoforms]
+                       for mhc in mhc_alleles if mhc.name == Mhc2Name.DR for m in mhc.isoforms]
         return dp_dq_isoforms + dr_isoforms
 
     @staticmethod
@@ -92,7 +92,7 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                     line = line[0:-2] if len(line) > 11 else line
                     f.write(";".join(line) + "\n")
 
-    def filter_binding_predictions(self, position_xmer_sequence, tmppred):
+    def filter_binding_predictions(self, position_of_mutation, tmppred):
         """
         filters prediction file for predicted epitopes that cover mutations
         """
@@ -101,7 +101,7 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         pos_epi = header.index("Seq")
         epi = header.index("Peptide")
         for ii, i in enumerate(data):
-            if self.epitope_covers_mutation(position_xmer_sequence, i[pos_epi], len(i[epi])):
+            if self.epitope_covers_mutation(position_of_mutation, i[pos_epi], len(i[epi])):
                 epitopes_covering_mutation.append(data[ii])
         return header, epitopes_covering_mutation
 
