@@ -95,7 +95,7 @@ class BestAndMultipleBinderMhcII:
             predicted_epitopes_transformed = MultipleBinding.transform_mhc2_prediction_output(predicted_epitopes)
             best_predicted_epitopes_per_alelle = MultipleBinding.extract_best_epitope_per_mhc2_alelle(
                 predicted_epitopes_transformed, mhc2_alleles_patient)
-            self.MHCII_score_best_per_alelle = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
+            self.phbr_ii = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
             # best prediction
             best_predicted_epitope_rank = netmhc2pan.minimal_binding_score(predicted_epitopes)
             self.best_mhcII_pan_score = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "%Rank"))
