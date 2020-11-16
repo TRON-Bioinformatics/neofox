@@ -83,7 +83,7 @@ class BestAndMultipleBinderMhcII:
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         netmhc2pan = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta([sequence_mut], prefix="tmp_singleseq_")
-        allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(mhc2_alleles_patient)
+        allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(mhc2_alleles_patient)
         # TODO: migrate the available alleles into the model for alleles
         patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, mhc2_alleles_available)
 

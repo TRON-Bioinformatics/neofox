@@ -40,7 +40,7 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def generate_mhc_ii_alelle_combinations(self, mhc_alleles: List[Mhc2]) -> List[str]:
+    def generate_mhc2_alelle_combinations(self, mhc_alleles: List[Mhc2]) -> List[str]:
         """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
@@ -51,24 +51,24 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         return dp_dq_isoforms + dr_isoforms
 
     @staticmethod
-    def _represent_drb1_allele(hla_allele: MhcAllele):
+    def _represent_drb1_allele(mhc_allele: MhcAllele):
         return "{gene}_{group}{protein}".format(
-            gene=hla_allele.gene, group=hla_allele.group, protein=hla_allele.protein)
+            gene=mhc_allele.gene, group=mhc_allele.group, protein=mhc_allele.protein)
 
     @staticmethod
-    def _represent_dp_and_dq_allele(hla_a_allele: MhcAllele, hla_b_allele: MhcAllele):
+    def _represent_dp_and_dq_allele(mhc_a_allele: MhcAllele, mhc_b_allele: MhcAllele):
         return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
-            gene_a=hla_a_allele.gene, group_a=hla_a_allele.group, protein_a=hla_a_allele.protein,
-            gene_b=hla_b_allele.gene, group_b=hla_b_allele.group, protein_b=hla_b_allele.protein)
+            gene_a=mhc_a_allele.gene, group_a=mhc_a_allele.group, protein_a=mhc_a_allele.protein,
+            gene_b=mhc_b_allele.gene, group_b=mhc_b_allele.group, protein_b=mhc_b_allele.protein)
 
-    def mhcII_prediction(self, hla_alleles: List[str], tmpfasta, tmppred):
+    def mhcII_prediction(self, mhc_alleles: List[str], tmpfasta, tmppred):
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file.
         """
         # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command([
             self.configuration.net_mhc2_pan,
-            "-a", ",".join(hla_alleles),
+            "-a", ",".join(mhc_alleles),
             "-f", tmpfasta,
             "-tdir", tmp_folder,
             "-dirty"])
