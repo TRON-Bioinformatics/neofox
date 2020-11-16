@@ -85,7 +85,7 @@ class BestAndMultipleBinder:
             phbr_i = stats.hmean(list_best_mhc_scores_per_allele)
         return phbr_i
 
-    def run(self, sequence_wt: str, sequence_mut: str, mhc: List[Mhc1], available_mhc_alleles: Set):
+    def run(self, sequence_wt: str, sequence_mut: str, mhc1_alleles_patient: List[Mhc1], mhc1_alleles_available: Set):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
@@ -95,7 +95,7 @@ class BestAndMultipleBinder:
         netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_mut], prefix="tmp_singleseq_")
         # print alleles
-        netmhcpan.mhc_prediction(mhc, available_mhc_alleles, tmp_fasta, tmp_prediction)
+        netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, tmp_fasta, tmp_prediction)
         position_of_mutation = netmhcpan.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(position_of_mutation=position_of_mutation, tmppred=tmp_prediction)
         # multiple binding
@@ -128,7 +128,7 @@ class BestAndMultipleBinder:
         all_affinities = [epitope[1] for epitope in predicted_neoepitopes_transformed]
         self.generator_rate = MultipleBinding.determine_number_of_binders(list_scores=all_affinities, threshold=50)
         best_epitopes_per_allele = MultipleBinding.extract_best_epitope_per_alelle(
-            predicted_neoepitopes_transformed, mhc)
+            predicted_neoepitopes_transformed, mhc1_alleles_patient)
         # PHBR-I
         best_epitopes_per_allele = [epitope[0] for epitope in best_epitopes_per_allele]
         self.phbr_i = self.calculate_phbr_i(best_epitopes_per_allele)
@@ -139,7 +139,7 @@ class BestAndMultipleBinder:
         netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[sequence_wt],
                                                          prefix="tmp_singleseq_")
-        netmhcpan.mhc_prediction(mhc, available_mhc_alleles, tmp_fasta, tmp_prediction)
+        netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, tmp_fasta, tmp_prediction)
         predicted_neoepitopes_wt = netmhcpan.filter_binding_predictions(position_of_mutation=position_of_mutation,
                                                               tmppred=tmp_prediction)
         # best prediction
