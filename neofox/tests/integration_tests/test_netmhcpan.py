@@ -41,7 +41,7 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhcpan_predictor.mhc_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction, mhc_isoforms=TEST_MHC_ONE,
+            tmpfasta=tmp_fasta, tmppred=tmp_prediction, mhc_alleles=TEST_MHC_ONE,
             set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.assertTrue(os.path.exists(tmp_prediction))
         self.assertEqual(19, len(open(tmp_prediction).readlines()))
@@ -58,7 +58,7 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhcpan_predictor.mhc_prediction(
             tmpfasta=tmp_fasta, tmppred=tmp_prediction,
-            mhc_isoforms=TEST_MHC_ONE,
+            mhc_alleles=TEST_MHC_ONE,
             set_available_mhc=self.available_alleles.get_available_mhc_i())
         self.assertTrue(os.path.exists(tmp_prediction))
         # TODO: this is writing ot the output file "No;peptides;derived;from;protein;ID;seq1;len;4.;Skipped"
@@ -82,7 +82,7 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhc2pan_predictor.mhcII_prediction(
             tmpfasta=tmp_fasta, tmppred=tmp_prediction,
-            hla_alleles=netmhc2pan_predictor.generate_mhc_ii_alelle_combinations(TEST_MHC_TWO))
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(TEST_MHC_TWO))
         self.assertTrue(os.path.exists(tmp_prediction))
         self.assertEqual(3, len(open(tmp_prediction).readlines()))
 
@@ -100,7 +100,7 @@ class TestNetMhcPanPredictor(TestCase):
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
         netmhc2pan_predictor.mhcII_prediction(
             tmpfasta=tmp_fasta, tmppred=tmp_prediction,
-            hla_alleles=netmhc2pan_predictor.generate_mhc_ii_alelle_combinations(TEST_MHC_TWO))
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(TEST_MHC_TWO))
         self.assertTrue(os.path.exists(tmp_prediction))
         self.assertEqual(1, len(open(tmp_prediction).readlines()))
 

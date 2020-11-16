@@ -127,7 +127,7 @@ class TestBestMultipleBinder(TestCase):
         non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
         # all alleles = heterozygous
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_singleseq_")
-        allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(TEST_MHC_TWO)
+        allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(TEST_MHC_TWO)
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(allele_combinations,
                                                                                self.available_alleles_mhc2)
         netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
@@ -148,7 +148,7 @@ class TestBestMultipleBinder(TestCase):
                                                           'HLA-DPA1*01:03', 'HLA-DPA1*02:01', 'HLA-DPB1*13:01',
                                                           'HLA-DPB1*13:01'])
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_singleseq_")
-        allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(mhc2_alleles)
+        allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(mhc2_alleles)
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(allele_combinations,
                                                                                self.available_alleles_mhc2)
         netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
@@ -168,7 +168,7 @@ class TestBestMultipleBinder(TestCase):
                                                           'HLA-DQA1*04:01', 'HLA-DQB1*03:02', 'HLA-DQB1*04:02',
                                                           'HLA-DPA1*01:03', 'HLA-DPA1*02:01', 'HLA-DPB1*13:01'])
         tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_singleseq_")
-        allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(mhc2_alleles)
+        allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(mhc2_alleles)
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(allele_combinations,
                                                                                self.available_alleles_mhc2)
         netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
