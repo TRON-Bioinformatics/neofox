@@ -96,8 +96,6 @@ class MultipleBinding:
         """
         homozygous_alleles = MultipleBinding._get_homozygous_mhc1_alleles(mhc_isoforms)
         hetero_hemizygous_alleles = MultipleBinding._get_heterozygous_or_hemizygous_mhc1_alleles(mhc_isoforms)
-        logger.info(homozygous_alleles)
-        logger.info(hetero_hemizygous_alleles)
         return MultipleBinding._get_sorted_epitopes(hetero_hemizygous_alleles, homozygous_alleles, tuple_epitopes)
 
     @staticmethod
