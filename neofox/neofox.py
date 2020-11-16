@@ -26,6 +26,7 @@ from logzero import logger
 from dask.distributed import Client
 
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
@@ -47,8 +48,11 @@ class NeoFox:
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
         # testable with fake objects
         self.reference_folder = reference_folder if reference_folder else ReferenceFolder()
+        # NOTE: makes this call to force the loading of the available alleles here
+        self.reference_folder.get_available_alleles()
         self.configuration = configuration if configuration else DependenciesConfiguration()
         self.tcell_predictor = TcellPrediction()
+        self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
         if neoantigens is None or len(neoantigens) == 0 or patients is None or len(patients) == 0:
@@ -117,7 +121,7 @@ class NeoFox:
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
             futures.append(dask_client.submit(
                 NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration,
-                self.tcell_predictor
+                self.tcell_predictor, self.self_similarity
             ))
 
         annotations = dask_client.gather(futures)
@@ -129,10 +133,13 @@ class NeoFox:
 
     @staticmethod
     def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient, reference_folder: ReferenceFolder,
-                            configuration: DependenciesConfiguration, tcell_predictor: TcellPrediction):
+                            configuration: DependenciesConfiguration, tcell_predictor: TcellPrediction,
+                            self_similarity: SelfSimilarityCalculator):
         logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
         start = time.time()
-        annotation = NeoantigenAnnotator(reference_folder, configuration, tcell_predictor).get_annotation(neoantigen, patient)
+        annotation = NeoantigenAnnotator(
+            reference_folder, configuration, tcell_predictor=tcell_predictor, self_similarity=self_similarity)\
+            .get_annotation(neoantigen, patient)
         end = time.time()
         logger.info("Elapsed time for annotating neoantigen {}: {} seconds".format(
             neoantigen.identifier, int(end - start)))
