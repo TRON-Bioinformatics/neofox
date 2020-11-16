@@ -45,7 +45,8 @@ from neofox.references.references import ReferenceFolder, DependenciesConfigurat
 
 class NeoantigenAnnotator:
 
-    def __init__(self, references: ReferenceFolder, configuration: DependenciesConfiguration):
+    def __init__(self, references: ReferenceFolder, configuration: DependenciesConfiguration,
+                 tcell_predictor: TcellPrediction):
         """class to annotate neoantigens"""
         runner = Runner()
         self.dissimilarity_calculator = DissimilarityCalculator(
@@ -57,7 +58,8 @@ class NeoantigenAnnotator:
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.available_alleles = references.get_available_alleles()
         self.uniprot = Uniprot(references.uniprot)
-        self.tcell_predictor = TcellPrediction()
+        #self.tcell_predictor = TcellPrediction()
+        self.tcell_predictor = tcell_predictor
         self.self_similarity = SelfSimilarityCalculator()
 
         # make MixMHCpred and MixMHC2pred optional

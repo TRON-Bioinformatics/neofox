@@ -67,7 +67,7 @@ class TestNeofox(TestCase):
             neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.json".format(datetime.now()))
         annotations = NeoFox(
             neoantigens=self.neoantigens, patient_id=self.patient_id,
-            patients=self.patients, num_cpus=1).get_annotations()
+            patients=self.patients, num_cpus=4).get_annotations()
         annotation_names = [a.name for n in annotations for a in n.annotations]
 
         # check it does contain any of the MixMHCpred annotations

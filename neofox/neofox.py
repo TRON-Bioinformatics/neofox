@@ -24,6 +24,8 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
+
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
@@ -50,6 +52,7 @@ class NeoFox:
         # testable with fake objects
         self.reference_folder = reference_folder if reference_folder else ReferenceFolder()
         self.configuration = configuration if configuration else DependenciesConfiguration()
+        self.tcell_predictor = TcellPrediction()
 
         if neoantigens is None or len(neoantigens) == 0 or patients is None or len(patients) == 0:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
@@ -113,7 +116,9 @@ class NeoFox:
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
             futures.append(self.dask_client.submit(
-                NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration))
+                NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration,
+                self.tcell_predictor
+            ))
 
         annotations = self.dask_client.gather(futures)
         end = time.time()
@@ -123,10 +128,10 @@ class NeoFox:
 
     @staticmethod
     def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient, reference_folder: ReferenceFolder,
-                            configuration: DependenciesConfiguration):
+                            configuration: DependenciesConfiguration, tcell_predictor: TcellPrediction):
         logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
         start = time.time()
-        annotation = NeoantigenAnnotator(reference_folder, configuration).get_annotation(neoantigen, patient)
+        annotation = NeoantigenAnnotator(reference_folder, configuration, tcell_predictor).get_annotation(neoantigen, patient)
         end = time.time()
         logger.info("Elapsed time for annotating neoantigen {}: {} seconds".format(
             neoantigen.identifier, int(end - start)))
