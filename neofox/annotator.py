@@ -58,7 +58,6 @@ class NeoantigenAnnotator:
         self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.available_alleles = references.get_available_alleles()
         self.uniprot = Uniprot(references.uniprot)
-        #self.tcell_predictor = TcellPrediction()
         self.tcell_predictor = tcell_predictor
         self.self_similarity = SelfSimilarityCalculator()
 
