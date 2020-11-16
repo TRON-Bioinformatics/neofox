@@ -46,20 +46,15 @@ from neofox.references.references import ReferenceFolder, DependenciesConfigurat
 class NeoantigenAnnotator:
 
     def __init__(self, references: ReferenceFolder, configuration: DependenciesConfiguration,
-                 tcell_predictor: TcellPrediction):
+                 tcell_predictor: TcellPrediction, self_similarity: SelfSimilarityCalculator):
         """class to annotate neoantigens"""
         runner = Runner()
-        self.dissimilarity_calculator = DissimilarityCalculator(
-            runner=runner, configuration=configuration, proteome_db=references.proteome_db)
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
-            runner=runner, configuration=configuration, iedb=references.iedb)
-        self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
-        self.netmhc2pan = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
-        self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.available_alleles = references.get_available_alleles()
-        self.uniprot = Uniprot(references.uniprot)
         self.tcell_predictor = tcell_predictor
-        self.self_similarity = SelfSimilarityCalculator()
+        self.self_similarity = self_similarity
+
+        # this one loads a big file, not sure if we can pass it as a parameter to avoid loading multiple times
+        self.uniprot = Uniprot(references.uniprot)
 
         # make MixMHCpred and MixMHC2pred optional
         self.mixmhc2 = None
@@ -72,6 +67,13 @@ class NeoantigenAnnotator:
 
 
         # NOTE: these resources do not read any file thus can be initialised fast
+        self.dissimilarity_calculator = DissimilarityCalculator(
+            runner=runner, configuration=configuration, proteome_db=references.proteome_db)
+        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
+            runner=runner, configuration=configuration, iedb=references.iedb)
+        self.neoag_calculator = NeoagCalculator(runner=runner, configuration=configuration)
+        self.netmhc2pan = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
+        self.netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         self.differential_binding = DifferentialBinding()
         self.priority_score_calculator = PriorityScore()
         self.iedb_immunogenicity = IEDBimmunogenicity()
