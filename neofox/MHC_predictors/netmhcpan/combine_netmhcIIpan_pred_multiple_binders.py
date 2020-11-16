@@ -75,26 +75,26 @@ class BestAndMultipleBinderMhcII:
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
 
-    def run(self, sequence: str, sequence_reference: str, mhc: List[Mhc2], available_mhc: Set):
+    def run(self, sequence_mut: str, sequence_wt: str, mhc2_alleles_patient: List[Mhc2], mhc2_alleles_available: Set):
         """predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         # mutation
         self._initialise()
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         netmhc2pan = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
-        tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
-        allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(mhc)
+        tmp_fasta = intermediate_files.create_temp_fasta([sequence_mut], prefix="tmp_singleseq_")
+        allele_combinations = netmhc2pan.generate_mhc_ii_alelle_combinations(mhc2_alleles_patient)
         # TODO: migrate the available alleles into the model for alleles
-        patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, available_mhc)
+        patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, mhc2_alleles_available)
 
         netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
-        position_mutation = netmhc2pan.mut_position_xmer_seq(sequence_wt=sequence_reference, sequence_mut=sequence)
-        if len(sequence) >= 15:
+        position_mutation = netmhc2pan.mut_position_xmer_seq(sequence_wt=sequence_wt, sequence_mut=sequence_mut)
+        if len(sequence_mut) >= 15:
             predicted_epitopes = netmhc2pan.filter_binding_predictions(position_mutation, tmp_prediction)
             # multiple binding
             predicted_epitopes_transformed = MultipleBinding.transform_mhc2_prediction_output(predicted_epitopes)
             best_predicted_epitopes_per_alelle = MultipleBinding.extract_best_epitope_per_mhc2_alelle(
-                predicted_epitopes_transformed, mhc)
+                predicted_epitopes_transformed, mhc2_alleles_patient)
             self.MHCII_score_best_per_alelle = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
             # best prediction
             best_predicted_epitope_rank = netmhc2pan.minimal_binding_score(predicted_epitopes)
@@ -111,9 +111,9 @@ class BestAndMultipleBinderMhcII:
         # wt
         tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
         netmhc2pan = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
-        tmp_fasta = intermediate_files.create_temp_fasta([sequence_reference], prefix="tmp_singleseq_")
+        tmp_fasta = intermediate_files.create_temp_fasta([sequence_wt], prefix="tmp_singleseq_")
         netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, tmp_fasta, tmp_prediction)
-        if len(sequence_reference) >= 15:
+        if len(sequence_wt) >= 15:
             predicted_epitopes_wt = netmhc2pan.filter_binding_predictions(position_mutation, tmp_prediction)
             # best prediction
             best_predicted_epitope_rank_wt = \

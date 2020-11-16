@@ -36,14 +36,15 @@ class TestBestMultipleBinder(TestCase):
         references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
         self.available_alleles_mhc1 = references.get_available_alleles().get_available_mhc_i()
+        self.available_alleles_mhc2 = references.get_available_alleles().get_available_mhc_ii()
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(runner=self.runner, configuration=self.configuration)
-        # this is some valid example neoantigen candidate sequene
+        # this is some valid example neoantigen candidate sequence
         mutated = 'DEVLGEPSQDILVTDQTRLEATISPET'
         non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
-        best_multiple.run(sequence_mut=mutated, sequence_wt=non_mutated, mhc=TEST_MHC_ONE,
-                          available_mhc_alleles=self.available_alleles_mhc1)
+        best_multiple.run(sequence_mut=mutated, sequence_wt=non_mutated, mhc1_alleles_patient=TEST_MHC_ONE,
+                          mhc1_alleles_available=self.available_alleles_mhc1)
         self.assertEqual(543.9, best_multiple.best4_affinity)
         self.assertEqual(0.4304, best_multiple.best4_mhc_score)
         self.assertEqual("VTDQTRLEA", best_multiple.best4_mhc_epitope)
@@ -63,12 +64,9 @@ class TestBestMultipleBinder(TestCase):
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(position_of_mutation=position_of_mutation,
                                                                      tmppred=tmp_prediction)
         predicted_neoepitopes_transformed = MultipleBinding.transform_mhc_prediction_output(predicted_neoepitopes)
-        logger.info(predicted_neoepitopes_transformed)
         best_epitopes_per_allele = MultipleBinding.extract_best_epitope_per_alelle(
             predicted_neoepitopes_transformed, TEST_MHC_ONE)
-        logger.info(best_epitopes_per_allele)
         best_epitopes_per_allele = [epitope[0] for epitope in best_epitopes_per_allele]
-        logger.info(best_epitopes_per_allele)
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele)
         self.assertIsNotNone(phbr_i)
         self.assertAlmostEqual(1.9449989270, phbr_i)
@@ -81,12 +79,10 @@ class TestBestMultipleBinder(TestCase):
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(position_of_mutation=position_of_mutation,
                                                                      tmppred=tmp_prediction)
         predicted_neoepitopes_transformed = MultipleBinding.transform_mhc_prediction_output(predicted_neoepitopes)
-        logger.info(predicted_neoepitopes_transformed)
         best_epitopes_per_allele = MultipleBinding.extract_best_epitope_per_alelle(
             predicted_neoepitopes_transformed, mhc_alleles)
-        logger.info(best_epitopes_per_allele)
         best_epitopes_per_allele = [epitope[0] for epitope in best_epitopes_per_allele]
-        logger.info(best_epitopes_per_allele)
+
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele)
         self.assertIsNotNone(phbr_i)
         self.assertAlmostEqual(1.131227969630, phbr_i)
@@ -99,13 +95,26 @@ class TestBestMultipleBinder(TestCase):
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(position_of_mutation=position_of_mutation,
                                                                      tmppred=tmp_prediction)
         predicted_neoepitopes_transformed = MultipleBinding.transform_mhc_prediction_output(predicted_neoepitopes)
-        logger.info(predicted_neoepitopes_transformed)
         best_epitopes_per_allele = MultipleBinding.extract_best_epitope_per_alelle(
             predicted_neoepitopes_transformed, mhc_alleles)
-        logger.info(best_epitopes_per_allele)
         best_epitopes_per_allele = [epitope[0] for epitope in best_epitopes_per_allele]
-        logger.info(best_epitopes_per_allele)
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele)
         self.assertIsNone(phbr_i)
+
+    def test_best_multiple_mhc2_run(self):
+        best_multiple = BestAndMultipleBinderMhcII(runner=self.runner, configuration=self.configuration)
+        # this is some valid example neoantigen candidate sequence
+        mutated = 'DEVLGEPSQDILVTDQTRLEATISPET'
+        non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
+        best_multiple.run(sequence_mut=mutated, sequence_wt=non_mutated, mhc2_alleles_patient=TEST_MHC_TWO,
+                          mhc2_alleles_available=self.available_alleles_mhc2)
+        logger.info(best_multiple.best_mhcII_pan_score)
+        logger.info(best_multiple.best_mhcII_pan_affinity)
+        logger.info(best_multiple.best_mhcII_pan_epitope)
+        logger.info(best_multiple.phbr_ii)
+        self.assertEqual(1434.66, best_multiple.best_mhcII_pan_score)
+        self.assertEqual(17.0, best_multiple.best_mhcII_pan_affinity)
+        self.assertEqual("VTDQTRLEATISPET", best_multiple.best_mhcII_pan_epitope)
+
 
 
