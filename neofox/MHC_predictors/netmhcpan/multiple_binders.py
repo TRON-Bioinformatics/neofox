@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from collections import defaultdict
 from typing import List, Tuple
+from logzero import logger
 from neofox.model.neoantigen import MhcAllele, Mhc1, Zygosity, Mhc2, Mhc2Isoform
 from neofox.model.conversion import ModelValidator
 
@@ -103,9 +104,9 @@ class MultipleBinding:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for epitope in tuple_epitopes:
-            epitopes_by_allele.get(epitope[-1].name, []).append(epitope)
-
-        # chooses the best epitope per allele anc considers zygosity
+            allele = epitope[-1].name
+            epitopes_by_allele.setdefault(allele, []).append(epitope)
+        # chooses the best epitope per allele while considering zygosity
         best_epis_per_allele = []
         for allele, epitopes in epitopes_by_allele.items():
             epitopes.sort(key=lambda x: float(x[0]))    # sort by rank to choose the best epitope
@@ -123,7 +124,8 @@ class MultipleBinding:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for epitope in tuple_epitopes:
-            epitopes_by_allele.get(epitope[-1].name, []).append(epitope)
+            allele = epitope[-1].name
+            epitopes_by_allele.setdefault(allele, []).append(epitope)
 
         # chooses the best epitope per allele anc considers zygosity
         best_epitopes_per_allele = []
