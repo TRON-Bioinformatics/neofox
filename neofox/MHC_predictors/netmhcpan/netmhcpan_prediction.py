@@ -37,12 +37,12 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def mhc_prediction(self, mhc_isoforms: List[Mhc1], set_available_mhc: Set, tmpfasta, tmppred):
+    def mhc_prediction(self, mhc_alleles: List[Mhc1], set_available_mhc: Set, tmpfasta, tmppred):
         """ Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         """
         cmd = [
             self.configuration.net_mhc_pan,
-            "-a", self._get_only_available_alleles(mhc_isoforms, set_available_mhc),
+            "-a", self._get_only_available_alleles(mhc_alleles, set_available_mhc),
             "-f", tmpfasta,
             "-BA"]
         lines, _ = self.runner.run_command(cmd)
@@ -113,24 +113,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                 dat_9mers.append(i)
         return dat_head, dat_9mers
 
-    def filter_for_WT_epitope(self, prediction_tuple, mut_seq, mut_allele, number_snv):
-        """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
-        """
-        header = prediction_tuple[0]
-        data = prediction_tuple[1]
-        seq_col = header.index("Peptide")
-        epitopes_wt = []
-        for ii, i in enumerate(data):
-            wt_seq = i[seq_col]
-            if len(wt_seq) == len(mut_seq):
-                numb_mismatch = self.hamming_check_0_or_1(mut_seq, wt_seq)
-                if numb_mismatch <= number_snv:
-                    epitopes_wt.append(i)
-        all_epitopes_wt = (header, epitopes_wt)
-        self.minimal_binding_score(all_epitopes_wt)
-        return self.minimal_binding_score(all_epitopes_wt)
-
-    def filter_for_WT_epitope_position(self, prediction_tuple, sequence_mut, position_epitope):
+    def filter_for_WT_epitope_position(self, prediction_tuple, sequence_mut, position_mutation_epitope):
         """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
         """
         header = prediction_tuple[0]
@@ -141,7 +124,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         for ii, i in enumerate(data):
             wt_seq = i[seq_col]
             wt_pos = i[pos_col]
-            if (len(wt_seq) == len(sequence_mut)) & (wt_pos == position_epitope):
+            if (len(wt_seq) == len(sequence_mut)) & (wt_pos == position_mutation_epitope):
                 epitopes_wt.append(i)
         all_epitopes_wt = (header, epitopes_wt)
         return self.minimal_binding_score(all_epitopes_wt)

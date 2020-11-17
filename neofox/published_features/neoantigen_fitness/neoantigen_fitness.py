@@ -94,9 +94,6 @@ class NeoantigenFitnessCalculator(BlastpRunner):
 
     def get_annotations(self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude) -> List[Annotation]:
         pathogen_similarity_9mer = self.get_pathogen_similarity(mutation=netmhcpan.mhcI_affinity_epitope_9mer)
-        position_9mer = EpitopeHelper.position_of_mutation_epitope(
-            wild_type=netmhcpan.mhcI_affinity_epitope_9mer_WT, mutation=netmhcpan.mhcI_affinity_epitope_9mer)
-
 
         return [
             AnnotationFactory.build_annotation(name="Pathogensimiliarity_MHCI_affinity_9mer",
@@ -105,9 +102,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
                                                value=self.calculate_recognition_potential(
                                                    amplitude=amplitude.amplitude_mhci_affinity_9mer,
                                                    pathogen_similarity=pathogen_similarity_9mer,
-                                                   mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
-                                                       position_mhci=position_9mer,
-                                                       peptide_length=len(netmhcpan.mhcI_affinity_epitope_9mer)),
+                                                   mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer,
                                                    mhc_affinity_mut=netmhcpan.mhcI_affinity_9mer))
         ]
 
