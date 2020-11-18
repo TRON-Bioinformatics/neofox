@@ -74,8 +74,7 @@ class TestMixMHCPred(TestCase):
             sequence_wt=wild_type, sequence_mut=mutated, mhc=TEST_MHC_TWO)
         self.assertEquals('NPVVHFFKNIVTPR', best_peptide)
         self.assertEquals(2.16, best_rank)
-        self.assertEquals('DRB1_08_01', best_allele)
-
+        self.assertEquals('HLA-DRB1*08:01', best_allele)
 
     def test_mixmhcpred2_too_small_epitope(self):
         # this is an epitope from IEDB of length 15
