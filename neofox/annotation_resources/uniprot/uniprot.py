@@ -17,30 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-
 from logzero import logger
-from Bio import SeqIO
-
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 
 
 class Uniprot(object):
+    """
+    Loads the whole Uniprot fasta in a single string to check for a exact match of an aminoacid sequence.
+    Even though this is not the most elegant, this is the fastest by 1 order of magnitude in both
+    data loading and checking for an exact match
+    """
 
     def __init__(self, fasta_proteome):
         logger.info("Loading Uniprot...")
         self.uniprot = self._load_proteome(fasta_proteome)
-        logger.info("Loaded Uniprot. {} protein sequences".format(len(self.uniprot)))
+        logger.info("Loaded Uniprot.")
 
     @staticmethod
-    def _load_proteome(fasta_proteome):
-        return [record.seq for record in SeqIO.parse(fasta_proteome, "fasta")]
+    def _load_proteome(fasta_proteome) -> str:
+        return open(fasta_proteome).read()
 
     def is_sequence_not_in_uniprot(self, sequence) -> bool:
-        is_not_in_uniprot = True
-        if any([sequence in entry for entry in self.uniprot]):
-            is_not_in_uniprot = False
-        return is_not_in_uniprot
+        return not sequence in self.uniprot
 
     def get_annotations(self, sequence_not_in_uniprot: bool) -> List[Annotation]:
         return [

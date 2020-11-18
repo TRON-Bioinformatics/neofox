@@ -24,6 +24,9 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
+
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
@@ -41,15 +44,16 @@ class NeoFox:
         # initialise logs
         self._initialise_logs(output_prefix, work_folder)
 
-        # initialise dask
-        # TODO: number of threads is hard coded. Is there a better value for this?
-        self.dask_client = Client(processes=True, n_workers=num_cpus, threads_per_worker=4)
-
         # intialize references folder and configuration
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
         # testable with fake objects
         self.reference_folder = reference_folder if reference_folder else ReferenceFolder()
+        # NOTE: makes this call to force the loading of the available alleles here
+        self.reference_folder.get_available_alleles()
         self.configuration = configuration if configuration else DependenciesConfiguration()
+        self.tcell_predictor = TcellPrediction()
+        self.self_similarity = SelfSimilarityCalculator()
+        self.num_cpus = num_cpus
 
         if neoantigens is None or len(neoantigens) == 0 or patients is None or len(patients) == 0:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
@@ -105,6 +109,9 @@ class NeoFox:
         write to txt file
         """
         logger.info("Starting NeoFox annotations...")
+        # initialise dask
+        # TODO: number of threads is hard coded. Is there a better value for this?
+        dask_client = Client(processes=True, n_workers=self.num_cpus, threads_per_worker=4)
         # feature calculation for each epitope
         futures = []
         start = time.time()
@@ -112,10 +119,13 @@ class NeoFox:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            futures.append(self.dask_client.submit(
-                NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration))
+            futures.append(dask_client.submit(
+                NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration,
+                self.tcell_predictor, self.self_similarity
+            ))
 
-        annotations = self.dask_client.gather(futures)
+        annotations = dask_client.gather(futures)
+        dask_client.close()
         end = time.time()
         logger.info("Elapsed time for annotating {} neoantigens {} seconds".format(
             len(self.neoantigens), int(end - start)))
@@ -123,10 +133,13 @@ class NeoFox:
 
     @staticmethod
     def annotate_neoantigen(neoantigen: Neoantigen, patient: Patient, reference_folder: ReferenceFolder,
-                            configuration: DependenciesConfiguration):
+                            configuration: DependenciesConfiguration, tcell_predictor: TcellPrediction,
+                            self_similarity: SelfSimilarityCalculator):
         logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
         start = time.time()
-        annotation = NeoantigenAnnotator(reference_folder, configuration).get_annotation(neoantigen, patient)
+        annotation = NeoantigenAnnotator(
+            reference_folder, configuration, tcell_predictor=tcell_predictor, self_similarity=self_similarity)\
+            .get_annotation(neoantigen, patient)
         end = time.time()
         logger.info("Elapsed time for annotating neoantigen {}: {} seconds".format(
             neoantigen.identifier, int(end - start)))
