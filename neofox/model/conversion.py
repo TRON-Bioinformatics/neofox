@@ -271,34 +271,40 @@ class ModelConverter(object):
     @staticmethod
     def parse_mhc1_alleles(alleles: List[str]) -> List[Mhc1]:
         isoforms = []
-        parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
-        ModelConverter._validate_mhc1_alleles(parsed_alleles)
-        # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-        for gene_name in Mhc1Name:
-            gene_alleles = list(filter(lambda a: a.gene == gene_name.name, parsed_alleles))
-            zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
-            if zygosity == Zygosity.HOMOZYGOUS:
-                gene_alleles = [gene_alleles[0]]  # we don't want repeated instances of the same allele
-            isoforms.append(Mhc1(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
+        try:
+            parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
+            ModelConverter._validate_mhc1_alleles(parsed_alleles)
+            # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
+            for gene_name in Mhc1Name:
+                gene_alleles = list(filter(lambda a: a.gene == gene_name.name, parsed_alleles))
+                zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
+                if zygosity == Zygosity.HOMOZYGOUS:
+                    gene_alleles = [gene_alleles[0]]  # we don't want repeated instances of the same allele
+                isoforms.append(Mhc1(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
+        except AssertionError as e:
+            raise NeofoxDataValidationException(e)
         return isoforms
 
     @staticmethod
     def parse_mhc2_alleles(alleles: List[str]) -> List[Mhc2]:
         mhc2s = []
-        parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
-        ModelConverter._validate_mhc2_alleles(parsed_alleles)
-        # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-        for isoform_name in Mhc2Name:
-            isoform_alleles = list(filter(lambda a: isoform_name.name in a.gene, parsed_alleles))
-            genes = []
-            for gene_name in GENES_BY_MOLECULE.get(isoform_name):
-                gene_alleles = list(filter(lambda a: a.gene == gene_name.name, isoform_alleles))
-                zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
-                if zygosity == Zygosity.HOMOZYGOUS:
-                    gene_alleles = [gene_alleles[0]]  # we don't want repeated instances of the same allele
-                genes.append(Mhc2Gene(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
-            isoforms = ModelConverter._get_mhc2_isoforms(isoform_name, genes)
-            mhc2s.append(Mhc2(name=isoform_name, genes=genes, isoforms=isoforms))
+        try:
+            parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
+            ModelConverter._validate_mhc2_alleles(parsed_alleles)
+            # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
+            for isoform_name in Mhc2Name:
+                isoform_alleles = list(filter(lambda a: isoform_name.name in a.gene, parsed_alleles))
+                genes = []
+                for gene_name in GENES_BY_MOLECULE.get(isoform_name):
+                    gene_alleles = list(filter(lambda a: a.gene == gene_name.name, isoform_alleles))
+                    zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
+                    if zygosity == Zygosity.HOMOZYGOUS:
+                        gene_alleles = [gene_alleles[0]]  # we don't want repeated instances of the same allele
+                    genes.append(Mhc2Gene(name=gene_name, zygosity=zygosity, alleles=gene_alleles))
+                isoforms = ModelConverter._get_mhc2_isoforms(isoform_name, genes)
+                mhc2s.append(Mhc2(name=isoform_name, genes=genes, isoforms=isoforms))
+        except AssertionError as e:
+            raise NeofoxDataValidationException(e)
         return mhc2s
 
     @staticmethod
@@ -307,7 +313,7 @@ class ModelConverter(object):
         if isoform_name == Mhc2Name.DR:
             assert len(genes) <= 1, "More than one gene provided for MHC II DR"
             # alpha chain of the MHC II DR is not modelled as it is constant
-            isoforms = [Mhc2Isoform(name=a.name, alpha_chain=None, beta_chain=a) for g in genes for a in g.alleles]
+            isoforms = [Mhc2Isoform(name=a.name, alpha_chain=MhcAllele(), beta_chain=a) for g in genes for a in g.alleles]
         elif isoform_name == Mhc2Name.DP:
             assert len(genes) <= 2, "More than two genes provided for MHC II DP"
             alpha_alleles = [a for g in genes if g.name == Mhc2GeneName.DPA1 for a in g.alleles]
