@@ -18,15 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
 from typing import Tuple, List
-
 from logzero import logger
 from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
-
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
-
 from neofox.references.installer import NeofoxReferenceInstaller
 
 
@@ -75,6 +72,8 @@ def neofox_cli():
     parser.add_argument('--with-json', dest='with_json', action='store_true',
                         help='output results in JSON format')
     parser.add_argument('--num-cpus', dest='num_cpus', default=1, help='number of CPUs for computation')
+    parser.add_argument('--config', dest='config',
+                        help='an optional configuration file with all the environment variables')
     args = parser.parse_args()
 
     model_file = args.model_file
@@ -87,6 +86,9 @@ def neofox_cli():
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
     num_cpus = int(args.num_cpus)
+    config = args.config
+
+    # check parameters
     if model_file and candidate_file:
         raise NeofoxInputParametersException(
             "Please, define either a candidate file or a standard input file as input. Not both")
@@ -108,7 +110,7 @@ def neofox_cli():
 
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
-                         output_prefix=output_prefix, num_cpus=num_cpus).get_annotations()
+                         output_prefix=output_prefix, num_cpus=num_cpus, configuration_file=config).get_annotations()
     # combine neoantigen feature annotations and potential user-specific external annotation
     neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
 
