@@ -23,6 +23,7 @@ from neofox.exceptions import NeofoxCommandException
 from pandas.errors import EmptyDataError
 
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.model.conversion import ModelConverter
 
 from neofox.references.references import DependenciesConfiguration
 
@@ -133,7 +134,7 @@ class MixMhc2Pred:
             try:
                 best_peptide = best_result[PEPTIDE].iat[0]
                 best_rank = best_result[RANK].iat[0]
-                best_allele = best_result[ALLELE].iat[0]
+                best_allele = ModelConverter.parse_mhc2_isoform(best_result[ALLELE].iat[0]).name
             except IndexError:
                 logger.info("MixMHC2pred returned no best result")
         return best_peptide, best_rank, best_allele

@@ -353,6 +353,23 @@ class ModelConverter(object):
         return MhcAllele(full_name=full_name, name=name, gene=gene, group=group, protein=protein)
 
     @staticmethod
+    def parse_mhc2_isoform(isoform: str) -> Mhc2Isoform:
+        # infers gene, group and protein from the name
+        match = HLA_MOLECULE_PATTERN.match(isoform)
+        if match:
+            alpha_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
+            beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(2)))
+        else:
+            match = HLA_DR_MOLECULE_PATTERN.match(isoform)
+            assert match is not None, "Molecule does not match HLA isoform pattern {}".format(isoform)
+            alpha_chain = MhcAllele()
+            beta_chain = ModelValidator.validate_mhc_allele_representation(MhcAllele(name=match.group(1)))
+        # builds the final allele representation and validates it just in case
+        name = get_mhc2_isoform_name(alpha_chain, beta_chain)
+        return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
+
+
+    @staticmethod
     def _get_zygosity_from_alleles(alleles: List[MhcAllele]) -> Zygosity:
         assert len(set([a.gene for a in alleles])) <= 1, "Trying to get zygosity from alleles of different genes"
         assert len(alleles) <= 2, "More than 2 alleles for gene {}".format(alleles[0].gene)
