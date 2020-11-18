@@ -32,6 +32,7 @@ import os
 import shutil
 import math
 import numpy as np
+import timeit
 
 
 class TestNeofox(TestCase):
@@ -67,7 +68,7 @@ class TestNeofox(TestCase):
             neofox.tests.__name__, "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.json".format(datetime.now()))
         annotations = NeoFox(
             neoantigens=self.neoantigens, patient_id=self.patient_id,
-            patients=self.patients, num_cpus=1).get_annotations()
+            patients=self.patients, num_cpus=4).get_annotations()
         annotation_names = [a.name for n in annotations for a in n.annotations]
 
         # check it does contain any of the MixMHCpred annotations
@@ -153,6 +154,15 @@ class TestNeofox(TestCase):
         # checks it does have some of the NetMHCpan annotations
         self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
         self.assertIn("Best_rank_MHCII_score", annotation_names)
+
+    def test_neofox_performance(self):
+
+        def compute_annotations():
+            return NeoFox(
+                neoantigens=self.neoantigens, patient_id=self.patient_id,
+                patients=self.patients, num_cpus=4).get_annotations()
+
+        print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
