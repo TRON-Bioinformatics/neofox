@@ -142,6 +142,30 @@ class ModelConverterTest(TestCase):
         # test external annotations
         self._assert_external_annotations(expected_number_external_annotations=2, external_annotations=external_annotations)
 
+    def test_json_neoantigens2model(self):
+        neoantigens_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_json.json")
+        neoantigens = ModelConverter.parse_neoantigens_json_file(neoantigens_file)
+        self.assertEqual(5, len(neoantigens))
+        for n in neoantigens:
+            self.assertTrue(isinstance(n, Neoantigen))
+            self.assertNotEmpty(n.transcript)
+            self.assertNotEmpty(n.mutation)
+            self.assertNotEmpty(n.patient_identifier)
+            self.assertNotEmpty(n.rna_expression)
+            self.assertNotEmpty(n.rna_variant_allele_frequency)
+            self.assertNotEmpty(n.dna_variant_allele_frequency)
+            self.assertNotEmpty(n.clonality_estimation)
+            self.assertTrue(isinstance(n.transcript, Transcript))
+            self.assertNotEmpty(n.transcript.assembly)
+            self.assertNotEmpty(n.transcript.identifier)
+            self.assertNotEmpty(n.transcript.assembly)
+            self.assertTrue(isinstance(n.mutation, Mutation))
+            self.assertNotEmpty(n.mutation.position)
+            self.assertNotEmpty(n.mutation.mutated_aminoacid)
+            self.assertNotEmpty(n.mutation.wild_type_aminoacid)
+            self.assertNotEmpty(n.mutation.left_flanking_region)
+            self.assertNotEmpty(n.mutation.right_flanking_region)
+
     def assertNotEmpty(self, value):
         self.assertIsNotNone(value)
         self.assertNotEqual(value, "")
