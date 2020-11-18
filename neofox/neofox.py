@@ -34,12 +34,12 @@ from neofox.model.conversion import ModelValidator
 
 class NeoFox:
 
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int,
+    def __init__(self, neoantigens: List[Neoantigen], patients: List[Patient], num_cpus: int, patient_id: str = None,
                  work_folder=None, output_prefix=None, reference_folder: ReferenceFolder = None,
-                 configuration: DependenciesConfiguration = None):
+                 configuration: DependenciesConfiguration = None, verbose=False):
 
         # initialise logs
-        self._initialise_logs(output_prefix, work_folder)
+        self._initialise_logs(output_prefix, work_folder, verbose)
 
         # initialise dask
         # TODO: number of threads is hard coded. Is there a better value for this?
@@ -66,7 +66,7 @@ class NeoFox:
 
         logger.info("Data loaded")
 
-    def _initialise_logs(self, output_prefix, work_folder):
+    def _initialise_logs(self, output_prefix, work_folder, verbose):
         if work_folder and os.path.exists(work_folder):
             logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
         else:
@@ -74,7 +74,10 @@ class NeoFox:
         if logfile is not None:
             logzero.logfile(logfile)
         # TODO: this does not work
-        logzero.loglevel(logging.DEBUG)
+        if verbose:
+            logzero.loglevel(logging.DEBUG)
+        else:
+            logzero.loglevel(logging.INFO)
         logger.info("Loading data...")
 
     def _validate_input_data(self):
