@@ -118,13 +118,21 @@ class NeoFox:
         # feature calculation for each epitope
         futures = []
         start = time.time()
+        # NOTE: sets those heavy resources to be used by all workers in the cluster
+        future_tcell_predictor = dask_client.scatter(self.tcell_predictor, broadcast=True)
+        future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
+        future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
+        future_configuration = dask_client.scatter(self.configuration, broadcast=True)
         for neoantigen in self.neoantigens:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
             futures.append(dask_client.submit(
-                NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration,
-                self.tcell_predictor, self.self_similarity
+                NeoFox.annotate_neoantigen, neoantigen, patient,
+                future_reference_folder,
+                future_configuration,
+                future_tcell_predictor,
+                future_self_similarity
             ))
 
         annotations = dask_client.gather(futures)
