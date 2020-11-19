@@ -100,7 +100,7 @@ class TestNeofox(TestCase):
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
+            neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=4).get_annotations()
         self.assertEqual(1, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
