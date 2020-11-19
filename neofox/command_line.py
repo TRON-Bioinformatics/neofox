@@ -57,6 +57,8 @@ def neofox_cli():
                         help='input tabular file with neoantigen candidates represented by neoantigen model')
     parser.add_argument('--candidate-file', dest='candidate_file',
                         help='input file with neoantigens candidates represented by long mutated peptide sequences')
+    parser.add_argument('--json-file', dest='json_file',
+                        help='input JSON file with neoantigens candidates represented by long mutated peptide sequences')
     # TODO: once we support the neofox from the models this parameter will not be required
     parser.add_argument('--patient-id', dest='patient_id', help='the patient id for the input file',
                         required=True)
@@ -79,6 +81,7 @@ def neofox_cli():
 
     model_file = args.model_file
     candidate_file = args.candidate_file
+    json_file = args.json_file
     patient_id = args.patient_id
     patients_data = args.patients_data
     output_folder = args.output_folder
@@ -87,12 +90,12 @@ def neofox_cli():
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
     num_cpus = int(args.num_cpus)
-    if model_file and candidate_file:
+    if bool(model_file) + bool(candidate_file) + bool(json_file) > 1:
         raise NeofoxInputParametersException(
-            "Please, define either a candidate file or a standard input file as input. Not both")
-    if not model_file and not candidate_file:
+            "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them")
+    if not model_file and not candidate_file and not json_file:
         raise NeofoxInputParametersException(
-            "Please, define one input file, either an candidate file or a standard input file")
+            "Please, define one input file, either a candidate file, a standard input file or a JSON file")
     if not with_sw and not with_ts and not with_json:
         with_sw = True  # if none specified short wide is the default
 
@@ -100,7 +103,7 @@ def neofox_cli():
     os.makedirs(output_folder, exist_ok=True)
 
     # reads the input data
-    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, patients_data)
+    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, json_file, patients_data)
 
     # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
     # otherwise original values is reported
@@ -117,7 +120,7 @@ def neofox_cli():
     logger.info("Finished NeoFox")
 
 
-def _read_data(candidate_file, model_file, patients_data) -> \
+def _read_data(candidate_file, model_file, json_file, patients_data) -> \
         Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data)
@@ -125,8 +128,11 @@ def _read_data(candidate_file, model_file, patients_data) -> \
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
-    else:
+    elif model_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
+    else:
+        neoantigens = ModelConverter.parse_neoantigens_json_file(model_file)
+        external_annotations = []
 
     return neoantigens, patients, external_annotations
 
