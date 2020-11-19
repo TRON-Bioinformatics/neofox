@@ -3,8 +3,9 @@
 Welcome to the documentation of **NeoFox**!
 
 ## About NeoFox
-Neoantigens are tumour-specific antigens encoded by somatic mutations and their break down (neoepitopes) are presented by the Major Histocompatibility Complex (MHC) on the surface of tumor cells products to T-cells which recognize these neoepitope sequences. This neoantigen-specfic T-cell recognition may induce a potent anti-tumoral response why neoantigens are highly interesting targets for cancer immunotherapy. Conventionally, candidates for neoantigens are predicted by mutation calling from whole exome sequencing and translating the mutation profiles into amino acid sequences. For the final step, algorithms that predict the likelihood of a neoantigen candidate sequence to be indeed a true neoantigen are required .  
-Several neoantigen features that describe the ability of a neoantigen candidate sequence to induce a T-cell response have been published in the last years. ***NeoFox*** (**NEO**antigen **F**eature toolb**OX**) is a python package that annotates a given set of neoantigen candidate sequences derived from point mutation with these neoantigen features.  
+
+Neoantigens are tumor-specific antigens encoded by somatic mutations. Their break down products (neoepitopes) are presented by the Major Histocompatibility Complex (MHC) on the surface of tumor cells enabling T-cells to recognize these neoepitope sequences as foreign. This neoantigen-specific T-cell recognition may induce a potent anti-tumoral response which make neoantigens highly interesting targets for cancer immunotherapy. Conventionally, candidates for neoantigens are predicted by mutation calling from tumor and normal genome sequencing, selection of non synonymous mutations and translation into small peptides or amino acid sequences. For the final step, algorithms that predict the likelihood of a neoantigen candidate sequence to be indeed a true neoantigen are required.  
+Several neoantigen features that describe the ability of a neoantigen candidate sequence to induce a T-cell response have been published in the last years. ***NeoFox*** (**NEO**antigen **F**eature toolb**OX**) is a python package that annotates a given set of neoantigen candidate sequences derived from point mutation with relevant neoantigen features.  
 NeoFox covers neoepitope prediction by MHC binding and ligand prediction, similarity/foreignness of a neoepitope candidate sequence, combinatorial features and machine learning approaches. A list of implemented features and their references are given in Table 1.    
 
 **Table 1**
@@ -28,15 +29,14 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 | Tcell predictor                                         | Besser et al, 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
   
-\
-Besides comprehensive annotation of neoantigen candidates, NeoFox creates biological meaningful representations of neoantigens and other biological entities as programmatic models.  
-Here, Protocol buffers is employed to model Neofox's input and output data: neoantigens, patients, MHC alleles and neoantigen feature annotations (Figure 1). Of note, this modelling allows users to expand NeoFox by customized neoantigen features, e.g. for benchmarking studies.   
-\
+
+Besides comprehensive annotation of neoantigen candidates, NeoFox creates biological meaningful representations of neoantigens and related biological entities as programmatic models. For this purpose, Protocol buffers is employed to model Neofox's input and output data: neoantigens, patients, MHC alleles and neoantigen feature annotations (Figure 1). Of note, this modelling allows users to expand NeoFox by customized neoantigen features, e.g. for benchmarking studies.   
+
+
 **Figure 1**
+
 ![Neofox model](../figures/figure1_v3.png)
-\
-\
-\
+
 For detailed information about the required input data, output data and usage please refer to the [User guide](03_user_guide.rst).  
   
 The data models are described in more detail [here](05_models.md).
