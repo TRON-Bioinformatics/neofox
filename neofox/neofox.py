@@ -41,7 +41,7 @@ class NeoFox:
     def __init__(self, neoantigens: List[Neoantigen], patients: List[Patient], num_cpus: int, patient_id: str = None,
                  work_folder=None, output_prefix=None, reference_folder: ReferenceFolder = None,
 
-                 configuration: DependenciesConfiguration = None, , verbose=False, configuration_file = None):
+                 configuration: DependenciesConfiguration = None, verbose=False, configuration_file = None):
 
         if configuration_file:
             dotenv.load_dotenv(configuration_file, override=True)
