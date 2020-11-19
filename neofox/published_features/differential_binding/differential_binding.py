@@ -98,14 +98,14 @@ class DifferentialBinding:
         return [
             AnnotationFactory.build_annotation(
                 value=self.classify_adn_cdn(
-                    score_mutation=netmhc2pan.best_mhcII_pan_score, amplitude=amplitude.amplitude_mhcii_rank,
+                    score_mutation=netmhc2pan.best_predicted_epitope_rank.rank, amplitude=amplitude.amplitude_mhcii_rank,
                     bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                     bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii, amplitude_cutoff=amplitude_cutoff_mhcii,
                     category="CDN"),
                 name="CDN_MHCII"),
             AnnotationFactory.build_annotation(
                 value=self.classify_adn_cdn(
-                    score_mutation=netmhc2pan.best_mhcII_pan_score, amplitude=amplitude.amplitude_mhcii_rank,
+                    score_mutation=netmhc2pan.best_predicted_epitope_rank.rank, amplitude=amplitude.amplitude_mhcii_rank,
                     bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                     bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii, amplitude_cutoff=amplitude_cutoff_mhcii,
                     category="ADN"),
