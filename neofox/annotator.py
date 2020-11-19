@@ -53,7 +53,7 @@ class NeoantigenAnnotator:
         self.tcell_predictor = tcell_predictor
         self.self_similarity = self_similarity
 
-        # this one loads a big file, not sure if we can pass it as a parameter to avoid loading multiple times
+        # NOTE: this one loads a big file, but it is faster loading it multiple times than passing it around
         self.uniprot = Uniprot(references.uniprot)
 
         # make MixMHCpred and MixMHC2pred optional

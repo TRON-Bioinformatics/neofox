@@ -23,6 +23,7 @@ from neofox.exceptions import NeofoxCommandException
 from pandas.errors import EmptyDataError
 
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.model.conversion import ModelConverter
 
 from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele
 from neofox.model.wrappers import AnnotationFactory
@@ -88,7 +89,8 @@ class MixMHCpred:
             try:
                 best_peptide = best_result[PEPTIDE].iat[0]
                 best_rank = best_result[RANK].iat[0]
-                best_allele = best_result[ALLELE].iat[0]
+                # normalize the HLA allele name
+                best_allele = ModelConverter.parse_mhc_allele(best_result[ALLELE].iat[0]).name
                 best_score = best_result[SCORE].iat[0]
             except IndexError:
                 logger.info("MixMHCpred returned no best result")
