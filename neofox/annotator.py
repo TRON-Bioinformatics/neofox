@@ -143,14 +143,14 @@ class NeoantigenAnnotator:
 
         # neoag immunogenicity model
         peptide_variant_position = EpitopeHelper.position_of_mutation_epitope(
-            wild_type=self.netmhcpan.best4_affinity_epitope_WT, mutation=self.netmhcpan.best4_affinity_epitope)
+            wild_type=self.netmhcpan.best_wt_epitope_by_affinity.peptide, mutation=self.netmhcpan.best_epitope_by_affinity.peptide)
         self.annotations.annotations.append(self.neoag_calculator.get_annotation(
             sample_id=patient.identifier, netmhcpan=self.netmhcpan, peptide_variant_position=peptide_variant_position))
 
         # IEDB immunogenicity
         self.annotations.annotations.extend(self.iedb_immunogenicity.get_annotations(
             netmhcpan=self.netmhcpan,
-            mhci_allele=self.netmhcpan.best4_affinity_allele))
+            mhci_allele=self.netmhcpan.best_epitope_by_affinity.hla))
 
         # MixMHCpred
         if self.mixmhc is not None:

@@ -55,10 +55,10 @@ class Amplitude:
     def run(self, netmhcpan: BestAndMultipleBinder, netmhc2pan: BestAndMultipleBinderMhcII):
         # MHC I
         self.amplitude_mhci_affinity = self.calculate_amplitude_mhc(
-            score_mutation=netmhcpan.best4_affinity, score_wild_type=netmhcpan.best4_affinity_WT,
+            score_mutation=netmhcpan.best_epitope_by_affinity.rank, score_wild_type=netmhcpan.best_wt_epitope_by_affinity.rank,
             apply_correction=True)
         self.amplitude_mhci_affinity_9mer = self.calculate_amplitude_mhc(
-            score_mutation=netmhcpan.mhcI_affinity_9mer, score_wild_type=netmhcpan.mhcI_affinity_9mer_WT,
+            score_mutation=netmhcpan.best_ninemer_epitope_by_affinity.rank, score_wild_type=netmhcpan.best_ninemer_wt_epitope_by_affinity.rank,
             apply_correction=True)
         self.amplitude_mhcii_rank = self.calculate_amplitude_mhc(
             score_mutation=netmhc2pan.best_mhcII_pan_score, score_wild_type=netmhc2pan.best_mhcII_pan_score_WT)
