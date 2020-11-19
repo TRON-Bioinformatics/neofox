@@ -23,7 +23,7 @@ from logzero import logger
 
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import NetMhcPanPrediction
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
-from neofox.model.neoantigen import Annotation, Mhc2, Zygosity
+from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform
 from neofox.model.wrappers import AnnotationFactory
 
 
@@ -41,13 +41,13 @@ class BestAndMultipleBinderMhcII:
     def _initialise(self):
         self.phbr_ii = None
         self.best_predicted_epitope_rank = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=None, affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
         self.best_predicted_epitope_affinity = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=None, affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
         self.best_predicted_epitope_rank_wt = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=None, affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
         self.best_predicted_epitope_affinity_wt = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=None, affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
 
     def calculate_phbr_ii(self, best_epitope_per_allele_mhc2: List[NetMhcPanPrediction]):
         """
