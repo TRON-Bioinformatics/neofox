@@ -37,12 +37,12 @@ from neofox.model.conversion import ModelValidator
 
 class NeoFox:
 
-    def __init__(self, neoantigens: List[Neoantigen], patient_id: str, patients: List[Patient], num_cpus: int,
+    def __init__(self, neoantigens: List[Neoantigen], patients: List[Patient], num_cpus: int, patient_id: str = None,
                  work_folder=None, output_prefix=None, reference_folder: ReferenceFolder = None,
-                 configuration: DependenciesConfiguration = None):
+                 configuration: DependenciesConfiguration = None, verbose=False):
 
         # initialise logs
-        self._initialise_logs(output_prefix, work_folder)
+        self._initialise_logs(output_prefix, work_folder, verbose)
 
         # intialize references folder and configuration
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
@@ -70,7 +70,7 @@ class NeoFox:
 
         logger.info("Data loaded")
 
-    def _initialise_logs(self, output_prefix, work_folder):
+    def _initialise_logs(self, output_prefix, work_folder, verbose):
         if work_folder and os.path.exists(work_folder):
             logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
         else:
@@ -78,7 +78,10 @@ class NeoFox:
         if logfile is not None:
             logzero.logfile(logfile)
         # TODO: this does not work
-        logzero.loglevel(logging.DEBUG)
+        if verbose:
+            logzero.loglevel(logging.DEBUG)
+        else:
+            logzero.loglevel(logging.INFO)
         logger.info("Loading data...")
 
     def _validate_input_data(self):
@@ -115,13 +118,21 @@ class NeoFox:
         # feature calculation for each epitope
         futures = []
         start = time.time()
+        # NOTE: sets those heavy resources to be used by all workers in the cluster
+        future_tcell_predictor = dask_client.scatter(self.tcell_predictor, broadcast=True)
+        future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
+        future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
+        future_configuration = dask_client.scatter(self.configuration, broadcast=True)
         for neoantigen in self.neoantigens:
             patient = self.patients.get(neoantigen.patient_identifier)
             logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
             logger.debug("Patient: {}".format(patient.to_json(indent=3)))
             futures.append(dask_client.submit(
-                NeoFox.annotate_neoantigen, neoantigen, patient, self.reference_folder, self.configuration,
-                self.tcell_predictor, self.self_similarity
+                NeoFox.annotate_neoantigen, neoantigen, patient,
+                future_reference_folder,
+                future_configuration,
+                future_tcell_predictor,
+                future_self_similarity
             ))
 
         annotations = dask_client.gather(futures)

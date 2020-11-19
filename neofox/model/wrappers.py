@@ -23,10 +23,10 @@ import re
 NOT_AVAILABLE_VALUE = "NA"
 
 HLA_ALLELE_PATTERN = re.compile(
-    r"(?:HLA-)?([A-Z0-9]+)[\*|_]?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
-HLA_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})-"
-                                  r"([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})")
-HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}:?[0-9]{2,})")
+    r"(?:HLA-)?([A-Z0-9]+)[\*|_]?([0-9]{2})[:|_]?([0-9]{2,})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})")
+HLA_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?([A-Z0-9]+[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})[-|_]{1,2}"
+                                  r"([A-Z0-9]+[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})")
+HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})")
 GENES_BY_MOLECULE = {
     Mhc2Name.DR: [Mhc2GeneName.DRB1],
     Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
