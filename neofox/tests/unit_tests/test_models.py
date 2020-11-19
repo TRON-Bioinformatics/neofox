@@ -20,6 +20,7 @@ import struct
 from unittest import TestCase
 import pkg_resources
 import pandas as pd
+from neofox.exceptions import NeofoxDataValidationException
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter, EXTERNAL_ANNOTATIONS_NAME
@@ -260,15 +261,15 @@ class ModelConverterTest(TestCase):
             self.assertEqual(0, len(mhc1.alleles))
 
     def test_parse_mhc1_bad_format_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc1_alleles,
+        self.assertRaises(NeofoxDataValidationException, ModelConverter.parse_mhc1_alleles,
                           ["c.12345C>G", "HLA-A*01:02", "HLA-A*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
     def test_parse_mhc1_too_many_alleles_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc1_alleles,
+        self.assertRaises(NeofoxDataValidationException, ModelConverter.parse_mhc1_alleles,
                           ["HLA-A*01:01", "HLA-A*01:02", "HLA-A*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
     def test_parse_mhc1_bad_gene_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc1_alleles,
+        self.assertRaises(NeofoxDataValidationException, ModelConverter.parse_mhc1_alleles,
                           ["HLA-A*01:01", "HLA-A*01:02", "HLA-G*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
     def test_parse_mhc2_heterozygous_alleles(self):
@@ -331,25 +332,25 @@ class ModelConverterTest(TestCase):
             self.assertEqual(0, len(mhc2.isoforms))
 
     def test_parse_mhc2_bad_format_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
+        self.assertRaises(NeofoxDataValidationException, ModelConverter.parse_mhc2_alleles,
                           ["c.12345C>G", "HLA-DRB1*01:01", "HLA-DPA1*01:01", "HLA-DPA1*01:01", "HLA-DPB1*01:01",
                            "HLA-DPB1*01:02", "HLA-DQA1*01:01", "HLA-DQA1*01:01", "HLA-DQB1*01:01", "HLA-DQB1*01:02"])
 
     def test_parse_mhc2_too_many_alleles_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
+        self.assertRaises(NeofoxDataValidationException, ModelConverter.parse_mhc2_alleles,
                           ["HLA-DRB1*01:01", "HLA-DRB1*01:02", "HLA-DRB1*01:03", "HLA-DPA1*01:01", "HLA-DPA1*01:01",
                            "HLA-DPB1*01:01", "HLA-DPB1*01:02", "HLA-DQA1*01:01", "HLA-DQA1*01:01", "HLA-DQB1*01:01"])
 
     def test_parse_mhc2_bad_gene_fails(self):
-        self.assertRaises(AssertionError, ModelConverter.parse_mhc2_alleles,
+        self.assertRaises(NeofoxDataValidationException, ModelConverter.parse_mhc2_alleles,
                           ["HLA-A*01:01", "HLA-A*01:02", "HLA-G*01:01", "HLA-B*01:02", "HLA-C*01:01", "HLA-C*01:02"])
 
     def _assert_isoforms(self, mhc2):
         for isoform in mhc2.isoforms:
             if mhc2.name == Mhc2Name.DR:
-                self.assertIsNone(isoform.alpha_chain)
+                self.assertEqual("", isoform.alpha_chain.full_name)
             else:
-                self.assertIsNotNone(isoform.alpha_chain)
+                self.assertIsNot("", isoform.alpha_chain.full_name)
             self.assertIsNotNone(isoform.beta_chain)
 
     def _assert_lists_equal(self, neoantigens, neoantigens2):

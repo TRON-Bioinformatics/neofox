@@ -23,6 +23,7 @@ from logzero import logger
 from neofox.MHC_predictors.netmhcpan.multiple_binders import MultipleBinding
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.helpers import intermediate_files
+from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName
 from neofox.model.wrappers import AnnotationFactory
 import neofox.helpers.casting as casting
@@ -100,12 +101,14 @@ class BestAndMultipleBinderMhcII:
             best_predicted_epitope_rank = netmhc2pan.minimal_binding_score(predicted_epitopes)
             self.best_mhcII_pan_score = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "%Rank"))
             self.best_mhcII_pan_epitope = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "Peptide")
-            self.best_mhcII_pan_allele = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "Allele")
+            self.best_mhcII_pan_allele = ModelConverter.parse_mhc2_isoform(
+                netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "Allele")).name
             self.best_mhcII_pan_position = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank, "Seq")
             best_predicted_epitope_affinity = netmhc2pan.minimal_binding_score(predicted_epitopes, rank=False)
             self.best_mhcII_pan_affinity = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Affinity(nM)"))
             self.best_mhcII_pan_affinity_epitope = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Peptide")
-            self.best_mhcII_pan_affinity_allele = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Allele")
+            self.best_mhcII_pan_affinity_allele = ModelConverter.parse_mhc2_isoform(
+                netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Allele")).name
             self.best_mhcII_pan_affinity_position = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity, "Seq")
 
         # wt
@@ -121,13 +124,15 @@ class BestAndMultipleBinderMhcII:
                                                   position_epitope_in_xmer=self.best_mhcII_pan_position)
             self.best_mhcII_pan_score_WT = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank_wt, "%Rank"))
             self.best_mhcII_pan_epitope_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank_wt, "Peptide")
-            self.best_mhcII_pan_allele_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank_wt, "Allele")
+            self.best_mhcII_pan_allele_WT = ModelConverter.parse_mhc2_isoform(
+                netmhc2pan.add_best_epitope_info(best_predicted_epitope_rank_wt, "Allele")).name
             best_predicted_epitope_affinity_wt = \
                 netmhc2pan.filter_for_wt_epitope_position(predicted_epitopes_wt, self.best_mhcII_pan_affinity_epitope,
                                                   position_epitope_in_xmer=self.best_mhcII_pan_affinity_position)
             self.best_mhcII_affinity_WT = casting.to_float(netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Affinity(nM)"))
             self.best_mhcII_affinity_epitope_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Peptide")
-            self.best_mhcII_affinity_allele_WT = netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Allele")
+            self.best_mhcII_affinity_allele_WT = ModelConverter.parse_mhc2_isoform(
+                netmhc2pan.add_best_epitope_info(best_predicted_epitope_affinity_wt, "Allele")).name
 
     @staticmethod
     def _get_only_available_combinations(allele_combinations, set_available_mhc):
