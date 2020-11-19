@@ -18,28 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List, Set
-
-from dataclasses import dataclass
 from logzero import logger
-
 from neofox.helpers import intermediate_files
-from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor, \
+    NetMhcPanPrediction
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Mhc1
 
 
-@dataclass
-class NetMhcPanPrediction:
-    pos: int
-    hla: str
-    peptide: str
-    affinity_score: float
-    rank: float
-    bind_level: float
-
-
-class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
+class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
 
     def __init__(self, runner, configuration):
         """
@@ -61,7 +48,7 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         lines, _ = self.runner.run_command(cmd)
         return self._parse_netmhcpan_output(lines)
 
-    def _parse_netmhcpan_output(self, lines: List[str]) -> List[NetMhcPanPrediction]:
+    def _parse_netmhcpan_output(self, lines: str) -> List[NetMhcPanPrediction]:
         results = []
         for line in lines.splitlines():
             line = line.rstrip().lstrip()
@@ -79,31 +66,6 @@ class NetMhcPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
                     bind_level=float(line[13])
                 ))
         return results
-
-    def filter_binding_predictions(
-            self, position_of_mutation, predictions: List[NetMhcPanPrediction]) -> List[NetMhcPanPrediction]:
-        """filters prediction file for predicted epitopes that cover mutations"""
-        return list(filter(
-           lambda p: self.epitope_covers_mutation(position_of_mutation, p.pos, len(p.peptide)), predictions))
-
-    def minimal_binding_score(self, predictions: List[NetMhcPanPrediction], rank=True) -> NetMhcPanPrediction:
-        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
-        if rank = False, Aff(nM) is used
-        In case of a tie, it chooses the first peptide in alphabetical order
-        """
-        return min(predictions, key=lambda e: (e.rank, e.peptide) if rank else (e.affinity_score, e.peptide))
-
-    def filter_for_9mers(self, predictions: List[NetMhcPanPrediction]) -> List[NetMhcPanPrediction]:
-        """returns only predicted 9mers"""
-        return list(filter(lambda p: len(p.peptide) == 9, predictions))
-
-    def filter_for_WT_epitope_position(
-            self, predictions: List[NetMhcPanPrediction], sequence_mut, position_mutation_epitope) -> NetMhcPanPrediction:
-        """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
-        """
-        epitopes_wt = list(filter(
-           lambda p: len(p.peptide) == len(sequence_mut) and p.pos == position_mutation_epitope, predictions))
-        return self.minimal_binding_score(epitopes_wt)
 
     @staticmethod
     def get_alleles_netmhcpan_representation(mhc_isoforms: List[Mhc1]) -> List[str]:

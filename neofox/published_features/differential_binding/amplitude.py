@@ -61,7 +61,7 @@ class Amplitude:
             score_mutation=netmhcpan.best_ninemer_epitope_by_affinity.rank, score_wild_type=netmhcpan.best_ninemer_wt_epitope_by_affinity.rank,
             apply_correction=True)
         self.amplitude_mhcii_rank = self.calculate_amplitude_mhc(
-            score_mutation=netmhc2pan.best_mhcII_pan_score, score_wild_type=netmhc2pan.best_mhcII_pan_score_WT)
+            score_mutation=netmhc2pan.best_predicted_epitope_rank.rank, score_wild_type=netmhc2pan.best_predicted_epitope_rank_wt.rank)
 
     def get_annotations(self) -> List[Annotation]:
         return [

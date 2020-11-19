@@ -20,7 +20,8 @@
 from typing import List, Set
 import scipy.stats as stats
 
-from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor, NetMhcPanPrediction
+from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import NetMhcPanPrediction
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Annotation, Mhc1, Zygosity
 from neofox.model.wrappers import AnnotationFactory

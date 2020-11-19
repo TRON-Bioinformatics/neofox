@@ -54,38 +54,23 @@ class TestNetMhcPanPredictor(TestCase):
         netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVHFFKNIVTPR'
-        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
-        netmhc2pan_predictor.mhcII_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
+        predictions = netmhc2pan_predictor.mhcII_prediction(
+            sequence=mutated,
             mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(TEST_MHC_TWO))
-        self.assertTrue(os.path.exists(tmp_prediction))
-        self.assertEqual(11, len(open(tmp_prediction).readlines()))
-
-        header, rows = netmhc2pan_predictor.filter_binding_predictions([4], tmp_prediction)
-        self.assertEqual(12, len(header))  # output has 14 columns
-        for r in rows:
-            self.assertTrue(len(r) <= 12 or len(r) >= 10)  # each row has 10 or 12 columns
-        self.assertEqual(10, len(rows))
+        self.assertEqual(10, len(predictions))
+        for p in predictions:
+            self.assertIsNotNone(p.peptide)
+            self.assertIsNotNone(p.hla)
+            self.assertIsNotNone(p.affinity_score)
+            self.assertIsNotNone(p.pos)
+            self.assertIsNotNone(p.rank)
+            self.assertIsNone(p.bind_level)
 
     def test_netmhc2pan_too_small_epitope(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
         # this is an epitope from IEDB of length 15
         mutated = 'ENPVVH'
-        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
-        netmhc2pan_predictor.mhcII_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
+        predictions = netmhc2pan_predictor.mhcII_prediction(
+            sequence=mutated,
             mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(TEST_MHC_TWO))
-        self.assertTrue(os.path.exists(tmp_prediction))
-        self.assertEqual(1, len(open(tmp_prediction).readlines()))
-
-        # TODO: it crashes here as it fails to parse the header. Fix and remove the try-except
-        try:
-            header, rows = netmhc2pan_predictor.filter_binding_predictions(4, tmp_prediction)
-            self.assertEqual(12, len(header))  # output has 14 columns
-            for r in rows:
-                self.assertTrue(len(r) <= 12 or len(r) >= 10)  # each row has 10 or 12 columns
-            self.assertEqual(0, len(rows))
-        except:
-            pass
+        self.assertEqual(0, len(predictions))
