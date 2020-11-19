@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
 from unittest import TestCase
-
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.helpers import intermediate_files
 from neofox.helpers.runner import Runner
@@ -67,7 +66,7 @@ class TestNetMhcPanPredictor(TestCase):
         self.assertEqual(12, len(header))  # output has 14 columns
         for r in rows:
             self.assertTrue(len(r) <= 12 or len(r) >= 10)  # each row has 10 or 12 columns
-        self.assertEqual(2, len(rows))
+        self.assertEqual(10, len(rows))
 
     def test_netmhc2pan_too_small_epitope(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
