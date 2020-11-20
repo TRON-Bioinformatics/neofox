@@ -174,7 +174,7 @@ class TestNeofox(TestCase):
                 neoantigens=neoantigens, patient_id=self.patient_id,
                 patients=self.patients, num_cpus=4).get_annotations()
 
-        print("Average time: {}".format(timeit.timeit(compute_annotations, number=1)))
+        print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
