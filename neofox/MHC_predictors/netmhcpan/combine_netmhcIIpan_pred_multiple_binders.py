@@ -20,8 +20,9 @@
 from typing import List, Set
 import scipy.stats as stats
 from logzero import logger
+from neofox.helpers.epitope_helper import EpitopeHelper
 
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import NetMhcPanPrediction
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform
 from neofox.model.wrappers import AnnotationFactory
@@ -40,16 +41,16 @@ class BestAndMultipleBinderMhcII:
 
     def _initialise(self):
         self.phbr_ii = None
-        self.best_predicted_epitope_rank = NetMhcPanPrediction(
+        self.best_predicted_epitope_rank = PredictedEpitope(
             peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
-        self.best_predicted_epitope_affinity = NetMhcPanPrediction(
+        self.best_predicted_epitope_affinity = PredictedEpitope(
             peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
-        self.best_predicted_epitope_rank_wt = NetMhcPanPrediction(
+        self.best_predicted_epitope_rank_wt = PredictedEpitope(
             peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
-        self.best_predicted_epitope_affinity_wt = NetMhcPanPrediction(
+        self.best_predicted_epitope_affinity_wt = PredictedEpitope(
             peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
 
-    def calculate_phbr_ii(self, best_epitope_per_allele_mhc2: List[NetMhcPanPrediction]):
+    def calculate_phbr_ii(self, best_epitope_per_allele_mhc2: List[PredictedEpitope]):
         """
         harmonic mean of best MHC II binding scores per MHC II allele
         :param best_epitope_per_allele_mhc2: list of best MHC II epitopes per allele
@@ -78,7 +79,7 @@ class BestAndMultipleBinderMhcII:
         patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, mhc2_alleles_available)
 
         predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, sequence_mut)
-        position_mutation = netmhc2pan.mut_position_xmer_seq(sequence_wt=sequence_wt, sequence_mut=sequence_mut)
+        position_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_wt=sequence_wt, sequence_mut=sequence_mut)
         if len(sequence_mut) >= 15:
             filtered_predictions = netmhc2pan.filter_binding_predictions(position_mutation, predictions)
             # multiple binding
@@ -158,7 +159,7 @@ class BestAndMultipleBinderMhcII:
 
     @staticmethod
     def _get_sorted_epitopes_mhc2(hetero_hemizygous_alleles, homozygous_alleles,
-                                  predictions: List[NetMhcPanPrediction]) -> List[NetMhcPanPrediction]:
+                                  predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
 
         # groups epitopes by allele
         epitopes_by_allele = {}
@@ -190,7 +191,7 @@ class BestAndMultipleBinderMhcII:
 
     @staticmethod
     def extract_best_epitope_per_mhc2_alelle(
-            predictions: List[NetMhcPanPrediction], mhc_isoforms: List[Mhc2]) -> List[NetMhcPanPrediction]:
+            predictions: List[PredictedEpitope], mhc_isoforms: List[Mhc2]) -> List[PredictedEpitope]:
         """
         This function returns the predicted epitope with the lowest binding score for each patient allele,
         considering homozyogosity
