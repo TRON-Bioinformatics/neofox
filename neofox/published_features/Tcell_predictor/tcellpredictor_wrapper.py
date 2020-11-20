@@ -98,6 +98,6 @@ class TcellPrediction:
         return [
             AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
                 gene=gene, substitution=substitution, epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
-                score=netmhcpan.best_ninemer_epitope_by_affinity.rank, threshold=500),
+                score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score, threshold=500),
                 name="Tcell_predictor_score_cutoff500nM")
         ]
