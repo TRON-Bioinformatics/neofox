@@ -59,7 +59,8 @@ class DissimilarityCalculator(BlastpRunner):
         return [
             AnnotationFactory.build_annotation(
                 value=self.calculate_dissimilarity(
-                    mhc_mutation=netmhcpan.best_epitope_by_affinity.peptide, mhc_affinity=netmhcpan.best_epitope_by_affinity.rank,
+                    mhc_mutation=netmhcpan.best_epitope_by_affinity.peptide,
+                    mhc_affinity=netmhcpan.best_epitope_by_affinity.affinity_score,
                     filter_binder=True),
                 name="Dissimilarity_MHCI_cutoff500nM"),
             ]

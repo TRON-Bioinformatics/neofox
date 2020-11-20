@@ -46,8 +46,8 @@ class TestBestMultipleBinder(TestCase):
         non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
         best_multiple.run(sequence_mut=mutated, sequence_wt=non_mutated, mhc1_alleles_patient=TEST_MHC_ONE,
                           mhc1_alleles_available=self.available_alleles_mhc1)
-        self.assertEqual(0.003285, best_multiple.best_epitope_by_affinity.rank)
-        self.assertEqual(543.9, best_multiple.best_epitope_by_rank.bind_level)
+        self.assertEqual(0.003285, best_multiple.best_epitope_by_affinity.affinity_score)
+        self.assertEqual(543.9, best_multiple.best_epitope_by_rank.rank)
         self.assertEqual("ILVTDQTRL", best_multiple.best_epitope_by_rank.peptide)
         logger.info(best_multiple.best_epitope_by_rank.peptide)
         logger.info(best_multiple.phbr_i)
