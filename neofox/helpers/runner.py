@@ -33,7 +33,7 @@ class Runner(object):
         output, errors = process.communicate()
         return_code = process.returncode
         end = time.time()
-        logger.info("Elapsed time {} seconds".format(int(end - start)))
+        logger.info("Elapsed time {} seconds".format(round(end - start, 3)))
         if return_code == 0:
             logger.info("Finished command correctly!")
             # logger.debug(self._decode(output))

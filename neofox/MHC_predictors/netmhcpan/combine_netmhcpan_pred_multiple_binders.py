@@ -120,12 +120,13 @@ class BestAndMultipleBinder:
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
-        # mutation
+
         self._initialise()
         netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
-        # print alleles
-        predictions = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, sequence_mut)
         position_of_mutation = netmhcpan.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
+
+        # mutation
+        predictions = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, sequence_mut)
         filtered_predictions = netmhcpan.filter_binding_predictions(
             position_of_mutation=position_of_mutation, predictions=predictions)
         # multiple binding

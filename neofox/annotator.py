@@ -22,6 +22,7 @@ from logzero import logger
 from datetime import datetime
 from distributed import Client, get_client, secede, rejoin
 import neofox
+import time
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
@@ -69,29 +70,27 @@ class NeoantigenAnnotator:
         self.iedb_immunogenicity = IEDBimmunogenicity()
         self.amplitude = Amplitude()
 
-        self.dask_client = get_client()
-
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> NeoantigenAnnotations:
         """Calculate new epitope features and add to dictonary that stores all properties"""
         self._initialise_annotations(neoantigen)
 
         # Runs netmhcpan, netmhc2pan, mixmhcpred and mixmhc2prd in parallel
-        netmhcpan_future = self.dask_client.submit(
-            self.run_netmhcpan, self.runner, self.configuration, self.available_alleles, neoantigen, patient)
-        netmhc2pan_future = self.dask_client.submit(
-            self.run_netmhc2pan, self.runner, self.configuration, self.available_alleles, neoantigen, patient)
-        mixmhc2pred_future = None
-        if self.configuration.mix_mhc2_pred is not None:
-            mixmhc2pred_future = self.dask_client.submit(
-                self.run_mixmhc2pred, self.runner, self.configuration, neoantigen, patient)
-        mixmhcpred_future = None
-        if self.configuration.mix_mhc_pred is not None:
-            mixmhcpred_future = self.dask_client.submit(
-                self.run_mixmhcpred, self.runner, self.configuration, neoantigen, patient)
-        secede()
-        netmhcpan, netmhc2pan, mixmhcpred_annotations, mixmhc2pred_annotations = self.dask_client.gather(
-            [netmhcpan_future, netmhc2pan_future, mixmhcpred_future, mixmhc2pred_future])
-        rejoin()
+        mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan = self._compute_long_running_tasks(
+            neoantigen, patient)
+
+        # HLA I predictions: NetMHCpan
+        self.annotations.annotations.extend(netmhcpan.get_annotations())
+
+        # HLA II predictions: NetMHCIIpan
+        self.annotations.annotations.extend(netmhc2pan.get_annotations())
+
+        # MixMHCpred
+        if mixmhcpred_annotations is not None:
+            self.annotations.annotations.extend(mixmhcpred_annotations)
+
+        # MixMHC2pred
+        if mixmhc2pred_annotations is not None:
+            self.annotations.annotations.extend(mixmhc2pred_annotations)
 
         # decides which VAF to use
         vaf_rna = neoantigen.rna_variant_allele_frequency
@@ -105,76 +104,122 @@ class NeoantigenAnnotator:
             neoantigen.mutation.mutated_aminoacid)
 
         # MHC binding independent features
+        start = time.time()
         expression_calculator = Expression(
             transcript_expression=neoantigen.rna_expression, vaf_rna=vaf_rna)
         self.annotations.annotations.extend(expression_calculator.get_annotations())
+        end = time.time()
+        logger.info("Expression annotation elapsed time {} seconds".format(round(end - start, 3)))
+
+        start = time.time()
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(neoantigen.mutation.mutated_xmer)
         self.annotations.annotations.extend(self.uniprot.get_annotations(sequence_not_in_uniprot))
-
-        # HLA I predictions: NetMHCpan
-        self.annotations.annotations.extend(netmhcpan.get_annotations())
-
-        # HLA II predictions: NetMHCIIpan
-        self.annotations.annotations.extend(netmhc2pan.get_annotations())
+        end = time.time()
+        logger.info("Uniprot annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # Amplitude
+        start = time.time()
         self.amplitude.run(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
         self.annotations.annotations.extend(self.amplitude.get_annotations())
         self.annotations.annotations.extend(self.amplitude.get_annotations_mhc2())
+        end = time.time()
+        logger.info("Amplitude annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # Neoantigen fitness
+        start = time.time()
         self.annotations.annotations.extend(
             self.neoantigen_fitness_calculator.get_annotations(netmhcpan, self.amplitude))
+        end = time.time()
+        logger.info("Neoantigen annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # Differential Binding
+        start = time.time()
         self.annotations.annotations.extend(self.differential_binding.get_annotations_dai(netmhcpan))
         self.annotations.annotations.extend(self.differential_binding.get_annotations(netmhcpan, self.amplitude))
         self.annotations.annotations.extend(
             self.differential_binding.get_annotations_mhc2(netmhc2pan, self.amplitude))
+        end = time.time()
+        logger.info("Differential binding annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # T cell predictor
+        start = time.time()
         self.annotations.annotations.extend(self.tcell_predictor.get_annotations(
             gene=neoantigen.transcript.gene, substitution=substitution, netmhcpan=netmhcpan))
+        end = time.time()
+        logger.info("T-cell predictor annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # self-similarity
+        start = time.time()
         self.annotations.annotations.extend(self.self_similarity.get_annnotations(
             netmhcpan=netmhcpan))
+        end = time.time()
+        logger.info("Self similarity annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # number of mismatches and priority score
+        start = time.time()
         self.annotations.annotations.extend(self.priority_score_calculator.get_annotations(
             netmhcpan=netmhcpan, vaf_transcr=vaf_rna,
             vaf_tum=neoantigen.dna_variant_allele_frequency,
             expr=neoantigen.rna_expression, mut_not_in_prot=sequence_not_in_uniprot))
+        end = time.time()
+        logger.info("Priotity score annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # neoag immunogenicity model
+        start = time.time()
         peptide_variant_position = EpitopeHelper.position_of_mutation_epitope(
             wild_type=netmhcpan.best_wt_epitope_by_affinity.peptide, mutation=netmhcpan.best_epitope_by_affinity.peptide)
         self.annotations.annotations.append(self.neoag_calculator.get_annotation(
             sample_id=patient.identifier, netmhcpan=netmhcpan, peptide_variant_position=peptide_variant_position))
+        end = time.time()
+        logger.info("Neoag annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # IEDB immunogenicity
+        start = time.time()
         self.annotations.annotations.extend(self.iedb_immunogenicity.get_annotations(
             netmhcpan=netmhcpan, mhci_allele=netmhcpan.best_epitope_by_affinity.hla))
-
-        # MixMHCpred
-        if mixmhcpred_annotations is not None:
-            self.annotations.annotations.extend(mixmhcpred_annotations)
-
-        # MixMHC2pred
-        if mixmhc2pred_annotations is not None:
-            self.annotations.annotations.extend(mixmhc2pred_annotations)
+        end = time.time()
+        logger.info("IEDB annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # dissimilarity to self-proteome
+        start = time.time()
         self.annotations.annotations.extend(self.dissimilarity_calculator.get_annotations(
             netmhcpan=netmhcpan))
+        end = time.time()
+        logger.info("Dissimilarity annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         # vaxrank
+        start = time.time()
         vaxrankscore = vaxrank.VaxRank()
         vaxrankscore.run(mutation_scores=netmhcpan.epitope_affinities,
                          expression_score=expression_calculator.expression)
         self.annotations.annotations.extend(vaxrankscore.get_annotations())
+        end = time.time()
+        logger.info("Vaxrank annotation elapsed time {} seconds".format(round(end - start, 3)))
 
         return self.annotations
+
+    def _compute_long_running_tasks(self, neoantigen, patient):
+
+        dask_client = get_client()
+
+        netmhcpan_future = dask_client.submit(
+            self.run_netmhcpan, self.runner, self.configuration, self.available_alleles, neoantigen, patient)
+        netmhc2pan_future = dask_client.submit(
+            self.run_netmhc2pan, self.runner, self.configuration, self.available_alleles, neoantigen, patient)
+        mixmhc2pred_future = None
+        if self.configuration.mix_mhc2_pred is not None:
+            mixmhc2pred_future = dask_client.submit(
+                self.run_mixmhc2pred, self.runner, self.configuration, neoantigen, patient)
+        mixmhcpred_future = None
+        if self.configuration.mix_mhc_pred is not None:
+            mixmhcpred_future = dask_client.submit(
+                self.run_mixmhcpred, self.runner, self.configuration, neoantigen, patient)
+        secede()
+        netmhcpan, netmhc2pan, mixmhcpred_annotations, mixmhc2pred_annotations = dask_client.gather(
+            [netmhcpan_future, netmhc2pan_future, mixmhcpred_future, mixmhc2pred_future])
+        rejoin()
+        dask_client.close()
+        return mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan
 
     def _initialise_annotations(self, neoantigen):
         self.annotations = NeoantigenAnnotations()
