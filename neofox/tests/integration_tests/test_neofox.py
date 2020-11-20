@@ -164,6 +164,18 @@ class TestNeofox(TestCase):
 
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
+    def test_neofox_performance_single_neoantigen(self):
+
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
+        neoantigens, _ = ModelConverter.parse_candidate_file(input_file)
+
+        def compute_annotations():
+            return NeoFox(
+                neoantigens=neoantigens, patient_id=self.patient_id,
+                patients=self.patients, num_cpus=4).get_annotations()
+
+        print("Average time: {}".format(timeit.timeit(compute_annotations, number=1)))
+
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
         if os.path.exists(previous_file):
