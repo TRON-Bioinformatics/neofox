@@ -61,9 +61,8 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
                     pos=int(line[0]),
                     hla=ModelConverter.parse_mhc_allele(line[1]).name,  # normalize HLA
                     peptide=line[2],
-                    affinity_score=float(line[11]),
-                    rank=float(line[12]),
-                    bind_level=float(line[13])
+                    affinity_score=float(line[12]),
+                    rank=float(line[13])
                 ))
         return results
 

@@ -41,13 +41,13 @@ class BestAndMultipleBinderMhcII:
     def _initialise(self):
         self.phbr_ii = None
         self.best_predicted_epitope_rank = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
         self.best_predicted_epitope_affinity = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
         self.best_predicted_epitope_rank_wt = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
         self.best_predicted_epitope_affinity_wt = NetMhcPanPrediction(
-            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None, bind_level=None)
+            peptide="-", pos=None, hla=Mhc2Isoform(name=None), affinity_score=None, rank=None)
 
     def calculate_phbr_ii(self, best_epitope_per_allele_mhc2: List[NetMhcPanPrediction]):
         """
@@ -87,8 +87,8 @@ class BestAndMultipleBinderMhcII:
             self.phbr_ii = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
 
             # best prediction
-            self.best_predicted_epitope_rank = netmhc2pan.minimal_binding_score(filtered_predictions)
-            self.best_predicted_epitope_affinity = netmhc2pan.minimal_binding_score(filtered_predictions, rank=False)
+            self.best_predicted_epitope_rank = netmhc2pan.select_best_by_rank(filtered_predictions)
+            self.best_predicted_epitope_affinity = netmhc2pan.select_best_by_affinity(filtered_predictions)
 
         # wt
         predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, sequence_wt)
@@ -99,6 +99,9 @@ class BestAndMultipleBinderMhcII:
             self.best_predicted_epitope_rank_wt = netmhc2pan.filter_for_WT_epitope_position(
                 filtered_predictions_wt, self.best_predicted_epitope_rank.peptide,
                 position_mutation_epitope=self.best_predicted_epitope_rank.pos)
+
+            # TODO: careful here, this is computed against the best epitopes by affinity but then the best is chosen based
+            # TODO: on the rank. Review!!
             self.best_predicted_epitope_affinity_wt = netmhc2pan.filter_for_WT_epitope_position(
                 filtered_predictions_wt, self.best_predicted_epitope_affinity.peptide,
                 position_mutation_epitope=self.best_predicted_epitope_affinity.pos)

@@ -51,7 +51,7 @@ class BestAndMultipleBinder:
         # TODO: not calculated when homozygous of at least one MHC I classic gene, can this be improved?
         phbr_i = None
         if len(best_epitopes_per_allele) == 6:
-            phbr_i = stats.hmean(list(map(lambda e: e.bind_level, best_epitopes_per_allele)))
+            phbr_i = stats.hmean(list(map(lambda e: e.rank, best_epitopes_per_allele)))
         return phbr_i
 
     @staticmethod
@@ -95,7 +95,7 @@ class BestAndMultipleBinder:
         best_epis_per_allele = []
         for list_alleles in epitopes_by_allele.values():
             # sort by rank to choose the best epitope, ties are solved choosing the first peptide in alphabetcial order
-            list_alleles.sort(key=lambda x: (x.bind_level, x.peptide))
+            list_alleles.sort(key=lambda x: (x.rank, x.peptide))
             best_epitope = list_alleles[0]
             if best_epitope.hla in hetero_hemizygous_alleles:
                 best_epis_per_allele.append(best_epitope)  # adds the epitope once
@@ -109,7 +109,7 @@ class BestAndMultipleBinder:
         """
         Determines the number of HLA binders per mutation based on a threshold. Default is set to 2, which is threshold for weak binding using netmhcpan4.
         """
-        scores = [epitope.rank for epitope in predictions]
+        scores = [epitope.affinity_score for epitope in predictions]
         number_binders = 0
         for score in scores:
             if score < threshold:
@@ -129,27 +129,20 @@ class BestAndMultipleBinder:
         predictions = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, sequence_mut)
         filtered_predictions = netmhcpan.filter_binding_predictions(
             position_of_mutation=position_of_mutation, predictions=predictions)
+
         # multiple binding
-        # TODO: epitope affinities using rank. Please review
-        self.epitope_affinities = "/".join([str(epitope.rank) for epitope in filtered_predictions])
+        self.epitope_affinities = "/".join([str(epitope.affinity_score) for epitope in filtered_predictions])
 
         # best prediction
-        # TODO: this is using bind level as score, please review
-        self.best_epitope_by_rank = netmhcpan.minimal_binding_score(filtered_predictions)
-
-        # TODO: mismatch here, select by rank and shows rank. Review this!
-        self.best_epitope_by_affinity = netmhcpan.minimal_binding_score(filtered_predictions, rank=True)
+        self.best_epitope_by_rank = netmhcpan.select_best_by_rank(filtered_predictions)
+        self.best_epitope_by_affinity = netmhcpan.select_best_by_affinity(filtered_predictions)
 
         # best predicted epitope of length 9
-        # TODO: this one is using the bind level!! please review
         ninemer_predictions = netmhcpan.filter_for_9mers(filtered_predictions)
-        self.best_ninemer_epitope_by_rank = netmhcpan.minimal_binding_score(ninemer_predictions)
-
-        # TODO: mismatch here, select by rank and shows rank. Review this!
-        self.best_ninemer_epitope_by_affinity = netmhcpan.minimal_binding_score(ninemer_predictions, rank=True)
+        self.best_ninemer_epitope_by_rank = netmhcpan.select_best_by_rank(ninemer_predictions)
+        self.best_ninemer_epitope_by_affinity = netmhcpan.select_best_by_affinity(ninemer_predictions)
 
         # multiple binding based on affinity
-        # TODO: generator rate not based on affinity but on rank. Please review
         self.generator_rate = self.determine_number_of_binders(predictions=filtered_predictions, threshold=50)
 
         # PHBR-I
@@ -159,8 +152,8 @@ class BestAndMultipleBinder:
         predictions_wt = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, sequence_wt)
         filtered_predictions_wt = netmhcpan.filter_binding_predictions(
             position_of_mutation=position_of_mutation, predictions=predictions_wt)
+
         # best prediction
-        # TODO: review this one is using bind level
         self.best_wt_epitope_by_rank = netmhcpan.filter_for_WT_epitope_position(
             filtered_predictions_wt, self.best_epitope_by_rank.peptide,
             position_mutation_epitope=self.best_epitope_by_rank.pos)
@@ -172,42 +165,42 @@ class BestAndMultipleBinder:
             position_mutation_epitope=self.best_epitope_by_affinity.pos)
 
         # best predicted epitope of length 9
-        # TODO: this one uses bind level score instead of rank, Review!
         ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
         self.best_ninemer_wt_epitope_by_rank = netmhcpan.filter_for_WT_epitope_position(
             ninemer_predictions_wt, sequence_mut=self.best_ninemer_epitope_by_rank.peptide,
             position_mutation_epitope=self.best_ninemer_epitope_by_rank.pos)
 
-        # TODO: this is showing the rank and it is also choosing by best rank
+        # TODO: careful here, this is computed against the best epitopes by affinity but then the best is chosen based
+        # TODO: on the rank. Review!!
         self.best_ninemer_wt_epitope_by_affinity = netmhcpan.filter_for_WT_epitope_position(
             ninemer_predictions_wt, sequence_mut=self.best_ninemer_epitope_by_affinity.peptide,
             position_mutation_epitope=self.best_ninemer_epitope_by_affinity.pos)
 
     def get_annotations(self) -> List[Annotation]:
         annotations = [
-            AnnotationFactory.build_annotation(value=self.best_epitope_by_rank.bind_level, name="Best_rank_MHCI_score"),
+            AnnotationFactory.build_annotation(value=self.best_epitope_by_rank.rank, name="Best_rank_MHCI_score"),
             AnnotationFactory.build_annotation(value=self.best_epitope_by_rank.peptide, name="Best_rank_MHCI_score_epitope"),
             AnnotationFactory.build_annotation(value=self.best_epitope_by_rank.hla, name="Best_rank_MHCI_score_allele"),
-            AnnotationFactory.build_annotation(value=self.best_epitope_by_affinity.rank, name="Best_affinity_MHCI_score"),
+            AnnotationFactory.build_annotation(value=self.best_epitope_by_affinity.affinity_score, name="Best_affinity_MHCI_score"),
             AnnotationFactory.build_annotation(value=self.best_epitope_by_affinity.peptide, name="Best_affinity_MHCI_epitope"),
             AnnotationFactory.build_annotation(value=self.best_epitope_by_affinity.hla, name="Best_affinity_MHCI_allele"),
-            AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_rank.bind_level, name="Best_rank_MHCI_9mer_score"),
+            AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_rank.rank, name="Best_rank_MHCI_9mer_score"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_rank.peptide, name="Best_rank_MHCI_9mer_epitope"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_rank.hla, name="Best_rank_MHCI_9mer_allele"),
-            AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_affinity.rank, name="Best_affinity_MHCI_9mer_score"),
+            AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_affinity.affinity_score, name="Best_affinity_MHCI_9mer_score"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_affinity.hla, name="Best_affinity_MHCI_9mer_allele"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_epitope_by_affinity.peptide, name="Best_affinity_MHCI_9mer_epitope"),
             # wt
-            AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_affinity.rank, name="Best_affinity_MHCI_score_WT"),
+            AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_affinity.affinity_score, name="Best_affinity_MHCI_score_WT"),
             AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_affinity.peptide, name="Best_affinity_MHCI_epitope_WT"),
             AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_affinity.hla, name="Best_affinity_MHCI_allele_WT"),
-            AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_rank.bind_level, name="Best_rank_MHCI_score_WT"),
+            AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_rank.rank, name="Best_rank_MHCI_score_WT"),
             AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_rank.peptide, name="Best_rank_MHCI_score_epitope_WT"),
             AnnotationFactory.build_annotation(value=self.best_wt_epitope_by_rank.hla, name="Best_rank_MHCI_score_allele_WT"),
-            AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_rank.bind_level, name="Best_rank_MHCI_9mer_score_WT"),
+            AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_rank.rank, name="Best_rank_MHCI_9mer_score_WT"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_rank.peptide, name="Best_rank_MHCI_9mer_epitope_WT"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_rank.hla, name="Best_rank_MHCI_9mer_allele_WT"),
-            AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_affinity.rank, name="Best_affinity_MHCI_9mer_score_WT"),
+            AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_affinity.affinity_score, name="Best_affinity_MHCI_9mer_score_WT"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_affinity.hla, name="Best_affinity_MHCI_9mer_allele_WT"),
             AnnotationFactory.build_annotation(value=self.best_ninemer_wt_epitope_by_affinity.peptide, name="Best_affinity_MHCI_9mer_epitope_WT"),
             # generator rate

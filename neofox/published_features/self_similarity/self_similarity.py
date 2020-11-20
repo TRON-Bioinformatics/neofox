@@ -131,8 +131,8 @@ class SelfSimilarityCalculator():
     def get_annnotations(
             self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
 
-        improved_binding_mhc1 = self.is_improved_binder(score_mutation=netmhcpan.best_epitope_by_rank.bind_level,
-                                                        score_wild_type=netmhcpan.best_wt_epitope_by_rank.bind_level)
+        improved_binding_mhc1 = self.is_improved_binder(score_mutation=netmhcpan.best_epitope_by_rank.rank,
+                                                        score_wild_type=netmhcpan.best_wt_epitope_by_rank.rank)
         self_similarity_mhc1 = self.get_self_similarity(mutation=netmhcpan.best_epitope_by_rank.peptide,
                                                         wild_type=netmhcpan.best_wt_epitope_by_rank.peptide)
         return [

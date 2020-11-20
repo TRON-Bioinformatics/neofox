@@ -66,8 +66,8 @@ class DifferentialBinding:
         return [
             AnnotationFactory.build_annotation(
                 name="DAI_MHCI_affinity_cutoff500nM", value=self.dai(
-                    score_mutation=netmhcpan.best_epitope_by_affinity.rank,
-                    score_wild_type=netmhcpan.best_wt_epitope_by_affinity.rank,
+                    score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                    score_wild_type=netmhcpan.best_wt_epitope_by_affinity.affinity_score,
                     affin_filtering=True)),
         ]
 
@@ -80,11 +80,13 @@ class DifferentialBinding:
 
         return [
             AnnotationFactory.build_annotation(name="CDN_MHCI", value=self.classify_adn_cdn(
-                score_mutation=netmhcpan.best_epitope_by_affinity.rank, amplitude=amplitude.amplitude_mhci_affinity,
+                score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                amplitude=amplitude.amplitude_mhci_affinity,
                 bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                 amplitude_cutoff=amplitude_cutoff_mhci, category="CDN")),
             AnnotationFactory.build_annotation(name="ADN_MHCI", value=self.classify_adn_cdn(
-                score_mutation=netmhcpan.best_epitope_by_affinity.rank, amplitude=amplitude.amplitude_mhci_affinity,
+                score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                amplitude=amplitude.amplitude_mhci_affinity,
                 bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                 amplitude_cutoff=amplitude_cutoff_mhci, category="ADN")),
         ]
