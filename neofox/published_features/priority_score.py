@@ -78,7 +78,7 @@ class PriorityScore:
             # priority score with rank score
             AnnotationFactory.build_annotation(value=self.calc_priority_score(
                 vaf_tumor=vaf_tum, vaf_rna=vaf_transcr, transcript_expr=expr, no_mismatch=num_mismatches_mhc1,
-                score_mut=netmhcpan.best_epitope_by_rank.bind_level, score_wt=netmhcpan.best_wt_epitope_by_rank.bind_level,
+                score_mut=netmhcpan.best_epitope_by_rank.rank, score_wt=netmhcpan.best_wt_epitope_by_rank.rank,
                 mut_not_in_prot=mut_not_in_prot),
                 name="Priority_score")
             ]

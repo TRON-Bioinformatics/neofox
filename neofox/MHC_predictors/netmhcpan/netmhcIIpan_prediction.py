@@ -84,7 +84,6 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                     hla=ModelConverter.parse_mhc2_isoform(line[1]),  # normalize HLA
                     peptide=line[2],
                     affinity_score=float(line[8]),
-                    rank=float(line[9]),
-                    bind_level=None
+                    rank=float(line[9])
                 ))
         return results

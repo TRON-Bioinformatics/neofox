@@ -32,18 +32,25 @@ class NetMhcPanPrediction:
     peptide: str
     affinity_score: float
     rank: float
-    bind_level: float
 
 
 class AbstractNetMhcPanPredictor(EpitopeHelper):
 
     @staticmethod
-    def minimal_binding_score(predictions: List[NetMhcPanPrediction], rank=True) -> NetMhcPanPrediction:
+    def select_best_by_rank(predictions: List[NetMhcPanPrediction]) -> NetMhcPanPrediction:
         """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
         if rank = False, Aff(nM) is used
         In case of a tie, it chooses the first peptide in alphabetical order
         """
-        return min(predictions, key=lambda e: (e.rank, e.peptide) if rank else (e.affinity_score, e.peptide))
+        return min(predictions, key=lambda e: (e.rank, e.peptide))
+
+    @staticmethod
+    def select_best_by_affinity(predictions: List[NetMhcPanPrediction]) -> NetMhcPanPrediction:
+        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
+        if rank = False, Aff(nM) is used
+        In case of a tie, it chooses the first peptide in alphabetical order
+        """
+        return min(predictions, key=lambda e: (e.affinity_score, e.peptide))
 
     def filter_for_WT_epitope_position(
             self, predictions: List[
@@ -52,7 +59,7 @@ class AbstractNetMhcPanPredictor(EpitopeHelper):
         """
         epitopes_wt = list(filter(
            lambda p: len(p.peptide) == len(sequence_mut) and p.pos == position_mutation_epitope, predictions))
-        return self.minimal_binding_score(epitopes_wt)
+        return self.select_best_by_rank(epitopes_wt)
 
     def filter_binding_predictions(
             self, position_of_mutation, predictions: List[NetMhcPanPrediction]) -> List[NetMhcPanPrediction]:
