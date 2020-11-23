@@ -21,7 +21,7 @@ from typing import List, Set
 from logzero import logger
 from neofox.helpers import intermediate_files
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor, \
-    NetMhcPanPrediction
+    PredictedEpitope
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Mhc1
 
@@ -36,7 +36,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def mhc_prediction(self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence) -> List[NetMhcPanPrediction]:
+    def mhc_prediction(self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence) -> List[PredictedEpitope]:
         """ Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         """
         input_fasta = intermediate_files.create_temp_fasta(sequences=[sequence], prefix="tmp_singleseq_")
@@ -48,7 +48,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         lines, _ = self.runner.run_command(cmd)
         return self._parse_netmhcpan_output(lines)
 
-    def _parse_netmhcpan_output(self, lines: str) -> List[NetMhcPanPrediction]:
+    def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
             line = line.rstrip().lstrip()
@@ -57,7 +57,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
                     continue
                 line = line.split()
                 line = line[0:-2] if len(line) > 14 else line
-                results.append(NetMhcPanPrediction(
+                results.append(PredictedEpitope(
                     pos=int(line[0]),
                     hla=ModelConverter.parse_mhc_allele(line[1]).name,  # normalize HLA
                     peptide=line[2],

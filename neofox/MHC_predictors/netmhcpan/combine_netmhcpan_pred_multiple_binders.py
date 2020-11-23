@@ -21,7 +21,7 @@ from typing import List, Set
 import scipy.stats as stats
 
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import NetMhcPanPrediction
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Annotation, Mhc1, Zygosity
 from neofox.model.wrappers import AnnotationFactory
@@ -43,12 +43,11 @@ class BestAndMultipleBinder:
         self.generator_rate = None
         self.mutation_in_anchor_9mer = None
 
-    def calculate_phbr_i(self, predictions: List[NetMhcPanPrediction], mhc1_alleles: List[Mhc1]):
+    def calculate_phbr_i(self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]):
         """returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         """
         best_epitopes_per_allele = BestAndMultipleBinder.extract_best_epitope_per_alelle(predictions, mhc1_alleles)
-        # TODO: not calculated when homozygous of at least one MHC I classic gene, can this be improved?
         phbr_i = None
         if len(best_epitopes_per_allele) == 6:
             phbr_i = stats.hmean(list(map(lambda e: e.rank, best_epitopes_per_allele)))
@@ -56,7 +55,7 @@ class BestAndMultipleBinder:
 
     @staticmethod
     def extract_best_epitope_per_alelle(
-            epitopes: List[NetMhcPanPrediction], mhc_isoforms: List[Mhc1]) -> List[NetMhcPanPrediction]:
+            epitopes: List[PredictedEpitope], mhc_isoforms: List[Mhc1]) -> List[PredictedEpitope]:
         """
         This function returns the predicted epitope with the lowest binding score for each patient allele,
         considering homozyogosity
@@ -85,12 +84,12 @@ class BestAndMultipleBinder:
     @staticmethod
     def _get_sorted_epitopes(
             hetero_hemizygous_alleles, homozygous_alleles,
-            epitopes: List[NetMhcPanPrediction]) -> List[NetMhcPanPrediction]:
+            predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
 
         # groups epitopes by allele
         epitopes_by_allele = {}
-        for epitope in epitopes:
-            epitopes_by_allele.setdefault(epitope.hla, []).append(epitope)
+        for p in predictions:
+            epitopes_by_allele.setdefault(p.hla, []).append(p)
         # chooses the best epitope per allele while considering zygosity
         best_epis_per_allele = []
         for list_alleles in epitopes_by_allele.values():
@@ -105,7 +104,7 @@ class BestAndMultipleBinder:
         return best_epis_per_allele
 
     @staticmethod
-    def determine_number_of_binders(predictions: List[NetMhcPanPrediction], threshold=2):
+    def determine_number_of_binders(predictions: List[PredictedEpitope], threshold=2):
         """
         Determines the number of HLA binders per mutation based on a threshold. Default is set to 2, which is threshold for weak binding using netmhcpan4.
         """
@@ -123,10 +122,9 @@ class BestAndMultipleBinder:
 
         self._initialise()
         netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
-        position_of_mutation = netmhcpan.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
-
-        # mutation
+        # print alleles
         predictions = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, sequence_mut)
+        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
         filtered_predictions = netmhcpan.filter_binding_predictions(
             position_of_mutation=position_of_mutation, predictions=predictions)
 
@@ -154,27 +152,19 @@ class BestAndMultipleBinder:
             position_of_mutation=position_of_mutation, predictions=predictions_wt)
 
         # best prediction
-        self.best_wt_epitope_by_rank = netmhcpan.filter_for_WT_epitope_position(
-            filtered_predictions_wt, self.best_epitope_by_rank.peptide,
-            position_mutation_epitope=self.best_epitope_by_rank.pos)
-
-        # TODO: careful here, this is computed against the best epitopes by affinity but then the best is chosen based
-        # TODO: on the rank. Review!!
-        self.best_wt_epitope_by_affinity = netmhcpan.filter_for_WT_epitope_position(
-            filtered_predictions_wt, self.best_epitope_by_affinity.peptide,
-            position_mutation_epitope=self.best_epitope_by_affinity.pos)
+        self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+            netmhcpan.filter_WT_predictions_from_best_mutated(filtered_predictions_wt, self.best_epitope_by_rank))
+        self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+            netmhcpan.filter_WT_predictions_from_best_mutated(filtered_predictions_wt, self.best_epitope_by_affinity))
 
         # best predicted epitope of length 9
         ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
-        self.best_ninemer_wt_epitope_by_rank = netmhcpan.filter_for_WT_epitope_position(
-            ninemer_predictions_wt, sequence_mut=self.best_ninemer_epitope_by_rank.peptide,
-            position_mutation_epitope=self.best_ninemer_epitope_by_rank.pos)
-
-        # TODO: careful here, this is computed against the best epitopes by affinity but then the best is chosen based
-        # TODO: on the rank. Review!!
-        self.best_ninemer_wt_epitope_by_affinity = netmhcpan.filter_for_WT_epitope_position(
-            ninemer_predictions_wt, sequence_mut=self.best_ninemer_epitope_by_affinity.peptide,
-            position_mutation_epitope=self.best_ninemer_epitope_by_affinity.pos)
+        self.best_ninemer_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+            netmhcpan.filter_WT_predictions_from_best_mutated(
+                ninemer_predictions_wt, self.best_ninemer_epitope_by_rank))
+        self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+            netmhcpan.filter_WT_predictions_from_best_mutated(
+                ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity))
 
     def get_annotations(self) -> List[Annotation]:
         annotations = [
