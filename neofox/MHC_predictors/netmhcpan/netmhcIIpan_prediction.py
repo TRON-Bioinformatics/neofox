@@ -19,18 +19,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 import tempfile
-from typing import List, Set
-
-from logzero import logger
-
-from neofox.helpers import data_import
-from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
-from neofox.model.neoantigen import Mhc2, Mhc2GeneName, MhcAllele, Mhc2Name
-from neofox.model.wrappers import get_alleles_by_gene
+from typing import List
+from neofox.helpers import intermediate_files
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor, PredictedEpitope
+from neofox.model.conversion import ModelConverter
+from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name
 
 
-class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
+class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
 
     def __init__(self, runner, configuration):
         """
@@ -61,82 +57,33 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
             gene_a=mhc_a_allele.gene, group_a=mhc_a_allele.group, protein_a=mhc_a_allele.protein,
             gene_b=mhc_b_allele.gene, group_b=mhc_b_allele.group, protein_b=mhc_b_allele.protein)
 
-    def mhcII_prediction(self, mhc_alleles: List[str], tmpfasta, tmppred):
-        """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file.
-        """
+    def mhcII_prediction(self, mhc_alleles: List[str], sequence) -> List[PredictedEpitope]:
+        """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
         # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
+        tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command([
             self.configuration.net_mhc2_pan,
             "-a", ",".join(mhc_alleles),
-            "-f", tmpfasta,
+            "-f", tmp_fasta,
             "-tdir", tmp_folder,
             "-dirty"])
-        counter = 0
-        # TODO: avoid writing a file here, just return some data structure no need to go to the file system
-        with open(tmppred, "w") as f:
-            for line in lines.splitlines():
-                line = line.rstrip().lstrip()
-                if line:
-                    if line.startswith(("#", "-", "Number", "Temporary")):
-                        continue
-                    if counter == 0 and line.startswith("Seq"):
-                        counter += 1
-                        line = line.split()
-                        line = line[0:-1] if len(line) > 12 else line
-                        f.write(";".join(line) + "\n")
-                        continue
-                    elif counter > 0 and line.startswith("Seq"):
-                        continue
-                    line = line.split()
-                    line = line[0:-2] if len(line) > 11 else line
-                    f.write(";".join(line) + "\n")
+        return self._parse_netmhcpan_output(lines)
 
-    def filter_binding_predictions(self, position_of_mutation, tmppred):
-        """
-        filters prediction file for predicted epitopes that cover mutations
-        """
-        header, data = data_import.import_dat_general(tmppred)
-        epitopes_covering_mutation = []
-        pos_epi = header.index("Seq")
-        epi = header.index("Peptide")
-        for ii, i in enumerate(data):
-            if self.epitope_covers_mutation(position_of_mutation, i[pos_epi], len(i[epi])):
-                epitopes_covering_mutation.append(data[ii])
-        return header, epitopes_covering_mutation
-
-    def minimal_binding_score(self, prediction_tuple, rank=True):
-        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
-        if rank = False, Aff(nM) is used
-        """
-        # TODO: generalize this method with netmhcpan_prediction.py + change neofox
-        header = prediction_tuple[0]
-        data = prediction_tuple[1]
-        if rank:
-            mhc_sc = header.index("%Rank")
-        else:
-            mhc_sc = header.index("Affinity(nM)")
-        max_score = float(1000000000)
-        best_predicted_epitope = []
-        for ii, i in enumerate(data):
-            mhc_score = float(i[mhc_sc])
-            if mhc_score < max_score:
-                max_score = mhc_score
-                best_predicted_epitope = i
-        return header, best_predicted_epitope
-
-    def filter_for_wt_epitope_position(self, prediction_tuple, mut_seq, position_epitope_in_xmer):
-        """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
-        """
-        header = prediction_tuple[0]
-        data = prediction_tuple[1]
-        seq_col = header.index("Peptide")
-        pos_col = header.index("Seq")
-        epitopes_wt = []
-        for ii, i in enumerate(data):
-            wt_seq = i[seq_col]
-            wt_pos = i[pos_col]
-            if (len(wt_seq) == len(mut_seq)) & (wt_pos == position_epitope_in_xmer):
-                epitopes_wt.append(i)
-        all_epitopes_wt = (header, epitopes_wt)
-        return self.minimal_binding_score(all_epitopes_wt)
+    def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
+        results = []
+        for line in lines.splitlines():
+            line = line.rstrip().lstrip()
+            if line:
+                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR")):
+                    continue
+                line = line.split()
+                line = line[0:-1] if len(line) > 12 else line
+                results.append(PredictedEpitope(
+                    pos=int(line[0]),
+                    hla=ModelConverter.parse_mhc2_isoform(line[1]),  # normalize HLA
+                    peptide=line[2],
+                    affinity_score=float(line[8]),
+                    rank=float(line[9])
+                ))
+        return results

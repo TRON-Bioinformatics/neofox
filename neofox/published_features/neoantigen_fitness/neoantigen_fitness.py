@@ -93,16 +93,17 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         return recognition_potential
 
     def get_annotations(self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude) -> List[Annotation]:
-        pathogen_similarity_9mer = self.get_pathogen_similarity(mutation=netmhcpan.mhcI_affinity_epitope_9mer)
+        pathogen_similarity_9mer = self.get_pathogen_similarity(mutation=netmhcpan.best_ninemer_epitope_by_affinity.peptide)
 
         return [
-            AnnotationFactory.build_annotation(name="Pathogensimiliarity_MHCI_affinity_9mer",
-                                               value=pathogen_similarity_9mer),
-            AnnotationFactory.build_annotation(name="Recognition_Potential_MHCI_affinity_9mer",
-                                               value=self.calculate_recognition_potential(
-                                                   amplitude=amplitude.amplitude_mhci_affinity_9mer,
-                                                   pathogen_similarity=pathogen_similarity_9mer,
-                                                   mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer,
-                                                   mhc_affinity_mut=netmhcpan.mhcI_affinity_9mer))
+            AnnotationFactory.build_annotation(
+                name="Pathogensimiliarity_MHCI_affinity_9mer", value=pathogen_similarity_9mer),
+            AnnotationFactory.build_annotation(
+                name="Recognition_Potential_MHCI_affinity_9mer",
+                value=self.calculate_recognition_potential(
+                    amplitude=amplitude.amplitude_mhci_affinity_9mer,
+                    pathogen_similarity=pathogen_similarity_9mer,
+                    mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer,
+                    mhc_affinity_mut=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score))
         ]
 
