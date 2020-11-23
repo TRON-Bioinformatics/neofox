@@ -97,15 +97,12 @@ class BestAndMultipleBinderMhcII:
             filtered_predictions_wt = netmhc2pan.filter_binding_predictions(position_mutation, predictions)
 
             # best prediction
-            self.best_predicted_epitope_rank_wt = netmhc2pan.filter_for_WT_epitope_position(
-                filtered_predictions_wt, self.best_predicted_epitope_rank.peptide,
-                position_mutation_epitope=self.best_predicted_epitope_rank.pos)
-
-            # TODO: careful here, this is computed against the best epitopes by affinity but then the best is chosen based
-            # TODO: on the rank. Review!!
-            self.best_predicted_epitope_affinity_wt = netmhc2pan.filter_for_WT_epitope_position(
-                filtered_predictions_wt, self.best_predicted_epitope_affinity.peptide,
-                position_mutation_epitope=self.best_predicted_epitope_affinity.pos)
+            self.best_predicted_epitope_rank_wt = netmhc2pan.select_best_by_rank(
+                netmhc2pan.filter_WT_predictions_from_best_mutated(
+                    filtered_predictions_wt, self.best_predicted_epitope_rank))
+            self.best_predicted_epitope_affinity_wt = netmhc2pan.select_best_by_affinity(
+                netmhc2pan.filter_WT_predictions_from_best_mutated(
+                    filtered_predictions_wt, self.best_predicted_epitope_affinity))
 
     @staticmethod
     def _get_only_available_combinations(allele_combinations, set_available_mhc):

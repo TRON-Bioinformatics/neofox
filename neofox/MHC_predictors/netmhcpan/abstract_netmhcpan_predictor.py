@@ -50,14 +50,13 @@ class AbstractNetMhcPanPredictor:
         """
         return min(predictions, key=lambda p: (p.affinity_score, p.peptide))
 
-    def filter_for_WT_epitope_position(
-            self, predictions: List[
-                PredictedEpitope], sequence_mut, position_mutation_epitope) -> PredictedEpitope:
+    def filter_WT_predictions_from_best_mutated(
+            self, predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope) -> List[PredictedEpitope]:
         """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
         """
-        epitopes_wt = list(filter(
-           lambda p: len(p.peptide) == len(sequence_mut) and p.pos == position_mutation_epitope, predictions))
-        return self.select_best_by_rank(epitopes_wt)
+        return list(filter(
+            lambda p: len(p.peptide) == len(mutated_prediction.peptide) and p.pos == mutated_prediction.pos,
+            predictions))
 
     def filter_binding_predictions(
             self, position_of_mutation, predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
