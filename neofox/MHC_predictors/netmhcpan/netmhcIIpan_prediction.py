@@ -21,7 +21,7 @@
 import tempfile
 from typing import List
 from neofox.helpers import intermediate_files
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor, NetMhcPanPrediction
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor, PredictedEpitope
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name
 
@@ -57,7 +57,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             gene_a=mhc_a_allele.gene, group_a=mhc_a_allele.group, protein_a=mhc_a_allele.protein,
             gene_b=mhc_b_allele.gene, group_b=mhc_b_allele.group, protein_b=mhc_b_allele.protein)
 
-    def mhcII_prediction(self, mhc_alleles: List[str], sequence) -> List[NetMhcPanPrediction]:
+    def mhcII_prediction(self, mhc_alleles: List[str], sequence) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
         # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
         tmp_fasta = intermediate_files.create_temp_fasta([sequence], prefix="tmp_singleseq_")
@@ -70,7 +70,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             "-dirty"])
         return self._parse_netmhcpan_output(lines)
 
-    def _parse_netmhcpan_output(self, lines: str) -> List[NetMhcPanPrediction]:
+    def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
             line = line.rstrip().lstrip()
@@ -79,7 +79,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                     continue
                 line = line.split()
                 line = line[0:-1] if len(line) > 12 else line
-                results.append(NetMhcPanPrediction(
+                results.append(PredictedEpitope(
                     pos=int(line[0]),
                     hla=ModelConverter.parse_mhc2_isoform(line[1]),  # normalize HLA
                     peptide=line[2],
