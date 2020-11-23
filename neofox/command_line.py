@@ -57,9 +57,6 @@ def neofox_cli():
                         help='input tabular file with neoantigen candidates represented by neoantigen model')
     parser.add_argument('--candidate-file', dest='candidate_file',
                         help='input file with neoantigens candidates represented by long mutated peptide sequences')
-    # TODO: once we support the neofox from the models this parameter will not be required
-    parser.add_argument('--patient-id', dest='patient_id', help='the patient id for the input file',
-                        required=True)
     parser.add_argument('--patient-data', dest='patients_data',
                         help='file with data for patients with columns: identifier, estimated_tumor_content, '
                              'is_rna_available, mhc_i_alleles, mhc_ii_alleles, tissue',
@@ -74,6 +71,9 @@ def neofox_cli():
                         help='output results in a tall skinny tab-separated table')
     parser.add_argument('--with-json', dest='with_json', action='store_true',
                         help='output results in JSON format')
+    parser.add_argument('--patient-id', dest='patient_id',
+                        help='the patient id for the input file. This parameter is only required, '
+                             'if the column "patient" has not been added to the candidate file')
     parser.add_argument('--num-cpus', dest='num_cpus', default=1, help='number of CPUs for computation')
     args = parser.parse_args()
 
@@ -100,7 +100,7 @@ def neofox_cli():
     os.makedirs(output_folder, exist_ok=True)
 
     # reads the input data
-    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, patients_data)
+    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, patients_data, patient_id)
 
     # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
     # otherwise original values is reported
@@ -117,14 +117,14 @@ def neofox_cli():
     logger.info("Finished NeoFox")
 
 
-def _read_data(candidate_file, model_file, patients_data) -> \
+def _read_data(candidate_file, model_file, patients_data, patient_id) -> \
         Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data)
     logger.info(patients)
     # parse the neoantigen candidate data
     if candidate_file is not None:
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file, patient_id)
     else:
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
 
