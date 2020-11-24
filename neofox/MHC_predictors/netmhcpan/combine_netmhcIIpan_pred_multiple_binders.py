@@ -98,10 +98,10 @@ class BestAndMultipleBinderMhcII:
 
             # best prediction
             self.best_predicted_epitope_rank_wt = netmhc2pan.select_best_by_rank(
-                netmhc2pan.filter_WT_predictions_from_best_mutated(
+                netmhc2pan.filter_wt_predictions_from_best_mutated(
                     filtered_predictions_wt, self.best_predicted_epitope_rank))
             self.best_predicted_epitope_affinity_wt = netmhc2pan.select_best_by_affinity(
-                netmhc2pan.filter_WT_predictions_from_best_mutated(
+                netmhc2pan.filter_wt_predictions_from_best_mutated(
                     filtered_predictions_wt, self.best_predicted_epitope_affinity))
 
     @staticmethod
