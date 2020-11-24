@@ -26,7 +26,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 class PredictedEpitope:
     "this is a common data class for both netmhcpan and netmhc2pan"
     pos: int
-    hla: Union[str, Mhc2Isoform]    # for MHC I a str is enough, but for MCH II we need a complex object
+    hla: Union[str, Mhc2Isoform]  # for MHC I a str is enough, but for MCH II we need a complex object
     peptide: str
     affinity_score: float
     rank: float
@@ -50,7 +50,7 @@ class AbstractNetMhcPanPredictor:
         """
         return min(predictions, key=lambda p: (p.affinity_score, p.peptide))
 
-    def filter_WT_predictions_from_best_mutated(
+    def filter_wt_predictions_from_best_mutated(
             self, predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope) -> List[PredictedEpitope]:
         """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
         """
@@ -58,11 +58,20 @@ class AbstractNetMhcPanPredictor:
             lambda p: len(p.peptide) == len(mutated_prediction.peptide) and p.pos == mutated_prediction.pos,
             predictions))
 
+    def filter_wt_predictions_from_best_mutated_same_allele(
+            self, predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope) -> List[PredictedEpitope]:
+        """returns wt epitope info for given mutated sequence for the best allele of the corresponding mutated epitope
+        """
+        return list(filter(
+            lambda p: len(p.peptide) == len(mutated_prediction.peptide) and p.pos == mutated_prediction.pos and
+                      p.hla == mutated_prediction.hla,
+            predictions))
+
     def filter_binding_predictions(
             self, position_of_mutation, predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
         """filters prediction file for predicted epitopes that cover mutations"""
         return list(filter(
-           lambda p: EpitopeHelper.epitope_covers_mutation(position_of_mutation, p.pos, len(p.peptide)), predictions))
+            lambda p: EpitopeHelper.epitope_covers_mutation(position_of_mutation, p.pos, len(p.peptide)), predictions))
 
     def filter_for_9mers(self, predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
         """returns only predicted 9mers"""
