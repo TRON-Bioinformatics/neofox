@@ -26,7 +26,7 @@ from neofox.references.references import ReferenceFolder, DependenciesConfigurat
 
 
 def load_references():
-    dotenv.load_dotenv()
+    dotenv.load_dotenv(override=True)
     return ReferenceFolder(), DependenciesConfiguration()
 
 

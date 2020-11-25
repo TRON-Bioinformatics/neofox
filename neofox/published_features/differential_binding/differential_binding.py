@@ -66,7 +66,8 @@ class DifferentialBinding:
         return [
             AnnotationFactory.build_annotation(
                 name="DAI_MHCI_affinity_cutoff500nM", value=self.dai(
-                    score_mutation=netmhcpan.best4_affinity, score_wild_type=netmhcpan.best4_affinity_WT,
+                    score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                    score_wild_type=netmhcpan.best_wt_epitope_by_affinity.affinity_score,
                     affin_filtering=True)),
         ]
 
@@ -79,11 +80,13 @@ class DifferentialBinding:
 
         return [
             AnnotationFactory.build_annotation(name="CDN_MHCI", value=self.classify_adn_cdn(
-                score_mutation=netmhcpan.best4_affinity, amplitude=amplitude.amplitude_mhci_affinity,
+                score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                amplitude=amplitude.amplitude_mhci_affinity,
                 bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                 amplitude_cutoff=amplitude_cutoff_mhci, category="CDN")),
             AnnotationFactory.build_annotation(name="ADN_MHCI", value=self.classify_adn_cdn(
-                score_mutation=netmhcpan.best4_affinity, amplitude=amplitude.amplitude_mhci_affinity,
+                score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                amplitude=amplitude.amplitude_mhci_affinity,
                 bdg_cutoff_classical=bdg_cutoff_classical_mhci, bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                 amplitude_cutoff=amplitude_cutoff_mhci, category="ADN")),
         ]
@@ -97,14 +100,14 @@ class DifferentialBinding:
         return [
             AnnotationFactory.build_annotation(
                 value=self.classify_adn_cdn(
-                    score_mutation=netmhc2pan.best_mhcII_pan_score, amplitude=amplitude.amplitude_mhcii_rank,
+                    score_mutation=netmhc2pan.best_predicted_epitope_rank.rank, amplitude=amplitude.amplitude_mhcii_rank,
                     bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                     bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii, amplitude_cutoff=amplitude_cutoff_mhcii,
                     category="CDN"),
                 name="CDN_MHCII"),
             AnnotationFactory.build_annotation(
                 value=self.classify_adn_cdn(
-                    score_mutation=netmhc2pan.best_mhcII_pan_score, amplitude=amplitude.amplitude_mhcii_rank,
+                    score_mutation=netmhc2pan.best_predicted_epitope_rank.rank, amplitude=amplitude.amplitude_mhcii_rank,
                     bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                     bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii, amplitude_cutoff=amplitude_cutoff_mhcii,
                     category="ADN"),

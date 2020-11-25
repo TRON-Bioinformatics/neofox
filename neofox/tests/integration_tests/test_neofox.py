@@ -16,9 +16,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import unittest
 from unittest import TestCase
 from datetime import datetime
 import pkg_resources
+from neofox.exceptions import NeofoxConfigurationException
+
 from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 
 import neofox.tests
@@ -100,7 +103,7 @@ class TestNeofox(TestCase):
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
         annotations = NeoFox(
-            neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1).get_annotations()
+            neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=4).get_annotations()
         self.assertEqual(1, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
@@ -155,6 +158,7 @@ class TestNeofox(TestCase):
         self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
+    @unittest.skip
     def test_neofox_performance(self):
 
         def compute_annotations():
@@ -163,6 +167,32 @@ class TestNeofox(TestCase):
                 patients=self.patients, num_cpus=4).get_annotations()
 
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
+
+    @unittest.skip
+    def test_neofox_performance_single_neoantigen(self):
+
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")
+        neoantigens, _ = ModelConverter.parse_candidate_file(input_file)
+
+        def compute_annotations():
+            return NeoFox(
+                neoantigens=neoantigens, patient_id=self.patient_id,
+                patients=self.patients, num_cpus=4).get_annotations()
+
+        print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
+
+    def test_neofox_with_config(self):
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_model_file.txt")
+        config_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/neofox_config.txt")
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
+        try:
+            NeoFox(
+                neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1,
+                configuration_file=config_file)
+        except NeofoxConfigurationException as e:
+            assert "/neofox/testing/reference_data" in str(e)
+            return
+        assert False
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
@@ -181,10 +211,15 @@ class NeofoxChecker:
         new_df = pd.read_csv(new_file, sep="\t")
         self._check_rows(new_df, previous_df)
         shared_columns = self._check_columns(new_df, previous_df)
-        has_error = False
+        differing_columns = []
         for c in shared_columns:
-            has_error |= self._check_values(c, new_df, previous_df)
-        assert not has_error, "The regression test contains errors"
+            if self._check_values(c, new_df, previous_df):
+                differing_columns.append(c)
+        if len(differing_columns) > 0:
+            differing_columns.sort()
+            logger.error("There are {} columns with differing values".format(len(differing_columns)))
+            logger.error("Differing columns {}".format(differing_columns))
+        assert len(differing_columns) == 0, "The regression test contains errors"
 
     def _check_values(self, column_name, new_df, previous_df):
         error = False
@@ -197,7 +232,7 @@ class NeofoxChecker:
                 ko_values_count += 1
 
         if ok_values_count == 0:
-            logger.error("There no equal values at all for column {}".format(column_name))
+            logger.error("There are no equal values at all for column {}".format(column_name))
 
         if ko_values_count > 0:
             logger.error("There are {} different values for column {}".format(ko_values_count, column_name))

@@ -19,6 +19,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
 import pickle
+import warnings
 from typing import List
 
 from neofox.helpers import intermediate_files
@@ -35,8 +36,13 @@ class TcellPrediction:
     def __init__(self):
         self.tcell_prediction_score = None
         self.tcell_prediction_score_9mer = None
-        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), CLASSIFIER_PICKLE), 'rb') as f:
-            self.classifier = pickle.load(f)
+        # NOTE: avoid pickle warning
+        # UserWarning: Trying to unpickle estimator DecisionTreeClassifier from version 0.19.0 when using version
+        # 0.20.3. This might lead to breaking code or invalid results. Use at your own risk.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), CLASSIFIER_PICKLE), 'rb') as f:
+                self.classifier = pickle.load(f)
 
     def _triple_gen_seq_subst(self, gene, substitution, epitope, score, threshold):
         """
@@ -91,7 +97,7 @@ class TcellPrediction:
 
         return [
             AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
-                gene=gene, substitution=substitution, epitope=netmhcpan.mhcI_affinity_epitope_9mer,
-                score=netmhcpan.mhcI_affinity_9mer, threshold=500),
+                gene=gene, substitution=substitution, epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
+                score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score, threshold=500),
                 name="Tcell_predictor_score_cutoff500nM")
         ]

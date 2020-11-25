@@ -99,7 +99,7 @@ class IEDBimmunogenicity:
         return [
             AnnotationFactory.build_annotation(
                 value=self.calculate_iedb_immunogenicity(
-                    epitope=netmhcpan.best4_affinity_epitope, mhc_allele=mhci_allele,
-                    mhc_score=netmhcpan.best4_affinity, affin_filtering=True),
+                    epitope=netmhcpan.best_epitope_by_affinity.peptide, mhc_allele=mhci_allele,
+                    mhc_score=netmhcpan.best_epitope_by_affinity.affinity_score, affin_filtering=True),
                 name="IEDB_Immunogenicity_MHCI_cutoff500nM"),
             ]
