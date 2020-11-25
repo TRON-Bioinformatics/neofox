@@ -168,6 +168,7 @@ class TestNeofox(TestCase):
 
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
+    @unittest.skip
     def test_neofox_performance_single_neoantigen(self):
 
         input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_data_only_one.txt")

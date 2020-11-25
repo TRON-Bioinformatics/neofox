@@ -215,10 +215,15 @@ class NeoantigenAnnotator:
             mixmhcpred_future = dask_client.submit(
                 self.run_mixmhcpred, self.runner, self.configuration, neoantigen, patient)
         secede()
-        netmhcpan, netmhc2pan, mixmhcpred_annotations, mixmhc2pred_annotations = dask_client.gather(
-            [netmhcpan_future, netmhc2pan_future, mixmhcpred_future, mixmhc2pred_future])
+        netmhcpan = dask_client.gather([netmhcpan_future])[0]
+        netmhc2pan = dask_client.gather([netmhc2pan_future])[0]
+        mixmhcpred_annotations = None
+        if mixmhcpred_future:
+            mixmhcpred_annotations = dask_client.gather([mixmhcpred_future])[0]
+        mixmhc2pred_annotations = None
+        if mixmhc2pred_future:
+            mixmhc2pred_annotations = dask_client.gather([mixmhc2pred_future])[0]
         rejoin()
-        dask_client.close()
         return mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan
 
     def _initialise_annotations(self, neoantigen):
