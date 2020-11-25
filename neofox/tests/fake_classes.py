@@ -20,6 +20,7 @@ import os
 
 import neofox
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.references.references import ReferenceFolder, AvailableAlleles, DependenciesConfiguration
 
 
@@ -49,9 +50,8 @@ class FakeDependenciesConfiguration(DependenciesConfiguration):
 class FakeBestAndMultipleBinder(BestAndMultipleBinder):
 
     def __init__(self, mutated_epitope, affinity, wild_type_epitope):
-        self.best4_affinity_epitope = mutated_epitope
-        self.best4_affinity = affinity
-        self.best4_affinity_epitope_WT = wild_type_epitope
+        self.best_epitope_by_affinity = PredictedEpitope(peptide=mutated_epitope, affinity_score=affinity, pos=1, hla="sdf", rank=1)
+        self.best_wt_epitope_by_affinity = PredictedEpitope(peptide=wild_type_epitope, affinity_score=30, pos=1, hla="sdf", rank=1)
 
 
 class FakeAvailableAlleles(AvailableAlleles):

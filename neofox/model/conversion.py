@@ -37,6 +37,7 @@ from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, N
 from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, GENES_BY_MOLECULE, \
     get_mhc2_isoform_name
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
+from neofox.exceptions import NeofoxInputParametersException
 
 
 EXTERNAL_ANNOTATIONS_NAME = "External"
@@ -228,6 +229,9 @@ class ModelConverter(object):
 
         neoantigen = Neoantigen()
         neoantigen.patient_identifier = patient_id if patient_id else candidate_entry.get('patient')
+        if neoantigen.patient_identifier is None:
+            raise NeofoxInputParametersException(
+                "Please, define the parameter `patient_id` or provide a column ´patient´ in the candidate file ")
         neoantigen.mutation = mutation
         neoantigen.transcript = transcript
         # clonality estimation is not present in candidate file at the moment

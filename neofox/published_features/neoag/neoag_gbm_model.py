@@ -70,7 +70,8 @@ class NeoagCalculator(object):
     def get_annotation(self, sample_id, netmhcpan: BestAndMultipleBinder, peptide_variant_position) -> Annotation:
         """wrapper function to determine neoag immunogenicity score for a mutated peptide sequence"""
         tmp_file_name = intermediate_files.create_temp_file(prefix="tmp_neoag_", suffix=".txt")
-        self._prepare_tmp_for_neoag(sample_id, netmhcpan.best4_affinity_epitope, netmhcpan.best4_affinity,
-                                    netmhcpan.best4_affinity_epitope_WT, peptide_variant_position, tmp_file_name)
+        self._prepare_tmp_for_neoag(sample_id, netmhcpan.best_epitope_by_affinity.peptide,
+                                    netmhcpan.best_epitope_by_affinity.affinity_score,
+                                    netmhcpan.best_wt_epitope_by_affinity.peptide, peptide_variant_position, tmp_file_name)
         neoag_score = self._apply_gbm(tmp_file_name)
         return AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogenicity")
