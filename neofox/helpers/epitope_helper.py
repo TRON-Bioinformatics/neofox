@@ -43,7 +43,7 @@ class EpitopeHelper(object):
     @staticmethod
     def mut_position_xmer_seq(sequence_wt, sequence_mut):
         """
-        returns position of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
+        returns position (1-based) of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
         """
         # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
         pos_mut = []
