@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import unittest
 from unittest import TestCase
 from datetime import datetime
 import pkg_resources
@@ -157,6 +158,7 @@ class TestNeofox(TestCase):
         self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
+    @unittest.skip
     def test_neofox_performance(self):
 
         def compute_annotations():

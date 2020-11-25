@@ -2,7 +2,7 @@
 
 ## General information
 
-NeoFox requires two input files: a file with neoantigen candidates derived from point mutations and a file with patient data. These files can be provided either in tabular format or in JSON format. Of note, the neoantigen candidate file may contain additional user-specific input that will be kept during the annotation process.
+NeoFox requires two input files: a file with neoantigen candidates derived from point mutations and a file with patient data. The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain additional user-specific input that will be kept during the annotation process. The patient file is required in tabular format.
 
 ## Tabular format
 
@@ -14,20 +14,20 @@ We allow two different tabular formats of the neoantigen candidate file: `model-
 
 This is an dummy example of a table with neoantigen candidates in `model-file` format:  
 
-| transcript.assembly | transcript.gene | transcript.identifier | mutation.leftFlankingRegion | mutation.mutatedAminoacid | mutation.position | mutation.rightFlankingRegion | mutation.wildTypeAminoacid | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency |
-|---------------------|-----------------|-----------------------|-----------------------------|---------------------------|-------------------|------------------------------|----------------------------|-------------------|---------------|---------------------------|---------------------------|
-| hg19                | BRCA2           | uc003kii.3            | AAAAAA                      | L                         | 935               | AAAAA                        | F                          | Ptx               | 4.512         | 0.4675                    | 0.36103                   |
-| hg19                | BRCA2           | uc003kii.3            | AAAAAA                      | M                         | 518               | AAAAA                        | R                          | Ptx               | 0.154         | 0.015404                  | 0.034404                  |
-| hg19                | BRCA2           | uc003kii.3            | AAAAAA                      | G                         | 285               | AAAAA                        | K                          | Ptx               | 8.841207      | 0.89387                   | 0.51924                   |
+| transcript.assembly | transcript.gene | transcript.identifier | mutation.mutatedAminoacid | mutation.position | mutation.wildTypeAminoacid | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency |
+|---------------------|-----------------|-----------------------|---------------------------|-------------------|----------------------------|-------------------|---------------|---------------------------|---------------------------|
+| hg19                | BRCA2           | uc003kii.3            | L                         | 935               | F                          | Ptx               | 4.512         | 0.4675                    | 0.36103                   |
+| hg19                | BRCA2           | uc003kii.3            | M                         | 518               | R                          | Ptx               | 0.154         | 0.015404                  | 0.034404                  |
+| hg19                | BRCA2           | uc003kii.3            | G                         | 285               | K                          | Ptx               | 8.841207      | 0.89387                   | 0.51924                   |
 
 where:
 - `transcript.assembly`: the assembly of the reference genome (only hg19 is supported)
 - `transcript.gene`: the HGNC gene symbol   
 - `transcript.identifier`: a transcript identifier
-- `mutation.leftFlankingRegion`: the amino acids flanking the mutation on the left (in IUPAC one letter symbols)
+- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
+- `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
 - `mutation.mutatedAminoacid`: the mutated amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
 - `mutation.position`: the 1 based position of the mutation in the protein
-- `mutation.rightFlankingRegion`: the amino acids flanking the mutation on the right (in IUPAC one letter symbols)
 - `mutation.wildTypeAminoacid`: the wild type amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: the transcript expression. Should be empty if no value available
@@ -116,187 +116,11 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
     "position": 1007,
     "wildTypeAminoacid": "I",
     "mutatedAminoacid": "T",
-    "leftFlankingRegion": "DEVLGEPSQDILV",
-    "rightFlankingRegion": "DQTRLEATISPET"
+    "mutatedXmer": "DEVLGEPSQDILVTDQTRLEATISPET",
+    "wildTypeXmer": "DQTRLEATISPETIDQTRLEATISPET"
   },
   "rnaExpression": 0.519506894,
   "dnaVariantAlleleFrequency": 0.294573643,
   "rnaVariantAlleleFrequency": 0.857142857
 }]
 ``` 
-
-## Patient file in JSON format 
-
-This is an example of a patient file with patient. Note that the patient models contain models of the MHC I and MHC II alleles. These models are shown in more details [here](05_models.md) in JSON format. To simplify, only one full patient model is shown: 
-
-```json
-[{
-       "identifier": "Ptx",
-       "isRnaAvailable": true,
-       "tumor_type": "HNSC",
-       "mhc1": [
-          {
-             "name": "A",
-             "zygosity": "HETEROZYGOUS",
-             "alleles": [
-                {
-                   "fullName": "HLA-A*01:01:02:03N",
-                   "name": "HLA-A*01:01",
-                   "gene": "A",
-                   "group": "01",
-                   "protein": "01"
-                },
-                {
-                   "fullName": "HLA-A*01:02:02:03N",
-                   "name": "HLA-A*01:02",
-                   "gene": "A",
-                   "group": "01",
-                   "protein": "02"
-                }
-             ]
-          },
-          {
-             "name": "B",
-             "zygosity": "HOMOZYGOUS",
-             "alleles": [
-                {
-                   "fullName": "HLA-B*01:01:02:04N",
-                   "name": "HLA-B*01:01",
-                   "gene": "B",
-                   "group": "01",
-                   "protein": "01"
-                }
-             ]
-          },
-          {
-             "name": "C",
-             "zygosity": "HEMIZYGOUS",
-             "alleles": [
-                {
-                   "fullName": "HLA-C*01:01",
-                   "name": "HLA-C*01:01",
-                   "gene": "C",
-                   "group": "01",
-                   "protein": "01"
-                }
-             ]
-          }
-       ],
-       "mhc2": [
-          {
-             "genes": [
-                {
-                   "alleles": [
-                      {
-                         "fullName": "HLA-DRB1*01:01",
-                         "name": "HLA-DRB1*01:01",
-                         "gene": "DRB1",
-                         "group": "01",
-                         "protein": "01"
-                      }
-                   ]
-                }
-             ],
-             "isoforms": [
-                {
-                   "name": "HLA-DRB1*01:01",
-                   "betaChain": {
-                      "fullName": "HLA-DRB1*01:01",
-                      "name": "HLA-DRB1*01:01",
-                      "gene": "DRB1",
-                      "group": "01",
-                      "protein": "01"
-                   }
-                }
-             ]
-          },
-          {
-             "name": "DP",
-             "genes": [
-                {
-                   "name": "DPA1",
-                   "zygosity": "HETEROZYGOUS",
-                   "alleles": [
-                      {
-                         "fullName": "HLA-DPA1*01:01",
-                         "name": "HLA-DPA1*01:01",
-                         "gene": "DPA1",
-                         "group": "01",
-                         "protein": "01"
-                      },
-                      {
-                         "fullName": "HLA-DPA1*01:02",
-                         "name": "HLA-DPA1*01:02",
-                         "gene": "DPA1",
-                         "group": "01",
-                         "protein": "02"
-                      }
-                   ]
-                },
-                {
-                   "name": "DPB1",
-                   "alleles": [
-                      {
-                         "fullName": "HLA-DPB1*01:01",
-                         "name": "HLA-DPB1*01:01",
-                         "gene": "DPB1",
-                         "group": "01",
-                         "protein": "01"
-                      }
-                   ]
-                }
-             ],
-             "isoforms": [
-                {
-                   "name": "HLA-DPA1*01:01-DPB1*01:01",
-                   "alphaChain": {
-                      "fullName": "HLA-DPA1*01:01",
-                      "name": "HLA-DPA1*01:01",
-                      "gene": "DPA1",
-                      "group": "01",
-                      "protein": "01"
-                   },
-                   "betaChain": {
-                      "fullName": "HLA-DPB1*01:01",
-                      "name": "HLA-DPB1*01:01",
-                      "gene": "DPB1",
-                      "group": "01",
-                      "protein": "01"
-                   }
-                },
-                {
-                   "name": "HLA-DPA1*01:02-DPB1*01:01",
-                   "alphaChain": {
-                      "fullName": "HLA-DPA1*01:02",
-                      "name": "HLA-DPA1*01:02",
-                      "gene": "DPA1",
-                      "group": "01",
-                      "protein": "02"
-                   },
-                   "betaChain": {
-                      "fullName": "HLA-DPB1*01:01",
-                      "name": "HLA-DPB1*01:01",
-                      "gene": "DPB1",
-                      "group": "01",
-                      "protein": "01"
-                   }
-                }
-             ]
-          },
-          {
-             "name": "DQ",
-             "genes": [
-                {
-                   "name": "DQA1",
-                   "zygosity": "LOSS"
-                },
-                {
-                   "name": "DQB1",
-                   "zygosity": "LOSS"
-                }
-             ]
-          }
-       ]
-    }]
-```
-
