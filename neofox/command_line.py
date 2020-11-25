@@ -18,15 +18,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
 from typing import Tuple, List
-
 from logzero import logger
 from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
-
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
-
 from neofox.references.installer import NeofoxReferenceInstaller
 
 
@@ -59,9 +56,6 @@ def neofox_cli():
                         help='input file with neoantigens candidates represented by long mutated peptide sequences')
     parser.add_argument('--json-file', dest='json_file',
                         help='input JSON file with neoantigens candidates represented by long mutated peptide sequences')
-    # TODO: once we support the neofox from the models this parameter will not be required
-    parser.add_argument('--patient-id', dest='patient_id', help='the patient id for the input file',
-                        required=True)
     parser.add_argument('--patient-data', dest='patients_data',
                         help='file with data for patients with columns: identifier, estimated_tumor_content, '
                              'is_rna_available, mhc_i_alleles, mhc_ii_alleles, tissue',
@@ -76,7 +70,12 @@ def neofox_cli():
                         help='output results in a tall skinny tab-separated table')
     parser.add_argument('--with-json', dest='with_json', action='store_true',
                         help='output results in JSON format')
+    parser.add_argument('--patient-id', dest='patient_id',
+                        help='the patient id for the input file. This parameter is only required, '
+                             'if the column "patient" has not been added to the candidate file')
     parser.add_argument('--num-cpus', dest='num_cpus', default=1, help='number of CPUs for computation')
+    parser.add_argument('--config', dest='config',
+                        help='an optional configuration file with all the environment variables')
     args = parser.parse_args()
 
     model_file = args.model_file
@@ -90,6 +89,9 @@ def neofox_cli():
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
     num_cpus = int(args.num_cpus)
+    config = args.config
+
+    # check parameters
     if bool(model_file) + bool(candidate_file) + bool(json_file) > 1:
         raise NeofoxInputParametersException(
             "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them")
@@ -103,7 +105,8 @@ def neofox_cli():
     os.makedirs(output_folder, exist_ok=True)
 
     # reads the input data
-    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, json_file, patients_data)
+    neoantigens_pre, patients, external_annotations = _read_data(
+        candidate_file, model_file, json_file, patients_data, patient_id)
 
     # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
     # otherwise original values is reported
@@ -111,7 +114,7 @@ def neofox_cli():
 
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
-                         output_prefix=output_prefix, num_cpus=num_cpus).get_annotations()
+                         output_prefix=output_prefix, num_cpus=num_cpus, configuration_file=config).get_annotations()
     # combine neoantigen feature annotations and potential user-specific external annotation
     neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
 
@@ -120,18 +123,18 @@ def neofox_cli():
     logger.info("Finished NeoFox")
 
 
-def _read_data(candidate_file, model_file, json_file, patients_data) -> \
+def _read_data(candidate_file, model_file, json_file, patients_data, patient_id) -> \
         Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data)
     logger.info(patients)
     # parse the neoantigen candidate data
     if candidate_file is not None:
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file, patient_id)
     elif model_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
     else:
-        neoantigens = ModelConverter.parse_neoantigens_json_file(model_file)
+        neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
         external_annotations = []
 
     return neoantigens, patients, external_annotations

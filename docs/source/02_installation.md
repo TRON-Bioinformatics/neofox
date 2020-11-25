@@ -103,3 +103,8 @@ Peptides
 doParallel
 gbm
 ```
+
+Add the reference folder to the Path
+```
+export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
+```
