@@ -6,7 +6,7 @@ There are two ways to use NeoFox for annotation of neoantigen candidates with ne
 
 ## Command line
 
-To call NeoFox from the command line, use the following command:  
+To call NeoFox from the command line, use the following command. Make sure that the requirements have been added to PATH as described [here](02_installation.md) or add a config file as described below:  
 
 ````commandline
 neofox --model-file/--candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-id Ptx --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
@@ -25,6 +25,7 @@ where:
 - `--with-tall-skinny-table`: output file in [tall-skinny](03_02_output_data.md#tall-skinny-format) format (*optional*)
 - `--with-json`: output file in [JSON](03_02_output_data.md#json-format) format (*optional*)
 - `--num_cpus`: number of CPUs to use (*optional*)
+- `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 
 **PLEASE NOTE THE FOLLOWING HINTS**:   
 - provide the neoantigen candidate file either as `--candidate-file`, `--model-file` or `--json-file` 
@@ -37,6 +38,19 @@ This is an example to call NeoFox with a model-file and obtaining the annotated 
 
 ````commandline
 neofox --model-file neoantigens_candidates.tab --patient-id Ptx --patient-data patient_data.tab --output-folder /path/to/out --output-prefix test
+````
+
+The optional **config** file with the paths to the dependencies can look like this:  
+````commandline
+export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
+export NEOFOX_RSCRIPT=`which Rscript`
+export NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
+export NEOFOX_NETMHCPAN=path/to/netMHCpan-4.0/netMHCpan
+export NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-3.2/netMHCIIpan
+export NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.1/MixMHCpred
+export NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-1.2/MixMHC2pred_unix
+export NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
+
 ````
 
 ## API
