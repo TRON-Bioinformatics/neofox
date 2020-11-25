@@ -104,6 +104,15 @@ class ModelConverter(object):
         return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep='\t').fillna(""))
 
     @staticmethod
+    def parse_neoantigens_json_file(neoantigens_json_file: str) -> List[Neoantigen]:
+        """
+        :param neoantigens_json_file: the file to neoantigens data JSON file
+        :return: the parsed JSON into model objects
+        """
+        return [Neoantigen().from_dict(n) for n in json.load(open(neoantigens_json_file))]
+
+
+    @staticmethod
     def objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:
         """
         :param model_objects: list of objects of subclass of betterproto.Message
