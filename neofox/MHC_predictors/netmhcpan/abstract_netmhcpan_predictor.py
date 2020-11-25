@@ -52,15 +52,7 @@ class AbstractNetMhcPanPredictor:
 
     def filter_wt_predictions_from_best_mutated(
             self, predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope) -> List[PredictedEpitope]:
-        """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
-        """
-        return list(filter(
-            lambda p: len(p.peptide) == len(mutated_prediction.peptide) and p.pos == mutated_prediction.pos,
-            predictions))
-
-    def filter_wt_predictions_from_best_mutated_same_allele(
-            self, predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope) -> List[PredictedEpitope]:
-        """returns wt epitope info for given mutated sequence for the best allele of the corresponding mutated epitope
+        """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope
         """
         return list(filter(
             lambda p: len(p.peptide) == len(mutated_prediction.peptide) and p.pos == mutated_prediction.pos and

@@ -20,7 +20,6 @@ from logzero import logger
 from unittest import TestCase
 from neofox.model.conversion import ModelConverter
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.helpers import intermediate_files
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
@@ -50,6 +49,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertEqual(543.9, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual(0.4304, best_multiple.best_epitope_by_rank.rank)
         self.assertEqual("VTDQTRLEA", best_multiple.best_epitope_by_rank.peptide)
+        self.assertEqual(best_multiple.best_ninemer_epitope_by_rank.hla, best_multiple.best_ninemer_wt_epitope_by_rank.hla)
         logger.info(best_multiple.best_epitope_by_rank.peptide)
         logger.info(best_multiple.phbr_i)
 
