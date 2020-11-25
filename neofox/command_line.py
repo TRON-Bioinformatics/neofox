@@ -134,7 +134,7 @@ def _read_data(candidate_file, model_file, json_file, patients_data, patient_id)
     elif model_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
     else:
-        neoantigens = ModelConverter.parse_neoantigens_json_file(model_file)
+        neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
         external_annotations = []
 
     return neoantigens, patients, external_annotations
