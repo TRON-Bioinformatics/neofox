@@ -72,6 +72,7 @@ export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.1/MixMHCpred
 Configure MixMHCpred as explained in the file `MixMHCpred-2.0.1/README`
 
 ### Install MixMHC2pred 1.2 (recommended but optional)
+
 ```
 wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
 tar -xvf v1.2.tar.gz
@@ -101,4 +102,9 @@ caret
 Peptides
 doParallel
 gbm
+```
+
+Add the reference folder to the Path
+```
+export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 ```
