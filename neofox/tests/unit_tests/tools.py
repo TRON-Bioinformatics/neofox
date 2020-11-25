@@ -71,11 +71,12 @@ def get_random_neoantigen():
     neoantigen.variant_allele_frequency = np.random.uniform(0, 1)
     neoantigen.expression_value = np.random.uniform(0, 50)
     mutation = Mutation()
-    mutation.mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
-    mutation.wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
-    mutation.left_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
-    mutation.right_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
-    mutation.position = np.random.randint(0, 1000)
+    mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
+    wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
+    left_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
+    right_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
+    mutation.mutated_xmer = left_flanking_region + mutated_aminoacid + right_flanking_region
+    mutation.wild_type_xmer = left_flanking_region + wild_type_aminoacid + right_flanking_region
     neoantigen.mutation = mutation
     transcript = Transcript()
     transcript.gene = "BRCA2"
