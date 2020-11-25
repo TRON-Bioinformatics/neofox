@@ -19,41 +19,13 @@ message Transcript {
 
 message Mutation {
 	/**
-	The aminoacid position within the protein. 1-based, starting in the N-terminus
-	*/
-	int32 position = 1;
-	/**
 	Sequence of aminoacids for the wild type xmer
 	*/
-	string wildTypeXmer = 2;
-	/**
-	IUPAC code for the wild type aminoacid in this position
-	*/
-	string wildTypeAminoacid = 3;
+	string wildTypeXmer = 1;
 	/**
 	Sequence of aminoacids for the mutated xmer
 	*/
-	string mutatedXmer = 4;
-	/**
-	IUPAC code for the mutated aminoacid in this position
-	*/
-	string mutatedAminoacid = 5;
-	/**
-	The left flanking region of variable size in IUPAC codes
-	*/
-	string leftFlankingRegion = 6;
-	/**
-	The size of the left flanking region
-	*/
-	int32 sizeLeftFlankingRegion = 7;
-	/**
-	The right flanking region of variable size in IUPAC codes
-	*/
-	string rightFlankingRegion = 8;
-	/**
-	The size of the right flanking region
-	*/
-	int32 sizeRightFlankingRegion = 9;
+	string mutatedXmer = 2;
 }
 
 /**

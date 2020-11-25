@@ -148,15 +148,8 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| position | [int32](#int32) |  | The aminoacid position within the protein. 1-based, starting in the N-terminus |
 | wildTypeXmer | [string](#string) |  | Sequence of aminoacids for the wild type xmer |
-| wildTypeAminoacid | [string](#string) |  | IUPAC code for the wild type aminoacid in this position |
 | mutatedXmer | [string](#string) |  | Sequence of aminoacids for the mutated xmer |
-| mutatedAminoacid | [string](#string) |  | IUPAC code for the mutated aminoacid in this position |
-| leftFlankingRegion | [string](#string) |  | The left flanking region of variable size in IUPAC codes |
-| sizeLeftFlankingRegion | [int32](#int32) |  | The size of the left flanking region |
-| rightFlankingRegion | [string](#string) |  | The right flanking region of variable size in IUPAC codes |
-| sizeRightFlankingRegion | [int32](#int32) |  | The size of the right flanking region |
 
 
 
@@ -215,6 +208,7 @@ The metadata required for analysis for a given patient + its patient identifier
 | ----- | ---- | ----- | ----------- |
 | identifier | [string](#string) |  | Patient identifier |
 | isRnaAvailable | [bool](#bool) |  | Is RNA expression available? |
+| tumorType | [string](#string) |  | Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations |
 | mhc1 | [Mhc1](#neoantigen.Mhc1) | repeated | MHC I classic molecules |
 | mhc2 | [Mhc2](#neoantigen.Mhc2) | repeated | MHC II classic molecules |
 
