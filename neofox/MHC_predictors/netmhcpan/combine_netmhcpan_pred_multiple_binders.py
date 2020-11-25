@@ -155,7 +155,8 @@ class BestAndMultipleBinder:
         self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
             netmhcpan.filter_wt_predictions_from_best_mutated(filtered_predictions_wt, self.best_epitope_by_rank))
         self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-            netmhcpan.filter_wt_predictions_from_best_mutated(filtered_predictions_wt, self.best_epitope_by_affinity))
+            netmhcpan.filter_wt_predictions_from_best_mutated_same_allele(
+                filtered_predictions_wt, self.best_epitope_by_affinity))
 
         # best predicted epitope of length 9
         ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)

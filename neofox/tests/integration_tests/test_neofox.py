@@ -16,9 +16,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import unittest
 from unittest import TestCase
 from datetime import datetime
 import pkg_resources
+from neofox.exceptions import NeofoxConfigurationException
+
 from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 
 import neofox.tests
@@ -155,6 +158,7 @@ class TestNeofox(TestCase):
         self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
+    @unittest.skip
     def test_neofox_performance(self):
 
         def compute_annotations():
@@ -163,6 +167,19 @@ class TestNeofox(TestCase):
                 patients=self.patients, num_cpus=4).get_annotations()
 
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
+
+    def test_neofox_with_config(self):
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_model_file.txt")
+        config_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/neofox_config.txt")
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(input_file)
+        try:
+            NeoFox(
+                neoantigens=neoantigens, patient_id=self.patient_id, patients=self.patients, num_cpus=1,
+                configuration_file=config_file)
+        except NeofoxConfigurationException as e:
+            assert "/neofox/testing/reference_data" in str(e)
+            return
+        assert False
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/output_previous.txt")
