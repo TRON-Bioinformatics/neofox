@@ -139,12 +139,11 @@ class NeoFox:
                 future_tcell_predictor,
                 future_self_similarity
             ))
-
         annotations = dask_client.gather(futures)
-        dask_client.close()
         end = time.time()
         logger.info("Elapsed time for annotating {} neoantigens {} seconds".format(
             len(self.neoantigens), int(end - start)))
+        dask_client.close()
         return annotations
 
     @staticmethod
