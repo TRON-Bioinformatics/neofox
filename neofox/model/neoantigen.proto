@@ -19,7 +19,7 @@ message Transcript {
 
 message Mutation {
 	/**
-	The aminoacid position within the protein. 1-based, starting in the N-terminus
+	The aminoacid position within the neoantigen. 1-based, starting in the N-terminus
 	*/
 	repeated int32 position = 1;
 	/**
