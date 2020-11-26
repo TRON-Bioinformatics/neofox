@@ -215,17 +215,19 @@ class ModelConverter(object):
     @staticmethod
     def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
         """parses an row from a candidate file into a model object"""
+
         transcript = Transcript()
         transcript.assembly = 'hg19'
         transcript.gene = candidate_entry.get(FIELD_GENE)
         transcript.identifier = candidate_entry.get(FIELD_TRANSCRIPT)
 
         mutation = Mutation()
-        mutation.position = candidate_entry.get('position')
-        mutation.wild_type_aminoacid = candidate_entry.get('wild_type_aminoacid')
-        mutation.mutated_aminoacid = candidate_entry.get('mutated_aminoacid')
-        mutation.left_flanking_region = candidate_entry.get('left_flanking_region')
-        mutation.right_flanking_region = candidate_entry.get('right_flanking_region')
+        mutation.wild_type_xmer = candidate_entry.get('left_flanking_region') + \
+                                  candidate_entry.get('wild_type_aminoacid') + \
+                                  candidate_entry.get('right_flanking_region')
+        mutation.mutated_xmer = candidate_entry.get('left_flanking_region') + \
+                                candidate_entry.get('mutated_aminoacid') + \
+                                candidate_entry.get('right_flanking_region')
 
         neoantigen = Neoantigen()
         neoantigen.patient_identifier = patient_id if patient_id else candidate_entry.get('patient')
@@ -411,7 +413,7 @@ class ModelValidator(object):
 
     @staticmethod
     def validate(model: betterproto.Message):
-        # TODO: make this method capture appropriately validation issues whend dealing with int and float
+        # TODO: make this method capture appropriately validation issues when dealing with int and float
         try:
             model.__bytes__()
         except Exception as e:
@@ -438,8 +440,10 @@ class ModelValidator(object):
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
 
-        # infer other fields from the model
-        return ModelValidator._enrich_neoantigen(neoantigen)
+        # calculates the identifier now once the object is valid
+        neoantigen.identifier = ModelValidator.generate_neoantigen_identifier(neoantigen)
+
+        return neoantigen
 
     @staticmethod
     def validate_patient(patient: Patient) -> Patient:
@@ -610,27 +614,8 @@ class ModelValidator(object):
 
     @staticmethod
     def _validate_mutation(mutation: Mutation) -> Mutation:
-        # checks aminoacids
-        mutation.mutated_aminoacid = ModelValidator._validate_aminoacid(mutation.mutated_aminoacid)
-        mutation.wild_type_aminoacid = ModelValidator._validate_aminoacid(mutation.wild_type_aminoacid)
-
-        # checks left and right flanking regions
-        assert mutation.left_flanking_region is not None, "Empty left flanking region"
-        mutation.left_flanking_region = mutation.left_flanking_region.strip()
-        assert len(mutation.left_flanking_region) > 0, "Empty left flanking region"
-        for aa in mutation.left_flanking_region:
-            ModelValidator._validate_aminoacid(aa)
-
-        assert mutation.right_flanking_region is not None, "Empty right flanking region"
-        mutation.right_flanking_region = mutation.right_flanking_region.strip()
-        assert len(mutation.right_flanking_region) > 0, "Empty right flanking region"
-        for aa in mutation.right_flanking_region:
-            ModelValidator._validate_aminoacid(aa)
-
-        # checks the position
-        assert mutation.position is not None, "Empty position"
-        assert isinstance(mutation.position, int), "Position must be an integer"
-        assert mutation.position > 0, "Position must be a 1-based positive integer"
+        mutation.mutated_xmer = "".join([ModelValidator._validate_aminoacid(aa) for aa in mutation.mutated_xmer])
+        mutation.wild_type_xmer = "".join([ModelValidator._validate_aminoacid(aa) for aa in mutation.wild_type_xmer])
         return mutation
 
     @staticmethod
@@ -658,30 +643,17 @@ class ModelValidator(object):
         assert vaf is None or 0.0 <= vaf <= 1.0, "VAF should be a positive integer or zero {}".format(vaf)
 
     @staticmethod
-    def _enrich_neoantigen(neoantigen: Neoantigen) -> Neoantigen:
-        neoantigen.mutation.wild_type_xmer = "".join([
-            neoantigen.mutation.left_flanking_region,
-            neoantigen.mutation.wild_type_aminoacid,
-            neoantigen.mutation.right_flanking_region])
-        neoantigen.mutation.mutated_xmer = "".join([
-            neoantigen.mutation.left_flanking_region,
-            neoantigen.mutation.mutated_aminoacid,
-            neoantigen.mutation.right_flanking_region])
-        neoantigen.mutation.size_left_flanking_region = len(neoantigen.mutation.left_flanking_region)
-        neoantigen.mutation.size_right_flanking_region = len(neoantigen.mutation.right_flanking_region)
-        neoantigen.identifier = ModelValidator.generate_neoantigen_identifier(neoantigen)
-        return neoantigen
-
-    @staticmethod
     def _validate_aminoacid(aminoacid):
         assert aminoacid is not None, "Aminoacid field cannot be empty"
         aminoacid = aminoacid.strip()
         assert isinstance(aminoacid, str), "Aminoacid has to be a string"
+        # this chunk is unused but let's leave in case it is handy in the future
         if len(aminoacid) == 3:
             assert aminoacid in IUPACData.protein_letters_3to1_extended.keys(), \
                 "Non existing 3 letter aminoacid {}".format(aminoacid)
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
+            aminoacid = aminoacid.upper()
             assert aminoacid in ExtendedIUPACProtein.letters, "Non existing aminoacid {}".format(aminoacid)
         else:
             assert False, "Invalid aminoacid {}".format(aminoacid)

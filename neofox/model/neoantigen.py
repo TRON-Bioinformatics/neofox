@@ -65,25 +65,10 @@ class Transcript(betterproto.Message):
 
 @dataclass
 class Mutation(betterproto.Message):
-    # *The aminoacid position within the protein. 1-based, starting in the
-    # N-terminus
-    position: int = betterproto.int32_field(1)
     # *Sequence of aminoacids for the wild type xmer
-    wild_type_xmer: str = betterproto.string_field(2)
-    # *IUPAC code for the wild type aminoacid in this position
-    wild_type_aminoacid: str = betterproto.string_field(3)
+    wild_type_xmer: str = betterproto.string_field(1)
     # *Sequence of aminoacids for the mutated xmer
-    mutated_xmer: str = betterproto.string_field(4)
-    # *IUPAC code for the mutated aminoacid in this position
-    mutated_aminoacid: str = betterproto.string_field(5)
-    # *The left flanking region of variable size in IUPAC codes
-    left_flanking_region: str = betterproto.string_field(6)
-    # *The size of the left flanking region
-    size_left_flanking_region: int = betterproto.int32_field(7)
-    # *The right flanking region of variable size in IUPAC codes
-    right_flanking_region: str = betterproto.string_field(8)
-    # *The size of the right flanking region
-    size_right_flanking_region: int = betterproto.int32_field(9)
+    mutated_xmer: str = betterproto.string_field(2)
 
 
 @dataclass
