@@ -98,10 +98,6 @@ class NeoantigenAnnotator:
             logger.warning("Using the DNA VAF to estimate the RNA VAF as the patient does not have RNA available")
             # TODO: overwrite value in the neoantigen object
             vaf_rna = neoantigen.dna_variant_allele_frequency
-        # TODO: this is needed by the T cell predictor, move this construction inside by passing the neoantigen
-        substitution = "{}{}{}".format(
-            neoantigen.mutation.wild_type_aminoacid, neoantigen.mutation.position,
-            neoantigen.mutation.mutated_aminoacid)
 
         # MHC binding independent features
         start = time.time()
@@ -144,7 +140,7 @@ class NeoantigenAnnotator:
         # T cell predictor
         start = time.time()
         self.annotations.annotations.extend(self.tcell_predictor.get_annotations(
-            gene=neoantigen.transcript.gene, substitution=substitution, netmhcpan=netmhcpan))
+            neoantigen=neoantigen, netmhcpan=netmhcpan))
         end = time.time()
         logger.info("T-cell predictor annotation elapsed time {} seconds".format(round(end - start, 3)))
 

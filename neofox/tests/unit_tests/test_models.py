@@ -96,7 +96,8 @@ class ModelConverterTest(TestCase):
             self.assertIsInstance(n.transcript, Transcript)
             self.assertIsInstance(n.mutation, Mutation)
             self.assertTrue(n.transcript.identifier is not None and len(n.transcript.identifier) > 0)
-            self.assertTrue(n.mutation.mutated_aminoacid is not None and len(n.mutation.mutated_aminoacid) == 1)
+            self.assertTrue(n.mutation.mutated_xmer is not None and len(n.mutation.mutated_xmer) > 1)
+            self.assertTrue(n.mutation.wild_type_xmer is not None and len(n.mutation.wild_type_xmer) > 1)
             self.assertTrue(n.rna_variant_allele_frequency is None or
                             (0 <= n.rna_variant_allele_frequency <= 1))
             self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
@@ -134,11 +135,8 @@ class ModelConverterTest(TestCase):
             self.assertNotEmpty(n.transcript.identifier)
             self.assertNotEmpty(n.transcript.assembly)
             self.assertTrue(isinstance(n.mutation, Mutation))
-            self.assertNotEmpty(n.mutation.position)
-            self.assertNotEmpty(n.mutation.mutated_aminoacid)
-            self.assertNotEmpty(n.mutation.wild_type_aminoacid)
-            self.assertNotEmpty(n.mutation.left_flanking_region)
-            self.assertNotEmpty(n.mutation.right_flanking_region)
+            self.assertNotEmpty(n.mutation.mutated_xmer)
+            self.assertNotEmpty(n.mutation.wild_type_xmer)
 
         # test external annotations
         self._assert_external_annotations(expected_number_external_annotations=2, external_annotations=external_annotations)
@@ -230,7 +228,7 @@ class ModelConverterTest(TestCase):
     def test_annotations2short_wide_df(self):
         annotations = [
             NeoantigenAnnotations(
-                neoantigen_identifier='12345',annotations=[
+                neoantigen_identifier='12345', annotations=[
                     Annotation(name='this_name', value='this_value'), Annotation(name='that_name', value='that_value'),
                     Annotation(name='diese_name', value='diese_value'), Annotation(name='das_name', value='das_value')]
             ),
@@ -242,13 +240,13 @@ class ModelConverterTest(TestCase):
         ]
         neoantigens = [
             Neoantigen(
-                identifier="12345", mutation=Mutation(position=10, wild_type_aminoacid="A", mutated_aminoacid="C")),
+                identifier="12345", mutation=Mutation(wild_type_xmer="AAAAAAA", mutated_xmer="AAACAAA")),
             Neoantigen(
-                identifier="6789", mutation=Mutation(position=20, wild_type_aminoacid="G", mutated_aminoacid="Z"))
+                identifier="6789", mutation=Mutation(wild_type_xmer="AAAGAAA", mutated_xmer="AAAZAAA"))
         ]
         df = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens=neoantigens)
         self.assertEqual(df.shape[0], 2)
-        self.assertEqual(df.shape[1], 22)
+        self.assertEqual(df.shape[1], 15)
 
         df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)
         self.assertEqual(df_annotations.shape[0], 8)

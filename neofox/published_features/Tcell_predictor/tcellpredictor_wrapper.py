@@ -22,8 +22,10 @@ import pickle
 import warnings
 from typing import List
 
+from neofox.helpers.epitope_helper import EpitopeHelper
+
 from neofox.helpers import intermediate_files
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, Neoantigen
 from neofox.model.wrappers import AnnotationFactory
 from neofox.published_features.Tcell_predictor.preprocess import Preprocessor
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
@@ -86,18 +88,23 @@ class TcellPrediction:
         return pred_out
 
     def _calculate_tcell_predictor_score(self, gene, substitution, epitope, score, threshold=None):
-        ''' returns Tcell_predictor score given mps in dictionary format
-                '''
+        '''returns Tcell_predictor score given mps in dictionary format'''
         tmp_tcellPredIN = intermediate_files.create_temp_file(prefix="tmp_TcellPredicIN_", suffix=".txt")
         return self._wrapper_tcellpredictor(
             gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold,
             tmpfile_in=tmp_tcellPredIN)
 
-    def get_annotations(self, gene, substitution, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
-
+    def get_annotations(self, neoantigen: Neoantigen, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
+        # TODO: this is difficult to extend to more complex mutations (eg: MNVs, indels) as only considers first mutated
+        #  position
+        mutation_position = EpitopeHelper.mut_position_xmer_seq(
+            neoantigen.mutation.wild_type_xmer, neoantigen.mutation.mutated_xmer)[0]
+        wild_type_aminoacid = neoantigen.mutation.wild_type_xmer[mutation_position-1]   # it is 1-based
+        mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position-1]
         return [
             AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
-                gene=gene, substitution=substitution, epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
+                gene=neoantigen.transcript.gene, substitution=wild_type_aminoacid + mutated_aminoacid,
+                epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
                 score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score, threshold=500),
                 name="Tcell_predictor_score_cutoff500nM")
         ]
