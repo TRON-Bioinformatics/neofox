@@ -54,6 +54,8 @@ def neofox_cli():
                         help='input tabular file with neoantigen candidates represented by neoantigen model')
     parser.add_argument('--candidate-file', dest='candidate_file',
                         help='input file with neoantigens candidates represented by long mutated peptide sequences')
+    parser.add_argument('--json-file', dest='json_file',
+                        help='input JSON file with neoantigens candidates represented by long mutated peptide sequences')
     parser.add_argument('--patient-data', dest='patients_data',
                         help='file with data for patients with columns: identifier, estimated_tumor_content, '
                              'is_rna_available, mhc_i_alleles, mhc_ii_alleles, tissue',
@@ -78,6 +80,7 @@ def neofox_cli():
 
     model_file = args.model_file
     candidate_file = args.candidate_file
+    json_file = args.json_file
     patient_id = args.patient_id
     patients_data = args.patients_data
     output_folder = args.output_folder
@@ -89,12 +92,12 @@ def neofox_cli():
     config = args.config
 
     # check parameters
-    if model_file and candidate_file:
+    if bool(model_file) + bool(candidate_file) + bool(json_file) > 1:
         raise NeofoxInputParametersException(
-            "Please, define either a candidate file or a standard input file as input. Not both")
-    if not model_file and not candidate_file:
+            "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them")
+    if not model_file and not candidate_file and not json_file:
         raise NeofoxInputParametersException(
-            "Please, define one input file, either an candidate file or a standard input file")
+            "Please, define one input file, either a candidate file, a standard input file or a JSON file")
     if not with_sw and not with_ts and not with_json:
         with_sw = True  # if none specified short wide is the default
 
@@ -102,7 +105,8 @@ def neofox_cli():
     os.makedirs(output_folder, exist_ok=True)
 
     # reads the input data
-    neoantigens, patients, external_annotations = _read_data(candidate_file, model_file, patients_data, patient_id)
+    neoantigens, patients, external_annotations = _read_data(
+        candidate_file, model_file, json_file, patients_data, patient_id)
 
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
@@ -115,7 +119,7 @@ def neofox_cli():
     logger.info("Finished NeoFox")
 
 
-def _read_data(candidate_file, model_file, patients_data, patient_id) -> \
+def _read_data(candidate_file, model_file, json_file, patients_data, patient_id) -> \
         Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data)
@@ -123,8 +127,11 @@ def _read_data(candidate_file, model_file, patients_data, patient_id) -> \
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file, patient_id)
-    else:
+    elif model_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(model_file)
+    else:
+        neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
+        external_annotations = []
 
     return neoantigens, patients, external_annotations
 
