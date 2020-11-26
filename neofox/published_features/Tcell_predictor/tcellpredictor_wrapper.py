@@ -97,8 +97,7 @@ class TcellPrediction:
     def get_annotations(self, neoantigen: Neoantigen, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
         # TODO: this is difficult to extend to more complex mutations (eg: MNVs, indels) as only considers first mutated
         #  position
-        mutation_position = EpitopeHelper.mut_position_xmer_seq(
-            neoantigen.mutation.wild_type_xmer, neoantigen.mutation.mutated_xmer)[0]
+        mutation_position = neoantigen.mutation.position[0]
         wild_type_aminoacid = neoantigen.mutation.wild_type_xmer[mutation_position-1]   # it is 1-based
         mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position-1]
         return [
