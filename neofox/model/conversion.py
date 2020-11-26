@@ -34,9 +34,8 @@ from collections import defaultdict
 import json
 from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, NeoantigenAnnotations, Mhc2Name, \
     Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Isoform, MhcAllele, Mhc1Name, Mhc1, Annotation
-from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, GENES_BY_MOLECULE, \
-    get_mhc2_isoform_name
-from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
+from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, \
+    GENES_BY_MOLECULE, get_mhc2_isoform_name
 from neofox.exceptions import NeofoxInputParametersException
 
 
@@ -236,22 +235,6 @@ class ModelConverter(object):
         neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
         return ModelValidator.validate_neoantigen(neoantigen)
-
-    @staticmethod
-    def conditional_substitute_expression(neoantigens: List[Neoantigen], patients: List[Patient]) -> List[Neoantigen]:
-        expression_annotator = ExpressionAnnotator()
-        patients = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
-        neoantigens_transformed = []
-        for neoantigen in neoantigens:
-            expression_value = neoantigen.rna_expression
-            patient = patients[neoantigen.patient_identifier]
-            neoantigen_transformed = neoantigen
-            if not patient.is_rna_available:
-                expression_value = expression_annotator.\
-                    get_gene_expression_annotation(gene_name=neoantigen.transcript.gene, tcga_cohort=patient.tumor_type)
-            neoantigen_transformed.rna_expression = expression_value
-            neoantigens_transformed.append(neoantigen_transformed)
-        return neoantigens_transformed
 
     @staticmethod
     def _enrich_candidate_table(data: pd.DataFrame):

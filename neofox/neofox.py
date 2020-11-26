@@ -25,6 +25,7 @@ import logzero
 from logzero import logger
 from dask.distributed import Client
 
+from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
@@ -38,8 +39,9 @@ import dotenv
 
 class NeoFox:
 
-    def __init__(self, neoantigens: List[Neoantigen], patients: List[Patient], num_cpus: int, patient_id: str = None,
-                 work_folder=None, output_prefix=None, reference_folder: ReferenceFolder = None,
+    def __init__(self, neoantigens: List[Neoantigen], patients: List[Patient],
+                 num_cpus: int = 1, patient_id: str = None, work_folder=None, output_prefix=None,
+                 reference_folder: ReferenceFolder = None,
 
                  configuration: DependenciesConfiguration = None, verbose=False, configuration_file = None):
 
@@ -73,7 +75,26 @@ class NeoFox:
         self.patients = {patient.identifier: ModelValidator.validate_patient(patient) for patient in patients}
         self._validate_input_data()
 
+        # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
+        # otherwise original values is reported
+        # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
+        self.neoantigens = self._conditional_expression_imputation()
+
         logger.info("Data loaded")
+
+    def _conditional_expression_imputation(self) -> List[Neoantigen]:
+        expression_annotator = ExpressionAnnotator()
+        neoantigens_transformed = []
+        for neoantigen in self.neoantigens:
+            expression_value = neoantigen.rna_expression
+            patient = self.patients[neoantigen.patient_identifier]
+            neoantigen_transformed = neoantigen
+            if not patient.is_rna_available:
+                expression_value = expression_annotator. \
+                    get_gene_expression_annotation(gene_name=neoantigen.transcript.gene, tcga_cohort=patient.tumor_type)
+            neoantigen_transformed.rna_expression = expression_value
+            neoantigens_transformed.append(neoantigen_transformed)
+        return neoantigens_transformed
 
     def _initialise_logs(self, output_prefix, work_folder, verbose):
         if work_folder and os.path.exists(work_folder):

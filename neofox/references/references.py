@@ -116,8 +116,7 @@ class ReferenceFolder(object):
             self.__available_alleles = AvailableAlleles(self)
         return self.__available_alleles
 
-    @staticmethod
-    def _check_reference_genome_folder():
+    def _check_reference_genome_folder(self):
         reference_genome_folder = os.environ.get(neofox.REFERENCE_FOLDER_ENV)
         if reference_genome_folder is None:
             raise NeofoxConfigurationException(

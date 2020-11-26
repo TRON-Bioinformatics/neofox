@@ -108,22 +108,6 @@ class TestNeofox(TestCase):
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
 
-    def test_neofox_no_expression_imputation(self):
-        neoantigens_imputed = ModelConverter.conditional_substitute_expression(self.neoantigens, self.patients)
-        for neoantigen in self.neoantigens:
-            for neoantigen_imputed in neoantigens_imputed:
-                if neoantigen.identifier == neoantigen_imputed.identifier:
-                    self.assertEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
-
-    def test_neofox_with_expression_imputation(self):
-        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_candidate_file_Pty.txt")
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
-        neoantigens_imputed = ModelConverter.conditional_substitute_expression(neoantigens, self.patients)
-        for neoantigen in self.neoantigens:
-            for neoantigen_imputed in neoantigens_imputed:
-                if neoantigen.identifier == neoantigen_imputed.identifier:
-                    self.assertFalse(neoantigen.rna_expression == neoantigen_imputed.rna_expression)
-
     def test_neofox_model_input(self):
         """
         """

@@ -102,11 +102,7 @@ def neofox_cli():
     os.makedirs(output_folder, exist_ok=True)
 
     # reads the input data
-    neoantigens_pre, patients, external_annotations = _read_data(candidate_file, model_file, patients_data, patient_id)
-
-    # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
-    # otherwise original values is reported
-    neoantigens = ModelConverter.conditional_substitute_expression(neoantigens_pre, patients)
+    neoantigens, patients, external_annotations = _read_data(candidate_file, model_file, patients_data, patient_id)
 
     # run annotations
     annotations = NeoFox(neoantigens=neoantigens, patients=patients, patient_id=patient_id, work_folder=output_folder,
