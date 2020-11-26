@@ -4,7 +4,7 @@ package neoantigen;
 
 message Transcript {
 	/**
-	The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id)
+	The transcript identifier to which this neoantigen candidate relates to (e.g.: Ensembl transcript id)
 	*/
 	string identifier = 1;
 	/**
@@ -19,15 +19,15 @@ message Transcript {
 
 message Mutation {
 	/**
-	The aminoacid position within the neoantigen. 1-based, starting in the N-terminus
+	The aminoacid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
 	*/
 	repeated int32 position = 1;
 	/**
-	Sequence of aminoacids for the wild type xmer
+	Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes)
 	*/
 	string wildTypeXmer = 2;
 	/**
-	Sequence of aminoacids for the mutated xmer
+	Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
 	*/
 	string mutatedXmer = 3;
 }

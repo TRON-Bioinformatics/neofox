@@ -52,7 +52,7 @@ class Mhc2Name(betterproto.Enum):
 
 @dataclass
 class Transcript(betterproto.Message):
-    # *The transcript identifier to which this neoepitope definition refers
+    # *The transcript identifier to which this neoantigen candidate relates to
     # (e.g.: Ensembl transcript id)
     identifier: str = betterproto.string_field(1)
     # *The genome assembly to which the gene definition refers to (e.g.: GRCh37,
@@ -65,12 +65,13 @@ class Transcript(betterproto.Message):
 
 @dataclass
 class Mutation(betterproto.Message):
-    # *The aminoacid position within the neoantigen. 1-based, starting in the
-    # N-terminus
+    # *The aminoacid position within the neoantigen candidate sequence. 1-based,
+    # starting in the N-terminus
     position: List[int] = betterproto.int32_field(1)
-    # *Sequence of aminoacids for the wild type xmer
+    # *Amino acid sequence of the WT corresponding to the neoantigen candidate
+    # sequence (IUPAC 1 letter codes)
     wild_type_xmer: str = betterproto.string_field(2)
-    # *Sequence of aminoacids for the mutated xmer
+    # *Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
     mutated_xmer: str = betterproto.string_field(3)
 
 
