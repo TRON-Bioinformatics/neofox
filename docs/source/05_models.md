@@ -148,9 +148,9 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| position | [int32](#int32) | repeated | The aminoacid position within the neoantigen. 1-based, starting in the N-terminus |
-| wildTypeXmer | [string](#string) |  | Sequence of aminoacids for the wild type xmer |
-| mutatedXmer | [string](#string) |  | Sequence of aminoacids for the mutated xmer |
+| position | [int32](#int32) | repeated | The aminoacid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus |
+| wildTypeXmer | [string](#string) |  | Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes) |
+| mutatedXmer | [string](#string) |  | Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes) |
 
 
 
@@ -226,7 +226,7 @@ The metadata required for analysis for a given patient + its patient identifier
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| identifier | [string](#string) |  | The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id) |
+| identifier | [string](#string) |  | The transcript identifier to which this neoantigen candidate relates to (e.g.: Ensembl transcript id) |
 | assembly | [string](#string) |  | The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38) |
 | gene | [string](#string) |  | The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene |
 
