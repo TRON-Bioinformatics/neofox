@@ -18,7 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from logzero import logger
 from unittest import TestCase
-from neofox.model.conversion import ModelConverter
+
+from neofox.model.neoantigen import Mutation
+
+from neofox.model.conversion import ModelConverter, ModelValidator
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
@@ -42,10 +45,10 @@ class TestBestMultipleBinder(TestCase):
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(runner=self.runner, configuration=self.configuration)
         # this is some valid example neoantigen candidate sequence
-        mutated = 'DEVLGEPSQDILVTDQTRLEATISPET'
-        non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
-        best_multiple.run(sequence_mut=mutated, sequence_wt=non_mutated, mhc1_alleles_patient=TEST_MHC_ONE,
-                          mhc1_alleles_available=self.available_alleles_mhc1)
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer='DEVLGEPSQDILVTDQTRLEATISPET', wild_type_xmer='DEVLGEPSQDILVIDQTRLEATISPET'))
+        best_multiple.run(
+            mutation=mutation, mhc1_alleles_patient=TEST_MHC_ONE, mhc1_alleles_available=self.available_alleles_mhc1)
         self.assertEqual(543.9, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual(0.4304, best_multiple.best_epitope_by_rank.rank)
         self.assertEqual("VTDQTRLEA", best_multiple.best_epitope_by_rank.peptide)
@@ -56,13 +59,13 @@ class TestBestMultipleBinder(TestCase):
     def test_phbr1(self):
         best_multiple = BestAndMultipleBinder(runner=self.runner, configuration=self.configuration)
         netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
-        mutated = 'DEVLGEPSQDILVTDQTRLEATISPET'
-        non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer='DEVLGEPSQDILVTDQTRLEATISPET', wild_type_xmer='DEVLGEPSQDILVIDQTRLEATISPET'))
         # all alleles = heterozygous
-        predictions = netmhcpan.mhc_prediction(TEST_MHC_ONE, self.available_alleles_mhc1, mutated)
-        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=mutated, sequence_wt=non_mutated)
+        predictions = netmhcpan.mhc_prediction(TEST_MHC_ONE, self.available_alleles_mhc1, mutation.mutated_xmer)
+
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions)
+            position_of_mutation=mutation.position, predictions=predictions)
         best_epitopes_per_allele = BestAndMultipleBinder.extract_best_epitope_per_alelle(predicted_neoepitopes, TEST_MHC_ONE)
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele, TEST_MHC_ONE)
         self.assertIsNotNone(phbr_i)
@@ -70,10 +73,10 @@ class TestBestMultipleBinder(TestCase):
         # one homozygous allele present
         mhc_alleles = ModelConverter.parse_mhc1_alleles(['HLA-A*24:02', 'HLA-A*02:01', 'HLA-B*15:01', 'HLA-B*44:02',
                                                          'HLA-C*05:01', 'HLA-C*05:01'])
-        predictions = netmhcpan.mhc_prediction(TEST_MHC_ONE, self.available_alleles_mhc1, mutated)
-        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=mutated, sequence_wt=non_mutated)
+        predictions = netmhcpan.mhc_prediction(TEST_MHC_ONE, self.available_alleles_mhc1, mutation.mutated_xmer)
+
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions)
+            position_of_mutation=mutation.position, predictions=predictions)
         best_epitopes_per_allele = BestAndMultipleBinder.extract_best_epitope_per_alelle(
             predicted_neoepitopes, mhc_alleles)
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele, mhc_alleles)
@@ -83,10 +86,9 @@ class TestBestMultipleBinder(TestCase):
         mhc_alleles = ModelConverter.parse_mhc1_alleles(['HLA-A*24:02', 'HLA-A*02:01', 'HLA-B*15:01', 'HLA-B*44:02',
                                                          'HLA-C*05:01'])
 
-        predictions = netmhcpan.mhc_prediction(TEST_MHC_ONE, self.available_alleles_mhc1, mutated)
-        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=mutated, sequence_wt=non_mutated)
+        predictions = netmhcpan.mhc_prediction(TEST_MHC_ONE, self.available_alleles_mhc1, mutation.mutated_xmer)
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions)
+            position_of_mutation=mutation.position, predictions=predictions)
         best_epitopes_per_allele = BestAndMultipleBinder.extract_best_epitope_per_alelle(
             predicted_neoepitopes, mhc_alleles)
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele, mhc_alleles)
@@ -95,10 +97,10 @@ class TestBestMultipleBinder(TestCase):
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(runner=self.runner, configuration=self.configuration)
         # this is some valid example neoantigen candidate sequence
-        mutated = 'DEVLGEPSQDILVTDQTRLEATISPET'
-        non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
-        best_multiple.run(sequence_mut=mutated, sequence_wt=non_mutated, mhc2_alleles_patient=TEST_MHC_TWO,
-                          mhc2_alleles_available=self.available_alleles_mhc2)
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer='DEVLGEPSQDILVTDQTRLEATISPET', wild_type_xmer='DEVLGEPSQDILVIDQTRLEATISPET'))
+        best_multiple.run(
+            mutation=mutation, mhc2_alleles_patient=TEST_MHC_TWO, mhc2_alleles_available=self.available_alleles_mhc2)
         logger.info(best_multiple.best_predicted_epitope_rank.rank)
         logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
         logger.info(best_multiple.best_predicted_epitope_rank.peptide)
@@ -110,16 +112,15 @@ class TestBestMultipleBinder(TestCase):
     def test_phbr2(self):
         best_multiple = BestAndMultipleBinderMhcII(runner=self.runner, configuration=self.configuration)
         netmhc2pan = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
-        mutated = 'DEVLGEPSQDILVTDQTRLEATISPET'
-        non_mutated = 'DEVLGEPSQDILVIDQTRLEATISPET'
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer='DEVLGEPSQDILVTDQTRLEATISPET', wild_type_xmer='DEVLGEPSQDILVIDQTRLEATISPET'))
         # all alleles = heterozygous
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(TEST_MHC_TWO)
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(allele_combinations,
                                                                                self.available_alleles_mhc2)
-        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutated)
-        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=mutated, sequence_wt=non_mutated)
+        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutation.mutated_xmer)
         filtered_predictions = netmhc2pan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions)
+            position_of_mutation=mutation.position, predictions=predictions)
         best_predicted_epitopes_per_alelle = BestAndMultipleBinderMhcII.extract_best_epitope_per_mhc2_alelle(
             filtered_predictions, TEST_MHC_TWO)
         logger.info(best_predicted_epitopes_per_alelle)
@@ -136,10 +137,9 @@ class TestBestMultipleBinder(TestCase):
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(mhc2_alleles)
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(allele_combinations,
                                                                                self.available_alleles_mhc2)
-        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutated)
-        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=mutated, sequence_wt=non_mutated)
+        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutation.mutated_xmer)
         filtered_predictions = netmhc2pan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions)
+            position_of_mutation=mutation.position, predictions=predictions)
         best_predicted_epitopes_per_alelle = BestAndMultipleBinderMhcII.extract_best_epitope_per_mhc2_alelle(
             filtered_predictions, mhc2_alleles)
         logger.info(best_predicted_epitopes_per_alelle)
@@ -155,10 +155,9 @@ class TestBestMultipleBinder(TestCase):
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(mhc2_alleles)
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(allele_combinations,
                                                                                self.available_alleles_mhc2)
-        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutated)
-        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=mutated, sequence_wt=non_mutated)
+        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutation.mutated_xmer)
         filtered_predictions = netmhc2pan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions)
+            position_of_mutation=mutation.position, predictions=predictions)
         best_predicted_epitopes_per_alelle = BestAndMultipleBinderMhcII.extract_best_epitope_per_mhc2_alelle(
             filtered_predictions, mhc2_alleles)
         logger.info(best_predicted_epitopes_per_alelle)

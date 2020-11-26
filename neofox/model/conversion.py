@@ -25,6 +25,8 @@ import stringcase
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 from Bio.Data import IUPACData
 from betterproto import Casing
+from neofox.helpers.epitope_helper import EpitopeHelper
+
 from neofox.exceptions import NeofoxDataValidationException
 from pandas.io.json import json_normalize
 from logzero import logger
@@ -606,7 +608,10 @@ class ModelValidator(object):
     @staticmethod
     def _validate_mutation(mutation: Mutation) -> Mutation:
         mutation.mutated_xmer = "".join([ModelValidator._validate_aminoacid(aa) for aa in mutation.mutated_xmer])
-        mutation.wild_type_xmer = "".join([ModelValidator._validate_aminoacid(aa) for aa in mutation.wild_type_xmer])
+        # avoids this validation when there is no wild type
+        if mutation.wild_type_xmer:
+            mutation.wild_type_xmer = "".join([ModelValidator._validate_aminoacid(aa) for aa in mutation.wild_type_xmer])
+            mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=mutation)
         return mutation
 
     @staticmethod

@@ -21,7 +21,7 @@ message Mutation {
 	/**
 	The aminoacid position within the protein. 1-based, starting in the N-terminus
 	*/
-	int32 position = 1;
+	repeated int32 position = 1;
 	/**
 	Sequence of aminoacids for the wild type xmer
 	*/

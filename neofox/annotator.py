@@ -236,7 +236,7 @@ class NeoantigenAnnotator:
                       neoantigen: Neoantigen, patient: Patient):
         netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
         netmhcpan.run(
-            sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
+            mutation=neoantigen.mutation,
             mhc1_alleles_patient=patient.mhc1, mhc1_alleles_available=available_alleles.get_available_mhc_i())
         return netmhcpan
 
@@ -245,22 +245,18 @@ class NeoantigenAnnotator:
                       neoantigen: Neoantigen, patient: Patient):
         netmhc2pan = BestAndMultipleBinderMhcII(runner=runner, configuration=configuration)
         netmhc2pan.run(
-            sequence_mut=neoantigen.mutation.mutated_xmer, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            mhc2_alleles_patient=patient.mhc2, mhc2_alleles_available=available_alleles.get_available_mhc_ii())
+            mutation=neoantigen.mutation, mhc2_alleles_patient=patient.mhc2,
+            mhc2_alleles_available=available_alleles.get_available_mhc_ii())
         return netmhc2pan
 
     @staticmethod
     def run_mixmhcpred(
             runner: Runner, configuration: DependenciesConfiguration, neoantigen: Neoantigen, patient: Patient):
         mixmhc = MixMHCpred(runner, configuration)
-        return mixmhc.get_annotations(
-            sequence_wt=neoantigen.mutation.wild_type_xmer, sequence_mut=neoantigen.mutation.mutated_xmer,
-            mhc=patient.mhc1)
+        return mixmhc.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1)
 
     @staticmethod
     def run_mixmhc2pred(
             runner: Runner, configuration: DependenciesConfiguration, neoantigen: Neoantigen, patient: Patient):
         mixmhc2 = MixMhc2Pred(runner, configuration)
-        return mixmhc2.get_annotations(
-            mhc=patient.mhc2, sequence_wt=neoantigen.mutation.wild_type_xmer,
-            sequence_mut=neoantigen.mutation.mutated_xmer)
+        return mixmhc2.get_annotations(mhc=patient.mhc2, mutation=neoantigen.mutation)
