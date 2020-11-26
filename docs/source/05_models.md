@@ -148,6 +148,7 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| position | [int32](#int32) |  | The aminoacid position within the protein. 1-based, starting in the N-terminus |
 | wildTypeXmer | [string](#string) |  | Sequence of aminoacids for the wild type xmer |
 | mutatedXmer | [string](#string) |  | Sequence of aminoacids for the mutated xmer |
 
