@@ -29,7 +29,7 @@ from neofox.references.references import DependenciesConfiguration
 
 from neofox.helpers.runner import Runner
 
-from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele
+from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation
 from neofox.model.wrappers import AnnotationFactory, get_alleles_by_gene
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -114,7 +114,7 @@ class MixMhc2Pred:
         os.remove(outtmp)
         return results
 
-    def run(self, mhc: List[Mhc2], sequence_wt, sequence_mut):
+    def run(self, mhc: List[Mhc2], mutation: Mutation):
         """
         Runs MixMHC2pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
@@ -123,8 +123,7 @@ class MixMhc2Pred:
         best_peptide = None
         best_rank = None
         best_allele = None
-        potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[13, 14, 15, 16, 17, 18])
+        potential_ligand_sequences = EpitopeHelper.generate_nmers(mutation=mutation, lengths=[13, 14, 15, 16, 17, 18])
         # filter mps shorter < 13aa
         filtered_sequences = list(filter(lambda x: len(x) >= 13, potential_ligand_sequences))
         if len(filtered_sequences) > 0:
@@ -139,8 +138,8 @@ class MixMhc2Pred:
                 logger.info("MixMHC2pred returned no best result")
         return best_peptide, best_rank, best_allele
 
-    def get_annotations(self, mhc: List[Mhc2], sequence_wt, sequence_mut) -> List[Annotation]:
-        best_peptide, best_rank, best_allele = self.run(mhc=mhc, sequence_wt=sequence_wt, sequence_mut=sequence_mut)
+    def get_annotations(self, mhc: List[Mhc2], mutation: Mutation) -> List[Annotation]:
+        best_peptide, best_rank, best_allele = self.run(mhc=mhc, mutation=mutation)
         return [
             AnnotationFactory.build_annotation(value=best_peptide, name="MixMHC2pred_best_peptide"),
             AnnotationFactory.build_annotation(value=best_rank, name="MixMHC2pred_best_rank"),

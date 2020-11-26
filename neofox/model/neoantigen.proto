@@ -19,13 +19,17 @@ message Transcript {
 
 message Mutation {
 	/**
+	The aminoacid position within the protein. 1-based, starting in the N-terminus
+	*/
+	repeated int32 position = 1;
+	/**
 	Sequence of aminoacids for the wild type xmer
 	*/
-	string wildTypeXmer = 1;
+	string wildTypeXmer = 2;
 	/**
 	Sequence of aminoacids for the mutated xmer
 	*/
-	string mutatedXmer = 2;
+	string mutatedXmer = 3;
 }
 
 /**

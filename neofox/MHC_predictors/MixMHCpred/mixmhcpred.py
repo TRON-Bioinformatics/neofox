@@ -25,7 +25,7 @@ from pandas.errors import EmptyDataError
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.conversion import ModelConverter
 
-from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele
+from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -73,15 +73,14 @@ class MixMHCpred:
         os.remove(outtmp)
         return results
 
-    def run(self, sequence_wt, sequence_mut, mhc: List[Mhc1]):
+    def run(self, mutation: Mutation, mhc: List[Mhc1]):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
         """
         best_peptide = None
         best_rank = None
         best_allele = None
         best_score = None
-        potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            xmer_wt=sequence_wt, xmer_mut=sequence_mut, lengths=[8, 9, 10, 11])
+        potential_ligand_sequences = EpitopeHelper.generate_nmers(mutation=mutation, lengths=[8, 9, 10, 11])
         if len(potential_ligand_sequences) > 0:
             results = self._mixmhcprediction(mhc, potential_ligand_sequences)
             # get best result by maximum score
@@ -96,9 +95,8 @@ class MixMHCpred:
                 logger.info("MixMHCpred returned no best result")
         return best_peptide, best_rank, best_allele, best_score
 
-    def get_annotations(self, sequence_wt, sequence_mut, mhc: List[Mhc1]) -> List[Annotation]:
-        best_peptide, best_rank, best_allele, best_score = self.run(
-            mhc=mhc, sequence_wt=sequence_wt, sequence_mut=sequence_mut)
+    def get_annotations(self, mutation: Mutation, mhc: List[Mhc1]) -> List[Annotation]:
+        best_peptide, best_rank, best_allele, best_score = self.run(mhc=mhc, mutation=mutation)
         return [
             AnnotationFactory.build_annotation(value=best_peptide, name="MixMHCpred_best_peptide"),
             AnnotationFactory.build_annotation(value=best_score, name="MixMHCpred_best_score"),

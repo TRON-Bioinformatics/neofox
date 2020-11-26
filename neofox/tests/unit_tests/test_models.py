@@ -98,6 +98,7 @@ class ModelConverterTest(TestCase):
             self.assertTrue(n.transcript.identifier is not None and len(n.transcript.identifier) > 0)
             self.assertTrue(n.mutation.mutated_xmer is not None and len(n.mutation.mutated_xmer) > 1)
             self.assertTrue(n.mutation.wild_type_xmer is not None and len(n.mutation.wild_type_xmer) > 1)
+            self.assertTrue(n.mutation.position is not None and len(n.mutation.position) >= 1)
             self.assertTrue(n.rna_variant_allele_frequency is None or
                             (0 <= n.rna_variant_allele_frequency <= 1))
             self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
@@ -137,6 +138,7 @@ class ModelConverterTest(TestCase):
             self.assertTrue(isinstance(n.mutation, Mutation))
             self.assertNotEmpty(n.mutation.mutated_xmer)
             self.assertNotEmpty(n.mutation.wild_type_xmer)
+            self.assertIsNotNone(n.mutation.position)
 
         # test external annotations
         self._assert_external_annotations(expected_number_external_annotations=2, external_annotations=external_annotations)
@@ -246,7 +248,7 @@ class ModelConverterTest(TestCase):
         ]
         df = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens=neoantigens)
         self.assertEqual(df.shape[0], 2)
-        self.assertEqual(df.shape[1], 15)
+        self.assertEqual(df.shape[1], 16)
 
         df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)
         self.assertEqual(df_annotations.shape[0], 8)
