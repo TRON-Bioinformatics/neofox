@@ -65,10 +65,13 @@ class Transcript(betterproto.Message):
 
 @dataclass
 class Mutation(betterproto.Message):
+    # *The aminoacid position within the protein. 1-based, starting in the
+    # N-terminus
+    position: int = betterproto.int32_field(1)
     # *Sequence of aminoacids for the wild type xmer
-    wild_type_xmer: str = betterproto.string_field(1)
+    wild_type_xmer: str = betterproto.string_field(2)
     # *Sequence of aminoacids for the mutated xmer
-    mutated_xmer: str = betterproto.string_field(2)
+    mutated_xmer: str = betterproto.string_field(3)
 
 
 @dataclass
