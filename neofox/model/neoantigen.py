@@ -65,7 +65,7 @@ class Transcript(betterproto.Message):
 
 @dataclass
 class Mutation(betterproto.Message):
-    # *The aminoacid position within the protein. 1-based, starting in the
+    # *The aminoacid position within the neoantigen. 1-based, starting in the
     # N-terminus
     position: List[int] = betterproto.int32_field(1)
     # *Sequence of aminoacids for the wild type xmer
