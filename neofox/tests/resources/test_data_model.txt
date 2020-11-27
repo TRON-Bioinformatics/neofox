@@ -1,6 +1,6 @@
-transcript.assembly	transcript.gene	transcript.identifier	mutation.wildTypeXmer	mutation.mutatedXmer	patientIdentifier	external_annotation_1	external_annotation_2
-hg19	BRCA2	ENST1234567	AAAAAALAAAAA	AAAAAAFAAAAA	Pt29	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAAMAAAAA	AAAAAARAAAAA	Pt29	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAAGAAAAA	AAAAAAKAAAAA	Pt29	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAACAAAAA	AAAAAAEAAAAA	Pt29	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAAKAAAAA	AAAAAACAAAAA	Pt29	blah	blah
+gene	mutation.wildTypeXmer	mutation.mutatedXmer	patientIdentifier	external_annotation_1	external_annotation_2
+BRCA2	AAAAAALAAAAA	AAAAAAFAAAAA	Pt29	blah	blah
+BRCA2	AAAAAAMAAAAA	AAAAAARAAAAA	Pt29	blah	blah
+BRCA2	AAAAAAGAAAAA	AAAAAAKAAAAA	Pt29	blah	blah
+BRCA2	AAAAAACAAAAA	AAAAAAEAAAAA	Pt29	blah	blah
+BRCA2	AAAAAAKAAAAA	AAAAAACAAAAA	Pt29	blah	blah

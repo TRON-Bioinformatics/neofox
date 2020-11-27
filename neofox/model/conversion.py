@@ -34,7 +34,7 @@ import re
 import difflib
 from collections import defaultdict
 import json
-from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, NeoantigenAnnotations, Mhc2Name, \
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient, NeoantigenAnnotations, Mhc2Name, \
     Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Isoform, MhcAllele, Mhc1Name, Mhc1, Annotation
 from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, GENES_BY_MOLECULE, \
     get_mhc2_isoform_name
@@ -50,7 +50,6 @@ FIELD_VAF_DNA = 'VAF_in_tumor'
 FIELD_VAF_RNA = 'VAF_in_RNA'
 FIELD_RNA_EXPRESSION = 'VAF_RNA_raw'
 FIELD_TRANSCRIPT_EXPRESSION = 'transcript_expression'
-FIELD_TRANSCRIPT = 'UCSC_transcript'
 FIELD_GENE = 'gene'
 FIELD_WILD_TYPE_XMER = '[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
 FIELD_MUTATED_XMER = '+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)'
@@ -218,11 +217,6 @@ class ModelConverter(object):
     def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
         """parses an row from a candidate file into a model object"""
 
-        transcript = Transcript()
-        transcript.assembly = 'hg19'
-        transcript.gene = candidate_entry.get(FIELD_GENE)
-        transcript.identifier = candidate_entry.get(FIELD_TRANSCRIPT)
-
         mutation = Mutation()
         mutation.wild_type_xmer = candidate_entry.get('left_flanking_region') + \
                                   candidate_entry.get('wild_type_aminoacid') + \
@@ -237,7 +231,7 @@ class ModelConverter(object):
             raise NeofoxInputParametersException(
                 "Please, define the parameter `patient_id` or provide a column ´patient´ in the candidate file ")
         neoantigen.mutation = mutation
-        neoantigen.transcript = transcript
+        neoantigen.gene = candidate_entry.get(FIELD_GENE)
         # clonality estimation is not present in candidate file at the moment
         neoantigen.clonality_estimation = None
         # missing RNA expression values are represented as -1
@@ -261,7 +255,7 @@ class ModelConverter(object):
             neoantigen_transformed = neoantigen
             if not patient.is_rna_available:
                 expression_value = expression_annotator.\
-                    get_gene_expression_annotation(gene_name=neoantigen.transcript.gene, tcga_cohort=patient.tumor_type)
+                    get_gene_expression_annotation(gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type)
             neoantigen_transformed.rna_expression = expression_value
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed
@@ -430,10 +424,6 @@ class ModelValidator(object):
         ModelValidator.validate(neoantigen)
 
         try:
-            # checks gene
-            # TODO: do we want to verify existence of gene and transcript id?
-            neoantigen.transcript = ModelValidator._validate_transcript(neoantigen.transcript)
-
             # checks mutation
             neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
 
@@ -622,26 +612,6 @@ class ModelValidator(object):
             mutation.wild_type_xmer = "".join([ModelValidator._validate_aminoacid(aa) for aa in mutation.wild_type_xmer])
             mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=mutation)
         return mutation
-
-    @staticmethod
-    def _validate_transcript(transcript: Transcript) -> Transcript:
-
-        # TODO: validate that gene symbol exists
-        gene_name = transcript.gene.strip() if transcript.gene else transcript.gene
-        assert gene_name is not None and len(gene_name) > 0, "Empty gene symbol"
-        transcript.gene = gene_name
-
-        # TODO: validate that transcript identifier exists
-        transcript_identifier = transcript.identifier.strip() if transcript.identifier else transcript.identifier
-        assert transcript_identifier is not None and len(transcript_identifier) > 0, "Empty transcript identifier"
-        transcript.identifier = transcript_identifier
-
-        # TODO: support other assemblies
-        assembly = transcript.assembly if transcript.assembly else "hg19"
-        assert assembly == "hg19", "Other reference genome than hg19 is not supported"
-        transcript.assembly = assembly
-
-        return transcript
 
     @staticmethod
     def _validate_vaf(vaf):

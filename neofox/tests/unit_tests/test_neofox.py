@@ -20,7 +20,7 @@ import os
 import unittest
 from unittest import TestCase
 
-from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 
 import neofox
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
@@ -95,7 +95,7 @@ class TestNeofox(TestCase):
 
     def _get_test_neoantigen(self):
         return Neoantigen(
-            transcript=Transcript(assembly="hg19", identifier="ENST12345", gene="GENE"),
+            gene="GENE",
             mutation=Mutation(mutated_xmer="AAAAAAAIAAAAAAAA", wild_type_xmer="AAAAAAALAAAAAAAA"),
             patient_identifier="12345",
             rna_expression=0.12345

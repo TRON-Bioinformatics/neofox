@@ -24,7 +24,7 @@ from neofox.exceptions import NeofoxDataValidationException
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter, EXTERNAL_ANNOTATIONS_NAME
-from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient, Annotation, NeoantigenAnnotations, Zygosity, \
     Mhc2Name
 from neofox.model.conversion import ModelValidator
 from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
@@ -60,7 +60,7 @@ class ModelConverterTest(TestCase):
         flat_dict = ModelConverter.object2flat_dict(neoantigen)
         self.assertIsNotNone(flat_dict)
         self.assertEqual(neoantigen.dna_variant_allele_frequency, flat_dict['dna_variant_allele_frequency'])
-        self.assertEqual(neoantigen.transcript.identifier, flat_dict['transcript.identifier'])
+        self.assertEqual(neoantigen.mutation.mutated_xmer, flat_dict['mutation.mutated_xmer'])
 
     def test_model2csv2model(self):
         neoantigen = get_random_neoantigen()
@@ -93,9 +93,8 @@ class ModelConverterTest(TestCase):
         self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
         for n in neoantigens:
             self.assertIsInstance(n, Neoantigen)
-            self.assertIsInstance(n.transcript, Transcript)
             self.assertIsInstance(n.mutation, Mutation)
-            self.assertTrue(n.transcript.identifier is not None and len(n.transcript.identifier) > 0)
+            self.assertTrue(n.gene is not None and len(n.gene) > 0)
             self.assertTrue(n.mutation.mutated_xmer is not None and len(n.mutation.mutated_xmer) > 1)
             self.assertTrue(n.mutation.wild_type_xmer is not None and len(n.mutation.wild_type_xmer) > 1)
             self.assertTrue(n.mutation.position is not None and len(n.mutation.position) >= 1)
@@ -124,17 +123,13 @@ class ModelConverterTest(TestCase):
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
-            self.assertNotEmpty(n.transcript)
             self.assertNotEmpty(n.mutation)
             self.assertNotEmpty(n.patient_identifier)
             self.assertNotEmpty(n.rna_expression)
             self.assertNotEmpty(n.rna_variant_allele_frequency)
             self.assertNotEmpty(n.dna_variant_allele_frequency)
             self.assertNotEmpty(n.clonality_estimation)
-            self.assertTrue(isinstance(n.transcript, Transcript))
-            self.assertNotEmpty(n.transcript.assembly)
-            self.assertNotEmpty(n.transcript.identifier)
-            self.assertNotEmpty(n.transcript.assembly)
+            self.assertNotEmpty(n.gene)
             self.assertTrue(isinstance(n.mutation, Mutation))
             self.assertNotEmpty(n.mutation.mutated_xmer)
             self.assertNotEmpty(n.mutation.wild_type_xmer)
@@ -248,7 +243,7 @@ class ModelConverterTest(TestCase):
         ]
         df = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens=neoantigens)
         self.assertEqual(df.shape[0], 2)
-        self.assertEqual(df.shape[1], 16)
+        self.assertEqual(df.shape[1], 14)
 
         df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)
         self.assertEqual(df_annotations.shape[0], 8)
