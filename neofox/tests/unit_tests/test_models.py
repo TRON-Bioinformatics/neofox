@@ -128,7 +128,6 @@ class ModelConverterTest(TestCase):
             self.assertNotEmpty(n.rna_expression)
             self.assertNotEmpty(n.rna_variant_allele_frequency)
             self.assertNotEmpty(n.dna_variant_allele_frequency)
-            self.assertNotEmpty(n.clonality_estimation)
             self.assertNotEmpty(n.gene)
             self.assertTrue(isinstance(n.mutation, Mutation))
             self.assertNotEmpty(n.mutation.mutated_xmer)
@@ -144,23 +143,18 @@ class ModelConverterTest(TestCase):
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
-            self.assertNotEmpty(n.transcript)
             self.assertNotEmpty(n.mutation)
             self.assertNotEmpty(n.patient_identifier)
             self.assertNotEmpty(n.rna_expression)
             self.assertNotEmpty(n.rna_variant_allele_frequency)
             self.assertNotEmpty(n.dna_variant_allele_frequency)
-            self.assertNotEmpty(n.clonality_estimation)
-            self.assertTrue(isinstance(n.transcript, Transcript))
-            self.assertNotEmpty(n.transcript.assembly)
-            self.assertNotEmpty(n.transcript.identifier)
-            self.assertNotEmpty(n.transcript.assembly)
             self.assertTrue(isinstance(n.mutation, Mutation))
             self.assertNotEmpty(n.mutation.position)
             self.assertNotEmpty(n.mutation.mutated_aminoacid)
             self.assertNotEmpty(n.mutation.wild_type_aminoacid)
             self.assertNotEmpty(n.mutation.left_flanking_region)
             self.assertNotEmpty(n.mutation.right_flanking_region)
+
 
     def assertNotEmpty(self, value):
         self.assertIsNotNone(value)
@@ -243,7 +237,7 @@ class ModelConverterTest(TestCase):
         ]
         df = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens=neoantigens)
         self.assertEqual(df.shape[0], 2)
-        self.assertEqual(df.shape[1], 14)
+        self.assertEqual(df.shape[1], 13)
 
         df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)
         self.assertEqual(df_annotations.shape[0], 8)
