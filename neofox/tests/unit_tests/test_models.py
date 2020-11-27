@@ -150,10 +150,6 @@ class ModelConverterTest(TestCase):
             self.assertNotEmpty(n.dna_variant_allele_frequency)
             self.assertTrue(isinstance(n.mutation, Mutation))
             self.assertNotEmpty(n.mutation.position)
-            self.assertNotEmpty(n.mutation.mutated_aminoacid)
-            self.assertNotEmpty(n.mutation.wild_type_aminoacid)
-            self.assertNotEmpty(n.mutation.left_flanking_region)
-            self.assertNotEmpty(n.mutation.right_flanking_region)
 
 
     def assertNotEmpty(self, value):
