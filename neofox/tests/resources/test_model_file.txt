@@ -1,6 +1,6 @@
-transcript.assembly	transcript.gene	transcript.identifier	mutation.leftFlankingRegion	mutation.mutatedAminoacid	mutation.position	mutation.rightFlankingRegion	mutation.wildTypeAminoacid	patientIdentifier	external_annotation_1	external_annotation_2
-hg19	BRCA2	ENST1234567	AAAAAA	L	935	AAAAA	F	Ptx	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAA	M	518	AAAAA	R	Ptx	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAA	G	285	AAAAA	K	Ptx	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAA	C	685	AAAAA	E	Ptx	blah	blah
-hg19	BRCA2	ENST1234567	AAAAAA	K	503	AAAAA	C	Ptx	blah	blah
+gene	mutation.wildTypeXmer	mutation.mutatedXmer	patientIdentifier	external_annotation_1	external_annotation_2
+BRCA2	AAAAAALAAAAA	AAAAAAFAAAAA	Ptx	blah	blah
+BRCA2	AAAAAAMAAAAA	AAAAAARAAAAA	Ptx	blah	blah
+BRCA2	AAAAAAGAAAAA	AAAAAAKAAAAA	Ptx	blah	blah
+BRCA2	AAAAAACAAAAA	AAAAAAEAAAAA	Ptx	blah	blah
+BRCA2	AAAAAAKAAAAA	AAAAAACAAAAA	Ptx	blah	blah

@@ -16,47 +16,49 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+from typing import List
+
+from neofox.model.neoantigen import Mutation
 
 
 class EpitopeHelper(object):
 
     @staticmethod
-    def generate_nmers(xmer_wt, xmer_mut, lengths):
+    def generate_nmers(mutation: Mutation, lengths):
         """
         Generates peptides covering mutation of all lengths that are provided. Returns peptides as list
         No peptide is shorter than the minimun length provided
         There are no repetitions in the results
         """
-        length_mut = len(xmer_mut)
+        length_mut = len(mutation.mutated_xmer)
         list_peptides = []
-        pos_mut_list = EpitopeHelper.mut_position_xmer_seq(sequence_mut=xmer_mut, sequence_wt=xmer_wt)
-        for pos_mut in pos_mut_list:
+        for pos_mut in mutation.position:
             for length in lengths:
                 if length <= length_mut:
                     start_first = pos_mut - length
                     starts = [start_first + s for s in range(length)]
                     ends = [s + length for s in starts]
                     for s, e in zip(starts, ends):
-                        list_peptides.append(xmer_mut[s:e])
+                        list_peptides.append(mutation.mutated_xmer[s:e])
         return list(set([x for x in list_peptides if not x == "" and len(x) >= min(lengths)]))
 
     @staticmethod
-    def mut_position_xmer_seq(sequence_wt, sequence_mut):
+    def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
         """
-        returns position of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
+        returns position (1-based) of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
         """
         # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
         pos_mut = []
-        if len(sequence_wt) == len(sequence_mut):
+        if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
             p1 = -1
-            for i, aa in enumerate(sequence_mut):
-                if aa != sequence_wt[i]:
+            for i, aa in enumerate(mutation.mutated_xmer):
+                if aa != mutation.wild_type_xmer[i]:
                     p1 = i + 1
                     pos_mut.append(p1)
         else:
             p1 = 0
             # in case sequences do not have same length
-            for a1, a2 in zip(sequence_wt, sequence_mut):
+            for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
                 if a1 == a2:
                     p1 += 1
                 elif a1 != a2:
