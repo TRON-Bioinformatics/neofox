@@ -51,39 +51,15 @@ class Mhc2Name(betterproto.Enum):
 
 
 @dataclass
-class Transcript(betterproto.Message):
-    # *The transcript identifier to which this neoepitope definition refers
-    # (e.g.: Ensembl transcript id)
-    identifier: str = betterproto.string_field(1)
-    # *The genome assembly to which the gene definition refers to (e.g.: GRCh37,
-    # GRCh38)
-    assembly: str = betterproto.string_field(2)
-    # *The gene symbol or gene identifier, optional as the transcript
-    # unequivocally identifies a gene
-    gene: str = betterproto.string_field(3)
-
-
-@dataclass
 class Mutation(betterproto.Message):
-    # *The aminoacid position within the protein. 1-based, starting in the
-    # N-terminus
-    position: int = betterproto.int32_field(1)
-    # *Sequence of aminoacids for the wild type xmer
+    # *The amino acid position within the neoantigen candidate sequence. 1-based,
+    # starting in the N-terminus
+    position: List[int] = betterproto.int32_field(1)
+    # *Amino acid sequence of the WT corresponding to the neoantigen candidate
+    # sequence (IUPAC 1 letter codes)
     wild_type_xmer: str = betterproto.string_field(2)
-    # *IUPAC code for the wild type aminoacid in this position
-    wild_type_aminoacid: str = betterproto.string_field(3)
-    # *Sequence of aminoacids for the mutated xmer
-    mutated_xmer: str = betterproto.string_field(4)
-    # *IUPAC code for the mutated aminoacid in this position
-    mutated_aminoacid: str = betterproto.string_field(5)
-    # *The left flanking region of variable size in IUPAC codes
-    left_flanking_region: str = betterproto.string_field(6)
-    # *The size of the left flanking region
-    size_left_flanking_region: int = betterproto.int32_field(7)
-    # *The right flanking region of variable size in IUPAC codes
-    right_flanking_region: str = betterproto.string_field(8)
-    # *The size of the right flanking region
-    size_right_flanking_region: int = betterproto.int32_field(9)
+    # *Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
+    mutated_xmer: str = betterproto.string_field(3)
 
 
 @dataclass
@@ -94,19 +70,16 @@ class Neoantigen(betterproto.Message):
     identifier: str = betterproto.string_field(1)
     # *Patient identifier
     patient_identifier: str = betterproto.string_field(2)
-    # *The transcript where the neoepitope was observed
-    transcript: "Transcript" = betterproto.message_field(3)
+    # *The HGNC gene symbol or gene identifier
+    gene: str = betterproto.string_field(3)
     # *The mutation
     mutation: "Mutation" = betterproto.message_field(4)
-    # *Clonality estimation. At the moment this is a boolean indicating whether
-    # there is clonality or not,there is no quantitive measurement at the moment.
-    clonality_estimation: bool = betterproto.bool_field(5)
     # *Expression value of the transcript from RNA data. Range [0, +inf].
-    rna_expression: float = betterproto.float_field(6)
+    rna_expression: float = betterproto.float_field(5)
     # *Variant allele frequency from the DNA. Range [0.0, 1.0]
-    dna_variant_allele_frequency: float = betterproto.float_field(7)
+    dna_variant_allele_frequency: float = betterproto.float_field(6)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
-    rna_variant_allele_frequency: float = betterproto.float_field(8)
+    rna_variant_allele_frequency: float = betterproto.float_field(7)
 
 
 @dataclass

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Transcript, Neoantigen, Patient, MhcAllele, Mhc1, Mhc1Name, Zygosity, \
+from neofox.model.neoantigen import Neoantigen, Patient, MhcAllele, Mhc1, Mhc1Name, Zygosity, \
     Mhc2, Mhc2Name, Mhc2GeneName, Mhc2Gene, Mhc2Isoform
 from neofox.model.conversion import ModelValidator
 
@@ -9,35 +9,28 @@ from neofox.model.conversion import ModelValidator
 class TestModelValidator(TestCase):
 
     def test_bad_type_raises_exception(self):
-        transcript = Transcript(
-            gene="BRCA2",
-            identifier=12345,        # this should be a string instead of an integer
-            assembly="hg19")
-        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, transcript)
 
-        neoantigen = Neoantigen(
-            patient_identifier="1234",
-            rna_expression="0.45")              # this should be a float
-        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, neoantigen)
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate,
+                          Neoantigen(
+                              patient_identifier=1234,    # this should be a string instead of an integer
+                              rna_expression=0.45))
 
-        patient = Patient(
-            identifier="1234",
-            is_rna_available="Richtig")            # this should be a boolean
-        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate, patient)
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate,
+                          Neoantigen(
+                              patient_identifier="1234",
+                              rna_expression="0.45"))              # this should be a float)
+
+        self.assertRaises(NeofoxDataValidationException, ModelValidator.validate,
+                          Patient(
+                              identifier="1234",
+                              is_rna_available="Richtig"))            # this should be a boolean)
 
         # TODO: make validation capture this data types errors!
-        transcript = Transcript(
-            gene="BRCA2",
-            identifier=["12345"],    # this should be a string instead of a list of strings
-            assembly="hg19")
-        ModelValidator.validate(transcript)
+        ModelValidator.validate(Neoantigen(
+            patient_identifier=["12345"],    # this should be a string instead of a list of strings
+            rna_expression=0.45))
 
     def test_good_data_does_not_raise_exceptions(self):
-        transcript = Transcript(
-            gene="BRCA2",
-            identifier="12345",
-            assembly="hg19")
-        ModelValidator.validate(transcript)
 
         neoantigen = Neoantigen(
             patient_identifier="1234",
