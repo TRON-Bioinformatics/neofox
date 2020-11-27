@@ -102,7 +102,7 @@ class TcellPrediction:
         mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position-1]
         return [
             AnnotationFactory.build_annotation(value=self._calculate_tcell_predictor_score(
-                gene=neoantigen.transcript.gene, substitution=wild_type_aminoacid + mutated_aminoacid,
+                gene=neoantigen.gene, substitution=wild_type_aminoacid + mutated_aminoacid,
                 epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
                 score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score, threshold=500),
                 name="Tcell_predictor_score_cutoff500nM")

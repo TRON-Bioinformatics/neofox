@@ -18,7 +18,6 @@ Protocol Buffers is employed to model Neofox's input and output data: neoantigen
     - [Neoantigen](#neoantigen.Neoantigen)
     - [NeoantigenAnnotations](#neoantigen.NeoantigenAnnotations)
     - [Patient](#neoantigen.Patient)
-    - [Transcript](#neoantigen.Transcript)
   
     - [Mhc1Name](#neoantigen.Mhc1Name)
     - [Mhc2GeneName](#neoantigen.Mhc2GeneName)
@@ -167,7 +166,7 @@ A neoantigen minimal definition
 | ----- | ---- | ----- | ----------- |
 | identifier | [string](#string) |  | A unique identifier of a neoantigen |
 | patientIdentifier | [string](#string) |  | Patient identifier |
-| transcript | [Transcript](#neoantigen.Transcript) |  | The transcript where the neoepitope was observed |
+| gene | [string](#string) |  | The HGNC gene symbol or gene identifier |
 | mutation | [Mutation](#neoantigen.Mutation) |  | The mutation |
 | clonalityEstimation | [bool](#bool) |  | Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not, there is no quantitive measurement at the moment. |
 | rnaExpression | [float](#float) |  | Expression value of the transcript from RNA data. Range [0, +inf]. |
@@ -212,23 +211,6 @@ The metadata required for analysis for a given patient + its patient identifier
 | tumorType | [string](#string) |  | Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations |
 | mhc1 | [Mhc1](#neoantigen.Mhc1) | repeated | MHC I classic molecules |
 | mhc2 | [Mhc2](#neoantigen.Mhc2) | repeated | MHC II classic molecules |
-
-
-
-
-
-
-<a name="neoantigen.Transcript"></a>
-
-### Transcript
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| identifier | [string](#string) |  | The transcript identifier to which this neoantigen candidate relates to (e.g.: Ensembl transcript id) |
-| assembly | [string](#string) |  | The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38) |
-| gene | [string](#string) |  | The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene |
 
 
 

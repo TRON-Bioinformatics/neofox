@@ -2,20 +2,6 @@ syntax = "proto3";
 
 package neoantigen;
 
-message Transcript {
-	/**
-	The transcript identifier to which this neoantigen candidate relates to (e.g.: Ensembl transcript id)
-	*/
-	string identifier = 1;
-	/**
-	The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38)
-	*/
-	string assembly = 2;
-	/**
-	The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene
-	*/
-	string gene = 3;
-}
 
 message Mutation {
 	/**
@@ -45,9 +31,9 @@ message Neoantigen {
 	*/
 	string patientIdentifier = 2;
 	/**
-	The transcript where the neoepitope was observed
+	The HGNC gene symbol or gene identifier
 	*/
-	Transcript transcript = 3;
+	string gene = 3;
 	/**
 	The mutation
 	*/
