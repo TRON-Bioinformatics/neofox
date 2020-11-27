@@ -52,7 +52,7 @@ class Mhc2Name(betterproto.Enum):
 
 @dataclass
 class Mutation(betterproto.Message):
-    # *The aminoacid position within the neoantigen candidate sequence. 1-based,
+    # *The amino acid position within the neoantigen candidate sequence. 1-based,
     # starting in the N-terminus
     position: List[int] = betterproto.int32_field(1)
     # *Amino acid sequence of the WT corresponding to the neoantigen candidate
@@ -74,15 +74,12 @@ class Neoantigen(betterproto.Message):
     gene: str = betterproto.string_field(3)
     # *The mutation
     mutation: "Mutation" = betterproto.message_field(4)
-    # *Clonality estimation. At the moment this is a boolean indicating whether
-    # there is clonality or not,there is no quantitive measurement at the moment.
-    clonality_estimation: bool = betterproto.bool_field(5)
     # *Expression value of the transcript from RNA data. Range [0, +inf].
-    rna_expression: float = betterproto.float_field(6)
+    rna_expression: float = betterproto.float_field(5)
     # *Variant allele frequency from the DNA. Range [0.0, 1.0]
-    dna_variant_allele_frequency: float = betterproto.float_field(7)
+    dna_variant_allele_frequency: float = betterproto.float_field(6)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
-    rna_variant_allele_frequency: float = betterproto.float_field(8)
+    rna_variant_allele_frequency: float = betterproto.float_field(7)
 
 
 @dataclass
