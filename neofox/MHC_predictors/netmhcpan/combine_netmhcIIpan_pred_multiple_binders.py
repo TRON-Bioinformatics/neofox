@@ -24,7 +24,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
-from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform
+from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation
 from neofox.model.wrappers import AnnotationFactory
 
 
@@ -68,7 +68,7 @@ class BestAndMultipleBinderMhcII:
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
 
-    def run(self, sequence_mut: str, sequence_wt: str, mhc2_alleles_patient: List[Mhc2], mhc2_alleles_available: Set):
+    def run(self, mutation: Mutation, mhc2_alleles_patient: List[Mhc2], mhc2_alleles_available: Set):
         """predicts MHC II epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         # mutation
@@ -78,10 +78,9 @@ class BestAndMultipleBinderMhcII:
         # TODO: migrate the available alleles into the model for alleles
         patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, mhc2_alleles_available)
 
-        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, sequence_mut)
-        position_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_wt=sequence_wt, sequence_mut=sequence_mut)
-        if len(sequence_mut) >= 15:
-            filtered_predictions = netmhc2pan.filter_binding_predictions(position_mutation, predictions)
+        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutation.mutated_xmer)
+        if len(mutation.mutated_xmer) >= 15:
+            filtered_predictions = netmhc2pan.filter_binding_predictions(mutation.position, predictions)
             # multiple binding
             best_predicted_epitopes_per_alelle = self.extract_best_epitope_per_mhc2_alelle(
                 filtered_predictions, mhc2_alleles_patient)
@@ -92,9 +91,9 @@ class BestAndMultipleBinderMhcII:
             self.best_predicted_epitope_affinity = netmhc2pan.select_best_by_affinity(filtered_predictions)
 
         # wt
-        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, sequence_wt)
-        if len(sequence_wt) >= 15:
-            filtered_predictions_wt = netmhc2pan.filter_binding_predictions(position_mutation, predictions)
+        predictions = netmhc2pan.mhcII_prediction(patient_mhc2_isoforms, mutation.wild_type_xmer)
+        if len(mutation.wild_type_xmer) >= 15:
+            filtered_predictions_wt = netmhc2pan.filter_binding_predictions(mutation.position, predictions)
 
             # best prediction
             self.best_predicted_epitope_rank_wt = netmhc2pan.select_best_by_rank(

@@ -18,7 +18,6 @@ Protocol Buffers is employed to model Neofox's input and output data: neoantigen
     - [Neoantigen](#neoantigen.Neoantigen)
     - [NeoantigenAnnotations](#neoantigen.NeoantigenAnnotations)
     - [Patient](#neoantigen.Patient)
-    - [Transcript](#neoantigen.Transcript)
   
     - [Mhc1Name](#neoantigen.Mhc1Name)
     - [Mhc2GeneName](#neoantigen.Mhc2GeneName)
@@ -148,15 +147,9 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| position | [int32](#int32) |  | The aminoacid position within the protein. 1-based, starting in the N-terminus |
-| wildTypeXmer | [string](#string) |  | Sequence of aminoacids for the wild type xmer |
-| wildTypeAminoacid | [string](#string) |  | IUPAC code for the wild type aminoacid in this position |
-| mutatedXmer | [string](#string) |  | Sequence of aminoacids for the mutated xmer |
-| mutatedAminoacid | [string](#string) |  | IUPAC code for the mutated aminoacid in this position |
-| leftFlankingRegion | [string](#string) |  | The left flanking region of variable size in IUPAC codes |
-| sizeLeftFlankingRegion | [int32](#int32) |  | The size of the left flanking region |
-| rightFlankingRegion | [string](#string) |  | The right flanking region of variable size in IUPAC codes |
-| sizeRightFlankingRegion | [int32](#int32) |  | The size of the right flanking region |
+| position | [int32](#int32) | repeated | The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus |
+| wildTypeXmer | [string](#string) |  | Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes) |
+| mutatedXmer | [string](#string) |  | Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes) |
 
 
 
@@ -173,9 +166,8 @@ A neoantigen minimal definition
 | ----- | ---- | ----- | ----------- |
 | identifier | [string](#string) |  | A unique identifier of a neoantigen |
 | patientIdentifier | [string](#string) |  | Patient identifier |
-| transcript | [Transcript](#neoantigen.Transcript) |  | The transcript where the neoepitope was observed |
+| gene | [string](#string) |  | The HGNC gene symbol or gene identifier |
 | mutation | [Mutation](#neoantigen.Mutation) |  | The mutation |
-| clonalityEstimation | [bool](#bool) |  | Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not, there is no quantitive measurement at the moment. |
 | rnaExpression | [float](#float) |  | Expression value of the transcript from RNA data. Range [0, +inf]. |
 | dnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the DNA. Range [0.0, 1.0] |
 | rnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the RNA. Range [0.0, 1.0] |
@@ -215,25 +207,9 @@ The metadata required for analysis for a given patient + its patient identifier
 | ----- | ---- | ----- | ----------- |
 | identifier | [string](#string) |  | Patient identifier |
 | isRnaAvailable | [bool](#bool) |  | Is RNA expression available? |
+| tumorType | [string](#string) |  | Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations |
 | mhc1 | [Mhc1](#neoantigen.Mhc1) | repeated | MHC I classic molecules |
 | mhc2 | [Mhc2](#neoantigen.Mhc2) | repeated | MHC II classic molecules |
-
-
-
-
-
-
-<a name="neoantigen.Transcript"></a>
-
-### Transcript
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| identifier | [string](#string) |  | The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id) |
-| assembly | [string](#string) |  | The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38) |
-| gene | [string](#string) |  | The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene |
 
 
 

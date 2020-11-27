@@ -23,9 +23,8 @@ from unittest import TestCase
 import pkg_resources
 
 from neofox.model.conversion import ModelConverter
-from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO
-
-from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient
+from neofox.tests import TEST_MHC_ONE
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 
 import neofox
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
@@ -52,9 +51,16 @@ class TestNeofox(TestCase):
             NeoFox(neoantigens=[self._get_test_neoantigen()], patient_id=None,
                    patients=[self._get_test_patient()], num_cpus=1, reference_folder=FakeReferenceFolder()).get_annotations()
 
-    def test_validation_captures_bad_neoantigen(self):
+    def test_validation_captures_bad_wild_type_xmer(self):
         neoantigen = self._get_test_neoantigen()
-        neoantigen.mutation.wild_type_aminoacid = "XXX"     # should be a valid aminoacid
+        neoantigen.mutation.wild_type_xmer = "123"     # should be a valid aminoacid
+        with self.assertRaises(NeofoxDataValidationException):
+            NeoFox(neoantigens=[neoantigen], patient_id=None, patients=[self._get_test_patient()], num_cpus=1,
+                   reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
+
+    def test_validation_captures_bad_mutated_xmer(self):
+        neoantigen = self._get_test_neoantigen()
+        neoantigen.mutation.mutated_xmer = "123"     # should be a valid aminoacid
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[neoantigen], patient_id=None, patients=[self._get_test_patient()], num_cpus=1,
                    reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
@@ -120,9 +126,8 @@ class TestNeofox(TestCase):
 
     def _get_test_neoantigen(self):
         return Neoantigen(
-            transcript=Transcript(assembly="hg19", identifier="ENST12345", gene="GENE"),
-            mutation=Mutation(position=123, mutated_aminoacid="I", wild_type_aminoacid="L",
-                              left_flanking_region="AAAAAAA", right_flanking_region="AAAAAAAA"),
+            gene="GENE",
+            mutation=Mutation(mutated_xmer="AAAAAAAIAAAAAAAA", wild_type_xmer="AAAAAAALAAAAAAAA"),
             patient_identifier="12345",
             rna_expression=0.12345
         )
