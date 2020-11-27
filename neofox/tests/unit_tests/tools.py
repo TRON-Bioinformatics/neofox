@@ -21,7 +21,7 @@ import random
 import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
-from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient, MhcAllele
 
 
 def mock_file_existence(existing_files=[], non_existing_files=[]):
@@ -78,11 +78,7 @@ def get_random_neoantigen():
     mutation.mutated_xmer = left_flanking_region + mutated_aminoacid + right_flanking_region
     mutation.wild_type_xmer = left_flanking_region + wild_type_aminoacid + right_flanking_region
     neoantigen.mutation = mutation
-    transcript = Transcript()
-    transcript.gene = "BRCA2"
-    transcript.identifier = "ENST1234567"
-    transcript.assembly = "hg19"
-    neoantigen.gene = transcript
+    neoantigen.gene = "BRCA2"
     return neoantigen
 
 
