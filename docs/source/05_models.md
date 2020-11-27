@@ -147,7 +147,7 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| position | [int32](#int32) | repeated | The aminoacid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus |
+| position | [int32](#int32) | repeated | The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus |
 | wildTypeXmer | [string](#string) |  | Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes) |
 | mutatedXmer | [string](#string) |  | Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes) |
 
@@ -168,7 +168,6 @@ A neoantigen minimal definition
 | patientIdentifier | [string](#string) |  | Patient identifier |
 | gene | [string](#string) |  | The HGNC gene symbol or gene identifier |
 | mutation | [Mutation](#neoantigen.Mutation) |  | The mutation |
-| clonalityEstimation | [bool](#bool) |  | Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not, there is no quantitive measurement at the moment. |
 | rnaExpression | [float](#float) |  | Expression value of the transcript from RNA data. Range [0, +inf]. |
 | dnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the DNA. Range [0.0, 1.0] |
 | rnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the RNA. Range [0.0, 1.0] |
