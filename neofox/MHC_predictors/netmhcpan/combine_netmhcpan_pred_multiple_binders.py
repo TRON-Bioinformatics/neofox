@@ -23,7 +23,7 @@ import scipy.stats as stats
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation, Mhc1, Zygosity
+from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation
 from neofox.model.wrappers import AnnotationFactory
 
 
@@ -115,18 +115,16 @@ class BestAndMultipleBinder:
                 number_binders += 1
         return number_binders if not len(scores) == 0 else None
 
-    def run(self, sequence_wt: str, sequence_mut: str, mhc1_alleles_patient: List[Mhc1], mhc1_alleles_available: Set):
+    def run(self, mutation: Mutation, mhc1_alleles_patient: List[Mhc1], mhc1_alleles_available: Set):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
-
         self._initialise()
         netmhcpan = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
         # print alleles
-        predictions = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, sequence_mut)
-        position_of_mutation = EpitopeHelper.mut_position_xmer_seq(sequence_mut=sequence_mut, sequence_wt=sequence_wt)
+        predictions = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, mutation.mutated_xmer)
         filtered_predictions = netmhcpan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions)
+            position_of_mutation=mutation.position, predictions=predictions)
 
         # multiple binding
         self.epitope_affinities = "/".join([str(epitope.affinity_score) for epitope in filtered_predictions])
@@ -147,9 +145,9 @@ class BestAndMultipleBinder:
         self.phbr_i = self.calculate_phbr_i(predictions=filtered_predictions, mhc1_alleles=mhc1_alleles_patient)
 
         # wt
-        predictions_wt = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, sequence_wt)
+        predictions_wt = netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, mutation.wild_type_xmer)
         filtered_predictions_wt = netmhcpan.filter_binding_predictions(
-            position_of_mutation=position_of_mutation, predictions=predictions_wt)
+            position_of_mutation=mutation.position, predictions=predictions_wt)
 
         # best prediction
         self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
