@@ -91,7 +91,7 @@ class NeoFox:
             neoantigen_transformed = neoantigen
             if not patient.is_rna_available:
                 expression_value = expression_annotator. \
-                    get_gene_expression_annotation(gene_name=neoantigen.transcript.gene, tcga_cohort=patient.tumor_type)
+                    get_gene_expression_annotation(gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type)
             neoantigen_transformed.rna_expression = expression_value
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed
