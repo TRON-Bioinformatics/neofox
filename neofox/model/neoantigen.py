@@ -51,19 +51,6 @@ class Mhc2Name(betterproto.Enum):
 
 
 @dataclass
-class Transcript(betterproto.Message):
-    # *The transcript identifier to which this neoantigen candidate relates to
-    # (e.g.: Ensembl transcript id)
-    identifier: str = betterproto.string_field(1)
-    # *The genome assembly to which the gene definition refers to (e.g.: GRCh37,
-    # GRCh38)
-    assembly: str = betterproto.string_field(2)
-    # *The gene symbol or gene identifier, optional as the transcript
-    # unequivocally identifies a gene
-    gene: str = betterproto.string_field(3)
-
-
-@dataclass
 class Mutation(betterproto.Message):
     # *The aminoacid position within the neoantigen candidate sequence. 1-based,
     # starting in the N-terminus
@@ -83,8 +70,8 @@ class Neoantigen(betterproto.Message):
     identifier: str = betterproto.string_field(1)
     # *Patient identifier
     patient_identifier: str = betterproto.string_field(2)
-    # *The transcript where the neoepitope was observed
-    transcript: "Transcript" = betterproto.message_field(3)
+    # *The HGNC gene symbol or gene identifier
+    gene: str = betterproto.string_field(3)
     # *The mutation
     mutation: "Mutation" = betterproto.message_field(4)
     # *Clonality estimation. At the moment this is a boolean indicating whether
