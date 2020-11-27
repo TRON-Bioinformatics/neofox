@@ -5,7 +5,7 @@ package neoantigen;
 
 message Mutation {
 	/**
-	The aminoacid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
+	The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
 	*/
 	repeated int32 position = 1;
 	/**
@@ -39,22 +39,17 @@ message Neoantigen {
 	*/
 	Mutation mutation = 4;
 	/**
-	Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
-	there is no quantitive measurement at the moment.
-	*/
-	bool clonalityEstimation = 5;
-	/**
 	Expression value of the transcript from RNA data. Range [0, +inf].
 	*/
-	float rnaExpression = 6;
+	float rnaExpression = 5;
 	/**
 	Variant allele frequency from the DNA. Range [0.0, 1.0]
 	*/
-	float dnaVariantAlleleFrequency = 7;
+	float dnaVariantAlleleFrequency = 6;
 	/**
 	Variant allele frequency from the RNA. Range [0.0, 1.0]
 	*/
-	float rnaVariantAlleleFrequency = 8;
+	float rnaVariantAlleleFrequency = 7;
 }
 
 /**
