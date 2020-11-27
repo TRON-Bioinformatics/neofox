@@ -20,6 +20,10 @@ import os
 import unittest
 from unittest import TestCase
 
+import pkg_resources
+
+from neofox.model.conversion import ModelConverter
+from neofox.tests import TEST_MHC_ONE
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 
 import neofox
@@ -91,7 +95,34 @@ class TestNeofox(TestCase):
         neoantigen = self._get_test_neoantigen()
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(neoantigens=[neoantigen, neoantigen], patient_id=None, patients=[self._get_test_patient()],
-                   num_cpus=1, reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
+                   reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
+
+    def test_no_expression_imputation(self):
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_candidate_file.txt")
+        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_patient_file.txt")
+        patients = ModelConverter.parse_patients_file(patients_file)
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        neofox_runner = NeoFox(neoantigens=neoantigens, patients=patients,
+                               reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
+        for neoantigen in neoantigens:
+            for neoantigen_imputed in neofox_runner.neoantigens:
+                if neoantigen.identifier == neoantigen_imputed.identifier:
+                    self.assertEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
+
+    def test_with_expression_imputation(self):
+        input_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_candidate_file_Pty.txt")
+        neoantigens, external_annotations = ModelConverter.parse_candidate_file(input_file)
+        import copy
+        original_neoantigens = copy.deepcopy(neoantigens)
+        patients_file = pkg_resources.resource_filename(neofox.tests.__name__, "resources/test_patient_file.txt")
+        patients = ModelConverter.parse_patients_file(patients_file)
+        neofox_runner = NeoFox(neoantigens=neoantigens, patients=patients,
+                               reference_folder=FakeReferenceFolder(), configuration=FakeDependenciesConfiguration())
+        for neoantigen in original_neoantigens:
+            for neoantigen_imputed in neofox_runner.neoantigens:
+                if neoantigen.identifier == neoantigen_imputed.identifier:
+                    self.assertFalse(neoantigen.rna_expression == neoantigen_imputed.rna_expression)
+
 
     def _get_test_neoantigen(self):
         return Neoantigen(

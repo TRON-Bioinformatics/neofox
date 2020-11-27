@@ -36,9 +36,8 @@ from collections import defaultdict
 import json
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient, NeoantigenAnnotations, Mhc2Name, \
     Mhc2GeneName, Zygosity, Mhc2Gene, Mhc2, Mhc2Isoform, MhcAllele, Mhc1Name, Mhc1, Annotation
-from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, GENES_BY_MOLECULE, \
-    get_mhc2_isoform_name
-from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
+from neofox.model.wrappers import HLA_ALLELE_PATTERN, HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, \
+    GENES_BY_MOLECULE, get_mhc2_isoform_name
 from neofox.exceptions import NeofoxInputParametersException
 
 
