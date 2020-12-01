@@ -28,7 +28,6 @@ from neofox.tests.fake_classes import FakeReferenceFolder
 
 
 class TestReferenceFolder(TestCase):
-
     def setUp(self):
         os.environ[neofox.REFERENCE_FOLDER_ENV] = "."
         self.fake_reference_folder = FakeReferenceFolder()
@@ -49,13 +48,17 @@ class TestReferenceFolder(TestCase):
             ReferenceFolder()
 
     def test_all_resources_exist(self):
-        test_tools.mock_file_existence(existing_files=self.fake_reference_folder.resources)
+        test_tools.mock_file_existence(
+            existing_files=self.fake_reference_folder.resources
+        )
         ReferenceFolder()
 
     def test_one_resource_do_not_exist(self):
         test_tools.mock_file_existence(
-            existing_files=self.fake_reference_folder.resources[1:len(self.fake_reference_folder.resources)],
-            non_existing_files=[self.fake_reference_folder.resources[0]]
+            existing_files=self.fake_reference_folder.resources[
+                1 : len(self.fake_reference_folder.resources)
+            ],
+            non_existing_files=[self.fake_reference_folder.resources[0]],
         )
         with self.assertRaises(NeofoxConfigurationException):
             ReferenceFolder()

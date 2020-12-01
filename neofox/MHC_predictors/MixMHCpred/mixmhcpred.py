@@ -39,7 +39,6 @@ SCORE = "Score_bestAllele"
 
 
 class MixMHCpred:
-
     def __init__(self, runner, configuration):
         """
         :type runner: neofox.helpers.runner.Runner
@@ -50,20 +49,40 @@ class MixMHCpred:
 
     @staticmethod
     def _get_mixmhc_allele_representation(mhc_alleles: List[MhcAllele]):
-        return list(map(
-            lambda x: "{gene}{group}{protein}".format(gene=x.gene, group=x.group, protein=x.protein), mhc_alleles))
+        return list(
+            map(
+                lambda x: "{gene}{group}{protein}".format(
+                    gene=x.gene, group=x.group, protein=x.protein
+                ),
+                mhc_alleles,
+            )
+        )
 
-    def _mixmhcprediction(self, mhc_isoforms: List[Mhc1], potential_ligand_sequences) -> pd.DataFrame:
+    def _mixmhcprediction(
+        self, mhc_isoforms: List[Mhc1], potential_ligand_sequences
+    ) -> pd.DataFrame:
         """
         Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
         """
         outtmp = intermediate_files.create_temp_file(prefix="mixmhcpred", suffix=".txt")
-        tmpfasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
-        self.runner.run_command(cmd=[
-            self.configuration.mix_mhc_pred,
-            "-a", ",".join(self._get_mixmhc_allele_representation([a for m in mhc_isoforms for a in m.alleles])),
-            "-i", tmpfasta,
-            "-o", outtmp])
+        tmpfasta = intermediate_files.create_temp_fasta(
+            potential_ligand_sequences, prefix="tmp_sequence_"
+        )
+        self.runner.run_command(
+            cmd=[
+                self.configuration.mix_mhc_pred,
+                "-a",
+                ",".join(
+                    self._get_mixmhc_allele_representation(
+                        [a for m in mhc_isoforms for a in m.alleles]
+                    )
+                ),
+                "-i",
+                tmpfasta,
+                "-o",
+                outtmp,
+            ]
+        )
         try:
             results = pd.read_csv(outtmp, sep="\t", comment="#")
         except EmptyDataError:
@@ -74,13 +93,14 @@ class MixMHCpred:
         return results
 
     def run(self, mutation: Mutation, mhc: List[Mhc1]):
-        """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR
-        """
+        """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR"""
         best_peptide = None
         best_rank = None
         best_allele = None
         best_score = None
-        potential_ligand_sequences = EpitopeHelper.generate_nmers(mutation=mutation, lengths=[8, 9, 10, 11])
+        potential_ligand_sequences = EpitopeHelper.generate_nmers(
+            mutation=mutation, lengths=[8, 9, 10, 11]
+        )
         if len(potential_ligand_sequences) > 0:
             results = self._mixmhcprediction(mhc, potential_ligand_sequences)
             # get best result by maximum score
@@ -89,17 +109,29 @@ class MixMHCpred:
                 best_peptide = best_result[PEPTIDE].iat[0]
                 best_rank = best_result[RANK].iat[0]
                 # normalize the HLA allele name
-                best_allele = ModelConverter.parse_mhc_allele(best_result[ALLELE].iat[0]).name
+                best_allele = ModelConverter.parse_mhc_allele(
+                    best_result[ALLELE].iat[0]
+                ).name
                 best_score = best_result[SCORE].iat[0]
             except IndexError:
                 logger.info("MixMHCpred returned no best result")
         return best_peptide, best_rank, best_allele, best_score
 
     def get_annotations(self, mutation: Mutation, mhc: List[Mhc1]) -> List[Annotation]:
-        best_peptide, best_rank, best_allele, best_score = self.run(mhc=mhc, mutation=mutation)
+        best_peptide, best_rank, best_allele, best_score = self.run(
+            mhc=mhc, mutation=mutation
+        )
         return [
-            AnnotationFactory.build_annotation(value=best_peptide, name="MixMHCpred_best_peptide"),
-            AnnotationFactory.build_annotation(value=best_score, name="MixMHCpred_best_score"),
-            AnnotationFactory.build_annotation(value=best_rank, name="MixMHCpred_best_rank"),
-            AnnotationFactory.build_annotation(value=best_allele, name="MixMHCpred_best_allele"),
-            ]
+            AnnotationFactory.build_annotation(
+                value=best_peptide, name="MixMHCpred_best_peptide"
+            ),
+            AnnotationFactory.build_annotation(
+                value=best_score, name="MixMHCpred_best_score"
+            ),
+            AnnotationFactory.build_annotation(
+                value=best_rank, name="MixMHCpred_best_rank"
+            ),
+            AnnotationFactory.build_annotation(
+                value=best_allele, name="MixMHCpred_best_allele"
+            ),
+        ]

@@ -43,6 +43,7 @@ class Uniprot(object):
 
     def get_annotations(self, sequence_not_in_uniprot: bool) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(name="mutation_not_found_in_proteome",
-                                               value=sequence_not_in_uniprot)
+            AnnotationFactory.build_annotation(
+                name="mutation_not_found_in_proteome", value=sequence_not_in_uniprot
+            )
         ]

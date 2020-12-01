@@ -27,36 +27,48 @@ from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO
 
 
 class TestNetMhcPanPredictor(TestCase):
-
     def setUp(self):
         references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
         self.available_alleles = references.get_available_alleles()
 
     def test_netmhcpan_epitope_iedb(self):
-        netmhcpan_predictor = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
+        netmhcpan_predictor = NetMhcPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
         # this is an epitope from IEDB of length 9
-        mutated = 'NLVPMVATV'
-        predictions = netmhcpan_predictor.mhc_prediction(
-            sequence=mutated, mhc_alleles=TEST_MHC_ONE, set_available_mhc=self.available_alleles.get_available_mhc_i())
-        self.assertEqual(18, len(predictions))
-
-    def test_netmhcpan_too_small_epitope(self):
-        netmhcpan_predictor = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
-        mutated = 'NLVP'
+        mutated = "NLVPMVATV"
         predictions = netmhcpan_predictor.mhc_prediction(
             sequence=mutated,
             mhc_alleles=TEST_MHC_ONE,
-            set_available_mhc=self.available_alleles.get_available_mhc_i())
+            set_available_mhc=self.available_alleles.get_available_mhc_i(),
+        )
+        self.assertEqual(18, len(predictions))
+
+    def test_netmhcpan_too_small_epitope(self):
+        netmhcpan_predictor = NetMhcPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
+        mutated = "NLVP"
+        predictions = netmhcpan_predictor.mhc_prediction(
+            sequence=mutated,
+            mhc_alleles=TEST_MHC_ONE,
+            set_available_mhc=self.available_alleles.get_available_mhc_i(),
+        )
         self.assertEqual(0, len(predictions))
 
     def test_netmhc2pan_epitope_iedb(self):
-        netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
+        netmhc2pan_predictor = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
         # this is an epitope from IEDB of length 15
-        mutated = 'ENPVVHFFKNIVTPR'
+        mutated = "ENPVVHFFKNIVTPR"
         predictions = netmhc2pan_predictor.mhcII_prediction(
             sequence=mutated,
-            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(TEST_MHC_TWO))
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
+                TEST_MHC_TWO
+            ),
+        )
         self.assertEqual(10, len(predictions))
         for p in predictions:
             self.assertIsNotNone(p.peptide)
@@ -66,10 +78,15 @@ class TestNetMhcPanPredictor(TestCase):
             self.assertIsNotNone(p.rank)
 
     def test_netmhc2pan_too_small_epitope(self):
-        netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
+        netmhc2pan_predictor = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
         # this is an epitope from IEDB of length 15
-        mutated = 'ENPVVH'
+        mutated = "ENPVVH"
         predictions = netmhc2pan_predictor.mhcII_prediction(
             sequence=mutated,
-            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(TEST_MHC_TWO))
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
+                TEST_MHC_TWO
+            ),
+        )
         self.assertEqual(0, len(predictions))

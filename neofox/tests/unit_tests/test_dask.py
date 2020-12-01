@@ -31,12 +31,14 @@ from neofox.model.neoantigen import Neoantigen, Patient
 
 from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
 
-DATA = [(np.random.uniform(1, 100, 1000), np.random.uniform(1, 100, 1000)) for _ in range(10)]
+DATA = [
+    (np.random.uniform(1, 100, 1000), np.random.uniform(1, 100, 1000))
+    for _ in range(10)
+]
 NEOANTIGENS = [(get_random_neoantigen(), get_random_patient()) for _ in range(10)]
 
 
 class TestDask(TestCase):
-
     @staticmethod
     def _lengthy_computation(d1, d2):
         logger.info("Zzzzzzz")
