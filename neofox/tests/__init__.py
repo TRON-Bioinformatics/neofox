@@ -29,8 +29,6 @@ TEST_MHC_ONE = ModelConverter.parse_mhc1_alleles(
     ]
 )
 
-TEST_MHC_ONE_SMALL = ModelConverter.parse_mhc1_alleles(["HLA-A*24:02"])
-
 TEST_MHC_TWO = ModelConverter.parse_mhc2_alleles(
     [
         "HLA-DRB1*04:02",

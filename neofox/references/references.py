@@ -161,14 +161,6 @@ class ReferenceFolder(object):
                 )
             )
 
-    def _check_reference_file(self, folder, filename):
-        if not os.path.exists(os.path.join(folder, filename)):
-            raise NeofoxConfigurationException(
-                "Missing {} file, please review the installation of the references".format(
-                    filename
-                )
-            )
-
     def _log_configuration(self):
         logger.info("Reference genome folder: {}".format(self.reference_genome_folder))
         logger.info("Resources")

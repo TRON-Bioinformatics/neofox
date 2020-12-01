@@ -51,7 +51,6 @@ class TestNeofox(TestCase):
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
         self.patients = ModelConverter.parse_patients_file(patients_file)
-        self.patients_dict = {patient.identifier: patient for patient in self.patients}
         self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(
             input_file
         )

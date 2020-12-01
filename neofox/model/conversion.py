@@ -25,14 +25,10 @@ import stringcase
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 from Bio.Data import IUPACData
 from betterproto import Casing
-
-from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
-
 from neofox.exceptions import NeofoxDataValidationException
 from pandas.io.json import json_normalize
 from logzero import logger
-import difflib
 from collections import defaultdict
 import json
 from neofox.model.neoantigen import (
@@ -62,12 +58,8 @@ from neofox.exceptions import NeofoxInputParametersException
 
 
 EXTERNAL_ANNOTATIONS_NAME = "External"
-
-FIELD_SUBSTITUTION = "substitution"
-
 FIELD_VAF_DNA = "VAF_in_tumor"
 FIELD_VAF_RNA = "VAF_in_RNA"
-FIELD_RNA_EXPRESSION = "VAF_RNA_raw"
 FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
 FIELD_GENE = "gene"
 FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
@@ -297,8 +289,6 @@ class ModelConverter(object):
             )
         neoantigen.mutation = mutation
         neoantigen.gene = candidate_entry.get(FIELD_GENE)
-        # clonality estimation is not present in candidate file at the moment
-        neoantigen.clonality_estimation = None
         # missing RNA expression values are represented as -1
         logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
@@ -310,36 +300,6 @@ class ModelConverter(object):
         neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
         return ModelValidator.validate_neoantigen(neoantigen)
-
-    @staticmethod
-    def conditional_substitute_expression(
-        neoantigens: List[Neoantigen], patients: List[Patient]
-    ) -> List[Neoantigen]:
-        expression_annotator = ExpressionAnnotator()
-        patients = {
-            patient.identifier: ModelValidator.validate_patient(patient)
-            for patient in patients
-        }
-        neoantigens_transformed = []
-        for neoantigen in neoantigens:
-            expression_value = neoantigen.rna_expression
-            patient = patients[neoantigen.patient_identifier]
-            neoantigen_transformed = neoantigen
-            if not patient.is_rna_available:
-                expression_value = expression_annotator.get_gene_expression_annotation(
-                    gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
-                )
-            neoantigen_transformed.rna_expression = expression_value
-            neoantigens_transformed.append(neoantigen_transformed)
-        return neoantigens_transformed
-
-    @staticmethod
-    def _get_matching_region(sequence1: str, sequence2: str, match: int = 0) -> str:
-        """fetches an aligned block within two sequences"""
-        match = difflib.SequenceMatcher(
-            None, sequence1, sequence2
-        ).get_matching_blocks()[match]
-        return sequence1[match.a : match.a + match.size]
 
     @staticmethod
     def parse_mhc1_alleles(alleles: List[str]) -> List[Mhc1]:

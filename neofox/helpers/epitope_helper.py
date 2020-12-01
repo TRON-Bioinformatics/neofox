@@ -123,14 +123,3 @@ class EpitopeHelper(object):
                     cover_list.append(True)
         cover_mutation = any(cover_list)
         return cover_mutation
-
-    @staticmethod
-    def hamming_check_0_or_1(seq1, seq2):
-        """returns number of mismatches between 2 sequences"""
-        errors = 0
-        for i in range(len(seq1)):
-            if seq1[i] != seq2[i]:
-                errors += 1
-                if errors >= 2:
-                    return errors
-        return errors
