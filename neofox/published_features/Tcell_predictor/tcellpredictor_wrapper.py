@@ -123,20 +123,23 @@ class TcellPrediction:
     ) -> List[Annotation]:
         # TODO: this is difficult to extend to more complex mutations (eg: MNVs, indels) as only considers first mutated
         #  position
-        mutation_position = neoantigen.mutation.position[0]
-        wild_type_aminoacid = neoantigen.mutation.wild_type_xmer[
-            mutation_position - 1
-        ]  # it is 1-based
-        mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position - 1]
-        return [
-            AnnotationFactory.build_annotation(
-                value=self._calculate_tcell_predictor_score(
-                    gene=neoantigen.gene,
-                    substitution=wild_type_aminoacid + mutated_aminoacid,
-                    epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
-                    score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
-                    threshold=500,
-                ),
-                name="Tcell_predictor_score_cutoff500nM",
-            )
-        ]
+        annotations = []
+        if netmhcpan.best_ninemer_epitope_by_affinity:
+            mutation_position = neoantigen.mutation.position[0]
+            wild_type_aminoacid = neoantigen.mutation.wild_type_xmer[
+                mutation_position - 1
+            ]  # it is 1-based
+            mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position - 1]
+            annotations = [
+                AnnotationFactory.build_annotation(
+                    value=self._calculate_tcell_predictor_score(
+                        gene=neoantigen.gene,
+                        substitution=wild_type_aminoacid + mutated_aminoacid,
+                        epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
+                        score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
+                        threshold=500,
+                    ),
+                    name="Tcell_predictor_score_cutoff500nM",
+                )
+            ]
+        return annotations
