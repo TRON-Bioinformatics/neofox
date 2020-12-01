@@ -75,6 +75,12 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
         self.mix_mhc_pred = self._check_and_load_binary(
             neofox.NEOFOX_MIXMHCPRED_ENV, optional=True
         )
+        if self.mix_mhc_pred is not None:
+            self.mix_mhc_pred_alleles_list = os.path.join(
+                os.path.dirname(self.mix_mhc_pred), "lib", "allele_list.txt"
+            )
+        else:
+            self.mix_mhc_pred_alleles_list = None
         self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
