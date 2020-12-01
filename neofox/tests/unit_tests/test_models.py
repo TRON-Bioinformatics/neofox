@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import struct
 from unittest import TestCase
 import pkg_resources
 import pandas as pd
@@ -34,7 +33,7 @@ from neofox.model.neoantigen import (
     Mhc2Name,
 )
 from neofox.model.conversion import ModelValidator
-from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
+from neofox.tests.unit_tests.tools import get_random_neoantigen
 
 
 class ModelConverterTest(TestCase):
@@ -139,7 +138,7 @@ class ModelConverterTest(TestCase):
 
         # test external annotations
         self._assert_external_annotations(
-            expected_number_external_annotations=50,
+            expected_number_external_annotations=45,
             external_annotations=external_annotations,
         )
 

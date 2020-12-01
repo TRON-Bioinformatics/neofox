@@ -16,19 +16,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import subprocess
-import sys
 import time
-from multiprocessing.pool import ThreadPool
 from unittest import TestCase
-import dask
-from dask.distributed import Client
 import numpy as np
 from logzero import logger
 from neofox.helpers.intermediate_files import create_temp_file
-
 from neofox.model.neoantigen import Neoantigen, Patient
-
 from neofox.tests.unit_tests.tools import get_random_neoantigen, get_random_patient
 
 DATA = [

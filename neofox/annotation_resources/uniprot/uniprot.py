@@ -39,7 +39,7 @@ class Uniprot(object):
         return open(fasta_proteome).read()
 
     def is_sequence_not_in_uniprot(self, sequence) -> bool:
-        return not sequence in self.uniprot
+        return sequence not in self.uniprot
 
     def get_annotations(self, sequence_not_in_uniprot: bool) -> List[Annotation]:
         return [

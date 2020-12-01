@@ -16,9 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from collections import defaultdict
 from unittest import TestCase
-
 from neofox.published_features.neoantigen_fitness.neoantigen_fitness import (
     NeoantigenFitnessCalculator,
 )

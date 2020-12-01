@@ -16,10 +16,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
 from unittest import TestCase
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.helpers import intermediate_files
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor

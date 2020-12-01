@@ -78,7 +78,7 @@ class EpitopeHelper(object):
             for i, aa in enumerate(mutation):
                 if aa != wild_type[i]:
                     position = i + 1
-        except:
+        except Exception:
             position = None
         return position
 
@@ -103,7 +103,7 @@ class EpitopeHelper(object):
         anchor = None
         try:
             anchor = position_mhci == peptide_length or position_mhci == 2
-        except:
+        except Exception:
             pass
         return anchor
 

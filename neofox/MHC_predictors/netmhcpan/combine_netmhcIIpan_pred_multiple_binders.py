@@ -20,8 +20,6 @@
 from typing import List, Set
 import scipy.stats as stats
 from logzero import logger
-from neofox.helpers.epitope_helper import EpitopeHelper
-
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
 )

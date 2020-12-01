@@ -21,9 +21,6 @@ import os
 import pickle
 import warnings
 from typing import List
-
-from neofox.helpers.epitope_helper import EpitopeHelper
-
 from neofox.helpers import intermediate_files
 from neofox.model.neoantigen import Annotation, Neoantigen
 from neofox.model.wrappers import AnnotationFactory

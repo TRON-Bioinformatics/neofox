@@ -20,7 +20,7 @@
 
 from logzero import logger
 from datetime import datetime
-from distributed import Client, get_client, secede, rejoin
+from distributed import get_client, secede, rejoin
 import neofox
 import time
 from neofox.annotation_resources.uniprot.uniprot import Uniprot

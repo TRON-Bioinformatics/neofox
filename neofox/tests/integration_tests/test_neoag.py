@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from unittest import TestCase, SkipTest
+from unittest import TestCase
 
 from neofox.model.neoantigen import Annotation
 from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator

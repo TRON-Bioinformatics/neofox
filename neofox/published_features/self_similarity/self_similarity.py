@@ -22,9 +22,6 @@ import math
 import os
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
-    BestAndMultipleBinderMhcII,
-)
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
@@ -120,7 +117,7 @@ class SelfSimilarityCalculator:
             improved_binder = (
                 score_wild_type / score_mutation >= THRESHOLD_IMPROVED_BINDER
             )
-        except (ZeroDivisionError, ValueError, TypeError) as e:
+        except (ZeroDivisionError, ValueError, TypeError):
             pass
         return improved_binder
 
@@ -135,7 +132,7 @@ class SelfSimilarityCalculator:
             # TODO: is this logic correct? improved binder is synonymous to conserved binder or opposite?
             if not has_conserved_binder:
                 result = similarity
-        except (ZeroDivisionError, ValueError) as e:
+        except (ZeroDivisionError, ValueError):
             pass
         return result
 

@@ -25,12 +25,13 @@ import stringcase
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 from Bio.Data import IUPACData
 from betterproto import Casing
+
+from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
 
 from neofox.exceptions import NeofoxDataValidationException
 from pandas.io.json import json_normalize
 from logzero import logger
-import re
 import difflib
 from collections import defaultdict
 import json
@@ -87,7 +88,6 @@ class ModelConverter(object):
         data = pd.read_csv(candidate_file, sep="\t")
         # filter out indels
         data = data[~data["substitution"].isna()]
-        ModelConverter._enrich_candidate_table(data)
         neoantigens = []
         external_annotations = []
         for _, candidate_entry in data.iterrows():
@@ -270,7 +270,7 @@ class ModelConverter(object):
         for k, v in flat_dict.items():
             splitted_k = k.split(".")
             if len(splitted_k) > 2:
-                raise NotImplemented(
+                raise NotImplementedError(
                     "Support for dictionaries nested more than one level is not implemented"
                 )
             if len(splitted_k) == 2:
@@ -284,16 +284,8 @@ class ModelConverter(object):
         """parses an row from a candidate file into a model object"""
 
         mutation = Mutation()
-        mutation.wild_type_xmer = (
-            candidate_entry.get("left_flanking_region")
-            + candidate_entry.get("wild_type_aminoacid")
-            + candidate_entry.get("right_flanking_region")
-        )
-        mutation.mutated_xmer = (
-            candidate_entry.get("left_flanking_region")
-            + candidate_entry.get("mutated_aminoacid")
-            + candidate_entry.get("right_flanking_region")
-        )
+        mutation.wild_type_xmer = candidate_entry.get(FIELD_WILD_TYPE_XMER)
+        mutation.mutated_xmer = candidate_entry.get(FIELD_MUTATED_XMER)
 
         neoantigen = Neoantigen()
         neoantigen.patient_identifier = (
@@ -340,27 +332,6 @@ class ModelConverter(object):
             neoantigen_transformed.rna_expression = expression_value
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed
-
-    @staticmethod
-    def _enrich_candidate_table(data: pd.DataFrame):
-        """parses some data from the candidate table into the right fields in the model objects"""
-        data["wild_type_aminoacid"] = data[FIELD_SUBSTITUTION].transform(
-            lambda x: re.search("(\w)\d+\w", x).group(1)
-        )
-        data["mutated_aminoacid"] = data[FIELD_SUBSTITUTION].transform(
-            lambda x: re.search("\w\d+(\w)", x).group(1)
-        )
-        data["position"] = data[FIELD_SUBSTITUTION].transform(
-            lambda x: int(re.search("\w(\d+)\w", x).group(1))
-        )
-        data["left_flanking_region"] = data[
-            [FIELD_MUTATED_XMER, FIELD_WILD_TYPE_XMER]
-        ].apply(lambda x: ModelConverter._get_matching_region(x[0], x[1]), axis=1)
-        data["right_flanking_region"] = data[
-            [FIELD_MUTATED_XMER, FIELD_WILD_TYPE_XMER]
-        ].apply(
-            lambda x: ModelConverter._get_matching_region(x[0], x[1], match=1), axis=1
-        )
 
     @staticmethod
     def _get_matching_region(sequence1: str, sequence2: str, match: int = 0) -> str:

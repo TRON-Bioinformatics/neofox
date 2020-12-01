@@ -82,14 +82,14 @@ class Aligner(object):
             for brecord in blast_records:
                 nid = int(str(brecord.query).split("_")[1])
                 for alignment in brecord.alignments:
-                    if not nid in self.alignments:
+                    if nid not in self.alignments:
                         self.alignments[nid] = {}
                         self.maximum_alignment[nid] = None
                         self.maximum_alignment[nid] = 0
                         maxscore[nid] = 0
                     species = " ".join((str(alignment).split())[1:-3])
                     for hsp in alignment.hsps:
-                        if not "-" in hsp.query and not "-" in hsp.sbjct:
+                        if "-" not in hsp.query and "-" not in hsp.sbjct:
                             al = Aligner.align(hsp.query, hsp.sbjct)
                             if len(al) > 0:
                                 al = al[0]
@@ -97,7 +97,7 @@ class Aligner(object):
                                 if al[2] > maxscore[nid]:
                                     self.maximum_alignment[nid] = species
                                     maxscore[nid] = al[2]
-        except ValueError as e:
+        except ValueError:
             pass
         f.close()
 

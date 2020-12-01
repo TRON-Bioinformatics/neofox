@@ -23,7 +23,6 @@ from unittest import TestCase
 import pkg_resources
 
 from neofox.model.conversion import ModelConverter
-from neofox.tests import TEST_MHC_ONE
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 
 import neofox
