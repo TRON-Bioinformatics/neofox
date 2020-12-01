@@ -24,11 +24,14 @@ import neofox
 
 
 class TestUniprot(TestCase):
-
     @classmethod
     def setUpClass(cls):
-        cls.uniprot = Uniprot(pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/uniprot_human_with_isoforms.first200linesfortesting.fasta"))
+        cls.uniprot = Uniprot(
+            pkg_resources.resource_filename(
+                neofox.tests.__name__,
+                "resources/uniprot_human_with_isoforms.first200linesfortesting.fasta",
+            )
+        )
 
     def test_sequence_not_in_uniprot(self):
         result = self.uniprot.is_sequence_not_in_uniprot("NOT_IN_UNIPROT")
@@ -37,5 +40,3 @@ class TestUniprot(TestCase):
     def test_sequence_in_uniprot(self):
         result = self.uniprot.is_sequence_not_in_uniprot("LLEKVKAHEIAWLHGTI")
         self.assertEqual(False, result)
-
-

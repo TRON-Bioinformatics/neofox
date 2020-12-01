@@ -19,9 +19,17 @@
 import os
 
 import neofox
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
-from neofox.references.references import ReferenceFolder, AvailableAlleles, DependenciesConfiguration
+from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
+    BestAndMultipleBinder,
+)
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
+    PredictedEpitope,
+)
+from neofox.references.references import (
+    ReferenceFolder,
+    AvailableAlleles,
+    DependenciesConfiguration,
+)
 
 
 class FakeReferenceFolder(ReferenceFolder):
@@ -37,24 +45,27 @@ class FakeReferenceFolder(ReferenceFolder):
 
     def get_available_alleles(self):
         return FakeAvailableAlleles(
-            available_mch_i=self.available_mhc_i_alleles, available_mch_ii=self.available_mhc_ii_alleles)
+            available_mch_i=self.available_mhc_i_alleles,
+            available_mch_ii=self.available_mhc_ii_alleles,
+        )
 
 
 class FakeDependenciesConfiguration(DependenciesConfiguration):
-
     def _check_and_load_binary(self, variable_name, optional=False):
         return os.environ.get(variable_name, "some_non_empty_fake_value")
 
 
 class FakeBestAndMultipleBinder(BestAndMultipleBinder):
-
     def __init__(self, mutated_epitope, affinity, wild_type_epitope):
-        self.best_epitope_by_affinity = PredictedEpitope(peptide=mutated_epitope, affinity_score=affinity, pos=1, hla="sdf", rank=1)
-        self.best_wt_epitope_by_affinity = PredictedEpitope(peptide=wild_type_epitope, affinity_score=30, pos=1, hla="sdf", rank=1)
+        self.best_epitope_by_affinity = PredictedEpitope(
+            peptide=mutated_epitope, affinity_score=affinity, pos=1, hla="sdf", rank=1
+        )
+        self.best_wt_epitope_by_affinity = PredictedEpitope(
+            peptide=wild_type_epitope, affinity_score=30, pos=1, hla="sdf", rank=1
+        )
 
 
 class FakeAvailableAlleles(AvailableAlleles):
-
     def __init__(self, available_mch_i=[], available_mch_ii=[]):
         self.available_mhc_i = available_mch_i
         self.available_mhc_ii = available_mch_ii

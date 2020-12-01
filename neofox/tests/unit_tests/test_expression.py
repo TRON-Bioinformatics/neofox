@@ -22,18 +22,19 @@ from unittest import TestCase
 from neofox.published_features.expression import Expression
 
 
-
 class TestExpression(TestCase):
-
     def test_calculate_expression_mutation(self):
-        result = Expression(transcript_expression=12.0, vaf_rna=0.2).get_annotations()[0]
+        result = Expression(transcript_expression=12.0, vaf_rna=0.2).get_annotations()[
+            0
+        ]
         self.assertGreater(result.value, "0.0")
         # no reads for mut
-        result = Expression(transcript_expression=12.0, vaf_rna=0.0).get_annotations()[0]
+        result = Expression(transcript_expression=12.0, vaf_rna=0.0).get_annotations()[
+            0
+        ]
         self.assertEqual(result.value, "0")
         # no reads for mut/wt
         result = Expression(transcript_expression=12.0, vaf_rna=-1).get_annotations()[0]
         self.assertEqual(result.value, "NA")
         result = Expression(transcript_expression=None, vaf_rna=-1).get_annotations()[0]
         self.assertEqual(result.value, "NA")
-
