@@ -52,7 +52,10 @@ class TcellPrediction:
         Tcell predictor works with 9mers only! --> extract for 9mers only
         """
         result = None
-        if str(len(epitope)) == str(9):
+        if gene is None or gene == "":
+            # TODO: fix this issue, this is to avoid requiring a valid gene for T cell predictor
+            gene = "NOGENENAMEDLIKETHIS"
+        if len(epitope) == 9:
             if threshold is None or float(score) < threshold:
                 result = [gene.replace(" ", ""), epitope, substitution]
         return result
