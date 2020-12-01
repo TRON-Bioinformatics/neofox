@@ -540,13 +540,15 @@ class ModelValidator(object):
             # TODO: validate new model with isoforms, genes and alleles
             # checks MHC I
             validated_mhc1s = []
-            for m in patient.mhc1:
-                validated_mhc1s.append(ModelValidator._validate_mhc1(m))
+            if patient.mhc1:
+                for m in patient.mhc1:
+                    validated_mhc1s.append(ModelValidator._validate_mhc1(m))
             patient.mhc1 = validated_mhc1s
             # checks MHC II
             validated_mhc2s = []
-            for m in patient.mhc2:
-                validated_mhc2s.append(ModelValidator._validate_mhc2(m))
+            if patient.mhc2:
+                for m in patient.mhc2:
+                    validated_mhc2s.append(ModelValidator._validate_mhc2(m))
             patient.mhc2 = validated_mhc2s
 
         except AssertionError as e:
