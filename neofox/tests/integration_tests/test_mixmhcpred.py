@@ -19,7 +19,7 @@
 from unittest import TestCase
 from logzero import logger
 
-from neofox.model.conversion import ModelValidator
+from neofox.model.conversion import ModelValidator, ModelConverter
 from neofox.model.neoantigen import Mutation
 
 from neofox.helpers.epitope_helper import EpitopeHelper
@@ -78,6 +78,21 @@ class TestMixMHCPred(TestCase):
         self.assertIsNone(best_score)
         self.assertIsNone(best_rank)
         self.assertIsNone(best_allele)
+
+    def test_mixmhcpred_not_supported_allele(self):
+        """
+        this is a combination of neoepitope and HLA alleles from Balachandran
+        """
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
+        )
+        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
+            mutation=mutation, mhc=ModelConverter.parse_mhc1_alleles(["A0201", "B4402", "C0517", "C0501"])
+        )
+        self.assertEqual('SIYGGLVLI', best_peptide)
+        self.assertEqual(0.15829400000000002, best_score)
+        self.assertEqual(1, best_rank)
+        self.assertEqual('HLA-A*02:01', best_allele)
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15
