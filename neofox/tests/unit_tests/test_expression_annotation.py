@@ -23,20 +23,28 @@ from neofox.expression_imputation.expression_imputation import ExpressionAnnotat
 
 
 class TestExpressionAnnotator(TestCase):
-
     def test_expression_annotation(self):
         expression_annotator = ExpressionAnnotator()
         # test retrieval of cohort index
         self.assertEqual(22, expression_annotator.cohort_indices["SARC"])
         # test gene expression
-        result = expression_annotator.get_gene_expression_annotation(gene_name="ATF2", tcga_cohort="SARC")
+        result = expression_annotator.get_gene_expression_annotation(
+            gene_name="ATF2", tcga_cohort="SARC"
+        )
         self.assertAlmostEqual(5.034754, result, places=5)
-        result = expression_annotator.get_gene_expression_annotation(gene_name="NBPF24", tcga_cohort="KIPAN")
+        result = expression_annotator.get_gene_expression_annotation(
+            gene_name="NBPF24", tcga_cohort="KIPAN"
+        )
         self.assertAlmostEqual(6.839773310, result, places=5)
-        result = expression_annotator.get_gene_expression_annotation(gene_name="blabluplupp", tcga_cohort="KIPAN")
+        result = expression_annotator.get_gene_expression_annotation(
+            gene_name="blabluplupp", tcga_cohort="KIPAN"
+        )
         self.assertIsNone(result)
-        result = expression_annotator.get_gene_expression_annotation(gene_name="NBPF24", tcga_cohort="blabluplupp")
+        result = expression_annotator.get_gene_expression_annotation(
+            gene_name="NBPF24", tcga_cohort="blabluplupp"
+        )
         self.assertIsNone(result)
-        result = expression_annotator.get_gene_expression_annotation(gene_name="blabluplupp", tcga_cohort="blabluplupp")
+        result = expression_annotator.get_gene_expression_annotation(
+            gene_name="blabluplupp", tcga_cohort="blabluplupp"
+        )
         self.assertIsNone(result)
-
