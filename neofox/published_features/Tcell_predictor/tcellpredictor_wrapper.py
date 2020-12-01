@@ -34,9 +34,6 @@ CLASSIFIER_PICKLE = "Classifier.pickle"
 
 class TcellPrediction:
     def __init__(self):
-        self.tcell_prediction_score = None
-        self.tcell_prediction_score_9mer = None
-        # NOTE: avoid pickle warning
         # UserWarning: Trying to unpickle estimator DecisionTreeClassifier from version 0.19.0 when using version
         # 0.20.3. This might lead to breaking code or invalid results. Use at your own risk.
         with warnings.catch_warnings():

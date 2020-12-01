@@ -116,16 +116,3 @@ class Aligner(object):
             lGb = Aligner.logSum(bindingEnergies)
             R = exp(lGb - lZ)
             self.Ri[i] = R
-
-    def getR(self, i):
-        """
-        Return precomputed R value and the highest scoring alignment
-        for a given neoantigen i.
-        """
-        emptyAlignment = [None, None, 0]
-        if i in self.Ri:
-            species = self.maximum_alignment[i]
-            al = self.alignments[i][species]
-            species = str(species).replace(" ", "_")
-            return [self.Ri[i], species, al]
-        return [0.0, None, emptyAlignment]
