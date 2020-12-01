@@ -27,22 +27,25 @@ from neofox.references.references import DependenciesConfiguration
 
 
 class TestDependenciesConfiguration(TestCase):
-
     def setUp(self):
         self.variables = {
-            neofox.NEOFOX_BLASTP_ENV: '/path/to/blastp',
-            neofox.NEOFOX_NETMHC2PAN_ENV: '/path/to/netmhc2pan',
-            neofox.NEOFOX_NETMHCPAN_ENV: '/path/to/netmhcpan',
-            neofox.NEOFOX_RSCRIPT_ENV: '/path/to/rscript',
-            neofox.NEOFOX_MIXMHCPRED_ENV: '/path/to/mixmhcpred',
-            neofox.NEOFOX_MIXMHC2PRED_ENV: '/path/to/mixmhc2pred'
+            neofox.NEOFOX_BLASTP_ENV: "/path/to/blastp",
+            neofox.NEOFOX_NETMHC2PAN_ENV: "/path/to/netmhc2pan",
+            neofox.NEOFOX_NETMHCPAN_ENV: "/path/to/netmhcpan",
+            neofox.NEOFOX_RSCRIPT_ENV: "/path/to/rscript",
+            neofox.NEOFOX_MIXMHCPRED_ENV: "/path/to/mixmhcpred",
+            neofox.NEOFOX_MIXMHC2PRED_ENV: "/path/to/mixmhc2pred",
         }
-        self.non_existing = '/path/to/nothing'
-        self.non_executable = '/path/to/something/not/executable'
-        test_tools.mock_file_existence(existing_files=list(self.variables.values()) + [self.non_executable],
-                                       non_existing_files=[self.non_existing])
-        test_tools.mock_file_is_executable(executable_files=list(self.variables.values()),
-                                           non_executable_files=[self.non_executable])
+        self.non_existing = "/path/to/nothing"
+        self.non_executable = "/path/to/something/not/executable"
+        test_tools.mock_file_existence(
+            existing_files=list(self.variables.values()) + [self.non_executable],
+            non_existing_files=[self.non_existing],
+        )
+        test_tools.mock_file_is_executable(
+            executable_files=list(self.variables.values()),
+            non_executable_files=[self.non_executable],
+        )
 
     def _load_env_variables(self):
         for k, v in self.variables.items():
@@ -80,11 +83,19 @@ class TestDependenciesConfiguration(TestCase):
         self._load_env_variables()
         config = DependenciesConfiguration()
         self.assertTrue(config.blastp == self.variables[neofox.NEOFOX_BLASTP_ENV])
-        self.assertTrue(config.mix_mhc2_pred == self.variables[neofox.NEOFOX_MIXMHC2PRED_ENV])
-        self.assertTrue(config.mix_mhc_pred == self.variables[neofox.NEOFOX_MIXMHCPRED_ENV])
+        self.assertTrue(
+            config.mix_mhc2_pred == self.variables[neofox.NEOFOX_MIXMHC2PRED_ENV]
+        )
+        self.assertTrue(
+            config.mix_mhc_pred == self.variables[neofox.NEOFOX_MIXMHCPRED_ENV]
+        )
         self.assertTrue(config.rscript == self.variables[neofox.NEOFOX_RSCRIPT_ENV])
-        self.assertTrue(config.net_mhc_pan == self.variables[neofox.NEOFOX_NETMHCPAN_ENV])
-        self.assertTrue(config.net_mhc2_pan == self.variables[neofox.NEOFOX_NETMHC2PAN_ENV])
+        self.assertTrue(
+            config.net_mhc_pan == self.variables[neofox.NEOFOX_NETMHCPAN_ENV]
+        )
+        self.assertTrue(
+            config.net_mhc2_pan == self.variables[neofox.NEOFOX_NETMHC2PAN_ENV]
+        )
 
 
 if __name__ == "__main__":

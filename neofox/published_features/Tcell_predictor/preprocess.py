@@ -29,17 +29,49 @@ ACIDS_FEATURES_PICKLE = "amino-acids-features.pickle"
 
 
 class Preprocessor(object):
-
     def __init__(self):
-        self.load_data = sio.loadmat(os.path.join(os.path.abspath(os.path.dirname(__file__)), MAT))
-        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), GENES_EXPRESSION_PICKLE), 'rb') as handle:
+        self.load_data = sio.loadmat(
+            os.path.join(os.path.abspath(os.path.dirname(__file__)), MAT)
+        )
+        with open(
+            os.path.join(
+                os.path.abspath(os.path.dirname(__file__)), GENES_EXPRESSION_PICKLE
+            ),
+            "rb",
+        ) as handle:
             self.dict_expression = pickle.load(handle)
-        with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), ACIDS_FEATURES_PICKLE), 'rb') as handle:
+        with open(
+            os.path.join(
+                os.path.abspath(os.path.dirname(__file__)), ACIDS_FEATURES_PICKLE
+            ),
+            "rb",
+        ) as handle:
             self.dict_data = pickle.load(handle)
 
     @staticmethod
     def seq2bin(seq):
-        aa = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
+        aa = [
+            "A",
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "H",
+            "I",
+            "K",
+            "L",
+            "M",
+            "N",
+            "P",
+            "Q",
+            "R",
+            "S",
+            "T",
+            "V",
+            "W",
+            "Y",
+        ]
         dict_aa = dict((i, j) for j, i in enumerate(aa))
         arr = np.zeros((1, 9 * 20))
         for ii, letter in enumerate(seq):
@@ -99,23 +131,27 @@ class Preprocessor(object):
         return res
 
     def get_properties(self, amino_substitution):
-        return np.asarray([self.get_diffetenet(amino_substitution, self.dict_data['Charge']),
-                           self.get_absolute(amino_substitution, self.dict_data['Size']),
-                           self.get_absolute(amino_substitution, self.dict_data['Hydro']),
-                           self.get_absolute(amino_substitution, self.dict_data['Charge']),
-                           self.get_diffetenet(amino_substitution, self.dict_data['Polar'])])
+        return np.asarray(
+            [
+                self.get_diffetenet(amino_substitution, self.dict_data["Charge"]),
+                self.get_absolute(amino_substitution, self.dict_data["Size"]),
+                self.get_absolute(amino_substitution, self.dict_data["Hydro"]),
+                self.get_absolute(amino_substitution, self.dict_data["Charge"]),
+                self.get_diffetenet(amino_substitution, self.dict_data["Polar"]),
+            ]
+        )
 
     def main(self, f_name):
         lst_data = []
-        with open(f_name, 'r') as f:
+        with open(f_name, "r") as f:
             for row in f:
                 gene_name, sequence, aa_subs = row.split()
                 seq_arr = self.seq2bin(sequence)
                 # tap score
-                tap_mat = self.load_data.get('tap')
+                tap_mat = self.load_data.get("tap")
                 tap_score = tap_mat.dot(seq_arr.T).ravel()
                 # cleavge score
-                clv_mat = self.load_data.get('clv')
+                clv_mat = self.load_data.get("clv")
                 clv_mat = clv_mat[0, 20:200]
                 clv_score = clv_mat.dot(seq_arr.T).ravel()
 
@@ -123,6 +159,8 @@ class Preprocessor(object):
                 # expresion
                 expression_value = self.get_gene_expression(gene_name)
 
-                lst_data.append(np.hstack((expression_value, features_aa, clv_score, tap_score)))
+                lst_data.append(
+                    np.hstack((expression_value, features_aa, clv_score, tap_score))
+                )
                 mat_features = np.asarray(lst_data)
         return mat_features

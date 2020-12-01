@@ -22,19 +22,21 @@ import math
 import os
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
+    BestAndMultipleBinder,
+)
 
 THRESHOLD_IMPROVED_BINDER = 1.2
 
 BETA = 0.11387
-BLOSUM62_FILE_NAME = 'BLOSUM62-2.matrix.txt'
+BLOSUM62_FILE_NAME = "BLOSUM62-2.matrix.txt"
 
 
-class SelfSimilarityCalculator():
-
+class SelfSimilarityCalculator:
     def __init__(self):
-        blosum_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), BLOSUM62_FILE_NAME)
+        blosum_file = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), BLOSUM62_FILE_NAME
+        )
         blosum_dict = self._load_blosum(blosum_file)
         self.k1 = self._compute_k1(blosum_dict)
 
@@ -69,16 +71,18 @@ class SelfSimilarityCalculator():
         return blosum_dict
 
     def compute_k_hat_3(self, x, y):  # K^3
-        return self._compute_k3(x, y) / math.sqrt(self._compute_k3(x, x) * self._compute_k3(y, y))
+        return self._compute_k3(x, y) / math.sqrt(
+            self._compute_k3(x, x) * self._compute_k3(y, y)
+        )
 
     def _compute_k3(self, f, g):
         max_k = min(len(f), len(g))
         s = 0
         for k in range(1, max_k + 1):
             for i in range(len(f) - (k - 1)):
-                u = f[i:i + k]
+                u = f[i : i + k]
                 for j in range(len(g) - (k - 1)):
-                    v = g[j:j + k]
+                    v = g[j : j + k]
                     s += self._compute_k2k(u, v, self.k1)
         return s
 
@@ -110,12 +114,16 @@ class SelfSimilarityCalculator():
         """
         improved_binder = None
         try:
-            improved_binder = score_wild_type / score_mutation >= THRESHOLD_IMPROVED_BINDER
-        except (ZeroDivisionError, ValueError,  TypeError) as e:
+            improved_binder = (
+                score_wild_type / score_mutation >= THRESHOLD_IMPROVED_BINDER
+            )
+        except (ZeroDivisionError, ValueError, TypeError):
             pass
         return improved_binder
 
-    def self_similarity_of_conserved_binder_only(self, has_conserved_binder, similarity):
+    def self_similarity_of_conserved_binder_only(
+        self, has_conserved_binder, similarity
+    ):
         """
         this function returns selfsimilarity for conserved binder but not for improved binder
         """
@@ -124,21 +132,29 @@ class SelfSimilarityCalculator():
             # TODO: is this logic correct? improved binder is synonymous to conserved binder or opposite?
             if not has_conserved_binder:
                 result = similarity
-        except (ZeroDivisionError, ValueError) as e:
+        except (ZeroDivisionError, ValueError):
             pass
         return result
 
-    def get_annnotations(
-            self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
+    def get_annnotations(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
 
-        improved_binding_mhc1 = self.is_improved_binder(score_mutation=netmhcpan.best_epitope_by_rank.rank,
-                                                        score_wild_type=netmhcpan.best_wt_epitope_by_rank.rank)
-        self_similarity_mhc1 = self.get_self_similarity(mutation=netmhcpan.best_epitope_by_rank.peptide,
-                                                        wild_type=netmhcpan.best_wt_epitope_by_rank.peptide)
+        improved_binding_mhc1 = self.is_improved_binder(
+            score_mutation=netmhcpan.best_epitope_by_rank.rank,
+            score_wild_type=netmhcpan.best_wt_epitope_by_rank.rank,
+        )
+        self_similarity_mhc1 = self.get_self_similarity(
+            mutation=netmhcpan.best_epitope_by_rank.peptide,
+            wild_type=netmhcpan.best_wt_epitope_by_rank.peptide,
+        )
         return [
-            AnnotationFactory.build_annotation(value=improved_binding_mhc1, name="Improved_Binder_MHCI"),
+            AnnotationFactory.build_annotation(
+                value=improved_binding_mhc1, name="Improved_Binder_MHCI"
+            ),
             AnnotationFactory.build_annotation(
                 value=self.self_similarity_of_conserved_binder_only(
-                    has_conserved_binder=improved_binding_mhc1, similarity=self_similarity_mhc1),
-                name="Selfsimilarity_MHCI_conserved_binder")
-            ]
+                    has_conserved_binder=improved_binding_mhc1,
+                    similarity=self_similarity_mhc1,
+                ),
+                name="Selfsimilarity_MHCI_conserved_binder",
+            ),
+        ]

@@ -42,7 +42,6 @@ RANK = "%Rank_best"
 
 
 class MixMhc2Pred:
-
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration):
         self.runner = runner
         self.configuration = configuration
@@ -53,26 +52,41 @@ class MixMhc2Pred:
         loads file with available HLA II alllels for MixMHC2pred prediction, returns set
         :return:
         """
-        alleles = pd.read_csv(self.configuration.mix_mhc2_pred_alleles_list, skiprows=1, sep="\t")
+        alleles = pd.read_csv(
+            self.configuration.mix_mhc2_pred_alleles_list, skiprows=1, sep="\t"
+        )
         return list(alleles["AlleleName"])
 
     @staticmethod
     def _combine_dq_dp_alleles(list_alleles: List[str]):
-        """ returns patient HLA-DQ/HLA-DP allele combination that are relevant for MixMHC2pred
-        """
+        """returns patient HLA-DQ/HLA-DP allele combination that are relevant for MixMHC2pred"""
         # TODO: we need to clarify the formation of pairs here AA, BB, AB
         # TODO: what are these triplets?
-        alleles_pairs = ["__".join([allele_1, allele_2]) for allele_1 in list_alleles for allele_2 in list_alleles
-                              if allele_1 != allele_2]
-        alleles_triplets = ["__".join([allele_1, allele_2, allele_3]) for allele_1 in list_alleles
-                                 for allele_2 in list_alleles for allele_3 in list_alleles
-                                 if allele_1 != allele_2 and allele_1 != allele_3 and allele_2 != allele_3]
+        alleles_pairs = [
+            "__".join([allele_1, allele_2])
+            for allele_1 in list_alleles
+            for allele_2 in list_alleles
+            if allele_1 != allele_2
+        ]
+        alleles_triplets = [
+            "__".join([allele_1, allele_2, allele_3])
+            for allele_1 in list_alleles
+            for allele_2 in list_alleles
+            for allele_3 in list_alleles
+            if allele_1 != allele_2 and allele_1 != allele_3 and allele_2 != allele_3
+        ]
         return alleles_pairs + alleles_triplets
 
     @staticmethod
     def _get_mixmhc2_allele_representation(hla_alleles: List[MhcAllele]):
-        return list(map(
-            lambda x: "{gene}_{group}_{protein}".format(gene=x.gene, group=x.group, protein=x.protein), hla_alleles))
+        return list(
+            map(
+                lambda x: "{gene}_{group}_{protein}".format(
+                    gene=x.gene, group=x.group, protein=x.protein
+                ),
+                hla_alleles,
+            )
+        )
 
     def _transform_hla_ii_alleles_for_prediction(self, mhc: List[Mhc2]) -> List[str]:
         """
@@ -85,25 +99,41 @@ class MixMhc2Pred:
         dqb1_alleles = get_alleles_by_gene(mhc, Mhc2GeneName.DQB1)
 
         dp_allele_combinations = self._combine_dq_dp_alleles(
-            self._get_mixmhc2_allele_representation(dpa1_alleles + dpb1_alleles))
+            self._get_mixmhc2_allele_representation(dpa1_alleles + dpb1_alleles)
+        )
         dq_allele_combinations = self._combine_dq_dp_alleles(
-            self._get_mixmhc2_allele_representation(dqa1_alleles + dqb1_alleles))
+            self._get_mixmhc2_allele_representation(dqa1_alleles + dqb1_alleles)
+        )
 
-        return [a for a in
-                self._get_mixmhc2_allele_representation(drb1_alleles) + dq_allele_combinations + dp_allele_combinations
-                if a in self.available_alleles]
+        return [
+            a
+            for a in self._get_mixmhc2_allele_representation(drb1_alleles)
+            + dq_allele_combinations
+            + dp_allele_combinations
+            if a in self.available_alleles
+        ]
 
-    def _mixmhc2prediction(self, mhc_isoforms: List[Mhc2], potential_ligand_sequences) -> pd.DataFrame:
+    def _mixmhc2prediction(
+        self, mhc_isoforms: List[Mhc2], potential_ligand_sequences
+    ) -> pd.DataFrame:
         """
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         """
-        tmpfasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
-        outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
+        tmpfasta = intermediate_files.create_temp_fasta(
+            potential_ligand_sequences, prefix="tmp_sequence_"
+        )
+        outtmp = intermediate_files.create_temp_file(
+            prefix="mixmhc2pred", suffix=".txt"
+        )
         cmd = [
             self.configuration.mix_mhc2_pred,
-            "-a", " ".join(self._transform_hla_ii_alleles_for_prediction(mhc_isoforms)),
-            "-i", tmpfasta,
-            "-o", outtmp]
+            "-a",
+            " ".join(self._transform_hla_ii_alleles_for_prediction(mhc_isoforms)),
+            "-i",
+            tmpfasta,
+            "-o",
+            outtmp,
+        ]
         self.runner.run_command(cmd)
         try:
             results = pd.read_csv(outtmp, sep="\t", comment="#")
@@ -123,9 +153,13 @@ class MixMhc2Pred:
         best_peptide = None
         best_rank = None
         best_allele = None
-        potential_ligand_sequences = EpitopeHelper.generate_nmers(mutation=mutation, lengths=[13, 14, 15, 16, 17, 18])
+        potential_ligand_sequences = EpitopeHelper.generate_nmers(
+            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18]
+        )
         # filter mps shorter < 13aa
-        filtered_sequences = list(filter(lambda x: len(x) >= 13, potential_ligand_sequences))
+        filtered_sequences = list(
+            filter(lambda x: len(x) >= 13, potential_ligand_sequences)
+        )
         if len(filtered_sequences) > 0:
             results = self._mixmhc2prediction(mhc, filtered_sequences)
             # get best result by minimum rank
@@ -133,7 +167,9 @@ class MixMhc2Pred:
             try:
                 best_peptide = best_result[PEPTIDE].iat[0]
                 best_rank = best_result[RANK].iat[0]
-                best_allele = ModelConverter.parse_mhc2_isoform(best_result[ALLELE].iat[0]).name
+                best_allele = ModelConverter.parse_mhc2_isoform(
+                    best_result[ALLELE].iat[0]
+                ).name
             except IndexError:
                 logger.info("MixMHC2pred returned no best result")
         return best_peptide, best_rank, best_allele
@@ -141,7 +177,13 @@ class MixMhc2Pred:
     def get_annotations(self, mhc: List[Mhc2], mutation: Mutation) -> List[Annotation]:
         best_peptide, best_rank, best_allele = self.run(mhc=mhc, mutation=mutation)
         return [
-            AnnotationFactory.build_annotation(value=best_peptide, name="MixMHC2pred_best_peptide"),
-            AnnotationFactory.build_annotation(value=best_rank, name="MixMHC2pred_best_rank"),
-            AnnotationFactory.build_annotation(value=best_allele, name="MixMHC2pred_best_allele"),
+            AnnotationFactory.build_annotation(
+                value=best_peptide, name="MixMHC2pred_best_peptide"
+            ),
+            AnnotationFactory.build_annotation(
+                value=best_rank, name="MixMHC2pred_best_rank"
+            ),
+            AnnotationFactory.build_annotation(
+                value=best_allele, name="MixMHC2pred_best_allele"
+            ),
         ]

@@ -22,7 +22,6 @@ from neofox.model.neoantigen import Mutation
 
 
 class EpitopeHelper(object):
-
     @staticmethod
     def generate_nmers(mutation: Mutation, lengths):
         """
@@ -40,7 +39,9 @@ class EpitopeHelper(object):
                     ends = [s + length for s in starts]
                     for s, e in zip(starts, ends):
                         list_peptides.append(mutation.mutated_xmer[s:e])
-        return list(set([x for x in list_peptides if not x == "" and len(x) >= min(lengths)]))
+        return list(
+            set([x for x in list_peptides if not x == "" and len(x) >= min(lengths)])
+        )
 
     @staticmethod
     def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
@@ -77,7 +78,7 @@ class EpitopeHelper(object):
             for i, aa in enumerate(mutation):
                 if aa != wild_type[i]:
                     position = i + 1
-        except:
+        except Exception:
             position = None
         return position
 
@@ -102,12 +103,14 @@ class EpitopeHelper(object):
         anchor = None
         try:
             anchor = position_mhci == peptide_length or position_mhci == 2
-        except:
+        except Exception:
             pass
         return anchor
 
     @staticmethod
-    def epitope_covers_mutation(position_mutation_list, position_epitope, length_epitope):
+    def epitope_covers_mutation(
+        position_mutation_list, position_epitope, length_epitope
+    ):
         """
         checks if predicted epitope covers mutation
         """
@@ -120,15 +123,3 @@ class EpitopeHelper(object):
                     cover_list.append(True)
         cover_mutation = any(cover_list)
         return cover_mutation
-
-    @staticmethod
-    def hamming_check_0_or_1(seq1, seq2):
-        '''returns number of mismatches between 2 sequences
-        '''
-        errors = 0
-        for i in range(len(seq1)):
-            if seq1[i] != seq2[i]:
-                errors += 1
-                if errors >= 2:
-                    return errors
-        return errors

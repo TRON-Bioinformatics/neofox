@@ -24,24 +24,33 @@ from neofox.model.wrappers import AnnotationFactory
 
 
 class Expression:
-
     def __init__(self, transcript_expression, vaf_rna):
-        self.expression = self._get_expression_annotation(transcript_expression, vaf_rna)
+        self.expression = self._get_expression_annotation(
+            transcript_expression, vaf_rna
+        )
 
     @staticmethod
-    def _get_expression_annotation(transcript_expression: float, vaf_rna: float) -> float:
+    def _get_expression_annotation(
+        transcript_expression: float, vaf_rna: float
+    ) -> float:
         """
         This function calculates the product of VAF in RNA and transcript expression
         to reflect the expression of the mutated transcript
         """
         expression_mut = None
         try:
-            expression_mut = transcript_expression * vaf_rna if vaf_rna is not None and vaf_rna >= 0.0 else None
+            expression_mut = (
+                transcript_expression * vaf_rna
+                if vaf_rna is not None and vaf_rna >= 0.0
+                else None
+            )
         except (TypeError, ValueError):
             pass
         return expression_mut
 
     def get_annotations(self) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(name="Expression_mutated_transcript", value=self.expression),
+            AnnotationFactory.build_annotation(
+                name="Expression_mutated_transcript", value=self.expression
+            ),
         ]

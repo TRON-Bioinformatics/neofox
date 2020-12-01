@@ -23,12 +23,11 @@ from logzero import logger
 import os
 import pandas as pd
 
-EXPRESSION_FILE = 'tcga_exp_summary_modified.tab.gz'
-COHORT_INDEX_FILE = 'tcga_cohort_code.tab'
+EXPRESSION_FILE = "tcga_exp_summary_modified.tab.gz"
+COHORT_INDEX_FILE = "tcga_cohort_code.tab"
 
 
 class ExpressionAnnotator(object):
-
     def __init__(self):
         """
         The expression file is tab separated values file compressed with bgzip and tabix indexed on the gene name and the
@@ -36,14 +35,18 @@ class ExpressionAnnotator(object):
         The header of the file is as follows:
         #Gene_Symbol    TCGA_Cohort     Median_Exp      Exp_90p Exp_10p Study_Name
         """
-        expression_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), EXPRESSION_FILE)
-        cohort_index_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), COHORT_INDEX_FILE)
+        expression_file = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), EXPRESSION_FILE
+        )
+        cohort_index_file = os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), COHORT_INDEX_FILE
+        )
         self.cohort_indices = self._load_tcga_cohort_indices(cohort_index_file)
         self.expression = pysam.TabixFile(expression_file)
 
     def _load_tcga_cohort_indices(self, tcga_cohort_index_file):
-        data = pd.read_csv(tcga_cohort_index_file, sep='\t')
-        dictionary = data.set_index('cohort').T.to_dict('records')[0]
+        data = pd.read_csv(tcga_cohort_index_file, sep="\t")
+        dictionary = data.set_index("cohort").T.to_dict("records")[0]
         return dictionary
 
     def get_gene_expression_annotation(self, gene_name: str, tcga_cohort: str) -> float:
@@ -63,15 +66,24 @@ class ExpressionAnnotator(object):
 
     def _get_gene_expression(self, gene_name: str, cohort_index: int) -> float:
         median_gene_expression = None
-        logger.info("Fetching the gene expression at {}:{}".format(gene_name, cohort_index))
+        logger.info(
+            "Fetching the gene expression at {}:{}".format(gene_name, cohort_index)
+        )
         try:
             results = self.expression.fetch(gene_name, cohort_index - 1, cohort_index)
             median_gene_expression = float(next(results).split("\t")[2])
-            logger.info("Fetched a gene expression of {}".format(median_gene_expression))
+            logger.info(
+                "Fetched a gene expression of {}".format(median_gene_expression)
+            )
         except (StopIteration, ValueError):
             # pysam triggers these two exceptions under different situations when no data is available
-            logger.error("No gene expression entries for {}:{}".format(gene_name, cohort_index))
+            logger.error(
+                "No gene expression entries for {}:{}".format(gene_name, cohort_index)
+            )
         except TypeError:
-            logger.error("Non float entry coming out of gene expression table for {}:{}".
-                         format(gene_name, cohort_index))
+            logger.error(
+                "Non float entry coming out of gene expression table for {}:{}".format(
+                    gene_name, cohort_index
+                )
+            )
         return median_gene_expression
