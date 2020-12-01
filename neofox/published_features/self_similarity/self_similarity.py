@@ -138,23 +138,26 @@ class SelfSimilarityCalculator:
 
     def get_annnotations(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
 
-        improved_binding_mhc1 = self.is_improved_binder(
-            score_mutation=netmhcpan.best_epitope_by_rank.rank,
-            score_wild_type=netmhcpan.best_wt_epitope_by_rank.rank,
-        )
-        self_similarity_mhc1 = self.get_self_similarity(
-            mutation=netmhcpan.best_epitope_by_rank.peptide,
-            wild_type=netmhcpan.best_wt_epitope_by_rank.peptide,
-        )
-        return [
-            AnnotationFactory.build_annotation(
-                value=improved_binding_mhc1, name="Improved_Binder_MHCI"
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.self_similarity_of_conserved_binder_only(
-                    has_conserved_binder=improved_binding_mhc1,
-                    similarity=self_similarity_mhc1,
+        annotations = []
+        if netmhcpan.best_epitope_by_rank and netmhcpan.best_wt_epitope_by_rank:
+            improved_binding_mhc1 = self.is_improved_binder(
+                score_mutation=netmhcpan.best_epitope_by_rank.rank,
+                score_wild_type=netmhcpan.best_wt_epitope_by_rank.rank,
+            )
+            self_similarity_mhc1 = self.get_self_similarity(
+                mutation=netmhcpan.best_epitope_by_rank.peptide,
+                wild_type=netmhcpan.best_wt_epitope_by_rank.peptide,
+            )
+            annotations = [
+                AnnotationFactory.build_annotation(
+                    value=improved_binding_mhc1, name="Improved_Binder_MHCI"
                 ),
-                name="Selfsimilarity_MHCI_conserved_binder",
-            ),
-        ]
+                AnnotationFactory.build_annotation(
+                    value=self.self_similarity_of_conserved_binder_only(
+                        has_conserved_binder=improved_binding_mhc1,
+                        similarity=self_similarity_mhc1,
+                    ),
+                    name="Selfsimilarity_MHCI_conserved_binder",
+                ),
+            ]
+        return annotations
