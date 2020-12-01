@@ -478,14 +478,14 @@ class ModelConverter(object):
         for a in parsed_alleles:
             assert (
                 a.gene in Mhc1Name.__members__
-            ), "Gene from MHC I allele is not valid: {}".format(a.gene)
+            ), "Gene from MHC I allele is not valid {} at {}".format(a.gene, a.full_name)
 
     @staticmethod
     def _validate_mhc2_alleles(parsed_alleles: List[MhcAllele]):
         for a in parsed_alleles:
             assert (
                 a.gene in Mhc2GeneName.__members__
-            ), "Gene from MHC II allele is not valid: {}".format(a.gene)
+            ), "Gene from MHC II allele is not valid {} at {}".format(a.gene, a.full_name)
 
 
 class ModelValidator(object):
