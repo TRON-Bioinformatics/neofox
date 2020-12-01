@@ -115,7 +115,7 @@ class NeoFox:
             expression_value = neoantigen.rna_expression
             patient = self.patients[neoantigen.patient_identifier]
             neoantigen_transformed = neoantigen
-            if not patient.is_rna_available:
+            if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
                 expression_value = expression_annotator.get_gene_expression_annotation(
                     gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
                 )
