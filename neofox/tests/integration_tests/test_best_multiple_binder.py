@@ -33,7 +33,6 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO
-from neofox.helpers.epitope_helper import EpitopeHelper
 
 
 class TestBestMultipleBinder(TestCase):

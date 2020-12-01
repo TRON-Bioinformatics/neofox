@@ -17,21 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-
 import os
 import os.path
 from typing import List
-
 from logzero import logger
-
-from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
-from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
-    BestAndMultipleBinderMhcII,
-)
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )

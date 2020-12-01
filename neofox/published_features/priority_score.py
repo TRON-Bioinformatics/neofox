@@ -25,9 +25,6 @@ from typing import List
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
-    BestAndMultipleBinderMhcII,
-)
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
@@ -40,7 +37,7 @@ class PriorityScore:
         """
         try:
             log_score = 1.0 / (1.0 + math.exp(5.0 * (mhc_score - 2.0)))
-        except (OverflowError, ValueError) as e:
+        except (OverflowError, ValueError):
             log_score = None
         return log_score
 
@@ -74,7 +71,7 @@ class PriorityScore:
                 priority_score = self.mupexi(
                     l_mut, l_wt, mut_not_in_prot, no_mismatch, transcript_expr, vaf_rna
                 )
-        except (TypeError, ValueError) as e:
+        except (TypeError, ValueError):
             pass
         return priority_score
 
