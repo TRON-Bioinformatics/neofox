@@ -239,7 +239,7 @@ class ModelConverter(object):
             df.reset_index(inplace=True)
             del df["index"]
             dfs.append(df)
-        annotations_df = pd.concat(dfs)
+        annotations_df = pd.concat(dfs, sort=True)
         return neoantigens_df.set_index("identifier").merge(
             annotations_df, on="identifier"
         )
@@ -253,7 +253,7 @@ class ModelConverter(object):
             df = pd.DataFrame([a.to_dict() for a in na.annotations])
             df["neoantigen_identifier"] = na.neoantigen_identifier
             dfs.append(df[df.value != "NA"])  # avoid writing NA values
-        return pd.concat(dfs)
+        return pd.concat(dfs, sort=True)
 
     @staticmethod
     def _flat_dict2nested_dict(flat_dict: dict) -> dict:
