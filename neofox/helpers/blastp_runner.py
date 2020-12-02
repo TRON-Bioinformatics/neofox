@@ -68,6 +68,12 @@ class BlastpRunner(object):
     def _parse_blastp_output(self, blastp_output_file, a) -> int:
         aligner = Aligner()
         # set a to 32 for dissimilarity
-        aligner.readAllBlastAlignments(blastp_output_file)
-        aligner.computeR(a=a)
-        return aligner.Ri.get(1, 0)  # NOTE: returns 0 when not present
+        try:
+            aligner.readAllBlastAlignments(blastp_output_file)
+            aligner.computeR(a=a)
+            result = aligner.Ri.get(1, 0)  # NOTE: returns 0 when not present
+        except SystemError:
+            # NOTE: some rarer aminoacids substitutions may not be present in the BLOSUM matrix and thus cause this to
+            # fail, an example is U>Y
+            result = None
+        return result
