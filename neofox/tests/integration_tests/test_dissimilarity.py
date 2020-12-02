@@ -47,6 +47,14 @@ class TestDissimilarity(TestCase):
         ).calculate_dissimilarity(mhc_mutation="DDDDDD", mhc_affinity="DDDDDD")
         self.assertTrue(result < 0.000001)
 
+    def test_missing_aminoacid_change(self):
+        result = DissimilarityCalculator(
+            runner=self.runner,
+            configuration=self.configuration,
+            proteome_db=self.references.proteome_db,
+        ).calculate_dissimilarity(mhc_mutation="DDUDDD", mhc_affinity="DDYDDD")
+        self.assertIsNone(result)
+
     def test_dissimilarity_mhcii(self):
         # peptide with point mutation
         result = DissimilarityCalculator(
