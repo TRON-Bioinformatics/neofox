@@ -185,12 +185,17 @@ class ModelConverter(object):
         for _, row in dataframe.iterrows():
             patient_dict = row.to_dict()
             patient = Patient().from_dict(patient_dict)
-            patient.mhc1 = ModelConverter.parse_mhc1_alleles(
-                patient_dict["mhcIAlleles"]
-            )
-            patient.mhc2 = ModelConverter.parse_mhc2_alleles(
-                patient_dict["mhcIIAlleles"]
-            )
+            mhc_alleles = patient_dict["mhcIAlleles"]
+            # NOTE: during the parsing of empty columns empty lists become a list with one empty string ...
+            if len(mhc_alleles) > 1 or (len(mhc_alleles) == 1 and len(mhc_alleles[0]) > 0):
+                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles)
+            else:
+                patient.mhc1 = None
+            mhc2_alleles = patient_dict["mhcIIAlleles"]
+            if len(mhc2_alleles) > 1 or (len(mhc2_alleles) == 1 and len(mhc2_alleles[0]) > 0):
+                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles)
+            else:
+                patient.mhc2 = None
             patients.append(patient)
         return patients
 

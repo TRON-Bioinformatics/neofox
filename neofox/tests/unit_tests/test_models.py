@@ -283,6 +283,37 @@ class ModelConverterTest(TestCase):
         )
         self.assertTrue(patients[0].is_rna_available)
 
+    def test_patients_csv_file2model_without_mhc1(self):
+        patients_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/patient.Pt29.without_mhc1.csv"
+        )
+        patients = ModelConverter.parse_patients_file(patients_file)
+        self.assertIsNotNone(patients)
+        self.assertIsInstance(patients, list)
+        self.assertTrue(len(patients) == 1)
+        self.assertIsInstance(patients[0], Patient)
+        self.assertEqual(patients[0].identifier, "Pt29")
+        self.assertIsNone(patients[0].mhc1)
+        self.assertEqual(3, len(patients[0].mhc2))
+        self.assertEqual(
+            9, len([a for m in patients[0].mhc2 for g in m.genes for a in g.alleles])
+        )
+        self.assertEqual(patients[0].is_rna_available, True)
+
+    def test_patients_csv_file2model_without_mhc2(self):
+        patients_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/patient.Pt29.without_mhc2.csv"
+        )
+        patients = ModelConverter.parse_patients_file(patients_file)
+        self.assertIsNotNone(patients)
+        self.assertIsInstance(patients, list)
+        self.assertTrue(len(patients) == 1)
+        self.assertIsInstance(patients[0], Patient)
+        self.assertEqual(patients[0].identifier, "Pt29")
+        self.assertIsNotNone(patients[0].mhc1)
+        self.assertIsNone(patients[0].mhc2)
+        self.assertEqual(patients[0].is_rna_available, True)
+
     def test_annotations2short_wide_df(self):
         annotations = [
             NeoantigenAnnotations(
