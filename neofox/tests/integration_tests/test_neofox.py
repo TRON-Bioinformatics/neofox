@@ -152,7 +152,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=2,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
@@ -194,7 +194,7 @@ class TestNeofox(TestCase):
                 num_cpus=4,
             ).get_annotations()
 
-        print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
+        print("Average time: {}".format(timeit.timeit(compute_annotations, number=5)))
 
     @unittest.skip
     def test_neofox_performance_single_neoantigen(self):
@@ -240,6 +240,21 @@ class TestNeofox(TestCase):
         annotations = NeoFox(
             neoantigens=neoantigens,
             patient_id=self.patient_id,
+            patients=patients,
+            num_cpus=1,
+        ).get_annotations()
+        self.assertEqual(5, len(annotations))
+        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
+        self.assertTrue(len(annotations[0].annotations) > 10)
+
+    def test_neofox_without_mhc1(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for p in patients:
+            p.mhc1 = None
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
             patients=patients,
             num_cpus=1,
         ).get_annotations()

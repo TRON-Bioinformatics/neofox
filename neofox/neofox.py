@@ -179,9 +179,11 @@ class NeoFox:
         """
         logger.info("Starting NeoFox annotations...")
         # initialise dask
-        # TODO: number of threads is hard coded. Is there a better value for this?
+        # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
+        # testing determined that using only threads was 10% faster than only CPUs, probably a combination of both
+        # would be the best
         dask_client = Client(
-            processes=True, n_workers=self.num_cpus, threads_per_worker=4
+            processes=True, n_workers=1, threads_per_worker=self.num_cpus
         )
         # feature calculation for each epitope
         futures = []
