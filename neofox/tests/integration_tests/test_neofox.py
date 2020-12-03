@@ -262,11 +262,11 @@ class TestNeofox(TestCase):
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
 
-    def test_neofox_without_mhc1(self):
+    def test_neofox_without_wild_type(self):
         """"""
         neoantigens, patients, patient_id = self._get_test_data()
-        for p in patients:
-            p.mhc1 = None
+        for n in neoantigens:
+            n.mutation.wild_type_xmer = None
         annotations = NeoFox(
             neoantigens=neoantigens,
             patient_id=patient_id,
