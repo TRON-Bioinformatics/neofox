@@ -1,0 +1,7 @@
+NEOFOX_RSCRIPT=/neofox/testing/Rscript
+NEOFOX_BLASTP=/neofox/testing/ncbi-blast-2.10.1+/bin/blastp
+NEOFOX_NETMHCPAN=/neofox/testing/netMHCpan-4.0/netMHCpan
+NEOFOX_NETMHC2PAN=/neofox/testing/netMHCIIpan-3.2/netMHCIIpan
+NEOFOX_MIXMHCPRED=/neofox/testing/MixMHCpred-2.1/MixMHCpred
+NEOFOX_MIXMHC2PRED=/neofox/testing/MixMHC2pred-1.2/MixMHC2pred_unix
+NEOFOX_REFERENCE_FOLDER=/neofox/testing/reference_data
