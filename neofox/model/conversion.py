@@ -208,9 +208,11 @@ class ModelConverter(object):
         external_annotations = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
-            neoantigen = ModelValidator.validate_neoantigen(
-                Neoantigen().from_dict(nested_dict)
-            )
+            neoantigen = Neoantigen().from_dict(nested_dict)
+            if neoantigen.patient_identifier is not None:
+                # NOTE: pandas decides on hiw own the type of this field which is a string for sure
+                neoantigen.patient_identifier = str(neoantigen.patient_identifier)
+            neoantigen = ModelValidator.validate_neoantigen(neoantigen)
             neoantigens.append(neoantigen)
             external_annotation_names = set(
                 [stringcase.snakecase(k) for k in nested_dict.keys()]
