@@ -24,6 +24,7 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
+from dask.distributed import performance_report
 
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
@@ -180,48 +181,47 @@ class NeoFox:
         logger.info("Starting NeoFox annotations...")
         # initialise dask
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
-        # testing determined that using only threads was 10% faster than only CPUs, probably a combination of both
-        # would be the best
-        dask_client = Client(
-            processes=True, n_workers=1, threads_per_worker=self.num_cpus
-        )
-        # feature calculation for each epitope
-        futures = []
-        start = time.time()
-        # NOTE: sets those heavy resources to be used by all workers in the cluster
-        future_tcell_predictor = dask_client.scatter(
-            self.tcell_predictor, broadcast=True
-        )
-        future_self_similarity = dask_client.scatter(
-            self.self_similarity, broadcast=True
-        )
-        future_reference_folder = dask_client.scatter(
-            self.reference_folder, broadcast=True
-        )
-        future_configuration = dask_client.scatter(self.configuration, broadcast=True)
-        for neoantigen in self.neoantigens:
-            patient = self.patients.get(neoantigen.patient_identifier)
-            logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
-            logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            futures.append(
-                dask_client.submit(
-                    NeoFox.annotate_neoantigen,
-                    neoantigen,
-                    patient,
-                    future_reference_folder,
-                    future_configuration,
-                    future_tcell_predictor,
-                    future_self_similarity,
+        with performance_report(filename="neofox-dask-report-{}.html".format(time.strftime("%Y%m%d%H%M%S"))):
+            dask_client = Client(
+                n_workers=self.num_cpus, threads_per_worker=2,
+            )
+            # feature calculation for each epitope
+            futures = []
+            start = time.time()
+            # NOTE: sets those heavy resources to be used by all workers in the cluster
+            future_tcell_predictor = dask_client.scatter(
+                self.tcell_predictor, broadcast=True
+            )
+            future_self_similarity = dask_client.scatter(
+                self.self_similarity, broadcast=True
+            )
+            future_reference_folder = dask_client.scatter(
+                self.reference_folder, broadcast=True
+            )
+            future_configuration = dask_client.scatter(self.configuration, broadcast=True)
+            for neoantigen in self.neoantigens:
+                patient = self.patients.get(neoantigen.patient_identifier)
+                logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
+                logger.debug("Patient: {}".format(patient.to_json(indent=3)))
+                futures.append(
+                    dask_client.submit(
+                        NeoFox.annotate_neoantigen,
+                        neoantigen,
+                        patient,
+                        future_reference_folder,
+                        future_configuration,
+                        future_tcell_predictor,
+                        future_self_similarity,
+                    )
+                )
+            annotations = dask_client.gather(futures)
+            end = time.time()
+            logger.info(
+                "Elapsed time for annotating {} neoantigens {} seconds".format(
+                    len(self.neoantigens), int(end - start)
                 )
             )
-        annotations = dask_client.gather(futures)
-        end = time.time()
-        logger.info(
-            "Elapsed time for annotating {} neoantigens {} seconds".format(
-                len(self.neoantigens), int(end - start)
-            )
-        )
-        dask_client.close()
+            dask_client.close()
         return annotations
 
     @staticmethod
