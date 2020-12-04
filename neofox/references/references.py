@@ -117,16 +117,7 @@ class ReferenceFolder(object):
             self.proteome_db,
             self.uniprot,
             os.path.join(self.iedb, IEDB_FASTA),
-            os.path.join(self.iedb, "{}.phr".format(IEDB_BLAST_PREFIX)),
-            os.path.join(self.iedb, "{}.pin".format(IEDB_BLAST_PREFIX)),
-            os.path.join(self.iedb, "{}.psq".format(IEDB_BLAST_PREFIX)),
             os.path.join(self.proteome_db, HOMO_SAPIENS_FASTA),
-            os.path.join(self.proteome_db, "%s.phr" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.pin" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.pog" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.psd" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.psi" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.psq" % PREFIX_HOMO_SAPIENS),
         ]
         self._check_resources()
         self._log_configuration()
