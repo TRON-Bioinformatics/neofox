@@ -172,7 +172,7 @@ class NeoFox:
                 )
             )
 
-    def get_annotations(self) -> List[NeoantigenAnnotations]:
+    def get_annotations(self, output_folder=None) -> List[NeoantigenAnnotations]:
         """
         Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
@@ -181,10 +181,13 @@ class NeoFox:
         logger.info("Starting NeoFox annotations...")
         # initialise dask
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
-        with performance_report(filename="neofox-dask-report-{}.html".format(time.strftime("%Y%m%d%H%M%S"))):
-            dask_client = Client(
-                n_workers=self.num_cpus, threads_per_worker=2,
-            )
+        report_name = "neofox-dask-report-{}.html".format(time.strftime("%Y%m%d%H%M%S"))
+        if output_folder is not None:
+            report_name = os.path.join(output_folder, report_name)
+        dask_client = Client(
+            n_workers=self.num_cpus, threads_per_worker=2,
+        )
+        with performance_report(filename=report_name):
             # feature calculation for each epitope
             futures = []
             start = time.time()
@@ -221,7 +224,7 @@ class NeoFox:
                     len(self.neoantigens), int(end - start)
                 )
             )
-            dask_client.close()
+        dask_client.close()
         return annotations
 
     @staticmethod
