@@ -31,6 +31,7 @@ from pandas.io.json import json_normalize
 from logzero import logger
 from collections import defaultdict
 import json
+import numpy as np
 from neofox.model.neoantigen import (
     Neoantigen,
     Mutation,
@@ -113,6 +114,10 @@ class ModelConverter(object):
                 "mhcIAlleles": split_comma_separated_list,
                 "mhcIIAlleles": split_comma_separated_list,
             },
+            # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
+            dtype={
+                "identifier": str
+            }
         )
         return ModelConverter.patient_metadata_csv2objects(df)
 
@@ -125,7 +130,20 @@ class ModelConverter(object):
         :return: the parsed CSV into model objects
         """
         return ModelConverter.neoantigens_csv2objects(
-            pd.read_csv(neoantigens_file, sep="\t").fillna("")
+            pd.read_csv(
+                neoantigens_file,
+                sep="\t",
+                # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
+                dtype={
+                    "identifier": str,
+                    "gene": str,
+                    "mutation.wildTypeXmer": str,
+                    "mutation.mutatedXmer": str,
+                    "patientIdentifier": str,
+                    "dnaVariantAlleleFrequency": np.float,
+                    "rnaExpression": np.float,
+                    "rnaVariantAlleleFrequency": np.float
+                }).fillna("")
         )
 
     @staticmethod
@@ -208,11 +226,7 @@ class ModelConverter(object):
         external_annotations = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
-            neoantigen = Neoantigen().from_dict(nested_dict)
-            if neoantigen.patient_identifier is not None:
-                # NOTE: pandas decides on hiw own the type of this field which is a string for sure
-                neoantigen.patient_identifier = str(neoantigen.patient_identifier)
-            neoantigen = ModelValidator.validate_neoantigen(neoantigen)
+            neoantigen = ModelValidator.validate_neoantigen(Neoantigen().from_dict(nested_dict))
             neoantigens.append(neoantigen)
             external_annotation_names = set(
                 [stringcase.snakecase(k) for k in nested_dict.keys()]

@@ -185,6 +185,15 @@ class ModelConverterTest(TestCase):
             external_annotations=external_annotations,
         )
 
+    def test_csv_neoantigens2model(self):
+        neoantigens_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/balachandran_supplementary_table1_neoantigens.tsv"
+        )
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+            neoantigens_file
+        )
+        self.assertEqual(4870, len(neoantigens))
+
     def test_json_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_data_json.json"
@@ -302,17 +311,12 @@ class ModelConverterTest(TestCase):
 
     def test_patients_csv_file2model_without_mhc2(self):
         patients_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/patient.Pt29.without_mhc2.csv"
+            neofox.tests.__name__, "resources/balachandran_supplementary_table1_patients.tsv"
         )
         patients = ModelConverter.parse_patients_file(patients_file)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
-        self.assertTrue(len(patients) == 1)
-        self.assertIsInstance(patients[0], Patient)
-        self.assertEqual(patients[0].identifier, "Pt29")
-        self.assertIsNotNone(patients[0].mhc1)
-        self.assertIsNone(patients[0].mhc2)
-        self.assertEqual(patients[0].is_rna_available, True)
+        self.assertTrue(len(patients) == 58)
 
     def test_annotations2short_wide_df(self):
         annotations = [
