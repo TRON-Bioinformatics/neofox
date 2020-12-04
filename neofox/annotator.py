@@ -315,64 +315,99 @@ class NeoantigenAnnotator:
 
         return self.annotations
 
-    def _compute_long_running_tasks(self, neoantigen, patient):
+    def _compute_long_running_tasks(self, neoantigen, patient, sequential=True):
 
-        dask_client = get_client()
         has_mhc1 = patient.mhc1 is not None and len(patient.mhc1) > 0
         has_mhc2 = patient.mhc2 is not None and len(patient.mhc2) > 0
 
-        netmhcpan_future = None
-        if has_mhc1:
-            netmhcpan_future = dask_client.submit(
-                self.run_netmhcpan,
-                self.runner,
-                self.configuration,
-                self.available_alleles,
-                neoantigen,
-                patient,
-            )
-        netmhc2pan_future = None
-        if has_mhc2:
-            netmhc2pan_future = dask_client.submit(
-                self.run_netmhc2pan,
-                self.runner,
-                self.configuration,
-                self.available_alleles,
-                neoantigen,
-                patient,
-            )
-        mixmhc2pred_future = None
-        if self.configuration.mix_mhc2_pred is not None and has_mhc2:
-            mixmhc2pred_future = dask_client.submit(
-                self.run_mixmhc2pred,
-                self.runner,
-                self.configuration,
-                neoantigen,
-                patient,
-            )
-        mixmhcpred_future = None
-        if self.configuration.mix_mhc_pred is not None and has_mhc1:
-            mixmhcpred_future = dask_client.submit(
-                self.run_mixmhcpred,
-                self.runner,
-                self.configuration,
-                neoantigen,
-                patient,
-            )
-        secede()
         netmhcpan = None
-        if netmhcpan_future:
-            netmhcpan = dask_client.gather([netmhcpan_future])[0]
         netmhc2pan = None
-        if netmhc2pan_future:
-            netmhc2pan = dask_client.gather([netmhc2pan_future])[0]
         mixmhcpred_annotations = None
-        if mixmhcpred_future:
-            mixmhcpred_annotations = dask_client.gather([mixmhcpred_future])[0]
         mixmhc2pred_annotations = None
-        if mixmhc2pred_future:
-            mixmhc2pred_annotations = dask_client.gather([mixmhc2pred_future])[0]
-        rejoin()
+
+        if sequential:
+            if has_mhc1:
+                netmhcpan = self.run_netmhcpan(
+                    self.runner,
+                    self.configuration,
+                    self.available_alleles,
+                    neoantigen,
+                    patient)
+            if has_mhc2:
+                netmhc2pan = self.run_netmhc2pan(
+                    self.runner,
+                    self.configuration,
+                    self.available_alleles,
+                    neoantigen,
+                    patient
+                )
+            if self.configuration.mix_mhc2_pred is not None and has_mhc2:
+                mixmhc2pred_annotations = self.run_mixmhc2pred(
+                    self.runner,
+                    self.configuration,
+                    neoantigen,
+                    patient,
+                )
+            if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                mixmhcpred_annotations = self.run_mixmhcpred(
+                    self.runner,
+                    self.configuration,
+                    neoantigen,
+                    patient,
+                )
+        else:
+            dask_client = get_client()
+
+            netmhcpan_future = None
+            if has_mhc1:
+                netmhcpan_future = dask_client.submit(
+                    self.run_netmhcpan,
+                    self.runner,
+                    self.configuration,
+                    self.available_alleles,
+                    neoantigen,
+                    patient,
+                )
+            netmhc2pan_future = None
+            if has_mhc2:
+                netmhc2pan_future = dask_client.submit(
+                    self.run_netmhc2pan,
+                    self.runner,
+                    self.configuration,
+                    self.available_alleles,
+                    neoantigen,
+                    patient,
+                )
+            mixmhc2pred_future = None
+            if self.configuration.mix_mhc2_pred is not None and has_mhc2:
+                mixmhc2pred_future = dask_client.submit(
+                    self.run_mixmhc2pred,
+                    self.runner,
+                    self.configuration,
+                    neoantigen,
+                    patient,
+                )
+            mixmhcpred_future = None
+            if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                mixmhcpred_future = dask_client.submit(
+                    self.run_mixmhcpred,
+                    self.runner,
+                    self.configuration,
+                    neoantigen,
+                    patient,
+                )
+            secede()
+
+            if netmhcpan_future:
+                netmhcpan = dask_client.gather([netmhcpan_future])[0]
+            if netmhc2pan_future:
+                netmhc2pan = dask_client.gather([netmhc2pan_future])[0]
+            if mixmhcpred_future:
+                mixmhcpred_annotations = dask_client.gather([mixmhcpred_future])[0]
+            if mixmhc2pred_future:
+                mixmhc2pred_annotations = dask_client.gather([mixmhc2pred_future])[0]
+            rejoin()
+
         return mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan
 
     def _initialise_annotations(self, neoantigen):
