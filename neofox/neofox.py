@@ -185,7 +185,7 @@ class NeoFox:
         if output_folder is not None:
             report_name = os.path.join(output_folder, report_name)
         dask_client = Client(
-            n_workers=self.num_cpus, #threads_per_worker=2,
+            n_workers=self.num_cpus, threads_per_worker=1,
         )
         with performance_report(filename=report_name):
             # feature calculation for each epitope
