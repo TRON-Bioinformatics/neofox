@@ -79,7 +79,8 @@ class BestAndMultipleBinderMhcII:
         phbr_ii = None
         for allele_with_score in best_epitope_per_allele_mhc2:
             # add DRB1
-            if allele_with_score.hla.beta_chain.gene == "DRB1":
+            logger.info(allele_with_score.hla)
+            if "DRB1" in allele_with_score.hla:
                 best_epitope_per_allele_mhc2_new.append(allele_with_score)
         if len(best_epitope_per_allele_mhc2_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
