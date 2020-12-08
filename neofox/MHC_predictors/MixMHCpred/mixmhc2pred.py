@@ -167,9 +167,7 @@ class MixMhc2Pred:
             try:
                 best_peptide = best_result[PEPTIDE].iat[0]
                 best_rank = best_result[RANK].iat[0]
-                best_allele = ModelConverter.parse_mhc2_isoform(
-                    best_result[ALLELE].iat[0]
-                ).name
+                best_allele = best_result[ALLELE].iat[0]
             except IndexError:
                 logger.info("MixMHC2pred returned no best result")
         return best_peptide, best_rank, best_allele
