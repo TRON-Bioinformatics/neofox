@@ -198,6 +198,7 @@ class TestBestMultipleBinder(TestCase):
         filtered_predictions = netmhc2pan.filter_binding_predictions(
             position_of_mutation=mutation.position, predictions=predictions
         )
+        logger.info(filtered_predictions)
         best_predicted_epitopes_per_alelle = (
             BestAndMultipleBinderMhcII.extract_best_epitope_per_mhc2_alelle(
                 filtered_predictions, TEST_MHC_TWO

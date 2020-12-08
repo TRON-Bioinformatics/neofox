@@ -53,7 +53,7 @@ class TestMixMHCPred(TestCase):
         self.assertEquals("NLVPMVATV", best_peptide)
         self.assertAlmostEqual(0.306957, best_score, delta=0.00001)
         self.assertEquals(0.6, best_rank)
-        self.assertEquals("HLA-A*02:01", best_allele)
+        self.assertEquals("A0201", best_allele)
 
     def test_mixmhcpred_too_small_epitope(self):
         mutation = ModelValidator._validate_mutation(
@@ -87,12 +87,12 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         )
         best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=ModelConverter.parse_mhc1_alleles(["A0201", "B4402", "C0517", "C0501"])
+            mutation=mutation, mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"])
         )
         self.assertEqual('SIYGGLVLI', best_peptide)
         self.assertEqual(0.15829400000000002, best_score)
         self.assertEqual(1, best_rank)
-        self.assertEqual('HLA-A*02:01', best_allele)
+        self.assertEqual('A0201', best_allele)
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15
@@ -104,7 +104,7 @@ class TestMixMHCPred(TestCase):
         )
         self.assertEquals("NPVVHFFKNIVTPR", best_peptide)
         self.assertEquals(2.16, best_rank)
-        self.assertEquals("HLA-DRB1*08:01", best_allele)
+        self.assertEquals("DRB1_08_01", best_allele)
 
     def test_mixmhcpred2_too_small_epitope(self):
         mutation = ModelValidator._validate_mutation(
