@@ -41,7 +41,8 @@ class AbstractNetMhcPanPredictor:
         if rank = False, Aff(nM) is used
         In case of a tie, it chooses the first peptide in alphabetical order
         """
-        return min(predictions, key=lambda p: (p.rank, p.peptide))
+        return min(predictions, key=lambda p: (p.rank, p.peptide)) \
+            if predictions is not None and len(predictions) > 0 else None
 
     @staticmethod
     def select_best_by_affinity(
@@ -51,7 +52,8 @@ class AbstractNetMhcPanPredictor:
         if rank = False, Aff(nM) is used
         In case of a tie, it chooses the first peptide in alphabetical order
         """
-        return min(predictions, key=lambda p: (p.affinity_score, p.peptide))
+        return min(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
+            if predictions is not None and len(predictions) > 0 else None
 
     def filter_wt_predictions_from_best_mutated(
         self, predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope

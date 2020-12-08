@@ -31,6 +31,7 @@ from pandas.io.json import json_normalize
 from logzero import logger
 from collections import defaultdict
 import json
+import numpy as np
 from neofox.model.neoantigen import (
     Neoantigen,
     Mutation,
@@ -113,6 +114,10 @@ class ModelConverter(object):
                 "mhcIAlleles": split_comma_separated_list,
                 "mhcIIAlleles": split_comma_separated_list,
             },
+            # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
+            dtype={
+                "identifier": str
+            }
         )
         return ModelConverter.patient_metadata_csv2objects(df)
 
@@ -125,7 +130,20 @@ class ModelConverter(object):
         :return: the parsed CSV into model objects
         """
         return ModelConverter.neoantigens_csv2objects(
-            pd.read_csv(neoantigens_file, sep="\t").fillna("")
+            pd.read_csv(
+                neoantigens_file,
+                sep="\t",
+                # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
+                dtype={
+                    "identifier": str,
+                    "gene": str,
+                    "mutation.wildTypeXmer": str,
+                    "mutation.mutatedXmer": str,
+                    "patientIdentifier": str,
+                    "dnaVariantAlleleFrequency": np.float,
+                    "rnaExpression": np.float,
+                    "rnaVariantAlleleFrequency": np.float
+                }).fillna("")
         )
 
     @staticmethod
@@ -185,12 +203,17 @@ class ModelConverter(object):
         for _, row in dataframe.iterrows():
             patient_dict = row.to_dict()
             patient = Patient().from_dict(patient_dict)
-            patient.mhc1 = ModelConverter.parse_mhc1_alleles(
-                patient_dict["mhcIAlleles"]
-            )
-            patient.mhc2 = ModelConverter.parse_mhc2_alleles(
-                patient_dict["mhcIIAlleles"]
-            )
+            mhc_alleles = patient_dict["mhcIAlleles"]
+            # NOTE: during the parsing of empty columns empty lists become a list with one empty string ...
+            if len(mhc_alleles) > 1 or (len(mhc_alleles) == 1 and len(mhc_alleles[0]) > 0):
+                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles)
+            else:
+                patient.mhc1 = None
+            mhc2_alleles = patient_dict["mhcIIAlleles"]
+            if len(mhc2_alleles) > 1 or (len(mhc2_alleles) == 1 and len(mhc2_alleles[0]) > 0):
+                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles)
+            else:
+                patient.mhc2 = None
             patients.append(patient)
         return patients
 
@@ -203,9 +226,7 @@ class ModelConverter(object):
         external_annotations = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
-            neoantigen = ModelValidator.validate_neoantigen(
-                Neoantigen().from_dict(nested_dict)
-            )
+            neoantigen = ModelValidator.validate_neoantigen(Neoantigen().from_dict(nested_dict))
             neoantigens.append(neoantigen)
             external_annotation_names = set(
                 [stringcase.snakecase(k) for k in nested_dict.keys()]
@@ -239,7 +260,7 @@ class ModelConverter(object):
             df.reset_index(inplace=True)
             del df["index"]
             dfs.append(df)
-        annotations_df = pd.concat(dfs)
+        annotations_df = pd.concat(dfs, sort=True)
         return neoantigens_df.set_index("identifier").merge(
             annotations_df, on="identifier"
         )
@@ -253,7 +274,7 @@ class ModelConverter(object):
             df = pd.DataFrame([a.to_dict() for a in na.annotations])
             df["neoantigen_identifier"] = na.neoantigen_identifier
             dfs.append(df[df.value != "NA"])  # avoid writing NA values
-        return pd.concat(dfs)
+        return pd.concat(dfs, sort=True)
 
     @staticmethod
     def _flat_dict2nested_dict(flat_dict: dict) -> dict:
@@ -478,14 +499,14 @@ class ModelConverter(object):
         for a in parsed_alleles:
             assert (
                 a.gene in Mhc1Name.__members__
-            ), "Gene from MHC I allele is not valid: {}".format(a.gene)
+            ), "Gene from MHC I allele is not valid {} at {}".format(a.gene, a.full_name)
 
     @staticmethod
     def _validate_mhc2_alleles(parsed_alleles: List[MhcAllele]):
         for a in parsed_alleles:
             assert (
                 a.gene in Mhc2GeneName.__members__
-            ), "Gene from MHC II allele is not valid: {}".format(a.gene)
+            ), "Gene from MHC II allele is not valid {} at {}".format(a.gene, a.full_name)
 
 
 class ModelValidator(object):
@@ -540,13 +561,15 @@ class ModelValidator(object):
             # TODO: validate new model with isoforms, genes and alleles
             # checks MHC I
             validated_mhc1s = []
-            for m in patient.mhc1:
-                validated_mhc1s.append(ModelValidator._validate_mhc1(m))
+            if patient.mhc1:
+                for m in patient.mhc1:
+                    validated_mhc1s.append(ModelValidator._validate_mhc1(m))
             patient.mhc1 = validated_mhc1s
             # checks MHC II
             validated_mhc2s = []
-            for m in patient.mhc2:
-                validated_mhc2s.append(ModelValidator._validate_mhc2(m))
+            if patient.mhc2:
+                for m in patient.mhc2:
+                    validated_mhc2s.append(ModelValidator._validate_mhc2(m))
             patient.mhc2 = validated_mhc2s
 
         except AssertionError as e:

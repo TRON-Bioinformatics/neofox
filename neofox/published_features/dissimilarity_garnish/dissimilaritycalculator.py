@@ -50,20 +50,24 @@ class DissimilarityCalculator(BlastpRunner):
                 database=os.path.join(self.proteome_db, "homo_sapiens"),
                 a=32,
             )
-            dissimilarity = 1 - similarity
+            if similarity is not None:
+                dissimilarity = 1 - similarity
         return dissimilarity
 
     def get_annotations(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
         """
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
-        return [
-            AnnotationFactory.build_annotation(
-                value=self.calculate_dissimilarity(
-                    mhc_mutation=netmhcpan.best_epitope_by_affinity.peptide,
-                    mhc_affinity=netmhcpan.best_epitope_by_affinity.affinity_score,
-                    filter_binder=True,
-                ),
-                name="Dissimilarity_MHCI_cutoff500nM",
-            ),
-        ]
+        annotations = []
+        if netmhcpan.best_epitope_by_affinity:
+            dissimilarity = self.calculate_dissimilarity(mhc_mutation=netmhcpan.best_epitope_by_affinity.peptide,
+                                                         mhc_affinity=netmhcpan.best_epitope_by_affinity.affinity_score,
+                                                         filter_binder=True, )
+            if dissimilarity is not None:
+                annotations = [
+                    AnnotationFactory.build_annotation(
+                        value=dissimilarity,
+                        name="Dissimilarity_MHCI_cutoff500nM",
+                    ),
+                ]
+        return annotations

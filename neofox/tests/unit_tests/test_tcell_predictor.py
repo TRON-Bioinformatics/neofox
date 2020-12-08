@@ -38,6 +38,32 @@ class TestTCellPredictor(TestCase):
         )
         self.assertEqual(None, result)
 
+    def test_empty_gene(self):
+        result = self.tcell_predictor._calculate_tcell_predictor_score(
+            gene=None,
+            substitution="blaaaah",
+            epitope="BLAHBLAH",
+            score=5,
+            threshold=10,
+        )
+        self.assertEqual(None, result)
+        result = self.tcell_predictor._calculate_tcell_predictor_score(
+            gene="",
+            substitution="blaaaah",
+            epitope="BLAHBLAH",
+            score=5,
+            threshold=10,
+        )
+        self.assertEqual(None, result)
+        result = self.tcell_predictor._calculate_tcell_predictor_score(
+            gene="   ",
+            substitution="blaaaah",
+            epitope="BLAHBLAH",
+            score=5,
+            threshold=10,
+        )
+        self.assertEqual(None, result)
+
     def test_existing_gene_with_too_short_epitope(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
             gene="BRCA2", substitution="C", epitope="CCCCCC", score=5, threshold=10

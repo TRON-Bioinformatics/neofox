@@ -142,18 +142,22 @@ class BestAndMultipleBinderMhcII:
             )
 
             # best prediction
-            self.best_predicted_epitope_rank_wt = netmhc2pan.select_best_by_rank(
-                netmhc2pan.filter_wt_predictions_from_best_mutated(
-                    filtered_predictions_wt, self.best_predicted_epitope_rank
-                )
-            )
-            self.best_predicted_epitope_affinity_wt = (
-                netmhc2pan.select_best_by_affinity(
+            self.best_predicted_epitope_rank_wt = None
+            if self.best_predicted_epitope_rank:
+                self.best_predicted_epitope_rank_wt = netmhc2pan.select_best_by_rank(
                     netmhc2pan.filter_wt_predictions_from_best_mutated(
-                        filtered_predictions_wt, self.best_predicted_epitope_affinity
+                        filtered_predictions_wt, self.best_predicted_epitope_rank
                     )
                 )
-            )
+            self.best_predicted_epitope_affinity_wt = None
+            if self.best_predicted_epitope_affinity:
+                self.best_predicted_epitope_affinity_wt = (
+                    netmhc2pan.select_best_by_affinity(
+                        netmhc2pan.filter_wt_predictions_from_best_mutated(
+                            filtered_predictions_wt, self.best_predicted_epitope_affinity
+                        )
+                    )
+                )
 
     @staticmethod
     def _get_only_available_combinations(allele_combinations, set_available_mhc):
@@ -171,57 +175,64 @@ class BestAndMultipleBinderMhcII:
         return patients_available_alleles
 
     def get_annotations(self) -> List[Annotation]:
-        annotations = [
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_rank.rank,
-                name="Best_rank_MHCII_score",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_rank.peptide,
-                name="Best_rank_MHCII_score_epitope",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_rank.hla.name,
-                name="Best_rank_MHCII_score_allele",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_affinity.affinity_score,
-                name="Best_affinity_MHCII_score",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_affinity.peptide,
-                name="Best_affinity_MHCII_epitope",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_affinity.hla.name,
-                name="Best_affinity_MHCII_allele",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_rank_wt.rank,
-                name="Best_rank_MHCII_score_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_rank_wt.peptide,
-                name="Best_rank_MHCII_score_epitope_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_rank_wt.hla.name,
-                name="Best_rank_MHCII_score_allele_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_affinity_wt.affinity_score,
-                name="Best_affinity_MHCII_score_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_affinity_wt.peptide,
-                name="Best_affinity_MHCII_epitope_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_predicted_epitope_affinity_wt.hla.name,
-                name="Best_affinity_MHCII_allele_WT",
-            ),
-            AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"),
-        ]
+        annotations = []
+        if self.best_predicted_epitope_rank:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank.rank,
+                    name="Best_rank_MHCII_score",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank.peptide,
+                    name="Best_rank_MHCII_score_epitope",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank.hla.name,
+                    name="Best_rank_MHCII_score_allele",
+                )])
+        if self.best_predicted_epitope_affinity:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity.affinity_score,
+                    name="Best_affinity_MHCII_score",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity.peptide,
+                    name="Best_affinity_MHCII_epitope",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity.hla.name,
+                    name="Best_affinity_MHCII_allele",
+                )])
+        if self.best_predicted_epitope_rank_wt:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank_wt.rank,
+                    name="Best_rank_MHCII_score_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank_wt.peptide,
+                    name="Best_rank_MHCII_score_epitope_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank_wt.hla.name,
+                    name="Best_rank_MHCII_score_allele_WT",
+                )])
+        if self.best_predicted_epitope_affinity_wt:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity_wt.affinity_score,
+                    name="Best_affinity_MHCII_score_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity_wt.peptide,
+                    name="Best_affinity_MHCII_epitope_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity_wt.hla.name,
+                    name="Best_affinity_MHCII_allele_WT",
+                )])
+        annotations.append(AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"))
         return annotations
 
     @staticmethod

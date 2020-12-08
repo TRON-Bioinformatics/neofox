@@ -168,7 +168,7 @@ def neofox_cli():
         output_prefix=output_prefix,
         num_cpus=num_cpus,
         configuration_file=config,
-    ).get_annotations()
+    ).get_annotations(output_folder)
     # combine neoantigen feature annotations and potential user-specific external annotation
     neoantigen_annotations = _combine_features_with_external_annotations(
         annotations, external_annotations
