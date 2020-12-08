@@ -81,6 +81,7 @@ class ModelConverter(object):
         data = pd.read_csv(candidate_file, sep="\t")
         # filter out indels
         data = data[~data["substitution"].isna()]
+        data = data[~data["substitution"].str.contains("-")]
         neoantigens = []
         external_annotations = []
         for _, candidate_entry in data.iterrows():

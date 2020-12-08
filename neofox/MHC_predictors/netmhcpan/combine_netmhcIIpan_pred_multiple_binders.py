@@ -187,7 +187,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank.hla.name,
+                    value=self.best_predicted_epitope_rank.hla,
                     name="Best_rank_MHCII_score_allele",
                 )])
         if self.best_predicted_epitope_affinity:
@@ -201,7 +201,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.hla.name,
+                    value=self.best_predicted_epitope_affinity.hla,
                     name="Best_affinity_MHCII_allele",
                 )])
         if self.best_predicted_epitope_rank_wt:
@@ -215,7 +215,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank_wt.hla.name,
+                    value=self.best_predicted_epitope_rank_wt.hla,
                     name="Best_rank_MHCII_score_allele_WT",
                 )])
         if self.best_predicted_epitope_affinity_wt:
@@ -229,7 +229,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity_wt.hla.name,
+                    value=self.best_predicted_epitope_affinity_wt.hla,
                     name="Best_affinity_MHCII_allele_WT",
                 )])
         annotations.append(AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"))
@@ -275,7 +275,7 @@ class BestAndMultipleBinderMhcII:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            allele = p.hla.name
+            allele = p.hla
             epitopes_by_allele.setdefault(allele, []).append(p)
 
         # chooses the best epitope per allele anc considers zygosity
@@ -286,20 +286,20 @@ class BestAndMultipleBinderMhcII:
             best_epitope = epitopes[0]
             num_repetitions = 0
             if (
-                best_epitope.hla.alpha_chain.name in hetero_hemizygous_alleles
-                or best_epitope.hla.beta_chain.name in hetero_hemizygous_alleles
+                best_epitope.hla in hetero_hemizygous_alleles
+                or best_epitope.hla in hetero_hemizygous_alleles
             ):
                 # adds the epitope once if alleles heterozygous
                 num_repetitions = 1
             if (
-                best_epitope.hla.alpha_chain.name in homozygous_alleles
-                or best_epitope.hla.beta_chain.name in homozygous_alleles
+                best_epitope.hla in homozygous_alleles
+                or best_epitope.hla in homozygous_alleles
             ):
                 # adds the epitope twice if one allele is homozygous
                 num_repetitions = 2
             if (
-                best_epitope.hla.alpha_chain.name in homozygous_alleles
-                and best_epitope.hla.beta_chain.name in homozygous_alleles
+                best_epitope.hla in homozygous_alleles
+                and best_epitope.hla in homozygous_alleles
             ):
                 # adds the epitope four times if both alleles are homozygous
                 num_repetitions = 4
