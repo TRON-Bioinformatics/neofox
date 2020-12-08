@@ -205,133 +205,157 @@ class BestAndMultipleBinder:
         )
 
         # best prediction
-        self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
-            netmhcpan.filter_wt_predictions_from_best_mutated(
-                filtered_predictions_wt, self.best_epitope_by_rank
+        self.best_wt_epitope_by_rank = None
+        if self.best_epitope_by_rank:
+            self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+                netmhcpan.filter_wt_predictions_from_best_mutated(
+                    filtered_predictions_wt, self.best_epitope_by_rank
+                )
             )
-        )
-        self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-            netmhcpan.filter_wt_predictions_from_best_mutated(
-                filtered_predictions_wt, self.best_epitope_by_affinity
+        self.best_wt_epitope_by_affinity = None
+        if self.best_epitope_by_affinity:
+            self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+                netmhcpan.filter_wt_predictions_from_best_mutated(
+                    filtered_predictions_wt, self.best_epitope_by_affinity
+                )
             )
-        )
 
         # best predicted epitope of length 9
         ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
-        self.best_ninemer_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
-            netmhcpan.filter_wt_predictions_from_best_mutated(
-                ninemer_predictions_wt, self.best_ninemer_epitope_by_rank
+        self.best_ninemer_wt_epitope_by_rank = None
+        if self.best_ninemer_epitope_by_rank:
+            self.best_ninemer_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+                netmhcpan.filter_wt_predictions_from_best_mutated(
+                    ninemer_predictions_wt, self.best_ninemer_epitope_by_rank
+                )
             )
-        )
-        self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-            netmhcpan.filter_wt_predictions_from_best_mutated(
-                ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity
+        self.best_ninemer_wt_epitope_by_affinity = None
+        if self.best_ninemer_epitope_by_affinity:
+            self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+                netmhcpan.filter_wt_predictions_from_best_mutated(
+                    ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity
+                )
             )
-        )
 
     def get_annotations(self) -> List[Annotation]:
-        annotations = [
-            AnnotationFactory.build_annotation(
-                value=self.best_epitope_by_rank.rank, name="Best_rank_MHCI_score"
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_epitope_by_rank.peptide,
-                name="Best_rank_MHCI_score_epitope",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_epitope_by_rank.hla, name="Best_rank_MHCI_score_allele"
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_epitope_by_affinity.affinity_score,
-                name="Best_affinity_MHCI_score",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_epitope_by_affinity.peptide,
-                name="Best_affinity_MHCI_epitope",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_epitope_by_affinity.hla,
-                name="Best_affinity_MHCI_allele",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_epitope_by_rank.rank,
-                name="Best_rank_MHCI_9mer_score",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_epitope_by_rank.peptide,
-                name="Best_rank_MHCI_9mer_epitope",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_epitope_by_rank.hla,
-                name="Best_rank_MHCI_9mer_allele",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_epitope_by_affinity.affinity_score,
-                name="Best_affinity_MHCI_9mer_score",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_epitope_by_affinity.hla,
-                name="Best_affinity_MHCI_9mer_allele",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_epitope_by_affinity.peptide,
-                name="Best_affinity_MHCI_9mer_epitope",
-            ),
+        annotations = []
+        if self.best_epitope_by_rank:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_rank.rank, name="Best_rank_MHCI_score"
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_rank.peptide,
+                    name="Best_rank_MHCI_score_epitope",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_rank.hla, name="Best_rank_MHCI_score_allele"
+                )])
+        if self.best_epitope_by_affinity:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_affinity.affinity_score,
+                    name="Best_affinity_MHCI_score",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_affinity.peptide,
+                    name="Best_affinity_MHCI_epitope",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_affinity.hla,
+                    name="Best_affinity_MHCI_allele",
+                )])
+        if self.best_ninemer_epitope_by_rank:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_epitope_by_rank.rank,
+                    name="Best_rank_MHCI_9mer_score",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_epitope_by_rank.peptide,
+                    name="Best_rank_MHCI_9mer_epitope",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_epitope_by_rank.hla,
+                    name="Best_rank_MHCI_9mer_allele",
+                )])
+        if self.best_ninemer_epitope_by_affinity:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_epitope_by_affinity.affinity_score,
+                    name="Best_affinity_MHCI_9mer_score",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_epitope_by_affinity.hla,
+                    name="Best_affinity_MHCI_9mer_allele",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_epitope_by_affinity.peptide,
+                    name="Best_affinity_MHCI_9mer_epitope",
+                )])
             # wt
-            AnnotationFactory.build_annotation(
-                value=self.best_wt_epitope_by_affinity.affinity_score,
-                name="Best_affinity_MHCI_score_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_wt_epitope_by_affinity.peptide,
-                name="Best_affinity_MHCI_epitope_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_wt_epitope_by_affinity.hla,
-                name="Best_affinity_MHCI_allele_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_wt_epitope_by_rank.rank, name="Best_rank_MHCI_score_WT"
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_wt_epitope_by_rank.peptide,
-                name="Best_rank_MHCI_score_epitope_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_wt_epitope_by_rank.hla,
-                name="Best_rank_MHCI_score_allele_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_wt_epitope_by_rank.rank,
-                name="Best_rank_MHCI_9mer_score_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_wt_epitope_by_rank.peptide,
-                name="Best_rank_MHCI_9mer_epitope_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_wt_epitope_by_rank.hla,
-                name="Best_rank_MHCI_9mer_allele_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_wt_epitope_by_affinity.affinity_score,
-                name="Best_affinity_MHCI_9mer_score_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_wt_epitope_by_affinity.hla,
-                name="Best_affinity_MHCI_9mer_allele_WT",
-            ),
-            AnnotationFactory.build_annotation(
-                value=self.best_ninemer_wt_epitope_by_affinity.peptide,
-                name="Best_affinity_MHCI_9mer_epitope_WT",
-            ),
+        if self.best_wt_epitope_by_affinity:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_wt_epitope_by_affinity.affinity_score,
+                    name="Best_affinity_MHCI_score_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_wt_epitope_by_affinity.peptide,
+                    name="Best_affinity_MHCI_epitope_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_wt_epitope_by_affinity.hla,
+                    name="Best_affinity_MHCI_allele_WT",
+                )])
+        if self.best_wt_epitope_by_rank:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_wt_epitope_by_rank.rank, name="Best_rank_MHCI_score_WT"
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_wt_epitope_by_rank.peptide,
+                    name="Best_rank_MHCI_score_epitope_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_wt_epitope_by_rank.hla,
+                    name="Best_rank_MHCI_score_allele_WT",
+                )])
+        if self.best_ninemer_wt_epitope_by_rank:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_wt_epitope_by_rank.rank,
+                    name="Best_rank_MHCI_9mer_score_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_wt_epitope_by_rank.peptide,
+                    name="Best_rank_MHCI_9mer_epitope_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_wt_epitope_by_rank.hla,
+                    name="Best_rank_MHCI_9mer_allele_WT",
+                )])
+        if self.best_ninemer_wt_epitope_by_affinity:
+            annotations.extend([
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_wt_epitope_by_affinity.affinity_score,
+                    name="Best_affinity_MHCI_9mer_score_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_wt_epitope_by_affinity.hla,
+                    name="Best_affinity_MHCI_9mer_allele_WT",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_ninemer_wt_epitope_by_affinity.peptide,
+                    name="Best_affinity_MHCI_9mer_epitope_WT",
+                )])
+        annotations.extend([
             # generator rate
             AnnotationFactory.build_annotation(
                 value=self.generator_rate, name="Generator_rate"
             ),
-            AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR-I"),
-        ]
-
+            AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR-I")
+        ])
         annotations.extend(self._get_positions_and_mutation_in_anchor())
         return annotations
 
@@ -339,20 +363,23 @@ class BestAndMultipleBinder:
         """
         returns if mutation is in anchor position for best affinity epitope over all lengths and best 9mer affinity
         """
-        position_9mer = EpitopeHelper.position_of_mutation_epitope(
-            wild_type=self.best_ninemer_wt_epitope_by_affinity.peptide,
-            mutation=self.best_ninemer_epitope_by_affinity.peptide,
-        )
-        mutation_in_anchor_9mer = EpitopeHelper.position_in_anchor_position(
-            position_mhci=position_9mer,
-            peptide_length=len(self.best_ninemer_epitope_by_affinity.peptide),
-        )
-        return [
-            AnnotationFactory.build_annotation(
-                value=position_9mer, name="Best_affinity_MHCI_9mer_position_mutation"
-            ),
-            AnnotationFactory.build_annotation(
-                value=mutation_in_anchor_9mer,
-                name="Best_affinity_MHCI_9mer_anchor_mutated",
-            ),
-        ]
+        annotations = []
+        if self.best_ninemer_wt_epitope_by_affinity:
+            position_9mer = EpitopeHelper.position_of_mutation_epitope(
+                wild_type=self.best_ninemer_wt_epitope_by_affinity.peptide,
+                mutation=self.best_ninemer_epitope_by_affinity.peptide,
+            )
+            mutation_in_anchor_9mer = EpitopeHelper.position_in_anchor_position(
+                position_mhci=position_9mer,
+                peptide_length=len(self.best_ninemer_epitope_by_affinity.peptide),
+            )
+            annotations = [
+                AnnotationFactory.build_annotation(
+                    value=position_9mer, name="Best_affinity_MHCI_9mer_position_mutation"
+                ),
+                AnnotationFactory.build_annotation(
+                    value=mutation_in_anchor_9mer,
+                    name="Best_affinity_MHCI_9mer_anchor_mutated",
+                ),
+            ]
+        return annotations

@@ -159,14 +159,17 @@ class IEDBimmunogenicity:
         self, netmhcpan: BestAndMultipleBinder, mhci_allele
     ) -> List[Annotation]:
         """returns IEDB immunogenicity for MHC I (based on affinity) and MHC II (based on rank)"""
-        return [
-            AnnotationFactory.build_annotation(
-                value=self.calculate_iedb_immunogenicity(
-                    epitope=netmhcpan.best_epitope_by_affinity.peptide,
-                    mhc_allele=mhci_allele,
-                    mhc_score=netmhcpan.best_epitope_by_affinity.affinity_score,
-                    affin_filtering=True,
+        annotations = []
+        if netmhcpan.best_epitope_by_affinity:
+            annotations = [
+                AnnotationFactory.build_annotation(
+                    value=self.calculate_iedb_immunogenicity(
+                        epitope=netmhcpan.best_epitope_by_affinity.peptide,
+                        mhc_allele=mhci_allele,
+                        mhc_score=netmhcpan.best_epitope_by_affinity.affinity_score,
+                        affin_filtering=True,
+                    ),
+                    name="IEDB_Immunogenicity_MHCI_cutoff500nM",
                 ),
-                name="IEDB_Immunogenicity_MHCI_cutoff500nM",
-            ),
-        ]
+            ]
+        return annotations

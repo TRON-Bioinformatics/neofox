@@ -53,6 +53,13 @@ class TestNeoantigenFitness(TestCase):
         )
         self.assertEqual(0, result)
 
+    def test_pathogen_similarity_non_existing_aminoacid(self):
+        # tests something with a rare aminoacid
+        result = self.neoantigen_fitness_calculator.get_pathogen_similarity(
+            mutation="DDDDDUDDDD"
+        )
+        self.assertEqual(0, result)
+
     def test_amplitude_mhc(self):
         self.assertEqual(
             1.0,

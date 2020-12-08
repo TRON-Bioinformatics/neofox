@@ -147,17 +147,12 @@ class TestNeofox(TestCase):
 
     def test_neofox_model_input(self):
         """"""
-        input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_model_file.txt"
-        )
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            input_file
-        )
+        neoantigens, patients, patient_id = self._get_test_data()
         annotations = NeoFox(
             neoantigens=neoantigens,
-            patient_id=self.patient_id,
-            patients=self.patients,
-            num_cpus=1,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=2,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
@@ -199,7 +194,7 @@ class TestNeofox(TestCase):
                 num_cpus=4,
             ).get_annotations()
 
-        print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
+        print("Average time: {}".format(timeit.timeit(compute_annotations, number=5)))
 
     @unittest.skip
     def test_neofox_performance_single_neoantigen(self):
@@ -220,20 +215,15 @@ class TestNeofox(TestCase):
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
     def test_neofox_with_config(self):
-        input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_model_file.txt"
-        )
+        neoantigens, patients, patient_id = self._get_test_data()
         config_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/neofox_config.txt"
-        )
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            input_file
         )
         try:
             NeoFox(
                 neoantigens=neoantigens,
-                patient_id=self.patient_id,
-                patients=self.patients,
+                patient_id=patient_id,
+                patients=patients,
                 num_cpus=1,
                 configuration_file=config_file,
             )
@@ -241,6 +231,50 @@ class TestNeofox(TestCase):
             assert "/neofox/testing/reference_data" in str(e)
             return
         assert False
+
+    def test_neofox_without_mhc2(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for p in patients:
+            p.mhc2 = None
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=self.patient_id,
+            patients=patients,
+            num_cpus=1,
+        ).get_annotations()
+        self.assertEqual(5, len(annotations))
+        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
+        self.assertTrue(len(annotations[0].annotations) > 10)
+
+    def test_neofox_without_mhc1(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for p in patients:
+            p.mhc1 = None
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        ).get_annotations()
+        self.assertEqual(5, len(annotations))
+        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
+        self.assertTrue(len(annotations[0].annotations) > 10)
+
+    def _get_test_data(self):
+        input_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_model_file.txt"
+        )
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+            input_file
+        )
+        patients_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_patient_file.txt"
+        )
+        patients = ModelConverter.parse_patients_file(patients_file)
+        patient_id = "Pt29"
+        return neoantigens, patients, patient_id
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(

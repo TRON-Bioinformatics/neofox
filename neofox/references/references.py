@@ -75,6 +75,12 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
         self.mix_mhc_pred = self._check_and_load_binary(
             neofox.NEOFOX_MIXMHCPRED_ENV, optional=True
         )
+        if self.mix_mhc_pred is not None:
+            self.mix_mhc_pred_alleles_list = os.path.join(
+                os.path.dirname(self.mix_mhc_pred), "lib", "allele_list.txt"
+            )
+        else:
+            self.mix_mhc_pred_alleles_list = None
         self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
@@ -111,16 +117,7 @@ class ReferenceFolder(object):
             self.proteome_db,
             self.uniprot,
             os.path.join(self.iedb, IEDB_FASTA),
-            os.path.join(self.iedb, "{}.phr".format(IEDB_BLAST_PREFIX)),
-            os.path.join(self.iedb, "{}.pin".format(IEDB_BLAST_PREFIX)),
-            os.path.join(self.iedb, "{}.psq".format(IEDB_BLAST_PREFIX)),
             os.path.join(self.proteome_db, HOMO_SAPIENS_FASTA),
-            os.path.join(self.proteome_db, "%s.phr" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.pin" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.pog" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.psd" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.psi" % PREFIX_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, "%s.psq" % PREFIX_HOMO_SAPIENS),
         ]
         self._check_resources()
         self._log_configuration()

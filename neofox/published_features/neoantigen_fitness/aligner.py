@@ -91,7 +91,7 @@ class Aligner(object):
                     for hsp in alignment.hsps:
                         if "-" not in hsp.query and "-" not in hsp.sbjct:
                             al = Aligner.align(hsp.query, hsp.sbjct)
-                            if len(al) > 0:
+                            if al and len(al) > 0:
                                 al = al[0]
                                 self.alignments[nid][species] = al
                                 if al[2] > maxscore[nid]:

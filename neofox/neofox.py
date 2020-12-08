@@ -24,6 +24,7 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
+from dask.distributed import performance_report
 
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
@@ -115,7 +116,7 @@ class NeoFox:
             expression_value = neoantigen.rna_expression
             patient = self.patients[neoantigen.patient_identifier]
             neoantigen_transformed = neoantigen
-            if not patient.is_rna_available:
+            if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
                 expression_value = expression_annotator.get_gene_expression_annotation(
                     gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
                 )
@@ -171,7 +172,7 @@ class NeoFox:
                 )
             )
 
-    def get_annotations(self) -> List[NeoantigenAnnotations]:
+    def get_annotations(self, output_folder=None) -> List[NeoantigenAnnotations]:
         """
         Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
@@ -179,46 +180,50 @@ class NeoFox:
         """
         logger.info("Starting NeoFox annotations...")
         # initialise dask
-        # TODO: number of threads is hard coded. Is there a better value for this?
+        # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
+        report_name = "neofox-dask-report-{}.html".format(time.strftime("%Y%m%d%H%M%S"))
+        if output_folder is not None:
+            report_name = os.path.join(output_folder, report_name)
         dask_client = Client(
-            processes=True, n_workers=self.num_cpus, threads_per_worker=4
+            n_workers=self.num_cpus, threads_per_worker=1,
         )
-        # feature calculation for each epitope
-        futures = []
-        start = time.time()
-        # NOTE: sets those heavy resources to be used by all workers in the cluster
-        future_tcell_predictor = dask_client.scatter(
-            self.tcell_predictor, broadcast=True
-        )
-        future_self_similarity = dask_client.scatter(
-            self.self_similarity, broadcast=True
-        )
-        future_reference_folder = dask_client.scatter(
-            self.reference_folder, broadcast=True
-        )
-        future_configuration = dask_client.scatter(self.configuration, broadcast=True)
-        for neoantigen in self.neoantigens:
-            patient = self.patients.get(neoantigen.patient_identifier)
-            logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
-            logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-            futures.append(
-                dask_client.submit(
-                    NeoFox.annotate_neoantigen,
-                    neoantigen,
-                    patient,
-                    future_reference_folder,
-                    future_configuration,
-                    future_tcell_predictor,
-                    future_self_similarity,
+        with performance_report(filename=report_name):
+            # feature calculation for each epitope
+            futures = []
+            start = time.time()
+            # NOTE: sets those heavy resources to be used by all workers in the cluster
+            future_tcell_predictor = dask_client.scatter(
+                self.tcell_predictor, broadcast=True
+            )
+            future_self_similarity = dask_client.scatter(
+                self.self_similarity, broadcast=True
+            )
+            future_reference_folder = dask_client.scatter(
+                self.reference_folder, broadcast=True
+            )
+            future_configuration = dask_client.scatter(self.configuration, broadcast=True)
+            for neoantigen in self.neoantigens:
+                patient = self.patients.get(neoantigen.patient_identifier)
+                logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
+                logger.debug("Patient: {}".format(patient.to_json(indent=3)))
+                futures.append(
+                    dask_client.submit(
+                        NeoFox.annotate_neoantigen,
+                        neoantigen,
+                        patient,
+                        future_reference_folder,
+                        future_configuration,
+                        future_tcell_predictor,
+                        future_self_similarity,
+                    )
+                )
+            annotations = dask_client.gather(futures)
+            end = time.time()
+            logger.info(
+                "Elapsed time for annotating {} neoantigens {} seconds".format(
+                    len(self.neoantigens), int(end - start)
                 )
             )
-        annotations = dask_client.gather(futures)
-        end = time.time()
-        logger.info(
-            "Elapsed time for annotating {} neoantigens {} seconds".format(
-                len(self.neoantigens), int(end - start)
-            )
-        )
         dask_client.close()
         return annotations
 

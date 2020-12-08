@@ -46,15 +46,25 @@ class MixMHCpred:
         """
         self.runner = runner
         self.configuration = configuration
+        self.available_alleles = self._load_available_alleles()
 
-    @staticmethod
-    def _get_mixmhc_allele_representation(mhc_alleles: List[MhcAllele]):
+    def _load_available_alleles(self):
+        """
+        loads file with available HLA II alllels for MixMHC2pred prediction, returns set
+        :return:
+        """
+        alleles = pd.read_csv(
+            self.configuration.mix_mhc_pred_alleles_list, sep="\t"
+        )
+        return list(alleles["Allele"])
+
+    def _get_mixmhc_allele_representation(self, mhc_alleles: List[MhcAllele]):
         return list(
-            map(
-                lambda x: "{gene}{group}{protein}".format(
-                    gene=x.gene, group=x.group, protein=x.protein
-                ),
-                mhc_alleles,
+            filter(
+                lambda y: y in self.available_alleles,
+                map(
+                    lambda x: "{gene}{group}{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
+                    mhc_alleles)
             )
         )
 
@@ -68,25 +78,28 @@ class MixMHCpred:
         tmpfasta = intermediate_files.create_temp_fasta(
             potential_ligand_sequences, prefix="tmp_sequence_"
         )
+        command = [
+            self.configuration.mix_mhc_pred,
+            "-a",
+            ",".join(
+                self._get_mixmhc_allele_representation(
+                    [a for m in mhc_isoforms for a in m.alleles]
+                )
+            ),
+            "-i",
+            tmpfasta,
+            "-o",
+            outtmp,
+        ]
         self.runner.run_command(
-            cmd=[
-                self.configuration.mix_mhc_pred,
-                "-a",
-                ",".join(
-                    self._get_mixmhc_allele_representation(
-                        [a for m in mhc_isoforms for a in m.alleles]
-                    )
-                ),
-                "-i",
-                tmpfasta,
-                "-o",
-                outtmp,
-            ]
+            cmd=command
         )
         try:
             results = pd.read_csv(outtmp, sep="\t", comment="#")
         except EmptyDataError:
-            message = "Results from MixMHCpred are empty, something went wrong"
+            message = "Results from MixMHCpred are empty, something went wrong [{}]. MHC I alleles {}, ligands {}".format(
+                " ".join(command), [a.name for m in mhc_isoforms for a in m.alleles], potential_ligand_sequences
+            )
             logger.error(message)
             raise NeofoxCommandException(message)
         os.remove(outtmp)
