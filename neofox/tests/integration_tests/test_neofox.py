@@ -262,21 +262,6 @@ class TestNeofox(TestCase):
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
 
-    def test_neofox_without_wild_type(self):
-        """"""
-        neoantigens, patients, patient_id = self._get_test_data()
-        for n in neoantigens:
-            n.mutation.wild_type_xmer = None
-        annotations = NeoFox(
-            neoantigens=neoantigens,
-            patient_id=patient_id,
-            patients=patients,
-            num_cpus=1,
-        ).get_annotations()
-        self.assertEqual(5, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
-
     def _get_test_data(self):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_model_file.txt"
