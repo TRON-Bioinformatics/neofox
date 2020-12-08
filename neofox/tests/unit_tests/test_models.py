@@ -379,7 +379,7 @@ class ModelConverterTest(TestCase):
         mhc1s = ModelConverter.parse_mhc1_alleles(
             [
                 "HLA-A*01:01",
-                "HLA-A0101",
+                "HLA-A01:01",
                 "HLA-B*01:01",
                 "HLA-B*01:01",
                 "HLA-C*01:01",
@@ -597,7 +597,7 @@ class ModelConverterTest(TestCase):
         )
 
     def test_parse_mhc_with_3_digits_in_second_place(self):
-        mhc = ModelConverter.parse_mhc_allele("B15228")
+        mhc = ModelConverter.parse_mhc_allele("B15:228")
         self.assertEqual("B", mhc.gene)
         self.assertEqual("15", mhc.group)
         self.assertEqual("228", mhc.protein)
