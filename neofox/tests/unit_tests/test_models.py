@@ -156,7 +156,10 @@ class ModelConverterTest(TestCase):
             for a in neoantigen_annotation.annotations:
                 self.assertIsInstance(a, Annotation)
                 self.assertNotEmpty(a.name)
-                self.assertNotEmpty(a.value)
+                if a.name == "VAF_RNA_limits":
+                    self.assertIsNone(a.value)
+                if a.name == "MHC_II_epitope_(WT)":
+                    self.assertIsNotNone(a.value)
 
     def test_csv_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(
