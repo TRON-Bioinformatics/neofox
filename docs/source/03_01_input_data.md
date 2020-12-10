@@ -36,18 +36,16 @@ where:
 
 2. **candidate-file format**  
 
-Alternatively, neoantigen candidates can be provided in `candidate-file` format. This is an dummy example:  
+Alternatively, neoantigen candidates can be provided in `candidate-file` format. In principle the columns are the same as in the `model-file`. Of note,`candidate-file` allows for an optional patient id in the data table. This is an dummy example:  
 
-|  patient | gene   | UCSC_transcript | transcript_expression | substitution | +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | VAF_in_tumor | VAF_in_RNA |
-|----------|--------|-----------------|-----------------------|--------------|----------------------------------------|---------------------------------------------|--------------|------------|
-|  Ptx     | VCAN   | uc003kii.3      | 0.519506894           | I547T        | DEVLGEPSQDILVTDQTRLEATISPET            | DEVLGEPSQDILVIDQTRLEATISPET                 |  0.294       |  0.857     |
-|  Ptx     | TRIM25 | uc001zii.3      | 0.715756594           | E135S        | PQLHKNTVLCNVVSQFLQADLAREPPA            | PQLHKNTVLCNVVEQFLQADLAREPPA                 |  0.173       |  0.556     |
+| patient | gene   | transcript_expression | +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | VAF_in_tumor | VAF_in_RNA |
+|---------|--------|-----------------------|----------------------------------------|---------------------------------------------|--------------|------------|
+| Ptx     | VCAN   | 0.519506894           | DEVLGEPSQDILVTDQTRLEATISPET            | DEVLGEPSQDILVIDQTRLEATISPET                 | 0.294        | 0.857      |
+| Ptx     | TRIM25 | 0.715756594           | PQLHKNTVLCNVVSQFLQADLAREPPA            | PQLHKNTVLCNVVEQFLQADLAREPPA                 | 0.173        | 0.556      |
 
 where:
 - `patient` is the patient id (**optional**). If this column is not provided, `--patient-id` must be given as input when starting NeoFox (see [here](/03_03_usage.md)). Of note, providing this column allows to put the neoantigen candidates of several patients into one table.
 - `gene` is the HGNC gene symbol
-- `UCSC_trancript` is the UCSC transcript id including the version. (The user can enter a non-UCSC transcript id, if no UCSC transcript id is available)
-- `substitution` represents a single amino acid substitution with single letter amino acids (eg: I547T)
 - `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
 - `transcript_expression` the transcript expression. Should be empty if no value available
