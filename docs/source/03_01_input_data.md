@@ -14,20 +14,18 @@ We allow two different tabular formats of the neoantigen candidate file: `model-
 
 This is an dummy example of a table with neoantigen candidates in `model-file` format:  
 
-| transcript.assembly | transcript.gene | transcript.identifier | mutation.mutatedAminoacid | mutation.position | mutation.wildTypeAminoacid | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency |
-|---------------------|-----------------|-----------------------|---------------------------|-------------------|----------------------------|-------------------|---------------|---------------------------|---------------------------|
-| hg19                | BRCA2           | uc003kii.3            | L                         | 935               | F                          | Ptx               | 4.512         | 0.4675                    | 0.36103                   |
-| hg19                | BRCA2           | uc003kii.3            | M                         | 518               | R                          | Ptx               | 0.154         | 0.015404                  | 0.034404                  |
-| hg19                | BRCA2           | uc003kii.3            | G                         | 285               | K                          | Ptx               | 8.841207      | 0.89387                   | 0.51924                   |
+| gene  | mutation.wildTypeXmer       | mutation.mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
+|-------|-----------------------------|-----------------------------|-------------------|---------------|---------------------------|---------------------------|-----------------------|-----------------------|
+| BRCA2 | AAAAAAAAAAAAALAAAAAAAAAAAAA | AAAAAAAAAAAAAFAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAAGAAAAAAAAAAAAA | AAAAAAAAAAAAAKAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAACAAAAAAAAAAAAA | AAAAAAAAAAAAAEAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 
 where:
-- `transcript.assembly`: the assembly of the reference genome (only hg19 is supported)
-- `transcript.gene`: the HGNC gene symbol   
-- `transcript.identifier`: a transcript identifier
+- `gene`: the HGNC gene symbol   
 - `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
-- `mutation.mutatedAminoacid`: the mutated amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
-- `mutation.position`: the 1 based position of the mutation in the protein
 - `mutation.wildTypeAminoacid`: the wild type amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: the transcript expression. Should be empty if no value available
@@ -106,21 +104,13 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 
 ```json
 [{
-  "patientIdentifier": "Ptx",
-  "transcript": {
-    "identifier": "uc003kii.3",
-    "assembly": "hg19",
-    "gene": "VCAN"
-  },
-  "mutation": {
-    "position": 1007,
-    "wildTypeAminoacid": "I",
-    "mutatedAminoacid": "T",
-    "mutatedXmer": "DEVLGEPSQDILVTDQTRLEATISPET",
-    "wildTypeXmer": "DQTRLEATISPETIDQTRLEATISPET"
-  },
-  "rnaExpression": 0.519506894,
-  "dnaVariantAlleleFrequency": 0.294573643,
-  "rnaVariantAlleleFrequency": 0.857142857
+    "identifier": "odJ99FdqvJoK1znK+iCpWQ==",
+    "patientIdentifier": "Pt29",
+    "gene": "BRCA2",
+    "mutation": {
+        "position": [7],
+        "wildTypeXmer": "AAAAAALAAAAA",
+        "mutatedXmer": "AAAAAAFAAAAA"
+    }
 }]
 ``` 
