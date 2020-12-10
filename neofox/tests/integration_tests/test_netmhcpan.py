@@ -55,6 +55,19 @@ class TestNetMhcPanPredictor(TestCase):
         )
         self.assertEqual(0, len(predictions))
 
+    def test_netmhcpan_rare_aminoacid(self):
+        netmhcpan_predictor = NetMhcPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
+        # this is an epitope from IEDB of length 9
+        mutated = "XTTDSWGKF"
+        predictions = netmhcpan_predictor.mhc_prediction(
+            sequence=mutated,
+            mhc_alleles=TEST_MHC_ONE,
+            set_available_mhc=self.available_alleles.get_available_mhc_i(),
+        )
+        self.assertEqual(18, len(predictions))
+
     def test_netmhc2pan_epitope_iedb(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
             runner=self.runner, configuration=self.configuration
@@ -88,3 +101,17 @@ class TestNetMhcPanPredictor(TestCase):
             ),
         )
         self.assertEqual(0, len(predictions))
+
+    def test_netmhc2pan_rare_aminoacid(self):
+        netmhc2pan_predictor = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
+        # this is an epitope from IEDB of length 15
+        mutated = "XTTDSWGKFDDDDDDDDD"
+        predictions = netmhc2pan_predictor.mhcII_prediction(
+            sequence=mutated,
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
+                TEST_MHC_TWO
+            ),
+        )
+        self.assertEqual(40, len(predictions))
