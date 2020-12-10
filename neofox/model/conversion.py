@@ -804,14 +804,14 @@ class ModelValidator(object):
 
     @staticmethod
     def _validate_aminoacid(aminoacid):
-        assert aminoacid is not None, "Aminoacid field cannot be empty"
+        assert aminoacid is not None, "Amino acid field cannot be empty"
         aminoacid = aminoacid.strip()
-        assert isinstance(aminoacid, str), "Aminoacid has to be a string"
+        assert isinstance(aminoacid, str), "Amino acid has to be a string"
         # this chunk is unused but let's leave in case it is handy in the future
         if len(aminoacid) == 3:
             assert (
                 aminoacid in IUPACData.protein_letters_3to1_extended.keys()
-            ), "Non existing 3 letter aminoacid {}".format(aminoacid)
+            ), "Non existing 3 letter amino acid {}".format(aminoacid)
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
             aminoacid = aminoacid.upper()

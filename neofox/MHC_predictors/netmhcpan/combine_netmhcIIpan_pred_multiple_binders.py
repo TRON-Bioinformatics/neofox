@@ -76,7 +76,6 @@ class BestAndMultipleBinderMhcII:
         :return: PHBR-II score, Marty et al
         """
         best_epitope_per_allele_mhc2_new = list(best_epitope_per_allele_mhc2)
-        logger.info(best_epitope_per_allele_mhc2)
         phbr_ii = None
         for allele_with_score in best_epitope_per_allele_mhc2:
             # add DRB1
@@ -320,10 +319,7 @@ class BestAndMultipleBinderMhcII:
                 mhc_isoforms
             )
         )
-        logger.info(predictions)
-        logger.info(homozygous_alleles)
         hetero_hemizygous_alleles = netmhc2pan.generate_mhc2_alelle_combinations(hetero_hemizygous_alleles)
-        logger.info(hetero_hemizygous_alleles)
         return BestAndMultipleBinderMhcII._get_sorted_epitopes_mhc2(
             hetero_hemizygous_alleles, homozygous_alleles, predictions
         )

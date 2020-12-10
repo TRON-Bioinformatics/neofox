@@ -101,7 +101,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         )
         if len(patients_not_available_alleles) > 0:
             logger.warning(
-                "MHC I alleles {} are not supported by NetMHC2pan and no binding or derived features will "
+                "MHC I alleles {} are not supported by NetMHCpan and no binding or derived features will "
                 "include it".format(",".join(patients_not_available_alleles))
             )
         return patients_available_alleles
