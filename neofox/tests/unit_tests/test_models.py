@@ -131,6 +131,7 @@ class ModelConverterTest(TestCase):
             )
             self.assertTrue(
                 n.rna_variant_allele_frequency is None
+                or n.rna_variant_allele_frequency == -1
                 or (0 <= n.rna_variant_allele_frequency <= 1)
             )
             self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)

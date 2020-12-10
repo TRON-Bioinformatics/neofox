@@ -275,6 +275,7 @@ class ModelConverter(object):
         for na in neoantigen_annotations:
             df = pd.DataFrame([a.to_dict() for a in na.annotations])
             df["neoantigen_identifier"] = na.neoantigen_identifier
+            dfs.append(df)  # avoid writing NA values
         return pd.concat(dfs, sort=True)
 
     @staticmethod
