@@ -145,7 +145,7 @@ class ModelConverter(object):
                     "dnaVariantAlleleFrequency": np.float,
                     "rnaExpression": np.float,
                     "rnaVariantAlleleFrequency": np.float
-                }).fillna("")
+                }).replace({np.nan: None})
         )
 
     @staticmethod
