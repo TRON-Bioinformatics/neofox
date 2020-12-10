@@ -92,8 +92,11 @@ class ModelConverter(object):
                 NeoantigenAnnotations(
                     neoantigen_identifier=neoantigen.identifier,
                     annotations=[
-                        Annotation(name=name, value=value)
-                        for name, value in candidate_entry.iteritems()
+                        # NOTE: we need to exclude the field gene from the external annotations as it matches a field
+                        # in the model and thus it causes a conflict when both are renamed to gene_x and gene_y when
+                        # joining
+                        Annotation(name=name, value=value) for name, value
+                        in candidate_entry.iteritems() if name != FIELD_GENE
                     ],
                     annotator=EXTERNAL_ANNOTATIONS_NAME,
                 )
