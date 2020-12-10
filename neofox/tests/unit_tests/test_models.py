@@ -138,7 +138,7 @@ class ModelConverterTest(TestCase):
 
         # test external annotations
         self._assert_external_annotations(
-            expected_number_external_annotations=45,
+            expected_number_external_annotations=44,
             external_annotations=external_annotations,
         )
 
