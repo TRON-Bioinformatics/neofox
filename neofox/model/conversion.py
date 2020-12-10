@@ -799,7 +799,7 @@ class ModelValidator(object):
     @staticmethod
     def _validate_vaf(vaf):
         assert (
-            vaf is None or 0.0 <= vaf <= 1.0
+            vaf is None or vaf == -1.0 or 0.0 <= vaf <= 1.0
         ), "VAF should be a positive integer or zero {}".format(vaf)
 
     @staticmethod
