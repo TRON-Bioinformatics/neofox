@@ -275,7 +275,6 @@ class ModelConverter(object):
         for na in neoantigen_annotations:
             df = pd.DataFrame([a.to_dict() for a in na.annotations])
             df["neoantigen_identifier"] = na.neoantigen_identifier
-            dfs.append(df[df.value != "NA"])  # avoid writing NA values
         return pd.concat(dfs, sort=True)
 
     @staticmethod
@@ -316,10 +315,7 @@ class ModelConverter(object):
         logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
         neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
-        vaf_in_rna = candidate_entry.get(FIELD_VAF_RNA)
-        neoantigen.rna_variant_allele_frequency = (
-            vaf_in_rna if vaf_in_rna >= 0 else None
-        )
+        neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
         return ModelValidator.validate_neoantigen(neoantigen)
