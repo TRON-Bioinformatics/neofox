@@ -1,0 +1,9 @@
+server	cpus	time
+intel	16	1595.42
+intel	32	895.20
+intel	64	554.33
+intel	96	584.80
+old	16	1722.77
+old	32	964.76
+old	64	613.61
+old	96	649.57
