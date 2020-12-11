@@ -131,6 +131,7 @@ class ModelConverterTest(TestCase):
             )
             self.assertTrue(
                 n.rna_variant_allele_frequency is None
+                or n.rna_variant_allele_frequency == -1
                 or (0 <= n.rna_variant_allele_frequency <= 1)
             )
             self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
@@ -156,7 +157,10 @@ class ModelConverterTest(TestCase):
             for a in neoantigen_annotation.annotations:
                 self.assertIsInstance(a, Annotation)
                 self.assertNotEmpty(a.name)
-                self.assertNotEmpty(a.value)
+                if a.name == "VAF_RNA_limits":
+                    self.assertIsNone(a.value)
+                if a.name == "MHC_II_epitope_(WT)":
+                    self.assertIsNotNone(a.value)
 
     def test_csv_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(
@@ -380,7 +384,7 @@ class ModelConverterTest(TestCase):
         mhc1s = ModelConverter.parse_mhc1_alleles(
             [
                 "HLA-A*01:01",
-                "HLA-A0101",
+                "HLA-A01:01",
                 "HLA-B*01:01",
                 "HLA-B*01:01",
                 "HLA-C*01:01",
@@ -598,7 +602,7 @@ class ModelConverterTest(TestCase):
         )
 
     def test_parse_mhc_with_3_digits_in_second_place(self):
-        mhc = ModelConverter.parse_mhc_allele("B15228")
+        mhc = ModelConverter.parse_mhc_allele("B15:228")
         self.assertEqual("B", mhc.gene)
         self.assertEqual("15", mhc.group)
         self.assertEqual("228", mhc.protein)
