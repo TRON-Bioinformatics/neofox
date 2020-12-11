@@ -94,8 +94,11 @@ class ModelConverter(object):
                 NeoantigenAnnotations(
                     neoantigen_identifier=neoantigen.identifier,
                     annotations=[
-                        Annotation(name=name, value=value)
-                        for name, value in candidate_entry.iteritems()
+                        # NOTE: we need to exclude the field gene from the external annotations as it matches a field
+                        # in the model and thus it causes a conflict when both are renamed to gene_x and gene_y when
+                        # joining
+                        Annotation(name=name, value=value) for name, value
+                        in candidate_entry.iteritems() if name != FIELD_GENE
                     ],
                     annotator=EXTERNAL_ANNOTATIONS_NAME,
                 )
@@ -251,7 +254,7 @@ class ModelConverter(object):
         neoantigens: List[Neoantigen],
     ) -> pd.DataFrame:
         dfs = []
-        neoantigens_df = ModelConverter.objects2dataframe(neoantigens)
+        neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
         for na in neoantigen_annotations:
             df = (
                 pd.DataFrame([a.to_dict() for a in na.annotations])
@@ -266,6 +269,13 @@ class ModelConverter(object):
         return neoantigens_df.set_index("identifier").merge(
             annotations_df, on="identifier"
         )
+
+    @staticmethod
+    def neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
+        df = ModelConverter.objects2dataframe(neoantigens)
+        df["mutation.position"] = df["mutation.position"].transform(
+            lambda x: ",".join([str(y) for y in x]) if x is not None else x)
+        return df
 
     @staticmethod
     def annotations2tall_skinny_table(

@@ -19,6 +19,7 @@
 from argparse import ArgumentParser
 from typing import Tuple, List
 from logzero import logger
+import neofox
 from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox
@@ -28,7 +29,7 @@ from neofox.references.installer import NeofoxReferenceInstaller
 
 
 def neofox_configure():
-    parser = ArgumentParser(description="install the references required for neofox")
+    parser = ArgumentParser(description="NeoFox (NEOantigen Feature toolbOX) {} references installer".format(neofox.VERSION))
     parser.add_argument(
         "--reference-folder",
         dest="reference_folder",
@@ -58,7 +59,8 @@ def neofox_configure():
 
 def neofox_cli():
     parser = ArgumentParser(
-        description="adds patient information given in sample file of a cohort to neoantigen candidate file"
+        description="NeoFox (NEOantigen Feature toolbOX) {} annotates a given set of neoantigen candidate sequences "
+                    "derived from point mutation with relevant neoantigen features".format(neofox.VERSION)
     )
     parser.add_argument(
         "--model-file",
@@ -233,7 +235,7 @@ def _write_results(
             sep="\t",
             index=False,
         )
-        ModelConverter.objects2dataframe(neoantigens).to_csv(
+        ModelConverter.neoantigens2table(neoantigens).to_csv(
             os.path.join(
                 output_folder, "{}_neoantigen_candidates.tsv".format(output_prefix)
             ),
