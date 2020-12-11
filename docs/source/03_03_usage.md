@@ -75,9 +75,9 @@ Create a neoantigen candidate model based on Transcript and Mutation model. Init
 
 ```python
 # model the mutation related to the neoantigen candidate
-mutation = Mutation(mutatedXmer="DEVLGEPSQDILVTDQTRLEATISPET", wildTypeXmer="DQTRLEATISPETIDQTRLEATISPET")
+mutation = Mutation(mutatedXmer="AAAAAAAAAAAAARAAAAAAAAAAAAA", wildTypeXmer="AAAAAAAAAAAAAMAAAAAAAAAAAAA")
 # create a neoantigen candidate model using the transcript and mutation model
-neoantigen = Neoantigen(mutation=mutation, patient_identifier="Ptx", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
+neoantigen = Neoantigen(mutation=mutation, patient_identifier="Ptx", rna_expression=0.52, rna_variant_allele_frequency=0.88, dna_variant_allele_frequency=0.29)
 ```   
    where:  
        - `mutation`: Mutation model, created with `Mutation()` (explanation of the parameters is provided [here](05_models.md#mutation))  
