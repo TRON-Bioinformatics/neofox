@@ -2,7 +2,6 @@
 
 [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
-[![Downloads](https://crate.io/packages/neofox)](https://crate.io/packages/neofox)
 
 
 NeoFox annotates neoantigen candidate sequences with published neo-epitope descriptors. For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
