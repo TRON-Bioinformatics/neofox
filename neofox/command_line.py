@@ -235,7 +235,7 @@ def _write_results(
             sep="\t",
             index=False,
         )
-        ModelConverter.objects2dataframe(neoantigens).to_csv(
+        ModelConverter.neoantigens2table(neoantigens).to_csv(
             os.path.join(
                 output_folder, "{}_neoantigen_candidates.tsv".format(output_prefix)
             ),
