@@ -55,7 +55,7 @@ export NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
 
 NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain the use of NeoFox by API in short with the help of a dummy example that includes building models from scratch (For a detailed description, please refer to [this notebook](notebooks/api_usage.ipynb)). The models can be created based on files, too. In this case, ignore step 2-5 and refer to the note on the bottom of this paragraph.   
 
-1. **Import requirements**
+### Import requirements
 Run NeoFox by passing the validated neoantigen object and the validated patient object to get the neoantigen features. The output is a list of type `NeoantigenAnnotations`:  
     
 ```python
@@ -69,7 +69,7 @@ from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 from neofox.neofox import NeoFox
 ```    
 
-2. **Create a neoantigen model**  
+### Create a neoantigen model  
 
 Create a neoantigen candidate model based on Transcript and Mutation model. Initialise each of these models by passing the required information:
 
@@ -83,7 +83,7 @@ neoantigen = Neoantigen(mutation=mutation, patient_identifier="Ptx", rna_express
        - `mutation`: Mutation model, created with `Mutation()` (explanation of the parameters is provided [here](05_models.md#mutation))  
        - `neoantigen`: Neoantigen candidate model, created with `Neoantigen()` (explanation of the parameters is provided [here](05_models.md#neoantigen))
 
-3. **Validate the neoantigen model**  
+### Validate the neoantigen model  
     
 Check for validity of the entered parameters into the neoantigen models and the validity of the full neoantigen model:   
 
@@ -93,7 +93,7 @@ validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen=neoantigen)
    
 **NOTE**: `ModelValidator.validate_neoantigen(neoantigen)` will internally validate the transcript and mutation model.
 
-4. **Create a patient model**  
+### Create a patient model  
     
 Create a patient model based on models for MHC I and MHC II alleles. Initialise each of these models by passing the required information. The following shows a dummy example:
 
@@ -110,7 +110,7 @@ where:
        - `mhc2`: Model of MHC class II alleles, created with `ModelConverter.parse_mhc2_alleles()`. Single alleles for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1 should be provided with *at least 4-digits* but more digits are allowed. Homozygous alleles should be added twice. (more deteails are provided [here](05_models.md#mhc2))   
        - `patient`: Patient model  created with `Patient()`(explanation of the parameters is provided [here](05_models.md#patient))
        
-5. **Validate the patient model**  
+### Validate the patient model  
 
 Check for validity of the patient model: 
 
@@ -120,7 +120,7 @@ validated_patient = ModelValidator.validate_patient(patient=patient)
 
 **NOTE**: `ModelValidator.validate_patient(patient)` will internally validate MHC I and MHC II alleles.
    
-6. **Run NeoFox**  
+### Run NeoFox  
 
 Run NeoFox by passing the validated neoantigen object and the validated patient object to get the neoantigen features. The output is a list of type `NeoantigenAnnotations`:  
 
@@ -134,7 +134,7 @@ where:
        - `patients`: a list of validated patient objects  
        - `num_cpus`: number of CPUs to use (*optional*)
        
-7. **Transformation of the output**   
+### Transformation of the output   
     
 Depending on the use case, the user can transform the resulting neoantigen feature annotations into the formats described [here](03_02_output_data.md).
 
@@ -160,28 +160,28 @@ neoantigens_df = ModelConverter.objects2dataframe(model_objects=[validated_neoan
 neoantiges_json = ModelConverter.objects2json(model_objects=[validated_neoantigen]
 ```   
 - instead of creating neoantigen or patient models (step2-5), tabular or json files containing this information can be passed:  
-  The neoantigen candidates can be provided in [**model-file format**](03_01_input_data.md#file-with-neonatigen-candidates)
+  The neoantigen candidates can be provided in **[model-file format]**(03_01_input_data.md#file-with-neonatigen-candidates)
 
 ```python
 model_file = "/path/to/neoantigen_candidates.tab"
 neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(neoantigens_file=model_file)
 ```
   
-or in [**candidate-file format**](03_01_input_data.md#file-with-neonatigen-candidates)
+or in **[candidate-file format**]**(03_01_input_data.md#file-with-neonatigen-candidates)
 
 ```python
 candidate_file = "/path/to/neoantigen_candidates.tab"
 neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file=candidate_file)    
 ```
   
-or in [**JSON format**](03_01_input_data.md#neoantigen-candidates-in-json-format). 
+or in **[JSON format]**(03_01_input_data.md#neoantigen-candidates-in-json-format). 
 
 ```python
 json_file = "/path/to/neoantigen_candidates.json"
 neoantigens, external_annotations = ModelConverter.parse_neoantigens_json_file(json_file=json_file)  
 ```  
 
-The patient information should be provided in [**tabular format**](03_01_input_data.md#file-with-patient-information)
+The patient information should be provided in **[tabular format]**(03_01_input_data.md#file-with-patient-information)
 
 ```python
 patient_file = "/path/to/patients.tab"

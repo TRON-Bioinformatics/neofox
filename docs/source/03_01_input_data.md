@@ -6,11 +6,11 @@ NeoFox requires two input files: a file with neoantigen candidates derived from 
 
 ## Tabular format
 
-### File with neonatigen candidates
+### File with neoantigen candidates
 
 We allow two different tabular formats of the neoantigen candidate file: `model-file` or `candidate-file` format. The neoantigen candidate input file must follow one of these two. However, additional user-specific columns are allowed and will be kept during the annotation process.   
 
-1. **model-file format**  
+#### model-file format  
 
 This is an dummy example of a table with neoantigen candidates in `model-file` format:  
 
@@ -33,9 +33,9 @@ where:
 
 
 
-2. **candidate-file format**  
+#### candidate-file format  
 
-Alternatively, neoantigen candidates can be provided in `candidate-file` format. In principle the columns are the same as in the `model-file`. Of note,`candidate-file` allows for an optional patient id in the data table. This is an dummy example:  
+Alternatively, neoantigen candidates can be provided in `candidate-file` format. In principle the columns are the same as in the `model-file`. Of note, `candidate-file` allows for an optional patient id in the data table. This is an dummy example:  
 
 |     patient |     gene  | substitution |     transcript_expression |     +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) |     [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) |     VAF_in_tumor |     VAF_in_RNA    |
 |-------------|-----------|--------------|---------------------------|--------------------------------------------|-------------------------------------------------|------------------|-------------------|
@@ -43,7 +43,7 @@ Alternatively, neoantigen candidates can be provided in `candidate-file` format.
 |     Ptx     |     BRCA2 | E135S        |     0.71575659            |     AAAAAAAAAAAAAMAAAAAAAAAAAAA            |     AAAAAAAAAAAAARAAAAAAAAAAAAA                 |     0.173        |     0.556         |
 
 where:
-- `patient` is the patient id (**optional**). If this column is not provided, `--patient-id` must be given as input when starting NeoFox (see [here](/03_03_usage.md)). Of note, providing this column allows to put the neoantigen candidates of several patients into one table.
+- `patient` is the patient id (**optional**). If this column is not provided, `--patient-id` must be given as input when starting NeoFox (see [here](03_03_usage.md)). Of note, providing this column allows to put the neoantigen candidates of several patients into one table.
 - `gene` is the HGNC gene symbol
 - `substitution`  represents a single amino acid substitution with single letter amino acids (eg: I547T). This column allows the detection of INDEL sequences which are removed from the dataset and not processed.  
 - `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
@@ -60,7 +60,7 @@ This is an dummy example of a patient file in tabular format:
 | identifier | mhcIAlleles                                                                  | mhcIIAlleles                                                                                                                                                   | isRnaAvailable | tumorType |
 |------------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|-----------|
 | Ptx        | HLA-A\*03:01,HLA-A\*29:02,HLA-B\*07:02,HLA-B\*44:03,HLA-C\*07:02,HLA-C*16:01 | HLA-DRB1\*03:01,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*05:01,HLA-DQB1\*01:01,HLA-DQB1\*04:02,HLA-DPA1\*01:03,HLA-DPA1\*03:01,HLA-DPB1\*13:01,HLA-DPB1*04:02 | TRUE           | HNSC      |
-| Pty        | HLA-A\*02:01,HLA-A\*30:01,HLA-B\*07:34,HLA-B\*44:03,HLA-C\*07:02,HLA-C*07:02 | HLA-DRB1\*04:02,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*04:01,HLA-DQB1\*03:02,HLA-DQB1\*14:01,HLA-DPA1\*01:03,HLA-DPA1\*02:01,HLA-DPB1T\*02:01,HLA-DPB1*04:01 | FALSE          | HNSC      |
+| Pty        | HLA-A\*02:01,HLA-A\*30:01,HLA-B\*07:34,HLA-B\*44:03,HLA-C\*07:02,HLA-C*07:02 | HLA-DRB1\*04:02,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*04:01,HLA-DQB1\*03:02,HLA-DQB1\*14:01,HLA-DPA1\*01:03,HLA-DPA1\*02:01,HLA-DPB1\*02:01,HLA-DPB1*04:01 | FALSE          | HNSC      |
 
 where:
 - `identifier`: the patient identifier
