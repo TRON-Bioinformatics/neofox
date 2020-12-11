@@ -537,6 +537,9 @@ class ModelValidator(object):
         ModelValidator.validate(neoantigen)
 
         try:
+            assert neoantigen.patient_identifier is not None and len(neoantigen.patient_identifier) > 0, \
+                "Missing patient identifier on neoantigen"
+
             # checks mutation
             neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
 
@@ -790,6 +793,8 @@ class ModelValidator(object):
 
     @staticmethod
     def _validate_mutation(mutation: Mutation) -> Mutation:
+        assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
+            "Missing mutated xmer on mutation"
         mutation.mutated_xmer = "".join(
             [ModelValidator._validate_aminoacid(aa) for aa in mutation.mutated_xmer]
         )
