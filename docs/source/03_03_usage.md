@@ -18,7 +18,6 @@ where:
 - `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](03_01_input_data.md#json-format)
 - `--patient-id`: patient identifier (*optional*, this will be used if the patient id the column `patient` is missing the candidate input file)
 - `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
-- `--patient-data-json`: a table patient models as described [here](03_01_input_data.md#patient-file-in-json-format)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
 - `--with-short-wide-table`: output file in [short-wide](03_02_output_data.md#short-wide-format) format (*optional*)
@@ -29,7 +28,6 @@ where:
 
 **PLEASE NOTE THE FOLLOWING HINTS**:   
 - provide the neoantigen candidate file either as `--candidate-file`, `--model-file` or `--json-file` 
-- provide the patient data in tabular format format (`--patient-data`) if neoantigen candidates are provided with `--candidate-file` or `--model-file`
 - if no specific output format is selected, the output will be written in [short-wide](03_02_output_data.md#short-wide-format) format
 - indicate in the `isRnaAvailable` column of the [patient file](03_01_input_data.md#file-with-patient-information) if expression should be imputed for neoantigen candidates of the respective patient  
 
@@ -67,7 +65,7 @@ annotations = NeoFox(neoantigens=[validated_neoantigen], patients=[validated_pat
 ```python
 from neofox.model.conversion import ModelConverter
 from neofox.model.conversion import ModelValidator
-from neofox.model.neoantigen import Neoantigen, Transcript, Mutation, Patient
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 from neofox.neofox import NeoFox
 ```    
 
@@ -76,15 +74,12 @@ from neofox.neofox import NeoFox
 Create a neoantigen candidate model based on Transcript and Mutation model. Initialise each of these models by passing the required information:
 
 ```python
-# model the transcript related to the neoantigen candidate
-transcript = Transcript(assembly="hg19", gene="VCAN", identifier="uc003kii.3")
 # model the mutation related to the neoantigen candidate
-mutation = Mutation(position=1007, wild_type_aminoacid="I", mutated_aminoacid="T", mutatedXmer="DEVLGEPSQDILVTDQTRLEATISPET", wildTypeXmer="DQTRLEATISPETIDQTRLEATISPET")
+mutation = Mutation(mutatedXmer="DEVLGEPSQDILVTDQTRLEATISPET", wildTypeXmer="DQTRLEATISPETIDQTRLEATISPET")
 # create a neoantigen candidate model using the transcript and mutation model
-neoantigen = Neoantigen(transcript=transcript, mutation=mutation, patient_identifier="Ptx", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
+neoantigen = Neoantigen(mutation=mutation, patient_identifier="Ptx", rna_expression=0.519506894, rna_variant_allele_frequency=0.857142857, dna_variant_allele_frequency=0.294573643)
 ```   
    where:  
-       - `transcript`: Transcript model, created with `Transcript()` (explanation of the parameters is provided [here](05_models.md#transcript))  
        - `mutation`: Mutation model, created with `Mutation()` (explanation of the parameters is provided [here](05_models.md#mutation))  
        - `neoantigen`: Neoantigen candidate model, created with `Neoantigen()` (explanation of the parameters is provided [here](05_models.md#neoantigen))
 
