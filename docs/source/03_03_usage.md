@@ -53,7 +53,7 @@ export NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
 
 ## API
 
-NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain the use of NeoFox by API step by step with the help of a dummy example that includes building models from scratch. The models can be created based on files, too. In this case, ignore step 2-5 and refer to the note on the bottom of this paragraph.   
+NeoFox can be used programmatically and by that integrated into existing tools. Here, we will explain the use of NeoFox by API in short with the help of a dummy example that includes building models from scratch (For a detailed description, please refer to [this notebook](notebooks/api_usage.ipynb)). The models can be created based on files, too. In this case, ignore step 2-5 and refer to the note on the bottom of this paragraph.   
 
 1. **Import requirements**
 Run NeoFox by passing the validated neoantigen object and the validated patient object to get the neoantigen features. The output is a list of type `NeoantigenAnnotations`:  
