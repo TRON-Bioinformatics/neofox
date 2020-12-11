@@ -109,8 +109,7 @@ class Annotation(betterproto.Message):
 
     # *The name of the annotation
     name: str = betterproto.string_field(1)
-    # *The value of the annotationTODO: make this better to hold int, float and
-    # bool
+    # *The value of the annotation
     value: str = betterproto.string_field(2)
 
 
