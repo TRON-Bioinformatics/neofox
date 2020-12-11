@@ -81,6 +81,8 @@ class ModelConverter(object):
         data = pd.read_csv(candidate_file, sep="\t")
         # filter out indels
         data = data[~data["substitution"].isna()]
+        data = data[~data["substitution"].str.contains("-")]
+        data = data.replace({np.nan: None})
         neoantigens = []
         external_annotations = []
         for _, candidate_entry in data.iterrows():
@@ -146,7 +148,7 @@ class ModelConverter(object):
                     "dnaVariantAlleleFrequency": np.float,
                     "rnaExpression": np.float,
                     "rnaVariantAlleleFrequency": np.float
-                }).fillna("")
+                }).replace({np.nan: None})
         )
 
     @staticmethod
@@ -283,7 +285,7 @@ class ModelConverter(object):
         for na in neoantigen_annotations:
             df = pd.DataFrame([a.to_dict() for a in na.annotations])
             df["neoantigen_identifier"] = na.neoantigen_identifier
-            dfs.append(df[df.value != "NA"])  # avoid writing NA values
+            dfs.append(df)  # avoid writing NA values
         return pd.concat(dfs, sort=True)
 
     @staticmethod
@@ -324,10 +326,7 @@ class ModelConverter(object):
         logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
         neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
-        vaf_in_rna = candidate_entry.get(FIELD_VAF_RNA)
-        neoantigen.rna_variant_allele_frequency = (
-            vaf_in_rna if vaf_in_rna >= 0 else None
-        )
+        neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
         return ModelValidator.validate_neoantigen(neoantigen)
@@ -807,19 +806,19 @@ class ModelValidator(object):
     @staticmethod
     def _validate_vaf(vaf):
         assert (
-            vaf is None or 0.0 <= vaf <= 1.0
+            vaf is None or vaf == -1.0 or 0.0 <= vaf <= 1.0
         ), "VAF should be a positive integer or zero {}".format(vaf)
 
     @staticmethod
     def _validate_aminoacid(aminoacid):
-        assert aminoacid is not None, "Aminoacid field cannot be empty"
+        assert aminoacid is not None, "Amino acid field cannot be empty"
         aminoacid = aminoacid.strip()
-        assert isinstance(aminoacid, str), "Aminoacid has to be a string"
+        assert isinstance(aminoacid, str), "Amino acid has to be a string"
         # this chunk is unused but let's leave in case it is handy in the future
         if len(aminoacid) == 3:
             assert (
                 aminoacid in IUPACData.protein_letters_3to1_extended.keys()
-            ), "Non existing 3 letter aminoacid {}".format(aminoacid)
+            ), "Non existing 3 letter amino acid {}".format(aminoacid)
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
             aminoacid = aminoacid.upper()

@@ -198,9 +198,10 @@ class TestBestMultipleBinder(TestCase):
         filtered_predictions = netmhc2pan.filter_binding_predictions(
             position_of_mutation=mutation.position, predictions=predictions
         )
+        logger.info(filtered_predictions)
+        logger.info(TEST_MHC_TWO)
         best_predicted_epitopes_per_alelle = (
-            BestAndMultipleBinderMhcII.extract_best_epitope_per_mhc2_alelle(
-                filtered_predictions, TEST_MHC_TWO
+            best_multiple.extract_best_epitope_per_mhc2_alelle(predictions=filtered_predictions, mhc_isoforms=TEST_MHC_TWO
             )
         )
         logger.info(best_predicted_epitopes_per_alelle)
@@ -235,7 +236,7 @@ class TestBestMultipleBinder(TestCase):
             position_of_mutation=mutation.position, predictions=predictions
         )
         best_predicted_epitopes_per_alelle = (
-            BestAndMultipleBinderMhcII.extract_best_epitope_per_mhc2_alelle(
+            best_multiple.extract_best_epitope_per_mhc2_alelle(
                 filtered_predictions, mhc2_alleles
             )
         )
@@ -270,7 +271,7 @@ class TestBestMultipleBinder(TestCase):
             position_of_mutation=mutation.position, predictions=predictions
         )
         best_predicted_epitopes_per_alelle = (
-            BestAndMultipleBinderMhcII.extract_best_epitope_per_mhc2_alelle(
+            best_multiple.extract_best_epitope_per_mhc2_alelle(
                 filtered_predictions, mhc2_alleles
             )
         )

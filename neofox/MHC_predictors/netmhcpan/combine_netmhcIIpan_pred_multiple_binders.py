@@ -79,7 +79,7 @@ class BestAndMultipleBinderMhcII:
         phbr_ii = None
         for allele_with_score in best_epitope_per_allele_mhc2:
             # add DRB1
-            if allele_with_score.hla.beta_chain.gene == "DRB1":
+            if "DRB1" in allele_with_score.hla:
                 best_epitope_per_allele_mhc2_new.append(allele_with_score)
         if len(best_epitope_per_allele_mhc2_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
@@ -187,7 +187,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank.hla.name,
+                    value=self.best_predicted_epitope_rank.hla,
                     name="Best_rank_MHCII_score_allele",
                 )])
         if self.best_predicted_epitope_affinity:
@@ -201,7 +201,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.hla.name,
+                    value=self.best_predicted_epitope_affinity.hla,
                     name="Best_affinity_MHCII_allele",
                 )])
         if self.best_predicted_epitope_rank_wt:
@@ -215,7 +215,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank_wt.hla.name,
+                    value=self.best_predicted_epitope_rank_wt.hla,
                     name="Best_rank_MHCII_score_allele_WT",
                 )])
         if self.best_predicted_epitope_affinity_wt:
@@ -229,39 +229,37 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity_wt.hla.name,
+                    value=self.best_predicted_epitope_affinity_wt.hla,
                     name="Best_affinity_MHCII_allele_WT",
                 )])
         annotations.append(AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"))
         return annotations
 
     @staticmethod
-    def _get_homozygous_mhc2_alleles(mhc_isoforms: List[Mhc2]) -> List[str]:
+    def _get_homozygous_mhc2_alleles(mhc_isoforms: List[Mhc2]) -> List[Mhc2]:
         """
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
-        Otherwise retunrs empty list
+        Otherwise returns empty list
         """
         return [
-            a.name
+            m
             for m in mhc_isoforms
             for g in m.genes
-            for a in g.alleles
             if g.zygosity == Zygosity.HOMOZYGOUS
         ]
 
     @staticmethod
     def _get_heterozygous_or_hemizygous_mhc2_alleles(
         mhc_isoforms: List[Mhc2],
-    ) -> List[str]:
+    ) -> List[Mhc2]:
         """
         Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
-        Otherwise retunrs empty list
+        Otherwise returns empty list
         """
         return [
-            a.name
+            m
             for m in mhc_isoforms
             for g in m.genes
-            for a in g.alleles
             if g.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]
         ]
 
@@ -275,10 +273,10 @@ class BestAndMultipleBinderMhcII:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            allele = p.hla.name
+            allele = p.hla
             epitopes_by_allele.setdefault(allele, []).append(p)
 
-        # chooses the best epitope per allele anc considers zygosity
+        # chooses the best epitope per allele and considers zygosity
         best_epitopes_per_allele = []
         for allele, epitopes in epitopes_by_allele.items():
             # sort by rank to choose the best epitope, fixes ties with peptide by alphabetical order
@@ -286,44 +284,42 @@ class BestAndMultipleBinderMhcII:
             best_epitope = epitopes[0]
             num_repetitions = 0
             if (
-                best_epitope.hla.alpha_chain.name in hetero_hemizygous_alleles
-                or best_epitope.hla.beta_chain.name in hetero_hemizygous_alleles
+                best_epitope.hla in hetero_hemizygous_alleles
+                or best_epitope.hla in hetero_hemizygous_alleles
             ):
                 # adds the epitope once if alleles heterozygous
                 num_repetitions = 1
             if (
-                best_epitope.hla.alpha_chain.name in homozygous_alleles
-                or best_epitope.hla.beta_chain.name in homozygous_alleles
+                best_epitope.hla in homozygous_alleles
             ):
                 # adds the epitope twice if one allele is homozygous
                 num_repetitions = 2
-            if (
-                best_epitope.hla.alpha_chain.name in homozygous_alleles
-                and best_epitope.hla.beta_chain.name in homozygous_alleles
-            ):
-                # adds the epitope four times if both alleles are homozygous
-                num_repetitions = 4
             best_epitopes_per_allele.extend(
                 [best_epitope for _ in range(num_repetitions)]
             )
         return best_epitopes_per_allele
 
-    @staticmethod
     def extract_best_epitope_per_mhc2_alelle(
-        predictions: List[PredictedEpitope], mhc_isoforms: List[Mhc2]
+            self, predictions: List[PredictedEpitope], mhc_isoforms: List[Mhc2]
     ) -> List[PredictedEpitope]:
         """
         This function returns the predicted epitope with the lowest binding score for each patient allele,
-        considering homozyogosity
+        considering homozygosity
         """
+        netmhc2pan = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
         homozygous_alleles = BestAndMultipleBinderMhcII._get_homozygous_mhc2_alleles(
             mhc_isoforms
         )
+        homozygous_alleles = netmhc2pan.generate_mhc2_alelle_combinations(homozygous_alleles)
+        homozygous_alleles = list(set(homozygous_alleles))
         hetero_hemizygous_alleles = (
             BestAndMultipleBinderMhcII._get_heterozygous_or_hemizygous_mhc2_alleles(
                 mhc_isoforms
             )
         )
+        hetero_hemizygous_alleles = netmhc2pan.generate_mhc2_alelle_combinations(hetero_hemizygous_alleles)
         return BestAndMultipleBinderMhcII._get_sorted_epitopes_mhc2(
             hetero_hemizygous_alleles, homozygous_alleles, predictions
         )

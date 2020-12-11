@@ -108,7 +108,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=ModelConverter.parse_mhc2_isoform(line[1]),  # normalize HLA
+                        hla=line[1],
                         peptide=line[2],
                         affinity_score=float(line[8]),
                         rank=float(line[9]),
