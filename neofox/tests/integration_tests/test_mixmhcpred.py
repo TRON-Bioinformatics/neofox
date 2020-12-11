@@ -94,6 +94,19 @@ class TestMixMHCPred(TestCase):
         self.assertEqual(1, best_rank)
         self.assertEqual('A0201', best_allele)
 
+    def test_mixmhcpred_rare_aminoacid(self):
+        # this is an epitope from IEDB of length 9
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
+        )
+        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
+            mutation=mutation, mhc=TEST_MHC_ONE
+        )
+        self.assertIsNone(best_peptide)
+        self.assertIsNone(best_rank)
+        self.assertIsNone(best_allele)
+        self.assertIsNone(best_score)
+
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15
         mutation = ModelValidator._validate_mutation(
@@ -124,6 +137,18 @@ class TestMixMHCPred(TestCase):
         )
         best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
             mutation=mutation, mhc=TEST_MHC_TWO
+        )
+        self.assertIsNone(best_peptide)
+        self.assertIsNone(best_rank)
+        self.assertIsNone(best_allele)
+
+    def test_mixmhc2pred_rare_aminoacid(self):
+        # this is an epitope from IEDB of length 9
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
+        )
+        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
+            mutation=mutation, mhc=TEST_MHC_ONE
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_rank)

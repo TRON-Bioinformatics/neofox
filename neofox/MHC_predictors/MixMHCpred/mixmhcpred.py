@@ -101,7 +101,7 @@ class MixMHCpred:
                 " ".join(command), [a.name for m in mhc_isoforms for a in m.alleles], potential_ligand_sequences
             )
             logger.error(message)
-            raise NeofoxCommandException(message)
+            results = pd.DataFrame()
         os.remove(outtmp)
         return results
 
@@ -116,15 +116,15 @@ class MixMHCpred:
         )
         if len(potential_ligand_sequences) > 0:
             results = self._mixmhcprediction(mhc, potential_ligand_sequences)
-            # get best result by maximum score
-            best_result = results[results[SCORE] == results[SCORE].max()]
             try:
+                # get best result by maximum score
+                best_result = results[results[SCORE] == results[SCORE].max()]
                 best_peptide = best_result[PEPTIDE].iat[0]
                 best_rank = best_result[RANK].iat[0]
                 # normalize the HLA allele name
                 best_allele = best_result[ALLELE].iat[0]
                 best_score = best_result[SCORE].iat[0]
-            except IndexError:
+            except (IndexError, KeyError):
                 logger.info("MixMHCpred returned no best result")
         return best_peptide, best_rank, best_allele, best_score
 

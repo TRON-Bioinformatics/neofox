@@ -139,7 +139,7 @@ class ModelConverterTest(TestCase):
 
         # test external annotations
         self._assert_external_annotations(
-            expected_number_external_annotations=45,
+            expected_number_external_annotations=44,
             external_annotations=external_annotations,
         )
 
@@ -346,11 +346,11 @@ class ModelConverterTest(TestCase):
         neoantigens = [
             Neoantigen(
                 identifier="12345",
-                mutation=Mutation(wild_type_xmer="AAAAAAA", mutated_xmer="AAACAAA"),
+                mutation=Mutation(wild_type_xmer="AAAAAAA", mutated_xmer="AAACAAA", position=[]),
             ),
             Neoantigen(
                 identifier="6789",
-                mutation=Mutation(wild_type_xmer="AAAGAAA", mutated_xmer="AAAZAAA"),
+                mutation=Mutation(wild_type_xmer="AAAGAAA", mutated_xmer="AAAZAAA", position=[1, 2, 3]),
             ),
         ]
         df = ModelConverter.annotations2short_wide_table(
@@ -358,6 +358,7 @@ class ModelConverterTest(TestCase):
         )
         self.assertEqual(df.shape[0], 2)
         self.assertEqual(df.shape[1], 13)
+        self.assertEqual(0, df[df["mutation.position"].transform(lambda x: isinstance(x, list))].shape[0])
 
         df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)
         self.assertEqual(df_annotations.shape[0], 8)
