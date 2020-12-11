@@ -67,9 +67,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=ModelConverter.parse_mhc_allele(
-                            line[1]
-                        ).name,  # normalize HLA
+                        hla=line[1],
                         peptide=line[2],
                         affinity_score=float(line[12]),
                         rank=float(line[13]),
@@ -103,7 +101,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         )
         if len(patients_not_available_alleles) > 0:
             logger.warning(
-                "MHC I alleles {} are not supported by NetMHC2pan and no binding or derived features will "
+                "MHC I alleles {} are not supported by NetMHCpan and no binding or derived features will "
                 "include it".format(",".join(patients_not_available_alleles))
             )
         return patients_available_alleles
