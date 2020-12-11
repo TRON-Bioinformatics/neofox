@@ -44,7 +44,7 @@ This is a generic class to hold annotations from Neofox
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The name of the annotation |
-| value | [string](#string) |  | The value of the annotation TODO: make this better to hold int, float and bool |
+| value | [string](#string) |  | The value of the annotation |
 
 
 
