@@ -26,7 +26,6 @@ where:
 - `gene`: the HGNC gene symbol   
 - `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
-- `mutation.wildTypeAminoacid`: the wild type amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: the transcript expression. Should be empty if no value available
 - `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
@@ -107,7 +106,6 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
     "patientIdentifier": "Pt29",
     "gene": "BRCA2",
     "mutation": {
-        "position": [7],
         "wildTypeXmer": "AAAAAALAAAAA",
         "mutatedXmer": "AAAAAAFAAAAA"
     }
