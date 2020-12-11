@@ -80,7 +80,7 @@ class TestModelValidator(TestCase):
         )
         # adds the colon to homogenise representation
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A0101")
+            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01")
         )
         # does not modify an originally good representation
         self._assert_allele_validation(
@@ -115,11 +115,11 @@ class TestModelValidator(TestCase):
         )
         # adds the colon to homogenise representation
         self._assert_allele_validation(
-            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA10101")
+            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA101:01")
         )
         # does not reove the star
         self._assert_allele_validation(
-            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA1*0101")
+            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA1*01:01")
         )
         # removes further information
         self._assert_allele_validation(
