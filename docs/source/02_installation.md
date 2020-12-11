@@ -108,3 +108,16 @@ Add the reference folder to the Path
 ```
 export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 ```
+
+## Test installation   
+
+The user can test if all the installations have been successful by testing NeoFox with some test data. The test data can be downloaded here:  
+:download:`test file with neoantigen candidates <test_data.txt>`
+:download:`test file with patient data <test_patients.txt>`
+
+````commandline
+neofox --model-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --with-short-wide-table --with-tall-skinny-table --with-json --output-prefix test
+````
+
+The resulting output files can be compared to the following test output file:  
+:download:`annotated test file <test_neoantigen_candidates_annotated.tsv>`

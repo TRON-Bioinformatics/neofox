@@ -7,21 +7,12 @@ Welcome to the documentation of **NeoFox**!
 
 ## About NeoFox
 
-Neoantigens are tumor-specific antigens encoded by somatic mutations. Their break down products (neoepitopes) are 
-presented by the Major Histocompatibility Complex (MHC) on the surface of tumor cells enabling T-cells to recognize 
-these neoepitope sequences as foreign. This neoantigen-specific T-cell recognition may induce a potent anti-tumoral 
-response which make neoantigens highly interesting targets for cancer immunotherapy. Conventionally, candidates for 
-neoantigens are predicted by mutation calling from tumor and normal genome sequencing, non synonymous mutations are 
-selected and  then translated into small peptides or amino acid sequences. For the final step, algorithms that predict 
-the likelihood of a neoantigen candidate sequence to be indeed a true neoantigen are required. Several neoantigen 
-features that describe the ability of a neoantigen candidate sequence to induce a T-cell response have been published 
-in the last years. 
+Neoantigens are tumor-specific antigens encoded by somatic mutations. Their break down products (neoepitopes) are presented by the Major Histocompatibility Complex (MHC) on the surface of tumor cells enabling T-cells to recognize these neoepitope sequences as foreign. This neoantigen-specific T-cell recognition may induce a potent anti-tumoral response which make neoantigens highly interesting targets for cancer immunotherapy. Conventionally, candidates for neoantigens are predicted by mutation calling from tumor and normal genome sequencing, non synonymous mutations are
+selected and  then translated into small peptides or amino acid sequences. For the final step, algorithms that predict the likelihood of a neoantigen candidate sequence to be indeed a true neoantigen are required.  
+Several neoantigen features that describe the ability of a neoantigen candidate sequence to induce a T-cell response have been published in the last years.   
 
-***NeoFox*** (**NEO**antigen **F**eature toolb**OX**) is a python package that 
-annotates a given set of neoantigen candidate sequences derived from point mutation with relevant neoantigen features. 
-NeoFox covers neoepitope prediction by MHC binding and ligand prediction, similarity/foreignness of a neoepitope 
-candidate sequence, combinatorial features and machine learning approaches. A list of implemented features and their 
-references are given in Table 1.    
+**NeoFox** (**NEO**antigen **F**eature toolb**OX**) is a python package that annotates a given set of neoantigen candidate sequences derived from point mutation with relevant neoantigen features.  
+NeoFox covers neoepitope prediction by MHC binding and ligand prediction, similarity/foreignness of a neoepitope candidate sequence, combinatorial features and machine learning approaches. A list of implemented features and their references are given in Table 1.    
 
 **Table 1**
 
