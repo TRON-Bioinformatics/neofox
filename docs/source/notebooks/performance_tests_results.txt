@@ -1,9 +1,9 @@
 server	cpus	time
-troni1	16	1595.42
-troni1	32	895.20
-troni1	64	554.33
-troni1	96	584.80
-tronc7	16	1722.77
-tronc7	32	964.76
-tronc7	64	613.61
-tronc7	96	649.57
+intel	16	1595.42
+intel	32	895.20
+intel	64	554.33
+intel	96	584.80
+old	16	1722.77
+old	32	964.76
+old	64	613.61
+old	96	649.57
