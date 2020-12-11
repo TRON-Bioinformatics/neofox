@@ -14,21 +14,18 @@ We allow two different tabular formats of the neoantigen candidate file: `model-
 
 This is an dummy example of a table with neoantigen candidates in `model-file` format:  
 
-| transcript.assembly | transcript.gene | transcript.identifier | mutation.mutatedAminoacid | mutation.position | mutation.wildTypeAminoacid | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency |
-|---------------------|-----------------|-----------------------|---------------------------|-------------------|----------------------------|-------------------|---------------|---------------------------|---------------------------|
-| hg19                | BRCA2           | uc003kii.3            | L                         | 935               | F                          | Ptx               | 4.512         | 0.4675                    | 0.36103                   |
-| hg19                | BRCA2           | uc003kii.3            | M                         | 518               | R                          | Ptx               | 0.154         | 0.015404                  | 0.034404                  |
-| hg19                | BRCA2           | uc003kii.3            | G                         | 285               | K                          | Ptx               | 8.841207      | 0.89387                   | 0.51924                   |
+| gene  | mutation.wildTypeXmer       | mutation.mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
+|-------|-----------------------------|-----------------------------|-------------------|---------------|---------------------------|---------------------------|-----------------------|-----------------------|
+| BRCA2 | AAAAAAAAAAAAALAAAAAAAAAAAAA | AAAAAAAAAAAAAFAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAAGAAAAAAAAAAAAA | AAAAAAAAAAAAAKAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAACAAAAAAAAAAAAA | AAAAAAAAAAAAAEAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
+| BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 
 where:
-- `transcript.assembly`: the assembly of the reference genome (only hg19 is supported)
-- `transcript.gene`: the HGNC gene symbol   
-- `transcript.identifier`: a transcript identifier
+- `gene`: the HGNC gene symbol   
 - `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
-- `mutation.mutatedAminoacid`: the mutated amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
-- `mutation.position`: the 1 based position of the mutation in the protein
-- `mutation.wildTypeAminoacid`: the wild type amino acid (IUPAC 1 or 3 letters respecting casing, eg: A and Ala)
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: the transcript expression. Should be empty if no value available
 - `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
@@ -38,18 +35,17 @@ where:
 
 2. **candidate-file format**  
 
-Alternatively, neoantigen candidates can be provided in `candidate-file` format. This is an dummy example:  
+Alternatively, neoantigen candidates can be provided in `candidate-file` format. In principle the columns are the same as in the `model-file`. Of note,`candidate-file` allows for an optional patient id in the data table. This is an dummy example:  
 
-|  patient | gene   | UCSC_transcript | transcript_expression | substitution | +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | VAF_in_tumor | VAF_in_RNA |
-|----------|--------|-----------------|-----------------------|--------------|----------------------------------------|---------------------------------------------|--------------|------------|
-|  Ptx     | VCAN   | uc003kii.3      | 0.519506894           | I547T        | DEVLGEPSQDILVTDQTRLEATISPET            | DEVLGEPSQDILVIDQTRLEATISPET                 |  0.294       |  0.857     |
-|  Ptx     | TRIM25 | uc001zii.3      | 0.715756594           | E135S        | PQLHKNTVLCNVVSQFLQADLAREPPA            | PQLHKNTVLCNVVEQFLQADLAREPPA                 |  0.173       |  0.556     |
+|     patient |     gene  | substitution |     transcript_expression |     +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) |     [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) |     VAF_in_tumor |     VAF_in_RNA    |
+|-------------|-----------|--------------|---------------------------|--------------------------------------------|-------------------------------------------------|------------------|-------------------|
+|     Ptx     |     BRCA2 | I547T        |     0.51950689            |     AAAAAAAAAAAAAFAAAAAAAAAAAAA            |     AAAAAAAAAAAAALAAAAAAAAAAAAA                 |     0.294        |     0.857         |
+|     Ptx     |     BRCA2 | E135S        |     0.71575659            |     AAAAAAAAAAAAAMAAAAAAAAAAAAA            |     AAAAAAAAAAAAARAAAAAAAAAAAAA                 |     0.173        |     0.556         |
 
 where:
 - `patient` is the patient id (**optional**). If this column is not provided, `--patient-id` must be given as input when starting NeoFox (see [here](/03_03_usage.md)). Of note, providing this column allows to put the neoantigen candidates of several patients into one table.
 - `gene` is the HGNC gene symbol
-- `UCSC_trancript` is the UCSC transcript id including the version. (The user can enter a non-UCSC transcript id, if no UCSC transcript id is available)
-- `substitution` represents a single amino acid substitution with single letter amino acids (eg: I547T)
+- `substitution`  represents a single amino acid substitution with single letter amino acids (eg: I547T). This column allows the detection of INDEL sequences which are removed from the dataset and not processed.  
 - `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
 - `transcript_expression` the transcript expression. Should be empty if no value available
@@ -106,21 +102,12 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 
 ```json
 [{
-  "patientIdentifier": "Ptx",
-  "transcript": {
-    "identifier": "uc003kii.3",
-    "assembly": "hg19",
-    "gene": "VCAN"
-  },
-  "mutation": {
-    "position": 1007,
-    "wildTypeAminoacid": "I",
-    "mutatedAminoacid": "T",
-    "mutatedXmer": "DEVLGEPSQDILVTDQTRLEATISPET",
-    "wildTypeXmer": "DQTRLEATISPETIDQTRLEATISPET"
-  },
-  "rnaExpression": 0.519506894,
-  "dnaVariantAlleleFrequency": 0.294573643,
-  "rnaVariantAlleleFrequency": 0.857142857
+    "identifier": "odJ99FdqvJoK1znK+iCpWQ==",
+    "patientIdentifier": "Ptx",
+    "gene": "BRCA2",
+    "mutation": {
+        "wildTypeXmer": "AAAAAAAAAAAAALAAAAAAAAAAAAA",
+        "mutatedXmer": "AAAAAAAAAAAAAFAAAAAAAAAAAAA"
+    }
 }]
 ``` 
