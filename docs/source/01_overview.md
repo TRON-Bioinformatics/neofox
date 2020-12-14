@@ -56,4 +56,4 @@ Happy annotation and modelling!
 For questions, please contact Franziska Lang ([franziska.lang@tron-mainz.de](mailto:franziska.lang@tron-mainz.de)) or Pablo Riesgo Ferreiro ([pablo.riesgoferreiro@tron-mainz.de](mailto:pablo.riesgoferreiro@tron-mainz.de)).
 
 ## How to cite
-Franziska Lang, & Pablo Riesgo Ferreiro. (2020). TRON-Bioinformatics/neofox: Neofox v0.4.0. Zenodo. http://doi.org/10.5281/zenodo.4090421
+Franziska Lang, & Pablo Riesgo Ferreiro. (2020). TRON-Bioinformatics/neofox: Neofox v0.4.0. Zenodo. [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
