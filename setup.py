@@ -21,7 +21,7 @@ import neofox
 
 
 # parses requirements from file
-with open('requirements.txt') as f:
+with open("requirements.txt") as f:
     required = f.read().splitlines()
 
 with open("README.md", "r") as f:
@@ -29,21 +29,21 @@ with open("README.md", "r") as f:
 
 # Build the Python package
 setup(
-    name='neofox',
+    name="neofox",
     version=neofox.VERSION,
     packages=find_packages(),
     include_package_data=True,
     entry_points={
-        'console_scripts': [
-            'neofox=neofox.command_line:neofox_cli',
-            'neofox-configure=neofox.command_line:neofox_configure'
+        "console_scripts": [
+            "neofox=neofox.command_line:neofox_cli",
+            "neofox-configure=neofox.command_line:neofox_configure",
         ],
     },
     author_email="franziska.lang@tron-mainz.de",
     author="TRON – Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz "
-           "- Computational Medicine group",
+    "- Computational Medicine group",
     description="Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope "
-                "descriptors",
+    "descriptors",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tron-bioinformatics/neofox",
@@ -53,10 +53,10 @@ setup(
     install_requires=required,
     setup_requires=[],
     classifiers=[
-        'Development Status :: 5 - Production/Stable',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
-        'Intended Audience :: Healthcare Industry',
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Bio-Informatics',
-        'Programming Language :: Python :: 3'
-      ]
+        "Development Status :: 5 - Production/Stable",  # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
+        "Intended Audience :: Healthcare Industry",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Programming Language :: Python :: 3",
+    ],
 )

@@ -19,9 +19,9 @@
 # Python version with Biopython
 # . /etc/profile.d/modules.sh; module load software/python/python-2.7.9
 
-'''
+"""
 This script takes as neofox table from iCAM pipeline and calculates Literature feature of neoantigens
-'''
+"""
 
 # import modules
 import math
@@ -31,19 +31,15 @@ from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 
 
-class VaxRank():
-
+class VaxRank:
     def __init__(self):
         self.total_binding_score = None
         self.ranking_score = None
         self.expression_score = None
 
     def logistic_epitope_score(
-            self,
-            ic50,
-            midpoint=350.0,
-            width=150.0,
-            ic50_cutoff=5000.0):  # TODO: add these default values into CLI as arguments
+        self, ic50, midpoint=350.0, width=150.0, ic50_cutoff=5000.0
+    ):  # TODO: add these default values into CLI as arguments
         """
         Map from IC50 values to score where 1.0 = strong binder, 0.0 = weak binder
         Default midpoint and width for logistic determined by max likelihood fit
@@ -75,8 +71,12 @@ class VaxRank():
         # print mut_scores_list
 
         # logistic transformation and sum over all epitopes deriving from mutations
-        [mut_scores_logistic.append(self.logistic_epitope_score(ic50=float(mhc_affinity))) for mhc_affinity in
-         mut_scores_list]
+        [
+            mut_scores_logistic.append(
+                self.logistic_epitope_score(ic50=float(mhc_affinity))
+            )
+            for mhc_affinity in mut_scores_list
+        ]
         # print mut_scores_logistic
         return sum(mut_scores_logistic)
 
@@ -100,6 +100,10 @@ class VaxRank():
 
     def get_annotations(self) -> List[Annotation]:
         return [
-            AnnotationFactory.build_annotation(value=self.total_binding_score, name="vaxrank_binding_score"),
-            AnnotationFactory.build_annotation(value=self.ranking_score, name="vaxrank_total_score")
+            AnnotationFactory.build_annotation(
+                value=self.total_binding_score, name="vaxrank_binding_score"
+            ),
+            AnnotationFactory.build_annotation(
+                value=self.ranking_score, name="vaxrank_total_score"
+            ),
         ]

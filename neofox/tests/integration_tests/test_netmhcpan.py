@@ -16,11 +16,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
 from unittest import TestCase
-
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.helpers import intermediate_files
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
@@ -28,88 +25,93 @@ from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO
 
 
 class TestNetMhcPanPredictor(TestCase):
-
     def setUp(self):
         references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
         self.available_alleles = references.get_available_alleles()
 
     def test_netmhcpan_epitope_iedb(self):
-        netmhcpan_predictor = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
+        netmhcpan_predictor = NetMhcPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
         # this is an epitope from IEDB of length 9
-        mutated = 'NLVPMVATV'
-        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
-        netmhcpan_predictor.mhc_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction, mhc_isoforms=TEST_MHC_ONE,
-            set_available_mhc=self.available_alleles.get_available_mhc_i())
-        self.assertTrue(os.path.exists(tmp_prediction))
-        self.assertEqual(19, len(open(tmp_prediction).readlines()))
-        header, rows = netmhcpan_predictor.filter_binding_predictions([4], tmp_prediction)
-        self.assertEqual(14, len(header))  # output has 14 columns
-        for r in rows:
-            self.assertEqual(14, len(r))  # each row has 14 columns
-        self.assertEqual(18, len(rows))
+        mutated = "NLVPMVATV"
+        predictions = netmhcpan_predictor.mhc_prediction(
+            sequence=mutated,
+            mhc_alleles=TEST_MHC_ONE,
+            set_available_mhc=self.available_alleles.get_available_mhc_i(),
+        )
+        self.assertEqual(18, len(predictions))
 
     def test_netmhcpan_too_small_epitope(self):
-        netmhcpan_predictor = NetMhcPanPredictor(runner=self.runner, configuration=self.configuration)
-        mutated = 'NLVP'
-        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
-        netmhcpan_predictor.mhc_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
-            mhc_isoforms=TEST_MHC_ONE,
-            set_available_mhc=self.available_alleles.get_available_mhc_i())
-        self.assertTrue(os.path.exists(tmp_prediction))
-        # TODO: this is writing ot the output file "No;peptides;derived;from;protein;ID;seq1;len;4.;Skipped"
-        self.assertEqual(6, len(open(tmp_prediction).readlines()))
+        netmhcpan_predictor = NetMhcPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
+        mutated = "NLVP"
+        predictions = netmhcpan_predictor.mhc_prediction(
+            sequence=mutated,
+            mhc_alleles=TEST_MHC_ONE,
+            set_available_mhc=self.available_alleles.get_available_mhc_i(),
+        )
+        self.assertEqual(0, len(predictions))
 
-        # TODO: it crashes here as it fails to parse the header. Fix and remove the try-except
-        try:
-            header, rows = netmhcpan_predictor.filter_binding_predictions(2, tmp_prediction)
-            self.assertEqual(14, len(header))  # output has 14 columns
-            for r in rows:
-                self.assertEqual(14, len(r))  # each row has 14 columns
-            self.assertEqual(0, len(rows))
-        except:
-            pass
+    def test_netmhcpan_rare_aminoacid(self):
+        netmhcpan_predictor = NetMhcPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
+        # this is an epitope from IEDB of length 9
+        mutated = "XTTDSWGKF"
+        predictions = netmhcpan_predictor.mhc_prediction(
+            sequence=mutated,
+            mhc_alleles=TEST_MHC_ONE,
+            set_available_mhc=self.available_alleles.get_available_mhc_i(),
+        )
+        self.assertEqual(18, len(predictions))
 
     def test_netmhc2pan_epitope_iedb(self):
-        netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
+        netmhc2pan_predictor = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
         # this is an epitope from IEDB of length 15
-        mutated = 'ENPVVHFFKNIVTPR'
-        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
-        netmhc2pan_predictor.mhcII_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
-            hla_alleles=netmhc2pan_predictor.generate_mhc_ii_alelle_combinations(TEST_MHC_TWO))
-        self.assertTrue(os.path.exists(tmp_prediction))
-        self.assertEqual(3, len(open(tmp_prediction).readlines()))
-
-        header, rows = netmhc2pan_predictor.filter_binding_predictions([4], tmp_prediction)
-        self.assertEqual(12, len(header))  # output has 14 columns
-        for r in rows:
-            self.assertTrue(len(r) <= 12 or len(r) >= 10)  # each row has 10 or 12 columns
-        self.assertEqual(2, len(rows))
+        mutated = "ENPVVHFFKNIVTPR"
+        predictions = netmhc2pan_predictor.mhcII_prediction(
+            sequence=mutated,
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
+                TEST_MHC_TWO
+            ),
+        )
+        self.assertEqual(10, len(predictions))
+        for p in predictions:
+            self.assertIsNotNone(p.peptide)
+            self.assertIsNotNone(p.hla)
+            self.assertIsNotNone(p.affinity_score)
+            self.assertIsNotNone(p.pos)
+            self.assertIsNotNone(p.rank)
 
     def test_netmhc2pan_too_small_epitope(self):
-        netmhc2pan_predictor = NetMhcIIPanPredictor(runner=self.runner, configuration=self.configuration)
+        netmhc2pan_predictor = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
         # this is an epitope from IEDB of length 15
-        mutated = 'ENPVVH'
-        tmp_prediction = intermediate_files.create_temp_file(prefix="netmhcpanpred_", suffix=".csv")
-        tmp_fasta = intermediate_files.create_temp_fasta(sequences=[mutated], prefix="tmp_")
-        netmhc2pan_predictor.mhcII_prediction(
-            tmpfasta=tmp_fasta, tmppred=tmp_prediction,
-            hla_alleles=netmhc2pan_predictor.generate_mhc_ii_alelle_combinations(TEST_MHC_TWO))
-        self.assertTrue(os.path.exists(tmp_prediction))
-        self.assertEqual(1, len(open(tmp_prediction).readlines()))
+        mutated = "ENPVVH"
+        predictions = netmhc2pan_predictor.mhcII_prediction(
+            sequence=mutated,
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
+                TEST_MHC_TWO
+            ),
+        )
+        self.assertEqual(0, len(predictions))
 
-        # TODO: it crashes here as it fails to parse the header. Fix and remove the try-except
-        try:
-            header, rows = netmhc2pan_predictor.filter_binding_predictions(4, tmp_prediction)
-            self.assertEqual(12, len(header))  # output has 14 columns
-            for r in rows:
-                self.assertTrue(len(r) <= 12 or len(r) >= 10)  # each row has 10 or 12 columns
-            self.assertEqual(0, len(rows))
-        except:
-            pass
+    def test_netmhc2pan_rare_aminoacid(self):
+        netmhc2pan_predictor = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration
+        )
+        # this is an epitope from IEDB of length 15
+        mutated = "XTTDSWGKFDDDDDDDDD"
+        predictions = netmhc2pan_predictor.mhcII_prediction(
+            sequence=mutated,
+            mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
+                TEST_MHC_TWO
+            ),
+        )
+        self.assertEqual(40, len(predictions))

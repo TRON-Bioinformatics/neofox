@@ -19,19 +19,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 import tempfile
-from typing import List, Set
+from typing import List
+from neofox.helpers import intermediate_files
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
+    AbstractNetMhcPanPredictor,
+    PredictedEpitope,
+)
+from neofox.model.conversion import ModelConverter
+from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name
 
-from logzero import logger
 
-from neofox.helpers import data_import
-from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
-from neofox.model.neoantigen import Mhc2, Mhc2GeneName, MhcAllele, Mhc2Name
-from neofox.model.wrappers import get_alleles_by_gene
-
-
-class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
-
+class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
     def __init__(self, runner, configuration):
         """
         :type runner: neofox.helpers.runner.Runner
@@ -40,103 +38,80 @@ class NetMhcIIPanPredictor(EpitopeHelper, AbstractNetMhcPanPredictor):
         self.runner = runner
         self.configuration = configuration
 
-    def generate_mhc_ii_alelle_combinations(self, mhcs: List[Mhc2]) -> List[str]:
-        """ given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
+    def generate_mhc2_alelle_combinations(self, mhc_alleles: List[Mhc2]) -> List[str]:
+        """given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
-        dp_dq_isoforms = [self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
-                           for mhc in mhcs if mhc.name != Mhc2Name.DR for m in mhc.isoforms]
-        dr_isoforms = [self._represent_drb1_allele(m.beta_chain)
-                        for mhc in mhcs if mhc.name == Mhc2Name.DR for m in mhc.isoforms]
+        dp_dq_isoforms = [
+            self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
+            for mhc in mhc_alleles
+            if mhc.name != Mhc2Name.DR
+            for m in mhc.isoforms
+        ]
+        dr_isoforms = [
+            self._represent_drb1_allele(m.beta_chain)
+            for mhc in mhc_alleles
+            if mhc.name == Mhc2Name.DR
+            for m in mhc.isoforms
+        ]
         return dp_dq_isoforms + dr_isoforms
 
     @staticmethod
-    def _represent_drb1_allele(hla_allele: MhcAllele):
+    def _represent_drb1_allele(mhc_allele: MhcAllele):
         return "{gene}_{group}{protein}".format(
-            gene=hla_allele.gene, group=hla_allele.group, protein=hla_allele.protein)
+            gene=mhc_allele.gene, group=mhc_allele.group, protein=mhc_allele.protein
+        )
 
     @staticmethod
-    def _represent_dp_and_dq_allele(hla_a_allele: MhcAllele, hla_b_allele: MhcAllele):
+    def _represent_dp_and_dq_allele(mhc_a_allele: MhcAllele, mhc_b_allele: MhcAllele):
         return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
-            gene_a=hla_a_allele.gene, group_a=hla_a_allele.group, protein_a=hla_a_allele.protein,
-            gene_b=hla_b_allele.gene, group_b=hla_b_allele.group, protein_b=hla_b_allele.protein)
+            gene_a=mhc_a_allele.gene,
+            group_a=mhc_a_allele.group,
+            protein_a=mhc_a_allele.protein,
+            gene_b=mhc_b_allele.gene,
+            group_b=mhc_b_allele.group,
+            protein_b=mhc_b_allele.protein,
+        )
 
-    def mhcII_prediction(self, hla_alleles: List[str], tmpfasta, tmppred):
-        """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file.
-        """
+    def mhcII_prediction(
+        self, mhc_alleles: List[str], sequence
+    ) -> List[PredictedEpitope]:
+        """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
         # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
+        tmp_fasta = intermediate_files.create_temp_fasta(
+            [sequence], prefix="tmp_singleseq_"
+        )
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
-        lines, _ = self.runner.run_command([
-            self.configuration.net_mhc2_pan,
-            "-a", ",".join(hla_alleles),
-            "-f", tmpfasta,
-            "-tdir", tmp_folder,
-            "-dirty"])
-        counter = 0
-        # TODO: avoid writing a file here, just return some data structure no need to go to the file system
-        with open(tmppred, "w") as f:
-            for line in lines.splitlines():
-                line = line.rstrip().lstrip()
-                if line:
-                    if line.startswith(("#", "-", "Number", "Temporary")):
-                        continue
-                    if counter == 0 and line.startswith("Seq"):
-                        counter += 1
-                        line = line.split()
-                        line = line[0:-1] if len(line) > 12 else line
-                        f.write(";".join(line) + "\n")
-                        continue
-                    elif counter > 0 and line.startswith("Seq"):
-                        continue
-                    line = line.split()
-                    line = line[0:-2] if len(line) > 11 else line
-                    f.write(";".join(line) + "\n")
+        lines, _ = self.runner.run_command(
+            [
+                self.configuration.net_mhc2_pan,
+                "-a",
+                ",".join(mhc_alleles),
+                "-f",
+                tmp_fasta,
+                "-tdir",
+                tmp_folder,
+                "-dirty",
+            ]
+        )
+        return self._parse_netmhcpan_output(lines)
 
-    def filter_binding_predictions(self, position_xmer_sequence, tmppred):
-        """
-        filters prediction file for predicted epitopes that cover mutations
-        """
-        header, data = data_import.import_dat_general(tmppred)
-        epitopes_covering_mutation = []
-        pos_epi = header.index("Seq")
-        epi = header.index("Peptide")
-        for ii, i in enumerate(data):
-            if self.epitope_covers_mutation(position_xmer_sequence, i[pos_epi], len(i[epi])):
-                epitopes_covering_mutation.append(data[ii])
-        return header, epitopes_covering_mutation
-
-    def minimal_binding_score(self, prediction_tuple, rank=True):
-        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
-        if rank = False, Aff(nM) is used
-        """
-        # TODO: generalize this method with netmhcpan_prediction.py + change neofox
-        header = prediction_tuple[0]
-        data = prediction_tuple[1]
-        if rank:
-            mhc_sc = header.index("%Rank")
-        else:
-            mhc_sc = header.index("Affinity(nM)")
-        max_score = float(1000000000)
-        best_predicted_epitope = []
-        for ii, i in enumerate(data):
-            mhc_score = float(i[mhc_sc])
-            if mhc_score < max_score:
-                max_score = mhc_score
-                best_predicted_epitope = i
-        return header, best_predicted_epitope
-
-    def filter_for_wt_epitope_position(self, prediction_tuple, mut_seq, position_epitope_in_xmer):
-        """returns wt epitope info for given mutated sequence. best wt that is allowed to bind to any allele of patient
-        """
-        header = prediction_tuple[0]
-        data = prediction_tuple[1]
-        seq_col = header.index("Peptide")
-        pos_col = header.index("Seq")
-        epitopes_wt = []
-        for ii, i in enumerate(data):
-            wt_seq = i[seq_col]
-            wt_pos = i[pos_col]
-            if (len(wt_seq) == len(mut_seq)) & (wt_pos == position_epitope_in_xmer):
-                epitopes_wt.append(i)
-        all_epitopes_wt = (header, epitopes_wt)
-        return self.minimal_binding_score(all_epitopes_wt)
+    def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
+        results = []
+        for line in lines.splitlines():
+            line = line.rstrip().lstrip()
+            if line:
+                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR")):
+                    continue
+                line = line.split()
+                line = line[0:-1] if len(line) > 12 else line
+                results.append(
+                    PredictedEpitope(
+                        pos=int(line[0]),
+                        hla=line[1],
+                        peptide=line[2],
+                        affinity_score=float(line[8]),
+                        rank=float(line[9]),
+                    )
+                )
+        return results
