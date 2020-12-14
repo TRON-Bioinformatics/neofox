@@ -22,7 +22,6 @@ import os
 
 
 class BlastpRunner(object):
-
     def __init__(self, runner, configuration):
         """
         :type runner: neofox.helpers.runner.Runner
@@ -36,17 +35,30 @@ class BlastpRunner(object):
         This function runs BLASTP on a given database
         """
         input_fasta = intermediate_files.create_temp_fasta(
-            sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix='M_')
-        outfile = intermediate_files.create_temp_file(prefix="tmp_blastp_", suffix=".xml")
-        self.runner.run_command(cmd=[
-            self.configuration.blastp,
-            "-gapopen", "11",
-            "-gapextend", "1",
-            "-outfmt", "5",
-            "-query", input_fasta,
-            "-out", outfile,
-            "-db", database,
-            "-evalue", "100000000"])
+            sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix="M_"
+        )
+        outfile = intermediate_files.create_temp_file(
+            prefix="tmp_blastp_", suffix=".xml"
+        )
+        self.runner.run_command(
+            cmd=[
+                self.configuration.blastp,
+                "-gapopen",
+                "11",
+                "-gapextend",
+                "1",
+                "-outfmt",
+                "5",
+                "-query",
+                input_fasta,
+                "-out",
+                outfile,
+                "-db",
+                database,
+                "-evalue",
+                "100000000",
+            ]
+        )
 
         score = self._parse_blastp_output(outfile, a=a)
         os.remove(outfile)
@@ -56,6 +68,12 @@ class BlastpRunner(object):
     def _parse_blastp_output(self, blastp_output_file, a) -> int:
         aligner = Aligner()
         # set a to 32 for dissimilarity
-        aligner.readAllBlastAlignments(blastp_output_file)
-        aligner.computeR(a=a)
-        return aligner.Ri.get(1, 0)  # NOTE: returns 0 when not present
+        try:
+            aligner.readAllBlastAlignments(blastp_output_file)
+            aligner.computeR(a=a)
+            result = aligner.Ri.get(1, 0)  # NOTE: returns 0 when not present
+        except SystemError:
+            # NOTE: some rarer aminoacids substitutions may not be present in the BLOSUM matrix and thus cause this to
+            # fail, an example is U>Y
+            result = None
+        return result

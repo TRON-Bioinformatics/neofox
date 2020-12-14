@@ -2,58 +2,20 @@ syntax = "proto3";
 
 package neoantigen;
 
-message Transcript {
-	/**
-	The transcript identifier to which this neoepitope definition refers (e.g.: Ensembl transcript id)
-	*/
-	string identifier = 1;
-	/**
-	The genome assembly to which the gene definition refers to (e.g.: GRCh37, GRCh38)
-	*/
-	string assembly = 2;
-	/**
-	The gene symbol or gene identifier, optional as the transcript unequivocally identifies a gene
-	*/
-	string gene = 3;
-}
 
 message Mutation {
 	/**
-	The aminoacid position within the protein. 1-based, starting in the N-terminus
+	The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
 	*/
-	int32 position = 1;
+	repeated int32 position = 1;
 	/**
-	Sequence of aminoacids for the wild type xmer
+	Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes)
 	*/
 	string wildTypeXmer = 2;
 	/**
-	IUPAC code for the wild type aminoacid in this position
+	Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
 	*/
-	string wildTypeAminoacid = 3;
-	/**
-	Sequence of aminoacids for the mutated xmer
-	*/
-	string mutatedXmer = 4;
-	/**
-	IUPAC code for the mutated aminoacid in this position
-	*/
-	string mutatedAminoacid = 5;
-	/**
-	The left flanking region of variable size in IUPAC codes
-	*/
-	string leftFlankingRegion = 6;
-	/**
-	The size of the left flanking region
-	*/
-	int32 sizeLeftFlankingRegion = 7;
-	/**
-	The right flanking region of variable size in IUPAC codes
-	*/
-	string rightFlankingRegion = 8;
-	/**
-	The size of the right flanking region
-	*/
-	int32 sizeRightFlankingRegion = 9;
+	string mutatedXmer = 3;
 }
 
 /**
@@ -69,30 +31,25 @@ message Neoantigen {
 	*/
 	string patientIdentifier = 2;
 	/**
-	The transcript where the neoepitope was observed
+	The HGNC gene symbol or gene identifier
 	*/
-	Transcript transcript = 3;
+	string gene = 3;
 	/**
 	The mutation
 	*/
 	Mutation mutation = 4;
 	/**
-	Clonality estimation. At the moment this is a boolean indicating whether there is clonality or not,
-	there is no quantitive measurement at the moment.
-	*/
-	bool clonalityEstimation = 5;
-	/**
 	Expression value of the transcript from RNA data. Range [0, +inf].
 	*/
-	float rnaExpression = 6;
+	float rnaExpression = 5;
 	/**
 	Variant allele frequency from the DNA. Range [0.0, 1.0]
 	*/
-	float dnaVariantAlleleFrequency = 7;
+	float dnaVariantAlleleFrequency = 6;
 	/**
 	Variant allele frequency from the RNA. Range [0.0, 1.0]
 	*/
-	float rnaVariantAlleleFrequency = 8;
+	float rnaVariantAlleleFrequency = 7;
 }
 
 /**
@@ -108,13 +65,17 @@ message Patient {
 	*/
 	bool isRnaAvailable = 2;
 	/**
+	Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations
+	*/
+	string tumorType = 3;
+	/**
 	MHC I classic molecules
 	*/
-	repeated Mhc1 mhc1 = 3;
+	repeated Mhc1 mhc1 = 4;
 	/**
 	MHC II classic molecules
 	*/
-	repeated Mhc2 mhc2 = 4;
+	repeated Mhc2 mhc2 = 5;
 }
 
 /**
@@ -127,7 +88,6 @@ message Annotation {
 	string name = 1;
 	/**
 	The value of the annotation
-	TODO: make this better to hold int, float and bool
 	*/
 	string value = 2;
 }

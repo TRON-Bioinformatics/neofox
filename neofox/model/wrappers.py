@@ -23,10 +23,13 @@ import re
 NOT_AVAILABLE_VALUE = "NA"
 
 HLA_ALLELE_PATTERN = re.compile(
-    r"(?:HLA-)?([A-Z0-9]+)[\*|_]?([0-9]{2}):?([0-9]{2,}):?([0-9]{2,})?:?([0-9]{2,})?([N|L|S|Q]{0,1})")
-HLA_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})-"
-                                  r"([A-Z0-9]+[\*|_]?[0-9]{2,}:?[0-9]{2,})")
-HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}:?[0-9]{2,})")
+    r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})[:|_]([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
+)
+HLA_MOLECULE_PATTERN = re.compile(
+    r"(?:HLA-)?((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_][0-9]{2,})[-|_]{1,2}"
+    r"((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_][0-9]{2,})"
+)
+HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_][0-9]{2,})")
 GENES_BY_MOLECULE = {
     Mhc2Name.DR: [Mhc2GeneName.DRB1],
     Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
@@ -35,7 +38,6 @@ GENES_BY_MOLECULE = {
 
 
 class AnnotationFactory(object):
-
     @staticmethod
     def build_annotation(name, value):
         if isinstance(value, bool):
@@ -51,8 +53,12 @@ class AnnotationFactory(object):
         return Annotation(name=name, value=value)
 
 
-def get_alleles_by_gene(mhc_isoforms: List[Mhc2], gene: Mhc2GeneName) -> List[MhcAllele]:
-    return [a for m in mhc_isoforms for g in m.genes if g.name == gene for a in g.alleles]
+def get_alleles_by_gene(
+    mhc_isoforms: List[Mhc2], gene: Mhc2GeneName
+) -> List[MhcAllele]:
+    return [
+        a for m in mhc_isoforms for g in m.genes if g.name == gene for a in g.alleles
+    ]
 
 
 def get_mhc2_isoform_name(a: MhcAllele, b: MhcAllele):

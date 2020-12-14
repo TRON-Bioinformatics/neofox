@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from unittest import TestCase, SkipTest
+from unittest import TestCase
 
 from neofox.model.neoantigen import Annotation
 from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
@@ -26,16 +26,20 @@ from neofox.tests.fake_classes import FakeBestAndMultipleBinder
 
 
 class TestNeoantigenFitness(TestCase):
-
     def setUp(self):
         self.references, self.configuration = integration_test_tools.load_references()
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         self.runner = Runner()
 
     def test_neoag(self):
-        result = NeoagCalculator(runner=self.runner, configuration=self.configuration).get_annotation(
+        result = NeoagCalculator(
+            runner=self.runner, configuration=self.configuration
+        ).get_annotation(
             sample_id="12345",
-            netmhcpan=FakeBestAndMultipleBinder(mutated_epitope="DDDDDV", wild_type_epitope="DDDDDD", affinity=0),
-            peptide_variant_position="123")
+            netmhcpan=FakeBestAndMultipleBinder(
+                mutated_epitope="DDDDDV", wild_type_epitope="DDDDDD", affinity=0
+            ),
+            peptide_variant_position="123",
+        )
         self.assertTrue(isinstance(result, Annotation))
         self.assertTrue(float(result.value) > 0)

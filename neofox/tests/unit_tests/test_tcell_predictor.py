@@ -17,11 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
+    TcellPrediction,
+)
 
 
 class TestTCellPredictor(TestCase):
-
     def setUp(self) -> None:
         self.tcell_predictor = TcellPrediction()
 
@@ -29,20 +30,58 @@ class TestTCellPredictor(TestCase):
 
     def test_non_existing_gene(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
-            gene="BLAH", substitution='blaaaah', epitope="BLAHBLAH", score=5, threshold=10)
+            gene="BLAH",
+            substitution="blaaaah",
+            epitope="BLAHBLAH",
+            score=5,
+            threshold=10,
+        )
+        self.assertEqual(None, result)
+
+    def test_empty_gene(self):
+        result = self.tcell_predictor._calculate_tcell_predictor_score(
+            gene=None,
+            substitution="blaaaah",
+            epitope="BLAHBLAH",
+            score=5,
+            threshold=10,
+        )
+        self.assertEqual(None, result)
+        result = self.tcell_predictor._calculate_tcell_predictor_score(
+            gene="",
+            substitution="blaaaah",
+            epitope="BLAHBLAH",
+            score=5,
+            threshold=10,
+        )
+        self.assertEqual(None, result)
+        result = self.tcell_predictor._calculate_tcell_predictor_score(
+            gene="   ",
+            substitution="blaaaah",
+            epitope="BLAHBLAH",
+            score=5,
+            threshold=10,
+        )
         self.assertEqual(None, result)
 
     def test_existing_gene_with_too_short_epitope(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
-            gene="BRCA2", substitution='C', epitope="CCCCCC", score=5, threshold=10)
+            gene="BRCA2", substitution="C", epitope="CCCCCC", score=5, threshold=10
+        )
         self.assertEqual(None, result)
 
     def test_existing_gene_with_too_long_epitope(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
-            gene="BRCA2", substitution='C', epitope="CCCCCCCCCC", score=5, threshold=10)
+            gene="BRCA2", substitution="C", epitope="CCCCCCCCCC", score=5, threshold=10
+        )
         self.assertEqual(None, result)
 
     def test_existing_gene(self):
         result = self.tcell_predictor._calculate_tcell_predictor_score(
-            gene="BRCA2", substitution='CCCCVCCCC', epitope="CCCCCCCCC", score=5, threshold=10)
+            gene="BRCA2",
+            substitution="CCCCVCCCC",
+            epitope="CCCCCCCCC",
+            score=5,
+            threshold=10,
+        )
         self.assertAlmostEqual(0.2453409331088489, float(result))

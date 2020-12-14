@@ -17,26 +17,21 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-
 import os
 import os.path
 from typing import List
-
 from logzero import logger
-
-from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
-from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
+from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
+    BestAndMultipleBinder,
+)
 from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class NeoantigenFitnessCalculator(BlastpRunner):
-
     def __init__(self, runner, configuration, iedb):
         """
         :type runner: neofox.helpers.runner.Runner
@@ -46,11 +41,17 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         self.iedb = iedb
 
     def get_pathogen_similarity(self, mutation):
-        pathsim = self.run_blastp(peptide=mutation, database=os.path.join(self.iedb, IEDB_BLAST_PREFIX))
-        logger.info("Peptide {} has a pathogen similarity of {}".format(mutation, pathsim))
+        pathsim = self.run_blastp(
+            peptide=mutation, database=os.path.join(self.iedb, IEDB_BLAST_PREFIX)
+        )
+        logger.info(
+            "Peptide {} has a pathogen similarity of {}".format(mutation, pathsim)
+        )
         return pathsim
 
-    def calculate_amplitude_mhc(self, score_mutation, score_wild_type, apply_correction=False):
+    def calculate_amplitude_mhc(
+        self, score_mutation, score_wild_type, apply_correction=False
+    ):
         """
         This function calculates the amplitude between mutated and wt epitope according to Balachandran et al.
         when affinity is used, use correction from Luksza et al. *1/(1+0.0003*aff_wt)
@@ -59,10 +60,12 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         try:
             candidate_amplitude_mhc = score_wild_type / score_mutation
             if apply_correction:  # nine_mer or affinity:
-                amplitude_mhc = candidate_amplitude_mhc * self._calculate_correction(score_wild_type)
+                amplitude_mhc = candidate_amplitude_mhc * self._calculate_correction(
+                    score_wild_type
+                )
             else:
                 amplitude_mhc = candidate_amplitude_mhc
-        except(ZeroDivisionError, ValueError, TypeError):
+        except (ZeroDivisionError, ValueError, TypeError):
             pass
         return amplitude_mhc
 
@@ -70,8 +73,12 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         return 1 / (1 + 0.0003 * float(score_wild_type))
 
     def calculate_recognition_potential(
-            self, amplitude: float, pathogen_similarity: float, mutation_in_anchor: bool,
-            mhc_affinity_mut: float = None):
+        self,
+        amplitude: float,
+        pathogen_similarity: float,
+        mutation_in_anchor: bool,
+        mhc_affinity_mut: float = None,
+    ):
         """
         This function calculates the recognition potential, defined by the product of amplitude and pathogensimiliarity
         of an epitope according to Balachandran et al.
@@ -92,22 +99,29 @@ class NeoantigenFitnessCalculator(BlastpRunner):
             pass
         return recognition_potential
 
-    def get_annotations(self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude) -> List[Annotation]:
-        pathogen_similarity_9mer = self.get_pathogen_similarity(mutation=netmhcpan.mhcI_affinity_epitope_9mer)
-        position_9mer = EpitopeHelper.position_of_mutation_epitope(
-            wild_type=netmhcpan.mhcI_affinity_epitope_9mer_WT, mutation=netmhcpan.mhcI_affinity_epitope_9mer)
+    def get_annotations(
+        self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude
+    ) -> List[Annotation]:
 
-
-        return [
-            AnnotationFactory.build_annotation(name="Pathogensimiliarity_MHCI_affinity_9mer",
-                                               value=pathogen_similarity_9mer),
-            AnnotationFactory.build_annotation(name="Recognition_Potential_MHCI_affinity_9mer",
-                                               value=self.calculate_recognition_potential(
-                                                   amplitude=amplitude.amplitude_mhci_affinity_9mer,
-                                                   pathogen_similarity=pathogen_similarity_9mer,
-                                                   mutation_in_anchor=EpitopeHelper.position_in_anchor_position(
-                                                       position_mhci=position_9mer,
-                                                       peptide_length=len(netmhcpan.mhcI_affinity_epitope_9mer)),
-                                                   mhc_affinity_mut=netmhcpan.mhcI_affinity_9mer))
-        ]
-
+        annotations = []
+        if netmhcpan.best_ninemer_epitope_by_affinity:
+            pathogen_similarity_9mer = self.get_pathogen_similarity(
+                mutation=netmhcpan.best_ninemer_epitope_by_affinity.peptide
+            )
+            if pathogen_similarity_9mer is not None:
+                annotations = [
+                    AnnotationFactory.build_annotation(
+                        name="Pathogensimiliarity_MHCI_affinity_9mer",
+                        value=pathogen_similarity_9mer,
+                    ),
+                    AnnotationFactory.build_annotation(
+                        name="Recognition_Potential_MHCI_affinity_9mer",
+                        value=self.calculate_recognition_potential(
+                            amplitude=amplitude.amplitude_mhci_affinity_9mer,
+                            pathogen_similarity=pathogen_similarity_9mer,
+                            mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer,
+                            mhc_affinity_mut=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
+                        ),
+                    ),
+                ]
+        return annotations

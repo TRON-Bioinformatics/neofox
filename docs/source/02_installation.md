@@ -72,6 +72,7 @@ export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.1/MixMHCpred
 Configure MixMHCpred as explained in the file `MixMHCpred-2.0.1/README`
 
 ### Install MixMHC2pred 1.2 (recommended but optional)
+
 ```
 wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
 tar -xvf v1.2.tar.gz
@@ -102,3 +103,21 @@ Peptides
 doParallel
 gbm
 ```
+
+Add the reference folder to the Path
+```
+export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
+```
+
+## Test installation   
+
+The user can test if all the installations have been successful by testing NeoFox with some test data. The test data can be downloaded here:  
+:download:`test_data.txt <test_data.txt>`  
+:download:`test_patients.txt <test_patients.txt>`  
+
+````commandline
+neofox --model-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --with-short-wide-table --with-tall-skinny-table --with-json --output-prefix test
+````
+
+The resulting output files can be compared to the following test output file:  
+:download:`test_neoantigen_candidates_annotated.tsv <test_neoantigen_candidates_annotated.tsv>`

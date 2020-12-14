@@ -21,7 +21,7 @@ import random
 import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
-from neofox.model.neoantigen import Neoantigen, Mutation, Transcript, Patient, MhcAllele
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient, MhcAllele
 
 
 def mock_file_existence(existing_files=[], non_existing_files=[]):
@@ -52,47 +52,23 @@ def mock_file_is_executable(executable_files=[], non_executable_files=[]):
     os.access = Mock(side_effect=side_effect)
 
 
-def head(file_name, n=10):
-    with open(file_name) as myfile:
-        try:
-            for x in range(n):
-                print((next(myfile)))
-        except StopIteration:
-            pass
-
-
-def print_and_delete(filename):
-    head(filename)
-    os.remove(filename)
-
-
 def get_random_neoantigen():
     neoantigen = Neoantigen()
     neoantigen.variant_allele_frequency = np.random.uniform(0, 1)
     neoantigen.expression_value = np.random.uniform(0, 50)
     mutation = Mutation()
-    mutation.mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
-    mutation.wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
-    mutation.left_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
-    mutation.right_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
-    mutation.position = np.random.randint(0, 1000)
+    mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
+    wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
+    left_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
+    right_flanking_region = "".join(
+        random.choices(list(IUPACData.protein_letters), k=5)
+    )
+    mutation.mutated_xmer = (
+        left_flanking_region + mutated_aminoacid + right_flanking_region
+    )
+    mutation.wild_type_xmer = (
+        left_flanking_region + wild_type_aminoacid + right_flanking_region
+    )
     neoantigen.mutation = mutation
-    transcript = Transcript()
-    transcript.gene = "BRCA2"
-    transcript.identifier = "ENST1234567"
-    transcript.assembly = "hg19"
-    neoantigen.gene = transcript
+    neoantigen.gene = "BRCA2"
     return neoantigen
-
-
-def get_random_patient():
-    patient = Patient()
-    patient.estimated_tumor_content = np.random.uniform(0, 1)
-    patient.is_rna_available = np.random.choice([True, False], 1)[0]
-    patient.identifier = 'Pt12345'
-    patient.mhc_i_alleles = [
-        MhcAllele(gene='A', group="01", protein="01"), MhcAllele(gene='B', group="01", protein="01")]
-    patient.mhc_i_i_alleles = [
-        MhcAllele(gene='DPA1', group="01", protein="01"), MhcAllele(gene='DPB1', group="01", protein="01")]
-    patient.tissue = 'skin'
-    return patient
