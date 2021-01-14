@@ -325,7 +325,7 @@ class ModelConverter(object):
         # missing RNA expression values are represented as -1
         logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
-        neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw >= 0 else None
+        neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None
         neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
