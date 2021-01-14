@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-
+from logzero import logger
 from neofox.exceptions import NeofoxCommandException
 from pandas.errors import EmptyDataError
 
@@ -88,7 +88,7 @@ class MixMhc2Pred:
             )
         )
 
-    def _transform_hla_ii_alleles_for_prediction(self, mhc: List[Mhc2]) -> List[str]:
+    def transform_hla_ii_alleles_for_prediction(self, mhc: List[Mhc2]) -> List[str]:
         """
         prepares list of HLA II alleles for prediction in required format
         """
@@ -114,7 +114,7 @@ class MixMhc2Pred:
         ]
 
     def _mixmhc2prediction(
-        self, mhc_isoforms: List[Mhc2], potential_ligand_sequences
+        self, mhc2: List[str], potential_ligand_sequences
     ) -> pd.DataFrame:
         """
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
@@ -128,7 +128,7 @@ class MixMhc2Pred:
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
-            " ".join(self._transform_hla_ii_alleles_for_prediction(mhc_isoforms)),
+            " ".join(mhc2),
             "-i",
             tmpfasta,
             "-o",
@@ -161,15 +161,19 @@ class MixMhc2Pred:
             filter(lambda x: len(x) >= 13, potential_ligand_sequences)
         )
         if len(filtered_sequences) > 0:
-            results = self._mixmhc2prediction(mhc, filtered_sequences)
-            # get best result by minimum rank
-            best_result = results[results[RANK] == results[RANK].min()]
-            try:
-                best_peptide = best_result[PEPTIDE].iat[0]
-                best_rank = best_result[RANK].iat[0]
-                best_allele = best_result[ALLELE].iat[0]
-            except IndexError:
-                logger.info("MixMHC2pred returned no best result")
+            mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
+            if len(mhc2_alleles) > 0:
+                results = self._mixmhc2prediction(mhc2_alleles, filtered_sequences)
+                # get best result by minimum rank
+                best_result = results[results[RANK] == results[RANK].min()]
+                try:
+                    best_peptide = best_result[PEPTIDE].iat[0]
+                    best_rank = best_result[RANK].iat[0]
+                    best_allele = best_result[ALLELE].iat[0]
+                except IndexError:
+                    logger.info("MixMHC2pred returned no best result")
+            else:
+                logger.info("MHC II alleles are not supported by MixMHC2pred")
         return best_peptide, best_rank, best_allele
 
     def get_annotations(self, mhc: List[Mhc2], mutation: Mutation) -> List[Annotation]:
