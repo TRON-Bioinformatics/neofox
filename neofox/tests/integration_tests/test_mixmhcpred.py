@@ -154,6 +154,34 @@ class TestMixMHCPred(TestCase):
         self.assertIsNone(best_rank)
         self.assertIsNone(best_allele)
 
+    def test_mixmhc2pred_allele(self):
+
+        mutation = ModelValidator._validate_mutation(
+            Mutation(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
+        )
+        # this is a MHC II genotype which results in no available alleles for MixMHC2pred
+        MHC_TWO_NEW = ModelConverter.parse_mhc2_alleles(
+            [
+                "HLA-DRB1*14:54",
+                "HLA-DRB1*14:54",
+                "HLA-DQA1*01:04",
+                "HLA-DQA1*01:04",
+                "HLA-DQB1*05:03",
+                "HLA-DQB1*05:03",
+                "HLA-DPB1*02:01",
+                "HLA-DPB1*02:01"
+            ]
+        )
+        alleles = self.mixmhc2pred.transform_hla_ii_alleles_for_prediction(MHC_TWO_NEW)
+        logger.info(alleles)
+        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
+            mutation=mutation, mhc=MHC_TWO_NEW
+        )
+        logger.info(best_peptide)
+        self.assertIsNone(best_peptide)
+        self.assertIsNone(best_rank)
+        self.assertIsNone(best_allele)
+
     def test_generate_nmers(self):
         mutation = ModelValidator._validate_mutation(
             Mutation(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")
