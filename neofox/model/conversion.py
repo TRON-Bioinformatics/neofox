@@ -435,9 +435,7 @@ class ModelConverter(object):
     def parse_mhc_allele(allele: str) -> MhcAllele:
         # infers gene, group and protein from the name
         match = HLA_ALLELE_PATTERN.match(allele)
-        assert match is not None, "Allele does not match HLA allele pattern {}".format(
-            allele
-        )
+        assert match is not None, "Allele does not match HLA allele pattern {}".format(allele) if allele != "" else "Please check the format of provided alleles. An empty allele is provided"
         gene = match.group(1)
         group = match.group(2)
         protein = match.group(3)
@@ -508,14 +506,14 @@ class ModelConverter(object):
         for a in parsed_alleles:
             assert (
                 a.gene in Mhc1Name.__members__
-            ), "Gene from MHC I allele is not valid {} at {}".format(a.gene, a.full_name)
+            ), "MHC I allele is not valid {} at {}".format(a.gene, a.full_name)
 
     @staticmethod
     def _validate_mhc2_alleles(parsed_alleles: List[MhcAllele]):
         for a in parsed_alleles:
             assert (
                 a.gene in Mhc2GeneName.__members__
-            ), "Gene from MHC II allele is not valid {} at {}".format(a.gene, a.full_name)
+            ), "MHC II allele is not valid {} at {}".format(a.gene, a.full_name) if a.full_name != "" else "Gene from MHC II allele is empty"
 
 
 class ModelValidator(object):
