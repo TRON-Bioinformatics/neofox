@@ -43,13 +43,17 @@ message Neoantigen {
 	*/
 	float rnaExpression = 5;
 	/**
+	Expression value of the transcript from TCGA data. Range [0, +inf].
+	*/
+	float geneExpression = 6;
+	/**
 	Variant allele frequency from the DNA. Range [0.0, 1.0]
 	*/
-	float dnaVariantAlleleFrequency = 6;
+	float dnaVariantAlleleFrequency = 7;
 	/**
 	Variant allele frequency from the RNA. Range [0.0, 1.0]
 	*/
-	float rnaVariantAlleleFrequency = 7;
+	float rnaVariantAlleleFrequency = 8;
 }
 
 /**
