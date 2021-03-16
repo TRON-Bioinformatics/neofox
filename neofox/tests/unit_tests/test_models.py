@@ -357,7 +357,7 @@ class ModelConverterTest(TestCase):
             neoantigen_annotations=annotations, neoantigens=neoantigens
         )
         self.assertEqual(df.shape[0], 2)
-        self.assertEqual(df.shape[1], 13)
+        self.assertEqual(df.shape[1], 14)
         self.assertEqual(0, df[df["mutation.position"].transform(lambda x: isinstance(x, list))].shape[0])
 
         df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)
