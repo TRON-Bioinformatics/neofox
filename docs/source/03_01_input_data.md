@@ -27,9 +27,9 @@ where:
 - `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
 - `patientIdentifier`: the patient identifier
-- `rnaExpression`: the transcript expression. Should be empty if no value available
-- `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
-- `dnaVariantAlleleFrequency`: the variant allele frequency calculated from the DNA (**optional**)  
+- `rnaExpression`: the transcript expression. Should be empty or NA if no value available.  If RNA expression is not available for all neoantigen candidates of a patient, RNA expression is imputed with median gene expression in the respective TCGA cohort.
+- `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (Should be empty or NA if no value available, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
+- `dnaVariantAlleleFrequency`: the variant allele frequency calculated from the DNA. Should be empty or NA if no value available.
 
 
 
@@ -48,7 +48,7 @@ where:
 - `substitution`  represents a single amino acid substitution with single letter amino acids (eg: I547T). This column allows the detection of INDEL sequences which are removed from the dataset and not processed.  
 - `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
-- `transcript_expression` the transcript expression. Should be empty if no value available
+- `transcript_expression` the transcript expression. Should be empty or NA if no value available. If RNA expression is not available for all neoantigen candidates of a patient, RNA expression is imputed with median gene expression in the respective TCGA cohort.
 - `VAF_in_tumor` variant allele frequency in the DNA (**optional**)
 - `VAF_in_RNA` variant allele frequency in the RNA (**optional**, this will be estimated using the `VAF_in_tumor` if not available)
 
@@ -66,7 +66,6 @@ where:
 - `identifier`: the patient identifier
 - `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
 - `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.
-- `isRnaAvailable`: whether RNA was available for the analysis. ***If  false, then expression value will be imputed from TCGA gene expression data.*** If true, then the `VAF_in_RNA` field will be used when available, else `VAF_in_DNA` will be used.
 - `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
 
 | Study Name                                                         | Abbreviation |
