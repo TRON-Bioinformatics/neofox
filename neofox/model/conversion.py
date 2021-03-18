@@ -78,7 +78,19 @@ class ModelConverter(object):
         expected as column named `patient.id` or `patient`
         :return neoantigens in model objects + external annotations coming with the input
         """
-        data = pd.read_csv(candidate_file, sep="\t")
+        data = pd.read_csv(candidate_file, sep="\t",
+                           # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
+                           dtype={
+                               "identifier": str,
+                               "gene": str,
+                               "mutation.wildTypeXmer": str,
+                               "mutation.mutatedXmer": str,
+                               "patientIdentifier": str,
+                               "dnaVariantAlleleFrequency": np.float,
+                               "rnaExpression": np.float,
+                               "rnaVariantAlleleFrequency": np.float
+                           }
+                           )
 
         # check format of input file
         if FIELD_MUTATED_XMER in data.columns.values.tolist():
@@ -107,6 +119,7 @@ class ModelConverter(object):
                     )
                 )
         else:
+            data = data.replace({np.nan: None})
             neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(data)
 
         return neoantigens, external_annotations
