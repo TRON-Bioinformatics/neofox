@@ -79,30 +79,36 @@ class ModelConverter(object):
         :return neoantigens in model objects + external annotations coming with the input
         """
         data = pd.read_csv(candidate_file, sep="\t")
-        # filter out indels
-        data = data[~data["substitution"].isna()]
-        data = data[~data["substitution"].str.contains("-")]
-        data = data.replace({np.nan: None})
-        neoantigens = []
-        external_annotations = []
-        for _, candidate_entry in data.iterrows():
-            neoantigen = ModelConverter._candidate_entry2model(
-                candidate_entry, patient_id=patient_id
-            )
-            neoantigens.append(neoantigen)
-            external_annotations.append(
-                NeoantigenAnnotations(
-                    neoantigen_identifier=neoantigen.identifier,
-                    annotations=[
-                        # NOTE: we need to exclude the field gene from the external annotations as it matches a field
-                        # in the model and thus it causes a conflict when both are renamed to gene_x and gene_y when
-                        # joining
-                        Annotation(name=name, value=value) for name, value
-                        in candidate_entry.iteritems() if name != FIELD_GENE
-                    ],
-                    annotator=EXTERNAL_ANNOTATIONS_NAME,
+
+        # check format of input file
+        if FIELD_MUTATED_XMER in data.columns.values.tolist():
+            # filter out indels
+            data = data[~data["substitution"].isna()]
+            data = data[~data["substitution"].str.contains("-")]
+            data = data.replace({np.nan: None})
+            neoantigens = []
+            external_annotations = []
+            for _, candidate_entry in data.iterrows():
+                neoantigen = ModelConverter._candidate_entry2model(
+                    candidate_entry, patient_id=patient_id
                 )
-            )
+                neoantigens.append(neoantigen)
+                external_annotations.append(
+                    NeoantigenAnnotations(
+                        neoantigen_identifier=neoantigen.identifier,
+                        annotations=[
+                            # NOTE: we need to exclude the field gene from the external annotations as it matches a field
+                            # in the model and thus it causes a conflict when both are renamed to gene_x and gene_y when
+                            # joining
+                            Annotation(name=name, value=value) for name, value
+                            in candidate_entry.iteritems() if name != FIELD_GENE
+                        ],
+                        annotator=EXTERNAL_ANNOTATIONS_NAME,
+                    )
+                )
+        else:
+            neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(data)
+
         return neoantigens, external_annotations
 
     @staticmethod
@@ -128,27 +134,14 @@ class ModelConverter(object):
 
     @staticmethod
     def parse_neoantigens_file(
-        neoantigens_file: str,
+        dataframe,
     ) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
-        :param neoantigens_file: the file to neoantigens data CSV file
+        :param dataframe: a pandas data frame with neoantigens data
         :return: the parsed CSV into model objects
         """
         return ModelConverter.neoantigens_csv2objects(
-            pd.read_csv(
-                neoantigens_file,
-                sep="\t",
-                # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
-                dtype={
-                    "identifier": str,
-                    "gene": str,
-                    "mutation.wildTypeXmer": str,
-                    "mutation.mutatedXmer": str,
-                    "patientIdentifier": str,
-                    "dnaVariantAlleleFrequency": np.float,
-                    "rnaExpression": np.float,
-                    "rnaVariantAlleleFrequency": np.float
-                }).replace({np.nan: None})
+            dataframe
         )
 
     @staticmethod
@@ -537,7 +530,7 @@ class ModelValidator(object):
 
         try:
             assert neoantigen.patient_identifier is not None and len(neoantigen.patient_identifier) > 0, \
-                "Missing patient identifier on neoantigen"
+                "A patient identifier is missing. Please provide patientIdentifier in the input file"
 
             # checks mutation
             neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
@@ -567,7 +560,7 @@ class ModelValidator(object):
             )
             assert (
                 patient_id is not None and patient_id != ""
-            ), "Patient identifier is empty"
+            ), "A patient identifier is missing"
             patient.identifier = patient_id
 
             # TODO: validate new model with isoforms, genes and alleles
@@ -597,17 +590,17 @@ class ModelValidator(object):
         if mhc1.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
             assert (
                 len(alleles) == 1
-            ), "An homozygous gene must have 1 allele and not {}".format(len(alleles))
+            ), "A homozygous gene must have 1 allele and not {}".format(len(alleles))
         elif mhc1.zygosity == Zygosity.HETEROZYGOUS:
             assert (
                 len(alleles) == 2
-            ), "An heterozygous or hemizygous gene must have 2 alleles and not {}".format(
+            ), "A heterozygous or hemizygous gene must have 2 alleles and not {}".format(
                 len(alleles)
             )
         elif mhc1.zygosity == Zygosity.LOSS:
             assert (
                 len(alleles) == 0
-            ), "An lost gene must have 0 alleles and not {}".format(len(alleles))
+            ), "A lost gene must have 0 alleles and not {}".format(len(alleles))
         validated_alleles = []
         for allele in alleles:
             validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
@@ -634,19 +627,19 @@ class ModelValidator(object):
             if gene.zygosity == Zygosity.HOMOZYGOUS:
                 assert (
                     len(alleles) == 1
-                ), "An homozygous gene must have 1 allele and not {}".format(
+                ), "A homozygous gene must have 1 allele and not {}".format(
                     len(alleles)
                 )
             elif gene.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]:
                 assert (
                     len(alleles) == 2
-                ), "An heterozygous or hemizygous gene must have 2 alleles and not {}".format(
+                ), "A heterozygous or hemizygous gene must have 2 alleles and not {}".format(
                     len(alleles)
                 )
             elif gene.zygosity == Zygosity.LOSS:
                 assert (
                     len(alleles) == 0
-                ), "An lost gene must have 0 alleles and not {}".format(len(alleles))
+                ), "A lost gene must have 0 alleles and not {}".format(len(alleles))
             validated_alleles = []
             for allele in alleles:
                 validated_allele = ModelValidator.validate_mhc_allele_representation(
@@ -793,7 +786,7 @@ class ModelValidator(object):
     @staticmethod
     def _validate_mutation(mutation: Mutation) -> Mutation:
         assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
-            "Missing mutated xmer on mutation"
+            "Missing mutated peptide sequence in input (mutation.mutatedXmer) "
         mutation.mutated_xmer = "".join(
             [ModelValidator._validate_aminoacid(aa) for aa in mutation.mutated_xmer]
         )
