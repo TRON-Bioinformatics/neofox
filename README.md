@@ -40,12 +40,11 @@ NeoFox annotates neoantigen candidate sequences with published neo-epitope descr
 ## Usage from the command line
 
 ````commandline
-neofox --model-file/--candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
 ````
 
 where:
 - `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences
-- `--model-file`: tab-separated values table with neoantigens in NeoFox model format
 - `--json-file`: JSON file neoantigens in NeoFox model format
 - `--patient-id`: patient identifier (*optional*, this will be used if the patient id the column `patient` is missing the candidate input file)
 - `--patient-data`: a table of tab separated values containing metadata on the patient
@@ -58,9 +57,8 @@ where:
 
 ### Input data
 
-#### model-file format  
-
-This is an dummy example of a table with neoantigen candidates in `model-file` format:  
+#### Neoantigen candidates in tabular format
+This is an dummy example of a table with neoantigen candidates:  
 
 | gene  | mutation.wildTypeXmer       | mutation.mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
 |-------|-----------------------------|-----------------------------|-------------------|---------------|---------------------------|---------------------------|-----------------------|-----------------------|
@@ -75,30 +73,13 @@ where:
 - `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
 - `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
 - `patientIdentifier`: the patient identifier
-- `rnaExpression`: the transcript expression. Should be empty if no value available
+- `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
 - `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
 - `dnaVariantAlleleFrequency`: the variant allele frequency calculated from the DNA (**optional**)  
 
-#### candidate-file format  
+**NOTE:** If rnaExpression is not provided, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). 
 
-Alternatively, neoantigen candidates can be provided in `candidate-file` format. In principle the columns are the same as in the `model-file`. Of note, `candidate-file` allows for an optional patient id in the data table. This is an dummy example:  
-
-|     patient |     gene  | substitution |     transcript_expression |     +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) |     [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) |     VAF_in_tumor |     VAF_in_RNA    |
-|-------------|-----------|--------------|---------------------------|--------------------------------------------|-------------------------------------------------|------------------|-------------------|
-|     Ptx     |     BRCA2 | I547T        |     0.51950689            |     AAAAAAAAAAAAAFAAAAAAAAAAAAA            |     AAAAAAAAAAAAALAAAAAAAAAAAAA                 |     0.294        |     0.857         |
-|     Ptx     |     BRCA2 | E135S        |     0.71575659            |     AAAAAAAAAAAAAMAAAAAAAAAAAAA            |     AAAAAAAAAAAAARAAAAAAAAAAAAA                 |     0.173        |     0.556         |
-
-where:
-- `patient` is the patient id (**optional**). If this column is not provided, `--patient-id` must be given as input when starting NeoFox. Of note, providing this column allows to put the neoantigen candidates of several patients into one table.
-- `gene` is the HGNC gene symbol
-- `substitution`  represents a single amino acid substitution with single letter amino acids (eg: I547T). This column allows the detection of INDEL sequences which are removed from the dataset and not processed.  
-- `+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
-- `[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)` the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
-- `transcript_expression` the transcript expression. Should be empty if no value available
-- `VAF_in_tumor` variant allele frequency in the DNA (**optional**)
-- `VAF_in_RNA` variant allele frequency in the RNA (**optional**, this will be estimated using the `VAF_in_tumor` if not available)
-
-### JSON format 
+### Neoantigen candidates in JSON format 
 
 Besides tabular format, neoantigen candidates can be provided as a list of neoantigen models in JSON format as shown below. To simplify, only one full neoantigen model is shown:  
 
@@ -118,20 +99,47 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 
 This is an dummy example of a patient file:  
 
-| identifier | mhcIAlleles                                                                  | mhcIIAlleles                                                                                                                                                   | isRnaAvailable | tumorType |
-|------------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|-----------|
-| Ptx        | HLA-A\*03:01,HLA-A\*29:02,HLA-B\*07:02,HLA-B\*44:03,HLA-C\*07:02,HLA-C*16:01 | HLA-DRB1\*03:01,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*05:01,HLA-DQB1\*01:01,HLA-DQB1\*04:02,HLA-DPA1\*01:03,HLA-DPA1\*03:01,HLA-DPB1\*13:01,HLA-DPB1*04:02 | TRUE           | HNSC      |
-| Pty        | HLA-A\*02:01,HLA-A\*30:01,HLA-B\*07:34,HLA-B\*44:03,HLA-C\*07:02,HLA-C*07:02 | HLA-DRB1\*04:02,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*04:01,HLA-DQB1\*03:02,HLA-DQB1\*14:01,HLA-DPA1\*01:03,HLA-DPA1\*02:01,HLA-DPB1\*02:01,HLA-DPB1*04:01 | FALSE          | HNSC      |
+| identifier | mhcIAlleles                                                                  | mhcIIAlleles                                                                                                                                                   | tumorType |
+|------------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| Ptx        | HLA-A\*03:01,HLA-A\*29:02,HLA-B\*07:02,HLA-B\*44:03,HLA-C\*07:02,HLA-C*16:01 | HLA-DRB1\*03:01,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*05:01,HLA-DQB1\*01:01,HLA-DQB1\*04:02,HLA-DPA1\*01:03,HLA-DPA1\*03:01,HLA-DPB1\*13:01,HLA-DPB1*04:02 | HNSC      |
+| Pty        | HLA-A\*02:01,HLA-A\*30:01,HLA-B\*07:34,HLA-B\*44:03,HLA-C\*07:02,HLA-C*07:02 | HLA-DRB1\*04:02,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*04:01,HLA-DQB1\*03:02,HLA-DQB1\*14:01,HLA-DPA1\*01:03,HLA-DPA1\*02:01,HLA-DPB1\*02:01,HLA-DPB1*04:01 | HNSC      |
 
 where:
 - `identifier`: the patient identifier
 - `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
 - `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.
-- `isRnaAvailable`: whether RNA was available for the analysis. ***If  false, then expression value will be imputed from TCGA gene expression data.*** If true, then the `VAF_in_RNA` field will be used when available, else `VAF_in_DNA` will be used.
 - `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
+
+
+| Study Name                                                         | Abbreviation |
+|--------------------------------------------------------------------|-------------------|
+| Adrenocortical carcinoma                                           | ACC               |
+| Bladder Urothelial Carcinoma                                       | BLCA              |
+| Breast invasive carcinoma                                          | BRCA              |
+| Cervical squamous cell carcinoma and endocervical adenocarcinoma   | CESC              |
+| Cholangiocarcinoma                                                 | CHOL              |
+| Colon adenocarcinoma                                               | COAD              |
+| Esophageal carcinoma                                               | ESCA              |
+| Glioblastoma multiforme                                            | GBM               |
+| Head and Neck squamous cell carcinoma                              | HNSC              |
+| Kidney Chromophobe                                                 | KICH              |
+| Kidney renal papillary cell carcinoma                              | KIRP              |
+| Liver hepatocellular carcinoma                                     | LIHC              |
+| Lung adenocarcinoma                                                | LUAD              |
+| Lung squamous cell carcinoma                                       | LUSC              |
+| Ovarian serous cystadenocarcinoma                                  | OV                |
+| Pancreatic adenocarcinoma                                          | PAAD              |
+| Prostate adenocarcinoma                                            | PRAD              |
+| Rectum adenocarcinoma                                              | READ              |
+| Sarcoma                                                            | SARC              |
+| Skin Cutaneous Melanoma                                            | SKCM              |
+| Testicular Germ Cell Tumors                                        | TGCT              |
+| Uterine Corpus Endometrial Carcinoma                               | UCEC              |
+
+
 
 ### Output data
 
-The output data is returned in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON (`--with-json`).  
+The output data is returned in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON format (`--with-json`).  
 
 For a more information, please check out our documentation on [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
