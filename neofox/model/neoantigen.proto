@@ -45,7 +45,7 @@ message Neoantigen {
 	/**
 	Expression value of the transcript from TCGA data. Range [0, +inf].
 	*/
-	float geneExpression = 6;
+	float imputedGeneExpression = 6;
 	/**
 	Variant allele frequency from the DNA. Range [0.0, 1.0]
 	*/
