@@ -237,14 +237,15 @@ class ModelConverter(object):
         external_annotations = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
-            neoantigen = ModelValidator.validate_neoantigen(Neoantigen().from_dict(nested_dict))
-            neoantigens.append(neoantigen)
+            neoantigen = ModelConverter._rescueNoneValues(nested_dict, Neoantigen().from_dict(nested_dict))
+            validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
+            neoantigens.append(validated_neoantigen)
             external_annotation_names = set(
                 [stringcase.snakecase(k) for k in nested_dict.keys()]
             ).difference(set(Neoantigen.__annotations__.keys()))
             external_annotations.append(
                 NeoantigenAnnotations(
-                    neoantigen_identifier=neoantigen.identifier,
+                    neoantigen_identifier=validated_neoantigen.identifier,
                     annotations=[
                         Annotation(name=name, value=nested_dict.get(name))
                         for name in external_annotation_names
@@ -253,6 +254,20 @@ class ModelConverter(object):
                 )
             )
         return neoantigens, external_annotations
+
+    @staticmethod
+    def _rescueNoneValues(
+            neoantigen_dict:dict,
+            neoantigen:Neoantigen
+    ) -> Neoantigen:
+        if neoantigen_dict["dnaVariantAlleleFrequency"] is None:
+            neoantigen.dna_variant_allele_frequency = None
+        if neoantigen_dict["rnaExpression"] is None:
+            neoantigen.rna_expression = None
+        if neoantigen_dict["rnaVariantAlleleFrequency"] is None:
+            neoantigen.rna_variant_allele_frequency = None
+        return neoantigen
+
 
     @staticmethod
     def annotations2short_wide_table(
