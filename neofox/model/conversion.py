@@ -276,6 +276,7 @@ class ModelConverter(object):
     ) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
+        neoantigens_df = neoantigens_df.replace({None: "NA"})
         for na in neoantigen_annotations:
             df = (
                 pd.DataFrame([a.to_dict() for a in na.annotations])
