@@ -260,12 +260,21 @@ class ModelConverter(object):
             neoantigen_dict:dict,
             neoantigen:Neoantigen
     ) -> Neoantigen:
-        if neoantigen_dict["dnaVariantAlleleFrequency"] is None:
+        if "dnaVariantAlleleFrequency" not in neoantigen_dict:
             neoantigen.dna_variant_allele_frequency = None
-        if neoantigen_dict["rnaExpression"] is None:
+        else:
+            if neoantigen_dict["dnaVariantAlleleFrequency"] is None:
+                neoantigen.dna_variant_allele_frequency = None
+        if "rnaExpression" not in neoantigen_dict:
             neoantigen.rna_expression = None
-        if neoantigen_dict["rnaVariantAlleleFrequency"] is None:
+        else:
+            if neoantigen_dict["rnaExpression"] is None:
+                neoantigen.rna_expression = None
+        if "rnaVariantAlleleFrequency" not in neoantigen_dict:
             neoantigen.rna_variant_allele_frequency = None
+        else:
+            if neoantigen_dict["rnaVariantAlleleFrequency"] is None:
+                neoantigen.rna_variant_allele_frequency = None
         return neoantigen
 
 
