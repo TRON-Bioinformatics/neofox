@@ -206,7 +206,6 @@ The metadata required for analysis for a given patient + its patient identifier
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | identifier | [string](#string) |  | Patient identifier |
-| isRnaAvailable | [bool](#bool) |  | Is RNA expression available? |
 | tumorType | [string](#string) |  | Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations |
 | mhc1 | [Mhc1](#neoantigen.Mhc1) | repeated | MHC I classic molecules |
 | mhc2 | [Mhc2](#neoantigen.Mhc2) | repeated | MHC II classic molecules |
