@@ -166,8 +166,9 @@ class ModelConverterTest(TestCase):
         neoantigens_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_data_model.txt"
         )
+        data = pd.read_csv(neoantigens_file, sep="\t")
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            neoantigens_file
+            data
         )
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
@@ -189,14 +190,6 @@ class ModelConverterTest(TestCase):
             external_annotations=external_annotations,
         )
 
-    def test_csv_neoantigens2model(self):
-        neoantigens_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/balachandran_supplementary_table1_neoantigens.tsv"
-        )
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            neoantigens_file
-        )
-        self.assertEqual(4870, len(neoantigens))
 
     def test_json_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(

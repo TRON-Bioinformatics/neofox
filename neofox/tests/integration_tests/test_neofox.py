@@ -266,8 +266,9 @@ class TestNeofox(TestCase):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_model_file.txt"
         )
+        data = pd.read_csv(input_file, sep="\t")
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            input_file
+            data
         )
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
