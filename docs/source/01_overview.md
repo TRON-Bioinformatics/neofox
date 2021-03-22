@@ -38,8 +38,7 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 
 Besides comprehensive annotation of neoantigen candidates, NeoFox creates biologically meaningful representations of 
 neoantigens and related biological entities as programmatic models. For this purpose, Protocol buffers is employed to 
-model Neofox's input and output data: neoantigens, patients, MHC alleles and neoantigen feature annotations (Figure 1). 
-Of note, this modelling allows users to expand NeoFox by customized neoantigen features, e.g. for benchmarking studies.   
+model Neofox's input and output data: neoantigens, patients, MHC alleles and neoantigen feature annotations (Figure 1).   
 
 
 **Figure 1**

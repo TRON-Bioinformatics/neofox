@@ -1,5 +1,5 @@
 gene	mutation.wildTypeXmer	mutation.mutatedXmer	patientIdentifier	dnaVariantAlleleFrequency	rnaExpression	rnaVariantAlleleFrequency	external_annotation_1	external_annotation_2
-BRCA2	AAAAAALAAAAA	AAAAAAFAAAAA	Ptx	NA	NA	NA	blah	blah
+BRCA2	AAAAAALAAAAA	AAAAAAFAAAAA	Ptx	0.5	NA	NA	blah	blah
 BRCA2	AAAAAAMAAAAA	AAAAAARAAAAA	Ptx	NA	NA	NA	blah	blah
 BRCA2	AAAAAAGAAAAA	AAAAAAKAAAAA	Ptx	NA	NA	NA	blah	blah
 BRCA2	AAAAAACAAAAA	AAAAAAEAAAAA	Ptx	NA	NA	NA	blah	blah
