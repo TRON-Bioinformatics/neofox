@@ -29,7 +29,7 @@ where:
 **PLEASE NOTE THE FOLLOWING HINTS**:   
 - provide the neoantigen candidate file either as `--candidate-file`, `--model-file` or `--json-file` 
 - if no specific output format is selected, the output will be written in [short-wide](03_02_output_data.md#short-wide-format) format
-- indicate in the `isRnaAvailable` column of the [patient file](03_01_input_data.md#file-with-patient-information) if expression should be imputed for neoantigen candidates of the respective patient  
+- if all expression values are NA, gene expression will be used for the relevant features
 
 **EXAMPLE**  
 This is an example to call NeoFox with a model-file and obtaining the annotated neoantigen candidates in [short-wide](03_02_output_data.md#short-wide-format) format:  
@@ -102,7 +102,7 @@ Create a patient model based on models for MHC I and MHC II alleles. Initialise 
 mhc1 = ModelConverter.parse_mhc1_alleles(alleles=["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"])
 # model the MHC II alleles of a patient
 mhc2 = ModelConverter.parse_mhc2_alleles(alleles=["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"])
-patient = Patient(identifier="Ptx", is_rna_available=True, mhc1=mhc1, mhc2=mhc2)
+patient = Patient(identifier="Ptx", mhc1=mhc1, mhc2=mhc2)
 ```
 
 where:  
