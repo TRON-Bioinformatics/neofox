@@ -237,7 +237,7 @@ class ModelConverter(object):
         external_annotations = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
-            neoantigen = ModelConverter._rescueNoneValues(nested_dict, Neoantigen().from_dict(nested_dict))
+            neoantigen = ModelConverter._rescueNoneValues(nested_dict)
             validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
             neoantigens.append(validated_neoantigen)
             external_annotation_names = set(
@@ -258,8 +258,8 @@ class ModelConverter(object):
     @staticmethod
     def _rescueNoneValues(
             neoantigen_dict:dict,
-            neoantigen:Neoantigen
     ) -> Neoantigen:
+        neoantigen = Neoantigen().from_dict(nested_dict)
         if "dnaVariantAlleleFrequency" not in neoantigen_dict:
             neoantigen.dna_variant_allele_frequency = None
         else:

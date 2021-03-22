@@ -6,7 +6,7 @@ NeoFox requires two input files: a file with neoantigen candidates derived from 
 
 ## File with neoantigen candidates
 
-#### tabular file format  
+#### Tabular file format  
 
 This is an dummy example of a table with neoantigen candidates in tabular format:  
 
