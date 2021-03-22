@@ -9,13 +9,12 @@ There are two ways to use NeoFox for annotation of neoantigen candidates with ne
 To call NeoFox from the command line, use the following command. Make sure that the requirements have been added to PATH as described [here](02_installation.md) or add a config file as described below:  
 
 ````commandline
-neofox --model-file/--candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-id Ptx --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-id Ptx --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
 ````
 
 where:
-- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](03_01_input_data.md#tabular-format)
-- `--model-file`: tab-separated values table with neoantigens in NeoFox model format as described [here](03_01_input_data.md#tabular-format)
-- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](03_01_input_data.md#json-format)
+- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](03_01_input_data.md#tabular-file-format)
+- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](03_01_input_data.md#json-file-format)
 - `--patient-id`: patient identifier (*optional*, this will be used if the patient id the column `patient` is missing the candidate input file)
 - `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
@@ -27,15 +26,15 @@ where:
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 
 **PLEASE NOTE THE FOLLOWING HINTS**:   
-- provide the neoantigen candidate file either as `--candidate-file`, `--model-file` or `--json-file` 
+- provide the neoantigen candidate file either as `--candidate-file` or `--json-file` 
 - if no specific output format is selected, the output will be written in [short-wide](03_02_output_data.md#short-wide-format) format
 - if all expression values are NA, gene expression will be used for the relevant features
 
 **EXAMPLE**  
-This is an example to call NeoFox with a model-file and obtaining the annotated neoantigen candidates in [short-wide](03_02_output_data.md#short-wide-format) format:  
+This is an example to call NeoFox with a candidate-file and obtaining the annotated neoantigen candidates in [short-wide](03_02_output_data.md#short-wide-format) format:  
 
 ````commandline
-neofox --model-file neoantigens_candidates.tab --patient-id Ptx --patient-data patient_data.tab --output-folder /path/to/out --output-prefix test
+neofox --candidate-file neoantigens_candidates.tab --patient-id Ptx --patient-data patient_data.tab --output-folder /path/to/out --output-prefix test
 ````
 
 The optional **config** file with the paths to the dependencies can look like this:  
@@ -160,28 +159,22 @@ neoantigens_df = ModelConverter.objects2dataframe(model_objects=[validated_neoan
 neoantiges_json = ModelConverter.objects2json(model_objects=[validated_neoantigen]
 ```   
 - instead of creating neoantigen or patient models (step2-5), tabular or json files containing this information can be passed:  
-  The neoantigen candidates can be provided in **[model-file format]**(03_01_input_data.md#file-with-neonatigen-candidates)
+  The neoantigen candidates can be provided in [candidate-file format](03_01_input_data.md#tabular-file-format)
 
 ```python
 model_file = "/path/to/neoantigen_candidates.tab"
 neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(neoantigens_file=model_file)
 ```
   
-or in **[candidate-file format**]**(03_01_input_data.md#file-with-neonatigen-candidates)
-
-```python
-candidate_file = "/path/to/neoantigen_candidates.tab"
-neoantigens, external_annotations = ModelConverter.parse_candidate_file(candidate_file=candidate_file)    
-```
-  
-or in **[JSON format]**(03_01_input_data.md#neoantigen-candidates-in-json-format). 
+ 
+or in [JSON format](03_01_input_data.md#json-file-format). 
 
 ```python
 json_file = "/path/to/neoantigen_candidates.json"
 neoantigens, external_annotations = ModelConverter.parse_neoantigens_json_file(json_file=json_file)  
 ```  
 
-The patient information should be provided in **[tabular format]**(03_01_input_data.md#file-with-patient-information)
+The patient information should be provided in [tabular format](03_01_input_data.md#file-with-patient-information)
 
 ```python
 patient_file = "/path/to/patients.tab"
