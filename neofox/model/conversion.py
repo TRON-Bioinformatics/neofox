@@ -259,7 +259,7 @@ class ModelConverter(object):
     def _rescueNoneValues(
             neoantigen_dict:dict,
     ) -> Neoantigen:
-        neoantigen = Neoantigen().from_dict(nested_dict)
+        neoantigen = Neoantigen().from_dict(neoantigen_dict)
         if "dnaVariantAlleleFrequency" not in neoantigen_dict:
             neoantigen.dna_variant_allele_frequency = None
         else:
