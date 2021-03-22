@@ -102,9 +102,19 @@ class NeoFox:
         }
         self._validate_input_data()
 
-        # impute expression from TCGA, ONLY if isRNAavailable = False for given patient,
+        # retrieve from the data, if RNA-seq was available
+        # add this information to patient model
+        expression_per_patient = {self.patients[patient].identifier: [] for patient in self.patients}
+        for neoantigen in self.neoantigens:
+            expression_per_patient[neoantigen.patient_identifier].append(neoantigen.rna_expression)
+
+        for patient in self.patients:
+            self.patients[patient].is_rna_available = all(e is not None for e in expression_per_patient[self.patients[patient].identifier])
+
+        # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
         # otherwise original values is reported
         # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
+        # NOTE: add gene expression to neoantigen candidate model
         self.neoantigens = self._conditional_expression_imputation()
 
         logger.info("Data loaded")
@@ -112,15 +122,18 @@ class NeoFox:
     def _conditional_expression_imputation(self) -> List[Neoantigen]:
         expression_annotator = ExpressionAnnotator()
         neoantigens_transformed = []
+
         for neoantigen in self.neoantigens:
             expression_value = neoantigen.rna_expression
             patient = self.patients[neoantigen.patient_identifier]
             neoantigen_transformed = neoantigen
+            gene_expression = expression_annotator.get_gene_expression_annotation(
+                gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
+            )
             if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
-                expression_value = expression_annotator.get_gene_expression_annotation(
-                    gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
-                )
+                expression_value = gene_expression
             neoantigen_transformed.rna_expression = expression_value
+            neoantigen.gene_expression = gene_expression
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed
 
