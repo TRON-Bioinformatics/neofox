@@ -133,7 +133,7 @@ class NeoFox:
             if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
                 expression_value = gene_expression
             neoantigen_transformed.rna_expression = expression_value
-            neoantigen.gene_expression = gene_expression
+            neoantigen.imputed_gene_expression = gene_expression
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed
 
