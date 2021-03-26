@@ -173,7 +173,7 @@ class MixMhc2Pred:
                 except IndexError:
                     logger.info("MixMHC2pred returned no best result")
             else:
-                logger.info("MHC II alleles are not supported by MixMHC2pred")
+                logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
         return best_peptide, best_rank, best_allele
 
     def get_annotations(self, mhc: List[Mhc2], mutation: Mutation) -> List[Annotation]:

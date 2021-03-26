@@ -42,7 +42,7 @@ class TcellPrediction:
                 os.path.join(
                     os.path.abspath(os.path.dirname(__file__)), CLASSIFIER_PICKLE
                 ),
-                "rb",
+                'rb'
             ) as f:
                 self.classifier = pickle.load(f)
 

@@ -69,7 +69,7 @@ class MixMHCpred:
         )
 
     def _mixmhcprediction(
-        self, mhc_isoforms: List[Mhc1], potential_ligand_sequences
+        self, mhc_alleles: List[str], potential_ligand_sequences
     ) -> pd.DataFrame:
         """
         Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
@@ -81,11 +81,7 @@ class MixMHCpred:
         command = [
             self.configuration.mix_mhc_pred,
             "-a",
-            ",".join(
-                self._get_mixmhc_allele_representation(
-                    [a for m in mhc_isoforms for a in m.alleles]
-                )
-            ),
+            ",".join(mhc_alleles),
             "-i",
             tmpfasta,
             "-o",
@@ -98,7 +94,7 @@ class MixMHCpred:
             results = pd.read_csv(outtmp, sep="\t", comment="#")
         except EmptyDataError:
             message = "Results from MixMHCpred are empty, something went wrong [{}]. MHC I alleles {}, ligands {}".format(
-                " ".join(command), [a.name for m in mhc_isoforms for a in m.alleles], potential_ligand_sequences
+                " ".join(command), ",".join(mhc_alleles), potential_ligand_sequences
             )
             logger.error(message)
             results = pd.DataFrame()
@@ -115,17 +111,21 @@ class MixMHCpred:
             mutation=mutation, lengths=[8, 9, 10, 11]
         )
         if len(potential_ligand_sequences) > 0:
-            results = self._mixmhcprediction(mhc, potential_ligand_sequences)
-            try:
-                # get best result by maximum score
-                best_result = results[results[SCORE] == results[SCORE].max()]
-                best_peptide = best_result[PEPTIDE].iat[0]
-                best_rank = best_result[RANK].iat[0]
-                # normalize the HLA allele name
-                best_allele = best_result[ALLELE].iat[0]
-                best_score = best_result[SCORE].iat[0]
-            except (IndexError, KeyError):
-                logger.info("MixMHCpred returned no best result")
+            mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])
+            if len(mhc1_alleles) > 0:
+                results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
+                try:
+                    # get best result by maximum score
+                    best_result = results[results[SCORE] == results[SCORE].max()]
+                    best_peptide = best_result[PEPTIDE].iat[0]
+                    best_rank = best_result[RANK].iat[0]
+                    # normalize the HLA allele name
+                    best_allele = best_result[ALLELE].iat[0]
+                    best_score = best_result[SCORE].iat[0]
+                except (IndexError, KeyError):
+                    logger.info("MixMHCpred returned no best result")
+            else:
+                logger.warning("None of the MHC I alleles are supported by MixMHCpred")
         return best_peptide, best_rank, best_allele, best_score
 
     def get_annotations(self, mutation: Mutation, mhc: List[Mhc1]) -> List[Annotation]:
