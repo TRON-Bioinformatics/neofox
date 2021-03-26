@@ -1,7 +1,5 @@
 # Usage
 
-## General information
-
 There are two ways to use NeoFox for annotation of neoantigen candidates with neoantigen features: directly from the [command line](#command-line) or [programmatically](#api). 
 
 ## Command line
@@ -228,4 +226,19 @@ Then, run NeoFox as explained in step 6 by calling:
 ```python
 annotations = NeoFox(neoantigens=neoantigens, patients=patients, num_cpus=2).get_annotations()
 ```
-  
+
+## Performance
+
+As indicated above NeoFox can run in parallel using the parameter `--num-cpus`. 
+Each CPU will process one neoantigen at a time, thus NeoFox can use only as many CPUs as neoantigens are to be processed.
+
+We processed several simulated datasets with 10, 100, 1000 and 10000 neoantigens on 1, 5, 10 and 50 CPUs and we obtained 
+that the average time to process a single neoantigen in a single CPU is of 20.023 seconds, with a standard deviation of 
+6,125 seconds. No significant overhead due to parallelization was observed. 
+In terms of memory the application uses less than 0.5 GB for up to 1000 neoantigens irrespective of the number of CPUs used. 
+The memory use grows to around 2.5 GB when processing 10000 neoantigens. 
+
+![Neofox model](../figures/performance_1.png)
+
+If either MHC I or II alleles are not provided at all for a given patient the computation will be lighter as no 
+annotations run for the missing MHC.
