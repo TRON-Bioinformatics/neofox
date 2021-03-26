@@ -317,6 +317,36 @@ class TestNeofox(TestCase):
         for n in neofox.neoantigens:
             self.assertIsNone(n.imputed_gene_expression)
 
+    def test_neoantigens_with_empty_rna_expression(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for n in neoantigens:
+            n.rna_expression = None
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        )
+        for p in neofox.patients.values():
+            if p.identifier == patient_id:
+                self.assertFalse(p.is_rna_available)
+
+    def test_neoantigens_with_rna_expression(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for n in neoantigens:
+            n.rna_expression = 1.2
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        )
+        for p in neofox.patients.values():
+            if p.identifier == patient_id:
+                self.assertTrue(p.is_rna_available)
+
     def _get_test_data(self):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_model_file.txt"
