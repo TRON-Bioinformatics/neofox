@@ -47,8 +47,50 @@ export NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-3.2/netMHCIIpan
 export NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.1/MixMHCpred
 export NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-1.2/MixMHC2pred_unix
 export NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
-
 ````
+
+### Running from docker
+
+In order to run the command line in a docker image all of the above applies but
+you will need some additional steps.
+
+If your image is named `neofox-docker` run as follows: `docker run neofox-docker neofox --help`
+
+In order to copy the NeoFox input and output data to and from the docker container, we would need to create a docker volume 
+mapping a folder in the host to a folder in the container using the `-v VOLUME_NAME:ABSOLUTE_FOLDER_IN_CONTAINER` argument.
+
+First create a volume:
+```
+docker volume create neofox-volume
+```
+
+Identify the folder where the volume is mounted in the host:
+```
+$ docker volume inspect neofox-volume
+[
+    {
+        "CreatedAt": "2021-03-25T21:40:23+01:00",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/snap/docker/common/var-lib-docker/volumes/neofox-volume/_data",
+        "Name": "neofox-volume",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+```
+
+In the case above the folder is `/var/snap/docker/common/var-lib-docker/volumes/neofox-volume/_data`.
+Copy your input data into that folder.
+
+Now we can run NeoFox as follows mounting the volume as indicated. 
+Note that if you want to recover the output from NeoFox you need to specify the output folder within the volume.
+```
+docker run -v neofox-volume:/app/data neofox-docker \
+neofox --candidate-file /app/data/test_model_file.txt \
+--patient-data /app/data/test_patient_info.txt \
+--output-folder /app/data/output
+```
 
 ## API
 
