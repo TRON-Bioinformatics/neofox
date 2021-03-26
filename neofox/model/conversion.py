@@ -257,25 +257,27 @@ class ModelConverter(object):
 
     @staticmethod
     def _rescueNoneValues(
-            neoantigen_dict:dict,
+            neoantigen_dict: dict,
     ) -> Neoantigen:
         neoantigen = Neoantigen().from_dict(neoantigen_dict)
-        if "dnaVariantAlleleFrequency" not in neoantigen_dict:
+
+        if ModelConverter._requires_rescue("dnaVariantAlleleFrequency", neoantigen_dict):
             neoantigen.dna_variant_allele_frequency = None
-        else:
-            if neoantigen_dict["dnaVariantAlleleFrequency"] is None:
-                neoantigen.dna_variant_allele_frequency = None
-        if "rnaExpression" not in neoantigen_dict:
+
+        if ModelConverter._requires_rescue("rnaExpression", neoantigen_dict):
             neoantigen.rna_expression = None
-        else:
-            if neoantigen_dict["rnaExpression"] is None:
-                neoantigen.rna_expression = None
-        if "rnaVariantAlleleFrequency" not in neoantigen_dict:
+
+        if ModelConverter._requires_rescue("rnaVariantAlleleFrequency", neoantigen_dict):
             neoantigen.rna_variant_allele_frequency = None
-        else:
-            if neoantigen_dict["rnaVariantAlleleFrequency"] is None:
-                neoantigen.rna_variant_allele_frequency = None
+
+        if ModelConverter._requires_rescue("imputedGeneExpression", neoantigen_dict):
+            neoantigen.imputed_gene_expression = None
+
         return neoantigen
+
+    @staticmethod
+    def _requires_rescue(name, neoantigen_dict):
+        return name not in neoantigen_dict or neoantigen_dict[name] is None
 
 
     @staticmethod
