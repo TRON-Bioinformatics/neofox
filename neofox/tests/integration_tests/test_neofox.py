@@ -262,6 +262,61 @@ class TestNeofox(TestCase):
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
         self.assertTrue(len(annotations[0].annotations) > 10)
 
+    def test_neoantigens_without_gene(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for n in neoantigens:
+            n.gene = ""
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        ).get_annotations()
+        self.assertEqual(5, len(annotations))
+        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
+        self.assertTrue(len(annotations[0].annotations) > 10)
+
+    def test_gene_expression_imputation(self):
+        neoantigens, patients, patient_id = self._get_test_data()
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        )
+        for n in neofox.neoantigens:
+            self.assertIsNotNone(n.imputed_gene_expression)
+            self.assertGreater(n.imputed_gene_expression, 0)
+
+    def test_neoantigens_with_non_existing_gene(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for n in neoantigens:
+            n.gene = "IDONTEXIST"
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        )
+        for n in neofox.neoantigens:
+            self.assertIsNone(n.imputed_gene_expression)
+
+    def test_neoantigens_with_empty_gene(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for n in neoantigens:
+            n.gene = ""
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        )
+        for n in neofox.neoantigens:
+            self.assertIsNone(n.imputed_gene_expression)
+
     def _get_test_data(self):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_model_file.txt"

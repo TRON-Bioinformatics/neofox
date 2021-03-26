@@ -28,8 +28,13 @@ from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
 
 
+epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
+         "TRON – Translational Oncology at the University Medical Center of the " \
+         "Johannes Gutenberg University Mainz gGmbH, all rights reserved".format(neofox.VERSION)
+
+
 def neofox_configure():
-    parser = ArgumentParser(description="NeoFox (NEOantigen Feature toolbOX) {} references installer".format(neofox.VERSION))
+    parser = ArgumentParser(description="NeoFox references installer", epilog=epilog)
     parser.add_argument(
         "--reference-folder",
         dest="reference_folder",
@@ -59,8 +64,9 @@ def neofox_configure():
 
 def neofox_cli():
     parser = ArgumentParser(
-        description="NeoFox (NEOantigen Feature toolbOX) {} annotates a given set of neoantigen candidate sequences "
-                    "derived from point mutation with relevant neoantigen features".format(neofox.VERSION)
+        description="NeoFox {} annotates a given set of neoantigen candidate sequences "
+                    "derived from point mutation with relevant neoantigen features".format(neofox.VERSION),
+        epilog=epilog
     )
     parser.add_argument(
         "--candidate-file",
