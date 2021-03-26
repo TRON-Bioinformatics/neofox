@@ -135,50 +135,54 @@ def neofox_cli():
     num_cpus = int(args.num_cpus)
     config = args.config
 
-    # check parameters
-    if bool(candidate_file) + bool(json_file) > 1:
-        raise NeofoxInputParametersException(
-            "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them"
+    try:
+        # check parameters
+        if bool(candidate_file) + bool(json_file) > 1:
+            raise NeofoxInputParametersException(
+                "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them"
+            )
+        if not candidate_file and not json_file:
+            raise NeofoxInputParametersException(
+                "Please, define one input file, either a candidate file, a standard input file or a JSON file"
+            )
+        if not with_sw and not with_ts and not with_json:
+            with_sw = True  # if none specified short wide is the default
+
+        # makes sure that the output folder exists
+        os.makedirs(output_folder, exist_ok=True)
+
+        # reads the input data
+        neoantigens, patients, external_annotations = _read_data(
+            candidate_file, json_file, patients_data, patient_id
         )
-    if not candidate_file and not json_file:
-        raise NeofoxInputParametersException(
-            "Please, define one input file, either a candidate file, a standard input file or a JSON file"
+
+        # run annotations
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patients=patients,
+            patient_id=patient_id,
+            work_folder=output_folder,
+            output_prefix=output_prefix,
+            num_cpus=num_cpus,
+            configuration_file=config,
+        ).get_annotations(output_folder)
+        # combine neoantigen feature annotations and potential user-specific external annotation
+        neoantigen_annotations = _combine_features_with_external_annotations(
+            annotations, external_annotations
         )
-    if not with_sw and not with_ts and not with_json:
-        with_sw = True  # if none specified short wide is the default
 
-    # makes sure that the output folder exists
-    os.makedirs(output_folder, exist_ok=True)
-
-    # reads the input data
-    neoantigens, patients, external_annotations = _read_data(
-        candidate_file, json_file, patients_data, patient_id
-    )
-
-    # run annotations
-    annotations = NeoFox(
-        neoantigens=neoantigens,
-        patients=patients,
-        patient_id=patient_id,
-        work_folder=output_folder,
-        output_prefix=output_prefix,
-        num_cpus=num_cpus,
-        configuration_file=config,
-    ).get_annotations(output_folder)
-    # combine neoantigen feature annotations and potential user-specific external annotation
-    neoantigen_annotations = _combine_features_with_external_annotations(
-        annotations, external_annotations
-    )
-
-    _write_results(
-        neoantigen_annotations,
-        neoantigens,
-        output_folder,
-        output_prefix,
-        with_json,
-        with_sw,
-        with_ts,
-    )
+        _write_results(
+            neoantigen_annotations,
+            neoantigens,
+            output_folder,
+            output_prefix,
+            with_json,
+            with_sw,
+            with_ts,
+        )
+    except Exception as e:
+        logger.exception(e)  # logs every exception in the file
+        raise e
 
     logger.info("Finished NeoFox")
 
