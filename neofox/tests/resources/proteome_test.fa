@@ -1,0 +1,1000 @@
+>ENSP00000488240.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142847306:142847317:1 gene:ENSG00000282253.1 transcript:ENST00000631435.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRBD1 description:T cell receptor beta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12158]
+GTGG
+>ENSP00000451042.1 pep chromosome:GRCh38:14:22438547:22438554:1 gene:ENSG00000223997.1 transcript:ENST00000415118.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRDD1 description:T cell receptor delta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12254]
+EI
+>ENSP00000451515.1 pep chromosome:GRCh38:14:22439007:22439015:1 gene:ENSG00000237235.2 transcript:ENST00000434970.2 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRDD2 description:T cell receptor delta diversity 2 [Source:HGNC Symbol;Acc:HGNC:12255]
+PSY
+>ENSP00000452494.1 pep chromosome:GRCh38:14:22449113:22449125:1 gene:ENSG00000228985.1 transcript:ENST00000448914.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRDD3 description:T cell receptor delta diversity 3 [Source:HGNC Symbol;Acc:HGNC:12256]
+TGGY
+>ENSP00000487941.1 pep chromosome:GRCh38:7:142786213:142786224:1 gene:ENSG00000282431.1 transcript:ENST00000632684.1 gene_biotype:TR_D_gene transcript_biotype:TR_D_gene gene_symbol:TRBD1 description:T cell receptor beta diversity 1 [Source:HGNC Symbol;Acc:HGNC:12158]
+GTGG
+>ENSP00000488695.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105866322:105866332:-1 gene:ENSG00000282455.1 transcript:ENST00000632524.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD7-27 description:immunoglobulin heavy diversity 7-27 [Source:HGNC Symbol;Acc:HGNC:5518]
+LTG
+>ENSP00000488000.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105881805:105881824:-1 gene:ENSG00000282323.1 transcript:ENST00000633009.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-26 description:immunoglobulin heavy diversity 1-26 [Source:HGNC Symbol;Acc:HGNC:5485]
+GIVGAT
+>ENSP00000488392.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105882310:105882327:-1 gene:ENSG00000282724.1 transcript:ENST00000634070.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-25 description:immunoglobulin heavy diversity 6-25 [Source:HGNC Symbol;Acc:HGNC:5516]
+GYSSGY
+>ENSP00000488113.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105884674:105884693:-1 gene:ENSG00000282674.1 transcript:ENST00000632963.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-24 description:immunoglobulin heavy diversity 5-24 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5510]
+VEMATI
+>ENSP00000488168.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105885641:105885659:-1 gene:ENSG00000282640.1 transcript:ENST00000633030.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-23 description:immunoglobulin heavy diversity 4-23 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5504]
+*LRW*L
+>ENSP00000488711.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105886802:105886832:-1 gene:ENSG00000282396.1 transcript:ENST00000633765.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-22 description:immunoglobulin heavy diversity 3-22 [Source:HGNC Symbol;Acc:HGNC:5497]
+VLL***WLLL
+>ENSP00000487599.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105889322:105889349:-1 gene:ENSG00000281984.1 transcript:ENST00000632619.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-21 description:immunoglobulin heavy diversity 2-21 [Source:HGNC Symbol;Acc:HGNC:5491]
+SILWW*LLF
+>ENSP00000487789.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105892470:105892490:-1 gene:ENSG00000282487.1 transcript:ENST00000633159.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-19 description:immunoglobulin heavy diversity 6-19 [Source:HGNC Symbol;Acc:HGNC:5515]
+GYSSGWY
+>ENSP00000488201.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105894313:105894332:-1 gene:ENSG00000282346.1 transcript:ENST00000631871.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-18 description:immunoglobulin heavy diversity 5-18 [Source:HGNC Symbol;Acc:HGNC:5509]
+VDTAMV
+>ENSP00000488261.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105895279:105895294:-1 gene:ENSG00000282274.1 transcript:ENST00000633010.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-17 description:immunoglobulin heavy diversity 4-17 [Source:HGNC Symbol;Acc:HGNC:5503]
+*LR*L
+>ENSP00000487787.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105896405:105896441:-1 gene:ENSG00000282232.1 transcript:ENST00000633379.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-16 description:immunoglobulin heavy diversity 3-16 [Source:HGNC Symbol;Acc:HGNC:5496]
+VL*LRLGELSLY
+>ENSP00000487812.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105891962:105891978:-1 gene:ENSG00000282592.1 transcript:ENST00000632968.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-20 description:immunoglobulin heavy diversity 1-20 [Source:HGNC Symbol;Acc:HGNC:5484]
+GITGT
+>ENSP00000487993.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105898728:105898758:-1 gene:ENSG00000282818.1 transcript:ENST00000632473.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-15 description:immunoglobulin heavy diversity 2-15 [Source:HGNC Symbol;Acc:HGNC:5489]
+RIL*WW*LLL
+>ENSP00000488522.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105901409:105901425:-1 gene:ENSG00000282736.1 transcript:ENST00000631884.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-14 description:immunoglobulin heavy diversity 1-14 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5483]
+GITGT
+>ENSP00000488592.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105901913:105901933:-1 gene:ENSG00000282042.1 transcript:ENST00000632859.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-13 description:immunoglobulin heavy diversity 6-13 [Source:HGNC Symbol;Acc:HGNC:5514]
+GYSSSWY
+>ENSP00000487922.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105903420:105903442:-1 gene:ENSG00000282102.1 transcript:ENST00000631895.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-12 description:immunoglobulin heavy diversity 5-12 [Source:HGNC Symbol;Acc:HGNC:5508]
+VDIVATI
+>ENSP00000488735.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105904387:105904402:-1 gene:ENSG00000281940.1 transcript:ENST00000634154.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-11 description:immunoglobulin heavy diversity 4-11 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5502]
+*LQ*L
+>ENSP00000488475.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105905268:105905298:-1 gene:ENSG00000282373.1 transcript:ENST00000632609.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-10 description:immunoglobulin heavy diversity 3-10 [Source:HGNC Symbol;Acc:HGNC:5495]
+VLLWFGELL
+>ENSP00000487775.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105905452:105905482:-1 gene:ENSG00000281939.1 transcript:ENST00000632911.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-9 description:immunoglobulin heavy diversity 3-9 [Source:HGNC Symbol;Acc:HGNC:5499]
+VLRYFDWLL
+>ENSP00000488083.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105907982:105908012:-1 gene:ENSG00000282132.1 transcript:ENST00000633504.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-8 description:immunoglobulin heavy diversity 2-8 [Source:HGNC Symbol;Acc:HGNC:5492]
+RILY*WCMLY
+>ENSP00000488720.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105910678:105910694:-1 gene:ENSG00000282495.1 transcript:ENST00000632304.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-7 description:immunoglobulin heavy diversity 1-7 [Source:HGNC Symbol;Acc:HGNC:5486]
+GITGT
+>ENSP00000488589.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105911181:105911198:-1 gene:ENSG00000282010.1 transcript:ENST00000632542.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-6 description:immunoglobulin heavy diversity 6-6 [Source:HGNC Symbol;Acc:HGNC:5517]
+EYSSSS
+>ENSP00000487937.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105913028:105913047:-1 gene:ENSG00000282769.1 transcript:ENST00000633968.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-5 description:immunoglobulin heavy diversity 5-5 [Source:HGNC Symbol;Acc:HGNC:5511]
+VDTAMV
+>ENSP00000488889.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105913993:105914008:-1 gene:ENSG00000282227.1 transcript:ENST00000634085.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-4 description:immunoglobulin heavy diversity 4-4 [Source:HGNC Symbol;Acc:HGNC:5505]
+*LQ*L
+>ENSP00000487903.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105915130:105915160:-1 gene:ENSG00000282754.1 transcript:ENST00000633353.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-3 description:immunoglobulin heavy diversity 3-3 [Source:HGNC Symbol;Acc:HGNC:5498]
+VLRFLEWLLY
+>ENSP00000487604.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105917597:105917627:-1 gene:ENSG00000282578.1 transcript:ENST00000631803.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-2 description:immunoglobulin heavy diversity 2-2 [Source:HGNC Symbol;Acc:HGNC:5490]
+RIL**YQLLC
+>ENSP00000488840.1 pep chromosome:GRCh38:CHR_HSCHR14_3_CTG1:105920273:105920289:-1 gene:ENSG00000282714.1 transcript:ENST00000633210.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-1 description:immunoglobulin heavy diversity 1-1 [Source:HGNC Symbol;Acc:HGNC:5482]
+GTTGT
+>ENSP00000473849.1 pep chromosome:GRCh38:15:20003840:20003862:-1 gene:ENSG00000270961.1 transcript:ENST00000604642.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5OR15-5A description:immunoglobulin heavy diversity 5/OR15-5A (non-functional) [Source:HGNC Symbol;Acc:HGNC:5512]
+VDIVSTI
+>ENSP00000474693.2 pep chromosome:GRCh38:15:20004797:20004815:-1 gene:ENSG00000271317.1 transcript:ENST00000603326.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4OR15-4A description:immunoglobulin heavy diversity 4/OR15-4A (non-functional) [Source:HGNC Symbol;Acc:HGNC:5506]
+*LWC*L
+>ENSP00000474133.2 pep chromosome:GRCh38:15:20005905:20005935:-1 gene:ENSG00000282520.1 transcript:ENST00000604950.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3OR15-3A description:immunoglobulin heavy diversity 3/OR15-3A (non-functional) [Source:HGNC Symbol;Acc:HGNC:5500]
+VL*FLDWLLY
+>ENSP00000474065.2 pep chromosome:GRCh38:15:20008402:20008432:-1 gene:ENSG00000282599.1 transcript:ENST00000603077.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2OR15-2A description:immunoglobulin heavy diversity 2/OR15-2A (non-functional) [Source:HGNC Symbol;Acc:HGNC:5493]
+RIL**YYFLC
+>ENSP00000473787.1 pep chromosome:GRCh38:15:20011153:20011169:-1 gene:ENSG00000271336.1 transcript:ENST00000605284.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1OR15-1A description:immunoglobulin heavy diversity 1/OR15-1A (non-functional) [Source:HGNC Symbol;Acc:HGNC:5487]
+GITGT
+>ENSP00000473700.1 pep chromosome:GRCh38:15:21010494:21010516:-1 gene:ENSG00000270824.1 transcript:ENST00000604446.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5OR15-5B description:immunoglobulin heavy diversity 5/OR15-5B (non-functional) [Source:HGNC Symbol;Acc:HGNC:5513]
+VDIVSTI
+>ENSP00000474017.2 pep chromosome:GRCh38:15:21015048:21015078:-1 gene:ENSG00000282268.1 transcript:ENST00000604102.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2OR15-2B description:immunoglobulin heavy diversity 2/OR15-2B (non-functional) [Source:HGNC Symbol;Acc:HGNC:5494]
+RIL**YYFLC
+>ENSP00000474222.1 pep chromosome:GRCh38:15:21017800:21017816:-1 gene:ENSG00000270185.1 transcript:ENST00000604838.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1OR15-1B description:immunoglobulin heavy diversity 1/OR15-1B (non-functional) [Source:HGNC Symbol;Acc:HGNC:5488]
+GITGT
+>ENSP00000475053.2 pep chromosome:GRCh38:15:21011451:21011469:-1 gene:ENSG00000270451.1 transcript:ENST00000603693.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4OR15-4B description:immunoglobulin heavy diversity 4/OR15-4B (non-functional) [Source:HGNC Symbol;Acc:HGNC:5507]
+*LWC*L
+>ENSP00000474573.2 pep chromosome:GRCh38:15:21012559:21012589:-1 gene:ENSG00000282089.1 transcript:ENST00000603935.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3OR15-3B description:immunoglobulin heavy diversity 3/OR15-3B (non-functional) [Source:HGNC Symbol;Acc:HGNC:5501]
+VL*FLDWLLY
+>ENSP00000418639.1 pep chromosome:GRCh38:14:105865551:105865561:-1 gene:ENSG00000236597.1 transcript:ENST00000439842.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD7-27 description:immunoglobulin heavy diversity 7-27 [Source:HGNC Symbol;Acc:HGNC:5518]
+LTG
+>ENSP00000420733.1 pep chromosome:GRCh38:14:105881034:105881053:-1 gene:ENSG00000211907.1 transcript:ENST00000390567.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-26 description:immunoglobulin heavy diversity 1-26 [Source:HGNC Symbol;Acc:HGNC:5485]
+GIVGAT
+>ENSP00000417751.1 pep chromosome:GRCh38:14:105881539:105881556:-1 gene:ENSG00000225825.1 transcript:ENST00000452198.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-25 description:immunoglobulin heavy diversity 6-25 [Source:HGNC Symbol;Acc:HGNC:5516]
+GYSSGY
+>ENSP00000419139.1 pep chromosome:GRCh38:14:105883903:105883922:-1 gene:ENSG00000211909.1 transcript:ENST00000390569.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-24 description:immunoglobulin heavy diversity 5-24 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5510]
+VEMATI
+>ENSP00000430248.1 pep chromosome:GRCh38:14:105884870:105884888:-1 gene:ENSG00000227196.1 transcript:ENST00000437320.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-23 description:immunoglobulin heavy diversity 4-23 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5504]
+*LRW*L
+>ENSP00000429952.1 pep chromosome:GRCh38:14:105886031:105886061:-1 gene:ENSG00000211911.1 transcript:ENST00000390571.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-22 description:immunoglobulin heavy diversity 3-22 [Source:HGNC Symbol;Acc:HGNC:5497]
+VLL***WLLL
+>ENSP00000429324.1 pep chromosome:GRCh38:14:105888551:105888578:-1 gene:ENSG00000211912.1 transcript:ENST00000390572.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-21 description:immunoglobulin heavy diversity 2-21 [Source:HGNC Symbol;Acc:HGNC:5491]
+SILWW*LLF
+>ENSP00000417555.1 pep chromosome:GRCh38:14:105893542:105893561:-1 gene:ENSG00000211915.1 transcript:ENST00000390575.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-18 description:immunoglobulin heavy diversity 5-18 [Source:HGNC Symbol;Acc:HGNC:5509]
+VDTAMV
+>ENSP00000431089.1 pep chromosome:GRCh38:14:105894508:105894523:-1 gene:ENSG00000227800.1 transcript:ENST00000431870.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-17 description:immunoglobulin heavy diversity 4-17 [Source:HGNC Symbol;Acc:HGNC:5503]
+*LR*L
+>ENSP00000428366.1 pep chromosome:GRCh38:14:105895634:105895670:-1 gene:ENSG00000211917.1 transcript:ENST00000390577.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-16 description:immunoglobulin heavy diversity 3-16 [Source:HGNC Symbol;Acc:HGNC:5496]
+VL*LRLGELSLY
+>ENSP00000418010.1 pep chromosome:GRCh38:14:105891699:105891719:-1 gene:ENSG00000211914.1 transcript:ENST00000390574.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-19 description:immunoglobulin heavy diversity 6-19 [Source:HGNC Symbol;Acc:HGNC:5515]
+GYSSGWY
+>ENSP00000420556.1 pep chromosome:GRCh38:14:105891191:105891207:-1 gene:ENSG00000237020.1 transcript:ENST00000450276.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-20 description:immunoglobulin heavy diversity 1-20 [Source:HGNC Symbol;Acc:HGNC:5484]
+GITGT
+>ENSP00000427969.1 pep chromosome:GRCh38:14:105897957:105897987:-1 gene:ENSG00000211918.1 transcript:ENST00000390578.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-15 description:immunoglobulin heavy diversity 2-15 [Source:HGNC Symbol;Acc:HGNC:5489]
+RIL*WW*LLL
+>ENSP00000418765.1 pep chromosome:GRCh38:14:105900638:105900654:-1 gene:ENSG00000227108.1 transcript:ENST00000451044.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-14 description:immunoglobulin heavy diversity 1-14 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5483]
+GITGT
+>ENSP00000419564.1 pep chromosome:GRCh38:14:105901142:105901162:-1 gene:ENSG00000211920.1 transcript:ENST00000390580.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-13 description:immunoglobulin heavy diversity 6-13 [Source:HGNC Symbol;Acc:HGNC:5514]
+GYSSSWY
+>ENSP00000419283.1 pep chromosome:GRCh38:14:105902649:105902671:-1 gene:ENSG00000211921.1 transcript:ENST00000390581.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-12 description:immunoglobulin heavy diversity 5-12 [Source:HGNC Symbol;Acc:HGNC:5508]
+VDIVATI
+>ENSP00000430034.1 pep chromosome:GRCh38:14:105903616:105903631:-1 gene:ENSG00000232543.2 transcript:ENST00000431440.2 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-11 description:immunoglobulin heavy diversity 4-11 (non-functional) [Source:HGNC Symbol;Acc:HGNC:5502]
+*LQ*L
+>ENSP00000419773.1 pep chromosome:GRCh38:14:105904497:105904527:-1 gene:ENSG00000211923.1 transcript:ENST00000390583.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-10 description:immunoglobulin heavy diversity 3-10 [Source:HGNC Symbol;Acc:HGNC:5495]
+VLLWFGELL
+>ENSP00000419583.1 pep chromosome:GRCh38:14:105904681:105904711:-1 gene:ENSG00000211924.1 transcript:ENST00000390584.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-9 description:immunoglobulin heavy diversity 3-9 [Source:HGNC Symbol;Acc:HGNC:5499]
+VLRYFDWLL
+>ENSP00000428616.1 pep chromosome:GRCh38:14:105907211:105907241:-1 gene:ENSG00000211925.1 transcript:ENST00000390585.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-8 description:immunoglobulin heavy diversity 2-8 [Source:HGNC Symbol;Acc:HGNC:5492]
+RILY*WCMLY
+>ENSP00000420794.1 pep chromosome:GRCh38:14:105909907:105909923:-1 gene:ENSG00000237197.1 transcript:ENST00000430425.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-7 description:immunoglobulin heavy diversity 1-7 [Source:HGNC Symbol;Acc:HGNC:5486]
+GITGT
+>ENSP00000418151.1 pep chromosome:GRCh38:14:105910410:105910427:-1 gene:ENSG00000228131.1 transcript:ENST00000454691.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD6-6 description:immunoglobulin heavy diversity 6-6 [Source:HGNC Symbol;Acc:HGNC:5517]
+EYSSSS
+>ENSP00000417892.1 pep chromosome:GRCh38:14:105912257:105912276:-1 gene:ENSG00000211928.1 transcript:ENST00000390588.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD5-5 description:immunoglobulin heavy diversity 5-5 [Source:HGNC Symbol;Acc:HGNC:5511]
+VDTAMV
+>ENSP00000428393.1 pep chromosome:GRCh38:14:105913222:105913237:-1 gene:ENSG00000233655.1 transcript:ENST00000414852.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD4-4 description:immunoglobulin heavy diversity 4-4 [Source:HGNC Symbol;Acc:HGNC:5505]
+*LQ*L
+>ENSP00000420442.1 pep chromosome:GRCh38:14:105914359:105914389:-1 gene:ENSG00000211930.1 transcript:ENST00000390590.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD3-3 description:immunoglobulin heavy diversity 3-3 [Source:HGNC Symbol;Acc:HGNC:5498]
+VLRFLEWLLY
+>ENSP00000430788.1 pep chromosome:GRCh38:14:105916826:105916856:-1 gene:ENSG00000211931.1 transcript:ENST00000390591.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD2-2 description:immunoglobulin heavy diversity 2-2 [Source:HGNC Symbol;Acc:HGNC:5490]
+RIL**YQLLC
+>ENSP00000418625.1 pep chromosome:GRCh38:14:105919502:105919518:-1 gene:ENSG00000236170.1 transcript:ENST00000454908.1 gene_biotype:IG_D_gene transcript_biotype:IG_D_gene gene_symbol:IGHD1-1 description:immunoglobulin heavy diversity 1-1 [Source:HGNC Symbol;Acc:HGNC:5482]
+GTTGT
+>ENSP00000488127.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142370836:142371348:1 gene:ENSG00000282353.1 transcript:ENST00000632148.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:AC234635.1 description:T cell receptor beta variable 6-3  [Source:UniProtKB/Swiss-Prot;Acc:P0DPF7]
+MSLGLLCCGAFSLLWAGPVNAGVTQTPKFRVLKTGQSMTLLCAQDMNHEYMYWYRQDPGM
+GLRLIHYSVGEGTTAKGEVPDGYNVSRLKKQNFLLGLESAAPSQTSVYFCASSY
+>ENSP00000488152.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142374511:142375050:1 gene:ENSG00000282506.1 transcript:ENST00000631392.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-2 description:T cell receptor beta variable 7-2 [Source:HGNC Symbol;Acc:HGNC:12236]
+MGTRLLFWVAFCLLGADHTGAGVSQSPSNKVTEKGKDVELRCDPISGHTALYWYRQSLGQ
+GLEFLIYFQGNSAPDKSGLPSDRFSAERTGGSVSTLTIQRTQQEDSAVYLCASSL
+>ENSP00000487798.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142402503:142402958:1 gene:ENSG00000282240.1 transcript:ENST00000633472.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-4 description:T cell receptor beta variable 6-4 [Source:HGNC Symbol;Acc:HGNC:12229]
+MRIRLLCCVAFSLLWAGPVIAGITQAPTSQILAAGRRMTLRCTQDMRHNAMYWYRQDLGL
+GLRLIHYSNTAGTTGKGEVPDGYSVSRANTDDFPLTLASAVPSQTSVYFCASSD
+>ENSP00000488108.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142406045:142406551:1 gene:ENSG00000282203.1 transcript:ENST00000631882.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-3 description:T cell receptor beta variable 7-3 [Source:HGNC Symbol;Acc:HGNC:12237]
+MGTRLLCWAALCLLGADHTGAGVSQTPSNKVTEKGKYVELRCDPISGHTALYWYRQSLGQ
+GPEFLIYFQGTGAADDSGLPNDRFFAVRPEGSVSTLKIQRTERGDSAVYLCASSL
+>ENSP00000488267.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142410913:142411379:1 gene:ENSG00000282148.1 transcript:ENST00000634123.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-3 description:T cell receptor beta variable 5-3 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12220]
+MGPGLLCWELLYLLGAGPVEAGVTQSPTHLIKTRGQQVTLRCSPISGHSSVSWYQQAPGQ
+GPQFIFEYANELRRSEGNFPNRFSGRQFHDCCSEMNVSALELGDSALYLCARSL
+>ENSP00000488515.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142413602:142414123:1 gene:ENSG00000282204.1 transcript:ENST00000633328.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV9 description:T cell receptor beta variable 9 [Source:HGNC Symbol;Acc:HGNC:12246]
+MGFRLLCCVAFCLLGAGPVDSGVTQTPKHLITATGQRVTLRCSPRSGDLSVYWYQQSLDQ
+GLQFLIQYYNGEERAKGNILERFSAQQFPDLHSELNLSSLELGDSALYFCASSV
+>ENSP00000488035.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142421573:142422090:1 gene:ENSG00000282618.1 transcript:ENST00000632248.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV10-1 description:T cell receptor beta variable 10-1(gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12177]
+MGTRLFFYVALCLLWAGHRDAEITQSPRHKITETGRQVTLACHQTWNHNNMFWYRQDLGH
+GLRLIHYSYGVHDTNKGEVSDGYSVSRSNTEDLPLTLESAASSQTSVYFCASSE
+>ENSP00000488521.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142429379:142429843:1 gene:ENSG00000282711.1 transcript:ENST00000634176.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV11-1 description:T cell receptor beta variable 11-1 [Source:HGNC Symbol;Acc:HGNC:12180]
+MSTRLLCWMALCLLGAELSEAEVAQSPRYKITEKSQAVAFWCDPISGHATLYWYRQILGQ
+GPELLVQFQDESVVDDSQLPKDRFSAERLKGVDSTLKIQPAELGDSAMYLCASSL
+>ENSP00000488043.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142446652:142447152:1 gene:ENSG00000282007.1 transcript:ENST00000633575.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV10-2 description:T cell receptor beta variable 10-2 [Source:HGNC Symbol;Acc:HGNC:12178]
+MGTRLFFYVALCLLWAGHRDAGITQSPRYKITETGRQVTLMCHQTWSHSYMFWYRQDLGH
+GLRLIYYSAAADITDKGEVPDGYVVSRSKTENFPLTLESATRSQTSVYFCASSE
+>ENSP00000488123.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142472647:142473148:1 gene:ENSG00000277110.3 transcript:ENST00000633072.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-5 description:T cell receptor beta variable 6-5 [Source:HGNC Symbol;Acc:HGNC:12230]
+MSIGLLCCAALSLLWAGPVNAGVTQTPKFQVLKTGQSMTLQCAQDMNHEYMSWYRQDPGM
+GLRLIHYSVGAGITDQGEVPNGYNVSRSTTEDFPLRLLSAAPSQTSVYFCASSY
+>ENSP00000488823.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142476873:142477334:1 gene:ENSG00000282756.1 transcript:ENST00000633313.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-4 description:T cell receptor beta variable 7-4 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12238]
+MGTRLLCWVVLGFLGTDHTGAGVSQSPRYKVAKRGRDVALRCDSISGHVTLYWYRQTLGQ
+GSEVLTYSQSDAQRDKSGRPSGRFSAERPERSVSTLKIQCTEQGDSAVYLCASSL
+>ENSP00000488374.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142484618:142485283:1 gene:ENSG00000282466.1 transcript:ENST00000633696.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-4 description:T cell receptor beta variable 5-4 [Source:HGNC Symbol;Acc:HGNC:12221]
+MGPGLLCWALLCLLGAGSVDAGVTQSPTHLIKTRGQQVTLRCSSQSGHNTVSWYQQALGQ
+GPQFIFQYYREEENGRGNFPPRFSGLQFPNDSSELNVNALELDDSALYLCASSL
+>ENSP00000488741.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142491254:142491732:1 gene:ENSG00000282459.1 transcript:ENST00000633963.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-6 description:T cell receptor beta variable 6-6 [Source:HGNC Symbol;Acc:HGNC:12231]
+MSISLLCCAAFPLLWAGPVNAGVTQTPKFRILKIGQSMTLQCAQDMNHNYMYWYRQDPGM
+GLKLIYYSVGAGITDKGEVPNGYNVSRSTTEYFPLRLELAAPSQTSVYFCASSY
+>ENSP00000488241.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142504264:142504735:1 gene:ENSG00000282577.1 transcript:ENST00000632187.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-5 description:T cell receptor beta variable 5-5 [Source:HGNC Symbol;Acc:HGNC:12222]
+MGPGLLCWVLLCLLVAGPVDAGVTQSPTHLIKTRGQQVTLRCSPISGHKSVSWYQQVLGQ
+GPQFIFQYYEKEERGRGNFPDRFSARQFPNYSSELNVNALLLGDSALYLCASSL
+>ENSP00000488335.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142509537:142510011:1 gene:ENSG00000282470.1 transcript:ENST00000631511.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-7 description:T cell receptor beta variable 6-7 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12232]
+MSLGLLCCVAFSLLWAGPMNAGVTQTPKFHVLKTGQSMTLLCAQDMNHEYMYRYRQDPGK
+GLRLIYYSVAAALTDKGEVPNGYNVSRSNTEDFPLKLESAAPSQTSVYFCASSY
+>ENSP00000488212.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142513848:142514385:1 gene:ENSG00000282704.1 transcript:ENST00000633265.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-6 description:T cell receptor beta variable 7-6 [Source:HGNC Symbol;Acc:HGNC:12240]
+MGTSLLCWVVLGFLGTDHTGAGVSQSPRYKVTKRGQDVALRCDPISGHVSLYWYRQALGQ
+GPEFLTYFNYEAQQDKSGLPNDRFSAERPEGSVSTLTIQRTEQRDSAMYRCASSL
+>ENSP00000487850.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142521745:142522251:1 gene:ENSG00000282098.1 transcript:ENST00000632216.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-6 description:T cell receptor beta variable 5-6 [Source:HGNC Symbol;Acc:HGNC:12223]
+MGPGLLCWALLCLLGAGLVDAGVTQSPTHLIKTRGQQVTLRCSPKSGHDTVSWYQQALGQ
+GPQFIFQYYEEEERQRGNFPDRFSGHQFPNYSSELNVNALLLGDSALYLCASSL
+>ENSP00000488870.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142529032:142529526:1 gene:ENSG00000282134.1 transcript:ENST00000632425.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-8 description:T cell receptor beta variable 6-8 [Source:HGNC Symbol;Acc:HGNC:12233]
+MSLGLLCCAAFSLLWAGPVNAGVTQTPKFHILKTGQSMTLQCAQDMNHGYMSWYRQDPGM
+GLRLIYYSAAAGTTDKEVPNGYNVSRLNTEDFPLRLVSAAPSRTSVYLCASSY
+>ENSP00000488424.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142533342:142533843:1 gene:ENSG00000282179.1 transcript:ENST00000631548.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-7 description:T cell receptor beta variable 7-7 [Source:HGNC Symbol;Acc:HGNC:12241]
+MGTSLLCWVVLGFLGTDHTGAGVSQSPRYKVTKRGQDVTLRCDPISSHATLYWYQQALGQ
+GPEFLTYFNYEAQPDKSGLPSDRFSAERPEGSISTLTIQRTEQRDSAMYRCASSL
+>ENSP00000488478.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142541804:142542270:1 gene:ENSG00000282748.1 transcript:ENST00000633790.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-7 description:T cell receptor beta variable 5-7 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12224]
+MGPGLLCWVLLCPLGEGPVDAGVTQSPTHLIKTRGQHVTLRCSPISGHTSVSSYQQALGQ
+GPQFIFQYYEKEERGRGNFPDQFSGHQFPNYSSELNVNALLLGDSALYLCASSL
+>ENSP00000488280.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142549110:142549542:1 gene:ENSG00000282610.1 transcript:ENST00000634093.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:AC233282.2 description:T cell receptor beta variable 6-9  [Source:UniProtKB/Swiss-Prot;Acc:A0A0J9YX75]
+MSIGLLCCVAFSLLWAGPVNAGVTQTPKFHILKTGQSMTLQCAQDMNHGYLSWYRQDPGM
+GLRRIHYSVAAGITDKGEVPDGYNVSRSNTEDFPLRLESAAPSQTSVYFCASSY
+>ENSP00000488190.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142553725:142554208:1 gene:ENSG00000282040.1 transcript:ENST00000632560.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:AC233282.1 description:T cell receptor beta variable 7-8  [Source:UniProtKB/Swiss-Prot;Acc:A0A1B0GX51]
+MGTRLLCWVVLGFLGTDHTGAGVSQSPRYKVAKRGQDVALRCDPISGHVSLFWYQQALGQ
+GPEFLTYFQNEAQLDKSGLPSDRFFAERPEGSVSTLKIQRTQQEDSAVYLCASSL
+>ENSP00000488017.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142561449:142562408:1 gene:ENSG00000282054.1 transcript:ENST00000631639.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:AC229888.1 description:T cell receptor beta variable 5-8  [Source:UniProtKB/Swiss-Prot;Acc:A0A5A2]
+MGPRLLFWALLCLLGTGPVEAGVTQSPTHLIKTRGQQATLRCSPISGHTSVYWYQQALGL
+GLQFLLWYDEGEERNRGNFPPRFSGRQFPNYSSELNVNALELEDSALYLCASSL
+>ENSP00000487884.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142571143:142571615:1 gene:ENSG00000281943.1 transcript:ENST00000632021.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-9 description:T cell receptor beta variable 7-9 [Source:HGNC Symbol;Acc:HGNC:12243]
+MGTSLLCWMALCLLGADHADTGVSQDPRHKITKRGQNVTFRCDPISEHNRLYWYRQTLGQ
+GPEFLTYFQNEAQLEKSRLLSDRFSAERPKGSFSTLEIQRTEQGDSAMYLCASSL
+>ENSP00000488778.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142577660:142578143:1 gene:ENSG00000282407.1 transcript:ENST00000633796.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV13 description:T cell receptor beta variable 13 [Source:HGNC Symbol;Acc:HGNC:12188]
+MLSPDLPDSAWNTRLLCRVMLCLLGAGSVAAGVIQSPRHLIKEKRETATLKCYPIPRHDT
+VYWYQQGPGQDPQFLISFYEKMQSDKGSIPDRFSAQQFSDYHSELNMSSLELGDSALYFC
+ASSL
+>ENSP00000487891.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142586067:142586516:1 gene:ENSG00000282340.1 transcript:ENST00000631471.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV10-3 description:T cell receptor beta variable 10-3 [Source:HGNC Symbol;Acc:HGNC:12179]
+MGTRLFFYVALCLLWTGHMDAGITQSPRHKVTETGTPVTLRCHQTENHRYMYWYRQDPGH
+GLRLIHYSYGVKDTDKGEVSDGYSVSRSKTEDFLLTLESATSSQTSVYFCAISE
+>ENSP00000487749.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142596665:142597147:1 gene:ENSG00000282242.1 transcript:ENST00000634111.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV11-3 description:T cell receptor beta variable 11-3 [Source:HGNC Symbol;Acc:HGNC:12182]
+MGTRLLCWVAFCLLVEELIEAGVVQSPRYKIIEKKQPVAFWCNPISGHNTLYWYLQNLGQ
+GPELLIRYENEEAVDDSQLPKDRFSAERLKGVDSTLKIQPAELGDSAVYLCASSL
+>ENSP00000487964.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142602235:142602743:1 gene:ENSG00000282208.1 transcript:ENST00000633292.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV12-3 description:T cell receptor beta variable 12-3 [Source:HGNC Symbol;Acc:HGNC:12185]
+MDSWTFCCVSLCILVAKHTDAGVIQSPRHEVTEMGQEVTLRCKPISGHNSLFWYRQTMMR
+GLELLIYFNNNVPIDDSGMPEDRFSAKMPNASFSTLKIQPSEPRDSAVYFCASSL
+>ENSP00000488855.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142605549:142606054:1 gene:ENSG00000282354.1 transcript:ENST00000631824.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV12-4 description:T cell receptor beta variable 12-4 [Source:HGNC Symbol;Acc:HGNC:12186]
+MDSWTLCCVSLCILVAKHTDAGVIQSPRHEVTEMGQEVTLRCKPISGHDYLFWYRQTMMR
+GLELLIYFNNNVPIDDSGMPEDRFSAKMPNASFSTLKIQPSEPRDSAVYFCASSL
+>ENSP00000488633.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142622755:142623265:1 gene:ENSG00000282605.1 transcript:ENST00000632829.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV12-5 description:T cell receptor beta variable 12-5 [Source:HGNC Symbol;Acc:HGNC:12187]
+MATRLLCCVVLCLLGEELIDARVTQTPRDKVTEMGQEVTMRCQPILGHNTVFWYRQTMMQ
+GLELLAYFRNRAPLDDSGMPKDRFSAEMPDATLATLKIQPSEPRDSAVYFCASGL
+>ENSP00000488641.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142629704:142630195:1 gene:ENSG00000282252.1 transcript:ENST00000632432.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV14 description:T cell receptor beta variable 14 [Source:HGNC Symbol;Acc:HGNC:12189]
+MVSRLLSLVSLCLLGAKHIEAGVTQFPSHSVIEKGQTVTLRCDPISGHDNLYWYRRVMGK
+EIKFLLHFVKESKQDESGMPNNRFLAERTGGTYSTLKVQPAELEDSGVYFCASSQ
+>ENSP00000488551.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142634764:142635309:1 gene:ENSG00000282497.1 transcript:ENST00000631835.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV15 description:T cell receptor beta variable 15 [Source:HGNC Symbol;Acc:HGNC:12190]
+MGPGLLHWMALCLLGTGHGDAMVIQNPRYQVTQFGKPVTLSCSQTLNHNVMYWYQQKSSQ
+APKLLFHYYDKDFNNEADTPDNFQSRRPNTSFCFLDIRSPGLGDAAMYLCATSR
+>ENSP00000487913.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142639852:142640305:1 gene:ENSG00000282415.1 transcript:ENST00000633244.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV16 description:T cell receptor beta variable 16 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12191]
+MSPIFTCITILCLLAAGSPGEEVAQTPKHLVRGEGQKAKLYCAPIKGHSYVFWYQQVLKN
+EFKFLISFQNENVFDETGMPKERFSAKCLPNSPCSLEIQATKLEDSAVYFCASSQ
+>ENSP00000488775.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142643462:142644194:1 gene:ENSG00000282483.1 transcript:ENST00000631663.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV17 description:T cell receptor beta variable 17 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12192]
+MDIWLLCWVTLCLLAAGHSEPGVSQTPRHKVTNMGQEVILRCDPSSGHMFVHWYRQNLRQ
+EMKLLISFQYQNIAVDSGMPKERFTAERPNGTSSTLKIHPAEPRDSAVYLYSSG
+>ENSP00000488621.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142657499:142658198:1 gene:ENSG00000282771.1 transcript:ENST00000631559.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV18 description:T cell receptor beta variable 18 [Source:HGNC Symbol;Acc:HGNC:12193]
+MDTRVLCCAVICLLGAGLSNAGVMQNPRHLVRRRGQEARLRCSPMKGHSHVYWYRQLPEE
+GLKFMVYLQKENIIDESGMPKERFSAEFPKEGPSILRIQQVVRGDSAAYFCASSP
+>ENSP00000487807.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142660632:142661315:1 gene:ENSG00000282621.1 transcript:ENST00000632638.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV19 description:T cell receptor beta variable 19 [Source:HGNC Symbol;Acc:HGNC:12194]
+MSNQVLCCVVLCFLGANTVDGGITQSPKYLFRKEGQNVTLSCEQNLNHDAMYWYRQDPGQ
+GLRLIYYSQIVNDFQKGDIAEGYSVSREKKESFPLTVTSAQKNPTAFYLCASSI
+>ENSP00000488099.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142668431:142669181:1 gene:ENSG00000282064.1 transcript:ENST00000633466.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV20-1 description:T cell receptor beta variable 20-1 [Source:HGNC Symbol;Acc:HGNC:12196]
+MLLLLLLLGPGSGLGAVVSQHPSWVICKSGTSVKIECRSLDFQATTMFWYRQFPKQSLML
+MATSNEGSKATYEQGVEKDKFLINHASLTLSTLTVTSAHPEDSSFYICSAR
+>ENSP00000487718.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142687733:142688229:1 gene:ENSG00000282449.1 transcript:ENST00000633842.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV23-1 description:T cell receptor beta variable 23-1 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12201]
+MGTRLLGCAALCLLAADSFHAKVTQTPGHLVKGKGQKTKMDCTPEKGHTFVYWYQQNQNK
+EFMLLISFQNEQVLQETEMHKKRFSSQCPKNAPCSLAILSSEPGDTALYLCASSQ
+>ENSP00000488057.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142697038:142697550:1 gene:ENSG00000282730.1 transcript:ENST00000633092.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV24-1 description:T cell receptor beta variable 24-1 [Source:HGNC Symbol;Acc:HGNC:12203]
+MASLLFFCGAFYLLGTGSMDADVTQTPRNRITKTGKRIMLECSQTKGHDRMYWYRQDPGL
+GLRLIYYSFDVKDINKGEISDGYSVSRQAQAKFSLSLESAIPNQTALYFCATSDL
+>ENSP00000479511.2 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142711413:142711917:1 gene:ENSG00000281963.1 transcript:ENST00000610439.4 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV25-1 description:T cell receptor beta variable 25-1 [Source:HGNC Symbol;Acc:HGNC:12205]
+MTIRLLCYMGFYFLGAGLMEADIYQTPRYLVIGTGKKITLECSQTMGHDKMYWYQQDPGM
+ELHLIHYSYGVNSTEKGDLSSESTVSRIRTEHFPLTLESARPSHTSQYLCASSE
+>ENSP00000488274.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142756048:142756563:1 gene:ENSG00000282234.1 transcript:ENST00000633283.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV27 description:T cell receptor beta variable 27 [Source:HGNC Symbol;Acc:HGNC:12208]
+MGPQLLGYVVLCLLGAGPLEAQVTQNPRYLITVTGKKLTVTCSQNMNHEYMSWYRQDPGL
+GLRQIYYSMNVEVTDKGDVPEGYKVSRKEKRNFPLILESPSPNQTSLYFCASSL
+>ENSP00000480928.2 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142761362:142761862:1 gene:ENSG00000282812.1 transcript:ENST00000619125.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV28 description:T cell receptor beta variable 28 [Source:HGNC Symbol;Acc:HGNC:12209]
+MGIRLLCRVAFCFLAVGLVDVKVTQSSRYLVKRTGEKVFLECVQDMDHENMFWYRQDPGL
+GLRLIYFSYDVKMKEKGDIPEGYSVSREKKERFSLILESASTNQTSMYLCASSL
+>ENSP00000488861.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142780919:142781607:1 gene:ENSG00000282628.1 transcript:ENST00000634198.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV29-1 description:T cell receptor beta variable 29-1 [Source:HGNC Symbol;Acc:HGNC:12210]
+MLSLLLLLLGLGSVFSAVISQKPSRDICQRGTSLTIQCQVDSQVTMMFWYRQQPGQSLTL
+IATANQGSEATYESGFVIDKFPISRPNLTFSTLTVSNMSPEDSSIYLCSVE
+>ENSP00000487814.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142873679:142874492:-1 gene:ENSG00000282297.1 transcript:ENST00000631690.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV30 description:T cell receptor beta variable 30 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12214]
+MLCSLLALLLGTFFGVRSQTIHQWPATLVQPVGSPLSLECTVEGTSNPNLYWYRQAAGRG
+LQLLFYSVGIGQISSEVPQNLSASRPQDRQFILSSKKLLLSDSGFYLCAWS
+>ENSP00000368747.3 pep chromosome:GRCh38:9:33617762:33618506:1 gene:ENSG00000205274.3 transcript:ENST00000379435.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV20OR9-2 description:T cell receptor beta variable 20/OR9-2 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12197]
+METVVTTLPREGGVGPSRKMLLLLLLLGPGSGLSAVVSQHPSRVICKSGTSVNIECRSLD
+FQATTMFWYRQLRKQSLMLMATSNEGSEVTYEQGVKKDKFPINHPNLTFSALTVTSAHPE
+DSSFYICSAR
+>ENSP00000374871.2 pep chromosome:GRCh38:7:38367586:38368169:-1 gene:ENSG00000211701.2 transcript:ENST00000390348.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV1 description:T cell receptor gamma variable 1 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12284]
+MRWALAVLLAFLSPASQISSNLEGRTKSVTRLTGSSAEITCDLPGASTLYIHWYLHQEGK
+APQCLLYYEPYYSRVVLESGITPGKYDTGSTRSNWNLRLQNLIKNDSGFYYCATWDR
+>ENSP00000374867.2 pep chromosome:GRCh38:7:38349355:38350022:-1 gene:ENSG00000211697.4 transcript:ENST00000390344.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV5 description:T cell receptor gamma variable 5 [Source:HGNC Symbol;Acc:HGNC:12290]
+MRWALLVLLAFLSPASQKSSNLEGGTKSVTRPTRSSAEITCDLTVINAFYIHWYLHQEGK
+APQRLLYYDVSNSKDVLESGLSPGKYYTHTPRRWSWILILRNLIENDSGVYYCATWDR
+>ENSP00000391561.2 pep chromosome:GRCh38:7:38317017:38318861:-1 gene:ENSG00000211695.2 transcript:ENST00000444775.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV9 description:T cell receptor gamma variable 9 [Source:HGNC Symbol;Acc:HGNC:12295]
+MLSLLHTSTLAVLGALCVYGAGHLEQPQISSTKTLSKTARLECVVSGITISATSVYWYRE
+RPGEVIQFLVSISYDGTVRKESGIPSGKFEVDRIPETSTSTLTIHNVEKQDIATYYCALW
+EV
+>ENSP00000374869.2 pep chromosome:GRCh38:7:38358512:38359162:-1 gene:ENSG00000211699.2 transcript:ENST00000390346.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV3 description:T cell receptor gamma variable 3 [Source:HGNC Symbol;Acc:HGNC:12288]
+MRWALLVLLAFLSPASQKSSNLEGRTKSVTRQTGSSAEITCDLTVTNTFYIHWYLHQEGK
+APQRLLYYDVSTARDVLESGLSPGKYYTHTPRRWSWILRLQNLIENDSGVYYCATWDR
+>ENSP00000404928.2 pep chromosome:GRCh38:7:38362864:38363518:-1 gene:ENSG00000233306.2 transcript:ENST00000426402.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV2 description:T cell receptor gamma variable 2 [Source:HGNC Symbol;Acc:HGNC:12287]
+MQWALAVLLAFLSPASQKSSNLEGRTKSVIRQTGSSAEITCDLAEGSNGYIHWYLHQEGK
+APQRLQYYDSYNSKVVLESGVSPGKYYTYASTRNNLRLILRNLIENDFGVYYCATWDG
+>ENSP00000374868.2 pep chromosome:GRCh38:7:38353715:38354517:-1 gene:ENSG00000211698.2 transcript:ENST00000390345.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV4 description:T cell receptor gamma variable 4 [Source:HGNC Symbol;Acc:HGNC:12289]
+MQWALAVLLAFLSPASQKSSNLEGRTKSVIRQTGSSAEITCDLAEGSTGYIHWYLHQEGK
+APQRLLYYDSYTSSVVLESGISPGKYDTYGSTRKNLRMILRNLIENDSGVYYCATWDG
+>ENSP00000374863.2 pep chromosome:GRCh38:7:38291616:38292078:-1 gene:ENSG00000211693.2 transcript:ENST00000390340.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV11 description:T cell receptor gamma variable 11 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12286]
+LGQLEQPEISISRPANKSAHISWKASIQGFSSKIIHWYWQKPNKGLEYLLHVFLTISAQD
+CSGGKTKKLEVSKNAHTSTSTLKIKFLEKEDEVVYHCACWIRH
+>ENSP00000374866.2 pep chromosome:GRCh38:7:38330343:38330935:-1 gene:ENSG00000211696.2 transcript:ENST00000390343.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV8 description:T cell receptor gamma variable 8 [Source:HGNC Symbol;Acc:HGNC:12294]
+MLLALALLLAFLPPASQKSSNLEGRTKSVTRPTGSSAVITCDLPVENAVYTHWYLHQEGK
+APQRLLYYDSYNSRVVLESGISREKYHTYASTGKSLKFILENLIERDSGVYYCATWDR
+>ENSP00000374864.2 pep chromosome:GRCh38:7:38299811:38300322:-1 gene:ENSG00000211694.2 transcript:ENST00000390341.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRGV10 description:T cell receptor gamma variable 10 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12285]
+MFIGNSPLLLTVGLGLSKVEQFQLSISTEVKKSIDIPCKISSTRFETDVIHWYRQKPNQA
+LEHLIYIVSTKSAARRSMGKTSNKVEARKNSQTLTSILTIKSVEKEDMAVYYCAAWD
+>ENSP00000487939.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142300947:142301455:1 gene:ENSG00000282568.1 transcript:ENST00000632828.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV2 description:T cell receptor beta variable 2 [Source:HGNC Symbol;Acc:HGNC:12195]
+MDTWLVCWAIFSLLKAGLTEPEVTQTPSHQVTQMGQEVILHCVPISNHLYFYWYRQILGQ
+KVEFLVSFYNNEISEKSEIFDDQFSVERPDGSNFTLKIRSTKLEDSAMYFCASSE
+>ENSP00000488814.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142308565:142309071:1 gene:ENSG00000282624.1 transcript:ENST00000632422.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV3-1 description:T cell receptor beta variable 3-1 [Source:HGNC Symbol;Acc:HGNC:12212]
+MGCRLLCCVVFCLLQAGPLDTAVSQTPKYLVTQMGNDKSIKCEQNLGHDTMYWYKQDSKK
+FLKIMFSYNNKELIINETVPNRFSPKSPDKAHLNLHINSLELGDSAVYFCASSQ
+>ENSP00000488131.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142313207:142313689:1 gene:ENSG00000282014.1 transcript:ENST00000632713.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV4-1 description:T cell receptor beta variable 4-1 [Source:HGNC Symbol;Acc:HGNC:12215]
+MGCRLLCCAVLCLLGAVPIDTEVTQTPKHLVMGMTNKKSLKCEQHMGHRAMYWYKQKAKK
+PPELMFVYSYEKLSINESVRSRFSPECPNSSLLNLHLHALQPEDSALYLCASSQ
+>ENSP00000488308.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142320696:142321563:1 gene:ENSG00000282803.1 transcript:ENST00000633384.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-1 description:T cell receptor beta variable 5-1 [Source:HGNC Symbol;Acc:HGNC:12218]
+MGSRLLCWVLLCLLGAGPVKAGVTQTPRYLIKTRGQQVTLSCSPISGHRSVSWYQQTPGQ
+GLQFLFEYFSETQRNKGNFPGRFSGRQFSNSRSEMNVSTLELGDSALYLCASSL
+>ENSP00000488756.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142328321:142328810:1 gene:ENSG00000281970.1 transcript:ENST00000631557.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-1 description:T cell receptor beta variable 6-1 [Source:HGNC Symbol;Acc:HGNC:12226]
+MSIGLLCCVAFSLLWASPVNAGVTQTPKFQVLKTGQSMTLQCAQDMNHNSMYWYRQDPGM
+GLRLIYYSASEGTTDKGEVPNGYNVSRLNKREFSLRLESAAPSQTSVYFCASSE
+>ENSP00000488287.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142332206:142332727:1 gene:ENSG00000282225.1 transcript:ENST00000632308.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-1 description:T cell receptor beta variable 7-1 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12235]
+MGTRLLCWAAICLLGADHTGAGVSQSLRHKVAKKGKDVALRYDPISGHNALYWYRQSLGQ
+GLEFPIYFQGKDAADKSGLPRDRFSAQRSEGSISTLKFQRTQQGDLAVYLCASSS
+>ENSP00000487667.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142345452:142346016:1 gene:ENSG00000282285.1 transcript:ENST00000632512.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV4-2 description:T cell receptor beta variable 4-2 [Source:HGNC Symbol;Acc:HGNC:12216]
+MGCRLLCCAVLCLLGAVPMETGVTQTPRHLVMGMTNKKSLKCEQHLGHNAMYWYKQSAKK
+PLELMFVYNFKEQTENNSVPSRFSPECPNSSHLFLHLHTLQPEDSALYLCASSQ
+>ENSP00000488603.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142349215:142349695:1 gene:ENSG00000282719.1 transcript:ENST00000632016.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-2 description:T cell receptor beta variable 6-2 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12227]
+MSLGLLCCGAFSLLWAGPVNAGVTQTPKFRVLKTGQSMTLLCAQDMNHEYMYWYRQDPGM
+GLRLIHYSVGEGTTAKGEVPDGYNVSRLKKQNFLLGLESAAPSQTSVYFCASSY
+>ENSP00000488576.1 pep chromosome:GRCh38:CHR_HSCHR7_2_CTG6:142362570:142363134:1 gene:ENSG00000282543.1 transcript:ENST00000631427.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:AC234635.3 description:T cell receptor beta variable 4-3  [Source:UniProtKB/Swiss-Prot;Acc:A0A589]
+MGCRLLCCAVLCLLGAVPMETGVTQTPRHLVMGMTNKKSLKCEQHLGHNAMYWYKQSAKK
+PLELMFVYSLEERVENNSVPSRFSPECPNSSHLFLHLHTLQPEDSALYLCASSQ
+>ENSP00000437362.1 pep chromosome:GRCh38:14:21887857:21888502:1 gene:ENSG00000211789.2 transcript:ENST00000390437.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV12-2 description:T cell receptor alpha variable 12-2 [Source:HGNC Symbol;Acc:HGNC:12106]
+MKSLRVLLVILWLQLSWVWSQQKEVEQNSGPLSVPEGAIASLNCTYSDRGSQSFFWYRQY
+SGKSPELIMFIYSNGDKEDGRFTAQLNKASQYVSLLIRDSQPSDSATYLCAVN
+>ENSP00000445942.1 pep chromosome:GRCh38:14:21894433:21895030:1 gene:ENSG00000211790.2 transcript:ENST00000390438.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV8-4 description:T cell receptor alpha variable 8-4 [Source:HGNC Symbol;Acc:HGNC:12149]
+MLLLLVPVLEVIFTLGGTRAQSVTQLGSHVSVSEGALVLLRCNYSSSVPPYLFWYVQYPN
+QGLQLLLKYTSAATLVKGINGFEAEFKKSETSFHLTKPSAHMSDAAEYFCAVS
+>ENSP00000438480.1 pep chromosome:GRCh38:14:21918188:21918756:1 gene:ENSG00000211791.2 transcript:ENST00000390439.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV13-2 description:T cell receptor alpha variable 13-2 [Source:HGNC Symbol;Acc:HGNC:12109]
+MAGIRALFMYLWLQLDWVSRGESVGLHLPTLSVQEGDNSIINCAYSNSASDYFIWYKQES
+GKGPQFIIDIRSNMDKRQGQRVTVLLNKTVKHLSLQIAATQPGDSAVYFCAEN
+>ENSP00000446015.1 pep chromosome:GRCh38:14:21924063:21924651:1 gene:ENSG00000211792.2 transcript:ENST00000390440.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV14DV4 description:T cell receptor alpha variable 14/delta variable 4 [Source:HGNC Symbol;Acc:HGNC:12110]
+MSLSSLLKVVTASLWLGPGIAQKITQTQPGMFVQEKEAVTLDCTYDTSDPSYGLFWYKQP
+SSGEMIFLIYQGSYDQQNATEGRYSLNFQKARKSANLVISASQLGDSAMYFCAMRE
+>ENSP00000452011.1 pep chromosome:GRCh38:14:21941128:21941657:1 gene:ENSG00000211793.2 transcript:ENST00000390441.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV9-2 description:T cell receptor alpha variable 9-2 [Source:HGNC Symbol;Acc:HGNC:12154]
+MNYSPGLVSLILLLLGRTRGDSVTQMEGPVTLSEEAFLTINCTYTATGYPSLFWYVQYPG
+EGLQLLLKATKADDKGSNKGFEATYRKETTSFHLEKGSVQVSDSAVYFCALS
+>ENSP00000451822.1 pep chromosome:GRCh38:14:21965451:21966061:1 gene:ENSG00000211794.3 transcript:ENST00000390442.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV12-3 description:T cell receptor alpha variable 12-3 [Source:HGNC Symbol;Acc:HGNC:12107]
+MMKSLRVLLVILWLQLSWVWSQQKEVEQDPGPLSVPEGAIVSLNCTYSNSAFQYFMWYRQ
+YSRKGPELLMYTYSSGNKEDGRFTAQVDKSSKYISLFIRDSQPSDSATYLCAMS
+>ENSP00000450505.1 pep chromosome:GRCh38:14:21978459:21979120:1 gene:ENSG00000211795.3 transcript:ENST00000390443.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV8-6 description:T cell receptor alpha variable 8-6 [Source:HGNC Symbol;Acc:HGNC:12151]
+MLLLLVPAFQVIFTLGGTRAQSVTQLDSQVPVFEEAPVELRCNYSSSVSVYLFWYVQYPN
+QGLQLLLKYLSGSTLVESINGFEAEFNKSQTSFHLRKPSVHISDTAEYFCAVS
+>ENSP00000451359.1 pep chromosome:GRCh38:14:21990496:21990938:1 gene:ENSG00000211796.1 transcript:ENST00000390444.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV16 description:T cell receptor alpha variable 16 [Source:HGNC Symbol;Acc:HGNC:12112]
+MKPTLISVLVIIFILRGTRAQRVTQPEKLLSVFKGAPVELKCNYSYSGSPELFWYVQYSR
+QRLQLLLRHISRESIKGFTADLNKGETSFHLKKPFAQEEDSAMYYCALS
+>ENSP00000452087.1 pep chromosome:GRCh38:14:21997539:21998168:1 gene:ENSG00000211797.2 transcript:ENST00000390445.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV17 description:T cell receptor alpha variable 17 [Source:HGNC Symbol;Acc:HGNC:12113]
+METLLGVSLVILWLQLARVNSQQGEEDPQALSIQEGENATMNCSYKTSINNLQWYRQNSG
+RGLVHLILIRSNEREKHSGRLRVTLDTSKKSSSLLITASRAADTASYFCATD
+>ENSP00000451574.1 pep chromosome:GRCh38:14:22003106:22003673:1 gene:ENSG00000211798.3 transcript:ENST00000390446.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV18 description:T cell receptor alpha variable 18 [Source:HGNC Symbol;Acc:HGNC:12114]
+MLSASCSGLVILLIFRRTSGDSVTQTEGPVTLPERAALTLNCTYQSSYSTFLFWYVQYLN
+KEPELLLKSSENQETDSRGFQASPIKSDSSFHLEKPSVQLSDSAVYYCALR
+>ENSP00000452148.1 pep chromosome:GRCh38:14:22007512:22008181:1 gene:ENSG00000211799.3 transcript:ENST00000390447.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV19 description:T cell receptor alpha variable 19 [Source:HGNC Symbol;Acc:HGNC:12115]
+MLTASLLRAVIASICVVSSMAQKVTQAQTEISVVEKEDVTLDCVYETRDTTYYLFWYKQP
+PSGELVFLIRRNSFDEQNEISGRYSWNFQKSTSSFNFTITASQVVDSAVYFCALSE
+>ENSP00000452067.1 pep chromosome:GRCh38:14:22040594:22041153:1 gene:ENSG00000211800.3 transcript:ENST00000390448.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV20 description:T cell receptor alpha variable 20 [Source:HGNC Symbol;Acc:HGNC:12117]
+MEKMLECAFIVLWLQLGWLSGEDQVTQSPEALRLQEGESSSLNCSYTVSGLRGLFWYRQD
+PGKGPEFLFTLYSAGEEKEKERLKATLTKKESFLHITAPKPEDSATYLCAVQ
+>ENSP00000452526.1 pep chromosome:GRCh38:14:22052514:22053056:1 gene:ENSG00000211801.3 transcript:ENST00000390449.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV21 description:T cell receptor alpha variable 21 [Source:HGNC Symbol;Acc:HGNC:12118]
+METLLGLLILWLQLQWVSSKQEVTQIPAALSVPEGENLVLNCSFTDSAIYNLQWFRQDPG
+KGLTSLLLIQSSQREQTSGRLNASLDKSSGRSTLYIAASQPGDSATYLCAVR
+>ENSP00000452420.1 pep chromosome:GRCh38:14:22070557:22071208:1 gene:ENSG00000211802.3 transcript:ENST00000390450.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV22 description:T cell receptor alpha variable 22 [Source:HGNC Symbol;Acc:HGNC:12119]
+MKRILGALLGLLSAQVCCVRGIQVEQSPPDLILQEGANSTLRCNFSDSVNNLQWFHQNPW
+GQLINLFYIPSGTKQNGRLSATTVATERYSLLYISSSQTTDSGVYFCAVE
+>ENSP00000451203.1 pep chromosome:GRCh38:14:22086407:22086961:1 gene:ENSG00000211803.2 transcript:ENST00000390451.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV23DV6 description:T cell receptor alpha variable 23/delta variable 6 [Source:HGNC Symbol;Acc:HGNC:12120]
+MDKILGASFLVLWLQLCWVSGQQKEKSDQQQVKQSPQSLIVQKGGISIINCAYENTAFDY
+FPWYQQFPGKGPALLIAIRPDVSEKKEGRFTISFNKSAKQFSSHIMDSQPGDSATYFCAA
+S
+>ENSP00000452111.1 pep chromosome:GRCh38:14:22096032:22096619:1 gene:ENSG00000211804.3 transcript:ENST00000390452.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRDV1 description:T cell receptor delta variable 1 [Source:HGNC Symbol;Acc:HGNC:12262]
+MLFSSLLCVFVAFSYSGSSVAQKVTQAQSSVSMPVRKAVTLNCLYETSWWSYYIFWYKQL
+PSKEMIFLIRQGSDEQNAKSGRYSVNFKKAAKSVALTISALQLEDSAKYFCALGE
+>ENSP00000484940.1 pep chromosome:GRCh38:14:22096507:22096608:1 gene:ENSG00000211804.3 transcript:ENST00000621643.1 gene_biotype:TR_V_gene transcript_biotype:protein_coding gene_symbol:TRDV1 description:T cell receptor delta variable 1 [Source:HGNC Symbol;Acc:HGNC:12262]
+KSGRYSVNFKKAAKSVALTISALQLEDSAKYFCA
+>ENSP00000451837.1 pep chromosome:GRCh38:14:22105343:22105846:1 gene:ENSG00000211805.1 transcript:ENST00000390453.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV24 description:T cell receptor alpha variable 24 [Source:HGNC Symbol;Acc:HGNC:12121]
+MEKNPLAAPLLILWFHLDCVSSILNVEQSPQSLHVQEGDSTNFTCSFPSSNFYALHWYRW
+ETAKSPEALFVMTLNGDEKKKGRISATLNTKEGYSYLYIKGSQPEDSATYLCAF
+>ENSP00000452100.1 pep chromosome:GRCh38:14:22112347:22113031:1 gene:ENSG00000211806.2 transcript:ENST00000390454.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV25 description:T cell receptor alpha variable 25 [Source:HGNC Symbol;Acc:HGNC:12122]
+MLLITSMLVLWMQLSQVNGQQVMQIPQYQHVQEGEDFTTYCNSSTTLSNIQWYKQRPGGH
+PVFLIQLVKSGEVKKQKRLTFQFGEAKKNSSLHITATQTTDVGTYFCAG
+>ENSP00000452431.1 pep chromosome:GRCh38:14:22123318:22124285:1 gene:ENSG00000211807.3 transcript:ENST00000390455.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV26-1 description:T cell receptor alpha variable 26-1 [Source:HGNC Symbol;Acc:HGNC:12123]
+MRLVARVTVFLTFGTIIDAKTTQPTSMDCAEGRAANLPCNHSTISGNEYVYWYRQIHSQG
+PQYIIHGLKNNETNEMASLIITEDRKSSTLILPHATLRDTAVYYCIVRV
+>ENSP00000450448.1 pep chromosome:GRCh38:14:22132553:22133034:1 gene:ENSG00000211808.3 transcript:ENST00000390456.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV8-7 description:T cell receptor alpha variable 8-7 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12152]
+MLLVVILLLGMFFTLSKTQSVTQLDGHITVSEEAPLELKCNYSYSGVPSLFWYVQYSSQS
+LQLLLKDLTKATQVKGIRGFEAEFKKSETSFYLRKPSTHVSDAAEYFCAVGDR
+>ENSP00000451735.1 pep chromosome:GRCh38:14:22147995:22148633:1 gene:ENSG00000211809.2 transcript:ENST00000390457.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV27 description:T cell receptor alpha variable 27 [Source:HGNC Symbol;Acc:HGNC:12125]
+MVLKFSVSILWIQLAWVSTQLLEQSPQFLSIQEGENLTVYCNSSSVFSSLQWYRQEPGEG
+PVLLVTVVTGGEVKKLKRLTFQFGDARKDSSLHITAAQTGDTGLYLCAG
+>ENSP00000452209.1 pep chromosome:GRCh38:14:22163238:22163870:1 gene:ENSG00000211810.3 transcript:ENST00000390458.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV29DV5 description:T cell receptor alpha variable 29/delta variable 5 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12127]
+MAMLLGASVLILWLQPDWVNSQQKNDDQQVKQNSPSLSVQEGRISILNCDYTNSMFDYFL
+WYKKYPAEGPTFLISISSIKDKNEDGRFTVFLNKSAKHLSLHIVPSQPGDSAVYFCAAS
+>ENSP00000451308.1 pep chromosome:GRCh38:14:22168429:22168988:1 gene:ENSG00000259092.1 transcript:ENST00000557168.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV30 description:T cell receptor alpha variable 30 [Source:HGNC Symbol;Acc:HGNC:12129]
+METLLKVLSGTLLWQLTWVRSQQPVQSPQAVILREGEDAVINCSSSKALYSVHWYRQKHG
+EAPVFLMILLKGGEQKGHDKISASFNEKKQQSSLYLTASQLSYSGTYFCGTE
+>ENSP00000451578.1 pep chromosome:GRCh38:14:22422371:22423042:1 gene:ENSG00000211821.2 transcript:ENST00000390469.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRDV2 description:T cell receptor delta variable 2 [Source:HGNC Symbol;Acc:HGNC:12263]
+MQRISSLIHLSLFWAGVMSAIELVPEHQTVPVSIGVPATLRCSMKGEAIGNYYINWYRKT
+QGNTMTFIYREKDIYGPGFKDNFQGDIDIAKNLAVLKILAPSERDEGSYYCACDT
+>ENSP00000452585.1 pep chromosome:GRCh38:14:22314490:22314919:1 gene:ENSG00000211819.3 transcript:ENST00000390467.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV40 description:T cell receptor alpha variable 40 [Source:HGNC Symbol;Acc:HGNC:12141]
+MNSSLDFLILILMFGGTSSNSVKQTGQITVSEGASVTMNCTYTSTGYPTLFWYVEYPSKP
+LQLLQRETMENSKNFGGGNIKDKNSPIVKYSVQVSDSAVYYCLLG
+>ENSP00000451177.1 pep chromosome:GRCh38:14:22320188:22320691:1 gene:ENSG00000211820.1 transcript:ENST00000390468.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV41 description:T cell receptor alpha variable 41 [Source:HGNC Symbol;Acc:HGNC:12142]
+MVKIRQFLLAILWLQLSCVSAAKNEVEQSPQNLTAQEGEFITINCSYSVGISALHWLQQH
+PGGGIVSLFMLSSGKKKHGRLIATINIQEKHSSLHITASHPRDSAVYICAVR
+>ENSP00000452332.1 pep chromosome:GRCh38:14:22281105:22281748:1 gene:ENSG00000211817.2 transcript:ENST00000390465.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV38-2DV8 description:T cell receptor alpha variable 38-2/delta variable 8 [Source:HGNC Symbol;Acc:HGNC:12138]
+MACPGFLWALVISTCLEFSMAQTVTQSQPEMSVQEAETVTLSCTYDTSESDYYLFWYKQP
+PSRQMILVIRQEAYKQQNATENRFSVNFQKAAKSFSLKISDSQLGDAAMYFCAYRS
+>ENSP00000450950.1 pep chromosome:GRCh38:14:22271968:22272563:1 gene:ENSG00000211816.2 transcript:ENST00000390464.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV38-1 description:T cell receptor alpha variable 38-1 [Source:HGNC Symbol;Acc:HGNC:12137]
+MTRVSLLWAVVVSTCLESGMAQTVTQSQPEMSVQEAETVTLSCTYDTSENNYYLFWYKQP
+PSRQMILVIRQEAYKQQNATENRFSVNFQKAAKSFSLKISDSQLGDTAMYFCAFMK
+>ENSP00000451750.1 pep chromosome:GRCh38:14:22469041:22469698:-1 gene:ENSG00000256590.2 transcript:ENST00000535880.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRDV3 description:T cell receptor delta variable 3 [Source:HGNC Symbol;Acc:HGNC:12264]
+MILTVGFSFLFFYRGTLCDKVTQSSPDQTVASGSEVVLLCTYDTVYSNPDLFWYRIRPDY
+SFQFVFYGDNSRSEGADFTQGRFSVKHILTQKAFHLVISPVRTEDSATYYCAF
+>ENSP00000450865.1 pep chromosome:GRCh38:14:22304054:22304553:1 gene:ENSG00000211818.1 transcript:ENST00000390466.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV39 description:T cell receptor alpha variable 39 [Source:HGNC Symbol;Acc:HGNC:12139]
+MKKLLAMILWLQLDRLSGELKVEQNPLFLSMQEGKNYTIYCNYSTTSDRLYWYRQDPGKS
+LESLFVLLSNGAVKQEGRLMASLDTKARLSTLHITAAVHDLSATYFCAVD
+>ENSP00000452002.1 pep chromosome:GRCh38:14:22207522:22208129:1 gene:ENSG00000211813.2 transcript:ENST00000390461.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV34 description:T cell receptor alpha variable 34 [Source:HGNC Symbol;Acc:HGNC:12133]
+METVLQVLLGILGFQAAWVSSQELEQSPQSLIVQEGKNLTINCTSSKTLYGLYWYKQKYG
+EGLIFLMMLQKGGEEKSHEKITAKLDEKKQQSSLHITASQPSHAGIYLCGAD
+>ENSP00000450970.1 pep chromosome:GRCh38:14:22202583:22203368:1 gene:ENSG00000211812.1 transcript:ENST00000390460.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV26-2 description:T cell receptor alpha variable 26-2 [Source:HGNC Symbol;Acc:HGNC:12124]
+MKLVTSITVLLSLGIMGDAKTTQPNSMESNEEEPVHLPCNHSTISGTDYIHWYRQLPSQG
+PEYVIHGLTSNVNNRMASLAIAEDRKSSTLILHRATLRDAAVYYCILRD
+>ENSP00000450804.1 pep chromosome:GRCh38:14:22226746:22227254:1 gene:ENSG00000211815.3 transcript:ENST00000390463.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV36DV7 description:T cell receptor alpha variable 36/delta variable 7 [Source:HGNC Symbol;Acc:HGNC:12135]
+MMKCPQALLAIFWLLLSWVSSEDKVVQSPLSLVVHEGDTVTLNCSYEVTNFRSLLWYKQE
+KKAPTFLFMLTSSGIEKKSGRLSSILDKKELFSILNITATQTGDSAIYLCAVE
+>ENSP00000388523.3 pep chromosome:GRCh38:7:142300924:142301432:1 gene:ENSG00000226660.2 transcript:ENST00000455382.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV2 description:T cell receptor beta variable 2 [Source:HGNC Symbol;Acc:HGNC:12195]
+MDTWLVCWAIFSLLKAGLTEPEVTQTPSHQVTQMGQEVILRCVPISNHLYFYWYRQILGQ
+KVEFLVSFYNNEISEKSEIFDDQFSVERPDGSNFTLKIRSTKLEDSAMYFCASSE
+>ENSP00000374910.3 pep chromosome:GRCh38:7:142308542:142309048:1 gene:ENSG00000237702.2 transcript:ENST00000390387.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV3-1 description:T cell receptor beta variable 3-1 [Source:HGNC Symbol;Acc:HGNC:12212]
+MGCRLLCCVVFCLLQAGPLDTAVSQTPKYLVTQMGNDKSIKCEQNLGHDTMYWYKQDSKK
+FLKIMFSYNNKELIINETVPNRFSPKSPDKAHLNLHINSLELGDSAVYFCASSQ
+>ENSP00000374880.3 pep chromosome:GRCh38:7:142313184:142313666:1 gene:ENSG00000211710.3 transcript:ENST00000390357.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV4-1 description:T cell receptor beta variable 4-1 [Source:HGNC Symbol;Acc:HGNC:12215]
+MGCRLLCCAVLCLLGAVPIDTEVTQTPKHLVMGMTNKKSLKCEQHMGHRAMYWYKQKAKK
+PPELMFVYSYEKLSINESVPSRFSPECPNSSLLNLHLHALQPEDSALYLCASSQ
+>ENSP00000374904.3 pep chromosome:GRCh38:7:142320677:142321544:1 gene:ENSG00000211734.3 transcript:ENST00000390381.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-1 description:T cell receptor beta variable 5-1 [Source:HGNC Symbol;Acc:HGNC:12218]
+MGSRLLCWVLLCLLGAGPVKAGVTQTPRYLIKTRGQQVTLSCSPISGHRSVSWYQQTPGQ
+GLQFLFEYFSETQRNKGNFPGRFSGRQFSNSRSEMNVSTLELGDSALYLCASSL
+>ENSP00000374876.2 pep chromosome:GRCh38:7:142328297:142328786:1 gene:ENSG00000211706.2 transcript:ENST00000390353.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-1 description:T cell receptor beta variable 6-1 [Source:HGNC Symbol;Acc:HGNC:12226]
+MSIGLLCCVAFSLLWASPVNAGVTQTPKFQVLKTGQSMTLQCAQDMNHNSMYWYRQDPGM
+GLRLIYYSASEGTTDKGEVPNGYNVSRLNKREFSLRLESAAPSQTSVYFCASSE
+>ENSP00000448600.2 pep chromosome:GRCh38:7:142332182:142332701:1 gene:ENSG00000211707.3 transcript:ENST00000547918.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-1 description:T cell receptor beta variable 7-1 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12235]
+MGTRLLCWAAICLLGADHTGAGVSQSLRHKVAKKGKDVALRYDPISGHNALYWYRQSLGQ
+GLEFPIYFQGKDAADKSGLPRDRFSAQRSEGSISTLKFQRTQQGDLAVYLCASSS
+>ENSP00000374915.3 pep chromosome:GRCh38:7:142345421:142345985:1 gene:ENSG00000211745.3 transcript:ENST00000390392.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV4-2 description:T cell receptor beta variable 4-2 [Source:HGNC Symbol;Acc:HGNC:12216]
+MGCRLLCCAVLCLLGAVPMETGVTQTPRHLVMGMTNKKSLKCEQHLGHNAMYWYKQSAKK
+PLELMFVYNFKEQTENNSVPSRFSPECPNSSHLFLHLHTLQPEDSALYLCASSQ
+>ENSP00000488969.1 pep chromosome:GRCh38:7:142349152:142349664:1 gene:ENSG00000283063.1 transcript:ENST00000634383.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-2 description:T cell receptor beta variable 6-2 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12227]
+MSLGLLCCGAFSLLWAGPVNAGVTQTPKFRVLKTGQSMTLLCAQDMNHEYMYWYRQDPGM
+GLRLIHYSVGEGTTAKGEVPDGYNVSRLKKQNFLLGLESAAPSQTSVYFCASSY
+>ENSP00000489072.1 pep chromosome:GRCh38:7:142352819:142353358:1 gene:ENSG00000282939.1 transcript:ENST00000634605.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-2 description:T cell receptor beta variable 7-2 [Source:HGNC Symbol;Acc:HGNC:12236]
+MGTRLLFWVAFCLLGADHTGAGVSQSPSNKVTEKGKDVELRCDPISGHTALYWYRQSLGQ
+GLEFLIYFQGNSAPDKSGLPSDRFSAERTGGSVSTLTIQRTQQEDSAVYLCASSL
+>ENSP00000374883.3 pep chromosome:GRCh38:7:142380806:142381261:1 gene:ENSG00000211713.3 transcript:ENST00000390360.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-4 description:T cell receptor beta variable 6-4 [Source:HGNC Symbol;Acc:HGNC:12229]
+MSIRLLCCVAFSLLWAGPVTAGITQAPTSQILAAGRSMTLRCTQDMRHNAMYWYRQDLGL
+GLRLIHYSNTAGTTGKGEVPDGYSVSRANTDDFPLTLASAVPSQTSVYFCASSD
+>ENSP00000374884.3 pep chromosome:GRCh38:7:142384329:142384841:1 gene:ENSG00000211714.3 transcript:ENST00000390361.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-3 description:T cell receptor beta variable 7-3 [Source:HGNC Symbol;Acc:HGNC:12237]
+MGTRLLCWAALCLLGADHTGAGVSQTPSNKVTEKGKDVELRCDPISGHTALYWYRQSLGQ
+GPEFLIYFQGTGAADDSGLPKDRFFAVRPEGSVSTLKIQRTEQGDSAAYLRASSL
+>ENSP00000374885.1 pep chromosome:GRCh38:7:142389202:142389668:1 gene:ENSG00000211715.1 transcript:ENST00000390362.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-3 description:T cell receptor beta variable 5-3 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12220]
+MGPGLLCWELLYLLGAGPVEAGVTQSPTHLIKTRGQQVTLRCSPISGHSSVSWYQQAPGQ
+GPQFIFEYANELRRSEGNFPNRFSGRQFHDYCSEMNVSALELGDSALYLCARSL
+>ENSP00000374886.2 pep chromosome:GRCh38:7:142391891:142392412:1 gene:ENSG00000211716.2 transcript:ENST00000390363.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV9 description:T cell receptor beta variable 9 [Source:HGNC Symbol;Acc:HGNC:12246]
+MGFRLLCCVAFCLLGAGPVDSGVTQTPKHLITATGQRVTLRCSPRSGDLSVYWYQQSLDQ
+GLQFLIHYYNGEERAKGNILERFSAQQFPDLHSELNLSSLELGDSALYFCASSV
+>ENSP00000374887.3 pep chromosome:GRCh38:7:142399860:142400377:1 gene:ENSG00000211717.3 transcript:ENST00000390364.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV10-1 description:T cell receptor beta variable 10-1(gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12177]
+MGTRLFFYVALCLLWAGHRDAEITQSPRHKITETGRQVTLACHQTWNHNNMFWYRQDLGH
+GLRLIHYSYGVHDTNKGEVSDGYSVSRSNTEDLPLTLESAASSQTSVYFCASSE
+>ENSP00000374890.3 pep chromosome:GRCh38:7:142407672:142408136:1 gene:ENSG00000211720.3 transcript:ENST00000390367.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV11-1 description:T cell receptor beta variable 11-1 [Source:HGNC Symbol;Acc:HGNC:12180]
+MSTRLLCWMALCLLGAELSEAEVAQSPRYKITEKSQAVAFWCDPISGHATLYWYRQILGQ
+GPELLVQFQDESVVDDSQLPKDRFSAERLKGVDSTLKIQPAELGDSAMYLCASSL
+>ENSP00000404652.2 pep chromosome:GRCh38:7:142424965:142425465:1 gene:ENSG00000229769.2 transcript:ENST00000426318.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV10-2 description:T cell receptor beta variable 10-2 [Source:HGNC Symbol;Acc:HGNC:12178]
+MGTRLFFYVALCLLWAGHRDAGITQSPRYKITETGRQVTLMCHQTWSHSYMFWYRQDLGH
+GLRLIYYSAAADITDKGEVPDGYVVSRSKTENFPLTLESATRSQTSVYFCASSE
+>ENSP00000374891.2 pep chromosome:GRCh38:7:142450947:142451448:1 gene:ENSG00000211721.2 transcript:ENST00000390368.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-5 description:T cell receptor beta variable 6-5 [Source:HGNC Symbol;Acc:HGNC:12230]
+MSIGLLCCAALSLLWAGPVNAGVTQTPKFQVLKTGQSMTLQCAQDMNHEYMSWYRQDPGM
+GLRLIHYSVGAGITDQGEVPNGYNVSRSTTEDFPLRLLSAAPSQTSVYFCASSY
+>ENSP00000374892.2 pep chromosome:GRCh38:7:142455174:142455635:1 gene:ENSG00000253409.1 transcript:ENST00000390369.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-4 description:T cell receptor beta variable 7-4 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12238]
+MGTRLLCWVVLGFLGTDHTGAGVSQSPRYKVAKRGRDVALRCDSISGHVTLYWYRQTLGQ
+GSEVLTYSQSDAQRDKSGRPSGRFSAERPERSVSTLKIQRTEQGDSAVYLCASSL
+>ENSP00000413966.2 pep chromosome:GRCh38:7:142462916:142463581:1 gene:ENSG00000230099.2 transcript:ENST00000454561.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-4 description:T cell receptor beta variable 5-4 [Source:HGNC Symbol;Acc:HGNC:12221]
+MGPGLLCWALLCLLGAGSVETGVTQSPTHLIKTRGQQVTLRCSSQSGHNTVSWYQQALGQ
+GPQFIFQYYREEENGRGNFPPRFSGLQFPNYSSELNVNALELDDSALYLCASSL
+>ENSP00000374894.3 pep chromosome:GRCh38:7:142469537:142470013:1 gene:ENSG00000211724.3 transcript:ENST00000390371.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-6 description:T cell receptor beta variable 6-6 [Source:HGNC Symbol;Acc:HGNC:12231]
+MSISLLCCAAFPLLWAGPVNAGVTQTPKFRILKIGQSMTLQCAQDMNHNYMYWYRQDPGM
+GLKLIYYSVGAGITDKGEVPNGYNVSRSTTEDFPLRLELAAPSQTSVYFCASSY
+>ENSP00000374895.3 pep chromosome:GRCh38:7:142482548:142483019:1 gene:ENSG00000211725.3 transcript:ENST00000390372.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-5 description:T cell receptor beta variable 5-5 [Source:HGNC Symbol;Acc:HGNC:12222]
+MGPGLLCWVLLCLLGAGPVDAGVTQSPTHLIKTRGQQVTLRCSPISGHKSVSWYQQVLGQ
+GPQFIFQYYEKEERGRGNFPDRFSARQFPNYSSELNVNALLLGDSALYLCASSL
+>ENSP00000374896.2 pep chromosome:GRCh38:7:142487863:142488295:1 gene:ENSG00000253188.1 transcript:ENST00000390373.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-7 description:T cell receptor beta variable 6-7 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12232]
+MSLGLLCCVAFSLLWAGPMNAGVTQTPKFHVLKTGQSMTLLCAQDMNHEYMYRYRQDPGK
+GLRLIYYSVAAALTDKGEVPNGYNVSRSNTEDFPLKLESAAPSQTSVYFCASSY
+>ENSP00000374897.3 pep chromosome:GRCh38:7:142492132:142492673:1 gene:ENSG00000211727.3 transcript:ENST00000390374.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-6 description:T cell receptor beta variable 7-6 [Source:HGNC Symbol;Acc:HGNC:12240]
+MGTSLLCWVVLGFLGTDHTGAGVSQSPRYKVTKRGQDVALRCDPISGHVSLYWYRQALGQ
+GPEFLTYFNYEAQQDKSGLPNDRFSAERPEGSISTLTIQRTEQRDSAMYRCASSL
+>ENSP00000374898.2 pep chromosome:GRCh38:7:142500028:142500534:1 gene:ENSG00000211728.2 transcript:ENST00000390375.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-6 description:T cell receptor beta variable 5-6 [Source:HGNC Symbol;Acc:HGNC:12223]
+MGPGLLCWALLCLLGAGLVDAGVTQSPTHLIKTRGQQVTLRCSPKSGHDTVSWYQQALGQ
+GPQFIFQYYEEEERQRGNFPDRFSGHQFPNYSSELNVNALLLGDSALYLCASSL
+>ENSP00000374899.2 pep chromosome:GRCh38:7:142507382:142507810:1 gene:ENSG00000253534.1 transcript:ENST00000390376.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV6-8 description:T cell receptor beta variable 6-8 [Source:HGNC Symbol;Acc:HGNC:12233]
+MSLGLLCCAAFSLLWAGPVNAGVTQTPKFHILKTGQSMTLQCAQDMNHGYMSWYRQDPGM
+GLRLIYYSAAAGTTDKEVPNGYNVSRLNTEDFPLRLVSAAPSQTSVYLCASSY
+>ENSP00000374900.1 pep chromosome:GRCh38:7:142511626:142512127:1 gene:ENSG00000253291.1 transcript:ENST00000390377.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-7 description:T cell receptor beta variable 7-7 [Source:HGNC Symbol;Acc:HGNC:12241]
+MGTSLLCWVVLGFLGTDHTGAGVSQSPRYKVTKRGQDVTLRCDPISSHATLYWYQQALGQ
+GPEFLTYFNYEAQPDKSGLPSDRFSAERPEGSISTLTIQRTEQRDSAMYRCASSL
+>ENSP00000374901.1 pep chromosome:GRCh38:7:142520090:142520556:1 gene:ENSG00000211731.1 transcript:ENST00000390378.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV5-7 description:T cell receptor beta variable 5-7 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12224]
+MGPGLLCWVLLCPLGEGPVDAGVTQSPTHLIKTRGQHVTLRCSPISGHTSVSSYQQALGQ
+GPQFIFQYYEKEERGRGNFPDQFSGHQFPNYSSELNVNALLLGDSALYLCASSL
+>ENSP00000478301.1 pep chromosome:GRCh38:7:142529290:142529762:1 gene:ENSG00000278030.1 transcript:ENST00000612787.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV7-9 description:T cell receptor beta variable 7-9 [Source:HGNC Symbol;Acc:HGNC:12243]
+MGTSLLCWMALCLLGADHADTGVSQNPRHKITKRGQNVTFRCDPISEHNRLYWYRQTLGQ
+GPEFLTYFQNEAQLEKSRLLSDRFSAERPKGSFSTLEIQRTEQGDSAMYLCASSL
+>ENSP00000477580.1 pep chromosome:GRCh38:7:142535809:142536292:1 gene:ENSG00000276405.1 transcript:ENST00000614171.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV13 description:T cell receptor beta variable 13 [Source:HGNC Symbol;Acc:HGNC:12188]
+MLSPDLPDSAWNTRLLCRVMLCLLGAGSVAAGVIQSPRHLIKEKRETATLKCYPIPRHDT
+VYWYQQGPGQDPQFLISFYEKMQSDKGSIPDRFSAQQFSDYHSELNMSSLELGDSALYFC
+ASSL
+>ENSP00000479267.1 pep chromosome:GRCh38:7:142544212:142544685:1 gene:ENSG00000275791.1 transcript:ENST00000611462.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV10-3 description:T cell receptor beta variable 10-3 [Source:HGNC Symbol;Acc:HGNC:12179]
+MGTRLFFYVALCLLWTGHMDAGITQSPRHKVTETGTPVTLRCHQTENHRYMYWYRQDPGH
+GLRLIHYSYGVKDTDKGEVSDGYSVSRSKTEDFLLTLESATSSQTSVYFCAISE
+>ENSP00000480080.1 pep chromosome:GRCh38:7:142554836:142555318:1 gene:ENSG00000276597.1 transcript:ENST00000611787.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV11-3 description:T cell receptor beta variable 11-3 [Source:HGNC Symbol;Acc:HGNC:12182]
+MGTRLLCWVAFCLLVEELIEAGVVQSPRYKIIEKKQPVAFWCNPISGHNTLYWYLQNLGQ
+GPELLIRYENEEAVDDSQLPKDRFSAERLKGVDSTLKIQPAELGDSAVYLCASSL
+>ENSP00000477916.1 pep chromosome:GRCh38:7:142560423:142560931:1 gene:ENSG00000274752.1 transcript:ENST00000620569.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV12-3 description:T cell receptor beta variable 12-3 [Source:HGNC Symbol;Acc:HGNC:12185]
+MDSWTFCCVSLCILVAKHTDAGVIQSPRHEVTEMGQEVTLRCKPISGHNSLFWYRQTMMR
+GLELLIYFNNNVPIDDSGMPEDRFSAKMPNASFSTLKIQPSEPRDSAVYFCASSL
+>ENSP00000480999.1 pep chromosome:GRCh38:7:142563740:142564245:1 gene:ENSG00000276953.1 transcript:ENST00000617347.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV12-4 description:T cell receptor beta variable 12-4 [Source:HGNC Symbol;Acc:HGNC:12186]
+MGSWTLCCVSLCILVAKHTDAGVIQSPRHEVTEMGQEVTLRCKPISGHDYLFWYRQTMMR
+GLELLIYFNNNVPIDDSGMPEDRFSAKMPNASFSTLKIQPSEPRDSAVYFCASSL
+>ENSP00000479506.1 pep chromosome:GRCh38:7:142580917:142581427:1 gene:ENSG00000275158.1 transcript:ENST00000621184.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV12-5 description:T cell receptor beta variable 12-5 [Source:HGNC Symbol;Acc:HGNC:12187]
+MATRLLCCVVLCLLGEELIDARVTQTPRHKVTEMGQEVTMRCQPILGHNTVFWYRQTMMQ
+GLELLAYFRNRAPLDDSGMPKDRFSAEMPDATLATLKIQPSEPRDSAVYFCASGL
+>ENSP00000477671.1 pep chromosome:GRCh38:7:142587868:142588359:1 gene:ENSG00000275743.1 transcript:ENST00000617639.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV14 description:T cell receptor beta variable 14 [Source:HGNC Symbol;Acc:HGNC:12189]
+MVSRLLSLVSLCLLGAKHIEAGVTQFPSHSVIEKGQTVTLRCDPISGHDNLYWYRRVMGK
+EIKFLLHFVKESKQDESGMPNNRFLAERTGGTYSTLKVQPAELEDSGVYFCASSQ
+>ENSP00000482333.1 pep chromosome:GRCh38:7:142592928:142593473:1 gene:ENSG00000276819.1 transcript:ENST00000616518.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV15 description:T cell receptor beta variable 15 [Source:HGNC Symbol;Acc:HGNC:12190]
+MGPGLLHWMALCLLGTGHGDAMVIQNPRYQVTQFGKPVTLSCSQTLNHNVMYWYQQKSSQ
+APKLLFHYYDKDFNNEADTPDNFQSRRPNTSFCFLDIRSPGLGDAAMYLCATSR
+>ENSP00000479210.1 pep chromosome:GRCh38:7:142598016:142598469:1 gene:ENSG00000275243.1 transcript:ENST00000620773.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV16 description:T cell receptor beta variable 16 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12191]
+MSPIFTCITILCLLAAGSPGEEVAQTPKHLVRGEGQKAKLYCAPIKGHSYVFWYQQVLKN
+EFKFLISFQNENVFDETGMPKERFSAKCLPNSPCSLEIQATKLEDSAVYFCASSQ
+>ENSP00000483468.1 pep chromosome:GRCh38:7:142601628:142602360:1 gene:ENSG00000277880.1 transcript:ENST00000619103.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV17 description:T cell receptor beta variable 17 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12192]
+MDIWLLCWVTLCLLAAGHSEPGVSQTPRHKVTNMGQEVILRCDPSSGHMFVHWYRQNLRQ
+EMKLLISFQYQNIAVDSGMPKERFTAERPNGTSSTLKIHPAEPRDSAVYLYSSG
+>ENSP00000483504.1 pep chromosome:GRCh38:7:142615716:142616415:1 gene:ENSG00000276557.1 transcript:ENST00000611520.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV18 description:T cell receptor beta variable 18 [Source:HGNC Symbol;Acc:HGNC:12193]
+MDTRLLCCAVICLLGAGLSNAGVMQNPRHLVRRRGQEARLRCSPMKGHSHVYWYRQLPEE
+GLKFMVYLQKENIIDESGMPKERFSAEFPKEGPSILRIQQVVRGDSAAYFCASSP
+>ENSP00000374916.3 pep chromosome:GRCh38:7:142618849:142619532:1 gene:ENSG00000211746.3 transcript:ENST00000390393.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV19 description:T cell receptor beta variable 19 [Source:HGNC Symbol;Acc:HGNC:12194]
+MSNQVLCCVVLCLLGANTVDGGITQSPKYLFRKEGQNVTLSCEQNLNHDAMYWYRQDPGQ
+GLRLIYYSQIVNDFQKGDIAEGYSVSREKKESFPLTVTSAQKNPTAFYLCASSI
+>ENSP00000374917.3 pep chromosome:GRCh38:7:142626649:142627399:1 gene:ENSG00000211747.3 transcript:ENST00000390394.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV20-1 description:T cell receptor beta variable 20-1 [Source:HGNC Symbol;Acc:HGNC:12196]
+MLLLLLLLGPGSGLGAVVSQHPSRVICKSGTSVKIECRSLDFQATTMFWYRQFPKQSLML
+MATSNEGSKATYEQGVEKDKFLINHASLTLSTLTVTSAHPEDSSFYICSAR
+>ENSP00000374919.1 pep chromosome:GRCh38:7:142645961:142646467:1 gene:ENSG00000211749.1 transcript:ENST00000390396.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV23-1 description:T cell receptor beta variable 23-1 (non-functional) [Source:HGNC Symbol;Acc:HGNC:12201]
+MGTRLLGCAALCLLAADSFHAKVTQTPGHLVKGKGQKTKMDCTPEKGHTFVYWYQQNQNK
+EFMLLISFQNEQVLQETEMHKKRFSSQCPKNAPCSLAILSSEPGDTALYLCASSQ
+>ENSP00000374920.2 pep chromosome:GRCh38:7:142656701:142657213:1 gene:ENSG00000211750.2 transcript:ENST00000390397.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV24-1 description:T cell receptor beta variable 24-1 [Source:HGNC Symbol;Acc:HGNC:12203]
+MASLLFFCGAFYLLGTGSMDADVTQTPRNRITKTGKRIMLECSQTKGHDRMYWYRQDPGL
+GLQLIYYSFDVKDINKGEISDGYSVSRQAQAKFSLSLESAIPNQTALYFCATSDL
+>ENSP00000374921.3 pep chromosome:GRCh38:7:142670740:142671244:1 gene:ENSG00000282499.1 transcript:ENST00000390398.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV25-1 description:T cell receptor beta variable 25-1 [Source:HGNC Symbol;Acc:HGNC:12205]
+MTIRLLCYVGFYFLGAGLMEADIYQTPRYLVIGTGKKITLECSQTMGHDKMYWYQQDPGM
+ELHLIHYSYGVNSTEKGDLSSESTVSRIRTEHFPLTLESARPSHTSQYLCASSE
+>ENSP00000374922.3 pep chromosome:GRCh38:7:142715346:142715861:1 gene:ENSG00000211752.3 transcript:ENST00000390399.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV27 description:T cell receptor beta variable 27 [Source:HGNC Symbol;Acc:HGNC:12208]
+MGPQLLGYVVLCLLGAGPLEAQVTQNPRYLITVTGKKLTVTCSQNMNHEYMSWYRQDPGL
+GLRQIYYSMNVEVTDKGDVPEGYKVSRKEKRNFPLILESPSPNQTSLYFCASSL
+>ENSP00000374923.2 pep chromosome:GRCh38:7:142720660:142721160:1 gene:ENSG00000211753.4 transcript:ENST00000390400.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV28 description:T cell receptor beta variable 28 [Source:HGNC Symbol;Acc:HGNC:12209]
+MGIRLLCRVAFCFLAVGLVDVKVTQSSRYLVKRTGEKVFLECVQDMDHENMFWYRQDPGL
+GLRLIYFSYDVKMKEKGDIPEGYSVSREKKERFSLILESASTNQTSMYLCASSL
+>ENSP00000395459.2 pep chromosome:GRCh38:7:142740206:142740894:1 gene:ENSG00000232869.2 transcript:ENST00000422143.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV29-1 description:T cell receptor beta variable 29-1 [Source:HGNC Symbol;Acc:HGNC:12210]
+MLSLLLLLLGLGSVFSAVISQKPSRDICQRGTSLTIQCQVDSQVTMMFWYRQQPGQSLTL
+IATANQGSEATYESGFVIDKFPISRPNLTFSTLTVSNMSPEDSSIYLCSVE
+>ENSP00000397118.2 pep chromosome:GRCh38:7:142812586:142813399:-1 gene:ENSG00000237254.2 transcript:ENST00000417977.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRBV30 description:T cell receptor beta variable 30 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12214]
+MLCSLLALLLGTFFGVRSQTIHQWPATLVQPVGSPLSLECTVEGTSNPNLYWYRQAAGRG
+LQLLFYSVGIGQISSEVPQNLSASRPQDRQFILSSKKLLLSDSGFYLCAWS
+>ENSP00000446309.1 pep chromosome:GRCh38:14:21621838:21622567:1 gene:ENSG00000255569.1 transcript:ENST00000542354.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV1-1 description:T cell receptor alpha variable 1-1 [Source:HGNC Symbol;Acc:HGNC:12101]
+MWGAFLLYVSMKMGGTAGQSLEQPSEVTAVEGAIVQINCTYQTSGFYGLSWYQQHDGGAP
+TFLSYNALDGLEETGRFSSFLSRSDSYGYLLLQELQMKDSASYFCAVR
+>ENSP00000439668.1 pep chromosome:GRCh38:14:21642889:21643578:1 gene:ENSG00000256553.1 transcript:ENST00000390423.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV1-2 description:T cell receptor alpha variable 1-2 [Source:HGNC Symbol;Acc:HGNC:12102]
+MWGVFLLYVSMKMGGTTGQNIDQPTEMTATEGAIVQINCTYQTSGFNGLFWYQQHAGEAP
+TFLSYNVLDGLEEKGRFSSFLSRSKGYSYLLLKELQMKDSASYLCA
+>ENSP00000438195.1 pep chromosome:GRCh38:14:21712321:21712843:1 gene:ENSG00000211776.2 transcript:ENST00000390424.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV2 description:T cell receptor alpha variable 2 [Source:HGNC Symbol;Acc:HGNC:12116]
+MALQSTLGAVWLGLLLNSLWKVAESKDQVFQPSTVASSEGAVVEIFCNHSVSNAYNFFWY
+LHFPGCAPRLLVKGSKPSQQGRYNMTYERFSSSLLILQVREADAAVYYCAVE
+>ENSP00000444955.1 pep chromosome:GRCh38:14:21723713:21724321:1 gene:ENSG00000211777.2 transcript:ENST00000390425.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV3 description:T cell receptor alpha variable 3 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:12128]
+MASAPISMLAMLFTLSGLRAQSVAQPEDQVNVAEGNPLTVKCTYSVSGNPYLFWYVQYPN
+RGLQFLLKYITGDNLVKGSYGFEAEFNKSQTSFHLKKPSALVSDSALYFCAVRD
+>ENSP00000451535.1 pep chromosome:GRCh38:14:21736152:21736982:1 gene:ENSG00000211778.2 transcript:ENST00000390426.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV4 description:T cell receptor alpha variable 4 [Source:HGNC Symbol;Acc:HGNC:12140]
+MRQVARVIVFLTLSTLSLAKTTQPISMDSYEGQEVNITCSHNNIATNDYITWYQQFPSQG
+PRFIIQGYKTKVTNEVASLFIPADRKSSTLSLPRVSLSDTAVYYCLVGD
+>ENSP00000446355.1 pep chromosome:GRCh38:14:21749178:21749705:1 gene:ENSG00000211779.3 transcript:ENST00000390427.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV5 description:T cell receptor alpha variable 5 [Source:HGNC Symbol;Acc:HGNC:12143]
+MKTFAGFSFLFLWLQLDCMSRGEDVEQSLFLSVREGDSSVINCTYTDSSSTYLYWYKQEP
+GAGLQLLTYIFSNMDMKQDQRLTVLLNKKDKHLSLRIADTQTGDSAIYFCAES
+>ENSP00000438290.1 pep chromosome:GRCh38:14:21768489:21769080:1 gene:ENSG00000211780.3 transcript:ENST00000390428.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV6 description:T cell receptor alpha variable 6 [Source:HGNC Symbol;Acc:HGNC:12144]
+MAFWLRSLGLHFRPHLGRRMESFLGGVLLILWLQVDWVKSQKIEQNSEALNIQEGKTATL
+TCNYTNYSPAYLQWYRQDPGRGPVFLLLIRENEKEKRKERLKVTFDTTLKQSLFHITASQ
+PADSATYLCALD
+>ENSP00000443297.1 pep chromosome:GRCh38:14:21782993:21783503:1 gene:ENSG00000211781.3 transcript:ENST00000390429.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV7 description:T cell receptor alpha variable 7 [Source:HGNC Symbol;Acc:HGNC:12145]
+MEKMRRPVLIIFCLCLGWANGENQVEHSPHFLGPQQGDVASMSCTYSVSRFNNLQWYRQN
+TGMGPKHLLSMYSAGYEKQKGRLNATLLKNGSSLYITAVQPEDSATYFCAVD
+>ENSP00000443059.1 pep chromosome:GRCh38:14:21797287:21797886:1 gene:ENSG00000211782.2 transcript:ENST00000390430.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV8-1 description:T cell receptor alpha variable 8-1 [Source:HGNC Symbol;Acc:HGNC:12146]
+MLLLLIPVLGMIFALRDARAQSVSQHNHHVILSEAASLELGCNYSYGGTVNLFWYVQYPG
+QHLQLLLKYFSGDPLVKGIKGFEAEFIKSKFSFNLRKPSVQWSDTAEYFCAVN
+>ENSP00000438446.1 pep chromosome:GRCh38:14:21811502:21811977:1 gene:ENSG00000211783.3 transcript:ENST00000390431.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV9-1 description:T cell receptor alpha variable 9-1 [Source:HGNC Symbol;Acc:HGNC:12153]
+MNSSPGPAIALFLMFGGINGDSVVQTEGQVLPSEGDSLIVNCSYETTQYPSLFWYVQYPG
+EGPQLHLKAMKANDKGRNKGFEAMYRKETTSFHLEKDSVQESDSAVYFCALS
+>ENSP00000440313.1 pep chromosome:GRCh38:14:21825472:21826075:1 gene:ENSG00000211784.2 transcript:ENST00000390432.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV10 description:T cell receptor alpha variable 10 [Source:HGNC Symbol;Acc:HGNC:12103]
+MKKHLTTFLVILWLYFYRGNGKNQVEQSPQSLIILEGKNCTLQCNYTVSPFSNLRWYKQD
+TGRGPVSLTIMTFSENTKSNGRYTATLDADTKQSSLHITASQLSDSASYICVVS
+>ENSP00000445405.1 pep chromosome:GRCh38:14:21841240:21841774:1 gene:ENSG00000211785.1 transcript:ENST00000390433.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV12-1 description:T cell receptor alpha variable 12-1 [Source:HGNC Symbol;Acc:HGNC:12105]
+MISLRVLLVILWLQLSWVWSQRKEVEQDPGPFNVPEGATVAFNCTYSNSASQSFFWYRQD
+CRKEPKLLMSVYSSGNEDGRFTAQLNRASQYISLLIRDSKLSDSATYLCVVN
+>ENSP00000439323.1 pep chromosome:GRCh38:14:21846537:21847221:1 gene:ENSG00000211786.3 transcript:ENST00000390434.3 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV8-2 description:T cell receptor alpha variable 8-2 [Source:HGNC Symbol;Acc:HGNC:12147]
+MLLLLVPVLEVIFTLGGTRAQSVTQLDSHVSVSEGTPVLLRCNYSSSYSPSLFWYVQHPN
+KGLQLLLKYTSAATLVKGINGFEAEFKKSETSFHLTKPSAHMSDAAEYFCVVS
+>ENSP00000440087.1 pep chromosome:GRCh38:14:21852558:21853006:1 gene:ENSG00000211787.1 transcript:ENST00000390435.1 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV8-3 description:T cell receptor alpha variable 8-3 [Source:HGNC Symbol;Acc:HGNC:12148]
+MLLELIPLLGIHFVLRTARAQSVTQPDIHITVSEGASLELRCNYSYGATPYLFWYVQSPG
+QGLQLLLKYFSGDTLVQGIKGFEAEFKRSQSSFNLRKPSVHWSDAAEYFCAVG
+>ENSP00000441696.1 pep chromosome:GRCh38:14:21868839:21869365:1 gene:ENSG00000211788.2 transcript:ENST00000390436.2 gene_biotype:TR_V_gene transcript_biotype:TR_V_gene gene_symbol:TRAV13-1 description:T cell receptor alpha variable 13-1 [Source:HGNC Symbol;Acc:HGNC:12108]
+MTSIRAVFIFLWLQLDLVNGENVEQHPSTLSVQEGDSAVIKCTYSDSASNYFPWYKQELG
+KGPQLIIDIRSNVGEKKDQRIAVTLNKTAKHFSLHITETQPEDSAVYFCAAS
+>ENSP00000488314.1 pep chromosome:GRCh38:X:143884071:143885255:1 gene:ENSG00000276380.2 transcript:ENST00000618570.1 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:UBE2NL description:ubiquitin conjugating enzyme E2 N like (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:31710]
+MAELPHRIIKETQRLLAEPVPGIKAEPDESNARYFHVVIAGESKDSPFEGGTFKRELLLA
+EEYPMAAPKVRFMTKIYHPNVDKLERIS*DILKDKWSPALQIRTVLLSIQALLNAPNPDD
+PLANDVVEQWKTNEAQAIETARAWTRLYAMNSI
+>ENSP00000437680.2 pep chromosome:GRCh38:22:42140203:42141924:-1 gene:ENSG00000205702.11 transcript:ENST00000435101.1 gene_biotype:polymorphic_pseudogene transcript_biotype:nonsense_mediated_decay gene_symbol:CYP2D7 description:cytochrome P450 family 2 subfamily D member 7 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:2624]
+DPAQPPRDLTEAFLAKKEKAKGSPESSFNDENLRIVSVSNRRSTT
+>ENSP00000445124.1 pep chromosome:GRCh38:22:42140203:42144549:-1 gene:ENSG00000205702.11 transcript:ENST00000358097.8 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:CYP2D7 description:cytochrome P450 family 2 subfamily D member 7 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:2624]
+MGLEALVPLAMIVAIFLLLVDLMHRHQRWAARYPPGPLPLPGLGNLAACGLPEHTILLRP
+VAAPLRGRVQPAAGLDAGGRAQWAGGRARGDGDPRRGHGRPPACAHLPGPGLRAAFPRGD
+PVALWARVARAEALLRVHLAQLGPGQEVAGAVGDRGGRLPLCRLRRPSRTPLSPQRPLGQ
+SREQRDRLPHLRAPLRVRRPSLPQAAGPSSGGTEGGVGLPARGAECCPRPPAHPSAGWQG
+PTLPKGFPDPAG*AAN*AQDDLGPSPATPRPD*GLPGKEGEGQGEP*EQLQ**EPAHSGG
+*PVPCRDGDHLDHAGLGPPAHDPTPGCAAPCPTGDRRRDRAGAATRDG*PGSHALHHCRD
+SRGAALWGHRPPGCDPYDIP*HRSTGLPHP*GNDTHHQPVIGAEG*GRLEEALPLPPRTL
+PGCPGPLCEAGGLPAFLSRPPCMPRGAPGPHGALPLLHLPAAALQLLRGRRTAPAQPLSC
+RQLSGDPIPLRALCCAP
+>ENSP00000439604.1 pep chromosome:GRCh38:22:42140203:42144577:-1 gene:ENSG00000205702.11 transcript:ENST00000433992.2 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:CYP2D7 description:cytochrome P450 family 2 subfamily D member 7 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:2624]
+MGLEALVPLAMIVAIFLLLVDLMHRHQRWAARYPPGPLPLPGLGNLAACGLPEHTILLRP
+VAAPLRGRVQPAAGLDAGGRAQWAGGRARGDGDPRRGHGRPPACAHLPGPGLRAAFPRGD
+PVALWARVARAEALLRVHLAQLGPGQEVAGAVGDRGGRLPLCRLRRPSRTPLSPQRPLGQ
+SREQRDRLPHLRAPLRVRRPSLPQAAGPSSGGTEGGVGLPARGAECCPRPPAHPSAGWQG
+PTLPKGFPDPAG*AAN*AQDDLGPSPATPRPD*GLPGKEGEGQGEP*EQLQ**EPAHSGG
+*PVPCRDGDHLDHAGLGPPAHDPTPGCAARKESVPWVLTHCGDACLSSPCPTGDRRRDRA
+GAATRDG*PGSHALHHCRDSRGAALWGHRPPGCDPYDIP*HRSTGLPHP*GNDTHHQPVI
+GAEG*GRLEEALPLPPRTLPGCPGPLCEAGGLPAFLSRPPCMPRGAPGPHGALPLLHLPA
+AALQLLRGRRTAPAQPLSCRQLSGDPIPLRALCCAP
+>ENSP00000481168.1 pep chromosome:GRCh38:22:42140205:42144554:-1 gene:ENSG00000205702.11 transcript:ENST00000614967.4 gene_biotype:polymorphic_pseudogene transcript_biotype:protein_coding gene_symbol:CYP2D7 description:cytochrome P450 family 2 subfamily D member 7 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:2624]
+MGLEALVPLAMIVAIFLLLVDLMHRHQRWAARYPPGPLPLPGLGNLLHVDFQNTPYCFDQ
+LRRRFGDVFSLQLAWTPVVVLNGLAAVREAMVTRGEDTADRPPAPIYQVLGFGPRSQGRP
+FRPNGLLDKAVSNVIASLTCGRRFEYDDPRFLRLLDLAQEGLKEESGFLREVLNAVPVLP
+HIPALAGKVLRFQKAFLTQLDELLTEHRMTWDPAQPPRDLTEAFLAKKEKAKGSPESSFN
+DENLRIVVGNLFLAGMVTTSTTLAWGLLLMILHLDVQLRVQQEIDDVIGQVRRPEMGDQA
+HMPCTTAVIHEVQHFGDIVPLGVTHMTSRDIEVQGFRIPKGTTLITNLSSVLKDEAVWKK
+PFRFHPEHFLDAQGHFVKPEAFLPFSAGRRACLGEPLARMELFLFFTSLLQHFSFSVAAG
+QPRPSHSRVVSFLVTPSPYELCAVPR
+>ENSP00000484065.1 pep chromosome:GRCh38:22:42140205:42144577:-1 gene:ENSG00000205702.11 transcript:ENST00000612115.1 gene_biotype:polymorphic_pseudogene transcript_biotype:protein_coding gene_symbol:CYP2D7 description:cytochrome P450 family 2 subfamily D member 7 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:2624]
+MGLEALVPLAMIVAIFLLLVDLMHRHQRWAARYPPGPLPLPGLGNLLHVDFQNTPYCFDQ
+LRRRFGDVFSLQLAWTPVVVLNGLAAVREAMVTRGEDTADRPPAPIYQVLGFGPRSQGVI
+LSRYGPAWREQRRFSVSTLRNLGLGKKSLEQWVTEEAACLCAAFADQAGRPFRPNGLLDK
+AVSNVIASLTCGRRFEYDDPRFLRLLDLAQEGLKEESGFLREVLNAVPVLPHIPALAGKV
+LRFQKAFLTQLDELLTEHRMTWDPAQPPRDLTEAFLAKKEKAKGSPESSFNDENLRIVVG
+NLFLAGMVTTSTTLAWGLLLMILHLDVQRGRRVSPGCPIVGTHVCPVRVQQEIDDVIGQV
+RRPEMGDQAHMPCTTAVIHEVQHFGDIVPLGVTHMTSRDIEVQGFRIPKGTTLITNLSSV
+LKDEAVWKKPFRFHPEHFLDAQGHFVKPEAFLPFSAGRRACLGEPLARMELFLFFTSLLQ
+HFSFSVAAGQPRPSHSRVVSFLVTPSPYELCAVPR
+>ENSP00000492977.1 pep chromosome:GRCh38:17:74560701:74567343:-1 gene:ENSG00000284690.3 transcript:ENST00000641710.1 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:CD300H description:CD300H molecule (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:52292]
+MTQRAGAAMLPSALLLLCVPGCLTVSGPSTVMGAVGESLSVQCRYEEKYKTFNKYWCRQP
+CLPIWHEMVETGGSEGVVRSDQVIITDHPGDLTFTVTLENLTADDAGKYRCGIATILQED
+GLSGFLPDPFFQVQVLVSSASSTENSVKTPASPTRPSQCQGSLPSSTCFLLLPLLKVPLL
+LSILGAILWVNRPWRTPWTES
+>ENSP00000492997.1 pep chromosome:GRCh38:17:74560781:74567343:-1 gene:ENSG00000284690.3 transcript:ENST00000641031.1 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:CD300H description:CD300H molecule (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:52292]
+MTQRAGAAMLPSALLLLCVPGCLTVSGPSTVMGAVGESLSVQCRYEEKYKTFNKYWCRQP
+CLPIWHEMVETGGSEGVVRSDQVIITDHPGDLTFTVTLENLTADDAGKYRCGIATILQED
+GLSGFLPDPFFQVQVLVSSGPCPAAPASCFSHS
+>ENSP00000477393.1 pep chromosome:GRCh38:11:56412696:56413680:1 gene:ENSG00000272987.1 transcript:ENST00000440231.1 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:OR5AL1 description:olfactory receptor family 5 subfamily AL member 1 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:14844]
+MCALKGFLEENFYTYSVAKGNHSTVYEFILLGLTDNAELQVTLFGIFLVVYLASFMGNFG
+LIMLIQISPQLHTPMYFFLSHLAFVDFSFTSSVAPNTLVNFLCEVKSITFYACAIQVCCF
+ITFVVCELYLLSIMAYDRYVAICNPLLYVILIPRKLY*TDC*HVCVWIHCGTCTDSGDIL
+LVFL*FQRDQPLLP**CSISGSGLF*HSCQRADVVNHCWVQYSLLSSNCADFLWFHFLCH
+PEDTFC*RETESIFYQCFPSDLHHNILWNNHFYVPAAQVKPFPEYG*SCFCV*CGSDSYI
+KPTDL*FKKSGGKKCTKENYRKVMFGCQ
+>ENSP00000478945.1 pep chromosome:GRCh38:CHR_HSCHR11_1_CTG5:7938266:7939295:-1 gene:ENSG00000276451.2 transcript:ENST00000622207.2 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:OR10A6 description:olfactory receptor family 10 subfamily A member 6 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:15132]
+MERQNQSCVVEFILLGFSNYPELQGQLFVAFLVIYLVTLIGNAIIIVIVSLDQSLHVPMY
+LFLLNLSVVDLSFSAVIMPEMLVVLSTEKTTISFGGCFAQMYFILLFGGAECFLLGAMAY
+DRFAAICHPLNYQMIMNKGVFMKLIIFSWALGFMLGTVQTSWVSSFPFCGLNEINHISCE
+TPAVLELACADTFLFEIYAFTGTFLIILVPFLLILLSYIRVLFAILKMPSTTGRQKAFST
+CAAHLTSVTLFYGTASMTYLQPKSGYSPETKKVMSLSYSLLTPLLNLLIYSLRNSEMKRA
+LMKLWRRRVVLHTI
+>ENSP00000486005.1 pep chromosome:GRCh38:CHR_HSCHR17_2_CTG2:1201029:1203765:1 gene:ENSG00000280938.1 transcript:ENST00000626647.1 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:TRARG1 description:trafficking regulator of GLUT4 (SLC2A4) 1 [Source:HGNC Symbol;Acc:HGNC:29592]
+XQKK
+>ENSP00000477337.2 pep chromosome:GRCh38:11:56819573:56820516:-1 gene:ENSG00000241356.2 transcript:ENST00000435756.2 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:OR5G3 description:olfactory receptor family 5 subfamily G member 3 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:15287]
+MEDKNQTVVTEFLLLGLTDHPYQKIVLFFMFLFVYLITLGGNLGMITLIWIDPRLHTPMY
+FFLRHLSFVDICSSSSVVPKMLCNIFAEKKDITFLGCAAQMWFFGLFEAAECFLWLPWHM
+TGMWPSASPCCIRSLCLSRSVCSWW*GLMPWLL*AP*LIQFSLFAYPFVVQILSITFSVI
+FFHCFP*HVQTPG*INLCCLSWLEL*EYSVV*SSWSPIFAS**PS*RSRLLMGSKKLSSP
+VFLTLRLSPSCMGLFS*FMFGQVQVPPWVSIK*FLYFILW*SPWLTPLFTA*GIRR*KMH
+SEEKLRGKNLL*VG
+>ENSP00000487059.1 pep chromosome:GRCh38:CHR_HSCHR11_2_CTG1:1012821:1043528:-1 gene:ENSG00000277518.3 transcript:ENST00000627256.2 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:MUC6 description:mucin 6, oligomeric mucus/gel-forming [Source:HGNC Symbol;Acc:HGNC:7517]
+MVQRWLLLSCCGALLSAGLANTSYTSPGLQRLKDSPQTAPDKGQCSTWGAGHFSTFDHHV
+YDFSGTCNYIFAATCKDAFPTFSVQLRRGPDGSISRIIVELGASVVTVSEAIISVKDIGV
+ISLPYTSNGLQITPFGQSVRLVAKQLELELEVVWGPDSHLMVLVERKYMGQMCGLCGNFD
+GKVTNEFVSEEGKFLEPHKFAALQKLDDPGEICTFQDIPSTHVRQAQHARICTQLLTLVA
+PECSVSKEPFVLSCQADVAAAPQPGPQNSSCATLSEYSRQCSMVGQPVRRWRSPGLCSVG
+QCPANQVYQECGSACVKTCSNPQHSCSSSCTFGCFCPEGTVLNDLSNNHTCVPVTQCPCV
+LHGAMYAPGEVTIAACQTCRCTLGRWVCTERPCPGHCSLEGGSFVTTFDARPYRFHGTCT
+YILLQSPQLPEDGALMAVYDKSGVSHSETSLVAVVYLSRQDKIVISQDEVVTNNGEAKWL
+PYKTRNITVFRQTSTHLQMATSFGLELVVQLRPIFQAYVTVGPQFRGQTRGLCGNFNGDT
+TDDFTTSMGIAEGTASLFVDSWRAGNCPAALERETDPCSMSQLNKVCAETHCSMLLRTGT
+VFERCHATVNPAPFYKRCMYQACNYEETFPHICAALGDYVHACSLRGVLLWGWRSSVDNC
+TIPCTGNTTFSYNSQACERTCLSLSDRATECHHSAVPVDGCNCPDGTYLNQKGECVRKAQ
+CPCILEGYKFILAEQSTVINGITCHCINGRLSCPQRPQMFLASCQAPKTFKSCSQSSENK
+FGAACAPTCQMLATGVACVPTKCEPGCVCAEGLYENADGQCVPPEECPCEFSGVSYPGGA
+ELHTDCRTCSCSRGRWACQQGTHCPSTCTLYGEGHVITFDGQRFVFDGNCEYILATDVCG
+VNDSQPTFKILTENVICGNSGVTCSRAIKIFLGGLSVVLADRNYTVTGEEPHVQLGVTPG
+ALSLVVDISIPGRYNLTLIWNRHMTILIRIARASQDPLCGLCGNFNGNMKDDFETRSRYV
+ASSELELVNSWKESPLCGDVSFVTDPCSLNAFRRSWAERKCSVINSQTFATCHSKVYHLP
+YYEACVRDACGCDSGGDCECLCDAVAAYAQACLDKGVCVDWRTPAFCPIYCGFYNTHTQD
+GHGEYQYTQEANCTWHYQPCLCPSQPQSVPGSNIEGCYNCSQDEYFDHEEGVCVPCMPPT
+TPQPPTTPQLPTTGSRPTQVWPMTGTSTTIGLLSSTGPSPSSNHTPASPTQTPLLPATLT
+SSKPTASSGEPPRPTTAVTPQATSGLPPTATLRSTATKPTVTQATTRATASTASPATTST
+AQSTTRTTMTLPTPATSGTSPTLPKSTNQELPGTTATQTTGPRPTPASTTGPTTPQPGQP
+TRPTATETTQTRTTTEYTTPQTPHTTHSPPTAGSPVPSTGPVTATSFHATTTYPTPSHPE
+TTLPTHVPPFSTSLVTPSTHTVITPTHAQMATSASIHSAPTGTIPPPTTLKATGSTHTAP
+PITPTTSGTSQAHSSFSTNKTPTSLHSHTSSTHHPEVTPTSTTTITPNPTSTRTRTPVAH
+TNSATSSRPPPPFTTHSPPTGSSPFSSTGPMTATSFKTTTTYPTPSLPQTTLLTHVPPFS
+TSLVTPITHTVITPTHPQMSTSAYIHSTPTGTIAPPTTVKATRSTYTAPLMTATTSRISQ
+AHSSISTAKTSTSLHSHASSTHHPEVTPTSTTNVTPKSTSRGTSTPVTHTTSATSSRPPT
+PITTHSSPTRSSPLSSTGRMTATSLKTTTTYPTPSQAHITLPIHVPPFSTSSVTPSTHTV
+ITPTHPQMSTSASNHSTSTGTIPPLTTLMATGSTHTAPLITVTTSRTSQVHSSFSTAKTS
+TSLLSHASSTHHPEITTNSTTTITPNPTSTGTGTPVAHTTSATSSRPPPPFTTHSPPTES
+SPLSPTGPMTPTSFKTTTTYPTTSHPQTTLPTHVPPFSSSSVTPSTHTVITPTHAQMSTS
+ASIHSTPTGTIPPLTTLTATGSTHTASPMTGTTIRTTQAHSSFSIAKTSTSILSHASSTH
+HPETTPTSTTNITPKSTSAGTSTPVAHTTLATSSRPPTPFTTHSPPTGSSPISSTGPMTA
+TSIKTTTTYPTPSHPQTTLTTHVPPFSTSSVTPSTHTVITPTHAQMSTSASIHSTPTGTV
+PPLTTRMPTGSTHTGPPMTGTIIQTSKAHNSFSTAKTSTSLHSHASSTHHPETTPTSTTN
+ITPKPTSAGTSTPVAHTTLATSSRLPTTFTTHFPSTGSSPVSSTGPMTATSSQTTTTYPT
+PSHPQTTLPTHIPPFSTSLVTPSTHTVITPTRAQMSTSASIHSTPTGTIPPPTTLKATGT
+THTHTTRTMTVTTTSQALRSLYIGTASTSIPLHSHASSHLRT*RHFYY*HHHHPQPHQYR
+NPTNDSDHQWDQPIPKLI*HGQNLYIPTFTHFLHTPS*SHLNFYHQHHPQPHQYRHQNPC
+GPHHVGHQQQATHTLHHTLPTYRDHSHLFHRSCHCNILPDHHYRSNPITPSHHTSHSRSI
+FLHLLGDSKYSHSHHPYPRTDGHFCLHPLNANRHYSSTDHDQGHRVHPHSPTNDGNHQWD
+QPIPKLI*HGQNFYIPTFTHFLNTSS*SHPNFYHHHHPQPHQYRHQNPCGPHHLGHQQQA
+THTLHHTFPTYREQSHLFHRSYDCNILSDHHYLSNPITPSDHTSHSHSTFLHLLGDSKYS
+HSHHHYPHTDGHFCLHPLNANRHRSSTNNAQGHRVHPHSANNDADHQRDEPSPELIQHSQ
+NLYIPTFTNFLHTPS*SHPNFYRHHPQSHQSRNRHPCGPHHLSHQQQANHTLHHTLLTYR
+EQSLLFHRSYDCNILPDHHYLSNPITPSDHTSHSRSTFLHLFGDSKYSHSHHPYPCTDGH
+FCLHPLNANRHDSSTDNAQGHRVHPHSANNDADHQRDQPSPELIKHSQNLYIPTFTHFLH
+TPC*SHLNFYHQHHPQPHQYRNWGACGPHHLSHQQQANPALHHTLPTYRVTTLKATGSIH
+TAPPMTPTTSGTSQSPSSFSMAKTSTSLPYHTSSTHHPEVTPTSTTNITPKHTSTGTRTP
+VAHTTSATSSKLPTPFTTHSPPTGSSPISSTGPVTATSFQTTTTYPTPSHSHTTLPTHVP
+PSSTSLVTPNTHTVITHTHAQMSTSASIHSTPTGTIPPPTTLKATGSTHTAPPMTPTTSG
+TRQAPSSFSTAKTSTSLHSHTSSTHHPAVTPTSTTTITPNHTSTGTRTPVAHTTSATSSR
+LPTPFTTHSPPTGSSPISSTAPCHCNILPDHHYPIQPTSQSQYHTSHSHSTFLHLLGDSK
+YTHSHHPNFYHHHPQSHQYRNRHPCGPHHLSHQQQANHTLHHTLPTYREQSHLFHRSCHC
+NILPCHHYLSNTITPSDHTSHSRSIFLHLLGDSKYSHSHHPYPRTDDHFCLHPLNANRHH
+SSTDNAEGHRVHPHSPTNDANHQWDQPSLKLIQHSQNLYIPTFTHFLHTPS*SHPNFYHQ
+HHPQPHQYRNLDTRGPHHLSHQQQANHTLHHTLPTYRDHSHLFHRSCHCNILPCHHYLSN
+TITPSDHTSHSRSIFLHLLGDSKYSHSHHPYPRTDGHFCLHPLNANRHHSSTDHDQGHRV
+HPHSPTNDTDHQWDQPIPKLI*HGQNFYIPTLPHFLHTPS*SHPNFYHQHHPQTHQYRHQ
+NPCGPHHLGHQQQTTHTLHHTFPTYREQSHLFHRSYDCTILSDHHYLSNPITPSDHTSHS
+HSTFLHLLGDSKYSQGHHPYPCTDVHFCLHPLNANRHHSSTNNAQGHRVHPHSPTNHSDH
+QWDQPIRKLI*HRQNLYILTFTHFLHTLS*SHPNFYHHHHPQPHQYRHQNPCGPHHLGHQ
+QQATHTLHHTFPTYREQSHLFHRSYDCNILPDHHYLSNPITPSDHTSHSRSTFLHLFGDS
+KYSHSHHPYPCTDGHFCLHPLNANRHDSSTDNAQGHRVHPHSANNDADHQRDQPSPELIK
+HSQNLYIPTFTHFLHTPC*SHLNFYHQHHPQPHQYRNPTNDSDHQWDQPIPKLI*HGQNL
+YIPTFTHFLHTPS*SHLNFYHQHHPQPHQYRHQNPCGPHHVGHQQQATHTLHHTLPTYRD
+HSHLFHRSCHCNILPDHHYLSNPITPSHHTSHSRSIFLHLLGDSKYSHGHHPYPHTDGHF
+CLHPLNANRHHSSTDHDQGHRVHPHSPTNDTDHQWDQPIPKLI*HGQNFYIPTLPHFLNT
+PS*SHPNFYHQHHPQTHQYRHQNPCGPHHLGQQQQATHTLHHTLPTYREQSLLFHRSYDC
+NILPDHHYLSNPITPSDHTSHSRSTFLHLLGDSKYSHSHHHYPHTDGHFCLHPLNANRHR
+SSTNNAQGHRVHPHSPTNDSDHQWDQPNPQLIQHSYSLFFLHILLVLAASEL*LKATVIT
+YHHTTPPLEFCNHSCFHN*SAVLLIFSQSFCPLYCFFLCALLPLLSPDFIAFCWHIFLFR
+VRPRALHNPELGVTLLIVHSSHDCISVCISSFSFFSSCLYYH*GHSPPHYLLSFHPLCST
+PHIHCYRVSHPIQPPSLQHHCISVHAQDHGQHPHRPCLLLSVHHLAVHFSHHPSSHIRLC
+VTHLGGDGYPHLSSHQPYHQAPWSHLVAYHTVPDQLPHCPWKHPCFCPGIFSRDTYAHLT
+RGLQCAGAAGGDHVQGVHGERDGNPL*GRLHFRCQLQHHHPAGGCPLQLLPPPPLL*AAA
+GAALPRSQHAWPAARTHPAGVQPLRVQLCGLWRL
+>ENSP00000481532.1 pep chromosome:GRCh38:CHR_HSCHR11_2_CTG1:1012824:1043528:-1 gene:ENSG00000277518.3 transcript:ENST00000621433.1 gene_biotype:polymorphic_pseudogene transcript_biotype:protein_coding gene_symbol:MUC6 description:mucin 6, oligomeric mucus/gel-forming [Source:HGNC Symbol;Acc:HGNC:7517]
+MVQRWLLLSCCGALLSAGLANTSYTSPGLQRLKDSPQTAPDKGQCSTWGAGHFSTFDHHV
+YDFSGTCNYIFAATCKDAFPTFSVQLRRGPDGSISRIIVELGASVVTVSEAIISVKDIGV
+ISLPYTSNGLQITPFGQSVRLVAKQLELELEVVWGPDSHLMVLVERKYMGQMCGLCGNFD
+GKVTNEFVSEEGKFLEPHKFAALQKLDDPGEICTFQDIPSTHVRQAQHARICTQLLTLVA
+PECSVSKEPFVLSCQADVAAAPQPGPQNSSCATLSEYSRQCSMVGQPVRRWRSPGLCSVG
+QCPANQVYQECGSACVKTCSNPQHSCSSSCTFGCFCPEGTVLNDLSNNHTCVPVTQCPCV
+LHGAMYAPGEVTIAACQTCRCTLGRWVCTERPCPGHCSLEGGSFVTTFDARPYRFHGTCT
+YILLQSPQLPEDGALMAVYDKSGVSHSETSLVAVVYLSRQDKIVISQDEVVTNNGEAKWL
+PYKTRNITVFRQTSTHLQMATSFGLELVVQLRPIFQAYVTVGPQFRGQTRGLCGNFNGDT
+TDDFTTSMGIAEGTASLFVDSWRAGNCPAALERETDPCSMSQLNKVCAETHCSMLLRTGT
+VFERCHATVNPAPFYKRCMYQACNYEETFPHICAALGDYVHACSLRGVLLWGWRSSVDNC
+TIPCTGNTTFSYNSQACERTCLSLSDRATECHHSAVPVDGCNCPDGTYLNQKGECVRKAQ
+CPCILEGYKFILAEQSTVINGITCHCINGRLSCPQRPQMFLASCQAPKTFKSCSQSSENK
+FGAACAPTCQMLATGVACVPTKCEPGCVCAEGLYENADGQCVPPEECPCEFSGVSYPGGA
+ELHTDCRTCSCSRGRWACQQGTHCPSTCTLYGEGHVITFDGQRFVFDGNCEYILATDVCG
+VNDSQPTFKILTENVICGNSGVTCSRAIKIFLGGLSVVLADRNYTVTGEEPHVQLGVTPG
+ALSLVVDISIPGRYNLTLIWNRHMTILIRIARASQDPLCGLCGNFNGNMKDDFETRSRYV
+ASSELELVNSWKESPLCGDVSFVTDPCSLNAFRRSWAERKCSVINSQTFATCHSKVYHLP
+YYEACVRDACGCDSGGDCECLCDAVAAYAQACLDKGVCVDWRTPAFCPIYCGFYNTHTQD
+GHGEYQYTQEANCTWHYQPCLCPSQPQSVPGSNIEGCYNCSQDEYFDHEEGVCVPCMPPT
+TPQPPTTPQLPTTGSRPTQVWPMTGTSTTIGLLSSTGPSPSSNHTPASPTQTPLLPATLT
+SSKPTASSGEPPRPTTAVTPQATSGLPPTATLRSTATKPTVTQATTRATASTASPATTST
+AQSTTRTTMTLPTPATSGTSPTLPKSTNQELPGTTATQTTGPRPTPASTTGPTTPQPGQP
+TRPTATETTQTRTTTEYTTPQTPHTTHSPPTAGSPVPSTGPVTATSFHATTTYPTPSHPE
+TTLPTHVPPFSTSLVTPSTHTVITPTHAQMATSASIHSAPTGTIPPPTTLKATGSTHTAP
+PITPTTSGTSQAHSSFSTNKTPTSLHSHTSSTHHPEVTPTSTTTITPNPTSTRTRTPVAH
+TNSATSSRPPPPFTTHSPPTGSSPFSSTGPMTATSFKTTTTYPTPSHPQTTLPTHVPPFS
+TSLVTPSTHTVITPTHAQMATSASIHSMPTGTIPPPTTLKATGSTHTAPTMTLTTSGTSQ
+ALSSLNTAKTSTSLHSHTSSTHHAEATSTSTTNITPNPTSTGTPPMTVTTSGTSQSRSSF
+STAKTSTSLHSHTSSTHHPEVTSTSTTSITPNHTSTGTRTPVAHTTSATSSRLPTPFTTH
+SPPTGTTPISSTGPVTATSFQTTTTYPTPSHPHTTLPTHVPSFSTSLVTPSTHTVIIPTH
+TQMATSASIHSMPTGTIPPPTTIKATGSTHTAPPMTPTTSGTSQSPSSFSTAKTSTSLPY
+HTSSTHHPEVTPTSTTNITPKHTSTGTRTPVAHTTSASSSRLPTPFTTHSPPTGSSPFSS
+TGPMTATSFQTTTTYPTPSHPQTTLPTHVPPFSTSLVTPSTHTVIITTHTQMATSASIHS
+TPTGTVPPPTTLKATGSTHTAPPMTVTTSGTSQTHSSFSTATASSSFISSSSWLPQNSSS
+RPPSSPITTQLPHLSSATTPVSTTNQLSSSFSPSPSAPSTVSSYVPSSHSSPQTSSPSVG
+TSSSFVSAPVHSTTLSSGSHSSLSTHPTTASVSASPLFPSSPAASTTIRATLPHTISSPF
+TLSALLPISTVTVSPTPSSHLASSTIAFPSTPRTTASTHTAPAFSSQSTTSRSTSLTTRV
+PTSGFVSLTSGVTGIPTSPVTNLTTRHPGPTLSPTTRFLTSSLTAHGSTPASAPVSSLGT
+PTPTSPGVCSVREQQEEITFKGCMANVTVTRCEGACISAASFNIITQQVDARCSCCRPLH
+SYEQQLELPCPDPSTPGRRLVLTLQVFSHCVCSSVACGD
+>ENSP00000492265.1 pep chromosome:GRCh38:8:43292483:43363319:1 gene:ENSG00000188877.12 transcript:ENST00000522175.7 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:POTEA description:POTE ankyrin domain family member A [Source:HGNC Symbol;Acc:HGNC:33893]
+MVAEVSPKLAASPMKKPFGFRGKMGKWCCCCFPCCRGSGKNNMGAWRDHDDSAFTEPRYH
+VRREDLGKLHRAAWWGEVPRADLIVMLRGPGINKRDKKKRTALHLACANGNSEVVSLLLD
+RQCQLHVFDSKKRTALIKAVQCQEDECALMLLQHGTDPNLPDMYGNTALHYAVYNEDKLM
+AKTLLLYGADIESKNKGGLTPLLLAVHGQKQRMVKFLIKKKANLNALDRFGRICQLLSDY
+KENQMPNNSSGNSNPEQDLKLTSEEEPQRLKGSENSQHEKVTQEPDINKDCDREVEEEMQ
+KHGSNNVGLSENLTDGAAAGNGDGGLVPQRKSRKHENQQFPNTEIEEYHRPEKKSNEKNK
+VKSQIHSVDNLDDITWPSEIASEDYDLLFSNYETFTLLIEQLKMDFNDSASLSKIQDAVI
+SEEHLLELKNSHYEQLTVEVEQMENMVHVLQK*LSEAKETQLQLAPQKGECEQERYSSSE
+EQNDTRKQLSKEQNARILQDEILTTKQKQIEVAEKKMNFEISLSHKEEKELLHENSMMQE
+EIAMLRIELDTIKHQNQLREKKYLEYIKSVKEKNDNLLKAIQLNEEALTKAVVQYSGQLS
+ILTTENKMLSFELQNVRHNNETLEMEIQSCHFRLATALHDCD
+>ENSP00000492193.1 pep chromosome:GRCh38:8:43292483:43363518:1 gene:ENSG00000188877.12 transcript:ENST00000519951.2 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:POTEA description:POTE ankyrin domain family member A [Source:HGNC Symbol;Acc:HGNC:33893]
+MVAEVSPKLAASPMKKPFGFRGKMGKWCCCCFPCCRGSGKNNMGAWRDHDDSAFTEPRYH
+VRREDLGKLHRAAWWGEVPRADLIVMLRGPGINKRDKKKRTALHLACANGNSEVVSLLLD
+RQCQLHVFDSKKRTALIKAVQCQEDECALMLLQHGTDPNLPDMYGNTALHYAVYNEDKLM
+AKTLLLYGADIESKNKGGLTPLLLAVHGQKQRMVKFLIKKKANLNALDRFGRTALILAVR
+CGSASIVSLLLQQNIDVFSQDVFGQTAEDYAVSSHHSIICQLLSDYKENQMPNNSSGNSN
+PEQDLKLTSEEEPQRLKGSENSQHEKVTQEPDINKDCDREVEEEMQKHGSNNVGLSENLT
+DGAAAGNGDGGLVPQRKSRKHENQQFPNTEIEEYHRPEKKSNEKNKVKSQIHSVDNLDDI
+TWPSEIASEDYDLLFSNYETFTLLIEQLKMDFNDSASLSKIQDAVISEEHLLELKNSHYE
+QLTVEVEQMENMVHVLQK*LSEAKETQLQLAPQKGECEQERYSSSEEQNDTRKQLSKEQN
+ARILQDEILTTKQKQIEVAEKKMNFEISLSHKEEKELLHENSMMQEEIAMLRIELDTIKH
+QNQLREKKYLEYIKSVKEKNDNLLKAIQLNEEALTKAVVQYSGQLSILTTENKMLSFELQ
+NVRHNNETLEMEIQSCHFRLATALHDCD
+>ENSP00000385765.6 pep chromosome:GRCh38:22:23980058:23983710:1 gene:ENSG00000099984.11 transcript:ENST00000402588.6 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:GSTT2 description:glutathione S-transferase theta 2 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:4642]
+MGLELFLDLVSQPSRAVYIFAKKNGIPLELRTVDLVKGQHKSKEFLQINSLGKLPTLKDG
+DFILTESSAILIYLSCKYQTPDHWYPSDLQARARVHEYLGWHADCIRGTFGIPLWVQMLG
+PLIGVQVPEEKVERNRTAMDQALQWLEDKFLGDRPFLAGQQPVALGYELFEGRPRLAAWR
+G*VEAFLGAELCQEAHSIILSILEQAAKKTLPTPSPEAYQAMLLRIARIP
+>ENSP00000488993.1 pep chromosome:GRCh38:22:23980058:23983915:1 gene:ENSG00000099984.11 transcript:ENST00000634759.1 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:GSTT2 description:glutathione S-transferase theta 2 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:4642]
+MGLELFLDLVSQPSRAVYIFAKKNGIPLELRTVDLVKGQHKSKEFLQINSLGKLPTLKDG
+DFILTESSAILIYLSCKYQTPDHWYPSDLQARARVHEYLGWHADCIRGTFGIPLWVQMLG
+PLIGVQVPEEKVERNRTAMDQALQWLEDKFLGDRPFLAGQQVTLADLMALEELMQPVALG
+YELFEGRPRLAAWRG*VEAFLGAELCQEAHSIILSILEQAAKKTLPTPSPEAYQAMLLRI
+ARIP
+>ENSP00000481555.1 pep chromosome:GRCh38:22:23980123:23983911:1 gene:ENSG00000099984.11 transcript:ENST00000621118.4 gene_biotype:polymorphic_pseudogene transcript_biotype:protein_coding gene_symbol:GSTT2 description:glutathione S-transferase theta 2 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:4642]
+MGLELFLDLVSQPSRAVYIFAKKNGIPLELRTVDLVKGQHKSKEFLQINSLGKLPTLKDG
+DFILTESSAILIYLSCKYQTPDHWYPSDLQARARVHEYLGWHADCIRGTFGIPLWVQMLG
+PLIGVQVPEEKVERNRTAMDQALQWLEDKFLGDRPFLAGQQVTLADLMALEELMQPVALG
+YELFEGRPRLAAWRGVEAFLGAELCQEAHSIILSILEQAAKKTLPTPSPEAYQAMLLRIA
+RIP
+>ENSP00000497463.1 pep chromosome:GRCh38:2:227587237:227587515:-1 gene:ENSG00000285843.1 transcript:ENST00000649376.1 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:AC064853.2 description:novel keratin associated protein
+MGCCGCGSCGCSGG*GGGCGGGCGGGCGSCTTCRCYRVGCCSSCCPCCRGCCGGCCSTPV
+ICCCRRTCSSCGCGCGKGCCQQKSCCQKQCCC
+>ENSP00000493099.2 pep chromosome:GRCh38:2:227608784:227609101:1 gene:ENSG00000284622.2 transcript:ENST00000641246.2 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:SCYGR10 description:small cysteine and glycine repeat containing 10 (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:34221]
+MGCCGCGGCGGRCSGGCGGGCGGGCGGGCGGGCGGCGGGCGSYTTCR*YRVGCCSSCCPC
+CRGCCGGCCSTPVICCCRRTCRSCGCGCGKSCCQQKCCCQKQCCC
+>ENSP00000486295.1 pep chromosome:GRCh38:CHR_HSCHR11_3_CTG1:1019669:1048356:-1 gene:ENSG00000277281.3 transcript:ENST00000627926.2 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:MUC6 description:mucin 6, oligomeric mucus/gel-forming [Source:HGNC Symbol;Acc:HGNC:7517]
+MVQRWLLLSCCGALLSAGLANTSYTSPGLQRLKDSPQTAPDKGQCSTWGAGHFSTFDHHV
+YDFSGTCNYIFAATCKDAFPTFSVQLRRGPDGSISRIIVELGASVVTVSEAIISVKDIGV
+ISLPYTSNGLQITPFGQSVRLVAKQLELELEVVWGPDSHLMVLVERKYMGQMCGLCGNFD
+GKVTNEFVSEEGKFLEPHKFAALQKLDDPGEICTFQDIPSTHVRQAQHARICTQLLTLVA
+PECSVSKEPFVLSCQADVAAAPQPGPQNSSCATLSEYSRQCSMVGQPVRRWRSPGLCSVG
+QCPANQVYQECGSACVKTCSNPQHSCSSSCTFGCFCPEGTVLNDLSNNHTCVPVTQCPCV
+LHGAMYAPGEVTIAACQTCRCTLGRWVCTERPCPGHCSLEGGSFVTTFDARPYRFHGTCT
+YILLQSPQLPEDGALMAVYDKSGVSHSETSLVAVVYLSRQDKIVISQDEVVTNNGEAKWL
+PYKTRNITVFRQTSTHLQMATSFGLELVVQLRPIFQAYVTVGPQFRGQTRGLCGNFNGDT
+TDDFTTSMGIAEGTASLFVDSWRAGNCPAALERETDPCSMSQLNKVCAETHCSMLLRTGT
+VFERCHATVNPAPFYKRCVYQACNYEETFPHICAALGDYVHACSLRGVLLWGWRSSVDNC
+TIPCTGNTTFSYNSQACERTCLSLSDRATECHHSAVPVDGCNCPDGTYLNQKGECVRKAQ
+CPCILEGYKFILAEQSTVINGITCHCINGRLSCPQRPQMFLASCQAPKTFKSCSQSSENK
+FGAACAPTCQMLATGVACVPTKCEPGCVCAEGLYENADGQCVPPEECPCEFSGVSYPGGA
+ELHTDCRTCSCSRGRWACQQGTHCPSTCTLYGEGHVITFDGQRFVFDGNCEYILATDVCG
+VNDSQPTFKILTENVICGNSGVTCSRAIKIFLGGLSVVLADRNYTVTGEEPHVQLGVTPG
+ALSLVVDISIPGRYNLTLIWNRHMTILIRIARASQDPLCGLCGNFNGNMKDDFETRSRYV
+ASSELELVNSWKESPLCGDVSFVTDPCSLNAFRRSWAERKCSVINSQTFATCHSKVYHLP
+YYEACVRDACGCDSGGDCECLCDAVAAYAQACLDKGVCVDWRTPAFCPIYCGFYNTHTQD
+GHGEYQYTQEANCTWHYQPCLCPSQPQSVPGSNIEGCYNCSQDEYFDHEEGVCVPCMPPT
+TPQPPTTPQLPTTGSRPTQVWPMTGTSTTIGLLSSTGPSPSSNHTPASPTQTPLLPATLT
+SSKPTASSGEPPRPTTAVTPQATSGLPPTATLRSTATKPTVTQATTRATASTASPATTST
+AQSTTRTTMTLPTPATSGTSPTLPKSTNQELPGTTATQTTGPRPTPASTTGPTTPQPGQP
+TRPTATETTQTRTTTEYTTPQTPHTTHSPPTAGSPVPSTGPVTATSFHATTTYPTPSHPE
+TTLPTHVPPFSTSLVTPSTHTVITPTHAQMATSASNHSAPTGTIPPPTTLKATGSTHTAP
+PITPTTSGTSQAHSSFSTNKTPTSLHSHTSSTHHPEVTPTSTTTITPNPTSTRTRTPVAH
+TNSATSSRPPPPFTTHSPPTGSSPFSSTGPMTATSFKTTTTYPTPSLPQTTLLTHVPPFS
+TSLVTPITHTVITPTHPQMSTSAYIHSTPTGTIAPPTTVKATRSTYTAPLMTATTSRISQ
+AHSSISTAKTSTSLHSHASSTHHPEVTPTSTTNVTPKSTSRGTSTPVTHTTSATSSRPPT
+PITTHSSPTRSSPLSSTGRMTATSLKTTTTYPTPSQAHITLPIHVPPFSTSSVTPSTHTV
+ITPTHPQMSTSASNHSTSTGTIPPLTTLTTTLHHTLPTYREQSPLSHRSYDSNILQDHHY
+LSNHITPSDHTSHSRSTFLQLVSDSKYSHSHHPYPCTDVHFCLDPLNANRYHSSTDNAHG
+HRVHTHSLTNDGDNHSDHPSPQLIQHSQNLYIHPLTCFLHTPSGNHTNFYHQHYSQVH*C
+RNQHPCGPHHLGHQQQATHTLHHTLPTYREQSHLFHRSYDCNIHQDHHDLSNPITPSDHT
+YHSCSTFLHLISHSKYSHSHHPYPRTDVHFLHTLS*SHPNFYHHHHPQPHQYRHQNPCGP
+HHLGHQQQATHTLHHTFPTYREQSHLFHRSYDCNILSDHHYLSNPITPSDHTSHSPSTFL
+HLLGDSKYSHSHHHYPHTDGHFCLHPLNANRHRSSTNNAQGHRVHPHSANNDADHQRDEP
+SPELIQHSQNLYIPTFTNFLHTPS*SHPNFYRHHPQSHQYRNRHPCGPHHLSHQQQANHT
+LHHTLPTYREQSLLFHRSYDCNILPDHHYLSNTITPSDHTSHSRYIFLHLLGDSKYSHSH
+HPYPRTDGHLCVHPLNANRHHFSTNNAQGHRVLPLSPTNDVDHQWDQPIPKLI*HGQNLY
+IPTFTHFLNTSS*SHLNFYHQHHPQPHQYRHQNPCGPHHVGHQQQATHTLHHTLPTYREQ
+SHLFHRSYDCKHPSRPPLPIQPHHTLTPHFPLTFHLSPPPWGLQVLT*SSPLPTHRWPLL
+PPSTQCQQALFLHRPRSRPQGPPTQPHQ*RQPPVGPANPQAHLARPKLLHPYIHTFPQHI
+ILKSPQLLPPPSPPTTPVQAPEPLWPTPPRPPAAGYPYPSPHIPHLQGAVPSLPQVL*LQ
+HPFRPPLPIQPHHTLTPHFPLTFHLSPPPW*LQVLT*SSPLPTHRWPLLPPSTQCQQALF
+LHRPRSRPQGPPTQPHQ*RQPPVGPANPQAHLARHWASTSLHSHIPPPTTVKATGTGSTH
+TAPRMTVTTSGTSQAHSSFSTAKTSTSLHSHASSTLHPEVTPTSTTTITPNPTNTGIRTP
+VANTTSATSSRLTTPFTTHSPPTGSSPISSTGPMTATSFQTTTTYPTPSHPQTTLPTHVP
+PFSTSLVTPSTHTVITPTHAQMATSASIHSTPTGTIPPPTTLKATGSTHTAPPMMPTTSG
+TSQASSSFNTAKTSTSLHSHTSSTHHPEVTPTSITNITLNPTSIGTWTPVAHTTSATSSR
+LTTPFTTHSPPTGTTPISSTGPVTATSFHATTTYPTPSHPQTTLPTHVPSFSTSLVTPST
+HIVITPTHAQMATSASIHSMQTGTIPPPTTIKATGSTHTAPPMTPTTSGTSQSLSSFSTA
+KTSTSLPYHTSSTHHPEVTPTSTTNITPKHTSTGTRTPVAHTTSATSSRLPTPFTTHSPP
+TGSSPISSTGPMTAPSFQTTTTYPTPSHPQTTLPTHVPPFSTSLVTPSTHTVITPTHAQM
+ATSASIHSMPTGTIPPPTTLKATGSTHTAPTMTPTTSGTSQALSSLNTAKTSTSLHSHTS
+STHHAEATSTSTTNITPNPTSTGTPPMTVTTSGTSQSRSSFSTAKTSTSLHSHTSSTHHP
+EVTSTSTTSITPNHTSTGTRTPVAHTTSATSSRLPTPFTTHSPPTGTTPISSTGPVTATS
+FQTTTTYPTPSHPHTTLPTHVPSFSTSLVTPSTHTVIIPTHTQMATSASIHSMPTGTIPP
+PTTIKATGSTHTAPPMTPTTSGTSQSPSSFSTAKTSTSLPYHTSSTHHPEVTPTSTTNIT
+PKHTSTGTRTPVAHTTSASSSRLPTPFTTHSPPTGSSPFSSTGPMTATSFQTTTTYPTPS
+HPQTTLPTHVPPFSTSLVTPSTHTVIITTHTQMATSASIHSTPTGTVPPPTTLKATGSTH
+TAPPMTVTTSGTSQTHSSFSTATASSSFISSSSWLPQNSSSRPPSSPITTQLPHLSSATT
+PVSTTNQLSSSFSPSPSAPSTVSSYVPSSHSSPQTSSPSVGTSSSFVSAPVHSTTLSSGS
+HSSLSTHPTTASVSASPLFPSSPAASTTIRATLPHTISSPFTLSALLPISTVTVSPTPSS
+HLASSTIAFPSTPRTTASTHTAPAFSSQSTTSRSTSLTTRVPTSGFVSLTSGVTGIPTSP
+VTNLTTRHPGPTLSPTTRFLTSSLTAHGSTPASAPVSSLGTPTPTSPGVCSVREQQEEIT
+FKGCMANVTVTRCEGACISAASFNIITQQVDARCSCCRPLHSYEQQLELPCPDPSTPGRR
+LVLTLQVFSHCVCSSVACGD
+>ENSP00000480618.1 pep chromosome:GRCh38:CHR_HSCHR11_3_CTG1:1019672:1048356:-1 gene:ENSG00000277281.3 transcript:ENST00000619759.1 gene_biotype:polymorphic_pseudogene transcript_biotype:protein_coding gene_symbol:MUC6 description:mucin 6, oligomeric mucus/gel-forming [Source:HGNC Symbol;Acc:HGNC:7517]
+MVQRWLLLSCCGALLSAGLANTSYTSPGLQRLKDSPQTAPDKGQCSTWGAGHFSTFDHHV
+YDFSGTCNYIFAATCKDAFPTFSVQLRRGPDGSISRIIVELGASVVTVSEAIISVKDIGV
+ISLPYTSNGLQITPFGQSVRLVAKQLELELEVVWGPDSHLMVLVERKYMGQMCGLCGNFD
+GKVTNEFVSEEGKFLEPHKFAALQKLDDPGEICTFQDIPSTHVRQAQHARICTQLLTLVA
+PECSVSKEPFVLSCQADVAAAPQPGPQNSSCATLSEYSRQCSMVGQPVRRWRSPGLCSVG
+QCPANQVYQECGSACVKTCSNPQHSCSSSCTFGCFCPEGTVLNDLSNNHTCVPVTQCPCV
+LHGAMYAPGEVTIAACQTCRCTLGRWVCTERPCPGHCSLEGGSFVTTFDARPYRFHGTCT
+YILLQSPQLPEDGALMAVYDKSGVSHSETSLVAVVYLSRQDKIVISQDEVVTNNGEAKWL
+PYKTRNITVFRQTSTHLQMATSFGLELVVQLRPIFQAYVTVGPQFRGQTRGLCGNFNGDT
+TDDFTTSMGIAEGTASLFVDSWRAGNCPAALERETDPCSMSQLNKVCAETHCSMLLRTGT
+VFERCHATVNPAPFYKRCVYQACNYEETFPHICAALGDYVHACSLRGVLLWGWRSSVDNC
+TIPCTGNTTFSYNSQACERTCLSLSDRATECHHSAVPVDGCNCPDGTYLNQKGECVRKAQ
+CPCILEGYKFILAEQSTVINGITCHCINGRLSCPQRPQMFLASCQAPKTFKSCSQSSENK
+FGAACAPTCQMLATGVACVPTKCEPGCVCAEGLYENADGQCVPPEECPCEFSGVSYPGGA
+ELHTDCRTCSCSRGRWACQQGTHCPSTCTLYGEGHVITFDGQRFVFDGNCEYILATDVCG
+VNDSQPTFKILTENVICGNSGVTCSRAIKIFLGGLSVVLADRNYTVTGEEPHVQLGVTPG
+ALSLVVDISIPGRYNLTLIWNRHMTILIRIARASQDPLCGLCGNFNGNMKDDFETRSRYV
+ASSELELVNSWKESPLCGDVSFVTDPCSLNAFRRSWAERKCSVINSQTFATCHSKVYHLP
+YYEACVRDACGCDSGGDCECLCDAVAAYAQACLDKGVCVDWRTPAFCPIYCGFYNTHTQD
+GHGEYQYTQEANCTWHYQPCLCPSQPQSVPGSNIEGCYNCSQDEYFDHEEGVCVPCMPPT
+TPQPPTTPQLPTTGSRPTQVWPMTGTSTTIGLLSSTGPSPSSNHTPASPTQTPLLPATLT
+SSKPTASSGEPPRPTTAVTPQATSGLPPTATLRSTATKPTVTQATTRATASTASPATTST
+AQSTTRTTMTLPTPATSGTSPTLPKSTNQELPGTTATQTTGPRPTPASTTGPTTPQPGQP
+TRPTATETTQTRTTTEYTTPQTPHTTHSPPTAGSPVPSTGPVTATSFHATTTYPTPSHPE
+TTLPTHVPPFSTSLVTPSTHTVITPTHAQMATSASNHSAPTGTIPPPTTLKATGSTHTAP
+PITPTTSGTSQAHSSFSTNKTPTSLHSHTSSTHHPEVTPTSTTTITPNPTSTRTRTPVAH
+TNSATSSRPPPPFTTHSPPTGSSPFSSTGPMTATSFKTTTTYPTPSHPQTTLPTHVPPFS
+TSLVTPSTHTVITPTHAQMATSASIHSMPTGTIPPPTTLKATGSTHTAPTMTPTTSGTSQ
+ALSSLNTAKTSTSLHSHTSSTHHAEATSTSTTNITPNPTSTGTPPMTVTTSGTSQSRSSF
+STAKTSTSLHSHTSSTHHPEVTSTSTTSITPNHTSTGTRTPVAHTTSATSSRLPTPFTTH
+SPPTGTTPISSTGPVTATSFQTTTTYPTPSHPHTTLPTHVPSFSTSLVTPSTHTVIIPTH
+TQMATSASIHSMPTGTIPPPTTIKATGSTHTAPPMTPTTSGTSQSPSSFSTAKTSTSLPY
+HTSSTHHPEVTPTSTTNITPKHTSTGTRTPVAHTTSASSSRLPTPFTTHSPPTGSSPFSS
+TGPMTATSFQTTTTYPTPSHPQTTLPTHVPPFSTSLVTPSTHTVIITTHTQMATSASIHS
+TPTGTVPPPTTLKATGSTHTAPPMTVTTSGTSQTHSSFSTATASSSFISSSSWLPQNSSS
+RPPSSPITTQLPHLSSATTPVSTTNQLSSSFSPSPSAPSTVSSYVPSSHSSPQTSSPSVG
+TSSSFVSAPVHSTTLSSGSHSSLSTHPTTASVSASPLFPSSPAASTTIRATLPHTISSPF
+TLSALLPISTVTVSPTPSSHLASSTIAFPSTPRTTASTHTAPAFSSQSTTSRSTSLTTRV
+PTSGFVSLTSGVTGIPTSPVTNLTTRHPGPTLSPTTRFLTSSLTAHGSTPASAPVSSLGT
+PTPTSPGVCSVREQQEEITFKGCMANVTVTRCEGACISAASFNIITQQVDARCSCCRPLH
+SYEQQLELPCPDPSTPGRRLVLTLQVFSHCVCSSVACGD
+>ENSP00000402491.1 pep chromosome:GRCh38:1:19265982:19273941:-1 gene:ENSG00000211454.15 transcript:ENST00000457194.6 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:AKR7L description:aldo-keto reductase family 7 like (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:24056]
+XAFLYSDGQSETILGGLGLRMGSSDCRVKIATKANPWIGNSLKPDSVRSQLETSLKRLQC
+P*VDLFYLHAPDHSAPVEETLRACHQLHQEGKFVELGLSNYAAWEVAEICTLCKSNGWIL
+PTVYQLLEGAPLRGHCPGGEGPAGRVWRQRSQHDLGRPPVDVPPLTAAGCPRGRGHPGHV
+QPGAAGAELGSGRGRAPGAGCRGRL
+>ENSP00000411913.1 pep chromosome:GRCh38:1:19267103:19274194:-1 gene:ENSG00000211454.15 transcript:ENST00000429712.5 gene_biotype:polymorphic_pseudogene transcript_biotype:polymorphic_pseudogene gene_symbol:AKR7L description:aldo-keto reductase family 7 like (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:24056]
+MSRQLSRARPATVLGAMEMGRRMDAPTSAAVTRAFLERGHTEIDTAFLYSDGQSETILGG
+LGLRMGSSDCRVKIATKANPWIGNSLKPDSVRSQLETSLKRLQCP*VDLFYLHAPDHSAP
+VEETLRACHQLHQEGKFVELGLSNYAAWEVAEICTLCKSNGWILPTVYQGMYSATTRQVE
+TELFPCLRHFGLRFYAYNPLAGGLLTGKYKYEDKDGKQPVGRFFGTQWAEIYRNHFWKEH
+HFEGIALVEKALQAAYGASAPSMTSAALRWMYHHSQLQGAHGDAVILGMSSLEQLEQNLA
+AAEEGPLEPAVVDAFNQAWHLFAHECPNYFI
+>ENSP00000406430.3 pep chromosome:GRCh38:1:19267130:19274151:-1 gene:ENSG00000211454.15 transcript:ENST00000420396.3 gene_biotype:polymorphic_pseudogene transcript_biotype:protein_coding gene_symbol:AKR7L description:aldo-keto reductase family 7 like (gene/pseudogene) [Source:HGNC Symbol;Acc:HGNC:24056]
+MSRQLSRARPATVLGAMEMGRRMDAPTSAAVTRAFLERGHTEIDTAFLYSDGQSETILGG
+LGLRMGSSDCRVKIATKANPWIGNSLKPDSVRSQLETSLKRLQCPVDLFYLHAPDHSAPV
+EETLRACHQLHQEGKFVELGLSNYAAWEVAEICTLCKSNGWILPTVYQGMYSATTRQVET
+ELFPCLRHFGLRFYAYNPLAGGLLTGKYKYEDKDGKQPVGRFFGTQWAEIYRNHFWKEHH
+FEGIALVEKALQAAYGASAPSMTSAALRWMYHHSQLQGAHGDAVILGMSSLEQLEQNLAA
+AEEGPLEPAVVDAFNQAWHLFAHECPNYFI

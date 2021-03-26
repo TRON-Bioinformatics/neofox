@@ -20,7 +20,7 @@ from unittest import TestCase
 
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 import pkg_resources
-import neofox
+import neofox.tests
 
 
 class TestUniprot(TestCase):
