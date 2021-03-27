@@ -166,17 +166,15 @@ class ModelConverterTest(TestCase):
         neoantigens_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_data_model.txt"
         )
+        data = pd.read_csv(neoantigens_file, sep="\t")
         neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            neoantigens_file
+            data
         )
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
             self.assertNotEmpty(n.mutation)
             self.assertNotEmpty(n.patient_identifier)
-            self.assertNotEmpty(n.rna_expression)
-            self.assertNotEmpty(n.rna_variant_allele_frequency)
-            self.assertNotEmpty(n.dna_variant_allele_frequency)
             self.assertNotEmpty(n.gene)
             self.assertTrue(isinstance(n.mutation, Mutation))
             self.assertNotEmpty(n.mutation.mutated_xmer)
@@ -189,14 +187,6 @@ class ModelConverterTest(TestCase):
             external_annotations=external_annotations,
         )
 
-    def test_csv_neoantigens2model(self):
-        neoantigens_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/balachandran_supplementary_table1_neoantigens.tsv"
-        )
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            neoantigens_file
-        )
-        self.assertEqual(4870, len(neoantigens))
 
     def test_json_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(
@@ -357,7 +347,7 @@ class ModelConverterTest(TestCase):
             neoantigen_annotations=annotations, neoantigens=neoantigens
         )
         self.assertEqual(df.shape[0], 2)
-        self.assertEqual(df.shape[1], 13)
+        self.assertEqual(df.shape[1], 14)
         self.assertEqual(0, df[df["mutation.position"].transform(lambda x: isinstance(x, list))].shape[0])
 
         df_annotations = ModelConverter.annotations2tall_skinny_table(annotations)

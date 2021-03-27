@@ -144,7 +144,7 @@ class NeofoxReferenceInstaller(object):
 
     def _install_r_dependencies(self):
         logger.info("Installing R dependencies...")
-        cmd = "{rscript} --vanilla {dependencies_file}".format(
+        cmd = "{rscript} {dependencies_file}".format(
             rscript=self.config.rscript,
             dependencies_file=os.path.join(
                 os.path.abspath(os.path.dirname(__file__)), "install_r_dependencies.R"

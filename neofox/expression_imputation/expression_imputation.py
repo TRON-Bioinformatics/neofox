@@ -57,11 +57,12 @@ class ExpressionAnnotator(object):
         :return: the gene expression
         """
         expression_value = None
-        try:
-            cohort_index = self.cohort_indices[tcga_cohort]
-            expression_value = self._get_gene_expression(gene_name, cohort_index)
-        except KeyError:
-            logger.error("Tumor type is not available in TCGA data")
+        if gene_name is not None and gene_name.strip(" ") != "":
+            try:
+                cohort_index = self.cohort_indices[tcga_cohort]
+                expression_value = self._get_gene_expression(gene_name, cohort_index)
+            except KeyError:
+                logger.error("Tumor type is not available in TCGA data")
         return expression_value
 
     def _get_gene_expression(self, gene_name: str, cohort_index: int) -> float:

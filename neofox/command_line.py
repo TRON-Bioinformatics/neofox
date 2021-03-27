@@ -28,8 +28,13 @@ from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
 
 
+epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
+         "TRON – Translational Oncology at the University Medical Center of the " \
+         "Johannes Gutenberg University Mainz gGmbH, all rights reserved".format(neofox.VERSION)
+
+
 def neofox_configure():
-    parser = ArgumentParser(description="NeoFox (NEOantigen Feature toolbOX) {} references installer".format(neofox.VERSION))
+    parser = ArgumentParser(description="NeoFox references installer", epilog=epilog)
     parser.add_argument(
         "--reference-folder",
         dest="reference_folder",
@@ -59,13 +64,9 @@ def neofox_configure():
 
 def neofox_cli():
     parser = ArgumentParser(
-        description="NeoFox (NEOantigen Feature toolbOX) {} annotates a given set of neoantigen candidate sequences "
-                    "derived from point mutation with relevant neoantigen features".format(neofox.VERSION)
-    )
-    parser.add_argument(
-        "--model-file",
-        dest="model_file",
-        help="input tabular file with neoantigen candidates represented by neoantigen model",
+        description="NeoFox {} annotates a given set of neoantigen candidate sequences "
+                    "derived from point mutation with relevant neoantigen features".format(neofox.VERSION),
+        epilog=epilog
     )
     parser.add_argument(
         "--candidate-file",
@@ -81,7 +82,7 @@ def neofox_cli():
         "--patient-data",
         dest="patients_data",
         help="file with data for patients with columns: identifier, estimated_tumor_content, "
-        "is_rna_available, mhc_i_alleles, mhc_ii_alleles, tissue",
+        "mhc_i_alleles, mhc_ii_alleles, tissue",
         required=True,
     )
     parser.add_argument(
@@ -128,7 +129,6 @@ def neofox_cli():
     )
     args = parser.parse_args()
 
-    model_file = args.model_file
     candidate_file = args.candidate_file
     json_file = args.json_file
     patient_id = args.patient_id
@@ -141,68 +141,67 @@ def neofox_cli():
     num_cpus = int(args.num_cpus)
     config = args.config
 
-    # check parameters
-    if bool(model_file) + bool(candidate_file) + bool(json_file) > 1:
-        raise NeofoxInputParametersException(
-            "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them"
+    try:
+        # check parameters
+        if bool(candidate_file) + bool(json_file) > 1:
+            raise NeofoxInputParametersException(
+                "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them"
+            )
+        if not candidate_file and not json_file:
+            raise NeofoxInputParametersException(
+                "Please, define one input file, either a candidate file, a standard input file or a JSON file"
+            )
+        if not with_sw and not with_ts and not with_json:
+            with_sw = True  # if none specified short wide is the default
+
+        # makes sure that the output folder exists
+        os.makedirs(output_folder, exist_ok=True)
+
+        # reads the input data
+        neoantigens, patients, external_annotations = _read_data(
+            candidate_file, json_file, patients_data, patient_id
         )
-    if not model_file and not candidate_file and not json_file:
-        raise NeofoxInputParametersException(
-            "Please, define one input file, either a candidate file, a standard input file or a JSON file"
+
+        # run annotations
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patients=patients,
+            patient_id=patient_id,
+            work_folder=output_folder,
+            output_prefix=output_prefix,
+            num_cpus=num_cpus,
+            configuration_file=config,
+        ).get_annotations(output_folder)
+        # combine neoantigen feature annotations and potential user-specific external annotation
+        neoantigen_annotations = _combine_features_with_external_annotations(
+            annotations, external_annotations
         )
-    if not with_sw and not with_ts and not with_json:
-        with_sw = True  # if none specified short wide is the default
 
-    # makes sure that the output folder exists
-    os.makedirs(output_folder, exist_ok=True)
-
-    # reads the input data
-    neoantigens, patients, external_annotations = _read_data(
-        candidate_file, model_file, json_file, patients_data, patient_id
-    )
-
-    # run annotations
-    annotations = NeoFox(
-        neoantigens=neoantigens,
-        patients=patients,
-        patient_id=patient_id,
-        work_folder=output_folder,
-        output_prefix=output_prefix,
-        num_cpus=num_cpus,
-        configuration_file=config,
-    ).get_annotations(output_folder)
-    # combine neoantigen feature annotations and potential user-specific external annotation
-    neoantigen_annotations = _combine_features_with_external_annotations(
-        annotations, external_annotations
-    )
-
-    _write_results(
-        neoantigen_annotations,
-        neoantigens,
-        output_folder,
-        output_prefix,
-        with_json,
-        with_sw,
-        with_ts,
-    )
+        _write_results(
+            neoantigen_annotations,
+            neoantigens,
+            output_folder,
+            output_prefix,
+            with_json,
+            with_sw,
+            with_ts,
+        )
+    except Exception as e:
+        logger.exception(e)  # logs every exception in the file
+        raise e
 
     logger.info("Finished NeoFox")
 
 
 def _read_data(
-    candidate_file, model_file, json_file, patients_data, patient_id
+    candidate_file, json_file, patients_data, patient_id
 ) -> Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data)
-    logger.info(patients)
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(
             candidate_file, patient_id
-        )
-    elif model_file is not None:
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            model_file
         )
     else:
         neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
