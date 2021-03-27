@@ -23,28 +23,53 @@ from neofox.expression_imputation.expression_imputation import ExpressionAnnotat
 
 
 class TestExpressionAnnotator(TestCase):
+
+    def setUp(self) -> None:
+        self.expression_annotator = ExpressionAnnotator()
+
     def test_expression_annotation(self):
-        expression_annotator = ExpressionAnnotator()
+
         # test retrieval of cohort index
-        self.assertEqual(22, expression_annotator.cohort_indices["SARC"])
+        self.assertEqual(22, self.expression_annotator.cohort_indices["SARC"])
         # test gene expression
-        result = expression_annotator.get_gene_expression_annotation(
+        result = self.expression_annotator.get_gene_expression_annotation(
             gene_name="ATF2", tcga_cohort="SARC"
         )
         self.assertAlmostEqual(5.034754, result, places=5)
-        result = expression_annotator.get_gene_expression_annotation(
+        result = self.expression_annotator.get_gene_expression_annotation(
             gene_name="NBPF24", tcga_cohort="KIPAN"
         )
         self.assertAlmostEqual(6.839773310, result, places=5)
-        result = expression_annotator.get_gene_expression_annotation(
+        result = self.expression_annotator.get_gene_expression_annotation(
             gene_name="blabluplupp", tcga_cohort="KIPAN"
         )
         self.assertIsNone(result)
-        result = expression_annotator.get_gene_expression_annotation(
+        result = self.expression_annotator.get_gene_expression_annotation(
             gene_name="NBPF24", tcga_cohort="blabluplupp"
         )
         self.assertIsNone(result)
-        result = expression_annotator.get_gene_expression_annotation(
+        result = self.expression_annotator.get_gene_expression_annotation(
             gene_name="blabluplupp", tcga_cohort="blabluplupp"
         )
         self.assertIsNone(result)
+
+    def test_empty_gene(self):
+        result = self.expression_annotator.get_gene_expression_annotation(
+            gene_name="", tcga_cohort="SARC"
+        )
+        self.assertIsNone(result)
+        result = self.expression_annotator.get_gene_expression_annotation(
+            gene_name=None, tcga_cohort="SARC"
+        )
+        self.assertIsNone(result)
+
+    def test_empty_cohort(self):
+        result = self.expression_annotator.get_gene_expression_annotation(
+            gene_name="ATF2", tcga_cohort=None
+        )
+        self.assertIsNone(result)
+        result = self.expression_annotator.get_gene_expression_annotation(
+            gene_name="ATF2", tcga_cohort=""
+        )
+        self.assertIsNone(result)
+

@@ -76,10 +76,12 @@ class Neoantigen(betterproto.Message):
     mutation: "Mutation" = betterproto.message_field(4)
     # *Expression value of the transcript from RNA data. Range [0, +inf].
     rna_expression: float = betterproto.float_field(5)
+    # *Expression value of the transcript from TCGA data. Range [0, +inf].
+    imputed_gene_expression: float = betterproto.float_field(6)
     # *Variant allele frequency from the DNA. Range [0.0, 1.0]
-    dna_variant_allele_frequency: float = betterproto.float_field(6)
+    dna_variant_allele_frequency: float = betterproto.float_field(7)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
-    rna_variant_allele_frequency: float = betterproto.float_field(7)
+    rna_variant_allele_frequency: float = betterproto.float_field(8)
 
 
 @dataclass
