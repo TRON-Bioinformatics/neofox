@@ -35,6 +35,7 @@ class TestDependenciesConfiguration(TestCase):
             neofox.NEOFOX_RSCRIPT_ENV: "/path/to/rscript",
             neofox.NEOFOX_MIXMHCPRED_ENV: "/path/to/mixmhcpred",
             neofox.NEOFOX_MIXMHC2PRED_ENV: "/path/to/mixmhc2pred",
+            neofox.NEOFOX_PRIME_ENV: "/path/to/prime",
         }
         self.non_existing = "/path/to/nothing"
         self.non_executable = "/path/to/something/not/executable"
@@ -95,6 +96,9 @@ class TestDependenciesConfiguration(TestCase):
         )
         self.assertTrue(
             config.net_mhc2_pan == self.variables[neofox.NEOFOX_NETMHC2PAN_ENV]
+        )
+        self.assertTrue(
+            config.prime == self.variables[neofox.NEOFOX_PRIME_ENV]
         )
 
 
