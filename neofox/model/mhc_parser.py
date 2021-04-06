@@ -24,6 +24,9 @@ from logzero import logger
 from neofox.model.wrappers import get_mhc2_isoform_name
 from neofox.references.references import HlaDatabase
 
+HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR = re.compile(
+    r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
+)
 HLA_ALLELE_PATTERN = re.compile(
     r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})[:|_]?([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
 )
@@ -40,13 +43,29 @@ class MhcParser:
         self.hla_database = hla_database
 
     def parse_mhc_allele(self, allele: str) -> MhcAllele:
-        # infers gene, group and protein from the name
-        match = HLA_ALLELE_PATTERN.match(allele)
-        assert match is not None, "Allele does not match HLA allele pattern {}".format(
-            allele) if allele != "" else "Please check the format of provided alleles. An empty allele is provided"
-        gene = match.group(1)
-        group = match.group(2)
-        protein = match.group(3)
+        match = HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR.match(allele)
+        if match is not None:
+            # allele without separator, controls for ambiguities
+            gene = match.group(1)
+            group = match.group(2)
+            protein = match.group(3)
+            default_allele_exists = self.hla_database.exists(gene, group, protein)
+            if not default_allele_exists:
+                # if default allele does not exist, tries alternative
+                protein = group[-1:] + protein
+                group = group[0: -1]
+        else:
+            # infers gene, group and protein from the name
+            match = HLA_ALLELE_PATTERN.match(allele)
+            assert match is not None, "Allele does not match HLA allele pattern {}".format(
+                allele) if allele != "" else "Please check the format of provided alleles. An empty allele is provided"
+            gene = match.group(1)
+            group = match.group(2)
+            protein = match.group(3)
+
+        # controls for existence in the HLA database
+        assert self.hla_database.exists(gene, group, protein), \
+            "Allele {} does not exist in the HLA database".format(allele)
         # builds a normalized representation of the allele
         name = "HLA-{gene}*{serotype}:{protein}".format(
             gene=gene, serotype=group, protein=protein
