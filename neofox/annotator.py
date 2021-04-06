@@ -55,6 +55,7 @@ from neofox.published_features.vaxrank import vaxrank
 from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
+from neofox.published_features.prime import Prime
 from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 from neofox.references.references import (
     ReferenceFolder,
@@ -110,6 +111,7 @@ class NeoantigenAnnotator:
             mixmhcpred_annotations,
             netmhc2pan,
             netmhcpan,
+            prime_annotations
         ) = self._compute_long_running_tasks(neoantigen, patient)
 
         # HLA I predictions: NetMHCpan
@@ -123,6 +125,10 @@ class NeoantigenAnnotator:
         # MixMHCpred
         if mixmhcpred_annotations is not None:
             self.annotations.annotations.extend(mixmhcpred_annotations)
+
+        # PRIME
+        if prime_annotations is not None:
+            self.annotations.annotations.extend(prime_annotations)
 
         # MixMHC2pred
         if mixmhc2pred_annotations is not None:
@@ -313,6 +319,8 @@ class NeoantigenAnnotator:
                 "Vaxrank annotation elapsed time {} seconds".format(round(end - start, 3))
             )
 
+
+
         return self.annotations
 
     def _compute_long_running_tasks(self, neoantigen, patient, sequential=True):
@@ -324,6 +332,7 @@ class NeoantigenAnnotator:
         netmhc2pan = None
         mixmhcpred_annotations = None
         mixmhc2pred_annotations = None
+        prime_annotations = None
 
         if sequential:
             if has_mhc1:
@@ -350,6 +359,13 @@ class NeoantigenAnnotator:
                 )
             if self.configuration.mix_mhc_pred is not None and has_mhc1:
                 mixmhcpred_annotations = self.run_mixmhcpred(
+                    self.runner,
+                    self.configuration,
+                    neoantigen,
+                    patient,
+                )
+            if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                prime_annotations = self.run_prime(
                     self.runner,
                     self.configuration,
                     neoantigen,
@@ -396,6 +412,16 @@ class NeoantigenAnnotator:
                     neoantigen,
                     patient,
                 )
+            prime_future = None
+            if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                prime_future = dask_client.submit(
+                    self.run_prime,
+                    self.runner,
+                    self.configuration,
+                    neoantigen,
+                    patient,
+                )
+
             secede()
 
             if netmhcpan_future:
@@ -406,9 +432,11 @@ class NeoantigenAnnotator:
                 mixmhcpred_annotations = dask_client.gather([mixmhcpred_future])[0]
             if mixmhc2pred_future:
                 mixmhc2pred_annotations = dask_client.gather([mixmhc2pred_future])[0]
+            if prime_future:
+                prime_annotations = dask_client.gather([prime_future])[0]
             rejoin()
 
-        return mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan
+        return mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan, prime_annotations
 
     def _initialise_annotations(self, neoantigen):
         self.annotations = NeoantigenAnnotations()
@@ -462,6 +490,16 @@ class NeoantigenAnnotator:
     ):
         mixmhc = MixMHCpred(runner, configuration)
         return mixmhc.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1)
+
+    @staticmethod
+    def run_prime(
+            runner: Runner,
+            configuration: DependenciesConfiguration,
+            neoantigen: Neoantigen,
+            patient: Patient,
+    ):
+        prime = Prime(runner, configuration)
+        return prime.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1)
 
     @staticmethod
     def run_mixmhc2pred(
