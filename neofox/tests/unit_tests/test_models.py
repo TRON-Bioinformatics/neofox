@@ -591,12 +591,6 @@ class ModelConverterTest(TestCase):
             ],
         )
 
-    def test_parse_mhc_with_3_digits_in_second_place(self):
-        mhc = MhcParser.parse_mhc_allele("B15:228")
-        self.assertEqual("B", mhc.gene)
-        self.assertEqual("15", mhc.group)
-        self.assertEqual("228", mhc.protein)
-
     def _assert_isoforms(self, mhc2):
         for isoform in mhc2.isoforms:
             if mhc2.name == Mhc2Name.DR:
