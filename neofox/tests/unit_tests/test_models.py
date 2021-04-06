@@ -364,10 +364,10 @@ class ModelConverterTest(TestCase):
             [
                 "HLA-A*01:01",
                 "HLA-A*01:02",
-                "HLA-B*01:01",
-                "HLA-B*01:02",
-                "HLA-C*01:01",
+                "HLA-B*07:02",
+                "HLA-B*07:03",
                 "HLA-C*01:02",
+                "HLA-C*01:03",
             ], self.hla_database
         )
         self.assertEqual(3, len(mhc1s))
@@ -379,11 +379,11 @@ class ModelConverterTest(TestCase):
         mhc1s = ModelConverter.parse_mhc1_alleles(
             [
                 "HLA-A*01:01",
-                "HLA-A01:01",
-                "HLA-B*01:01",
-                "HLA-B*01:01",
-                "HLA-C*01:01",
-                "HLA-C*01:01",
+                "HLA-A*01:01",
+                "HLA-B*07:02",
+                "HLA-B*07:02",
+                "HLA-C*01:02",
+                "HLA-C*01:02",
             ], self.hla_database
         )
         self.assertEqual(3, len(mhc1s))
@@ -393,7 +393,7 @@ class ModelConverterTest(TestCase):
 
     def test_parse_mhc1_hemizygous_alleles(self):
         mhc1s = ModelConverter.parse_mhc1_alleles(
-            ["HLA-A*01:01", "HLA-B*01:01", "HLA-C*01:01"], self.hla_database
+            ["HLA-A*01:01", "HLA-B*07:02", "HLA-C*01:02"], self.hla_database
         )
         self.assertEqual(3, len(mhc1s))
         for mhc1 in mhc1s:
@@ -457,14 +457,14 @@ class ModelConverterTest(TestCase):
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:02",
-                "HLA-DPA1*01:01",
-                "HLA-DPA1*01:02",
-                "HLA-DPB1*01:01",
-                "HLA-DPB1*01:02",
+                "HLA-DPA1*01:03",
+                "HLA-DPA1*01:04",
+                "HLA-DPB1*02:01",
+                "HLA-DPB1*02:02",
                 "HLA-DQA1*01:01",
                 "HLA-DQA1*01:02",
-                "HLA-DQB1*01:01",
-                "HLA-DQB1*01:02",
+                "HLA-DQB1*02:01",
+                "HLA-DQB1*02:02",
             ],
             self.hla_database
         )
@@ -482,14 +482,14 @@ class ModelConverterTest(TestCase):
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPB1*01:01",
-                "HLA-DPB1*01:01",
+                "HLA-DPA1*01:03",
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*02:01",
+                "HLA-DPB1*02:01",
                 "HLA-DQA1*01:01",
                 "HLA-DQA1*01:01",
-                "HLA-DQB1*01:01",
-                "HLA-DQB1*01:01",
+                "HLA-DQB1*02:01",
+                "HLA-DQB1*02:01",
             ],
             self.hla_database
         )
@@ -506,10 +506,10 @@ class ModelConverterTest(TestCase):
         mhc2s = ModelConverter.parse_mhc2_alleles(
             [
                 "HLA-DRB1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPB1*01:01",
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*02:01",
                 "HLA-DQA1*01:01",
-                "HLA-DQB1*01:01",
+                "HLA-DQB1*02:01",
             ],
             self.hla_database
         )
@@ -527,14 +527,14 @@ class ModelConverterTest(TestCase):
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPB1*01:01",
-                "HLA-DPB1*01:02",
+                "HLA-DPA1*01:03",
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*02:01",
+                "HLA-DPB1*02:02",
                 "HLA-DQA1*01:01",
                 "HLA-DQA1*01:01",
-                "HLA-DQB1*01:01",
-                "HLA-DQB1*01:02",
+                "HLA-DQB1*02:01",
+                "HLA-DQB1*02:02",
             ],
             self.hla_database
         )

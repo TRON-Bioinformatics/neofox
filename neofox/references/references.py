@@ -247,3 +247,6 @@ class HlaDatabase:
             return values[0] + ":" + values[1]
         else:
             return None
+
+    def exists(self, gene, group, protein):
+        return "{gene}*{group}:{protein}".format(gene=gene, group=group, protein=protein) in self.alleles
