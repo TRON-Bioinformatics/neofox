@@ -25,7 +25,7 @@ from neofox.model.wrappers import get_mhc2_isoform_name
 
 
 HLA_ALLELE_PATTERN = re.compile(
-    r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})[:|_]([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
+    r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})[:|_]?([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
 )
 HLA_MOLECULE_PATTERN = re.compile(
     r"(?:HLA-)?((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_][0-9]{2,})[-|_]{1,2}"
