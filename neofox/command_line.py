@@ -18,6 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
 from typing import Tuple, List
+
+import dotenv
 from logzero import logger
 import neofox
 from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
@@ -26,7 +28,7 @@ from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
-
+from neofox.references.references import ReferenceFolder, HlaDatabase
 
 epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
          "TRON – Translational Oncology at the University Medical Center of the " \
@@ -157,9 +159,14 @@ def neofox_cli():
         # makes sure that the output folder exists
         os.makedirs(output_folder, exist_ok=True)
 
+        # loads configuration
+        if config:
+            dotenv.load_dotenv(config, override=True)
+        reference_folder = ReferenceFolder()
+
         # reads the input data
         neoantigens, patients, external_annotations = _read_data(
-            candidate_file, json_file, patients_data, patient_id
+            candidate_file, json_file, patients_data, patient_id, reference_folder.get_hla_database()
         )
 
         # run annotations
@@ -170,7 +177,7 @@ def neofox_cli():
             work_folder=output_folder,
             output_prefix=output_prefix,
             num_cpus=num_cpus,
-            configuration_file=config,
+            reference_folder=reference_folder,
         ).get_annotations(output_folder)
         # combine neoantigen feature annotations and potential user-specific external annotation
         neoantigen_annotations = _combine_features_with_external_annotations(
@@ -194,10 +201,10 @@ def neofox_cli():
 
 
 def _read_data(
-    candidate_file, json_file, patients_data, patient_id
+    candidate_file, json_file, patients_data, patient_id, hla_database: HlaDatabase
 ) -> Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # parse patient data
-    patients = ModelConverter.parse_patients_file(patients_data)
+    patients = ModelConverter.parse_patients_file(patients_data, hla_database)
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(

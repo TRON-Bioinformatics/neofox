@@ -17,8 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
-
-import neofox
+import pkg_resources
+import neofox.tests
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
@@ -28,7 +28,7 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
 from neofox.references.references import (
     ReferenceFolder,
     AvailableAlleles,
-    DependenciesConfiguration,
+    DependenciesConfiguration, HlaDatabase,
 )
 
 
@@ -66,6 +66,7 @@ class FakeBestAndMultipleBinder(BestAndMultipleBinder):
 
 
 class FakeAvailableAlleles(AvailableAlleles):
+
     def __init__(self, available_mch_i=[], available_mch_ii=[]):
         self.available_mhc_i = available_mch_i
         self.available_mhc_ii = available_mch_ii
@@ -75,3 +76,10 @@ class FakeAvailableAlleles(AvailableAlleles):
 
     def get_available_mhc_ii(self):
         return self.available_mhc_ii
+
+
+class FakeHlaDatabase(HlaDatabase):
+
+    def __init__(self):
+        super().__init__(hla_database_filename=pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/hla_database.txt"))

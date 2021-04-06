@@ -1,15 +1,11 @@
 import unittest
-
-import pkg_resources
-import neofox.tests
-from neofox.references.references import HlaDatabase
+from neofox.tests.fake_classes import FakeHlaDatabase
 
 
 class TestHlaDatabase(unittest.TestCase):
 
     def test_hla_database(self):
-        hla_database = HlaDatabase(hla_database_filename=pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/hla_database.txt"))
+        hla_database = FakeHlaDatabase()
         self.assertIsNotNone(hla_database)
         self.assertIsNotNone(hla_database.alleles)
         self.assertTrue(len(hla_database.alleles) > 1000)

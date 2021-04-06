@@ -11,23 +11,27 @@ from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mutation, Mhc2Name, Mhc2Isoform, \
     MhcAllele
 from neofox.model.wrappers import get_mhc2_isoform_name
+from neofox.references.references import HlaDatabase
 
 
 class PatientProvider(Provider):
 
-    def __init__(self, generator, mhc1_alleles, mhc2_alleles):
+    def __init__(self, generator, mhc1_alleles, mhc2_alleles, hla_database: HlaDatabase):
         Provider.__init__(self, generator)
+        self.hla_database = hla_database
+        self.mhc_parser = MhcParser(hla_database)
         # gets available alleles from netmhcpan and netmhc2pan
         self.available_mhc1_alleles = self.load_mhc1_alleles(mhc1_alleles)
         self.available_mhc2_isoforms = self.load_mhc2_isoforms(mhc2_alleles)
         # gets available tumor types
         self.available_tumor_types = ExpressionAnnotator().cohort_indices.keys()
 
+
     def load_mhc1_alleles(self, available_alleles: List[str]):
         mhc_alleles = []
         for a in available_alleles:
             try:
-                parsed_allele = MhcParser.parse_mhc_allele(a)
+                parsed_allele = self.mhc_parser.parse_mhc_allele(a)
             except AssertionError:
                 continue
             mhc_alleles.append(parsed_allele)
@@ -49,11 +53,11 @@ class PatientProvider(Provider):
         # infers gene, group and protein from the name
         isoform = isoform.strip("HLA-")
         if "DQA" in isoform or "DPA" in isoform:
-            alpha_chain = MhcParser.parse_mhc_allele(isoform.split("-")[0])
-            beta_chain = MhcParser.parse_mhc_allele(isoform.split("-")[1])
+            alpha_chain = self.mhc_parser.parse_mhc_allele(isoform.split("-")[0])
+            beta_chain = self.mhc_parser.parse_mhc_allele(isoform.split("-")[1])
         else:
             alpha_chain = MhcAllele()
-            beta_chain = MhcParser.parse_mhc_allele(isoform)
+            beta_chain = self.mhc_parser.parse_mhc_allele(isoform)
         # builds the final allele representation and validates it just in case
         name = get_mhc2_isoform_name(alpha_chain, beta_chain)
         return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
@@ -79,14 +83,16 @@ class PatientProvider(Provider):
                     mhc1=ModelConverter.parse_mhc1_alleles(
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.A), unique=True, length=2) +
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.B), unique=True, length=2) +
-                        self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.C), unique=True, length=2)
+                        self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.C), unique=True, length=2),
+                        self.hla_database
                     ),
                     mhc2=ModelConverter.parse_mhc2_alleles(
                         [i.alpha_chain.name for i in dp_isoforms] +
                         [i.beta_chain.name for i in dp_isoforms] +
                         [i.alpha_chain.name for i in dq_isoforms] +
                         [i.beta_chain.name for i in dq_isoforms] +
-                        [i.beta_chain.name for i in dr_isoforms]
+                        [i.beta_chain.name for i in dr_isoforms],
+                        self.hla_database
                     )
                 )
                 patient = ModelValidator.validate_patient(patient)
