@@ -50,7 +50,8 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
-        self.patients = ModelConverter.parse_patients_file(patients_file)
+        self.hla_database = self.references.get_hla_database()
+        self.patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(
             input_file
         )
@@ -359,7 +360,7 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         patient_id = "Pt29"
         return neoantigens, patients, patient_id
 

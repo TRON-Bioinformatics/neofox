@@ -21,7 +21,6 @@ import neofox.tests.integration_tests.integration_test_tools as integration_test
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
-from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO
 
 
 class TestNetMhcPanPredictor(TestCase):
@@ -29,6 +28,8 @@ class TestNetMhcPanPredictor(TestCase):
         references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
         self.available_alleles = references.get_available_alleles()
+        self.test_mhc_one = integration_test_tools.get_mhc_one_test(references.get_hla_database())
+        self.test_mhc_two = integration_test_tools.get_mhc_two_test(references.get_hla_database())
 
     def test_netmhcpan_epitope_iedb(self):
         netmhcpan_predictor = NetMhcPanPredictor(
@@ -38,7 +39,7 @@ class TestNetMhcPanPredictor(TestCase):
         mutated = "NLVPMVATV"
         predictions = netmhcpan_predictor.mhc_prediction(
             sequence=mutated,
-            mhc_alleles=TEST_MHC_ONE,
+            mhc_alleles=self.test_mhc_one,
             set_available_mhc=self.available_alleles.get_available_mhc_i(),
         )
         self.assertEqual(18, len(predictions))
@@ -50,7 +51,7 @@ class TestNetMhcPanPredictor(TestCase):
         mutated = "NLVP"
         predictions = netmhcpan_predictor.mhc_prediction(
             sequence=mutated,
-            mhc_alleles=TEST_MHC_ONE,
+            mhc_alleles=self.test_mhc_one,
             set_available_mhc=self.available_alleles.get_available_mhc_i(),
         )
         self.assertEqual(0, len(predictions))
@@ -63,7 +64,7 @@ class TestNetMhcPanPredictor(TestCase):
         mutated = "XTTDSWGKF"
         predictions = netmhcpan_predictor.mhc_prediction(
             sequence=mutated,
-            mhc_alleles=TEST_MHC_ONE,
+            mhc_alleles=self.test_mhc_one,
             set_available_mhc=self.available_alleles.get_available_mhc_i(),
         )
         self.assertEqual(18, len(predictions))
@@ -77,7 +78,7 @@ class TestNetMhcPanPredictor(TestCase):
         predictions = netmhc2pan_predictor.mhcII_prediction(
             sequence=mutated,
             mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
-                TEST_MHC_TWO
+                self.test_mhc_two
             ),
         )
         self.assertEqual(10, len(predictions))
@@ -97,7 +98,7 @@ class TestNetMhcPanPredictor(TestCase):
         predictions = netmhc2pan_predictor.mhcII_prediction(
             sequence=mutated,
             mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
-                TEST_MHC_TWO
+                self.test_mhc_two
             ),
         )
         self.assertEqual(0, len(predictions))
@@ -111,7 +112,7 @@ class TestNetMhcPanPredictor(TestCase):
         predictions = netmhc2pan_predictor.mhcII_prediction(
             sequence=mutated,
             mhc_alleles=netmhc2pan_predictor.generate_mhc2_alelle_combinations(
-                TEST_MHC_TWO
+                self.test_mhc_two
             ),
         )
         self.assertEqual(40, len(predictions))

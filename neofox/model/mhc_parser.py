@@ -22,7 +22,7 @@ import re
 from logzero import logger
 
 from neofox.model.wrappers import get_mhc2_isoform_name
-
+from neofox.references.references import HlaDatabase
 
 HLA_ALLELE_PATTERN = re.compile(
     r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})[:|_]?([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
@@ -36,8 +36,10 @@ HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_][0-9]{
 
 class MhcParser:
 
-    @staticmethod
-    def parse_mhc_allele(allele: str) -> MhcAllele:
+    def __init__(self, hla_database: HlaDatabase):
+        self.hla_database = hla_database
+
+    def parse_mhc_allele(self, allele: str) -> MhcAllele:
         # infers gene, group and protein from the name
         match = HLA_ALLELE_PATTERN.match(allele)
         assert match is not None, "Allele does not match HLA allele pattern {}".format(

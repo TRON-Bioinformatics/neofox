@@ -3,30 +3,34 @@ import unittest
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import MhcAllele
+from neofox.tests.fake_classes import FakeHlaDatabase
 
 
-class MyTestCase(unittest.TestCase):
+class TestMhcParser(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.mhc_parser = MhcParser(FakeHlaDatabase())
 
     def test_parse_mhc_with_3_digits_in_second_place(self):
-        mhc = MhcParser.parse_mhc_allele("B15:228")
+        mhc = self.mhc_parser.parse_mhc_allele("B15:228")
         self.assertEqual("B", mhc.gene)
         self.assertEqual("15", mhc.group)
         self.assertEqual("228", mhc.protein)
 
     def test_parse_mhc_no_separator_with_3_digits_in_second_place(self):
-        mhc = MhcParser.parse_mhc_allele("B15228")
+        mhc = self.mhc_parser.parse_mhc_allele("B15228")
         self.assertEqual("B", mhc.gene)
         self.assertEqual("15", mhc.group)
         self.assertEqual("228", mhc.protein)
 
     def test_parse_mhc2_with_3_digits_in_first_place(self):
-        mhc = MhcParser.parse_mhc_allele("DPB1104:01")
+        mhc = self.mhc_parser.parse_mhc_allele("DPB1104:01")
         self.assertEqual("DPB1", mhc.gene)
         self.assertEqual("104", mhc.group)
         self.assertEqual("01", mhc.protein)
 
     def test_parse_mhc2_no_separator_with_3_digits_in_first_place(self):
-        mhc = MhcParser.parse_mhc_allele("DPB110401")
+        mhc = self.mhc_parser.parse_mhc_allele("DPB110401")
         self.assertEqual("DPB1", mhc.gene)
         self.assertEqual("104", mhc.group)
         self.assertEqual("01", mhc.protein)
