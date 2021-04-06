@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from neofox.exceptions import NeofoxDataValidationException
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import (
     Neoantigen,
     Patient,
@@ -101,7 +102,7 @@ class TestModelValidator(TestCase):
         )
 
     def _assert_allele_validation(self, allele, expected):
-        validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
+        validated_allele = MhcParser.validate_mhc_allele_representation(allele)
         self.assertEqual(expected, validated_allele.name)
 
     def test_mhc_ii_allele_validation(self):
@@ -167,7 +168,7 @@ class TestModelValidator(TestCase):
     def _assert_invalid_allele(self, allele):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelValidator.validate_mhc_allele_representation,
+            MhcParser.validate_mhc_allele_representation,
             allele,
         )
 

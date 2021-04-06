@@ -2,6 +2,7 @@
 .idea
 venv-win
 venv
+venv37
 .env
 dist
 build/*

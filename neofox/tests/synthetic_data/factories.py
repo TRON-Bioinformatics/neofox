@@ -7,6 +7,7 @@ from faker.providers.address import Provider
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.model.conversion import ModelConverter, ModelValidator
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mutation, Mhc2Name, Mhc2Isoform, \
     MhcAllele
 from neofox.model.wrappers import get_mhc2_isoform_name
@@ -26,7 +27,7 @@ class PatientProvider(Provider):
         mhc_alleles = []
         for a in available_alleles:
             try:
-                parsed_allele = ModelConverter.parse_mhc_allele(a)
+                parsed_allele = MhcParser.parse_mhc_allele(a)
             except AssertionError:
                 continue
             mhc_alleles.append(parsed_allele)
@@ -48,11 +49,11 @@ class PatientProvider(Provider):
         # infers gene, group and protein from the name
         isoform = isoform.strip("HLA-")
         if "DQA" in isoform or "DPA" in isoform:
-            alpha_chain = ModelConverter.parse_mhc_allele(isoform.split("-")[0])
-            beta_chain = ModelConverter.parse_mhc_allele(isoform.split("-")[1])
+            alpha_chain = MhcParser.parse_mhc_allele(isoform.split("-")[0])
+            beta_chain = MhcParser.parse_mhc_allele(isoform.split("-")[1])
         else:
             alpha_chain = MhcAllele()
-            beta_chain = ModelConverter.parse_mhc_allele(isoform)
+            beta_chain = MhcParser.parse_mhc_allele(isoform)
         # builds the final allele representation and validates it just in case
         name = get_mhc2_isoform_name(alpha_chain, beta_chain)
         return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)

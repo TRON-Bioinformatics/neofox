@@ -23,6 +23,7 @@ from neofox.exceptions import NeofoxDataValidationException
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter, EXTERNAL_ANNOTATIONS_NAME
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import (
     Neoantigen,
     Mutation,
@@ -186,7 +187,6 @@ class ModelConverterTest(TestCase):
             expected_number_external_annotations=2,
             external_annotations=external_annotations,
         )
-
 
     def test_json_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(
@@ -592,7 +592,7 @@ class ModelConverterTest(TestCase):
         )
 
     def test_parse_mhc_with_3_digits_in_second_place(self):
-        mhc = ModelConverter.parse_mhc_allele("B15:228")
+        mhc = MhcParser.parse_mhc_allele("B15:228")
         self.assertEqual("B", mhc.gene)
         self.assertEqual("15", mhc.group)
         self.assertEqual("228", mhc.protein)

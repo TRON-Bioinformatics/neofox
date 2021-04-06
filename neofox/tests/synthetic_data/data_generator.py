@@ -5,6 +5,7 @@ from faker import Faker
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.model.conversion import ModelConverter
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Neoantigen, Mhc2Isoform, MhcAllele
 from neofox.model.wrappers import get_mhc2_isoform_name
 from neofox.references.references import ReferenceFolder, HOMO_SAPIENS_FASTA, DependenciesConfiguration
@@ -35,7 +36,7 @@ class DataGenerator:
         mhc_alleles = []
         for a in available_alleles:
             try:
-                parsed_allele = ModelConverter.parse_mhc_allele(self.dirty_fix_mhc_representation(a))
+                parsed_allele = MhcParser.parse_mhc_allele(self.dirty_fix_mhc_representation(a))
             except AssertionError:
                 continue
             mhc_alleles.append(parsed_allele.name)
@@ -57,13 +58,13 @@ class DataGenerator:
         # infers gene, group and protein from the name
         isoform = isoform.strip("HLA-")
         if "DQA" in isoform or "DPA" in isoform:
-            alpha_chain = ModelConverter.parse_mhc_allele(
+            alpha_chain = MhcParser.parse_mhc_allele(
                 self.dirty_fix_mhc_representation(isoform.split("-")[0]) if fix else isoform.split("__")[0])
-            beta_chain = ModelConverter.parse_mhc_allele(
+            beta_chain = MhcParser.parse_mhc_allele(
                 self.dirty_fix_mhc_representation(isoform.split("-")[1]) if fix else isoform.split("__")[1])
         else:
             alpha_chain = MhcAllele()
-            beta_chain = ModelConverter.parse_mhc_allele(
+            beta_chain = MhcParser.parse_mhc_allele(
                 self.dirty_fix_mhc_representation(isoform) if fix else isoform)
         # builds the final allele representation and validates it just in case
         name = get_mhc2_isoform_name(alpha_chain, beta_chain)
