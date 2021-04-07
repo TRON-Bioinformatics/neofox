@@ -34,6 +34,7 @@ class NeofoxReferenceInstaller(object):
         self._set_netmhc2pan_alleles()
         self._set_iedb()
         self._set_proteome()
+        self._set_ipd_imgt_hla_database()
         if self.install_r_dependencies:
             self._install_r_dependencies()
         else:
