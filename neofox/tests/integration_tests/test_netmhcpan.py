@@ -73,7 +73,7 @@ class TestNetMhcPanPredictor(TestCase):
 
     def test_netmhc2pan_epitope_iedb(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
         )
         # this is an epitope from IEDB of length 15
         mutated = "ENPVVHFFKNIVTPR"
@@ -93,7 +93,7 @@ class TestNetMhcPanPredictor(TestCase):
 
     def test_netmhc2pan_too_small_epitope(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
         )
         # this is an epitope from IEDB of length 15
         mutated = "ENPVVH"
@@ -107,7 +107,7 @@ class TestNetMhcPanPredictor(TestCase):
 
     def test_netmhc2pan_rare_aminoacid(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
         )
         # this is an epitope from IEDB of length 15
         mutated = "XTTDSWGKFDDDDDDDDD"
