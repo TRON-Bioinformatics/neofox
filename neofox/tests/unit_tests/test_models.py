@@ -23,7 +23,6 @@ from neofox.exceptions import NeofoxDataValidationException
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter, EXTERNAL_ANNOTATIONS_NAME
-from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import (
     Neoantigen,
     Mutation,
@@ -452,6 +451,19 @@ class ModelConverterTest(TestCase):
             self.hla_database
         )
 
+    def test_parse_mhc1_non_existing_allele_does_not_fail(self):
+        mhc1s = ModelConverter.parse_mhc1_alleles(
+            [
+                "HLA-A*01:01",
+                "HLA-A*01:01",
+                "HLA-B*999:01",     # this one does not exist
+                "HLA-B*07:02",
+                "HLA-C*01:02",
+                "HLA-C*01:02",
+            ], self.hla_database
+        )
+        self.assertEqual(3, len(mhc1s))
+
     def test_parse_mhc2_heterozygous_alleles(self):
         mhc2s = ModelConverter.parse_mhc2_alleles(
             [
@@ -605,6 +617,19 @@ class ModelConverterTest(TestCase):
             ],
             self.hla_database
         )
+
+    def test_parse_mhc2_non_existing_allele_does_not_fail(self):
+        mhc2s = ModelConverter.parse_mhc2_alleles(
+            [
+                "HLA-DRB1*999:01",      # this one does not exist
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*01:01",
+                "HLA-DQA1*01:01",
+                "HLA-DQB1*02:01",
+            ],
+            self.hla_database
+        )
+        self.assertEqual(3, len(mhc2s))
 
     def _assert_isoforms(self, mhc2):
         for isoform in mhc2.isoforms:

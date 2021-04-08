@@ -63,9 +63,10 @@ class MhcParser:
             group = match.group(2)
             protein = match.group(3)
 
-        # controls for existence in the HLA database
-        assert self.hla_database.exists(gene, group, protein), \
-            "Allele {} does not exist in the HLA database".format(allele)
+        # controls for existence in the HLA database and warns the user
+        if not self.hla_database.exists(gene, group, protein):
+            logger.warning("Allele {} does not exist in the HLA database".format(allele))
+
         # builds a normalized representation of the allele
         name = "HLA-{gene}*{serotype}:{protein}".format(
             gene=gene, serotype=group, protein=protein
