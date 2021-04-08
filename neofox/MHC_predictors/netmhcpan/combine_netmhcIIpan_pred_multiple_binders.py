@@ -24,18 +24,18 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
+from neofox.helpers.runner import Runner
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation
 from neofox.model.wrappers import AnnotationFactory
+from neofox.references.references import DependenciesConfiguration
 
 
 class BestAndMultipleBinderMhcII:
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
+        self.mhc_parser = mhc_parser
         self._initialise()
 
     def _initialise(self):
@@ -99,7 +99,7 @@ class BestAndMultipleBinderMhcII:
         # mutation
         self._initialise()
         netmhc2pan = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(
             mhc2_alleles_patient
@@ -160,12 +160,15 @@ class BestAndMultipleBinderMhcII:
                 )
 
     @staticmethod
-    def _get_only_available_combinations(allele_combinations, set_available_mhc):
+    def _get_only_available_combinations(allele_combinations: List[Mhc2Isoform], set_available_mhc: List[str]) -> List[str]:
+
+        # parses isoforms into internal representation
+        parsed_allele_combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(allele_combinations)
         patients_available_alleles = list(
-            set(allele_combinations).intersection(set(set_available_mhc))
+            set(parsed_allele_combinations).intersection(set(set_available_mhc))
         )
         patients_not_available_alleles = list(
-            set(allele_combinations).difference(set(set_available_mhc))
+            set(parsed_allele_combinations).difference(set(set_available_mhc))
         )
         if len(patients_not_available_alleles) > 0:
             logger.warning(
@@ -265,10 +268,13 @@ class BestAndMultipleBinderMhcII:
 
     @staticmethod
     def _get_sorted_epitopes_mhc2(
-        hetero_hemizygous_alleles,
-        homozygous_alleles,
+        hetero_hemizygous_alleles: List[Mhc2Isoform],
+        homozygous_alleles: List[Mhc2Isoform],
         predictions: List[PredictedEpitope],
     ) -> List[PredictedEpitope]:
+
+        hetero_hemizygous_allele_names = [a.name for a in hetero_hemizygous_alleles]
+        homozygous_allele_names = [a.name for a in homozygous_alleles]
 
         # groups epitopes by allele
         epitopes_by_allele = {}
@@ -284,13 +290,13 @@ class BestAndMultipleBinderMhcII:
             best_epitope = epitopes[0]
             num_repetitions = 0
             if (
-                best_epitope.hla in hetero_hemizygous_alleles
-                or best_epitope.hla in hetero_hemizygous_alleles
+                best_epitope.hla in hetero_hemizygous_allele_names
+                or best_epitope.hla in hetero_hemizygous_allele_names
             ):
                 # adds the epitope once if alleles heterozygous
                 num_repetitions = 1
             if (
-                best_epitope.hla in homozygous_alleles
+                best_epitope.hla in homozygous_allele_names
             ):
                 # adds the epitope twice if one allele is homozygous
                 num_repetitions = 2
@@ -299,27 +305,26 @@ class BestAndMultipleBinderMhcII:
             )
         return best_epitopes_per_allele
 
+    @staticmethod
     def extract_best_epitope_per_mhc2_alelle(
-            self, predictions: List[PredictedEpitope], mhc_isoforms: List[Mhc2]
+            predictions: List[PredictedEpitope], mhc_isoforms: List[Mhc2]
     ) -> List[PredictedEpitope]:
         """
         This function returns the predicted epitope with the lowest binding score for each patient allele,
         considering homozygosity
         """
-        netmhc2pan = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration
-        )
         homozygous_alleles = BestAndMultipleBinderMhcII._get_homozygous_mhc2_alleles(
             mhc_isoforms
         )
-        homozygous_alleles = netmhc2pan.generate_mhc2_alelle_combinations(homozygous_alleles)
-        homozygous_alleles = list(set(homozygous_alleles))
+        homozygous_alleles = NetMhcIIPanPredictor.generate_mhc2_alelle_combinations(homozygous_alleles)
+        # removes duplicated homozygous combinations
+        homozygous_alleles = list({a.name: a for a in homozygous_alleles}.values())
         hetero_hemizygous_alleles = (
             BestAndMultipleBinderMhcII._get_heterozygous_or_hemizygous_mhc2_alleles(
                 mhc_isoforms
             )
         )
-        hetero_hemizygous_alleles = netmhc2pan.generate_mhc2_alelle_combinations(hetero_hemizygous_alleles)
+        hetero_hemizygous_alleles = NetMhcIIPanPredictor.generate_mhc2_alelle_combinations(hetero_hemizygous_alleles)
         return BestAndMultipleBinderMhcII._get_sorted_epitopes_mhc2(
             hetero_hemizygous_alleles, homozygous_alleles, predictions
         )

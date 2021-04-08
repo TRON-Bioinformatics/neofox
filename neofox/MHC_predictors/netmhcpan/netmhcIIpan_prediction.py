@@ -25,31 +25,31 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     AbstractNetMhcPanPredictor,
     PredictedEpitope,
 )
-from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name
+from neofox.helpers.runner import Runner
+from neofox.model.mhc_parser import MhcParser
+from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name, Mhc2Isoform, Mhc2GeneName
+from neofox.references.references import DependenciesConfiguration
 
 
 class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
+        self.mhc_parser = mhc_parser
 
-    def generate_mhc2_alelle_combinations(self, mhc_alleles: List[Mhc2]) -> List[str]:
+    @staticmethod
+    def generate_mhc2_alelle_combinations(mhc_alleles: List[Mhc2]) -> List[Mhc2Isoform]:
         """given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
         dp_dq_isoforms = [
-            self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
+            m
             for mhc in mhc_alleles
             if mhc.name != Mhc2Name.DR
             for m in mhc.isoforms
         ]
         dr_isoforms = [
-            self._represent_drb1_allele(m.beta_chain)
+            m
             for mhc in mhc_alleles
             if mhc.name == Mhc2Name.DR
             for m in mhc.isoforms
@@ -72,6 +72,14 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             group_b=mhc_b_allele.group,
             protein_b=mhc_b_allele.protein,
         )
+
+    def represent_mhc2_isoforms(isoforms: List[Mhc2Isoform]) -> List[str]:
+        return [
+            NetMhcIIPanPredictor._represent_drb1_allele(i.beta_chain)
+            if i.beta_chain.gene == Mhc2GeneName.DRB1.name
+            else NetMhcIIPanPredictor._represent_dp_and_dq_allele(i.alpha_chain, i.beta_chain)
+            for i in isoforms
+        ]
 
     def mhcII_prediction(
         self, mhc_alleles: List[str], sequence
@@ -108,7 +116,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=line[1],
+                        hla=self.mhc_parser.parse_mhc2_isoform(line[1]).name,
                         peptide=line[2],
                         affinity_score=float(line[8]),
                         rank=float(line[9]),

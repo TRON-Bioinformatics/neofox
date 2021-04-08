@@ -154,7 +154,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -182,10 +182,10 @@ class TestBestMultipleBinder(TestCase):
 
     def test_phbr2(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         netmhc2pan = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         mutation = ModelValidator._validate_mutation(
             Mutation(
