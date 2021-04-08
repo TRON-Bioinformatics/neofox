@@ -17,10 +17,8 @@ class TestMhcParser(unittest.TestCase):
         self.assertEqual("15", mhc.group)
         self.assertEqual("228", mhc.protein)
 
-    def test_parse_mhc_non_existing_in_hla_database(self):
-        self.assertRaises(AssertionError,
-                          self.mhc_parser.parse_mhc_allele,
-                          "B152:28")
+    def test_parse_mhc_non_existing_in_hla_database_does_not_fail(self):
+        self.mhc_parser.parse_mhc_allele("B152:28")
 
     def test_parse_mhc_no_separator_with_3_digits_in_second_place(self):
         mhc = self.mhc_parser.parse_mhc_allele("B15228")
@@ -34,10 +32,8 @@ class TestMhcParser(unittest.TestCase):
         self.assertEqual("104", mhc.group)
         self.assertEqual("01", mhc.protein)
 
-    def test_parse_mhc2_non_existing_in_hla_database(self):
-        self.assertRaises(AssertionError,
-                          self.mhc_parser.parse_mhc_allele,
-                          "DPB110:401")
+    def test_parse_mhc2_non_existing_in_hla_database_does_not_fail(self):
+        self.mhc_parser.parse_mhc_allele("DPB110:401")
 
     def test_parse_mhc2_no_separator_with_3_digits_in_first_place(self):
         mhc = self.mhc_parser.parse_mhc_allele("DPB110401")
