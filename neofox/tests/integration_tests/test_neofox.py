@@ -26,8 +26,10 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import NeoantigenAnnotations
 from neofox.neofox import NeoFox
+from neofox.tests.fake_classes import FakeHlaDatabase
 from neofox.tests.integration_tests import integration_test_tools
 import pandas as pd
 from logzero import logger
@@ -50,7 +52,8 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
-        self.patients = ModelConverter.parse_patients_file(patients_file)
+        self.hla_database = self.references.get_hla_database()
+        self.patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(
             input_file
         )
@@ -347,6 +350,24 @@ class TestNeofox(TestCase):
             if p.identifier == patient_id:
                 self.assertTrue(p.is_rna_available)
 
+    def test_patient_with_non_existing_allele_does_not_crash(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for p in patients:
+            # sets one MHC I allele to a non existing allele
+            allele = p.mhc1[0].alleles[0]
+            allele.group = "999"
+            allele.name = None
+            allele.full_name = None
+            p.mhc1[0].alleles[0] = MhcParser(FakeHlaDatabase()).validate_mhc_allele_representation(allele)
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        )
+        neofox.get_annotations()
+
     def _get_test_data(self):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_model_file.txt"
@@ -359,7 +380,7 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         patient_id = "Pt29"
         return neoantigens, patients, patient_id
 

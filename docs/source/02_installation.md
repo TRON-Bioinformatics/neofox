@@ -110,9 +110,9 @@ tar -xvf v1.2.tar.gz
 export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 
-### Configure references
+### Install references
 
-For building the reference data we will need `makeblastdb`, set the environment variable required for building the reference:
+For installing the reference data we will need `makeblastdb`, set the environment variable required for building the reference:
 
 ```
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
@@ -120,7 +120,14 @@ export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
 
 netMhcPan, netMhcIIPan and Rscript are also required to install the references, see above.
 
-Run the following to configure nefox:
+Optionally, you can provide the URL to the IPD-IMGT/HLA database CSV table, see releases here https://www.ebi.ac.uk/ipd/imgt/hla/docs/release.html. 
+If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+
+```
+export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+```
+
+Run the following to install NeoFox references:
 ```
 neofox-configure --reference-folder /your/neofox/folder
 ```

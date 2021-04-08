@@ -25,7 +25,6 @@ from neofox.model.neoantigen import Mutation
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.published_features.prime import Prime
 from neofox.helpers.runner import Runner
-from neofox.tests import TEST_MHC_ONE
 
 
 class TestPrime(TestCase):
@@ -35,6 +34,8 @@ class TestPrime(TestCase):
         self.prime = Prime(
             runner=self.runner, configuration=self.configuration
         )
+        self.hla_database = self.references.get_hla_database()
+        self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
 
 
     def test_prime_epitope(self):
@@ -42,7 +43,7 @@ class TestPrime(TestCase):
             Mutation(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
         )
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertEquals("LVTDQTRL", best_peptide)
         self.assertAlmostEqual(0.163810, best_score, delta=0.00001)
@@ -54,7 +55,7 @@ class TestPrime(TestCase):
             Mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         )
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_score)
@@ -66,7 +67,7 @@ class TestPrime(TestCase):
             Mutation(mutated_xmer="NNNNNNNNN", wild_type_xmer="NNNNNNNNN")
         )
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_score)
@@ -81,7 +82,8 @@ class TestPrime(TestCase):
             Mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         )
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
-            mutation=mutation, mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"])
+            mutation=mutation,
+            mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database)
         )
         self.assertEqual('SIYGGLVLI', best_peptide)
         self.assertEqual(0.186328, best_score)
@@ -94,7 +96,7 @@ class TestPrime(TestCase):
             Mutation(mutated_xmer="UTTDSWGKF", wild_type_xmer="UTTDSDGKF")
         )
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_rank)

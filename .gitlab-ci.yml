@@ -43,7 +43,19 @@ before_script:
   - source venv/bin/activate
 
 stages:
+  - validation
   - test
+  - deploy
+
+check_version_changes:
+  stage: validation
+  script:
+    # if the version number does not change between this branch and develop it fails
+    - git fetch origin develop
+    - if git diff origin/develop -- neofox/__init__.py | grep VERSION; then exit 0; else echo "Version needs to be increased!"; exit -1; fi
+  except:
+    - develop
+    - master
 
 test:
   stage: test
@@ -52,3 +64,13 @@ test:
     - pip uninstall -y neofox
     - pip install dist/neofox-*.whl
     - python -m unittest discover neofox.tests.unit_tests
+
+publish_package:
+  stage: deploy
+  script:
+    - pip install twine
+    - python setup.py sdist bdist_wheel
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://gitlab.rlp.net/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+  only:
+    - develop
+    - master

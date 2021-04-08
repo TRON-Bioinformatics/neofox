@@ -28,7 +28,6 @@ import neofox.tests.integration_tests.integration_test_tools as integration_test
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
-from neofox.tests import TEST_MHC_ONE, TEST_MHC_TWO
 
 
 class TestMixMHCPred(TestCase):
@@ -41,6 +40,9 @@ class TestMixMHCPred(TestCase):
         self.mixmhc2pred = MixMhc2Pred(
             runner=self.runner, configuration=self.configuration
         )
+        self.hla_database = self.references.get_hla_database()
+        self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
+        self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
 
     def test_mixmhcpred_epitope_iedb(self):
         # this is an epitope from IEDB of length 9
@@ -48,7 +50,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
         )
         best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertEquals("NLVPMVATV", best_peptide)
         self.assertAlmostEqual(0.306957, best_score, delta=0.00001)
@@ -60,7 +62,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         )
         best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_score)
@@ -72,7 +74,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="NNNNNNNNN", wild_type_xmer="NNNNNNNNN")
         )
         best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_score)
@@ -87,7 +89,8 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         )
         best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"])
+            mutation=mutation,
+            mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database)
         )
         self.assertEqual('SIYGGLVLI', best_peptide)
         self.assertEqual(0.15829400000000002, best_score)
@@ -100,7 +103,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
         )
         best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_rank)
@@ -113,7 +116,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="ENPVVHFFKNIVTPR", wild_type_xmer="ENPVVHIFKNIVTPR")
         )
         best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=TEST_MHC_TWO
+            mutation=mutation, mhc=self.test_mhc_two
         )
         self.assertEquals("NPVVHFFKNIVTPR", best_peptide)
         self.assertEquals(2.16, best_rank)
@@ -124,7 +127,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
         )
         best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=TEST_MHC_TWO
+            mutation=mutation, mhc=self.test_mhc_two
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_rank)
@@ -136,7 +139,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="ENPVVHFFKNIVTPR", wild_type_xmer="ENPVVHFFKNIVTPR")
         )
         best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=TEST_MHC_TWO
+            mutation=mutation, mhc=self.test_mhc_two
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_rank)
@@ -148,7 +151,7 @@ class TestMixMHCPred(TestCase):
             Mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
         )
         best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=TEST_MHC_ONE
+            mutation=mutation, mhc=self.test_mhc_one
         )
         self.assertIsNone(best_peptide)
         self.assertIsNone(best_rank)
@@ -170,7 +173,8 @@ class TestMixMHCPred(TestCase):
                 "HLA-DQB1*05:03",
                 "HLA-DPB1*02:01",
                 "HLA-DPB1*02:01"
-            ]
+            ],
+            self.hla_database
         )
         alleles = self.mixmhc2pred.transform_hla_ii_alleles_for_prediction(MHC_TWO_NEW)
         logger.info(alleles)

@@ -22,6 +22,7 @@ import tempfile
 import dotenv
 from Bio.Alphabet.IUPAC import IUPACData
 
+from neofox.model.conversion import ModelConverter
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
 
 
@@ -35,3 +36,33 @@ def create_temp_aminoacid_fasta_file():
     with fastafile as f:
         f.write("".join(random.choices(list(IUPACData.protein_letters), k=25)))
     return fastafile
+
+
+def get_mhc_one_test(hla_database):
+    return ModelConverter.parse_mhc1_alleles(
+        [
+            "HLA-A*24:02",
+            "HLA-A*02:01",
+            "HLA-B*15:01",
+            "HLA-B*44:02",
+            "HLA-C*07:02",
+            "HLA-C*05:01",
+        ], hla_database
+    )
+
+
+def get_mhc_two_test(hla_database):
+    return ModelConverter.parse_mhc2_alleles(
+            [
+                "HLA-DRB1*04:02",
+                "HLA-DRB1*08:01",
+                "HLA-DQA1*03:01",
+                "HLA-DQA1*04:01",
+                "HLA-DQB1*03:02",
+                "HLA-DQB1*04:02",
+                "HLA-DPA1*01:03",
+                "HLA-DPA1*02:01",
+                "HLA-DPB1*13:01",
+                "HLA-DPB1*04:01",
+            ], hla_database
+        )
