@@ -342,6 +342,7 @@ class NeoantigenAnnotator:
                     self.runner,
                     self.configuration,
                     self.available_alleles,
+                    self.mhc_parser,
                     neoantigen,
                     patient)
             if has_mhc2:
@@ -386,6 +387,7 @@ class NeoantigenAnnotator:
                     self.runner,
                     self.configuration,
                     self.available_alleles,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -457,13 +459,14 @@ class NeoantigenAnnotator:
 
     @staticmethod
     def run_netmhcpan(
-        runner: Runner,
-        configuration: DependenciesConfiguration,
-        available_alleles: AvailableAlleles,
-        neoantigen: Neoantigen,
-        patient: Patient,
+            runner: Runner,
+            configuration: DependenciesConfiguration,
+            available_alleles: AvailableAlleles,
+            mhc_parser: MhcParser,
+            neoantigen: Neoantigen,
+            patient: Patient,
     ):
-        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
+        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser)
         netmhcpan.run(
             mutation=neoantigen.mutation,
             mhc1_alleles_patient=patient.mhc1,

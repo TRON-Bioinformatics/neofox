@@ -87,7 +87,6 @@ class MhcParser:
             full_name=full_name, name=name, gene=gene, group=group, protein=protein
         )
 
-    # TODO: not used at the moment
     @staticmethod
     def parse_mhc2_isoform(isoform: str) -> Mhc2Isoform:
         # TODO: this method currently fails for netmhc2pan alleles which are like 'HLA-DQA10509-DQB10630'
