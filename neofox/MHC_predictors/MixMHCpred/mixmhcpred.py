@@ -23,7 +23,9 @@ from neofox.exceptions import NeofoxCommandException
 from pandas.errors import EmptyDataError
 
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.helpers.runner import Runner
 from neofox.model.conversion import ModelConverter
+from neofox.model.mhc_parser import MhcParser
 
 from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation
 from neofox.model.wrappers import AnnotationFactory
@@ -32,6 +34,8 @@ import pandas as pd
 import os
 from logzero import logger
 
+from neofox.references.references import DependenciesConfiguration
+
 ALLELE = "BestAllele"
 RANK = "%Rank_bestAllele"
 PEPTIDE = "Peptide"
@@ -39,14 +43,11 @@ SCORE = "Score_bestAllele"
 
 
 class MixMHCpred:
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self._load_available_alleles()
+        self.mhc_parser = mhc_parser
 
     def _load_available_alleles(self):
         """
@@ -120,7 +121,7 @@ class MixMHCpred:
                     best_peptide = best_result[PEPTIDE].iat[0]
                     best_rank = best_result[RANK].iat[0]
                     # normalize the HLA allele name
-                    best_allele = best_result[ALLELE].iat[0]
+                    best_allele = self.mhc_parser.parse_mhc_allele(best_result[ALLELE].iat[0]).name
                     best_score = best_result[SCORE].iat[0]
                 except (IndexError, KeyError):
                     logger.info("MixMHCpred returned no best result")
