@@ -31,10 +31,14 @@ from neofox.exceptions import (
     NeofoxDataValidationException,
 )
 from neofox.neofox import NeoFox
-from neofox.tests.fake_classes import FakeReferenceFolder, FakeDependenciesConfiguration
+from neofox.tests.fake_classes import FakeReferenceFolder, FakeDependenciesConfiguration, FakeHlaDatabase
 
 
 class TestNeofox(TestCase):
+
+    def setUp(self) -> None:
+        self.hla_database = FakeHlaDatabase()
+
     def test_missing_input_raises_exception(self):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
@@ -176,7 +180,7 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(
             input_file
         )
@@ -206,7 +210,7 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         neofox_runner = NeoFox(
             neoantigens=neoantigens,
             patients=patients,

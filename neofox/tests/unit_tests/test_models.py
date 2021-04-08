@@ -33,10 +33,15 @@ from neofox.model.neoantigen import (
     Mhc2Name,
 )
 from neofox.model.conversion import ModelValidator
+from neofox.tests.fake_classes import FakeHlaDatabase
 from neofox.tests.unit_tests.tools import get_random_neoantigen
 
 
 class ModelConverterTest(TestCase):
+
+    def setUp(self) -> None:
+        self.hla_database = FakeHlaDatabase()
+
     def test_model2json(self):
         neoantigens = [get_random_neoantigen() for _ in range(5)]
         json_data = [n.to_json() for n in neoantigens]
@@ -187,7 +192,6 @@ class ModelConverterTest(TestCase):
             external_annotations=external_annotations,
         )
 
-
     def test_json_neoantigens2model(self):
         neoantigens_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_data_json.json"
@@ -229,7 +233,7 @@ class ModelConverterTest(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/alleles.Pt29.csv"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 1)
@@ -247,7 +251,7 @@ class ModelConverterTest(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/patient.Pt29.csv"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 1)
@@ -265,7 +269,7 @@ class ModelConverterTest(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_info.txt"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 1)
@@ -290,7 +294,7 @@ class ModelConverterTest(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/patient.Pt29.without_mhc1.csv"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 1)
@@ -307,7 +311,7 @@ class ModelConverterTest(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/balachandran_supplementary_table1_patients.tsv"
         )
-        patients = ModelConverter.parse_patients_file(patients_file)
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
         self.assertIsNotNone(patients)
         self.assertIsInstance(patients, list)
         self.assertTrue(len(patients) == 58)
@@ -359,11 +363,11 @@ class ModelConverterTest(TestCase):
             [
                 "HLA-A*01:01",
                 "HLA-A*01:02",
-                "HLA-B*01:01",
-                "HLA-B*01:02",
-                "HLA-C*01:01",
+                "HLA-B*07:02",
+                "HLA-B*07:03",
                 "HLA-C*01:02",
-            ]
+                "HLA-C*01:03",
+            ], self.hla_database
         )
         self.assertEqual(3, len(mhc1s))
         for mhc1 in mhc1s:
@@ -374,12 +378,12 @@ class ModelConverterTest(TestCase):
         mhc1s = ModelConverter.parse_mhc1_alleles(
             [
                 "HLA-A*01:01",
-                "HLA-A01:01",
-                "HLA-B*01:01",
-                "HLA-B*01:01",
-                "HLA-C*01:01",
-                "HLA-C*01:01",
-            ]
+                "HLA-A*01:01",
+                "HLA-B*07:02",
+                "HLA-B*07:02",
+                "HLA-C*01:02",
+                "HLA-C*01:02",
+            ], self.hla_database
         )
         self.assertEqual(3, len(mhc1s))
         for mhc1 in mhc1s:
@@ -388,7 +392,7 @@ class ModelConverterTest(TestCase):
 
     def test_parse_mhc1_hemizygous_alleles(self):
         mhc1s = ModelConverter.parse_mhc1_alleles(
-            ["HLA-A*01:01", "HLA-B*01:01", "HLA-C*01:01"]
+            ["HLA-A*01:01", "HLA-B*07:02", "HLA-C*01:02"], self.hla_database
         )
         self.assertEqual(3, len(mhc1s))
         for mhc1 in mhc1s:
@@ -396,7 +400,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(1, len(mhc1.alleles))
 
     def test_parse_mhc1_loss_alleles(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles([])
+        mhc1s = ModelConverter.parse_mhc1_alleles([], self.hla_database)
         self.assertEqual(3, len(mhc1s))
         for mhc1 in mhc1s:
             self.assertEqual(Zygosity.LOSS, mhc1.zygosity)
@@ -414,6 +418,7 @@ class ModelConverterTest(TestCase):
                 "HLA-C*01:01",
                 "HLA-C*01:02",
             ],
+            self.hla_database
         )
 
     def test_parse_mhc1_too_many_alleles_fails(self):
@@ -428,6 +433,7 @@ class ModelConverterTest(TestCase):
                 "HLA-C*01:01",
                 "HLA-C*01:02",
             ],
+            self.hla_database
         )
 
     def test_parse_mhc1_bad_gene_fails(self):
@@ -442,22 +448,37 @@ class ModelConverterTest(TestCase):
                 "HLA-C*01:01",
                 "HLA-C*01:02",
             ],
+            self.hla_database
         )
+
+    def test_parse_mhc1_non_existing_allele_does_not_fail(self):
+        mhc1s = ModelConverter.parse_mhc1_alleles(
+            [
+                "HLA-A*01:01",
+                "HLA-A*01:01",
+                "HLA-B*999:01",     # this one does not exist
+                "HLA-B*07:02",
+                "HLA-C*01:02",
+                "HLA-C*01:02",
+            ], self.hla_database
+        )
+        self.assertEqual(3, len(mhc1s))
 
     def test_parse_mhc2_heterozygous_alleles(self):
         mhc2s = ModelConverter.parse_mhc2_alleles(
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:02",
-                "HLA-DPA1*01:01",
-                "HLA-DPA1*01:02",
-                "HLA-DPB1*01:01",
-                "HLA-DPB1*01:02",
+                "HLA-DPA1*01:03",
+                "HLA-DPA1*01:04",
+                "HLA-DPB1*02:01",
+                "HLA-DPB1*02:02",
                 "HLA-DQA1*01:01",
                 "HLA-DQA1*01:02",
-                "HLA-DQB1*01:01",
-                "HLA-DQB1*01:02",
-            ]
+                "HLA-DQB1*02:01",
+                "HLA-DQB1*02:02",
+            ],
+            self.hla_database
         )
         self.assertEqual(3, len(mhc2s))
         for mhc2 in mhc2s:
@@ -473,15 +494,16 @@ class ModelConverterTest(TestCase):
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPB1*01:01",
-                "HLA-DPB1*01:01",
+                "HLA-DPA1*01:03",
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*02:01",
+                "HLA-DPB1*02:01",
                 "HLA-DQA1*01:01",
                 "HLA-DQA1*01:01",
-                "HLA-DQB1*01:01",
-                "HLA-DQB1*01:01",
-            ]
+                "HLA-DQB1*02:01",
+                "HLA-DQB1*02:01",
+            ],
+            self.hla_database
         )
         self.assertEqual(3, len(mhc2s))
         for mhc2 in mhc2s:
@@ -496,11 +518,12 @@ class ModelConverterTest(TestCase):
         mhc2s = ModelConverter.parse_mhc2_alleles(
             [
                 "HLA-DRB1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPB1*01:01",
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*02:01",
                 "HLA-DQA1*01:01",
-                "HLA-DQB1*01:01",
-            ]
+                "HLA-DQB1*02:01",
+            ],
+            self.hla_database
         )
         self.assertEqual(3, len(mhc2s))
         for mhc2 in mhc2s:
@@ -516,15 +539,16 @@ class ModelConverterTest(TestCase):
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPA1*01:01",
-                "HLA-DPB1*01:01",
-                "HLA-DPB1*01:02",
+                "HLA-DPA1*01:03",
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*02:01",
+                "HLA-DPB1*02:02",
                 "HLA-DQA1*01:01",
                 "HLA-DQA1*01:01",
-                "HLA-DQB1*01:01",
-                "HLA-DQB1*01:02",
-            ]
+                "HLA-DQB1*02:01",
+                "HLA-DQB1*02:02",
+            ],
+            self.hla_database
         )
         self.assertEqual(3, len(mhc2s))
         for mhc2 in mhc2s:
@@ -532,7 +556,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.isoforms))
 
     def test_parse_mhc2_loss(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles([])
+        mhc2s = ModelConverter.parse_mhc2_alleles([], self.hla_database)
         self.assertEqual(3, len(mhc2s))
         for mhc2 in mhc2s:
             self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
@@ -557,6 +581,7 @@ class ModelConverterTest(TestCase):
                 "HLA-DQB1*01:01",
                 "HLA-DQB1*01:02",
             ],
+            self.hla_database
         )
 
     def test_parse_mhc2_too_many_alleles_fails(self):
@@ -575,6 +600,7 @@ class ModelConverterTest(TestCase):
                 "HLA-DQA1*01:01",
                 "HLA-DQB1*01:01",
             ],
+            self.hla_database
         )
 
     def test_parse_mhc2_bad_gene_fails(self):
@@ -589,13 +615,21 @@ class ModelConverterTest(TestCase):
                 "HLA-C*01:01",
                 "HLA-C*01:02",
             ],
+            self.hla_database
         )
 
-    def test_parse_mhc_with_3_digits_in_second_place(self):
-        mhc = ModelConverter.parse_mhc_allele("B15:228")
-        self.assertEqual("B", mhc.gene)
-        self.assertEqual("15", mhc.group)
-        self.assertEqual("228", mhc.protein)
+    def test_parse_mhc2_non_existing_allele_does_not_fail(self):
+        mhc2s = ModelConverter.parse_mhc2_alleles(
+            [
+                "HLA-DRB1*999:01",      # this one does not exist
+                "HLA-DPA1*01:03",
+                "HLA-DPB1*01:01",
+                "HLA-DQA1*01:01",
+                "HLA-DQB1*02:01",
+            ],
+            self.hla_database
+        )
+        self.assertEqual(3, len(mhc2s))
 
     def _assert_isoforms(self, mhc2):
         for isoform in mhc2.isoforms:

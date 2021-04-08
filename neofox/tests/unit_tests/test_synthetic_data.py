@@ -5,6 +5,7 @@ from faker import Faker
 
 import neofox
 from neofox.model.neoantigen import Zygosity
+from neofox.tests.fake_classes import FakeHlaDatabase
 from neofox.tests.synthetic_data.factories import PatientProvider, NeoantigenProvider
 
 
@@ -17,7 +18,9 @@ class TestFactories(TestCase):
              "HLA-C*01:01", "HLA-C*01:02", "HLA-C*01:03"],
             ["DRB10101", "DRB10102", "DRB10103", "DRB10104", "HLA-DPA10101-DPB10101", "HLA-DPA10102-DPB10102", "HLA-DPA10103-DPB10103",
              "HLA-DPA10104-DPB10104"
-             "HLA-DQA10101-DQB10101", "HLA-DQA10102-DQB10102", "HLA-DQA10103-DQB10103", "HLA-DQA10104-DQB10104"])
+             "HLA-DQA10101-DQB10101", "HLA-DQA10102-DQB10102", "HLA-DQA10103-DQB10103", "HLA-DQA10104-DQB10104"],
+            FakeHlaDatabase()
+                                                )
         self.neoantigen_provider = NeoantigenProvider(faker, proteome_fasta=pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/proteome_test.fa"))
 
