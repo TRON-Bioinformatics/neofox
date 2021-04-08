@@ -17,13 +17,13 @@ class DataGenerator:
     def __init__(self, reference_folder: ReferenceFolder, configuration: DependenciesConfiguration):
         faker = Faker()
         mixmhcpred_alleles = set(self.load_mhc1_alleles(
-            MixMHCpred(None, configuration=configuration).available_alleles))
+            MixMHCpred(None, configuration=configuration, mhc_parser=None).available_alleles))
         netmhcpan_alleles = set(self.load_mhc1_alleles(
             reference_folder.get_available_alleles().get_available_mhc_i()))
         mhc1_alleles = mixmhcpred_alleles.union(netmhcpan_alleles)
 
         mixmhc2pred_alleles = set(self.load_mhc2_alleles(
-            MixMhc2Pred(None, configuration=configuration).available_alleles, fix=False))
+            MixMhc2Pred(None, configuration=configuration, mhc_parser=None).available_alleles, fix=False))
         netmhc2pan_alleles = set(self.load_mhc2_alleles(
             reference_folder.get_available_alleles().get_available_mhc_ii(), fix=True))
         mhc2_isoforms = mixmhc2pred_alleles.union(netmhc2pan_alleles)
