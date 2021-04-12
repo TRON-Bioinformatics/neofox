@@ -15,6 +15,9 @@ from neofox.tests.synthetic_data.factories import PatientProvider, NeoantigenPro
 class DataGenerator:
 
     def __init__(self, reference_folder: ReferenceFolder, configuration: DependenciesConfiguration):
+
+        self.hla_database = reference_folder.get_hla_database()
+
         faker = Faker()
         mixmhcpred_alleles = set(self.load_mhc1_alleles(
             MixMHCpred(None, configuration=configuration, mhc_parser=None).available_alleles))
@@ -28,7 +31,6 @@ class DataGenerator:
             reference_folder.get_available_alleles().get_available_mhc_ii(), fix=True))
         mhc2_isoforms = mixmhc2pred_alleles.union(netmhc2pan_alleles)
 
-        self.hla_database = reference_folder.get_hla_database()
         self.patient_provider = PatientProvider(faker, mhc1_alleles, mhc2_isoforms, self.hla_database)
         self.neoantigen_provider = NeoantigenProvider(
             faker, proteome_fasta=os.path.join(reference_folder.proteome_db, HOMO_SAPIENS_FASTA))

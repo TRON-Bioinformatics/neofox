@@ -73,6 +73,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             protein_b=mhc_b_allele.protein,
         )
 
+    @staticmethod
     def represent_mhc2_isoforms(isoforms: List[Mhc2Isoform]) -> List[str]:
         return [
             NetMhcIIPanPredictor._represent_drb1_allele(i.beta_chain)
