@@ -286,3 +286,79 @@ class TestBestMultipleBinder(TestCase):
         logger.info(len(best_predicted_epitopes_per_alelle))
         phbr_ii = best_multiple.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
         self.assertIsNone(phbr_ii)
+
+    def generator_rate(self):
+        best_multiple = BestAndMultipleBinder(
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+        )
+        netmhcpan = NetMhcPanPredictor(
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+        )
+        mutation = ModelValidator._validate_mutation(
+            Mutation(
+                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            )
+        )
+        # all alleles = heterozygous
+        predictions = netmhcpan.mhc_prediction(
+            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
+        )
+
+        predictions_wt = netmhcpan.mhc_prediction(
+            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer
+        )
+
+        predicted_neoepitopes = netmhcpan.filter_binding_predictions(
+            position_of_mutation=mutation.position, predictions=predictions
+        )
+        filtered_predictions_wt = netmhcpan.filter_binding_predictions(
+            position_of_mutation=mutation.position, predictions=predictions_wt
+        )
+
+        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(
+            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt
+        )
+        generator_rate_CDN = best_multiple.determine_number_of_binders(
+            predictions=predicted_neoepitopes, threshold=50
+        )
+        self.assertAlmostEqual(generator_rate_ADN, 3)
+        self.assertAlmostEqual(generator_rate_CDN, 2)
+
+    def generator_rate_mhcII(self):
+        best_multiple = BestAndMultipleBinderMhcII(
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+        )
+        netmhc2pan = NetMhcIIPanPredictor(
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+        )
+        mutation = ModelValidator._validate_mutation(
+            Mutation(
+                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            )
+        )
+        # all alleles = heterozygous
+        predictions = netmhc2pan.mhc_prediction(
+            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
+        )
+
+        predictions_wt = netmhc2pan.mhc_prediction(
+            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer
+        )
+
+        predicted_neoepitopes = netmhc2pan.filter_binding_predictions(
+            position_of_mutation=mutation.position, predictions=predictions
+        )
+        filtered_predictions_wt = netmhc2pan.filter_binding_predictions(
+            position_of_mutation=mutation.position, predictions=predictions_wt
+        )
+
+        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(
+            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt
+        )
+        generator_rate_CDN = best_multiple.determine_number_of_binders(
+            predictions=predicted_neoepitopes
+        )
+        self.assertAlmostEqual(generator_rate_ADN, 3)
+        self.assertAlmostEqual(generator_rate_CDN, 2)

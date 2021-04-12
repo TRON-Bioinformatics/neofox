@@ -24,6 +24,7 @@ from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredic
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
 )
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
@@ -134,9 +135,9 @@ class BestAndMultipleBinder:
         return best_epis_per_allele
 
     @staticmethod
-    def determine_number_of_binders(predictions: List[PredictedEpitope], threshold=2):
+    def determine_number_of_binders(predictions: List[PredictedEpitope], threshold=50):
         """
-        Determines the number of HLA binders per mutation based on a threshold. Default is set to 2, which is threshold for weak binding using netmhcpan4.
+        Determines the number of HLA I binders per mutation based on an affinity threshold. Default is set to 50, which is threshold used in generator rate.
         """
         scores = [epitope.affinity_score for epitope in predictions]
         number_binders = 0
@@ -144,6 +145,27 @@ class BestAndMultipleBinder:
             if score < threshold:
                 number_binders += 1
         return number_binders if not len(scores) == 0 else None
+
+    @staticmethod
+    def determine_number_of_alternative_binders(predictions: List[PredictedEpitope],
+                                                predictions_wt: List[PredictedEpitope], threshold=10):
+        """
+        Determines the number of HLA I neoepitope candidates that bind stronger (10:1) to HLA in comparison to corresponding WT
+        """
+        number_binders = 0
+        dai_values  = []
+        for epitope in predictions:
+            dai_values.append(epitope.affinity_score)
+            if epitope.affinity_score < 5000:
+                wt_peptide = AbstractNetMhcPanPredictor.select_best_by_affinity(
+                    AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
+                        predictions=predictions_wt, mutated_prediction=epitope
+                        )
+                )
+                dai = wt_peptide.affinity_score / epitope.affinity_score
+                if dai > threshold:
+                    number_binders += 1
+        return number_binders if not len(dai_values) == 0 else None
 
     def run(
         self,
@@ -187,7 +209,7 @@ class BestAndMultipleBinder:
         )
 
         # multiple binding based on affinity
-        self.generator_rate = self.determine_number_of_binders(
+        self.generator_rate_CDN = self.determine_number_of_binders(
             predictions=filtered_predictions, threshold=50
         )
 
@@ -236,6 +258,17 @@ class BestAndMultipleBinder:
                     ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity
                 )
             )
+
+        # multiple binding based on affinity
+        self.generator_rate_ADN = self.determine_number_of_alternative_binders(
+            predictions=filtered_predictions, predictions_wt= filtered_predictions_wt
+        )
+
+        if self.generator_rate_ADN is not None:
+            if self.generator_rate_CDN is not None:
+                self.generator_rate = self.generator_rate_ADN + self.generator_rate_CDN
+        else:
+            self.generator_rate = None
 
     def get_annotations(self) -> List[Annotation]:
         annotations = []
@@ -351,9 +384,9 @@ class BestAndMultipleBinder:
                 )])
         annotations.extend([
             # generator rate
-            AnnotationFactory.build_annotation(
-                value=self.generator_rate, name="Generator_rate"
-            ),
+            AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCI"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_CDN, name="Generator_rate_CDN_MHCI"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_ADN, name="Generator_rate_ADN_MHCI"),
             AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR-I")
         ])
         annotations.extend(self._get_positions_and_mutation_in_anchor())
