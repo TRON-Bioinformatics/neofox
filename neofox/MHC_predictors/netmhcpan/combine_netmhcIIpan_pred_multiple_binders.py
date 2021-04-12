@@ -23,6 +23,7 @@ from logzero import logger
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
 )
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
@@ -88,6 +89,39 @@ class BestAndMultipleBinderMhcII:
             ]
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
+
+    @staticmethod
+    def determine_number_of_binders(predictions: List[PredictedEpitope], threshold=1):
+        """
+        Determines the number of HLA II binders per mutation based on a rank threshold. Default is set to 1, which is threshold used in generator rate.
+        """
+        scores = [epitope.rank for epitope in predictions]
+        number_binders = 0
+        for score in scores:
+            if score < threshold:
+                number_binders += 1
+        return number_binders if not len(scores) == 0 else None
+
+    @staticmethod
+    def determine_number_of_alternative_binders(predictions: List[PredictedEpitope],
+                                                predictions_wt: List[PredictedEpitope], threshold=4):
+        """
+        Determines the number of HLA II neoepitope candidates that bind stronger (4:1) to HLA in comparison to corresponding WT
+        """
+        number_binders = 0
+        values = []
+        for epitope in predictions:
+            values.append(epitope.rank)
+            if epitope.rank < 4:
+                wt_peptide = AbstractNetMhcPanPredictor.select_best_by_rank(
+                    AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
+                        predictions_wt, epitope
+                    )
+                )
+                dai = wt_peptide.rank / epitope.rank
+                if dai > threshold:
+                    number_binders += 1
+        return number_binders if not len(values) == 0 else None
 
     def run(
         self,
@@ -158,6 +192,20 @@ class BestAndMultipleBinderMhcII:
                         )
                     )
                 )
+            if len(mutation.mutated_xmer) >= 15:
+                # generator rate for MHC II
+                self.generator_rate_CDN = self.determine_number_of_binders(
+                    predictions=filtered_predictions
+                )
+                self.generator_rate_ADN = self.determine_number_of_alternative_binders(
+                    predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
+                )
+                if self.generator_rate_ADN is not None:
+                    if self.generator_rate_CDN is not None:
+                        self.generator_rate = self.generator_rate_ADN + self.generator_rate_CDN
+                else:
+                    self.generator_rate = None
+
 
     @staticmethod
     def _get_only_available_combinations(allele_combinations: List[Mhc2Isoform], set_available_mhc: List[str]) -> List[str]:
@@ -235,7 +283,16 @@ class BestAndMultipleBinderMhcII:
                     value=self.best_predicted_epitope_affinity_wt.hla,
                     name="Best_affinity_MHCII_allele_WT",
                 )])
-        annotations.append(AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"))
+        annotations.extend(
+            [
+                AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"),
+                # generator rate
+                AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCII"),
+                AnnotationFactory.build_annotation(value=self.generator_rate_CDN, name="Generator_rate_CDN_MHCII"),
+                AnnotationFactory.build_annotation(value=self.generator_rate_ADN, name="Generator_rate_ADN_MHCII"),
+            ]
+
+        )
         return annotations
 
     @staticmethod

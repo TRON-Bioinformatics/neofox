@@ -55,8 +55,9 @@ class AbstractNetMhcPanPredictor:
         return min(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
             if predictions is not None and len(predictions) > 0 else None
 
+    @staticmethod
     def filter_wt_predictions_from_best_mutated(
-        self, predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope
+        predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope
     ) -> List[PredictedEpitope]:
         """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
         return list(
@@ -68,8 +69,9 @@ class AbstractNetMhcPanPredictor:
             )
         )
 
+    @staticmethod
     def filter_binding_predictions(
-        self, position_of_mutation, predictions: List[PredictedEpitope]
+        position_of_mutation, predictions: List[PredictedEpitope]
     ) -> List[PredictedEpitope]:
         """filters prediction file for predicted epitopes that cover mutations"""
         return list(

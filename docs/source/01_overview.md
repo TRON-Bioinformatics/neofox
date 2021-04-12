@@ -34,7 +34,7 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 | Priority score                                          | Bjerregaard et al., 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
 | Tcell predictor                                         | Besser et al., 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | neoag                                                   | Smith et al., 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
-  
+| PRIME                                                   | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             | 
 
 Besides comprehensive annotation of neoantigen candidates, NeoFox creates biologically meaningful representations of 
 neoantigens and related biological entities as programmatic models. For this purpose, Protocol buffers is employed to 
