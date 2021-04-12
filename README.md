@@ -36,7 +36,7 @@ NeoFox annotates neoantigen candidate sequences with published neo-epitope descr
 - netMHCIIpan 3.2
 - MixMHCpred 2.1
 - MixMHC2pred 1.2
-- PRIME
+- PRIME 1.0
 
 
 ## Usage from the command line
