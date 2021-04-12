@@ -41,6 +41,9 @@ class BestAndMultipleBinderMhcII:
 
     def _initialise(self):
         self.phbr_ii = None
+        self.generator_rate = None
+        self.generator_rate_ADN = None
+        self.generator_rate_CDN = None
         self.best_predicted_epitope_rank = PredictedEpitope(
             peptide="-",
             pos=None,
@@ -203,8 +206,6 @@ class BestAndMultipleBinderMhcII:
                 if self.generator_rate_ADN is not None:
                     if self.generator_rate_CDN is not None:
                         self.generator_rate = self.generator_rate_ADN + self.generator_rate_CDN
-                else:
-                    self.generator_rate = None
 
 
     @staticmethod
