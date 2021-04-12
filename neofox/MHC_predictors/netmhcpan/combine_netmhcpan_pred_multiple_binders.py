@@ -45,6 +45,9 @@ class BestAndMultipleBinder:
         self.epitope_affinities = None
         self.generator_rate = None
         self.mutation_in_anchor_9mer = None
+        self.generator_rate = None
+        self.generator_rate_ADN = None
+        self.generator_rate_CDN = None
 
     def calculate_phbr_i(
         self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]
@@ -267,8 +270,6 @@ class BestAndMultipleBinder:
         if self.generator_rate_ADN is not None:
             if self.generator_rate_CDN is not None:
                 self.generator_rate = self.generator_rate_ADN + self.generator_rate_CDN
-        else:
-            self.generator_rate = None
 
     def get_annotations(self) -> List[Annotation]:
         annotations = []
