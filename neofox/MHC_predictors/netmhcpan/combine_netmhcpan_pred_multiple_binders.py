@@ -25,18 +25,18 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
 )
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.helpers.runner import Runner
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation
 from neofox.model.wrappers import AnnotationFactory
+from neofox.references.references import DependenciesConfiguration
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
+        self.mhc_parser = mhc_parser
         self._initialise()
 
     def _initialise(self):
@@ -156,7 +156,7 @@ class BestAndMultipleBinder:
         """
         self._initialise()
         netmhcpan = NetMhcPanPredictor(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         # print alleles
         predictions = netmhcpan.mhc_prediction(

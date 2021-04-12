@@ -24,18 +24,17 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     AbstractNetMhcPanPredictor,
     PredictedEpitope,
 )
-from neofox.model.conversion import ModelConverter
+from neofox.helpers.runner import Runner
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc1
+from neofox.references.references import DependenciesConfiguration
 
 
 class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
+        self.mhc_parser = mhc_parser
 
     def mhc_prediction(
         self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
@@ -67,7 +66,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=line[1],
+                        hla=self.mhc_parser.parse_mhc_allele(line[1]).name,
                         peptide=line[2],
                         affinity_score=float(line[12]),
                         rank=float(line[13]),

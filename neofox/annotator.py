@@ -34,6 +34,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox.model.mhc_parser import MhcParser
 from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.published_features.differential_binding.differential_binding import (
     DifferentialBinding,
@@ -98,6 +99,7 @@ class NeoantigenAnnotator:
         self.priority_score_calculator = PriorityScore()
         self.iedb_immunogenicity = IEDBimmunogenicity()
         self.amplitude = Amplitude()
+        self.mhc_parser = MhcParser(references.get_hla_database())
 
     def get_annotation(
         self, neoantigen: Neoantigen, patient: Patient
@@ -340,6 +342,7 @@ class NeoantigenAnnotator:
                     self.runner,
                     self.configuration,
                     self.available_alleles,
+                    self.mhc_parser,
                     neoantigen,
                     patient)
             if has_mhc2:
@@ -347,6 +350,7 @@ class NeoantigenAnnotator:
                     self.runner,
                     self.configuration,
                     self.available_alleles,
+                    self.mhc_parser,
                     neoantigen,
                     patient
                 )
@@ -354,6 +358,7 @@ class NeoantigenAnnotator:
                 mixmhc2pred_annotations = self.run_mixmhc2pred(
                     self.runner,
                     self.configuration,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -361,6 +366,7 @@ class NeoantigenAnnotator:
                 mixmhcpred_annotations = self.run_mixmhcpred(
                     self.runner,
                     self.configuration,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -368,6 +374,7 @@ class NeoantigenAnnotator:
                 prime_annotations = self.run_prime(
                     self.runner,
                     self.configuration,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -381,6 +388,7 @@ class NeoantigenAnnotator:
                     self.runner,
                     self.configuration,
                     self.available_alleles,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -391,6 +399,7 @@ class NeoantigenAnnotator:
                     self.runner,
                     self.configuration,
                     self.available_alleles,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -400,6 +409,7 @@ class NeoantigenAnnotator:
                     self.run_mixmhc2pred,
                     self.runner,
                     self.configuration,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -409,6 +419,7 @@ class NeoantigenAnnotator:
                     self.run_mixmhcpred,
                     self.runner,
                     self.configuration,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -418,6 +429,7 @@ class NeoantigenAnnotator:
                     self.run_prime,
                     self.runner,
                     self.configuration,
+                    self.mhc_parser,
                     neoantigen,
                     patient,
                 )
@@ -449,13 +461,14 @@ class NeoantigenAnnotator:
 
     @staticmethod
     def run_netmhcpan(
-        runner: Runner,
-        configuration: DependenciesConfiguration,
-        available_alleles: AvailableAlleles,
-        neoantigen: Neoantigen,
-        patient: Patient,
+            runner: Runner,
+            configuration: DependenciesConfiguration,
+            available_alleles: AvailableAlleles,
+            mhc_parser: MhcParser,
+            neoantigen: Neoantigen,
+            patient: Patient,
     ):
-        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration)
+        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser)
         netmhcpan.run(
             mutation=neoantigen.mutation,
             mhc1_alleles_patient=patient.mhc1,
@@ -465,14 +478,15 @@ class NeoantigenAnnotator:
 
     @staticmethod
     def run_netmhc2pan(
-        runner: Runner,
-        configuration: DependenciesConfiguration,
-        available_alleles: AvailableAlleles,
-        neoantigen: Neoantigen,
-        patient: Patient,
+            runner: Runner,
+            configuration: DependenciesConfiguration,
+            available_alleles: AvailableAlleles,
+            mhc_parser: MhcParser,
+            neoantigen: Neoantigen,
+            patient: Patient,
     ):
         netmhc2pan = BestAndMultipleBinderMhcII(
-            runner=runner, configuration=configuration
+            runner=runner, configuration=configuration, mhc_parser=mhc_parser
         )
         netmhc2pan.run(
             mutation=neoantigen.mutation,
@@ -483,30 +497,33 @@ class NeoantigenAnnotator:
 
     @staticmethod
     def run_mixmhcpred(
-        runner: Runner,
-        configuration: DependenciesConfiguration,
-        neoantigen: Neoantigen,
-        patient: Patient,
+            runner: Runner,
+            configuration: DependenciesConfiguration,
+            mhc_parser: MhcParser,
+            neoantigen: Neoantigen,
+            patient: Patient,
     ):
-        mixmhc = MixMHCpred(runner, configuration)
+        mixmhc = MixMHCpred(runner, configuration, mhc_parser)
         return mixmhc.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1)
 
     @staticmethod
     def run_prime(
             runner: Runner,
             configuration: DependenciesConfiguration,
+            mhc_parser: MhcParser,
             neoantigen: Neoantigen,
             patient: Patient,
     ):
-        prime = Prime(runner, configuration)
+        prime = Prime(runner, configuration, mhc_parser)
         return prime.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1)
 
     @staticmethod
     def run_mixmhc2pred(
-        runner: Runner,
-        configuration: DependenciesConfiguration,
-        neoantigen: Neoantigen,
-        patient: Patient,
+            runner: Runner,
+            configuration: DependenciesConfiguration,
+            mhc_parser: MhcParser,
+            neoantigen: Neoantigen,
+            patient: Patient,
     ):
-        mixmhc2 = MixMhc2Pred(runner, configuration)
+        mixmhc2 = MixMhc2Pred(runner, configuration, mhc_parser)
         return mixmhc2.get_annotations(mhc=patient.mhc2, mutation=neoantigen.mutation)

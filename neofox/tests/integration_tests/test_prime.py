@@ -20,6 +20,7 @@ from unittest import TestCase
 from logzero import logger
 
 from neofox.model.conversion import ModelValidator, ModelConverter
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mutation
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
@@ -32,7 +33,8 @@ class TestPrime(TestCase):
         self.references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
         self.prime = Prime(
-            runner=self.runner, configuration=self.configuration
+            runner=self.runner, configuration=self.configuration,
+            mhc_parser=MhcParser(self.references.get_hla_database())
         )
         self.hla_database = self.references.get_hla_database()
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
@@ -48,7 +50,7 @@ class TestPrime(TestCase):
         self.assertEquals("LVTDQTRL", best_peptide)
         self.assertAlmostEqual(0.163810, best_score, delta=0.00001)
         self.assertEquals(3.00, best_rank)
-        self.assertEquals("C0501", best_allele)
+        self.assertEquals("HLA-C*05:01", best_allele)
 
     def test_prime_too_small_epitope(self):
         mutation = ModelValidator._validate_mutation(
@@ -88,7 +90,7 @@ class TestPrime(TestCase):
         self.assertEqual('SIYGGLVLI', best_peptide)
         self.assertEqual(0.186328, best_score)
         self.assertEqual(0.2, best_rank)
-        self.assertEqual('A0201', best_allele)
+        self.assertEqual('HLA-A*02:01', best_allele)
 
     def test_prime_rare_aminoacid(self):
         # this is an epitope from IEDB of length 9

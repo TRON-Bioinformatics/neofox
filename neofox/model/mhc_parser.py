@@ -31,10 +31,10 @@ HLA_ALLELE_PATTERN = re.compile(
     r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})[:|_]?([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
 )
 HLA_MOLECULE_PATTERN = re.compile(
-    r"(?:HLA-)?((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_][0-9]{2,})[-|_]{1,2}"
-    r"((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_][0-9]{2,})"
+    r"(?:HLA-)?((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})[-|_]{1,2}"
+    r"((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})"
 )
-HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_][0-9]{2,})")
+HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})")
 
 
 class MhcParser:
@@ -87,28 +87,20 @@ class MhcParser:
             full_name=full_name, name=name, gene=gene, group=group, protein=protein
         )
 
-    # TODO: not used at the moment
-    @staticmethod
-    def parse_mhc2_isoform(isoform: str) -> Mhc2Isoform:
+    def parse_mhc2_isoform(self, isoform: str) -> Mhc2Isoform:
         # TODO: this method currently fails for netmhc2pan alleles which are like 'HLA-DQA10509-DQB10630'
         # infers gene, group and protein from the name
         match = HLA_MOLECULE_PATTERN.match(isoform)
         if match:
-            alpha_chain = MhcParser.validate_mhc_allele_representation(
-                MhcAllele(name=match.group(1))
-            )
-            beta_chain = MhcParser.validate_mhc_allele_representation(
-                MhcAllele(name=match.group(2))
-            )
+            alpha_chain = self.parse_mhc_allele(match.group(1))
+            beta_chain = self.parse_mhc_allele(match.group(2))
         else:
             match = HLA_DR_MOLECULE_PATTERN.match(isoform)
             assert (
                     match is not None
             ), "Molecule does not match HLA isoform pattern {}".format(isoform)
             alpha_chain = MhcAllele()
-            beta_chain = MhcParser.validate_mhc_allele_representation(
-                MhcAllele(name=match.group(1))
-            )
+            beta_chain = self.parse_mhc_allele(match.group(1))
         # builds the final allele representation and validates it just in case
         name = get_mhc2_isoform_name(alpha_chain, beta_chain)
         return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
