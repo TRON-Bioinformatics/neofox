@@ -287,7 +287,7 @@ class TestBestMultipleBinder(TestCase):
         phbr_ii = best_multiple.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
         self.assertIsNone(phbr_ii)
 
-    def generator_rate(self):
+    def test_generator_rate(self):
         best_multiple = BestAndMultipleBinder(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
@@ -296,8 +296,8 @@ class TestBestMultipleBinder(TestCase):
         )
         mutation = ModelValidator._validate_mutation(
             Mutation(
-                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
-                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+                mutated_xmer="DRAIPLVLVSGNHYIGNTPTAETVEEF",
+                wild_type_xmer="DRAIPLVLVSGNHDIGNTPTAETVEEF",
             )
         )
         # all alleles = heterozygous
@@ -322,10 +322,12 @@ class TestBestMultipleBinder(TestCase):
         generator_rate_CDN = best_multiple.determine_number_of_binders(
             predictions=predicted_neoepitopes, threshold=50
         )
-        self.assertAlmostEqual(generator_rate_ADN, 3)
-        self.assertAlmostEqual(generator_rate_CDN, 2)
+        self.assertEqual(generator_rate_ADN, 8)
+        logger.info(generator_rate_ADN)
+        self.assertEqual(generator_rate_CDN, 1)
+        logger.info(generator_rate_CDN)
 
-    def generator_rate_mhcII(self):
+    def test_generator_rate_mhcII(self):
         best_multiple = BestAndMultipleBinderMhcII(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
@@ -334,17 +336,21 @@ class TestBestMultipleBinder(TestCase):
         )
         mutation = ModelValidator._validate_mutation(
             Mutation(
-                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
-                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+                mutated_xmer="RTNLLAALHRSVRWRAADQGHRSAFLV",
+                wild_type_xmer="RTNLLAALHRSVRRRAADQGHRSAFLV",
             )
         )
         # all alleles = heterozygous
-        predictions = netmhc2pan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
+        allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(self.test_mhc_two)
+        patient_mhc2_isoforms = best_multiple._get_only_available_combinations(
+            allele_combinations, self.available_alleles_mhc2
+        )
+        predictions = netmhc2pan.mhcII_prediction(
+            patient_mhc2_isoforms, mutation.mutated_xmer
         )
 
-        predictions_wt = netmhc2pan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer
+        predictions_wt = netmhc2pan.mhcII_prediction(
+            patient_mhc2_isoforms, mutation.wild_type_xmer
         )
 
         predicted_neoepitopes = netmhc2pan.filter_binding_predictions(
@@ -360,5 +366,7 @@ class TestBestMultipleBinder(TestCase):
         generator_rate_CDN = best_multiple.determine_number_of_binders(
             predictions=predicted_neoepitopes
         )
-        self.assertAlmostEqual(generator_rate_ADN, 3)
-        self.assertAlmostEqual(generator_rate_CDN, 2)
+        self.assertEqual(generator_rate_ADN, 2)
+        self.assertEqual(generator_rate_CDN, 8)
+        logger.info(generator_rate_ADN)
+        logger.info(generator_rate_CDN)

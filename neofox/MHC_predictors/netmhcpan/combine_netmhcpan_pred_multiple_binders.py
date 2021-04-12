@@ -384,7 +384,7 @@ class BestAndMultipleBinder:
                 )])
         annotations.extend([
             # generator rate
-            AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCI"),
+            AnnotationFactory.build_annotation(value=self.generator_rate, name="en"),
             AnnotationFactory.build_annotation(value=self.generator_rate_CDN, name="Generator_rate_CDN_MHCI"),
             AnnotationFactory.build_annotation(value=self.generator_rate_ADN, name="Generator_rate_ADN_MHCI"),
             AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR-I")
