@@ -46,8 +46,8 @@ class BestAndMultipleBinder:
         self.generator_rate = None
         self.mutation_in_anchor_9mer = None
         self.generator_rate = None
-        self.generator_rate_ADN = None
-        self.generator_rate_CDN = None
+        self.generator_rate_adn = None
+        self.generator_rate_cdn = None
 
     def calculate_phbr_i(
         self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]
@@ -212,7 +212,7 @@ class BestAndMultipleBinder:
         )
 
         # multiple binding based on affinity
-        self.generator_rate_CDN = self.determine_number_of_binders(
+        self.generator_rate_cdn = self.determine_number_of_binders(
             predictions=filtered_predictions, threshold=50
         )
 
@@ -263,13 +263,13 @@ class BestAndMultipleBinder:
             )
 
         # multiple binding based on affinity
-        self.generator_rate_ADN = self.determine_number_of_alternative_binders(
+        self.generator_rate_adn = self.determine_number_of_alternative_binders(
             predictions=filtered_predictions, predictions_wt= filtered_predictions_wt
         )
 
-        if self.generator_rate_ADN is not None:
-            if self.generator_rate_CDN is not None:
-                self.generator_rate = self.generator_rate_ADN + self.generator_rate_CDN
+        if self.generator_rate_adn is not None:
+            if self.generator_rate_cdn is not None:
+                self.generator_rate = self.generator_rate_adn + self.generator_rate_cdn
 
     def get_annotations(self) -> List[Annotation]:
         annotations = []
@@ -386,8 +386,8 @@ class BestAndMultipleBinder:
         annotations.extend([
             # generator rate
             AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCI"),
-            AnnotationFactory.build_annotation(value=self.generator_rate_CDN, name="Generator_rate_CDN_MHCI"),
-            AnnotationFactory.build_annotation(value=self.generator_rate_ADN, name="Generator_rate_ADN_MHCI"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCI"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCI"),
             AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR-I")
         ])
         annotations.extend(self._get_positions_and_mutation_in_anchor())
