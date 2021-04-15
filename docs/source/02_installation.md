@@ -110,6 +110,14 @@ tar -xvf v1.2.tar.gz
 export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 
+#### PRIME 1.0 (recommended but optional)
+
+```
+wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
+tar -xvf master.tar.gz
+export NEOFOX_PRIME==`pwd`/PRIME/PRIME
+```
+
 ### Install references
 
 For installing the reference data we will need `makeblastdb`, set the environment variable required for building the reference:
