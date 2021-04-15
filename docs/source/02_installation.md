@@ -115,7 +115,7 @@ export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
 tar -xvf master.tar.gz
-export NEOFOX_PRIME==`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
+export NEOFOX_PRIME==`pwd`/PRIME/PRIME
 ```
 
 ### Install references
