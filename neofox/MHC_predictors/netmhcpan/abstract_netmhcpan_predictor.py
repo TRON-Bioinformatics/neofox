@@ -24,7 +24,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 
 @dataclass
 class PredictedEpitope:
-    "this is a common data class for both netmhcpan and netmhc2pan"
+    """this is a common data class for both netmhcpan and netmhc2pan"""
     pos: int
     hla: Union[
         str, Mhc2Isoform
@@ -71,17 +71,19 @@ class AbstractNetMhcPanPredictor:
 
     @staticmethod
     def filter_binding_predictions(
-        position_of_mutation, predictions: List[PredictedEpitope]
+        position_of_mutation, predictions: List[PredictedEpitope], uniprot
     ) -> List[PredictedEpitope]:
-        """filters prediction file for predicted epitopes that cover mutations"""
+        """filters prediction file for predicted epitopes that cover mutations by searching for epitope
+        in uniprot proteome database with an exact match search"""
         return list(
             filter(
-                lambda p: EpitopeHelper.epitope_covers_mutation(
-                    position_of_mutation, p.pos, len(p.peptide)
+                lambda p: uniprot.is_sequence_not_in_uniprot(
+                    p.peptide
                 ),
                 predictions,
             )
         )
+
 
     def filter_for_9mers(
         self, predictions: List[PredictedEpitope]

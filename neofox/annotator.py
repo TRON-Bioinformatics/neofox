@@ -459,8 +459,9 @@ class NeoantigenAnnotator:
         # TODO: set the hash fro the resources
         self.annotations.annotations = []
 
-    @staticmethod
+
     def run_netmhcpan(
+            self,
             runner: Runner,
             configuration: DependenciesConfiguration,
             available_alleles: AvailableAlleles,
@@ -473,6 +474,7 @@ class NeoantigenAnnotator:
             mutation=neoantigen.mutation,
             mhc1_alleles_patient=patient.mhc1,
             mhc1_alleles_available=available_alleles.get_available_mhc_i(),
+            uniprot=self.uniprot
         )
         return netmhcpan
 
