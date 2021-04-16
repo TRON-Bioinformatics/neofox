@@ -131,6 +131,7 @@ class BestAndMultipleBinderMhcII:
         mutation: Mutation,
         mhc2_alleles_patient: List[Mhc2],
         mhc2_alleles_available: Set,
+        uniprot
     ):
         """predicts MHC II epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed"""
         # mutation
@@ -151,7 +152,7 @@ class BestAndMultipleBinderMhcII:
         )
         if len(mutation.mutated_xmer) >= 15:
             filtered_predictions = netmhc2pan.filter_binding_predictions(
-                mutation.position, predictions
+                mutation.position, predictions, uniprot
             )
             # multiple binding
             best_predicted_epitopes_per_alelle = (

@@ -478,8 +478,8 @@ class NeoantigenAnnotator:
         )
         return netmhcpan
 
-    @staticmethod
     def run_netmhc2pan(
+            self,
             runner: Runner,
             configuration: DependenciesConfiguration,
             available_alleles: AvailableAlleles,
@@ -494,6 +494,7 @@ class NeoantigenAnnotator:
             mutation=neoantigen.mutation,
             mhc2_alleles_patient=patient.mhc2,
             mhc2_alleles_available=available_alleles.get_available_mhc_ii(),
+            uniprot=self.uniprot
         )
         return netmhc2pan
 
