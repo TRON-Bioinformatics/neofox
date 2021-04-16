@@ -22,6 +22,7 @@ import numpy as np
 import scipy.io as sio
 import os
 
+from Bio.Data import IUPACData
 
 MAT = "SIRdata.mat"
 GENES_EXPRESSION_PICKLE = "genes-expression.pickle"
@@ -50,28 +51,7 @@ class Preprocessor(object):
 
     @staticmethod
     def seq2bin(seq):
-        aa = [
-            "A",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H",
-            "I",
-            "K",
-            "L",
-            "M",
-            "N",
-            "P",
-            "Q",
-            "R",
-            "S",
-            "T",
-            "V",
-            "W",
-            "Y",
-        ]
+        aa = list(IUPACData.protein_letters_3to1.values())
         dict_aa = dict((i, j) for j, i in enumerate(aa))
         arr = np.zeros((1, 9 * 20))
         for ii, letter in enumerate(seq):
