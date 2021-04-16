@@ -42,8 +42,8 @@ class BestAndMultipleBinderMhcII:
     def _initialise(self):
         self.phbr_ii = None
         self.generator_rate = None
-        self.generator_rate_ADN = None
-        self.generator_rate_CDN = None
+        self.generator_rate_adn = None
+        self.generator_rate_cdn = None
         self.best_predicted_epitope_rank = PredictedEpitope(
             peptide="-",
             pos=None,
@@ -197,15 +197,15 @@ class BestAndMultipleBinderMhcII:
                 )
             if len(mutation.mutated_xmer) >= 15:
                 # generator rate for MHC II
-                self.generator_rate_CDN = self.determine_number_of_binders(
+                self.generator_rate_cdn = self.determine_number_of_binders(
                     predictions=filtered_predictions
                 )
-                self.generator_rate_ADN = self.determine_number_of_alternative_binders(
+                self.generator_rate_adn = self.determine_number_of_alternative_binders(
                     predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
                 )
-                if self.generator_rate_ADN is not None:
-                    if self.generator_rate_CDN is not None:
-                        self.generator_rate = self.generator_rate_ADN + self.generator_rate_CDN
+                if self.generator_rate_adn is not None:
+                    if self.generator_rate_cdn is not None:
+                        self.generator_rate = self.generator_rate_adn + self.generator_rate_cdn
 
 
     @staticmethod
@@ -289,8 +289,8 @@ class BestAndMultipleBinderMhcII:
                 AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"),
                 # generator rate
                 AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCII"),
-                AnnotationFactory.build_annotation(value=self.generator_rate_CDN, name="Generator_rate_CDN_MHCII"),
-                AnnotationFactory.build_annotation(value=self.generator_rate_ADN, name="Generator_rate_ADN_MHCII"),
+                AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCII"),
+                AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCII"),
             ]
 
         )
