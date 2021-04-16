@@ -387,7 +387,7 @@ class TestNeofox(TestCase):
         self.assertTrue(len(annotations[0].annotations) > 10)
         for na in annotations:
             for a in na.annotations:
-                if a.name == "Selfsimilarity_MHCI_conserved_binder":
+                if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff500nM"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
 
     def _get_test_data(self):
