@@ -85,3 +85,13 @@ class TestTCellPredictor(TestCase):
             threshold=10,
         )
         self.assertAlmostEqual(0.2453409331088489, float(result))
+
+    def test_rare_aminoacid(self):
+        result = self.tcell_predictor._calculate_tcell_predictor_score(
+            gene="BRCA2",
+            substitution="CU",
+            epitope="CCCCUCCCC",
+            score=5,
+            threshold=10,
+        )
+        self.assertIsNone(result)
