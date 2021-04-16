@@ -20,6 +20,8 @@
 from typing import List
 import math
 import os
+
+from neofox.model.conversion import ModelValidator
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
@@ -101,7 +103,8 @@ class SelfSimilarityCalculator:
         Argument mhc indicates if determination for MHC I or MHC II epitopes
         """
         self_similarity = None
-        if mutation != "-":
+        if not ModelValidator.has_peptide_rare_amino_acids(mutation) and \
+                not ModelValidator.has_peptide_rare_amino_acids(wild_type):
             try:
                 self_similarity = str(self.compute_k_hat_3(mutation, wild_type))
             except ZeroDivisionError:

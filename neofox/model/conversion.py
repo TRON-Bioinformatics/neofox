@@ -733,3 +733,10 @@ class ModelValidator(object):
         return base64.b64encode(
             hashlib.md5(neoantigen.to_json().encode("utf8")).digest()
         ).decode("utf8")
+
+    @staticmethod
+    def has_peptide_rare_amino_acids(peptide: str):
+        has_rare_amino_acid = False
+        for aa in peptide:
+            has_rare_amino_acid |= aa not in list(IUPACData.protein_letters_3to1.values())
+        return has_rare_amino_acid
