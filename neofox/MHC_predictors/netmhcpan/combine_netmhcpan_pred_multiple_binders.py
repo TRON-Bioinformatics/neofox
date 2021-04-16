@@ -175,6 +175,7 @@ class BestAndMultipleBinder:
         mutation: Mutation,
         mhc1_alleles_patient: List[Mhc1],
         mhc1_alleles_available: Set,
+        uniprot
     ):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
@@ -188,7 +189,7 @@ class BestAndMultipleBinder:
             mhc1_alleles_patient, mhc1_alleles_available, mutation.mutated_xmer
         )
         filtered_predictions = netmhcpan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions
+            position_of_mutation=mutation.position, predictions=predictions, uniprot=uniprot
         )
 
         # multiple binding
