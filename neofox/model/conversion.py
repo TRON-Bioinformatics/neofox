@@ -50,7 +50,7 @@ from neofox.model.neoantigen import (
     Mhc1,
     Annotation,
 )
-from neofox.model.wrappers import get_mhc2_isoform_name
+from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.references.references import ReferenceFolder, HlaDatabase
 
@@ -288,7 +288,7 @@ class ModelConverter(object):
     ) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
-        neoantigens_df = neoantigens_df.replace({None: "NA"})
+        neoantigens_df = neoantigens_df.replace({None: NOT_AVAILABLE_VALUE})
         for na in neoantigen_annotations:
             df = (
                 pd.DataFrame([a.to_dict() for a in na.annotations])
