@@ -70,6 +70,21 @@ class AbstractNetMhcPanPredictor:
         )
 
     @staticmethod
+    def find_wt_epitope_for_alternative_mutated_epitope(
+            predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope
+    ) -> List[PredictedEpitope]:
+        """returns wt epitope for each neoepitope candidate of a neoantigen candidate from an alternative mutation
+        class by a BLAST search."""
+        return list(
+            filter(
+                lambda p: len(p.peptide) == len(mutated_prediction.peptide)
+                          and p.pos == mutated_prediction.pos
+                          and p.hla == mutated_prediction.hla,
+                predictions,
+            )
+        )
+
+    @staticmethod
     def filter_binding_predictions(
         position_of_mutation, predictions: List[PredictedEpitope], uniprot
     ) -> List[PredictedEpitope]:

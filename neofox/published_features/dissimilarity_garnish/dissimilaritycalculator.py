@@ -45,7 +45,7 @@ class DissimilarityCalculator(BlastpRunner):
         """
         dissimilarity = None
         if mhc_mutation != "-" and (not filter_binder or not mhc_affinity >= 500):
-            similarity = self.run_blastp(
+            similarity = self.calculate_similarity_database(
                 peptide=mhc_mutation,
                 database=os.path.join(self.proteome_db, "homo_sapiens"),
                 a=32,

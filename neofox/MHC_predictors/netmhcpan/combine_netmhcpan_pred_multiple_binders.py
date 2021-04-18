@@ -223,12 +223,16 @@ class BestAndMultipleBinder:
         )
 
         # wt
-        predictions_wt = netmhcpan.mhc_prediction(
-            mhc1_alleles_patient, mhc1_alleles_available, mutation.wild_type_xmer
-        )
-        filtered_predictions_wt = netmhcpan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions_wt
-        )
+        if mutation.wild_type_xmer:
+            predictions_wt = netmhcpan.mhc_prediction(
+                mhc1_alleles_patient, mhc1_alleles_available, mutation.wild_type_xmer
+            )
+            filtered_predictions_wt = netmhcpan.filter_binding_predictions(
+                position_of_mutation=mutation.position, predictions=predictions_wt
+            )
+        else:
+            # do BLAST search for best affinity, best affinity wt, best rank
+
 
         # best prediction
         self.best_wt_epitope_by_rank = None
