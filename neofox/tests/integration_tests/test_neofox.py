@@ -28,6 +28,7 @@ import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import NeoantigenAnnotations
+from neofox.model.wrappers import NOT_AVAILABLE_VALUE
 from neofox.neofox import NeoFox
 from neofox.tests.fake_classes import FakeHlaDatabase
 from neofox.tests.integration_tests import integration_test_tools
@@ -367,6 +368,27 @@ class TestNeofox(TestCase):
             num_cpus=1,
         )
         neofox.get_annotations()
+
+    def test_neoantigens_with_rare_aminoacids(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for n in neoantigens:
+            position_to_replace = int(len(n.mutation.mutated_xmer)/2)
+            n.mutation.mutated_xmer = n.mutation.mutated_xmer[:position_to_replace] + "U" + \
+                                      n.mutation.mutated_xmer[position_to_replace+1:]
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        ).get_annotations()
+        self.assertEqual(5, len(annotations))
+        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
+        self.assertTrue(len(annotations[0].annotations) > 10)
+        for na in annotations:
+            for a in na.annotations:
+                if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff500nM"]:
+                    self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
 
     def _get_test_data(self):
         input_file = pkg_resources.resource_filename(

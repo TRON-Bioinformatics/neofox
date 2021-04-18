@@ -47,3 +47,9 @@ class TestSelfSimilarity(TestCase):
                 self.assertTrue(s.compute_k_hat_3("AAAAA", "AA" + i + "AA") == 1.0)
             else:
                 self.assertTrue(s.compute_k_hat_3("AAAAA", "AA" + i + "AA") < 1.0)
+
+    def test_rare_aminoacids(self):
+        result = SelfSimilarityCalculator().get_self_similarity(
+            wild_type="DDD", mutation="DUD"
+        )
+        self.assertEqual(None, result)
