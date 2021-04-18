@@ -30,10 +30,20 @@ class BlastpRunner(object):
         self.runner = runner
         self.configuration = configuration
 
-    def run_blastp(self, peptide, database, a=26) -> int:
+    def calculate_similarity_database(self, peptide, database, a=26) -> int:
         """
-        This function runs BLASTP on a given database
+        This function runs BLASTP on a given database and returns a score defining the similarity of the input sequence
+        to best BLAST hit
         """
+        outfile = self.run_blastp(peptide, database)
+        score = self._similarity_score(outfile, a=a)
+        os.remove(outfile)
+        return score
+
+    def run_blastp(self, peptide, database):
+        """
+                This function runs BLASTP on a given database
+                """
         input_fasta = intermediate_files.create_temp_fasta(
             sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix="M_"
         )
@@ -59,13 +69,10 @@ class BlastpRunner(object):
                 "100000000",
             ]
         )
-
-        score = self._parse_blastp_output(outfile, a=a)
-        os.remove(outfile)
         os.remove(input_fasta)
-        return score
+        return outfile
 
-    def _parse_blastp_output(self, blastp_output_file, a) -> int:
+    def _similarity_score(self, blastp_output_file, a) -> int:
         aligner = Aligner()
         # set a to 32 for dissimilarity
         try:
@@ -77,3 +84,5 @@ class BlastpRunner(object):
             # fail, an example is U>Y
             result = None
         return result
+
+    def _extract_best_blast_peptide_hit(self, blastp_output_file):

@@ -41,7 +41,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         self.iedb = iedb
 
     def get_pathogen_similarity(self, mutation):
-        pathsim = self.run_blastp(
+        pathsim = self.calculate_similarity_database(
             peptide=mutation, database=os.path.join(self.iedb, IEDB_BLAST_PREFIX)
         )
         logger.info(
