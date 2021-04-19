@@ -22,6 +22,7 @@ import pickle
 import warnings
 from typing import List
 from neofox.helpers import intermediate_files
+from neofox.model.conversion import ModelValidator
 from neofox.model.neoantigen import Annotation, Neoantigen
 from neofox.model.wrappers import AnnotationFactory
 from neofox.published_features.Tcell_predictor.preprocess import Preprocessor
@@ -107,14 +108,12 @@ class TcellPrediction:
         tmp_tcellPredIN = intermediate_files.create_temp_file(
             prefix="tmp_TcellPredicIN_", suffix=".txt"
         )
-        return self._wrapper_tcellpredictor(
-            gene=gene,
-            substitution=substitution,
-            epitope=epitope,
-            score=score,
-            threshold=threshold,
-            tmpfile_in=tmp_tcellPredIN,
-        )
+        tcell_predictor_score = None
+        if not ModelValidator.has_peptide_rare_amino_acids(epitope):
+            tcell_predictor_score = self._wrapper_tcellpredictor(
+                gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold,
+                tmpfile_in=tmp_tcellPredIN, )
+        return tcell_predictor_score
 
     def get_annotations(
         self, neoantigen: Neoantigen, netmhcpan: BestAndMultipleBinder
@@ -128,15 +127,14 @@ class TcellPrediction:
                 mutation_position - 1
             ]  # it is 1-based
             mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position - 1]
+            tcell_predictor_score = self._calculate_tcell_predictor_score(gene=neoantigen.gene,
+                                                          substitution=wild_type_aminoacid + mutated_aminoacid,
+                                                          epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
+                                                          score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
+                                                          threshold=500, )
             annotations = [
                 AnnotationFactory.build_annotation(
-                    value=self._calculate_tcell_predictor_score(
-                        gene=neoantigen.gene,
-                        substitution=wild_type_aminoacid + mutated_aminoacid,
-                        epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
-                        score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
-                        threshold=500,
-                    ),
+                    value=tcell_predictor_score,
                     name="Tcell_predictor_score_cutoff500nM",
                 )
             ]

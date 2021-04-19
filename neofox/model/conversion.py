@@ -50,7 +50,7 @@ from neofox.model.neoantigen import (
     Mhc1,
     Annotation,
 )
-from neofox.model.wrappers import get_mhc2_isoform_name
+from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.references.references import ReferenceFolder, HlaDatabase
 
@@ -285,7 +285,7 @@ class ModelConverter(object):
     ) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
-        neoantigens_df = neoantigens_df.replace({None: "NA"})
+        neoantigens_df = neoantigens_df.replace({None: NOT_AVAILABLE_VALUE})
         for na in neoantigen_annotations:
             df = (
                 pd.DataFrame([a.to_dict() for a in na.annotations])
@@ -730,3 +730,10 @@ class ModelValidator(object):
         return base64.b64encode(
             hashlib.md5(neoantigen.to_json().encode("utf8")).digest()
         ).decode("utf8")
+
+    @staticmethod
+    def has_peptide_rare_amino_acids(peptide: str):
+        has_rare_amino_acid = False
+        for aa in peptide:
+            has_rare_amino_acid |= aa not in list(IUPACData.protein_letters_3to1.values())
+        return has_rare_amino_acid
