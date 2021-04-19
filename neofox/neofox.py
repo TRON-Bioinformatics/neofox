@@ -64,7 +64,8 @@ class NeoFox:
             dotenv.load_dotenv(configuration_file, override=True)
 
         # initialise logs
-        self._initialise_logs(output_prefix, work_folder, verbose)
+        self.log_file_name = self._get_log_file_name(output_prefix, work_folder)
+        self._initialise_logs(self.log_file_name, verbose)
 
         # intialize references folder and configuration
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
@@ -137,11 +138,8 @@ class NeoFox:
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed
 
-    def _initialise_logs(self, output_prefix, work_folder, verbose):
-        if work_folder and os.path.exists(work_folder):
-            logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
-        else:
-            logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
+    @staticmethod
+    def _initialise_logs(logfile, verbose=False):
         if logfile is not None:
             logzero.logfile(logfile)
         # TODO: this does not work
@@ -149,7 +147,14 @@ class NeoFox:
             logzero.loglevel(logging.DEBUG)
         else:
             logzero.loglevel(logging.INFO)
-        logger.info("Loading data...")
+
+    def _get_log_file_name(self, output_prefix, work_folder):
+        if work_folder and os.path.exists(work_folder):
+            logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
+        else:
+            logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
+        return logfile
+
 
     def _validate_input_data(self):
 
@@ -228,6 +233,7 @@ class NeoFox:
                         future_configuration,
                         future_tcell_predictor,
                         future_self_similarity,
+                        self.log_file_name
                     )
                 )
             annotations = dask_client.gather(futures)
@@ -248,7 +254,10 @@ class NeoFox:
         configuration: DependenciesConfiguration,
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
+        log_file_name: str
     ):
+        # the logs need to be initialised inside every dask job
+        NeoFox._initialise_logs(log_file_name)
         logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
         start = time.time()
         annotation = NeoantigenAnnotator(
