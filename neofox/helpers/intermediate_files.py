@@ -41,3 +41,14 @@ def create_temp_fasta(sequences, prefix=None, comment_prefix="seq"):
             f.write(seq + "\n")
             counter += 1
     return fasta_temp_file
+
+
+def create_temp_peptide(sequences, prefix=None):
+    """
+    Writes seqs given in seqs list into PEPTIDE format
+    """
+    pep_temp_file = create_temp_file(prefix=prefix, suffix=".pep")
+    with open(pep_temp_file, "w") as f:
+        for seq in sequences:
+            f.write(seq + "\n")
+    return pep_temp_file

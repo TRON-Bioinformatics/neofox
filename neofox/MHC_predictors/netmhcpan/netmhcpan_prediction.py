@@ -54,6 +54,24 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         lines, _ = self.runner.run_command(cmd)
         return self._parse_netmhcpan_output(lines)
 
+    def mhc_prediction_peptide(
+        self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
+    ) -> List[PredictedEpitope]:
+        """Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file."""
+        input_peptide = intermediate_files.create_temp_peptide(
+            sequences=[sequence], prefix="tmp_singleseq_"
+        )
+        cmd = [
+            self.configuration.net_mhc_pan,
+            "-a",
+            self._get_only_available_alleles(mhc_alleles, set_available_mhc),
+            "-p",
+            input_peptide,
+            "-BA",
+        ]
+        lines, _ = self.runner.run_command(cmd)
+        return self._parse_netmhcpan_output(lines)
+
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
