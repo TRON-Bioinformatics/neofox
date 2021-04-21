@@ -197,7 +197,7 @@ class BestAndMultipleBinderMhcII:
                 patient_mhc2_isoforms, mutation.wild_type_xmer
             )
             if len(mutation.wild_type_xmer) >= 15:
-                filtered_predictions_wt = netmhc2pan.filter_binding_predictions(
+                filtered_predictions_wt = netmhc2pan.filter_binding_predictions_wt_snv(
                     mutation.position, predictions
                 )
                 # best prediction
