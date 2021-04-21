@@ -19,7 +19,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List, Set
 import scipy.stats as stats
-from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
@@ -34,13 +33,12 @@ from neofox.references.references import DependenciesConfiguration
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         super().__init__(runner=runner, configuration=configuration)
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
         self._initialise()
-        self.proteome_db = proteome_db
 
     def _initialise(self):
         self.phbr_i = None

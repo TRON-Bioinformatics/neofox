@@ -82,7 +82,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             for i in isoforms
         ]
 
-    def mhcII_prediction(
+    def mhc2_prediction(
         self, mhc_alleles: List[str], sequence
     ) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
@@ -98,6 +98,31 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 ",".join(mhc_alleles),
                 "-f",
                 tmp_fasta,
+                "-tdir",
+                tmp_folder,
+                "-dirty",
+            ]
+        )
+        return self._parse_netmhcpan_output(lines)
+    
+    def mhc2_prediction_peptide(
+        self, mhc_alleles: List[str], sequence
+    ) -> List[PredictedEpitope]:
+        """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
+        # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
+        tmp_peptide = intermediate_files.create_temp_peptide(
+            [sequence], prefix="tmp_singleseq_"
+        )
+        tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
+        lines, _ = self.runner.run_command(
+            [
+                self.configuration.net_mhc2_pan,
+                "-a",
+                ",".join(mhc_alleles),
+                "-inptype",
+                "1",
+                "-f",
+                tmp_peptide,
                 "-tdir",
                 tmp_folder,
                 "-dirty",
