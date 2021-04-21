@@ -74,6 +74,7 @@ class Aligner(object):
         Read precomputed blastp alignments from xml files,
         compute alignment scores,
         find the highest scoring alignment for each neoantigen.
+        Modification: return al also for maximum alignment
         """
         f = open(xmlpath)
         blast_records = NCBIXML.parse(f)
@@ -95,11 +96,12 @@ class Aligner(object):
                                 al = al[0]
                                 self.alignments[nid][species] = al
                                 if al[2] > maxscore[nid]:
-                                    self.maximum_alignment[nid] = species
+                                    self.maximum_alignment[nid] = [species, al]
                                     maxscore[nid] = al[2]
         except ValueError:
             pass
         f.close()
+
 
     def computeR(self, a=26, k=4.87):
         """
