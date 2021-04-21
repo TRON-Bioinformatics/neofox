@@ -244,7 +244,7 @@ class NeoantigenAnnotator:
             )
 
         # number of mismatches and priority score
-        if netmhcpan:
+        if netmhcpan and netmhcpan:
             start = time.time()
             self.annotations.annotations.extend(
                 self.priority_score_calculator.get_annotations(
@@ -263,7 +263,7 @@ class NeoantigenAnnotator:
             )
 
         # neoag immunogenicity model
-        if netmhcpan:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity:
             start = time.time()
             peptide_variant_position = EpitopeHelper.position_of_mutation_epitope(
                 wild_type=netmhcpan.best_wt_epitope_by_affinity.peptide,
@@ -282,7 +282,7 @@ class NeoantigenAnnotator:
             )
 
         # IEDB immunogenicity
-        if netmhcpan:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity:
             start = time.time()
             self.annotations.annotations.extend(
                 self.iedb_immunogenicity.get_annotations(
@@ -295,7 +295,7 @@ class NeoantigenAnnotator:
             )
 
         # dissimilarity to self-proteome
-        if netmhcpan:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity:
             start = time.time()
             self.annotations.annotations.extend(
                 self.dissimilarity_calculator.get_annotations(netmhcpan=netmhcpan)
@@ -308,7 +308,7 @@ class NeoantigenAnnotator:
             )
 
         # vaxrank
-        if netmhcpan:
+        if netmhcpan and netmhcpan.epitope_affinities:
             start = time.time()
             vaxrankscore = vaxrank.VaxRank()
             vaxrankscore.run(

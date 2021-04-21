@@ -115,9 +115,24 @@ class AbstractNetMhcPanPredictor(BlastpRunner):
             )
         )
 
-
     def filter_for_9mers(
         self, predictions: List[PredictedEpitope]
     ) -> List[PredictedEpitope]:
         """returns only predicted 9mers"""
         return list(filter(lambda p: len(p.peptide) == 9, predictions))
+
+    @staticmethod
+    def filter_binding_predictions_wt_snv(
+            position_of_mutation, predictions: List[PredictedEpitope]
+    ) -> List[PredictedEpitope]:
+        """filters prediction file for predicted epitopes that cover mutations"""
+        return list(
+            filter(
+                lambda p: EpitopeHelper.epitope_covers_mutation(
+                    position_of_mutation, p.pos, len(p.peptide)
+                ),
+                predictions,
+            )
+        )
+
+
