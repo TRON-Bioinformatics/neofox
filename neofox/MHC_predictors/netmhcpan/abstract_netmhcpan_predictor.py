@@ -20,6 +20,9 @@ from typing import List, Union
 from dataclasses import dataclass
 from neofox.model.neoantigen import Mhc2Isoform
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.helpers.runner import Runner
+from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.references.references import DependenciesConfiguration
 
 
 @dataclass
@@ -34,7 +37,13 @@ class PredictedEpitope:
     rank: float
 
 
-class AbstractNetMhcPanPredictor:
+class AbstractNetMhcPanPredictor(BlastpRunner):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, proteome_db):
+        super().__init__(runner=runner, configuration=configuration)
+        self.runner = runner
+        self.configuration = configuration
+        self.proteome_db = proteome_db
+
     @staticmethod
     def select_best_by_rank(predictions: List[PredictedEpitope]) -> PredictedEpitope:
         """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
@@ -69,20 +78,27 @@ class AbstractNetMhcPanPredictor:
             )
         )
 
-    @staticmethod
     def find_wt_epitope_for_alternative_mutated_epitope(
-            predictions: List[PredictedEpitope], mutated_prediction: PredictedEpitope
-    ) -> List[PredictedEpitope]:
+            self,
+            mutated_predictions: List[PredictedEpitope]
+    ) -> List:
         """returns wt epitope for each neoepitope candidate of a neoantigen candidate from an alternative mutation
         class by a BLAST search."""
-        return list(
-            filter(
-                lambda p: len(p.peptide) == len(mutated_prediction.peptide)
-                          and p.pos == mutated_prediction.pos
-                          and p.hla == mutated_prediction.hla,
-                predictions,
-            )
-        )
+        wt_peptides = []
+        for p in mutated_predictions:
+            wt_peptides.append(self.get_most_similar_wt_epitope(p.peptide, self.proteome_db))
+        return wt_peptides
+
+    @staticmethod
+    def filter_wt_predictions_from_best_mutated_alernative(
+            mut_predictions: List[PredictedEpitope], wt_predictions: List[PredictedEpitope], best_mutated_epitope
+    ) -> PredictedEpitope:
+        """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
+        best_wt = None
+        for mut, wt in zip(mut_predictions, wt_predictions):
+            if mut.peptide == best_mutated_epitope and mut.hla == wt.hla:
+                best_wt = wt
+        return best_wt
 
     @staticmethod
     def filter_binding_predictions(

@@ -19,7 +19,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List, Set
 import scipy.stats as stats
-
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
@@ -34,11 +34,13 @@ from neofox.references.references import DependenciesConfiguration
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
+        super().__init__(runner=runner, configuration=configuration)
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
         self._initialise()
+        self.proteome_db = proteome_db
 
     def _initialise(self):
         self.phbr_i = None
@@ -48,6 +50,7 @@ class BestAndMultipleBinder:
         self.generator_rate = None
         self.generator_rate_adn = None
         self.generator_rate_cdn = None
+
 
     def calculate_phbr_i(
         self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]
@@ -170,6 +173,22 @@ class BestAndMultipleBinder:
                     number_binders += 1
         return number_binders if not len(dai_values) == 0 else None
 
+    @staticmethod
+    def determine_number_of_alternative_binders_alternative(predictions: List[PredictedEpitope],
+                                                predictions_wt: List[PredictedEpitope], threshold=10):
+        """
+        Determines the number of HLA I neoepitope candidates that bind stronger (10:1) to HLA in comparison to corresponding WT
+        """
+        number_binders = 0
+        dai_values = []
+        for mut, wt in zip(predictions, predictions_wt):
+            dai_values.append(mut.affinity_score)
+            if mut.affinity_score < 5000:
+                dai = mut.affinity_score / wt.affinity_score
+                if dai > threshold:
+                    number_binders += 1
+        return number_binders if not len(dai_values) == 0 else None
+
     def run(
         self,
         mutation: Mutation,
@@ -222,55 +241,84 @@ class BestAndMultipleBinder:
             predictions=filtered_predictions, mhc1_alleles=mhc1_alleles_patient
         )
 
-        # wt
+        self.best_wt_epitope_by_rank = None
+        self.best_wt_epitope_by_affinity = None
+        self.best_ninemer_wt_epitope_by_rank = None
+        self.best_ninemer_wt_epitope_by_affinity = None
+
+        # MHC binding predictions for WT peptides
         if mutation.wild_type_xmer:
+            # SNVs
             predictions_wt = netmhcpan.mhc_prediction(
                 mhc1_alleles_patient, mhc1_alleles_available, mutation.wild_type_xmer
             )
             filtered_predictions_wt = netmhcpan.filter_binding_predictions(
                 position_of_mutation=mutation.position, predictions=predictions_wt
             )
+            if self.best_epitope_by_rank:
+                self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        filtered_predictions_wt, self.best_epitope_by_rank
+                    )
+                )
+            if self.best_epitope_by_affinity:
+                self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        filtered_predictions_wt, self.best_epitope_by_affinity
+                    )
+                )
+            # best predicted epitope of length 9
+            ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
+            if self.best_ninemer_epitope_by_rank:
+                self.best_ninemer_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        ninemer_predictions_wt, self.best_ninemer_epitope_by_rank
+                    )
+                )
+            if self.best_ninemer_epitope_by_affinity:
+                self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity
+                    )
+                )
+            # multiple binding based on affinity
+            self.generator_rate_adn = self.determine_number_of_alternative_binders(
+                predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
+                )
         else:
-            # do BLAST search for best affinity, best affinity wt, best rank
-
-
-        # best prediction
-        self.best_wt_epitope_by_rank = None
-        if self.best_epitope_by_rank:
-            self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
-                netmhcpan.filter_wt_predictions_from_best_mutated(
-                    filtered_predictions_wt, self.best_epitope_by_rank
+            # alternative mutation classes
+            # do BLAST search for all predicted epitopes  covering mutation to identify WT peptide and
+            # predict MHC binding for the identified peptide sequence
+            peptides_wt = netmhcpan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
+            filtered_predictions_wt = []
+            for peptide in peptides_wt:
+                filtered_predictions_wt.extend(netmhcpan.mhc_prediction_peptide(
+                    mhc1_alleles_patient, mhc1_alleles_available, peptide
+                ))
+            if self.best_epitope_by_rank:
+                self.best_wt_epitope_by_rank = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
+                    mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
+                    best_mutated_epitope=self.best_epitope_by_rank.peptide
                 )
-            )
-        self.best_wt_epitope_by_affinity = None
-        if self.best_epitope_by_affinity:
-            self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                netmhcpan.filter_wt_predictions_from_best_mutated(
-                    filtered_predictions_wt, self.best_epitope_by_affinity
+            if self.best_epitope_by_affinity:
+                self.best_wt_epitope_by_affinity = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
+                    mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
+                    best_mutated_epitope=self.best_epitope_by_affinity.peptide
                 )
-            )
-
-        # best predicted epitope of length 9
-        ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
-        self.best_ninemer_wt_epitope_by_rank = None
-        if self.best_ninemer_epitope_by_rank:
-            self.best_ninemer_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
-                netmhcpan.filter_wt_predictions_from_best_mutated(
-                    ninemer_predictions_wt, self.best_ninemer_epitope_by_rank
+            if self.best_ninemer_epitope_by_rank:
+                self.best_ninemer_wt_epitope_by_rank = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
+                    mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
+                    best_mutated_epitope=self.best_ninemer_epitope_by_rank.peptide
                 )
-            )
-        self.best_ninemer_wt_epitope_by_affinity = None
-        if self.best_ninemer_epitope_by_affinity:
-            self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                netmhcpan.filter_wt_predictions_from_best_mutated(
-                    ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity
+            if self.best_ninemer_epitope_by_affinity:
+                self.best_ninemer_wt_epitope_by_affinity = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
+                    mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
+                    best_mutated_epitope=self.best_ninemer_epitope_by_affinity.peptide
                 )
-            )
-
-        # multiple binding based on affinity
-        self.generator_rate_adn = self.determine_number_of_alternative_binders(
-            predictions=filtered_predictions, predictions_wt= filtered_predictions_wt
-        )
+            # multiple binding based on affinity
+            self.generator_rate_adn = self.determine_number_of_alternative_binders_alternative(
+                predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
+                )
 
         if self.generator_rate_adn is not None:
             if self.generator_rate_cdn is not None:
