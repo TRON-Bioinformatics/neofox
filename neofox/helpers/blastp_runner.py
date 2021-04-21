@@ -19,7 +19,7 @@
 from neofox.helpers import intermediate_files
 from neofox.published_features.neoantigen_fitness.aligner import Aligner
 import os
-
+from logzero import logger
 
 class BlastpRunner(object):
     def __init__(self, runner, configuration):
@@ -72,6 +72,45 @@ class BlastpRunner(object):
         os.remove(input_fasta)
         return outfile
 
+    def run_blastp_exact_length(self, peptide, database):
+        """
+                This function runs BLASTP on a given database
+                """
+        input_fasta = intermediate_files.create_temp_fasta(
+            sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix="M_"
+        )
+        outfile = intermediate_files.create_temp_file(
+            prefix="tmp_blastp_", suffix=".xml"
+        )
+        self.runner.run_command(
+            cmd=[
+                self.configuration.blastp,
+                "-gapopen",
+                "11",
+                "-gapextend",
+                "1",
+                "-outfmt",
+                "5",
+                "-query",
+                input_fasta,
+                "-out",
+                outfile,
+                "-db",
+                database,
+                "-evalue",
+                "100000000",
+                "-qcov_hsp_perc",
+                "100"
+            ]
+        )
+        os.remove(input_fasta)
+        return outfile
+
+    def get_most_similar_wt_epitope(self, peptide, database):
+        outfile = self.run_blastp_exact_length(peptide,database)
+        wt_peptide = self._extract_best_blast_peptide_hit(outfile)
+        return wt_peptide
+
     def _similarity_score(self, blastp_output_file, a) -> int:
         aligner = Aligner()
         # set a to 32 for dissimilarity
@@ -86,3 +125,9 @@ class BlastpRunner(object):
         return result
 
     def _extract_best_blast_peptide_hit(self, blastp_output_file):
+        aligner = Aligner()
+        aligner.readAllBlastAlignments(blastp_output_file)
+        # TODO: return gene name related to wt peptide
+        wt_peptide = aligner.maximum_alignment[1][1][1]
+        logger.info(wt_peptide)
+        return wt_peptide
