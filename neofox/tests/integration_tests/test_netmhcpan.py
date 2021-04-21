@@ -79,7 +79,7 @@ class TestNetMhcPanPredictor(TestCase):
         mutated = "ENPVVHFFKNIVTPR"
         combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
-        predictions = netmhc2pan_predictor.mhcII_prediction(sequence=mutated, mhc_alleles=combinations)
+        predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(10, len(predictions))
         for p in predictions:
             self.assertIsNotNone(p.peptide)
@@ -96,7 +96,7 @@ class TestNetMhcPanPredictor(TestCase):
         mutated = "ENPVVH"
         combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
-        predictions = netmhc2pan_predictor.mhcII_prediction(sequence=mutated, mhc_alleles=combinations)
+        predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(0, len(predictions))
 
     def test_netmhc2pan_rare_aminoacid(self):
@@ -107,5 +107,5 @@ class TestNetMhcPanPredictor(TestCase):
         mutated = "XTTDSWGKFDDDDDDDDD"
         combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
-        predictions = netmhc2pan_predictor.mhcII_prediction(sequence=mutated, mhc_alleles=combinations)
+        predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(40, len(predictions))

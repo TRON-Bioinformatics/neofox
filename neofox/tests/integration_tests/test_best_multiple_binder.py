@@ -198,7 +198,7 @@ class TestBestMultipleBinder(TestCase):
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(
             allele_combinations, self.available_alleles_mhc2
         )
-        predictions = netmhc2pan.mhcII_prediction(
+        predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
         filtered_predictions = netmhc2pan.filter_binding_predictions(
@@ -235,7 +235,7 @@ class TestBestMultipleBinder(TestCase):
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(
             allele_combinations, self.available_alleles_mhc2
         )
-        predictions = netmhc2pan.mhcII_prediction(
+        predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
         filtered_predictions = netmhc2pan.filter_binding_predictions(
@@ -271,7 +271,7 @@ class TestBestMultipleBinder(TestCase):
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(
             allele_combinations, self.available_alleles_mhc2
         )
-        predictions = netmhc2pan.mhcII_prediction(
+        predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
         filtered_predictions = netmhc2pan.filter_binding_predictions(
@@ -345,11 +345,11 @@ class TestBestMultipleBinder(TestCase):
         patient_mhc2_isoforms = best_multiple._get_only_available_combinations(
             allele_combinations, self.available_alleles_mhc2
         )
-        predictions = netmhc2pan.mhcII_prediction(
+        predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
 
-        predictions_wt = netmhc2pan.mhcII_prediction(
+        predictions_wt = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.wild_type_xmer
         )
 
