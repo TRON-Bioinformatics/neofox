@@ -16,7 +16,7 @@ COPY LICENSE LICENSE
 COPY README.md README.md
 # these two files will need to be downloaded from the owner's site after agreeing their license
 COPY netMHCIIpan-3.2.Linux.tar.gz netMHCIIpan-3.2.Linux.tar.gz
-COPY netMHCpan-4.0a.Linux.tar.gz netMHCpan-4.0a.Linux.tar.gz
+COPY netMHCpan-4.1b.Linux.tar.gz netMHCpan-4.1b.Linux.tar.gz
 
 # build and install neofox package
 RUN python3 setup.py bdist_wheel
@@ -36,14 +36,14 @@ ENV NEOFOX_MAKEBLASTDB /app/ncbi-blast-2.10.1+/bin/makeblastdb
 RUN echo $NEOFOX_MAKEBLASTDB
 
 # install netmhcpan
-RUN tar -xvf netMHCpan-4.0a.Linux.tar.gz
+RUN tar -xvf netMHCpan-4.1b.Linux.tar.gz
 RUN echo $NEOFOX_MAKEBLASTDB
-RUN sed -i 's/\/usr\/cbs\/packages\/netMHCpan\/4.0\/netMHCpan-4.0/\/app\/netMHCpan-4.0/g' /app/netMHCpan-4.0/netMHCpan
-RUN sed -i 's/\/scratch/\/app\/netMHCpan-4.0\/tmp/g' /app/netMHCpan-4.0/netMHCpan
-RUN mkdir /app/netMHCpan-4.0/tmp
-RUN wget http://www.cbs.dtu.dk/services/NetMHCpan-4.0/data.Linux.tar.gz  -O /app/netMHCpan-4.0/data.Linux.tar.gz
-RUN tar -xvf /app/netMHCpan-4.0/data.Linux.tar.gz -C /app/netMHCpan-4.0
-ENV NEOFOX_NETMHCPAN /app/netMHCpan-4.0/netMHCpan
+RUN sed -i 's/\/net\/sund-nas.win.dtu.dk\/storage\/services\/www\/packages\/netMHCpan\/4.1\/netMHCpan-4.1/\/app\/netMHCpan-4.1/g' /app/netMHCpan-4.1/netMHCpan
+RUN sed -i 's/\/scratch/\/app\/netMHCpan-4.1\/tmp/g' /app/netMHCpan-4.1/netMHCpan
+RUN mkdir /app/netMHCpan-4.1/tmp
+RUN wget https://services.healthtech.dtu.dk/services/NetMHCpan-4.1/data.tar.gz  -O /app/netMHCpan-4.1/data.tar.gz
+RUN tar -xvf /app/netMHCpan-4.1/data.tar.gz -C /app/netMHCpan-4.1
+ENV NEOFOX_NETMHCPAN /app/netMHCpan-4.1/netMHCpan
 
 # install netmhc2pan
 RUN tar -xvf netMHCIIpan-3.2.Linux.tar.gz

@@ -47,7 +47,7 @@ class NeofoxReferenceInstaller(object):
         available_alleles_file = os.path.join(
             self.reference_folder, NETMHCPAN_AVAILABLE_ALLELES_FILE
         )
-        cmd = '{netmhcpan} -listMHC | grep "HLA-" > {available_alleles_file}'.format(
+        cmd = '{netmhcpan} -listMHC | grep "HLA-" | grep -v "#" > {available_alleles_file}'.format(
             netmhcpan=self.config.net_mhc_pan,
             available_alleles_file=available_alleles_file,
         )
