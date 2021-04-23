@@ -103,13 +103,15 @@ class AbstractNetMhcPanPredictor(BlastpRunner):
 
     def filter_wt_predictions_from_best_mutated_alernative(
             self, mut_predictions: List[PredictedEpitope], wt_predictions: List[PredictedEpitope], best_mutated_epitope,
+            best_hla
     ) -> PredictedEpitope:
         """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
         best_wt = None
         # TODO: do here re-parse
         for mut, wt in zip(mut_predictions, wt_predictions):
-            if mut.peptide == best_mutated_epitope and mut.hla == wt.hla:
-                best_wt = wt
+            if wt.hla == best_hla:
+                if mut.peptide == best_mutated_epitope:
+                    best_wt = wt
         return best_wt
 
     @staticmethod
