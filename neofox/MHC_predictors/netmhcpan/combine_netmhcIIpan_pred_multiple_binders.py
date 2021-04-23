@@ -30,14 +30,17 @@ from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
+from neofox.model.conversion import ModelConverter
+from neofox.references.references import ReferenceFolder, HlaDatabase
 
 
 class BestAndMultipleBinderMhcII:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
         self._initialise()
+        self.proteome_db = proteome_db
 
     def _initialise(self):
         self.phbr_ii = None
@@ -117,7 +120,7 @@ class BestAndMultipleBinderMhcII:
             values.append(epitope.rank)
             if epitope.rank < 4:
                 wt_peptide = AbstractNetMhcPanPredictor.select_best_by_rank(
-                    AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
+                    predictions=AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
                         predictions_wt, epitope
                     )
                 )
@@ -147,13 +150,15 @@ class BestAndMultipleBinderMhcII:
         mutation: Mutation,
         mhc2_alleles_patient: List[Mhc2],
         mhc2_alleles_available: Set,
-        uniprot
+        uniprot,
+        hla_database
     ):
         """predicts MHC II epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed"""
         # mutation
         self._initialise()
         netmhc2pan = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            proteome_db=self.proteome_db
         )
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(
             mhc2_alleles_patient
@@ -228,9 +233,10 @@ class BestAndMultipleBinderMhcII:
             # predict MHC binding for the identified peptide sequence
             peptides_wt = netmhc2pan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
             filtered_predictions_wt = []
-            for peptide in peptides_wt:
+            for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
+                hla = self.transform_mhc2allele(mut_peptide.hla)
                 filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(
-                    patient_mhc2_isoforms, peptide
+                    hla, wt_peptide
                 ))
             if self.best_predicted_epitope_rank:
                 self.best_predicted_epitope_rank_wt = netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
@@ -437,3 +443,12 @@ class BestAndMultipleBinderMhcII:
         return BestAndMultipleBinderMhcII._get_sorted_epitopes_mhc2(
             hetero_hemizygous_alleles, homozygous_alleles, predictions
         )
+
+    @staticmethod
+    def transform_mhc2allele(mhc2_allele):
+        if "DR" in mhc2_allele:
+            allele_out = mhc2_allele.rstrip("HLA-").replace("*","_").replace(":","")
+        else:
+            allele_out = mhc2_allele.replace("*", "").replace(":", "")
+        return allele_out
+

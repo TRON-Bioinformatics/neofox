@@ -76,6 +76,7 @@ class NeoantigenAnnotator:
         """class to annotate neoantigens"""
         self.runner = Runner()
         self.configuration = configuration
+        self.proteome_db = references.proteome_db
         self.available_alleles = references.get_available_alleles()
         self.tcell_predictor = tcell_predictor
         self.self_similarity = self_similarity
@@ -99,7 +100,8 @@ class NeoantigenAnnotator:
         self.priority_score_calculator = PriorityScore()
         self.iedb_immunogenicity = IEDBimmunogenicity()
         self.amplitude = Amplitude()
-        self.mhc_parser = MhcParser(references.get_hla_database())
+        self.hla_database = references.get_hla_database()
+        self.mhc_parser = MhcParser(self.hla_database)
 
     def get_annotation(
         self, neoantigen: Neoantigen, patient: Patient
@@ -216,7 +218,7 @@ class NeoantigenAnnotator:
         )
 
         # T cell predictor
-        if netmhcpan:
+        if neoantigen.mutation.wild_type_xmer and netmhcpan:
             start = time.time()
             self.annotations.annotations.extend(
                 self.tcell_predictor.get_annotations(
@@ -263,7 +265,7 @@ class NeoantigenAnnotator:
             )
 
         # neoag immunogenicity model
-        if netmhcpan and netmhcpan.best_epitope_by_affinity:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity and neoantigen.mutation.wild_type_xmer:
             start = time.time()
             peptide_variant_position = EpitopeHelper.position_of_mutation_epitope(
                 wild_type=netmhcpan.best_wt_epitope_by_affinity.peptide,
@@ -320,9 +322,6 @@ class NeoantigenAnnotator:
             logger.info(
                 "Vaxrank annotation elapsed time {} seconds".format(round(end - start, 3))
             )
-
-
-
         return self.annotations
 
     def _compute_long_running_tasks(self, neoantigen, patient, sequential=True):
@@ -386,6 +385,7 @@ class NeoantigenAnnotator:
                 netmhcpan_future = dask_client.submit(
                     self.run_netmhcpan,
                     self.runner,
+                    self.references,
                     self.configuration,
                     self.available_alleles,
                     self.mhc_parser,
@@ -459,7 +459,6 @@ class NeoantigenAnnotator:
         # TODO: set the hash fro the resources
         self.annotations.annotations = []
 
-
     def run_netmhcpan(
             self,
             runner: Runner,
@@ -469,12 +468,14 @@ class NeoantigenAnnotator:
             neoantigen: Neoantigen,
             patient: Patient,
     ):
-        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser)
+        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser,
+                                          proteome_db=self.proteome_db)
         netmhcpan.run(
             mutation=neoantigen.mutation,
             mhc1_alleles_patient=patient.mhc1,
             mhc1_alleles_available=available_alleles.get_available_mhc_i(),
-            uniprot=self.uniprot
+            uniprot=self.uniprot,
+            hla_database=self.hla_database
         )
         return netmhcpan
 
@@ -488,13 +489,14 @@ class NeoantigenAnnotator:
             patient: Patient,
     ):
         netmhc2pan = BestAndMultipleBinderMhcII(
-            runner=runner, configuration=configuration, mhc_parser=mhc_parser
+            runner=runner, configuration=configuration, mhc_parser=mhc_parser, proteome_db=self.proteome_db
         )
         netmhc2pan.run(
             mutation=neoantigen.mutation,
             mhc2_alleles_patient=patient.mhc2,
             mhc2_alleles_available=available_alleles.get_available_mhc_ii(),
-            uniprot=self.uniprot
+            uniprot=self.uniprot,
+            hla_database=self.hla_database
         )
         return netmhc2pan
 
