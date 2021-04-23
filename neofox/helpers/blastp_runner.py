@@ -107,7 +107,7 @@ class BlastpRunner(object):
         return outfile
 
     def get_most_similar_wt_epitope(self, peptide, database):
-        outfile = self.run_blastp_exact_length(peptide,database)
+        outfile = self.run_blastp_exact_length(peptide, database)
         wt_peptide = self._extract_best_blast_peptide_hit(outfile)
         return wt_peptide
 

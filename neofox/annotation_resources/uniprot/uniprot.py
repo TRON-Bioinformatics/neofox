@@ -36,7 +36,7 @@ class Uniprot(object):
 
     @staticmethod
     def _load_proteome(fasta_proteome) -> str:
-        return open(fasta_proteome).read()
+        return open(fasta_proteome).read().replace("\n", "")
 
     def is_sequence_not_in_uniprot(self, sequence) -> bool:
         return sequence not in self.uniprot

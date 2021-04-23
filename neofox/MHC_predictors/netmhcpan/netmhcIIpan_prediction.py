@@ -32,7 +32,8 @@ from neofox.references.references import DependenciesConfiguration
 
 
 class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
+        super().__init__(runner=runner, configuration=configuration, proteome_db=proteome_db, mhc_parser=mhc_parser)
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
@@ -106,10 +107,8 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         return self._parse_netmhcpan_output(lines)
     
     def mhc2_prediction_peptide(
-        self, mhc_alleles: List[str], sequence
-    ) -> List[PredictedEpitope]:
-        """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
-        # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
+        self, mhc_alleles: List[str], sequence ) -> List[PredictedEpitope]:
+        """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
         tmp_peptide = intermediate_files.create_temp_peptide(
             [sequence], prefix="tmp_singleseq_"
         )
@@ -118,7 +117,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             [
                 self.configuration.net_mhc2_pan,
                 "-a",
-                ",".join(mhc_alleles),
+                mhc_alleles,
                 "-inptype",
                 "1",
                 "-f",

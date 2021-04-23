@@ -31,14 +31,16 @@ from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 from logzero import logger
+from neofox.model.conversion import ModelConverter
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
         self._initialise()
+        self.proteome_db = proteome_db
 
     def _initialise(self):
         self.phbr_i = None
@@ -169,9 +171,8 @@ class BestAndMultipleBinder:
                 dai = wt_peptide.affinity_score / epitope.affinity_score
                 if dai > threshold:
                     number_binders += 1
-        logger.info(dai_values)
-        if len(dai_values) == 0: number_binders = None
-        logger.info(number_binders)
+        if len(dai_values) == 0:
+            number_binders = None
         return number_binders
 
     @staticmethod
@@ -195,14 +196,16 @@ class BestAndMultipleBinder:
         mutation: Mutation,
         mhc1_alleles_patient: List[Mhc1],
         mhc1_alleles_available: Set,
-        uniprot
+        uniprot,
+        hla_database
     ):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
         """
         self._initialise()
         netmhcpan = NetMhcPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            proteome_db=self.proteome_db
         )
         # print alleles
         predictions = netmhcpan.mhc_prediction(
@@ -216,7 +219,6 @@ class BestAndMultipleBinder:
         self.epitope_affinities = "/".join(
             [str(epitope.affinity_score) for epitope in filtered_predictions]
         )
-        logger.info(filtered_predictions)
         # best prediction
         self.best_epitope_by_rank = netmhcpan.select_best_by_rank(filtered_predictions)
         self.best_epitope_by_affinity = netmhcpan.select_best_by_affinity(
@@ -256,7 +258,6 @@ class BestAndMultipleBinder:
             filtered_predictions_wt = netmhcpan.filter_binding_predictions_wt_snv(
                 position_of_mutation=mutation.position, predictions=predictions_wt
             )
-            logger.info(filtered_predictions_wt)
             if self.best_epitope_by_rank:
                 self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
                     netmhcpan.filter_wt_predictions_from_best_mutated(
@@ -269,8 +270,6 @@ class BestAndMultipleBinder:
                         filtered_predictions_wt, self.best_epitope_by_affinity
                     )
                 )
-            logger.info(self.best_epitope_by_affinity)
-            logger.info(self.best_wt_epitope_by_affinity)
             # best predicted epitope of length 9
             ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
             if self.best_ninemer_epitope_by_rank:
@@ -295,9 +294,10 @@ class BestAndMultipleBinder:
             # predict MHC binding for the identified peptide sequence
             peptides_wt = netmhcpan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
             filtered_predictions_wt = []
-            for peptide in peptides_wt:
+            for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
+                hla = ModelConverter.parse_mhc1_alleles(alleles=[mut_peptide.hla], hla_database=hla_database)
                 filtered_predictions_wt.extend(netmhcpan.mhc_prediction_peptide(
-                    mhc1_alleles_patient, mhc1_alleles_available, peptide
+                    hla, mhc1_alleles_available, wt_peptide
                 ))
             if self.best_epitope_by_rank:
                 self.best_wt_epitope_by_rank = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
