@@ -501,8 +501,9 @@ class NeoantigenAnnotator:
         )
         return netmhc2pan
 
-    @staticmethod
+
     def run_mixmhcpred(
+            self,
             runner: Runner,
             configuration: DependenciesConfiguration,
             mhc_parser: MhcParser,
@@ -510,10 +511,10 @@ class NeoantigenAnnotator:
             patient: Patient,
     ):
         mixmhc = MixMHCpred(runner, configuration, mhc_parser)
-        return mixmhc.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1)
+        return mixmhc.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
 
-    @staticmethod
     def run_prime(
+            self,
             runner: Runner,
             configuration: DependenciesConfiguration,
             mhc_parser: MhcParser,
@@ -521,10 +522,10 @@ class NeoantigenAnnotator:
             patient: Patient,
     ):
         prime = Prime(runner, configuration, mhc_parser)
-        return prime.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1)
+        return prime.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
 
-    @staticmethod
     def run_mixmhc2pred(
+            self,
             runner: Runner,
             configuration: DependenciesConfiguration,
             mhc_parser: MhcParser,
@@ -532,4 +533,4 @@ class NeoantigenAnnotator:
             patient: Patient,
     ):
         mixmhc2 = MixMhc2Pred(runner, configuration, mhc_parser)
-        return mixmhc2.get_annotations(mhc=patient.mhc2, mutation=neoantigen.mutation)
+        return mixmhc2.get_annotations(mhc=patient.mhc2, mutation=neoantigen.mutation, uniprot=self.uniprot)
