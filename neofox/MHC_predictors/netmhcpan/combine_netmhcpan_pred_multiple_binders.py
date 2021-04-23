@@ -302,22 +302,24 @@ class BestAndMultipleBinder:
             if self.best_epitope_by_rank:
                 self.best_wt_epitope_by_rank = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
                     mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                    best_mutated_epitope=self.best_epitope_by_rank.peptide
+                    best_mutated_epitope=self.best_epitope_by_rank.peptide, best_hla=self.best_epitope_by_rank.hla
                 )
+            logger.info(self.best_epitope_by_rank)
+            logger.info(self.best_wt_epitope_by_rank)
             if self.best_epitope_by_affinity:
                 self.best_wt_epitope_by_affinity = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
                     mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                    best_mutated_epitope=self.best_epitope_by_affinity.peptide
+                    best_mutated_epitope=self.best_epitope_by_affinity.peptide, best_hla=self.best_epitope_by_affinity.hla
                 )
             if self.best_ninemer_epitope_by_rank:
                 self.best_ninemer_wt_epitope_by_rank = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
                     mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                    best_mutated_epitope=self.best_ninemer_epitope_by_rank.peptide
+                    best_mutated_epitope=self.best_ninemer_epitope_by_rank.peptide, best_hla=self.best_ninemer_epitope_by_rank.hla
                 )
             if self.best_ninemer_epitope_by_affinity:
                 self.best_ninemer_wt_epitope_by_affinity = netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
                     mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                    best_mutated_epitope=self.best_ninemer_epitope_by_affinity.peptide
+                    best_mutated_epitope=self.best_ninemer_epitope_by_affinity.peptide, best_hla=self.best_ninemer_epitope_by_affinity.hla
                 )
             # multiple binding based on affinity
             self.generator_rate_adn = self.determine_number_of_alternative_binders_alternative(

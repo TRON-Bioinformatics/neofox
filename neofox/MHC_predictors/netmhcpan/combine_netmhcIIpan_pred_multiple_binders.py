@@ -241,13 +241,13 @@ class BestAndMultipleBinderMhcII:
             if self.best_predicted_epitope_rank:
                 self.best_predicted_epitope_rank_wt = netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
                     mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                    best_mutated_epitope=self.best_predicted_epitope_rank
+                    best_mutated_epitope=self.best_predicted_epitope_rank.peptide, best_hla=self.best_predicted_epitope_rank.hla
                 )
                 if self.best_predicted_epitope_affinity:
                     self.best_predicted_epitope_affinity_wt = \
                         netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
                             mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                            best_mutated_epitope=self.best_predicted_epitope_affinity
+                            best_mutated_epitope=self.best_predicted_epitope_affinity.peptide, best_hla=self.best_predicted_epitope_affinity.hla
                             )
                 if len(mutation.mutated_xmer) >= 15:
                     # generator rate for MHC II
