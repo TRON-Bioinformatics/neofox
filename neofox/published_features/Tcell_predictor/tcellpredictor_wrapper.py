@@ -120,8 +120,8 @@ class TcellPrediction:
     ) -> List[Annotation]:
         # TODO: this is difficult to extend to more complex mutations (eg: MNVs, indels) as only considers first mutated
         #  position
-        annotations = []
-        if netmhcpan.best_ninemer_epitope_by_affinity:
+        tcell_predictor_score = None
+        if neoantigen.mutation.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity:
             mutation_position = neoantigen.mutation.position[0]
             wild_type_aminoacid = neoantigen.mutation.wild_type_xmer[
                 mutation_position - 1
@@ -132,10 +132,10 @@ class TcellPrediction:
                                                           epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
                                                           score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
                                                           threshold=500, )
-            annotations = [
-                AnnotationFactory.build_annotation(
-                    value=tcell_predictor_score,
-                    name="Tcell_predictor_score_cutoff500nM",
-                )
-            ]
+        annotations = [
+            AnnotationFactory.build_annotation(
+                value=tcell_predictor_score,
+                name="Tcell_predictor_score_cutoff500nM",
+            )
+        ]
         return annotations
