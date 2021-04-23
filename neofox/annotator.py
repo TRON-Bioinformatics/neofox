@@ -218,7 +218,7 @@ class NeoantigenAnnotator:
         )
 
         # T cell predictor
-        if neoantigen.mutation.wild_type_xmer and netmhcpan:
+        if netmhcpan:
             start = time.time()
             self.annotations.annotations.extend(
                 self.tcell_predictor.get_annotations(
@@ -265,7 +265,7 @@ class NeoantigenAnnotator:
             )
 
         # neoag immunogenicity model
-        if netmhcpan and netmhcpan.best_epitope_by_affinity and neoantigen.mutation.wild_type_xmer:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity:
             start = time.time()
             peptide_variant_position = EpitopeHelper.position_of_mutation_epitope(
                 wild_type=netmhcpan.best_wt_epitope_by_affinity.peptide,
@@ -276,6 +276,7 @@ class NeoantigenAnnotator:
                     sample_id=patient.identifier,
                     netmhcpan=netmhcpan,
                     peptide_variant_position=peptide_variant_position,
+                    neoantigen=neoantigen
                 )
             )
             end = time.time()
