@@ -115,8 +115,7 @@ class AbstractNetMhcPanPredictor(BlastpRunner):
         return best_wt
 
     @staticmethod
-    def filter_binding_predictions(
-        position_of_mutation, predictions: List[PredictedEpitope], uniprot
+    def filter_binding_predictions(predictions: List[PredictedEpitope], uniprot
     ) -> List[PredictedEpitope]:
         """filters prediction file for predicted epitopes that cover mutations by searching for epitope
         in uniprot proteome database with an exact match search"""

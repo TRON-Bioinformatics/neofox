@@ -70,7 +70,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
             input_peptide,
             "-BA",
         ]
-        lines, _ = self.runner.run_command(cmd)
+        lines, _ = self.runner.run_command(cmd, print_log=False)
         return self._parse_netmhcpan_output(lines)
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:

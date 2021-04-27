@@ -114,7 +114,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         )
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command(
-            [
+            cmd=[
                 self.configuration.net_mhc2_pan,
                 "-a",
                 mhc_alleles,
@@ -125,7 +125,8 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 "-tdir",
                 tmp_folder,
                 "-dirty",
-            ]
+            ],
+            print_log=False
         )
         return self._parse_netmhcpan_output(lines)
 

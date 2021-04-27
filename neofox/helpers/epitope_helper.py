@@ -37,7 +37,7 @@ class EpitopeHelper(object):
                 ends = [s + length for s in starts]
                 for s, e in zip(starts, ends):
                     peptide = mutation.mutated_xmer[s:e]
-                    if uniprot.is_sequence_not_in_uniprot(peptide):
+                    if len(peptide) == length and uniprot.is_sequence_not_in_uniprot(peptide):
                         list_peptides.append(peptide)
 
         return list_peptides

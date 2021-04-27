@@ -48,13 +48,14 @@ class TestBestMultipleBinder(TestCase):
         )
         self.hla_database = references.get_hla_database()
         self.mhc_parser = MhcParser(self.hla_database)
+        self.proteome_db = references.proteome_db
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
         self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
         self.uniprot = Uniprot(references.uniprot)
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -67,7 +68,8 @@ class TestBestMultipleBinder(TestCase):
             mutation=mutation,
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
-            uniprot=self.uniprot
+            uniprot=self.uniprot,
+            hla_database=self.hla_database
         )
         self.assertEqual(543.9, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla)
@@ -83,10 +85,10 @@ class TestBestMultipleBinder(TestCase):
 
     def test_phbr1(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         netmhcpan = NetMhcPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         mutation = ModelValidator._validate_mutation(
             Mutation(
@@ -100,7 +102,7 @@ class TestBestMultipleBinder(TestCase):
         )
 
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions,uniprot=self.uniprot
+            predictions=predictions,uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
             BestAndMultipleBinder.extract_best_epitope_per_alelle(
@@ -126,7 +128,7 @@ class TestBestMultipleBinder(TestCase):
         )
 
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions,uniprot=self.uniprot
+            predictions=predictions,uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
             BestAndMultipleBinder.extract_best_epitope_per_alelle(
@@ -145,7 +147,7 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions, uniprot=self.uniprot
+            predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
             BestAndMultipleBinder.extract_best_epitope_per_alelle(
@@ -157,7 +159,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -170,7 +172,8 @@ class TestBestMultipleBinder(TestCase):
             mutation=mutation,
             mhc2_alleles_patient=self.test_mhc_two,
             mhc2_alleles_available=self.available_alleles_mhc2,
-            uniprot=self.uniprot
+            uniprot=self.uniprot,
+            hla_database=self.hla_database
         )
         logger.info(best_multiple.best_predicted_epitope_rank.rank)
         logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
@@ -186,10 +189,10 @@ class TestBestMultipleBinder(TestCase):
 
     def test_phbr2(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         netmhc2pan = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         mutation = ModelValidator._validate_mutation(
             Mutation(
@@ -206,7 +209,7 @@ class TestBestMultipleBinder(TestCase):
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
         filtered_predictions = netmhc2pan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions, uniprot=self.uniprot
+            predictions=predictions, uniprot=self.uniprot
         )
         logger.info(filtered_predictions)
         logger.info(self.test_mhc_two)
@@ -243,7 +246,7 @@ class TestBestMultipleBinder(TestCase):
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
         filtered_predictions = netmhc2pan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions, uniprot=self.uniprot
+            predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
             best_multiple.extract_best_epitope_per_mhc2_alelle(
@@ -279,7 +282,7 @@ class TestBestMultipleBinder(TestCase):
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
         filtered_predictions = netmhc2pan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions, uniprot=self.uniprot
+            predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
             best_multiple.extract_best_epitope_per_mhc2_alelle(
@@ -293,10 +296,10 @@ class TestBestMultipleBinder(TestCase):
 
     def test_generator_rate(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         netmhcpan = NetMhcPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         mutation = ModelValidator._validate_mutation(
             Mutation(
@@ -314,7 +317,7 @@ class TestBestMultipleBinder(TestCase):
         )
 
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions, uniprot=self.uniprot
+            predictions=predictions, uniprot=self.uniprot
         )
         filtered_predictions_wt = netmhcpan.filter_binding_predictions_wt_snv(
             position_of_mutation=mutation.position, predictions=predictions_wt
@@ -334,10 +337,10 @@ class TestBestMultipleBinder(TestCase):
 
     def test_generator_rate_mhcII(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         netmhc2pan = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         mutation = ModelValidator._validate_mutation(
             Mutation(
@@ -359,7 +362,7 @@ class TestBestMultipleBinder(TestCase):
         )
 
         predicted_neoepitopes = netmhc2pan.filter_binding_predictions(
-            position_of_mutation=mutation.position, predictions=predictions, uniprot=self.uniprot
+            predictions=predictions, uniprot=self.uniprot
         )
         filtered_predictions_wt = netmhc2pan.filter_binding_predictions_wt_snv(
             position_of_mutation=mutation.position, predictions=predictions_wt

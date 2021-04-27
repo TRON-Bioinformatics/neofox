@@ -48,28 +48,28 @@ class BestAndMultipleBinderMhcII:
         self.generator_rate_adn = None
         self.generator_rate_cdn = None
         self.best_predicted_epitope_rank = PredictedEpitope(
-            peptide="-",
+            peptide=None,
             pos=None,
             hla=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_affinity = PredictedEpitope(
-            peptide="-",
+            peptide=None,
             pos=None,
             hla=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_rank_wt = PredictedEpitope(
-            peptide="-",
+            peptide=None,
             pos=None,
             hla=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_affinity_wt = PredictedEpitope(
-            peptide="-",
+            peptide=None,
             pos=None,
             hla=Mhc2Isoform(name=None),
             affinity_score=None,
@@ -173,97 +173,94 @@ class BestAndMultipleBinderMhcII:
         )
         if len(mutation.mutated_xmer) >= 15:
             filtered_predictions = netmhc2pan.filter_binding_predictions(
-                mutation.position, predictions, uniprot
+                predictions, uniprot
             )
-            # multiple binding
-            best_predicted_epitopes_per_alelle = (
-                self.extract_best_epitope_per_mhc2_alelle(
-                    filtered_predictions, mhc2_alleles_patient
+            if len(filtered_predictions) > 0:
+                # multiple binding
+                best_predicted_epitopes_per_alelle = (
+                    self.extract_best_epitope_per_mhc2_alelle(
+                        filtered_predictions, mhc2_alleles_patient
+                    )
                 )
-            )
-            self.phbr_ii = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
+                self.phbr_ii = self.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
 
-            # best prediction
-            self.best_predicted_epitope_rank = netmhc2pan.select_best_by_rank(
-                filtered_predictions
-            )
-            self.best_predicted_epitope_affinity = netmhc2pan.select_best_by_affinity(
-                filtered_predictions
-            )
-            self.generator_rate_cdn = self.determine_number_of_binders(
-                predictions=filtered_predictions
-            )
-
-        self.best_predicted_epitope_rank_wt = None
-        self.best_predicted_epitope_affinity_wt = None
-        # MHC binding predictions for WT pepti
-        if mutation.wild_type_xmer:
-            predictions = netmhc2pan.mhc2_prediction(
-                patient_mhc2_isoforms, mutation.wild_type_xmer
-            )
-            if len(mutation.wild_type_xmer) >= 15:
-                filtered_predictions_wt = netmhc2pan.filter_binding_predictions_wt_snv(
-                    mutation.position, predictions
-                )
                 # best prediction
-                if self.best_predicted_epitope_rank:
-                    self.best_predicted_epitope_rank_wt = netmhc2pan.select_best_by_rank(
-                        netmhc2pan.filter_wt_predictions_from_best_mutated(
-                            filtered_predictions_wt, self.best_predicted_epitope_rank
-                        )
+                self.best_predicted_epitope_rank = netmhc2pan.select_best_by_rank(
+                    filtered_predictions
+                )
+                self.best_predicted_epitope_affinity = netmhc2pan.select_best_by_affinity(
+                    filtered_predictions
+                )
+                self.generator_rate_cdn = self.determine_number_of_binders(
+                    predictions=filtered_predictions
+                )
+                # MHC binding predictions for WT pepti
+                if mutation.wild_type_xmer:
+                    predictions = netmhc2pan.mhc2_prediction(
+                        patient_mhc2_isoforms, mutation.wild_type_xmer
                     )
-                if self.best_predicted_epitope_affinity:
-                    self.best_predicted_epitope_affinity_wt = (
-                        netmhc2pan.select_best_by_affinity(
-                            netmhc2pan.filter_wt_predictions_from_best_mutated(
-                                filtered_predictions_wt, self.best_predicted_epitope_affinity
+                    if len(mutation.wild_type_xmer) >= 15:
+                        filtered_predictions_wt = netmhc2pan.filter_binding_predictions_wt_snv(
+                            mutation.position, predictions
+                        )
+                        # best prediction
+                        if self.best_predicted_epitope_rank:
+                            self.best_predicted_epitope_rank_wt = netmhc2pan.select_best_by_rank(
+                                netmhc2pan.filter_wt_predictions_from_best_mutated(
+                                    filtered_predictions_wt, self.best_predicted_epitope_rank
+                                )
                             )
+                        if self.best_predicted_epitope_affinity:
+                            self.best_predicted_epitope_affinity_wt = (
+                                netmhc2pan.select_best_by_affinity(
+                                    netmhc2pan.filter_wt_predictions_from_best_mutated(
+                                        filtered_predictions_wt, self.best_predicted_epitope_affinity
+                                    )
+                                )
+                            )
+                        if len(mutation.mutated_xmer) >= 15:
+                            self.generator_rate_adn = self.determine_number_of_alternative_binders(
+                                predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
+                            )
+                            if self.generator_rate_adn is not None:
+                                if self.generator_rate_cdn is not None:
+                                    self.generator_rate = self.generator_rate_adn + self.generator_rate_cdn
+                else:
+                    # alternative mutation classes
+                    # do BLAST search for all predicted epitopes  covering mutation to identify WT peptide and
+                    # predict MHC binding for the identified peptide sequence
+                    peptides_wt = netmhc2pan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
+                    filtered_predictions_wt = []
+                    for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
+                        hla = self.transform_mhc2allele(mut_peptide.hla)
+                        filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(
+                            hla, wt_peptide
+                        ))
+                    if self.best_predicted_epitope_rank:
+                        self.best_predicted_epitope_rank_wt = netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
+                            mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
+                            best_mutated_epitope=self.best_predicted_epitope_rank.peptide,
+                            best_hla=self.best_predicted_epitope_rank.hla
                         )
-                    )
-                if len(mutation.mutated_xmer) >= 15:
-                    self.generator_rate_adn = self.determine_number_of_alternative_binders(
-                        predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
-                    )
+                        if self.best_predicted_epitope_affinity:
+                            self.best_predicted_epitope_affinity_wt = \
+                                netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
+                                    mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
+                                    best_mutated_epitope=self.best_predicted_epitope_affinity.peptide,
+                                    best_hla=self.best_predicted_epitope_affinity.hla
+                                )
+                        if len(mutation.mutated_xmer) >= 15:
+                            # generator rate for MHC II
+                            self.generator_rate_cdn = self.determine_number_of_binders(
+                                predictions=filtered_predictions
+                            )
+                            self.generator_rate_adn = self.determine_number_of_alternative_binders_alternative(
+                                predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
+                            )
+
                     if self.generator_rate_adn is not None:
                         if self.generator_rate_cdn is not None:
                             self.generator_rate = self.generator_rate_adn + self.generator_rate_cdn
-        else:
-            # alternative mutation classes
-            # do BLAST search for all predicted epitopes  covering mutation to identify WT peptide and
-            # predict MHC binding for the identified peptide sequence
-            peptides_wt = netmhc2pan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
-            filtered_predictions_wt = []
-            for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
-                hla = self.transform_mhc2allele(mut_peptide.hla)
-                filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(
-                    hla, wt_peptide
-                ))
-            if self.best_predicted_epitope_rank:
-                self.best_predicted_epitope_rank_wt = netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
-                    mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                    best_mutated_epitope=self.best_predicted_epitope_rank.peptide, best_hla=self.best_predicted_epitope_rank.hla
-                )
-                if self.best_predicted_epitope_affinity:
-                    self.best_predicted_epitope_affinity_wt = \
-                        netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
-                            mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                            best_mutated_epitope=self.best_predicted_epitope_affinity.peptide, best_hla=self.best_predicted_epitope_affinity.hla
-                            )
-                if len(mutation.mutated_xmer) >= 15:
-                    # generator rate for MHC II
-                    self.generator_rate_cdn = self.determine_number_of_binders(
-                        predictions=filtered_predictions
-                    )
-                    self.generator_rate_adn = self.determine_number_of_alternative_binders_alternative(
-                        predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
-                    )
-
-            if self.generator_rate_adn is not None:
-                if self.generator_rate_cdn is not None:
-                    self.generator_rate = self.generator_rate_adn + self.generator_rate_cdn
-
-
-
 
     @staticmethod
     def _get_only_available_combinations(allele_combinations: List[Mhc2Isoform], set_available_mhc: List[str]) -> List[str]:
