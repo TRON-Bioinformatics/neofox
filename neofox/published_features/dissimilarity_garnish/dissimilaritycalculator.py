@@ -58,8 +58,9 @@ class DissimilarityCalculator(BlastpRunner):
         """
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
+        dissimilarity = None
         annotations = []
-        if netmhcpan.best_epitope_by_affinity:
+        if netmhcpan.best_epitope_by_affinity.peptide:
             dissimilarity = self.calculate_dissimilarity(mhc_mutation=netmhcpan.best_epitope_by_affinity.peptide,
                                                          mhc_affinity=netmhcpan.best_epitope_by_affinity.affinity_score,
                                                          filter_binder=True, )

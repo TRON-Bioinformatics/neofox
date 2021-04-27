@@ -11,7 +11,7 @@ Neoantigens are tumor-specific antigens encoded by somatic mutations. Their brea
 selected and  then translated into small peptides or amino acid sequences. For the final step, algorithms that predict the likelihood of a neoantigen candidate sequence to be indeed a true neoantigen are required.  
 Several neoantigen features that describe the ability of a neoantigen candidate sequence to induce a T-cell response have been published in the last years.   
 
-**NeoFox** (**NEO**antigen **F**eature toolb**OX**) is a python package that annotates a given set of neoantigen candidate sequences derived from point mutation with relevant neoantigen features.  
+**NeoFox** (**NEO**antigen **F**eature toolb**OX**) is a python package that annotates a given set of neoantigen candidate sequences with relevant neoantigen features. NeoFox supports neoantigens derived from SNVs (single nucleotide variations) and non-SNVs mutations. Please note that some of the features were specifically designed for SNVs.   
 NeoFox covers neoepitope prediction by MHC binding and ligand prediction, similarity/foreignness of a neoepitope candidate sequence, combinatorial features and machine learning approaches. A list of implemented features and their references are given in Table 1.    
 
 **Table 1**

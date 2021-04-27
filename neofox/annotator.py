@@ -120,7 +120,7 @@ class NeoantigenAnnotator:
 
         # HLA I predictions: NetMHCpan
         if netmhcpan:
-            self.annotations.annotations.extend(netmhcpan.get_annotations())
+            self.annotations.annotations.extend(netmhcpan.get_annotations(mutation=neoantigen.mutation))
 
         # HLA II predictions: NetMHCIIpan
         if netmhc2pan:
@@ -276,8 +276,7 @@ class NeoantigenAnnotator:
                     sample_id=patient.identifier,
                     netmhcpan=netmhcpan,
                     peptide_variant_position=peptide_variant_position,
-                    neoantigen=neoantigen
-                )
+                    mutation=neoantigen.mutation)
             )
             end = time.time()
             logger.info(

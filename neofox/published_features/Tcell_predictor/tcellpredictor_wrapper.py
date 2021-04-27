@@ -121,7 +121,7 @@ class TcellPrediction:
         # TODO: this is difficult to extend to more complex mutations (eg: MNVs, indels) as only considers first mutated
         #  position
         tcell_predictor_score = None
-        if neoantigen.mutation.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity:
+        if neoantigen.mutation.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity.peptide:
             mutation_position = neoantigen.mutation.position[0]
             wild_type_aminoacid = neoantigen.mutation.wild_type_xmer[
                 mutation_position - 1

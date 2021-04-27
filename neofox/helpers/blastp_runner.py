@@ -101,7 +101,7 @@ class BlastpRunner(object):
                 "100000000",
                 "-qcov_hsp_perc",
                 "100"
-            ]
+            ], print_log=False
         )
         os.remove(input_fasta)
         return outfile
@@ -129,5 +129,4 @@ class BlastpRunner(object):
         aligner.readAllBlastAlignments(blastp_output_file)
         # TODO: return gene name related to wt peptide
         wt_peptide = aligner.maximum_alignment[1][1][1]
-        logger.info(wt_peptide)
         return wt_peptide
