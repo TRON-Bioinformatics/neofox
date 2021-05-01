@@ -20,15 +20,17 @@ from neofox.helpers import intermediate_files
 from neofox.published_features.neoantigen_fitness.aligner import Aligner
 import os
 from logzero import logger
+from neofox.references.references import PREFIX_HOMO_SAPIENS
 
 class BlastpRunner(object):
-    def __init__(self, runner, configuration):
+    def __init__(self, runner, configuration, proteome_db=""):
         """
         :type runner: neofox.helpers.runner.Runner
         :type configuration: neofox.references.DependenciesConfiguration
         """
         self.runner = runner
         self.configuration = configuration
+        self.human_proteome_db = os.path.join(proteome_db, PREFIX_HOMO_SAPIENS)
 
     def calculate_similarity_database(self, peptide, database, a=26) -> int:
         """
@@ -72,7 +74,7 @@ class BlastpRunner(object):
         os.remove(input_fasta)
         return outfile
 
-    def run_blastp_exact_length(self, peptide, database):
+    def run_blastp_exact_length(self, peptide):
         """
                 This function runs BLASTP on a given database
                 """
@@ -96,7 +98,7 @@ class BlastpRunner(object):
                 "-out",
                 outfile,
                 "-db",
-                database,
+                self.human_proteome_db,
                 "-evalue",
                 "100000000",
                 "-qcov_hsp_perc",
@@ -106,8 +108,8 @@ class BlastpRunner(object):
         os.remove(input_fasta)
         return outfile
 
-    def get_most_similar_wt_epitope(self, peptide, database):
-        outfile = self.run_blastp_exact_length(peptide, database)
+    def get_most_similar_wt_epitope(self, peptide):
+        outfile = self.run_blastp_exact_length(peptide)
         wt_peptide = self._extract_best_blast_peptide_hit(outfile)
         return wt_peptide
 

@@ -30,17 +30,14 @@ from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
-from neofox.model.conversion import ModelConverter
-from neofox.references.references import ReferenceFolder, HlaDatabase
 
 
 class BestAndMultipleBinderMhcII:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
         self._initialise()
-        self.proteome_db = proteome_db
 
     def _initialise(self):
         self.phbr_ii = None
@@ -151,14 +148,14 @@ class BestAndMultipleBinderMhcII:
         mhc2_alleles_patient: List[Mhc2],
         mhc2_alleles_available: Set,
         uniprot,
-        hla_database
+        proteome_db
     ):
         """predicts MHC II epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed"""
         # mutation
         self._initialise()
         netmhc2pan = NetMhcIIPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
-            proteome_db=self.proteome_db
+            proteome_db=proteome_db
         )
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(
             mhc2_alleles_patient

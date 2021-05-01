@@ -35,12 +35,11 @@ from neofox.model.conversion import ModelConverter
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
         self._initialise()
-        self.proteome_db = proteome_db
 
     def _initialise(self):
         self.phbr_i = None
@@ -253,7 +252,8 @@ class BestAndMultipleBinder:
         mhc1_alleles_patient: List[Mhc1],
         mhc1_alleles_available: Set,
         uniprot,
-        hla_database
+        hla_database,
+        proteome_db
     ):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
@@ -261,7 +261,7 @@ class BestAndMultipleBinder:
         self._initialise()
         netmhcpan = NetMhcPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
-            proteome_db=self.proteome_db
+            proteome_db=proteome_db
         )
         # print alleles
         predictions = netmhcpan.mhc_prediction(

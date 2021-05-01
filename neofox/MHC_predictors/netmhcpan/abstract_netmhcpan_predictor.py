@@ -23,7 +23,6 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.references.references import DependenciesConfiguration
-import os
 from neofox.model.mhc_parser import MhcParser
 
 
@@ -41,7 +40,7 @@ class PredictedEpitope:
 
 class AbstractNetMhcPanPredictor(BlastpRunner):
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, proteome_db, mhc_parser: MhcParser):
-        super().__init__(runner=runner, configuration=configuration)
+        super().__init__(runner=runner, configuration=configuration, proteome_db=proteome_db)
         self.runner = runner
         self.configuration = configuration
         self.proteome_db = proteome_db
@@ -90,9 +89,8 @@ class AbstractNetMhcPanPredictor(BlastpRunner):
         class by a BLAST search."""
         mut_peptides = list(set([p.peptide for p in mutated_predictions]))
         wt_peptides = []
-        database = os.path.join(self.proteome_db, "homo_sapiens")
         for p in mut_peptides:
-            wt_peptides.append(self.get_most_similar_wt_epitope(p, database))
+            wt_peptides.append(self.get_most_similar_wt_epitope(p))
         wt_peptides_full = []
         for pep in mutated_predictions:
             for wt, mut in zip(wt_peptides, mut_peptides):
