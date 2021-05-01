@@ -22,6 +22,7 @@ import os
 from logzero import logger
 from neofox.references.references import PREFIX_HOMO_SAPIENS
 
+
 class BlastpRunner(object):
     def __init__(self, runner, configuration, proteome_db=""):
         """
