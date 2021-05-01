@@ -24,16 +24,18 @@ from logzero import logger
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 import os
+from neofox.references.references import PREFIX_HOMO_SAPIENS
+from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class TestBlast(TestCase):
     def setUp(self):
         self.references, self.configuration, self.fastafile = self._load_references()
+        self.human_proteome_db = self.references.proteome_db
         self.blast_calculator = BlastpRunner(
-            runner=Runner(), configuration=self.configuration
+            runner=Runner(), configuration=self.configuration, proteome_db=self.human_proteome_db
         )
-        self.proteom_db = self.references.proteome_db
-
+        self.iedb_db = os.path.join(self.references.iedb, IEDB_BLAST_PREFIX)
 
     def _load_references(self):
         references, configuration = integration_test_tools.load_references()
@@ -42,8 +44,10 @@ class TestBlast(TestCase):
 
     def test_blast(self):
         sequence = "FIAGLIAIV"
-        logger.debug(self.proteom_db)
-        database = os.path.join(self.proteom_db, "homo_sapiens")
-        logger.debug(database)
-        res = self.blast_calculator.get_most_similar_wt_epitope(sequence, database)
+        res = self.blast_calculator.get_most_similar_wt_epitope(sequence)
+        logger.info(res)
+
+    def test_calculate_similarity_database(self):
+        sequence = "FIAGLIAIV"
+        res = self.blast_calculator.calculate_similarity_database(sequence, self.iedb_db)
         logger.info(res)

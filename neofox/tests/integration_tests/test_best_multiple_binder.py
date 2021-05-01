@@ -55,7 +55,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -69,7 +69,8 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
-            hla_database=self.hla_database
+            hla_database=self.hla_database,
+            proteome_db=self.proteome_db
         )
         self.assertEqual(543.9, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla)
@@ -85,7 +86,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_phbr1(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         netmhcpan = NetMhcPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
@@ -159,7 +160,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -173,7 +174,7 @@ class TestBestMultipleBinder(TestCase):
             mhc2_alleles_patient=self.test_mhc_two,
             mhc2_alleles_available=self.available_alleles_mhc2,
             uniprot=self.uniprot,
-            hla_database=self.hla_database
+            proteome_db=self.proteome_db
         )
         logger.info(best_multiple.best_predicted_epitope_rank.rank)
         logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
@@ -189,7 +190,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_phbr2(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         netmhc2pan = NetMhcIIPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
@@ -296,7 +297,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_generator_rate(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         netmhcpan = NetMhcPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
@@ -337,7 +338,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_generator_rate_mhcII(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         netmhc2pan = NetMhcIIPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
