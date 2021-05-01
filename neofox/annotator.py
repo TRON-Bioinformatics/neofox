@@ -468,14 +468,14 @@ class NeoantigenAnnotator:
             neoantigen: Neoantigen,
             patient: Patient,
     ):
-        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser,
-                                          proteome_db=self.proteome_db)
+        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser)
         netmhcpan.run(
             mutation=neoantigen.mutation,
             mhc1_alleles_patient=patient.mhc1,
             mhc1_alleles_available=available_alleles.get_available_mhc_i(),
             uniprot=self.uniprot,
-            hla_database=self.hla_database
+            hla_database=self.hla_database,
+            proteome_db=self.proteome_db
         )
         return netmhcpan
 
@@ -489,17 +489,15 @@ class NeoantigenAnnotator:
             patient: Patient,
     ):
         netmhc2pan = BestAndMultipleBinderMhcII(
-            runner=runner, configuration=configuration, mhc_parser=mhc_parser, proteome_db=self.proteome_db
-        )
+            runner=runner, configuration=configuration, mhc_parser=mhc_parser)
         netmhc2pan.run(
             mutation=neoantigen.mutation,
             mhc2_alleles_patient=patient.mhc2,
             mhc2_alleles_available=available_alleles.get_available_mhc_ii(),
             uniprot=self.uniprot,
-            hla_database=self.hla_database
+            proteome_db=self.proteome_db
         )
         return netmhc2pan
-
 
     def run_mixmhcpred(
             self,
