@@ -33,7 +33,7 @@ class EpitopeHelper(object):
         list_peptides = []
         for length in lengths:
             if length <= length_mut:
-                starts = range(length)
+                starts = range(length_mut - length + 1)
                 ends = [s + length for s in starts]
                 for s, e in zip(starts, ends):
                     peptide = mutation.mutated_xmer[s:e]
