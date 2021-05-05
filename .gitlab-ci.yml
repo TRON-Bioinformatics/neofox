@@ -36,9 +36,6 @@ before_script:
   - apt-get update
   - apt-get --assume-yes install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
   - python -V
-  - conda --version
-  - conda create --name testenv python=3.8
-  - source activate testenv
 
 after_script:
   - cat /builds/tron/addannot/.tox/py37/log/py37-0.log
