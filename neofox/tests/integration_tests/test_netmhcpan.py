@@ -32,10 +32,11 @@ class TestNetMhcPanPredictor(TestCase):
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(references.get_hla_database())
         self.test_mhc_two = integration_test_tools.get_mhc_two_test(references.get_hla_database())
         self.mhc_parser = MhcParser(references.get_hla_database())
+        self.proteome_db = references.proteome_db
 
     def test_netmhcpan_epitope_iedb(self):
         netmhcpan_predictor = NetMhcPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         # this is an epitope from IEDB of length 9
         mutated = "NLVPMVATV"
@@ -48,7 +49,7 @@ class TestNetMhcPanPredictor(TestCase):
 
     def test_netmhcpan_too_small_epitope(self):
         netmhcpan_predictor = NetMhcPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         mutated = "NLVP"
         predictions = netmhcpan_predictor.mhc_prediction(
@@ -60,7 +61,7 @@ class TestNetMhcPanPredictor(TestCase):
 
     def test_netmhcpan_rare_aminoacid(self):
         netmhcpan_predictor = NetMhcPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         # this is an epitope from IEDB of length 9
         mutated = "XTTDSWGKF"
@@ -73,13 +74,13 @@ class TestNetMhcPanPredictor(TestCase):
 
     def test_netmhc2pan_epitope_iedb(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         # this is an epitope from IEDB of length 15
         mutated = "ENPVVHFFKNIVTPR"
         combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
-        predictions = netmhc2pan_predictor.mhcII_prediction(sequence=mutated, mhc_alleles=combinations)
+        predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(10, len(predictions))
         for p in predictions:
             self.assertIsNotNone(p.peptide)
@@ -90,22 +91,22 @@ class TestNetMhcPanPredictor(TestCase):
 
     def test_netmhc2pan_too_small_epitope(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         # this is an epitope from IEDB of length 15
         mutated = "ENPVVH"
         combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
-        predictions = netmhc2pan_predictor.mhcII_prediction(sequence=mutated, mhc_alleles=combinations)
+        predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(0, len(predictions))
 
     def test_netmhc2pan_rare_aminoacid(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
         )
         # this is an epitope from IEDB of length 15
         mutated = "XTTDSWGKFDDDDDDDDD"
         combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
-        predictions = netmhc2pan_predictor.mhcII_prediction(sequence=mutated, mhc_alleles=combinations)
+        predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(40, len(predictions))

@@ -118,8 +118,7 @@ class ModelConverterTest(TestCase):
             canidate_file
         )
         self.assertIsNotNone(neoantigens)
-        # NOTE: the file contains 2 indels that are filtered out
-        self.assertEqual(self.count_lines - 1 - 2, len(neoantigens))
+        self.assertEqual(self.count_lines -1, len(neoantigens))
         for n in neoantigens:
             self.assertIsInstance(n, Neoantigen)
             self.assertIsInstance(n.mutation, Mutation)
