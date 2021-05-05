@@ -115,12 +115,11 @@ class EpitopeHelper(object):
         """
         checks if predicted epitope covers mutation
         """
-        cover_list = [False]
+        covers_mutation = False
         for position_mutation in position_mutation_list:
             if position_mutation != "-1":
                 start = int(position_epitope)
                 end = start + int(length_epitope) - 1
-                if position_mutation >= start and position_mutation <= end:
-                    cover_list.append(True)
-        cover_mutation = any(cover_list)
-        return cover_mutation
+                if start <= position_mutation <= end:
+                    covers_mutation = True
+        return covers_mutation
