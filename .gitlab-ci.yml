@@ -23,7 +23,6 @@ before_script:
   - apt-get update
   - apt-get --assume-yes install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
   - python -V
-  - pip install tox==3.23.0,tox-wheel==0.6.0,tox-conda==0.8.0
 
 stages:
   - validation
@@ -43,6 +42,7 @@ check_version_changes:
 test:
   stage: test
   script:
+    - pip install tox==3.23.0 tox-wheel==0.6.0 tox-conda==0.8.0
     - tox
 
 publish_package:
