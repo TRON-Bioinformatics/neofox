@@ -28,7 +28,7 @@ class TestRunner(TestCase):
 
     def test_runner(self):
         output, errors = self.runner.run_command(cmd=["python", "-V"])
-        self.assertTrue("Python 3.7" in output or "Python 3.6" in output)
+        self.assertTrue("Python 3.7" in output or "Python 3.6" in output or "Python 3.8" in output)
         self.assertTrue(len(errors) == 0)
 
     def test_runner_failure(self):
