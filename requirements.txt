@@ -1,6 +1,6 @@
 biopython==1.76
 mock
-pandas==1.2.4
+pandas==1.1.5
 numpy==1.19.5
 scipy==1.6.3
 pickle-mixin==1.0.2
