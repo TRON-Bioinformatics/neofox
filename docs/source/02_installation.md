@@ -33,7 +33,7 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 This installation instructions were tested on Ubuntu 18.04.
 
-Python 3.7 and R 3.6.0 should be preinstalled.
+Python >=3.6, <=3.8 and R 3.6.0 should be preinstalled.
 
 Set the environment variable pointing to `Rscript`.
 ```

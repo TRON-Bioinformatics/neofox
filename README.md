@@ -29,7 +29,7 @@ NeoFox annotates neoantigen candidate sequences with published neo-epitope descr
 ## NeoFox Requirements
  
 **Required Software/Tools/Dependencies:**  
-- Python 3.7
+- Python >=3.6, <=3.8
 - R 3.6.0
 - BLAST 2.10.1
 - netMHCpan 4.0
