@@ -87,15 +87,13 @@ class AbstractNetMhcPanPredictor(BlastpRunner):
     ) -> List:
         """returns wt epitope for each neoepitope candidate of a neoantigen candidate from an alternative mutation
         class by a BLAST search."""
-        mut_peptides = list(set([p.peptide for p in mutated_predictions]))
-        wt_peptides = []
-        for p in mut_peptides:
-            wt_peptides.append(self.get_most_similar_wt_epitope(p))
+        mut_peptides = set([mp.peptide for mp in mutated_predictions])
+        most_similar_wt_epitopes = {
+            mutated_peptide: self.get_most_similar_wt_epitope(mutated_peptide) for mutated_peptide in mut_peptides
+        }
         wt_peptides_full = []
-        for pep in mutated_predictions:
-            for wt, mut in zip(wt_peptides, mut_peptides):
-                if pep.peptide == mut:
-                    wt_peptides_full.append(wt)
+        for mp in mutated_predictions:
+            wt_peptides_full.append(most_similar_wt_epitopes.get(mp.peptide))
         return wt_peptides_full
 
 
@@ -105,11 +103,10 @@ class AbstractNetMhcPanPredictor(BlastpRunner):
     ) -> PredictedEpitope:
         """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
         best_wt = None
-        # TODO: do here re-parse
         for mut, wt in zip(mut_predictions, wt_predictions):
-            if wt.hla == best_hla:
-                if mut.peptide == best_mutated_epitope:
-                    best_wt = wt
+            if wt.hla == best_hla and mut.peptide == best_mutated_epitope:
+                best_wt = wt
+                break
         return best_wt
 
     @staticmethod

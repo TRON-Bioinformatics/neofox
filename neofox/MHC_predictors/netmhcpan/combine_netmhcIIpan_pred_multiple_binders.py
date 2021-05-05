@@ -31,6 +31,8 @@ from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mut
 from neofox.model.wrappers import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 
+LENGTH_MHC2_EPITOPE = 15
+
 
 class BestAndMultipleBinderMhcII:
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
@@ -168,7 +170,7 @@ class BestAndMultipleBinderMhcII:
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        if len(mutation.mutated_xmer) >= 15:
+        if len(mutation.mutated_xmer) >= LENGTH_MHC2_EPITOPE:
             filtered_predictions = netmhc2pan.filter_binding_predictions(
                 predictions, uniprot
             )
@@ -196,7 +198,7 @@ class BestAndMultipleBinderMhcII:
                     predictions = netmhc2pan.mhc2_prediction(
                         patient_mhc2_isoforms, mutation.wild_type_xmer
                     )
-                    if len(mutation.wild_type_xmer) >= 15:
+                    if len(mutation.wild_type_xmer) >= LENGTH_MHC2_EPITOPE:
                         filtered_predictions_wt = netmhc2pan.filter_binding_predictions_wt_snv(
                             mutation.position, predictions
                         )
@@ -215,7 +217,7 @@ class BestAndMultipleBinderMhcII:
                                     )
                                 )
                             )
-                        if len(mutation.mutated_xmer) >= 15:
+                        if len(mutation.mutated_xmer) >= LENGTH_MHC2_EPITOPE:
                             self.generator_rate_adn = self.determine_number_of_alternative_binders(
                                 predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
                             )
@@ -229,7 +231,7 @@ class BestAndMultipleBinderMhcII:
                     peptides_wt = netmhc2pan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
                     filtered_predictions_wt = []
                     for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
-                        hla = self.transform_mhc2allele(mut_peptide.hla)
+                        hla = netmhc2pan.represent_mhc2_isoforms([mut_peptide.hla])[0]
                         filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(
                             hla, wt_peptide
                         ))
@@ -246,7 +248,7 @@ class BestAndMultipleBinderMhcII:
                                     best_mutated_epitope=self.best_predicted_epitope_affinity.peptide,
                                     best_hla=self.best_predicted_epitope_affinity.hla
                                 )
-                        if len(mutation.mutated_xmer) >= 15:
+                        if len(mutation.mutated_xmer) >= LENGTH_MHC2_EPITOPE:
                             # generator rate for MHC II
                             self.generator_rate_cdn = self.determine_number_of_binders(
                                 predictions=filtered_predictions
