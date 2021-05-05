@@ -66,6 +66,6 @@ setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: Unix"
     ],
-    python_requires='>=3.6,<=3.9',
+    python_requires='>=3.6,<=3.9.2',
     license='GPLv3',
 )
