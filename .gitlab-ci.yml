@@ -16,13 +16,27 @@
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with this program. If not, see <http://www.gnu.org/licenses/>.##
-image: continuumio/anaconda3:2020.11
+image: continuumio/miniconda3:4.9.2
 
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+    TOX_CACHE_DIR: "$CI_PROJECT_DIR/.tox"
+
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  paths:
+    - $TOX_CACHE_DIR
 
 before_script:
   - apt-get update
   - apt-get --assume-yes install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
   - python -V
+  - conda --version
 
 stages:
   - validation
