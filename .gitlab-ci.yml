@@ -16,7 +16,7 @@
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with this program. If not, see <http://www.gnu.org/licenses/>.##
-image: continuumio/miniconda3:4.9.2
+image: python:3.7-buster
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
@@ -61,7 +61,8 @@ check_version_changes:
 test:
   stage: test
   script:
-    - pip install tox==3.23.0 tox-wheel==0.6.0 tox-conda==0.8.0
+    - pip install virtualenv tox==3.23.0 tox-wheel==0.6.0
+    #- tox-conda==0.8.0
     - tox
 
 publish_package:
