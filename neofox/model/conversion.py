@@ -95,9 +95,6 @@ class ModelConverter(object):
 
         # check format of input file
         if FIELD_MUTATED_XMER in data.columns.values.tolist():
-            # filter out indels
-            data = data[~data["substitution"].isna()]
-            data = data[~data["substitution"].str.contains("-")]
             data = data.replace({np.nan: None})
             neoantigens = []
             external_annotations = []

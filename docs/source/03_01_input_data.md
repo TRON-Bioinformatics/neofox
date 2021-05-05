@@ -19,9 +19,9 @@ This is an dummy example of a table with neoantigen candidates in tabular format
 | BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 
 where:
-- `gene`: the HGNC gene symbol   
-- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle. We advise that the mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neoepitopes
-- `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
+- `gene`: the HGNC gene symbol.      
+- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neoepitopes
+- `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from alternative neoantigns.  
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
 - `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (Should be empty or NA if no value available, this will be estimated using the `dnaVariantAlleleFrequency` if not available)

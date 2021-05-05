@@ -45,7 +45,7 @@ class DissimilarityCalculator(BlastpRunner):
         """
         dissimilarity = None
         if mhc_mutation != "-" and (not filter_binder or not mhc_affinity >= 500):
-            similarity = self.run_blastp(
+            similarity = self.calculate_similarity_database(
                 peptide=mhc_mutation,
                 database=os.path.join(self.proteome_db, "homo_sapiens"),
                 a=32,
@@ -58,8 +58,9 @@ class DissimilarityCalculator(BlastpRunner):
         """
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
+        dissimilarity = None
         annotations = []
-        if netmhcpan.best_epitope_by_affinity:
+        if netmhcpan.best_epitope_by_affinity.peptide:
             dissimilarity = self.calculate_dissimilarity(mhc_mutation=netmhcpan.best_epitope_by_affinity.peptide,
                                                          mhc_affinity=netmhcpan.best_epitope_by_affinity.affinity_score,
                                                          filter_binder=True, )

@@ -31,13 +31,15 @@ from neofox.references.references import DependenciesConfiguration
 
 
 class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
+        super().__init__(runner=runner, configuration=configuration, proteome_db=proteome_db, mhc_parser=mhc_parser)
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
 
     def mhc_prediction(
-        self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
+            self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
+
     ) -> List[PredictedEpitope]:
         """Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file."""
         input_fasta = intermediate_files.create_temp_fasta(
@@ -52,6 +54,23 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
             "-BA",
         ]
         lines, _ = self.runner.run_command(cmd)
+        return self._parse_netmhcpan_output(lines)
+
+    def mhc_prediction_peptide(self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
+    ) -> List[PredictedEpitope]:
+        """Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file."""
+        input_peptide = intermediate_files.create_temp_peptide(
+            sequences=[sequence], prefix="tmp_singleseq_"
+        )
+        cmd = [
+            self.configuration.net_mhc_pan,
+            "-a",
+            self._get_only_available_alleles(mhc_alleles, set_available_mhc),
+            "-p",
+            input_peptide,
+            "-BA",
+        ]
+        lines, _ = self.runner.run_command(cmd, print_log=False)
         return self._parse_netmhcpan_output(lines)
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
