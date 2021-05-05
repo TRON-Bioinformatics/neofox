@@ -21,10 +21,10 @@ import neofox
 
 
 # parses requirements from file
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding="utf-8") as f:
     required = f.read().splitlines()
 
-with open("README.md", "r") as f:
+with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
 # Build the Python package
