@@ -102,14 +102,14 @@ class MixMHCpred:
         os.remove(outtmp)
         return results
 
-    def run(self, mutation: Mutation, mhc: List[Mhc1]):
+    def run(self, mutation: Mutation, mhc: List[Mhc1], uniprot):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR"""
         best_peptide = None
         best_rank = None
         best_allele = None
         best_score = None
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            mutation=mutation, lengths=[8, 9, 10, 11]
+            mutation=mutation, lengths=[8, 9, 10, 11], uniprot=uniprot
         )
         if len(potential_ligand_sequences) > 0:
             mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])
@@ -129,9 +129,9 @@ class MixMHCpred:
                 logger.warning("None of the MHC I alleles are supported by MixMHCpred")
         return best_peptide, best_rank, best_allele, best_score
 
-    def get_annotations(self, mutation: Mutation, mhc: List[Mhc1]) -> List[Annotation]:
+    def get_annotations(self, mutation: Mutation, mhc: List[Mhc1], uniprot) -> List[Annotation]:
         best_peptide, best_rank, best_allele, best_score = self.run(
-            mhc=mhc, mutation=mutation
+            mhc=mhc, mutation=mutation, uniprot=uniprot
         )
         return [
             AnnotationFactory.build_annotation(
