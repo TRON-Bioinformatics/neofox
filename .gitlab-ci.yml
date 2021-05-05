@@ -37,6 +37,8 @@ before_script:
   - apt-get --assume-yes install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
   - python -V
   - conda --version
+  - conda create --name testenv python=3.8
+  - source activate testenv
 
 stages:
   - validation
