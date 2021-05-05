@@ -20,11 +20,15 @@ from typing import List, Union
 from dataclasses import dataclass
 from neofox.model.neoantigen import Mhc2Isoform
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.helpers.runner import Runner
+from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.references.references import DependenciesConfiguration
+from neofox.model.mhc_parser import MhcParser
 
 
 @dataclass
 class PredictedEpitope:
-    "this is a common data class for both netmhcpan and netmhc2pan"
+    """this is a common data class for both netmhcpan and netmhc2pan"""
     pos: int
     hla: Union[
         str, Mhc2Isoform
@@ -34,7 +38,14 @@ class PredictedEpitope:
     rank: float
 
 
-class AbstractNetMhcPanPredictor:
+class AbstractNetMhcPanPredictor(BlastpRunner):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, proteome_db, mhc_parser: MhcParser):
+        super().__init__(runner=runner, configuration=configuration, proteome_db=proteome_db)
+        self.runner = runner
+        self.configuration = configuration
+        self.proteome_db = proteome_db
+        self.mhc_parser = mhc_parser
+
     @staticmethod
     def select_best_by_rank(predictions: List[PredictedEpitope]) -> PredictedEpitope:
         """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
@@ -52,7 +63,8 @@ class AbstractNetMhcPanPredictor:
         if rank = False, Aff(nM) is used
         In case of a tie, it chooses the first peptide in alphabetical order
         """
-        return min(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
+        best_peptide = min(predictions, key=lambda p: (p.affinity_score, p.peptide))
+        return best_peptide\
             if predictions is not None and len(predictions) > 0 else None
 
     @staticmethod
@@ -69,9 +81,57 @@ class AbstractNetMhcPanPredictor:
             )
         )
 
+    def find_wt_epitope_for_alternative_mutated_epitope(
+            self,
+            mutated_predictions: List[PredictedEpitope]
+    ) -> List:
+        """returns wt epitope for each neoepitope candidate of a neoantigen candidate from an alternative mutation
+        class by a BLAST search."""
+        mut_peptides = set([mp.peptide for mp in mutated_predictions])
+        most_similar_wt_epitopes = {
+            mutated_peptide: self.get_most_similar_wt_epitope(mutated_peptide) for mutated_peptide in mut_peptides
+        }
+        wt_peptides_full = []
+        for mp in mutated_predictions:
+            wt_peptides_full.append(most_similar_wt_epitopes.get(mp.peptide))
+        return wt_peptides_full
+
+
+    def filter_wt_predictions_from_best_mutated_alernative(
+            self, mut_predictions: List[PredictedEpitope], wt_predictions: List[PredictedEpitope], best_mutated_epitope,
+            best_hla
+    ) -> PredictedEpitope:
+        """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
+        best_wt = None
+        for mut, wt in zip(mut_predictions, wt_predictions):
+            if wt.hla == best_hla and mut.peptide == best_mutated_epitope:
+                best_wt = wt
+                break
+        return best_wt
+
     @staticmethod
-    def filter_binding_predictions(
-        position_of_mutation, predictions: List[PredictedEpitope]
+    def filter_binding_predictions(predictions: List[PredictedEpitope], uniprot
+    ) -> List[PredictedEpitope]:
+        """filters prediction file for predicted epitopes that cover mutations by searching for epitope
+        in uniprot proteome database with an exact match search"""
+        return list(
+            filter(
+                lambda p: uniprot.is_sequence_not_in_uniprot(
+                    p.peptide
+                ),
+                predictions,
+            )
+        )
+
+    def filter_for_9mers(
+        self, predictions: List[PredictedEpitope]
+    ) -> List[PredictedEpitope]:
+        """returns only predicted 9mers"""
+        return list(filter(lambda p: len(p.peptide) == 9, predictions))
+
+    @staticmethod
+    def filter_binding_predictions_wt_snv(
+            position_of_mutation, predictions: List[PredictedEpitope]
     ) -> List[PredictedEpitope]:
         """filters prediction file for predicted epitopes that cover mutations"""
         return list(
@@ -83,8 +143,4 @@ class AbstractNetMhcPanPredictor:
             )
         )
 
-    def filter_for_9mers(
-        self, predictions: List[PredictedEpitope]
-    ) -> List[PredictedEpitope]:
-        """returns only predicted 9mers"""
-        return list(filter(lambda p: len(p.peptide) == 9, predictions))
+
