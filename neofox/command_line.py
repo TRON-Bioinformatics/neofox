@@ -129,6 +129,12 @@ def neofox_cli():
         dest="config",
         help="an optional configuration file with all the environment variables",
     )
+    parser.add_argument(
+        "--with-performance-report",
+        dest="with_performance_report",
+        action="store_true",
+        help="write a HTML performance report in the output folder",
+    )
     args = parser.parse_args()
 
     candidate_file = args.candidate_file
@@ -140,6 +146,7 @@ def neofox_cli():
     with_sw = args.with_short_wide_table
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
+    with_performance_report = args.with_performance_report
     num_cpus = int(args.num_cpus)
     config = args.config
 
@@ -178,7 +185,7 @@ def neofox_cli():
             output_prefix=output_prefix,
             num_cpus=num_cpus,
             reference_folder=reference_folder,
-        ).get_annotations(output_folder)
+        ).get_annotations(output_folder, with_performance_report=with_performance_report)
         # combine neoantigen feature annotations and potential user-specific external annotation
         neoantigen_annotations = _combine_features_with_external_annotations(
             annotations, external_annotations
