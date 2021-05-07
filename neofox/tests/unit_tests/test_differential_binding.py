@@ -87,3 +87,18 @@ class TestDifferentialBinding(TestCase):
             category="ADN",
         )
         self.assertEqual(result, None)
+
+    def test_affinity_threshold(self):
+        diffbdg_calculator = DifferentialBinding(affinity_threshold=1000)
+        result = diffbdg_calculator.dai(
+            score_mutation=50, score_wild_type=530, affin_filtering=False
+        )
+        self.assertIsNotNone(result)
+        result = diffbdg_calculator.dai(
+            score_mutation=550, score_wild_type=530, affin_filtering=True
+        )
+        self.assertIsNotNone(result)
+        result = diffbdg_calculator.dai(
+            score_mutation=1030, score_wild_type=1030, affin_filtering=True
+        )
+        self.assertIsNone(result)

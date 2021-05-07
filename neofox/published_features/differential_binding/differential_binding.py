@@ -28,10 +28,15 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
 
 
 class DifferentialBinding:
+
+    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
+        self.affinity_threshold = affinity_threshold
+
     def dai(self, score_mutation, score_wild_type, affin_filtering=False):
         """
         Calculates DAI: Returns difference between wt and mut MHC binding score.
@@ -39,7 +44,7 @@ class DifferentialBinding:
         score = None
         try:
             if affin_filtering:
-                if score_mutation < 500.0:
+                if score_mutation < self.affinity_threshold:
                     score = score_wild_type - score_mutation
             else:
                 score = score_wild_type - score_mutation
@@ -84,7 +89,7 @@ class DifferentialBinding:
                     )
         annotations = [
             AnnotationFactory.build_annotation(
-                name="DAI_MHCI_affinity_cutoff500nM",
+                name="DAI_MHCI_affinity_cutoff",
                 value=dai
             ),
         ]
