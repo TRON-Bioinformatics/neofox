@@ -39,7 +39,7 @@ class TestPrime(TestCase):
         )
         self.hla_database = self.references.get_hla_database()
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
-        self.uniprot = Uniprot(self.references.uniprot)
+        self.uniprot = Uniprot(self.references.uniprot_pickle)
 
     def test_prime_epitope(self):
         mutation = ModelValidator._validate_mutation(
