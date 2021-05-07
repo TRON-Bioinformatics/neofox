@@ -37,9 +37,8 @@ class Uniprot(object):
 
     @staticmethod
     def _load_proteome(proteome) -> str:
-        infile = open(proteome, 'rb')
-        uniprot_unpickled = pickle.load(infile)
-        infile.close()
+        with open(proteome, 'rb') as f:
+            uniprot_unpickled = pickle.load(f)
         return uniprot_unpickled
 
     def is_sequence_not_in_uniprot(self, sequence) -> bool:
