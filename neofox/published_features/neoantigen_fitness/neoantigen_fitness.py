@@ -27,17 +27,19 @@ from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class NeoantigenFitnessCalculator(BlastpRunner):
-    def __init__(self, runner, configuration, iedb):
+    def __init__(self, runner, configuration, iedb, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
         """
         :type runner: neofox.helpers.runner.Runner
         :type configuration: neofox.references.DependenciesConfiguration
         """
         super().__init__(runner, configuration)
+        self.affinity_threshold = affinity_threshold
         self.iedb = iedb
 
     def get_pathogen_similarity(self, mutation):
@@ -90,7 +92,7 @@ class NeoantigenFitnessCalculator(BlastpRunner):
         try:
             candidate_recognition_potential = amplitude * pathogen_similarity
             if mhc_affinity_mut:
-                if not mutation_in_anchor and mhc_affinity_mut < 500.0:
+                if not mutation_in_anchor and mhc_affinity_mut < self.affinity_threshold:
                     recognition_potential = candidate_recognition_potential
             else:
                 if not mutation_in_anchor:

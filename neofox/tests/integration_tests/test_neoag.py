@@ -52,3 +52,22 @@ class TestNeoantigenFitness(TestCase):
         )
         self.assertTrue(isinstance(result, Annotation))
         self.assertTrue(float(result.value) > 0)
+
+    def test_affinity_threshold(self):
+        mutation = ModelValidator._validate_mutation(
+            Mutation(
+                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            )
+        )
+        result = NeoagCalculator(
+            runner=self.runner, configuration=self.configuration, affinity_threshold=1
+        ).get_annotation(
+            sample_id="12345",
+            netmhcpan=FakeBestAndMultipleBinder(
+                mutated_epitope="DDDDDV", wild_type_epitope="DDDDDD", affinity=10
+            ),
+            mutation=mutation,
+            peptide_variant_position="123"
+        )
+        self.assertEqual(result.value, "NA")

@@ -404,10 +404,8 @@ class TestNeofox(TestCase):
         self.assertTrue(len(annotations[0].annotations) > 10)
         for na in annotations:
             for a in na.annotations:
-                if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff500nM"]:
+                if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
-
-    
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(
