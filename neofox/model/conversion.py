@@ -27,7 +27,6 @@ from Bio.Data import IUPACData
 from betterproto import Casing
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.exceptions import NeofoxDataValidationException
-from pandas.io.json import json_normalize
 from logzero import logger
 from collections import defaultdict
 import json
@@ -87,9 +86,9 @@ class ModelConverter(object):
                                "mutation.wildTypeXmer": str,
                                "mutation.mutatedXmer": str,
                                "patientIdentifier": str,
-                               "dnaVariantAlleleFrequency": np.float,
-                               "rnaExpression": np.float,
-                               "rnaVariantAlleleFrequency": np.float
+                               "dnaVariantAlleleFrequency": float,
+                               "rnaExpression": float,
+                               "rnaVariantAlleleFrequency": float
                            }
                            )
 
@@ -170,7 +169,7 @@ class ModelConverter(object):
         """
         :param model_objects: list of objects of subclass of betterproto.Message
         """
-        return json_normalize(
+        return pd.json_normalize(
             data=[n.to_dict(include_default_values=True) for n in model_objects]
         )
 
@@ -187,7 +186,7 @@ class ModelConverter(object):
         """
         :param model_object: object of subclass of betterproto.Message
         """
-        return json_normalize(
+        return pd.json_normalize(
             data=model_object.to_dict(casing=Casing.SNAKE, include_default_values=True)
         ).iloc[0]
 
@@ -319,7 +318,7 @@ class ModelConverter(object):
             del patient_dict["mhc1"]
             del patient_dict["mhc2"]
             patients_dict.append(patient_dict)
-        df = json_normalize(data=patients_dict)
+        df = pd.json_normalize(data=patients_dict)
         return df
 
     @staticmethod
