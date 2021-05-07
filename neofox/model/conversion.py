@@ -276,7 +276,6 @@ class ModelConverter(object):
     def _requires_rescue(name, neoantigen_dict):
         return name not in neoantigen_dict or neoantigen_dict[name] is None
 
-
     @staticmethod
     def annotations2short_wide_table(
         neoantigen_annotations: List[NeoantigenAnnotations],
@@ -284,7 +283,20 @@ class ModelConverter(object):
     ) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
-        neoantigens_df = neoantigens_df.replace({None: NOT_AVAILABLE_VALUE})
+        neoantigens_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
+        # we set the order of columns
+        neoantigens_df = neoantigens_df.loc[:,
+                         ["identifier",
+                          "patientIdentifier",
+                          "gene",
+                          "mutation.mutatedXmer",
+                          "mutation.wildTypeXmer",
+                          "mutation.position",
+                          "dnaVariantAlleleFrequency",
+                          "rnaVariantAlleleFrequency",
+                          "rnaExpression",
+                          "imputedGeneExpression"
+                          ]]
         for na in neoantigen_annotations:
             df = (
                 pd.DataFrame([a.to_dict() for a in na.annotations])
@@ -296,9 +308,7 @@ class ModelConverter(object):
             del df["index"]
             dfs.append(df)
         annotations_df = pd.concat(dfs, sort=True)
-        return neoantigens_df.set_index("identifier").merge(
-            annotations_df, on="identifier"
-        )
+        return pd.merge(left=neoantigens_df, right=annotations_df, on="identifier")
 
     @staticmethod
     def neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
