@@ -19,7 +19,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List, Set
 import scipy.stats as stats
-
+from logzero import logger
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
@@ -201,6 +201,7 @@ class BestAndMultipleBinder:
         self.best_epitope_by_affinity = netmhcpan.select_best_by_affinity(
             filtered_predictions
         )
+        logger.info(self.best_epitope_by_rank)
 
         # best predicted epitope of length 9
         ninemer_predictions = netmhcpan.filter_for_9mers(filtered_predictions)
