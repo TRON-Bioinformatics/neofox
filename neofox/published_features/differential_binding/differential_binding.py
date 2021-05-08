@@ -89,7 +89,7 @@ class DifferentialBinding:
                     )
         annotations = [
             AnnotationFactory.build_annotation(
-                name="DAI_MHCI_affinity_cutoff",
+                name="DAI_MHCI_affinity",
                 value=dai
             ),
         ]

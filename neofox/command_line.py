@@ -124,8 +124,9 @@ def neofox_cli():
     parser.add_argument(
         "--affinity-threshold",
         dest="affinity_threshold",
-        help="neoepitopes candidates with a predicted affinity greater than or equal than this threshold will be"
-             "filtered out (values in nM)",
+        help="neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be "
+             "not annotated with features that specifically model neoepitope recognition. A threshold that is commonly "
+             "used is 500 nM",
         default=AFFINITY_THRESHOLD_DEFAULT
     )
     parser.add_argument(

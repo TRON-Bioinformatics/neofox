@@ -135,7 +135,7 @@ class TcellPrediction:
         annotations = [
             AnnotationFactory.build_annotation(
                 value=tcell_predictor_score,
-                name="Tcell_predictor_score_cutoff",
+                name="Tcell_predictor_score",
             )
         ]
         return annotations

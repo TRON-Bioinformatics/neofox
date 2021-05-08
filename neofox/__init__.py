@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-VERSION = "0.5.0.dev9"
+VERSION = "0.5.0.dev11"
 REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"
 NEOFOX_BLASTP_ENV = "NEOFOX_BLASTP"
 NEOFOX_MIXMHC2PRED_ENV = "NEOFOX_MIXMHC2PRED"
@@ -32,4 +32,4 @@ NEOFOX_HLA_DATABASE_ENV = "NEOFOX_HLA_DATABASE"
 MHC_II = "mhcII"
 MHC_I = "mhcI"
 
-AFFINITY_THRESHOLD_DEFAULT = 500
+AFFINITY_THRESHOLD_DEFAULT = 500000
