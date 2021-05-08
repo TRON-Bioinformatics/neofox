@@ -70,7 +70,7 @@ class DissimilarityCalculator(BlastpRunner):
             annotations = [
                 AnnotationFactory.build_annotation(
                     value=dissimilarity,
-                    name="Dissimilarity_MHCI_cutoff",
+                    name="Dissimilarity_MHCI",
                 ),
             ]
         return annotations

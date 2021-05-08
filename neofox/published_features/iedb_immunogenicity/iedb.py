@@ -175,7 +175,7 @@ class IEDBimmunogenicity:
         annotations = [
             AnnotationFactory.build_annotation(
                 value=iedb,
-                name="IEDB_Immunogenicity_MHCI_cutoff",
+                name="IEDB_Immunogenicity_MHCI",
             ),
         ]
         return annotations
