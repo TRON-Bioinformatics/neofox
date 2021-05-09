@@ -94,6 +94,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         lines, _ = self.runner.run_command(
             [
                 self.configuration.net_mhc2_pan,
+                "-BA",
                 "-a",
                 ",".join(mhc_alleles),
                 "-f",
@@ -110,7 +111,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         for line in lines.splitlines():
             line = line.rstrip().lstrip()
             if line:
-                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR")):
+                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR", "Pos")):
                     continue
                 line = line.split()
                 line = line[0:-1] if len(line) > 12 else line
@@ -119,8 +120,8 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                         pos=int(line[0]),
                         hla=self.mhc_parser.parse_mhc2_isoform(line[1]).name,
                         peptide=line[2],
-                        affinity_score=float(line[8]),
-                        rank=float(line[9]),
+                        affinity_score=float(line[11]),
+                        rank=float(line[8]),
                     )
                 )
         return results
