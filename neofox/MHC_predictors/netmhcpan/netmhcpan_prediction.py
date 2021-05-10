@@ -81,14 +81,14 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
                 if line.startswith(("#", "-", "HLA", "Prot", "Pos", "No")):
                     continue
                 line = line.split()
-                line = line[0:-2] if len(line) > 14 else line
+                line = line[0:-2] if len(line) > 16 else line
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
                         hla=self.mhc_parser.parse_mhc_allele(line[1]).name,
                         peptide=line[2],
-                        affinity_score=float(line[12]),
-                        rank=float(line[13]),
+                        affinity_score=float(line[15]),
+                        rank=float(line[12]),
                     )
                 )
         return results
