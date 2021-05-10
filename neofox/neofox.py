@@ -34,7 +34,7 @@ from neofox.published_features.self_similarity.self_similarity import (
     SelfSimilarityCalculator,
 )
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
-from neofox import NEOFOX_LOG_FILE_ENV
+from neofox import NEOFOX_LOG_FILE_ENV, AFFINITY_THRESHOLD_DEFAULT
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import (
     NeofoxConfigurationException,
@@ -46,6 +46,7 @@ import dotenv
 
 
 class NeoFox:
+
     def __init__(
         self,
         neoantigens: List[Neoantigen],
@@ -58,7 +59,10 @@ class NeoFox:
         configuration: DependenciesConfiguration = None,
         verbose=False,
         configuration_file=None,
+        affinity_threshold=AFFINITY_THRESHOLD_DEFAULT
     ):
+
+        self.affinity_threshold = affinity_threshold
 
         if configuration_file:
             dotenv.load_dotenv(configuration_file, override=True)
@@ -78,7 +82,7 @@ class NeoFox:
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction()
+        self.tcell_predictor = TcellPrediction(affinity_threshold=self.affinity_threshold)
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -190,7 +194,7 @@ class NeoFox:
                 )
             )
 
-    def get_annotations(self, output_folder=None) -> List[NeoantigenAnnotations]:
+    def get_annotations(self) -> List[NeoantigenAnnotations]:
         """
         Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
@@ -199,51 +203,53 @@ class NeoFox:
         logger.info("Starting NeoFox annotations...")
         # initialise dask
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
-        report_name = "neofox-dask-report-{}.html".format(time.strftime("%Y%m%d%H%M%S"))
-        if output_folder is not None:
-            report_name = os.path.join(output_folder, report_name)
         dask_client = Client(
             n_workers=self.num_cpus, threads_per_worker=1,
         )
-        with performance_report(filename=report_name):
-            # feature calculation for each epitope
-            futures = []
-            start = time.time()
-            # NOTE: sets those heavy resources to be used by all workers in the cluster
-            future_tcell_predictor = dask_client.scatter(
-                self.tcell_predictor, broadcast=True
-            )
-            future_self_similarity = dask_client.scatter(
-                self.self_similarity, broadcast=True
-            )
-            future_reference_folder = dask_client.scatter(
-                self.reference_folder, broadcast=True
-            )
-            future_configuration = dask_client.scatter(self.configuration, broadcast=True)
-            for neoantigen in self.neoantigens:
-                patient = self.patients.get(neoantigen.patient_identifier)
-                logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
-                logger.debug("Patient: {}".format(patient.to_json(indent=3)))
-                futures.append(
-                    dask_client.submit(
-                        NeoFox.annotate_neoantigen,
-                        neoantigen,
-                        patient,
-                        future_reference_folder,
-                        future_configuration,
-                        future_tcell_predictor,
-                        future_self_similarity,
-                        self.log_file_name
-                    )
-                )
-            annotations = dask_client.gather(futures)
-            end = time.time()
-            logger.info(
-                "Elapsed time for annotating {} neoantigens {} seconds".format(
-                    len(self.neoantigens), int(end - start)
-                )
-            )
+        annotations = self.send_to_client(dask_client)
         dask_client.close()
+
+        return annotations
+
+    def send_to_client(self, dask_client):
+        # feature calculation for each epitope
+        futures = []
+        start = time.time()
+        # NOTE: sets those heavy resources to be used by all workers in the cluster
+        future_tcell_predictor = dask_client.scatter(
+            self.tcell_predictor, broadcast=True
+        )
+        future_self_similarity = dask_client.scatter(
+            self.self_similarity, broadcast=True
+        )
+        future_reference_folder = dask_client.scatter(
+            self.reference_folder, broadcast=True
+        )
+        future_configuration = dask_client.scatter(self.configuration, broadcast=True)
+        for neoantigen in self.neoantigens:
+            patient = self.patients.get(neoantigen.patient_identifier)
+            logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
+            logger.debug("Patient: {}".format(patient.to_json(indent=3)))
+            futures.append(
+                dask_client.submit(
+                    NeoFox.annotate_neoantigen,
+                    neoantigen,
+                    patient,
+                    future_reference_folder,
+                    future_configuration,
+                    future_tcell_predictor,
+                    future_self_similarity,
+                    self.log_file_name,
+                    self.affinity_threshold
+                )
+            )
+        annotations = dask_client.gather(futures)
+        end = time.time()
+        logger.info(
+            "Elapsed time for annotating {} neoantigens {} seconds".format(
+                len(self.neoantigens), int(end - start)
+            )
+        )
         return annotations
 
     @staticmethod
@@ -254,7 +260,8 @@ class NeoFox:
         configuration: DependenciesConfiguration,
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
-        log_file_name: str
+        log_file_name: str,
+        affinity_threshold = AFFINITY_THRESHOLD_DEFAULT
     ):
         # the logs need to be initialised inside every dask job
         NeoFox._initialise_logs(log_file_name)
@@ -265,6 +272,7 @@ class NeoFox:
             configuration,
             tcell_predictor=tcell_predictor,
             self_similarity=self_similarity,
+            affinity_threshold=affinity_threshold
         ).get_annotation(neoantigen, patient)
         end = time.time()
         logger.info(

@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import pickle
 from typing import List
 from logzero import logger
 from neofox.model.neoantigen import Annotation
@@ -29,17 +30,19 @@ class Uniprot(object):
     data loading and checking for an exact match
     """
 
-    def __init__(self, fasta_proteome):
+    def __init__(self, proteome):
         logger.info("Loading Uniprot...")
-        self.uniprot = self._load_proteome(fasta_proteome)
+        self.uniprot = self._load_proteome(proteome)
         logger.info("Loaded Uniprot.")
 
     @staticmethod
-    def _load_proteome(fasta_proteome) -> str:
-        return open(fasta_proteome).read()
+    def _load_proteome(proteome) -> str:
+        with open(proteome, 'rb') as f:
+            uniprot_unpickled = pickle.load(f)
+        return uniprot_unpickled
 
     def is_sequence_not_in_uniprot(self, sequence) -> bool:
-        return sequence not in self.uniprot
+        return self.uniprot.find(sequence) < 0
 
     def get_annotations(self, sequence_not_in_uniprot: bool) -> List[Annotation]:
         return [

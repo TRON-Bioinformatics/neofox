@@ -15,7 +15,7 @@ COPY requirements.txt requirements.txt
 COPY LICENSE LICENSE
 COPY README.md README.md
 # these two files will need to be downloaded from the owner's site after agreeing their license
-COPY netMHCIIpan-3.2.Linux.tar.gz netMHCIIpan-3.2.Linux.tar.gz
+COPY netMHCIIpan-4.0.Linux.tar.gz netMHCIIpan-4.0.Linux.tar.gz
 COPY netMHCpan-4.1b.Linux.tar.gz netMHCpan-4.1b.Linux.tar.gz
 
 # build and install neofox package
@@ -39,20 +39,20 @@ RUN echo $NEOFOX_MAKEBLASTDB
 RUN tar -xvf netMHCpan-4.1b.Linux.tar.gz
 RUN echo $NEOFOX_MAKEBLASTDB
 RUN sed -i 's/\/net\/sund-nas.win.dtu.dk\/storage\/services\/www\/packages\/netMHCpan\/4.1\/netMHCpan-4.1/\/app\/netMHCpan-4.1/g' /app/netMHCpan-4.1/netMHCpan
-RUN sed -i 's/\/scratch/\/app\/netMHCpan-4.1\/tmp/g' /app/netMHCpan-4.1/netMHCpan
+RUN sed -i 's/ \/tmp/ \/app\/netMHCpan-4.1\/tmp/g' /app/netMHCpan-4.1/netMHCpan
 RUN mkdir /app/netMHCpan-4.1/tmp
-RUN wget https://services.healthtech.dtu.dk/services/NetMHCpan-4.1/data.tar.gz  -O /app/netMHCpan-4.1/data.tar.gz
-RUN tar -xvf /app/netMHCpan-4.1/data.tar.gz -C /app/netMHCpan-4.1
+RUN wget https://services.healthtech.dtu.dk/services/NetMHCpan-4.1/data.tar.gz  -O /app/netMHCpan-4.1/data.Linux.tar.gz
+RUN tar -xvf /app/netMHCpan-4.1/data.Linux.tar.gz -C /app/netMHCpan-4.1
 ENV NEOFOX_NETMHCPAN /app/netMHCpan-4.1/netMHCpan
 
 # install netmhc2pan
-RUN tar -xvf netMHCIIpan-3.2.Linux.tar.gz
-RUN sed -i 's/\/usr\/cbs\/bio\/src\/netMHCIIpan-3.2/\/app\/netMHCIIpan-3.2/g' /app/netMHCIIpan-3.2/netMHCIIpan
-RUN sed -i 's/\/scratch/\/app\/netMHCIIpan-3.2\/tmp/g' /app/netMHCIIpan-3.2/netMHCIIpan
-RUN mkdir /app/netMHCIIpan-3.2/tmp
-RUN wget http://www.cbs.dtu.dk/services/NetMHCIIpan-3.2/data.Linux.tar.gz -O /app/netMHCIIpan-3.2/data.Linux.tar.gz
-RUN tar -xvf /app/netMHCIIpan-3.2/data.Linux.tar.gz -C /app/netMHCIIpan-3.2
-ENV NEOFOX_NETMHC2PAN /app/netMHCIIpan-3.2/netMHCIIpan
+RUN tar -xvf netMHCIIpan-4.0.Linux.tar.gz
+RUN sed -i 's/\/net\/sund-nas.win.dtu.dk\/storage\/services\/www\/packages\/netMHCIIpan\/4.0\/netMHCIIpan-4.0/\/app\/netMHCIIpan-4.0/g' /app/netMHCIIpan-4.0/netMHCIIpan
+RUN sed -i 's/ \/tmp\//\/app\/netMHCIIpan-4.0\/tmp/g' /app/netMHCIIpan-4.0/netMHCIIpan
+RUN mkdir /app/netMHCIIpan-4.0/tmp
+RUN wget http://www.cbs.dtu.dk/services/NetMHCIIpan-4.0/data.tar.gz -O /app/netMHCIIpan-4.0/data.tar.gz
+RUN tar -xvf /app/netMHCIIpan-4.0/data.tar.gz -C /app/netMHCIIpan-4.0
+ENV NEOFOX_NETMHC2PAN /app/netMHCIIpan-4.0/netMHCIIpan
 RUN apt-get install tcsh
 
 # install mixmhcpred
@@ -67,6 +67,12 @@ ENV NEOFOX_MIXMHCPRED /app/MixMHCpred-2.1/MixMHCpred
 RUN wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
 RUN tar -xvf v1.2.tar.gz
 ENV NEOFOX_MIXMHC2PRED /app/MixMHC2pred-1.2/MixMHC2pred_unix
+
+# install prime
+RUN wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
+RUN tar -xvf master.tar.gz
+RUN sed -i 's/\/app\/PRIME/\/app\/PRIME-master/g' /app/PRIME-master/PRIME
+ENV NEOFOX_PRIME /app/PRIME-master/PRIME
 
 # configure references
 RUN apt-get install -y --no-install-recommends build-essential

@@ -28,10 +28,15 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
 
 
 class DifferentialBinding:
+
+    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
+        self.affinity_threshold = affinity_threshold
+
     def dai(self, score_mutation, score_wild_type, affin_filtering=False):
         """
         Calculates DAI: Returns difference between wt and mut MHC binding score.
@@ -39,7 +44,7 @@ class DifferentialBinding:
         score = None
         try:
             if affin_filtering:
-                if score_mutation < 500.0:
+                if score_mutation < self.affinity_threshold:
                     score = score_wild_type - score_mutation
             else:
                 score = score_wild_type - score_mutation
@@ -75,18 +80,19 @@ class DifferentialBinding:
         return group
 
     def get_annotations_dai(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
-        annotations = []
-        if netmhcpan.best_epitope_by_affinity and netmhcpan.best_wt_epitope_by_affinity:
-            annotations = [
-                AnnotationFactory.build_annotation(
-                    name="DAI_MHCI_affinity_cutoff500nM",
-                    value=self.dai(
+        dai = None
+        if netmhcpan.best_epitope_by_affinity.peptide and netmhcpan.best_wt_epitope_by_affinity.peptide:
+            dai = self.dai(
                         score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
                         score_wild_type=netmhcpan.best_wt_epitope_by_affinity.affinity_score,
                         affin_filtering=True,
-                    ),
-                ),
-            ]
+                    )
+        annotations = [
+            AnnotationFactory.build_annotation(
+                name="DAI_MHCI_affinity",
+                value=dai
+            ),
+        ]
         return annotations
 
     def get_annotations(
@@ -97,32 +103,35 @@ class DifferentialBinding:
         bdg_cutoff_alternative_mhci = 5000
         amplitude_cutoff_mhci = 10
 
-        annotations = []
-        if netmhcpan.best_epitope_by_affinity:
-            annotations = [
-                AnnotationFactory.build_annotation(
-                    name="CDN_MHCI",
-                    value=self.classify_adn_cdn(
+        cdn = None
+        adn = None
+        if netmhcpan.best_epitope_by_affinity.peptide:
+            cdn = self.classify_adn_cdn(
                         score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                         amplitude_cutoff=amplitude_cutoff_mhci,
                         category="CDN",
-                    ),
-                ),
-                AnnotationFactory.build_annotation(
-                    name="ADN_MHCI",
-                    value=self.classify_adn_cdn(
+                    )
+            adn = self.classify_adn_cdn(
                         score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
                         amplitude_cutoff=amplitude_cutoff_mhci,
                         category="ADN",
-                    ),
-                ),
-            ]
+                    )
+        annotations = [
+            AnnotationFactory.build_annotation(
+                name="CDN_MHCI",
+                value=cdn
+            ),
+            AnnotationFactory.build_annotation(
+                name="ADN_MHCI",
+                value=adn
+            ),
+        ]
         return annotations
 
     def get_annotations_mhc2(
@@ -132,30 +141,33 @@ class DifferentialBinding:
         bdg_cutoff_classical_mhcii = 1
         bdg_cutoff_alternative_mhcii = 4
         amplitude_cutoff_mhcii = 4
-        annotations = []
-        if netmhc2pan.best_predicted_epitope_rank:
-            annotations = [
-                AnnotationFactory.build_annotation(
-                    value=self.classify_adn_cdn(
+        cdn = None
+        adn = None
+        if netmhc2pan.best_predicted_epitope_rank.peptide:
+            cdn = self.classify_adn_cdn(
                         score_mutation=netmhc2pan.best_predicted_epitope_rank.rank,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
                         amplitude_cutoff=amplitude_cutoff_mhcii,
                         category="CDN",
-                    ),
-                    name="CDN_MHCII",
-                ),
-                AnnotationFactory.build_annotation(
-                    value=self.classify_adn_cdn(
+                    )
+            adn = self.classify_adn_cdn(
                         score_mutation=netmhc2pan.best_predicted_epitope_rank.rank,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
                         amplitude_cutoff=amplitude_cutoff_mhcii,
                         category="ADN",
-                    ),
-                    name="ADN_MHCII",
-                ),
-            ]
+                    )
+        annotations = [
+            AnnotationFactory.build_annotation(
+                value=cdn,
+                name="CDN_MHCII",
+            ),
+            AnnotationFactory.build_annotation(
+                value=adn,
+                name="ADN_MHCII",
+            ),
+        ]
         return annotations

@@ -87,3 +87,14 @@ class TestNeoantigenFitness(TestCase):
                 amplitude=None, pathogen_similarity=1.0, mutation_in_anchor=False
             ),
         )
+
+    def test_affinity_threshold(self):
+        # tests a pathogen sequence and expects 1.0 similarity
+        neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
+            runner=Runner(), configuration=self.configuration, iedb=self.references.iedb, affinity_threshold=1
+        )
+        self.assertIsNone(
+            neoantigen_fitness_calculator.calculate_recognition_potential(
+                amplitude=1.0, pathogen_similarity=1.0, mhc_affinity_mut=10, mutation_in_anchor=False
+            ),
+        )

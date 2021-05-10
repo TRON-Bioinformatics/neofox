@@ -36,7 +36,7 @@ class TestDissimilarity(TestCase):
             runner=self.runner,
             configuration=self.configuration,
             proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="tocino", mhc_affinity="velocidad")
+        ).calculate_dissimilarity(mhc_mutation="tocino", mhc_affinity=600)
         self.assertEqual(1, result)
 
     def test_similar_sequences(self):
@@ -44,7 +44,7 @@ class TestDissimilarity(TestCase):
             runner=self.runner,
             configuration=self.configuration,
             proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="DDDDDD", mhc_affinity="DDDDDD")
+        ).calculate_dissimilarity(mhc_mutation="DDDDDD", mhc_affinity=600)
         self.assertTrue(result < 0.000001)
 
     def test_missing_aminoacid_change(self):
@@ -52,7 +52,7 @@ class TestDissimilarity(TestCase):
             runner=self.runner,
             configuration=self.configuration,
             proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="DDUDDD", mhc_affinity="DDYDDD")
+        ).calculate_dissimilarity(mhc_mutation="DDUDDD", mhc_affinity=600)
         self.assertIsNone(result)
 
     def test_dissimilarity_mhcii(self):
@@ -61,12 +61,39 @@ class TestDissimilarity(TestCase):
             runner=self.runner,
             configuration=self.configuration,
             proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="LGLSDSQFLQTFLFM", mhc_affinity="430")
+        ).calculate_dissimilarity(mhc_mutation="LGLSDSQFLQTFLFM", mhc_affinity=430)
         self.assertEqual(result, 0)
         # unsimmilar peptide
         result = DissimilarityCalculator(
             runner=self.runner,
             configuration=self.configuration,
             proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="LFTSPIMTKSAEMIV", mhc_affinity="430")
+        ).calculate_dissimilarity(mhc_mutation="LFTSPIMTKSAEMIV", mhc_affinity=430)
         self.assertEqual(9.713825893542527e-06, result)
+
+    def test_dissimilar_sequences(self):
+        result = DissimilarityCalculator(
+            runner=self.runner,
+            configuration=self.configuration,
+            proteome_db=self.references.proteome_db,
+        ).calculate_dissimilarity(mhc_mutation="tocino", mhc_affinity=600)
+        self.assertEqual(1, result)
+
+    def test_affinity_threshold(self):
+        # peptide with point mutation
+        dissimilariyty_calculator = DissimilarityCalculator(
+            runner=self.runner,
+            configuration=self.configuration,
+            proteome_db=self.references.proteome_db,
+            affinity_threshold=1000
+        )
+        result = dissimilariyty_calculator.calculate_dissimilarity(
+            mhc_mutation="LGLSDSQFLQTFLFM", mhc_affinity=1030, filter_binder=True)
+        self.assertIsNone(result)
+        result = dissimilariyty_calculator.calculate_dissimilarity(
+            mhc_mutation="LGLSDSQFLQTFLFM", mhc_affinity=1030, filter_binder=False)
+        self.assertIsNotNone(result)
+        result = dissimilariyty_calculator.calculate_dissimilarity(
+            mhc_mutation="LGLSDSQFLQTFLFM", mhc_affinity=530, filter_binder=True)
+        self.assertIsNotNone(result)
+

@@ -25,6 +25,7 @@ from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 immunoweight = [0.00, 0.00, 0.10, 0.31, 0.30, 0.29, 0.26, 0.18, 0.00]
 
@@ -101,6 +102,10 @@ allele_dict = {
 
 
 class IEDBimmunogenicity:
+
+    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
+        self.affinity_threshold = affinity_threshold
+
     def predict_immunogenicity(self, pep, allele):
 
         custom_mask = allele_dict.get(allele, False)
@@ -145,7 +150,7 @@ class IEDBimmunogenicity:
         try:
             if (
                 epitope != "-"
-                and (affin_filtering and float(mhc_score) < 500.0)
+                and (affin_filtering and float(mhc_score) < self.affinity_threshold)
                 or not affin_filtering
             ):
                 score = self.predict_immunogenicity(
@@ -159,17 +164,18 @@ class IEDBimmunogenicity:
         self, netmhcpan: BestAndMultipleBinder, mhci_allele
     ) -> List[Annotation]:
         """returns IEDB immunogenicity for MHC I (based on affinity) and MHC II (based on rank)"""
-        annotations = []
-        if netmhcpan.best_epitope_by_affinity:
-            annotations = [
-                AnnotationFactory.build_annotation(
-                    value=self.calculate_iedb_immunogenicity(
+        iedb = None
+        if netmhcpan.best_epitope_by_affinity.peptide:
+            iedb = self.calculate_iedb_immunogenicity(
                         epitope=netmhcpan.best_epitope_by_affinity.peptide,
                         mhc_allele=mhci_allele,
                         mhc_score=netmhcpan.best_epitope_by_affinity.affinity_score,
                         affin_filtering=True,
-                    ),
-                    name="IEDB_Immunogenicity_MHCI_cutoff500nM",
-                ),
-            ]
+                    )
+        annotations = [
+            AnnotationFactory.build_annotation(
+                value=iedb,
+                name="IEDB_Immunogenicity_MHCI",
+            ),
+        ]
         return annotations

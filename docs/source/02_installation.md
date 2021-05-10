@@ -33,7 +33,7 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 This installation instructions were tested on Ubuntu 18.04.
 
-Python 3.7 and R 3.6.0 should be preinstalled.
+Python >=3.6, <=3.8 and R 3.6.0 should be preinstalled.
 
 Set the environment variable pointing to `Rscript`.
 ```
@@ -57,7 +57,7 @@ tar -xvf ncbi-blast-2.10.1+-x64-linux.tar.gz
 export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.10.1+/bin/blastp
 ```
 
-#### Install NetMHCpan 4.1
+#### Install NetMHCpan 4.0
 
 NetMHCpan 4.1 can be downloaded by academic users from https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1
 
@@ -73,18 +73,18 @@ export NEOFOX_NETMHCPAN=`pwd`/netMHCpan-4.1/netMHCpan
 Configure NetMHCpan as explained in the file `netMHCpan-4.1/netMHCpan-4.1.readme`
 
 
-#### Install NetMHC2pan 3.2
+#### Install NetMHCIIpan 4.0
 
 NetMHC2pan can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
 
 ```
-tar -xvf netMHCIIpan-3.2.Linux.tar.gz
-cd netMHCIIpan-3.2
+tar -xvf netMHCIIpan-4.0.Linux.tar.gz
+cd netMHCIIpan-4.0
 # download the data
-wget http://www.cbs.dtu.dk/services/NetMHCIIpan-3.2/data.Linux.tar.gz
+wget http://www.cbs.dtu.dk/services/NetMHCIIpan-4.0/data.Linux.tar.gz
 tar -xvf data.Linux.tar.gz
 cd ..
-export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-3.2/netMHCIIpan
+export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 # install tcsh shell interpreter if not available yet
 sudo apt-get install tcsh
 ```
@@ -115,8 +115,10 @@ export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
 tar -xvf master.tar.gz
-export NEOFOX_PRIME==`pwd`/PRIME/PRIME
+export NEOFOX_PRIME==`pwd`/PRIME-master/PRIME
 ```
+
+Configure PRIME as explained in the file `PRIME-master/README`
 
 ### Install references
 
