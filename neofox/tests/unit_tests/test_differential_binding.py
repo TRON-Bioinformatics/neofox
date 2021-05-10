@@ -25,7 +25,7 @@ from neofox.published_features.differential_binding.differential_binding import 
 
 class TestDifferentialBinding(TestCase):
     def setUp(self):
-        self.diffbdg_calculator = DifferentialBinding()
+        self.diffbdg_calculator = DifferentialBinding(affinity_threshold=500)
 
     def test_dai(self):
         result = self.diffbdg_calculator.dai(
