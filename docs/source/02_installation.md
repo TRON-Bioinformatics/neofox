@@ -18,7 +18,7 @@ distribute the software or provide a direct URL to download it. Please, make sur
 the sites indicated below.
 
 - NetMHCpan 4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
-- NetMHCIIpan 3.2: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-3.2.Linux.tar.gz`)
+- NetMHCIIpan 4.0: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.0.Linux.tar.gz`)
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
@@ -75,7 +75,7 @@ Configure NetMHCpan as explained in the file `netMHCpan-4.1/netMHCpan-4.1.readme
 
 #### Install NetMHCIIpan 4.0
 
-NetMHC2pan can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
+NetMHCIIpan can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
 
 ```
 tar -xvf netMHCIIpan-4.0.Linux.tar.gz
