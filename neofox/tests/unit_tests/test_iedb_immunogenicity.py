@@ -24,7 +24,7 @@ from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicit
 class TestImmunogenicity(TestCase):
 
     def test_immunogenicity(self):
-        iedb_immunogenicity = IEDBimmunogenicity()
+        iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=500)
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
             epitope="ENPVVHFF", mhc_allele="HLA-A*68:01", mhc_score=600
         )
