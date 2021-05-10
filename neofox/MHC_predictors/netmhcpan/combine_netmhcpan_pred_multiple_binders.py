@@ -214,7 +214,7 @@ class BestAndMultipleBinder:
         Determines the number of HLA I neoepitope candidates that bind stronger (10:1) to HLA in comparison to corresponding WT
         """
         number_binders = 0
-        dai_values  = []
+        dai_values = []
         for epitope in predictions:
             dai_values.append(epitope.affinity_score)
             if epitope.affinity_score < 5000:

@@ -25,6 +25,7 @@ from neofox.helpers import intermediate_files
 from neofox.model.conversion import ModelValidator
 from neofox.model.neoantigen import Annotation, Neoantigen
 from neofox.model.wrappers import AnnotationFactory
+from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.Tcell_predictor.preprocess import Preprocessor
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
@@ -34,7 +35,9 @@ CLASSIFIER_PICKLE = "Classifier.pickle"
 
 
 class TcellPrediction:
-    def __init__(self):
+
+    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
+        self.affinity_threshold = affinity_threshold
         # UserWarning: Trying to unpickle estimator DecisionTreeClassifier from version 0.19.0 when using version
         # 0.20.3. This might lead to breaking code or invalid results. Use at your own risk.
         with warnings.catch_warnings():
@@ -47,7 +50,7 @@ class TcellPrediction:
             ) as f:
                 self.classifier = pickle.load(f)
 
-    def _triple_gen_seq_subst(self, gene, substitution, epitope, score, threshold):
+    def _triple_gen_seq_subst(self, gene, substitution, epitope, score):
         """
         extracts gene id, epitope sequence and substitution from epitope dictionary
         Tcell predictor works with 9mers only! --> extract for 9mers only
@@ -55,7 +58,7 @@ class TcellPrediction:
         result = None
         has_gene = gene is not None and gene.strip() != ""
         if has_gene and len(epitope) == 9:
-            if threshold is None or float(score) < threshold:
+            if self.affinity_threshold is None or float(score) < self.affinity_threshold:
                 result = [gene.replace(" ", ""), epitope, substitution]
         return result
 
@@ -83,7 +86,7 @@ class TcellPrediction:
         return result
 
     def _wrapper_tcellpredictor(
-        self, gene, substitution, epitope, score, threshold, tmpfile_in
+        self, gene, substitution, epitope, score, tmpfile_in
     ):
         """
         wrapper function to determine
@@ -92,8 +95,7 @@ class TcellPrediction:
             gene=gene,
             substitution=substitution,
             epitope=epitope,
-            score=score,
-            threshold=threshold,
+            score=score
         )
         pred_out = None
         if trp is not None:
@@ -102,7 +104,7 @@ class TcellPrediction:
         return pred_out
 
     def _calculate_tcell_predictor_score(
-        self, gene, substitution, epitope, score, threshold=None
+        self, gene, substitution, epitope, score
     ):
         """returns Tcell_predictor score given mps in dictionary format"""
         tmp_tcellPredIN = intermediate_files.create_temp_file(
@@ -111,8 +113,7 @@ class TcellPrediction:
         tcell_predictor_score = None
         if not ModelValidator.has_peptide_rare_amino_acids(epitope):
             tcell_predictor_score = self._wrapper_tcellpredictor(
-                gene=gene, substitution=substitution, epitope=epitope, score=score, threshold=threshold,
-                tmpfile_in=tmp_tcellPredIN, )
+                gene=gene, substitution=substitution, epitope=epitope, score=score, tmpfile_in=tmp_tcellPredIN, )
         return tcell_predictor_score
 
     def get_annotations(
@@ -130,12 +131,11 @@ class TcellPrediction:
             tcell_predictor_score = self._calculate_tcell_predictor_score(gene=neoantigen.gene,
                                                           substitution=wild_type_aminoacid + mutated_aminoacid,
                                                           epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
-                                                          score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
-                                                          threshold=500, )
+                                                          score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=tcell_predictor_score,
-                name="Tcell_predictor_score_cutoff500nM",
+                name="Tcell_predictor_score",
             )
         ]
         return annotations
