@@ -146,7 +146,7 @@ class MixMhc2Pred:
         os.remove(outtmp)
         return results
 
-    def run(self, mhc: List[Mhc2], mutation: Mutation):
+    def run(self, mhc: List[Mhc2], mutation: Mutation, uniprot):
         """
         Runs MixMHC2pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
@@ -156,7 +156,7 @@ class MixMhc2Pred:
         best_rank = None
         best_allele = None
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18]
+            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot
         )
         # filter mps shorter < 13aa
         filtered_sequences = list(
@@ -178,8 +178,8 @@ class MixMhc2Pred:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
         return best_peptide, best_rank, best_allele
 
-    def get_annotations(self, mhc: List[Mhc2], mutation: Mutation) -> List[Annotation]:
-        best_peptide, best_rank, best_allele = self.run(mhc=mhc, mutation=mutation)
+    def get_annotations(self, mhc: List[Mhc2], mutation: Mutation, uniprot) -> List[Annotation]:
+        best_peptide, best_rank, best_allele = self.run(mhc=mhc, mutation=mutation, uniprot=uniprot)
         return [
             AnnotationFactory.build_annotation(
                 value=best_peptide, name="MixMHC2pred_best_peptide"

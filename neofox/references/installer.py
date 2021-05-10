@@ -1,6 +1,8 @@
+import pickle
 import subprocess
 import os
 import pandas as pd
+from Bio import SeqIO
 
 from neofox import NEOFOX_HLA_DATABASE_ENV
 from neofox.exceptions import NeofoxReferenceException
@@ -14,7 +16,7 @@ from neofox.references.references import (
     IEDB_BLAST_PREFIX,
     IEDB_FASTA,
     HOMO_SAPIENS_FASTA,
-    PREFIX_HOMO_SAPIENS, HLA_DATABASE_AVAILABLE_ALLELES_FILE,
+    PREFIX_HOMO_SAPIENS, HLA_DATABASE_AVAILABLE_ALLELES_FILE, HOMO_SAPIENS_PICKLE,
 )
 from logzero import logger
 
@@ -144,6 +146,18 @@ class NeofoxReferenceInstaller(object):
             output_folder=output_folder,
         )
         self._run_command(cmd)
+
+        # builds proteome in pickle for querying
+        prepared_proteome = []
+        for record in SeqIO.parse(proteome_file, "fasta"):
+            prepared_proteome.append(str(record.seq))
+
+        proteome_pickle = os.path.join(
+            self.reference_folder, PROTEOME_DB_FOLDER, HOMO_SAPIENS_PICKLE
+        )
+        outfile = open(proteome_pickle, 'wb')
+        pickle.dump("\n".join(prepared_proteome), outfile)
+        outfile.close()
 
     def _set_ipd_imgt_hla_database(self):
         logger.info("Downloading the IPD-IMGT/HLA database")

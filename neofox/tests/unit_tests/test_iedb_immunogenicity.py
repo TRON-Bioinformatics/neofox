@@ -22,18 +22,24 @@ from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicit
 
 
 class TestImmunogenicity(TestCase):
-    def setUp(self):
-        self.immunogenicity_calculator = IEDBimmunogenicity()
 
     def test_immunogenicity(self):
-        result = self.immunogenicity_calculator.calculate_iedb_immunogenicity(
+        iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=500)
+        result = iedb_immunogenicity.calculate_iedb_immunogenicity(
             epitope="ENPVVHFF", mhc_allele="HLA-A*68:01", mhc_score=600
         )
         self.assertGreater(result, 0)
-        result = self.immunogenicity_calculator.calculate_iedb_immunogenicity(
+        result = iedb_immunogenicity.calculate_iedb_immunogenicity(
             epitope="ENPVVHFF",
             mhc_allele="HLA-A*68:01",
             mhc_score=600,
             affin_filtering=True,
         )
         self.assertIsNone(result)
+
+    def test_affinity_threshold(self):
+        iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=1000)
+        result = iedb_immunogenicity.calculate_iedb_immunogenicity(
+            epitope="ENPVVHFF", mhc_allele="HLA-A*68:01", mhc_score=600, affin_filtering=True
+        )
+        self.assertGreater(result, 0)

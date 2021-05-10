@@ -59,6 +59,37 @@ class TestNeofox(TestCase):
             input_file
         )
 
+    def test_neoantigens_without_gene(self):
+        """"""
+        neoantigens, patients, patient_id = self._get_test_data()
+        for n in neoantigens:
+            n.gene = ""
+        annotations = NeoFox(
+            neoantigens=neoantigens,
+            patient_id=patient_id,
+            patients=patients,
+            num_cpus=1,
+        ).get_annotations()
+        self.assertEqual(5, len(annotations))
+        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
+        self.assertTrue(len(annotations[0].annotations) > 10)
+
+    def _get_test_data(self):
+        input_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_model_file.txt"
+        )
+        data = pd.read_csv(input_file, sep="\t")
+        data = data.replace({np.nan: None})
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+            data
+        )
+        patients_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_patient_file.txt"
+        )
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
+        patient_id = "Pt29"
+        return neoantigens, patients, patient_id
+
     def test_neofox(self):
         """
         This test is equivalent to the command line call:
@@ -218,6 +249,8 @@ class TestNeofox(TestCase):
 
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
+
+
     def test_neofox_with_config(self):
         neoantigens, patients, patient_id = self._get_test_data()
         config_file = pkg_resources.resource_filename(
@@ -252,25 +285,9 @@ class TestNeofox(TestCase):
         self.assertTrue(len(annotations[0].annotations) > 10)
 
     def test_neofox_without_mhc1(self):
-        """"""
         neoantigens, patients, patient_id = self._get_test_data()
         for p in patients:
             p.mhc1 = None
-        annotations = NeoFox(
-            neoantigens=neoantigens,
-            patient_id=patient_id,
-            patients=patients,
-            num_cpus=1,
-        ).get_annotations()
-        self.assertEqual(5, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
-
-    def test_neoantigens_without_gene(self):
-        """"""
-        neoantigens, patients, patient_id = self._get_test_data()
-        for n in neoantigens:
-            n.gene = ""
         annotations = NeoFox(
             neoantigens=neoantigens,
             patient_id=patient_id,
@@ -387,24 +404,8 @@ class TestNeofox(TestCase):
         self.assertTrue(len(annotations[0].annotations) > 10)
         for na in annotations:
             for a in na.annotations:
-                if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff500nM"]:
+                if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
-
-    def _get_test_data(self):
-        input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_model_file.txt"
-        )
-        data = pd.read_csv(input_file, sep="\t")
-        data = data.replace({np.nan: None})
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
-            data
-        )
-        patients_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_patient_file.txt"
-        )
-        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
-        patient_id = "Pt29"
-        return neoantigens, patients, patient_id
 
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(
@@ -516,3 +517,5 @@ class NeofoxChecker:
     def _check_rows(self, new_df, previous_df):
         # fails the test if the number of rows differ
         assert previous_df.shape[0] == new_df.shape[0], "Mismatching number of rows"
+
+

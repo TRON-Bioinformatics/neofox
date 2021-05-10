@@ -26,6 +26,8 @@ from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName
 
 PREFIX_HOMO_SAPIENS = "homo_sapiens"
 HOMO_SAPIENS_FASTA = "Homo_sapiens.fa"
+HOMO_SAPIENS_PICKLE = "Homo_sapiens.pickle"
+
 IEDB_FASTA = "IEDB.fasta"
 PROTEOME_DB_FOLDER = "proteome_db"
 IEDB_FOLDER = "iedb"
@@ -119,6 +121,9 @@ class ReferenceFolder(object):
         self.proteome_db = self._get_reference_file_name(PROTEOME_DB_FOLDER)
         self.uniprot = self._get_reference_file_name(
             os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_FASTA)
+        )
+        self.uniprot_pickle = self._get_reference_file_name(
+            os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_PICKLE)
         )
         self.hla_database = self._get_reference_file_name(HLA_DATABASE_AVAILABLE_ALLELES_FILE)
 

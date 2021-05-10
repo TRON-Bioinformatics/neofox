@@ -32,7 +32,8 @@ from neofox.references.references import DependenciesConfiguration
 
 
 class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
+        super().__init__(runner=runner, configuration=configuration, proteome_db=proteome_db, mhc_parser=mhc_parser)
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
@@ -82,7 +83,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             for i in isoforms
         ]
 
-    def mhcII_prediction(
+    def mhc2_prediction(
         self, mhc_alleles: List[str], sequence
     ) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
@@ -102,6 +103,30 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 tmp_folder,
                 "-dirty",
             ]
+        )
+        return self._parse_netmhcpan_output(lines)
+    
+    def mhc2_prediction_peptide(
+        self, mhc_alleles: List[str], sequence ) -> List[PredictedEpitope]:
+        """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
+        tmp_peptide = intermediate_files.create_temp_peptide(
+            [sequence], prefix="tmp_singleseq_"
+        )
+        tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
+        lines, _ = self.runner.run_command(
+            cmd=[
+                self.configuration.net_mhc2_pan,
+                "-a",
+                mhc_alleles,
+                "-inptype",
+                "1",
+                "-f",
+                tmp_peptide,
+                "-tdir",
+                tmp_folder,
+                "-dirty",
+            ],
+            print_log=False
         )
         return self._parse_netmhcpan_output(lines)
 

@@ -12,3 +12,7 @@ neofox/tests/resources/output*
 docs/build
 .ipynb_checkpoints
 neofox-dask-report*
+.tox
+venv*
+py36
+

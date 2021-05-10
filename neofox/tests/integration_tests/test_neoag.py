@@ -21,8 +21,10 @@ from unittest import TestCase
 from neofox.model.neoantigen import Annotation
 from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.helpers.runner import Runner
+from neofox.model.neoantigen import Mutation
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.tests.fake_classes import FakeBestAndMultipleBinder
+from neofox.model.conversion import ModelValidator
 
 
 class TestNeoantigenFitness(TestCase):
@@ -32,6 +34,12 @@ class TestNeoantigenFitness(TestCase):
         self.runner = Runner()
 
     def test_neoag(self):
+        mutation = ModelValidator._validate_mutation(
+            Mutation(
+                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            )
+        )
         result = NeoagCalculator(
             runner=self.runner, configuration=self.configuration
         ).get_annotation(
@@ -39,7 +47,27 @@ class TestNeoantigenFitness(TestCase):
             netmhcpan=FakeBestAndMultipleBinder(
                 mutated_epitope="DDDDDV", wild_type_epitope="DDDDDD", affinity=0
             ),
-            peptide_variant_position="123",
+            mutation=mutation,
+            peptide_variant_position="123"
         )
         self.assertTrue(isinstance(result, Annotation))
         self.assertTrue(float(result.value) > 0)
+
+    def test_affinity_threshold(self):
+        mutation = ModelValidator._validate_mutation(
+            Mutation(
+                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            )
+        )
+        result = NeoagCalculator(
+            runner=self.runner, configuration=self.configuration, affinity_threshold=1
+        ).get_annotation(
+            sample_id="12345",
+            netmhcpan=FakeBestAndMultipleBinder(
+                mutated_epitope="DDDDDV", wild_type_epitope="DDDDDD", affinity=10
+            ),
+            mutation=mutation,
+            peptide_variant_position="123"
+        )
+        self.assertEqual(result.value, "NA")

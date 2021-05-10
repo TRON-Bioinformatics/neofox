@@ -24,7 +24,7 @@ from logzero import logger
 import neofox
 from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.neofox import NeoFox
+from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
@@ -122,6 +122,14 @@ def neofox_cli():
         'if the column "patient" has not been added to the candidate file',
     )
     parser.add_argument(
+        "--affinity-threshold",
+        dest="affinity_threshold",
+        help="neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be "
+             "not annotated with features that specifically model neoepitope recognition. A threshold that is commonly "
+             "used is 500 nM",
+        default=AFFINITY_THRESHOLD_DEFAULT
+    )
+    parser.add_argument(
         "--num-cpus", dest="num_cpus", default=1, help="number of CPUs for computation"
     )
     parser.add_argument(
@@ -140,6 +148,7 @@ def neofox_cli():
     with_sw = args.with_short_wide_table
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
+    affinity_threshold = int(args.affinity_threshold)
     num_cpus = int(args.num_cpus)
     config = args.config
 
@@ -178,7 +187,8 @@ def neofox_cli():
             output_prefix=output_prefix,
             num_cpus=num_cpus,
             reference_folder=reference_folder,
-        ).get_annotations(output_folder)
+            affinity_threshold=affinity_threshold
+        ).get_annotations()
         # combine neoantigen feature annotations and potential user-specific external annotation
         neoantigen_annotations = _combine_features_with_external_annotations(
             annotations, external_annotations

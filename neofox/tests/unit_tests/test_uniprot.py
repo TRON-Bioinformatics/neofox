@@ -29,7 +29,7 @@ class TestUniprot(TestCase):
         cls.uniprot = Uniprot(
             pkg_resources.resource_filename(
                 neofox.tests.__name__,
-                "resources/uniprot_human_with_isoforms.first200linesfortesting.fasta",
+                "resources/uniprot_human_with_isoforms.first200linesfortesting.pickle",
             )
         )
 
