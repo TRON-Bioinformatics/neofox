@@ -83,7 +83,7 @@ class NeoantigenAnnotator:
         self.self_similarity = self_similarity
 
         # NOTE: this one loads a big file, but it is faster loading it multiple times than passing it around
-        self.uniprot = Uniprot(references.uniprot)
+        self.uniprot = Uniprot(references.uniprot_pickle)
 
         # NOTE: these resources do not read any file thus can be initialised fast
         self.dissimilarity_calculator = DissimilarityCalculator(
