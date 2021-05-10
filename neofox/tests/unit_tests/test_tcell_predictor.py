@@ -29,69 +29,72 @@ class TestTCellPredictor(TestCase):
     # TODO: Franzis maybe you can add some more sensible tests here?
 
     def test_non_existing_gene(self):
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
             gene="BLAH",
             substitution="blaaaah",
             epitope="BLAHBLAH",
-            score=5,
-            threshold=10,
+            score=5
         )
         self.assertEqual(None, result)
 
     def test_empty_gene(self):
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
             gene=None,
             substitution="blaaaah",
             epitope="BLAHBLAH",
-            score=5,
-            threshold=10,
+            score=5
         )
         self.assertEqual(None, result)
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
             gene="",
             substitution="blaaaah",
             epitope="BLAHBLAH",
-            score=5,
-            threshold=10,
+            score=5
         )
         self.assertEqual(None, result)
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
             gene="   ",
             substitution="blaaaah",
             epitope="BLAHBLAH",
-            score=5,
-            threshold=10,
+            score=5
         )
         self.assertEqual(None, result)
 
     def test_existing_gene_with_too_short_epitope(self):
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
-            gene="BRCA2", substitution="C", epitope="CCCCCC", score=5, threshold=10
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+            gene="BRCA2", substitution="C", epitope="CCCCCC", score=5
         )
         self.assertEqual(None, result)
 
     def test_existing_gene_with_too_long_epitope(self):
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
-            gene="BRCA2", substitution="C", epitope="CCCCCCCCCC", score=5, threshold=10
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+            gene="BRCA2", substitution="C", epitope="CCCCCCCCCC", score=5
         )
         self.assertEqual(None, result)
 
     def test_existing_gene(self):
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
             gene="BRCA2",
             substitution="CCCCVCCCC",
             epitope="CCCCCCCCC",
-            score=5,
-            threshold=10,
+            score=5
         )
         self.assertAlmostEqual(0.2453409331088489, float(result))
 
     def test_rare_aminoacid(self):
-        result = self.tcell_predictor._calculate_tcell_predictor_score(
+        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
             gene="BRCA2",
             substitution="CU",
             epitope="CCCCUCCCC",
-            score=5,
-            threshold=10,
+            score=5
+        )
+        self.assertIsNone(result)
+
+    def test_affinity_threshold(self):
+        result = TcellPrediction(affinity_threshold=1)._calculate_tcell_predictor_score(
+            gene="BRCA2",
+            substitution="CCCCVCCCC",
+            epitope="CCCCCCCCC",
+            score=5
         )
         self.assertIsNone(result)

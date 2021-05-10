@@ -25,14 +25,17 @@ from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 
 class NeoagCalculator(object):
-    def __init__(self, runner, configuration):
+
+    def __init__(self, runner, configuration, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
         """
         :type runner: neofox.helpers.runner.Runner
         :type configuration: neofox.references.DependenciesConfiguration
         """
+        self.affinity_threshold = affinity_threshold
         self.runner = runner
         self.configuration = configuration
 
@@ -63,7 +66,7 @@ class NeoagCalculator(object):
         """
         header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
         try:
-            if score_mut < 500:
+            if score_mut < self.affinity_threshold:
                 epi_row = "\t".join(
                     [sample_id, mut_peptide, ref_peptide, str(peptide_variant_position)]
                 )

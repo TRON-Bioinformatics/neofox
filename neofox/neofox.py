@@ -34,7 +34,7 @@ from neofox.published_features.self_similarity.self_similarity import (
     SelfSimilarityCalculator,
 )
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration
-from neofox import NEOFOX_LOG_FILE_ENV
+from neofox import NEOFOX_LOG_FILE_ENV, AFFINITY_THRESHOLD_DEFAULT
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import (
     NeofoxConfigurationException,
@@ -46,6 +46,7 @@ import dotenv
 
 
 class NeoFox:
+
     def __init__(
         self,
         neoantigens: List[Neoantigen],
@@ -58,7 +59,10 @@ class NeoFox:
         configuration: DependenciesConfiguration = None,
         verbose=False,
         configuration_file=None,
+        affinity_threshold=AFFINITY_THRESHOLD_DEFAULT
     ):
+
+        self.affinity_threshold = affinity_threshold
 
         if configuration_file:
             dotenv.load_dotenv(configuration_file, override=True)
@@ -78,7 +82,7 @@ class NeoFox:
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction()
+        self.tcell_predictor = TcellPrediction(affinity_threshold=self.affinity_threshold)
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -235,7 +239,8 @@ class NeoFox:
                     future_configuration,
                     future_tcell_predictor,
                     future_self_similarity,
-                    self.log_file_name
+                    self.log_file_name,
+                    self.affinity_threshold
                 )
             )
         annotations = dask_client.gather(futures)
@@ -255,7 +260,8 @@ class NeoFox:
         configuration: DependenciesConfiguration,
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
-        log_file_name: str
+        log_file_name: str,
+        affinity_threshold = AFFINITY_THRESHOLD_DEFAULT
     ):
         # the logs need to be initialised inside every dask job
         NeoFox._initialise_logs(log_file_name)
@@ -266,6 +272,7 @@ class NeoFox:
             configuration,
             tcell_predictor=tcell_predictor,
             self_similarity=self_similarity,
+            affinity_threshold=affinity_threshold
         ).get_annotation(neoantigen, patient)
         end = time.time()
         logger.info(
