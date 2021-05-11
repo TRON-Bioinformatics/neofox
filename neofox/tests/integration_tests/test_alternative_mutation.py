@@ -69,7 +69,8 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
-            hla_database=self.hla_database
+            hla_database=self.hla_database,
+            proteome_db=self.proteome_db
         )
         self.assertEqual(18.6, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla)
@@ -103,7 +104,7 @@ class TestBestMultipleBinder(TestCase):
             mhc2_alleles_patient=self.test_mhc_two,
             mhc2_alleles_available=self.available_alleles_mhc2,
             uniprot=self.uniprot,
-            hla_database=self.hla_database
+            proteome_db=self.proteome_db
         )
         logger.info(best_multiple.best_predicted_epitope_rank.rank)
         logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
