@@ -110,7 +110,8 @@ class TestBestMultipleBinder(TestCase):
             )
         )
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele, self.test_mhc_one)
-        self.assertIsNone(phbr_i)
+        self.assertIsNotNone(phbr_i)
+        self.assertAlmostEqual(1.359324592015038, phbr_i)
         # one homozygous allele present
         mhc_alleles = ModelConverter.parse_mhc1_alleles(
             [
@@ -135,7 +136,8 @@ class TestBestMultipleBinder(TestCase):
             )
         )
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele, mhc_alleles)
-        self.assertIsNone(phbr_i)
+        self.assertIsNotNone(phbr_i)
+        self.assertAlmostEqual(1.0036998409510969, phbr_i)
         # mo info for one allele
         mhc_alleles = ModelConverter.parse_mhc1_alleles(
             ["HLA-A*24:02", "HLA-A*02:01", "HLA-B*15:01", "HLA-B*44:02", "HLA-C*05:01"], self.hla_database
@@ -214,10 +216,9 @@ class TestBestMultipleBinder(TestCase):
             best_multiple.extract_best_epitope_per_mhc2_alelle(predictions=filtered_predictions, mhc_isoforms=self.test_mhc_two
             )
         )
-        logger.info(best_predicted_epitopes_per_alelle)
-        logger.info(len(best_predicted_epitopes_per_alelle))
         phbr_ii = best_multiple.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
-        self.assertIsNone(phbr_ii)
+        self.assertIsNotNone(phbr_ii)
+        self.assertAlmostEqual(8.895757526065129, phbr_ii)
         # mo info for one allele
         mhc2_alleles = ModelConverter.parse_mhc2_alleles(
             [

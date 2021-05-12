@@ -84,7 +84,8 @@ class TestBestMultipleBinder(TestCase):
         )
         self.assertEqual(2, best_multiple.generator_rate_adn)
         self.assertEqual(3, best_multiple.generator_rate_cdn)
-        self.assertIsNone(best_multiple.phbr_i)
+        self.assertIsNotNone(best_multiple.phbr_i)
+        self.assertAlmostEqual(0.23085258129451622, best_multiple.phbr_i)
 
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(
@@ -118,7 +119,8 @@ class TestBestMultipleBinder(TestCase):
         self.assertEqual(
             "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank_wt.peptide
         )
-        self.assertIsNone(best_multiple.phbr_ii)
+        self.assertIsNotNone(best_multiple.phbr_ii)
+        self.assertAlmostEqual(2.443747855207474, best_multiple.phbr_ii)
         self.assertEqual(
             best_multiple.best_predicted_epitope_rank.hla,
             best_multiple.best_predicted_epitope_rank_wt.hla,

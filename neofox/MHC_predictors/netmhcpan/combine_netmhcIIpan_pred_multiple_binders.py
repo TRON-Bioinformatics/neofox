@@ -395,8 +395,8 @@ class BestAndMultipleBinderMhcII:
             best_epitope = epitopes[0]
             num_repetitions = 0
             if (
-                best_epitope.hla in hetero_hemizygous_allele_names
-                or best_epitope.hla in hetero_hemizygous_allele_names
+                best_epitope.hla.name in hetero_hemizygous_allele_names
+                or best_epitope.hla.name in hetero_hemizygous_allele_names
             ):
                 # adds the epitope once if alleles heterozygous
                 num_repetitions = 1

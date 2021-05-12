@@ -148,9 +148,9 @@ class BestAndMultipleBinder:
             # sort by rank to choose the best epitope, ties are solved choosing the first peptide in alphabetcial order
             list_alleles.sort(key=lambda x: (x.rank, x.peptide))
             best_epitope = list_alleles[0]
-            if best_epitope.hla in hetero_hemizygous_alleles:
+            if best_epitope.hla.name in hetero_hemizygous_alleles:
                 best_epis_per_allele.append(best_epitope)  # adds the epitope once
-            if best_epitope.hla in homozygous_alleles:
+            if best_epitope.hla.name in homozygous_alleles:
                 best_epis_per_allele.append(best_epitope)
                 best_epis_per_allele.append(best_epitope)  # adds the epitope twice
         return best_epis_per_allele
