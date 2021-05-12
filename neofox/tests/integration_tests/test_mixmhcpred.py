@@ -46,7 +46,7 @@ class TestMixMHCPred(TestCase):
         self.hla_database = self.references.get_hla_database()
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
         self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
-        self.uniprot = Uniprot(self.references.uniprot)
+        self.uniprot = Uniprot(self.references.uniprot_pickle)
 
     def test_mixmhcpred_epitope_iedb(self):
         # this is an epitope from IEDB of length 9

@@ -51,11 +51,11 @@ class TestBestMultipleBinder(TestCase):
         self.mhc_parser = MhcParser(self.hla_database)
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
         self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
-        self.uniprot = Uniprot(references.uniprot)
+        self.uniprot = Uniprot(references.uniprot_pickle)
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -89,7 +89,7 @@ class TestBestMultipleBinder(TestCase):
 
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser, proteome_db=self.proteome_db
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(

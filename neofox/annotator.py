@@ -72,6 +72,7 @@ class NeoantigenAnnotator:
         configuration: DependenciesConfiguration,
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
+        affinity_threshold =neofox.AFFINITY_THRESHOLD_DEFAULT
     ):
         """class to annotate neoantigens"""
         self.runner = Runner()
@@ -82,23 +83,24 @@ class NeoantigenAnnotator:
         self.self_similarity = self_similarity
 
         # NOTE: this one loads a big file, but it is faster loading it multiple times than passing it around
-        self.uniprot = Uniprot(references.uniprot)
+        self.uniprot = Uniprot(references.uniprot_pickle)
 
         # NOTE: these resources do not read any file thus can be initialised fast
         self.dissimilarity_calculator = DissimilarityCalculator(
             runner=self.runner,
             configuration=configuration,
             proteome_db=references.proteome_db,
+            affinity_threshold=affinity_threshold
         )
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
             runner=self.runner, configuration=configuration, iedb=references.iedb
         )
         self.neoag_calculator = NeoagCalculator(
-            runner=self.runner, configuration=configuration
+            runner=self.runner, configuration=configuration, affinity_threshold=affinity_threshold
         )
-        self.differential_binding = DifferentialBinding()
+        self.differential_binding = DifferentialBinding(affinity_threshold=affinity_threshold)
         self.priority_score_calculator = PriorityScore()
-        self.iedb_immunogenicity = IEDBimmunogenicity()
+        self.iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=affinity_threshold)
         self.amplitude = Amplitude()
         self.hla_database = references.get_hla_database()
         self.mhc_parser = MhcParser(self.hla_database)

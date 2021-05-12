@@ -214,7 +214,7 @@ class BestAndMultipleBinder:
         Determines the number of HLA I neoepitope candidates that bind stronger (10:1) to HLA in comparison to corresponding WT
         """
         number_binders = 0
-        dai_values  = []
+        dai_values = []
         for epitope in predictions:
             dai_values.append(epitope.affinity_score)
             if epitope.affinity_score < 5000:
@@ -280,6 +280,7 @@ class BestAndMultipleBinder:
             self.best_epitope_by_affinity = netmhcpan.select_best_by_affinity(
                 filtered_predictions
             )
+            logger.info(self.best_epitope_by_rank)
 
             # best predicted epitope of length 9
             ninemer_predictions = netmhcpan.filter_for_9mers(filtered_predictions)
@@ -386,8 +387,6 @@ class BestAndMultipleBinder:
             if self.generator_rate_adn is not None:
                 if self.generator_rate_cdn is not None:
                     self.generator_rate = self.generator_rate_adn + self.generator_rate_cdn
-
-
 
     def get_annotations(self, mutation) -> List[Annotation]:
         annotations = []

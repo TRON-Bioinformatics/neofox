@@ -18,8 +18,8 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 
 | Name                                                    | Reference                                                                | DOI                                                                                       |
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| MHC I binding affinity/rank score (netMHCpan-v4.0)      | Jurtz et al., 2017, The Journal of Immunology                             | https://doi.org/10.4049/jimmunol.1700893                                                  |
-| MHC II binding affinity/rank score (netMHCIIpan-v3.2)   | Jensen et al., 2018, Immunology                                           | https://doi.org/10.1111/imm.12889                                                         |
+| MHC I binding affinity/rank score (netMHCpan-v4.1)      | Reynisson et al., 2020, Nucleic Acids Res.                             | https://doi.org/10.1093/nar/gkaa379                                                  |
+| MHC II binding affinity/rank score (netMHCIIpan-v4.0)   | Reynisson et al., 2020, Nucleic Acids Res.                                            | https://doi.org/10.1093/nar/gkaa379                                                         |
 | MixMHCpred score v2.1                                   | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
 | MixMHC2pred score v1.2                                  | Racle et al., 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
 | Differential Agretopicity Index (DAI)                   | Duan et al., 2014, JEM; Ghorani et al., 2018, Ann Oncol.                  | https://doi.org/10.1084/jem.20141308                                                      |
