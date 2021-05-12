@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
 from typing import Tuple, List
-
 import dotenv
 from logzero import logger
 import neofox
@@ -180,9 +179,11 @@ def neofox_cli():
             reference_folder=reference_folder,
         ).get_annotations(output_folder)
 
+        # combine neoantigen feature annotations and potential user-specific external annotation
+        neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
+
         _write_results(
-            annotations,
-            external_annotations,
+            neoantigen_annotations,
             neoantigens,
             output_folder,
             output_prefix,
@@ -215,7 +216,7 @@ def _read_data(
 
 
 def _write_results(
-    annotations, external_annotations,  neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts
+    annotations,  neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts
 ):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
@@ -225,15 +226,7 @@ def _write_results(
         ModelConverter.annotations2short_wide_table(annotations, neoantigens).to_csv(
             os.path.join(
                 output_folder,
-                "{}_neoantigen_candidates_annotations.tsv".format(output_prefix),
-            ),
-            sep="\t",
-            index=False,
-        )
-        ModelConverter.annotations2short_wide_table(external_annotations, neoantigens).to_csv(
-            os.path.join(
-                output_folder,
-                "{}_neoantigen_candidates_external_annotations.tsv".format(output_prefix),
+                "{}_neoantigen_candidates_annotated.tsv".format(output_prefix),
             ),
             sep="\t",
             index=False,
@@ -242,13 +235,6 @@ def _write_results(
         ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
             os.path.join(
                 output_folder, "{}_neoantigen_features.tsv".format(output_prefix)
-            ),
-            sep="\t",
-            index=False,
-        )
-        ModelConverter.annotations2tall_skinny_table(external_annotations).to_csv(
-            os.path.join(
-                output_folder, "{}_neoantigen_external_features.tsv".format(output_prefix)
             ),
             sep="\t",
             index=False,
@@ -268,14 +254,26 @@ def _write_results(
             ),
         )
         ModelConverter.objects2json(
-            external_annotations,
-            os.path.join(
-                output_folder, "{}_neoantigen_external_features.json".format(output_prefix)
-            ),
-        )
-        ModelConverter.objects2json(
             neoantigens,
             os.path.join(
                 output_folder, "{}_neoantigen_candidates.json".format(output_prefix)
             ),
         )
+
+
+def _combine_features_with_external_annotations(
+        annotations: List[NeoantigenAnnotations],
+        external_annotations: List[NeoantigenAnnotations],
+) -> List[NeoantigenAnnotations]:
+    final_annotations = []
+    for annotation in annotations:
+        for annotation_extern in external_annotations:
+            if (
+                    annotation.neoantigen_identifier
+                    == annotation_extern.neoantigen_identifier
+            ):
+                annotation.annotations = (
+                        annotation.annotations + annotation_extern.annotations
+                )
+        final_annotations.append(annotation)
+    return final_annotations
