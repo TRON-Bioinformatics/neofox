@@ -27,7 +27,7 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import Abstrac
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation
+from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName
 from neofox.model.wrappers import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 
@@ -85,7 +85,7 @@ class BestAndMultipleBinderMhcII:
         phbr_ii = None
         for allele_with_score in best_epitope_per_allele_mhc2:
             # add DRB1
-            if "DRB1" in allele_with_score.hla:
+            if Mhc2GeneName.DRB1.name in allele_with_score.hla.name:
                 best_epitope_per_allele_mhc2_new.append(allele_with_score)
         if len(best_epitope_per_allele_mhc2_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
@@ -231,22 +231,16 @@ class BestAndMultipleBinderMhcII:
                     peptides_wt = netmhc2pan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
                     filtered_predictions_wt = []
                     for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
-                        hla = netmhc2pan.represent_mhc2_isoforms([mut_peptide.hla])[0]
-                        filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(
-                            hla, wt_peptide
-                        ))
+                        filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(mut_peptide.hla, wt_peptide))
                     if self.best_predicted_epitope_rank:
                         self.best_predicted_epitope_rank_wt = netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
                             mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                            best_mutated_epitope=self.best_predicted_epitope_rank.peptide,
-                            best_hla=self.best_predicted_epitope_rank.hla
-                        )
+                            best_mutated_epitope=self.best_predicted_epitope_rank)
                         if self.best_predicted_epitope_affinity:
                             self.best_predicted_epitope_affinity_wt = \
                                 netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
                                     mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
-                                    best_mutated_epitope=self.best_predicted_epitope_affinity.peptide,
-                                    best_hla=self.best_predicted_epitope_affinity.hla
+                                    best_mutated_epitope=self.best_predicted_epitope_affinity
                                 )
                         if len(mutation.mutated_xmer) >= LENGTH_MHC2_EPITOPE:
                             # generator rate for MHC II
@@ -292,7 +286,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank.hla,
+                    value=self.best_predicted_epitope_rank.hla.name,
                     name="Best_rank_MHCII_score_allele",
                 )])
         if self.best_predicted_epitope_affinity:
@@ -306,7 +300,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.hla,
+                    value=self.best_predicted_epitope_affinity.hla.name,
                     name="Best_affinity_MHCII_allele",
                 )])
         if self.best_predicted_epitope_rank_wt:
@@ -320,7 +314,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank_wt.hla,
+                    value=self.best_predicted_epitope_rank_wt.hla.name,
                     name="Best_rank_MHCII_score_allele_WT",
                 )])
         if self.best_predicted_epitope_affinity_wt:
@@ -334,7 +328,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity_wt.hla,
+                    value=self.best_predicted_epitope_affinity_wt.hla.name,
                     name="Best_affinity_MHCII_allele_WT",
                 )])
         annotations.extend(
@@ -390,7 +384,7 @@ class BestAndMultipleBinderMhcII:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            allele = p.hla
+            allele = p.hla.name
             epitopes_by_allele.setdefault(allele, []).append(p)
 
         # chooses the best epitope per allele and considers zygosity
