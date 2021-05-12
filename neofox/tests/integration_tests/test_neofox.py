@@ -464,14 +464,14 @@ class NeofoxChecker:
                 "Previous version: {}".format(
                     previous_df[column_name]
                     .transform(lambda x: x[0:20] + "..." if len(x) > 20 else x)
-                    .get_values()
+                    .values
                 )
             )
             logger.error(
                 "New version: {}".format(
                     new_df[column_name]
                     .transform(lambda x: x[0:20] + "..." if len(x) > 20 else x)
-                    .get_values()
+                    .values
                 )
             )
             error = True
