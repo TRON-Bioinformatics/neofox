@@ -17,8 +17,8 @@ To download NetMHCpan and NetMHC2pan software each user must explicitly accept t
 distribute the software or provide a direct URL to download it. Please, make sure you download the right versions from 
 the sites indicated below.
 
-- NetMHCpan 4.0: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.0 (`netMHCpan-4.0a.Linux.tar.gz`)
-- NetMHCIIpan 3.2: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-3.2.Linux.tar.gz`)
+- NetMHCpan 4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
+- NetMHCIIpan 4.0: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.0.Linux.tar.gz`)
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
@@ -57,15 +57,15 @@ tar -xvf ncbi-blast-2.10.1+-x64-linux.tar.gz
 export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.10.1+/bin/blastp
 ```
 
-#### Install NetMHCpan 4.1
+#### Install NetMHCpan 4.0
 
 NetMHCpan 4.1 can be downloaded by academic users from https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1
 
 ```
 tar -xvf netMHCpan-4.1b.Linux.tar.gz
 cd netMHCpan-4.1
-wget http://www.cbs.dtu.dk/services/NetMHCpan-4.1/data.Linux.tar.gz
-tar -xvf data.Linux.tar.gz
+wget https://services.healthtech.dtu.dk/services/NetMHCpan-4.1/data.tar.gz
+tar -xvf data.tar.gz
 cd ..
 export NEOFOX_NETMHCPAN=`pwd`/netMHCpan-4.1/netMHCpan
 ```
@@ -75,7 +75,7 @@ Configure NetMHCpan as explained in the file `netMHCpan-4.1/netMHCpan-4.1.readme
 
 #### Install NetMHCIIpan 4.0
 
-NetMHC2pan can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
+NetMHCIIpan can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
 
 ```
 tar -xvf netMHCIIpan-4.0.Linux.tar.gz
