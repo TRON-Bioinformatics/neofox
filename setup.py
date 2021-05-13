@@ -40,7 +40,7 @@ setup(
         ],
     },
     author_email="franziska.lang@tron-mainz.de",
-    author="TRON – Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz "
+    author="TRON - Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz "
     "- Computational Medicine group",
     description="Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope "
     "descriptors",
