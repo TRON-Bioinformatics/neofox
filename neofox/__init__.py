@@ -16,7 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-VERSION = "0.5.0.dev17"
+VERSION = "0.5.0.dev18"
+
+
 REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"
 NEOFOX_BLASTP_ENV = "NEOFOX_BLASTP"
 NEOFOX_MIXMHC2PRED_ENV = "NEOFOX_MIXMHC2PRED"

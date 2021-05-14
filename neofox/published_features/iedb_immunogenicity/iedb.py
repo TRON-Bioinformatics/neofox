@@ -20,7 +20,7 @@ from typing import List
 
 from logzero import logger
 
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, MhcAllele
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
@@ -143,7 +143,7 @@ class IEDBimmunogenicity:
         return score
 
     def calculate_iedb_immunogenicity(
-        self, epitope, mhc_allele, mhc_score, affin_filtering=False
+        self, epitope, mhc_allele: MhcAllele, mhc_score, affin_filtering=False
     ):
         """This function determines the IEDB immunogenicity score"""
         score = None
@@ -154,14 +154,14 @@ class IEDBimmunogenicity:
                 or not affin_filtering
             ):
                 score = self.predict_immunogenicity(
-                    epitope, mhc_allele.replace("*", "").replace(":", "")
+                    epitope, mhc_allele.name.replace("*", "").replace(":", "")
                 )
         except (ValueError, AttributeError):
             pass
         return score
 
     def get_annotations(
-        self, netmhcpan: BestAndMultipleBinder, mhci_allele
+        self, netmhcpan: BestAndMultipleBinder, mhci_allele: MhcAllele
     ) -> List[Annotation]:
         """returns IEDB immunogenicity for MHC I (based on affinity) and MHC II (based on rank)"""
         iedb = None

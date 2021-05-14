@@ -18,6 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
 
+from neofox.model.neoantigen import MhcAllele
 from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
 
 
@@ -26,12 +27,12 @@ class TestImmunogenicity(TestCase):
     def test_immunogenicity(self):
         iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=500)
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
-            epitope="ENPVVHFF", mhc_allele="HLA-A*68:01", mhc_score=600
+            epitope="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600
         )
         self.assertGreater(result, 0)
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
             epitope="ENPVVHFF",
-            mhc_allele="HLA-A*68:01",
+            mhc_allele=MhcAllele(name="HLA-A*68:01"),
             mhc_score=600,
             affin_filtering=True,
         )
@@ -40,6 +41,13 @@ class TestImmunogenicity(TestCase):
     def test_affinity_threshold(self):
         iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=1000)
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
-            epitope="ENPVVHFF", mhc_allele="HLA-A*68:01", mhc_score=600, affin_filtering=True
+            epitope="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600, affin_filtering=True
+        )
+        self.assertGreater(result, 0)
+
+    def test_default_affinity_threshold(self):
+        iedb_immunogenicity = IEDBimmunogenicity()
+        result = iedb_immunogenicity.calculate_iedb_immunogenicity(
+            epitope="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600, affin_filtering=True
         )
         self.assertGreater(result, 0)
