@@ -238,7 +238,7 @@ that the average time to process a single neoantigen in a single CPU is of 20.02
 In terms of memory the application uses less than 0.5 GB for up to 1000 neoantigens irrespective of the number of CPUs used. 
 The memory use grows to around 2.5 GB when processing 10000 neoantigens. 
 
-![Neofox model](../figures/performance_1.png)
+![Neofox model](../figures/performance_1.jpg)
 
 If either MHC I or II alleles are not provided at all for a given patient the computation will be lighter as no 
 annotations run for the missing MHC.
