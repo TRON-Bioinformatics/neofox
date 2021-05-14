@@ -32,20 +32,14 @@ from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.references.references import IEDB_BLAST_PREFIX
 
 
-class NeoantigenFitnessCalculator(BlastpRunner):
-    def __init__(self, runner, configuration, iedb, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
-        super().__init__(runner, configuration)
+class NeoantigenFitnessCalculator:
+
+    def __init__(self, iedb_blastp_runner: BlastpRunner, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
         self.affinity_threshold = affinity_threshold
-        self.iedb = iedb
+        self.iedb_blastp_runner = iedb_blastp_runner
 
     def get_pathogen_similarity(self, mutation):
-        pathsim = self.calculate_similarity_database(
-            peptide=mutation, database=os.path.join(self.iedb, IEDB_BLAST_PREFIX)
-        )
+        pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=mutation)
         logger.info(
             "Peptide {} has a pathogen similarity of {}".format(mutation, pathsim)
         )

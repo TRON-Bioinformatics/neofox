@@ -25,18 +25,10 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     AbstractNetMhcPanPredictor,
     PredictedEpitope,
 )
-from neofox.helpers.runner import Runner
-from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name, Mhc2Isoform, Mhc2GeneName
-from neofox.references.references import DependenciesConfiguration
 
 
 class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser, proteome_db):
-        super().__init__(runner=runner, configuration=configuration, proteome_db=proteome_db, mhc_parser=mhc_parser)
-        self.runner = runner
-        self.configuration = configuration
-        self.mhc_parser = mhc_parser
 
     @staticmethod
     def generate_mhc2_alelle_combinations(mhc_alleles: List[Mhc2]) -> List[Mhc2Isoform]:

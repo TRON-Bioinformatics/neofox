@@ -24,6 +24,7 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
 )
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
@@ -35,10 +36,12 @@ from neofox.model.conversion import ModelConverter
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser,
+                 blastp_runner: BlastpRunner):
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
+        self.blastp_runner = blastp_runner
         self._initialise()
 
     def _initialise(self):
@@ -252,8 +255,7 @@ class BestAndMultipleBinder:
         mhc1_alleles_patient: List[Mhc1],
         mhc1_alleles_available: Set,
         uniprot,
-        hla_database,
-        proteome_db
+        hla_database
     ):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
@@ -261,7 +263,7 @@ class BestAndMultipleBinder:
         self._initialise()
         netmhcpan = NetMhcPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
-            proteome_db=proteome_db
+            blastp_runner=self.blastp_runner
         )
         # print alleles
         predictions = netmhcpan.mhc_prediction(

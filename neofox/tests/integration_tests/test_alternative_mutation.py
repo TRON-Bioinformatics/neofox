@@ -19,6 +19,7 @@
 from logzero import logger
 from unittest import TestCase
 
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mutation
 
@@ -34,6 +35,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.references.references import PREFIX_HOMO_SAPIENS
 
 
 class TestBestMultipleBinder(TestCase):
@@ -52,10 +54,14 @@ class TestBestMultipleBinder(TestCase):
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
         self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
         self.uniprot = Uniprot(references.uniprot_pickle)
+        self.proteome_blastp_runner = BlastpRunner(
+            runner=self.runner, configuration=self.configuration,
+            proteome_db=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -89,7 +95,8 @@ class TestBestMultipleBinder(TestCase):
 
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
         mutation = ModelValidator._validate_mutation(
@@ -102,8 +109,7 @@ class TestBestMultipleBinder(TestCase):
             mutation=mutation,
             mhc2_alleles_patient=self.test_mhc_two,
             mhc2_alleles_available=self.available_alleles_mhc2,
-            uniprot=self.uniprot,
-            hla_database=self.hla_database
+            uniprot=self.uniprot
         )
         logger.info(best_multiple.best_predicted_epitope_rank.rank)
         logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
