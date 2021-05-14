@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
 from typing import Tuple, List
-
 import dotenv
 from logzero import logger
 import neofox
@@ -189,10 +188,9 @@ def neofox_cli():
             reference_folder=reference_folder,
             affinity_threshold=affinity_threshold
         ).get_annotations()
+
         # combine neoantigen feature annotations and potential user-specific external annotation
-        neoantigen_annotations = _combine_features_with_external_annotations(
-            annotations, external_annotations
-        )
+        neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
 
         _write_results(
             neoantigen_annotations,
@@ -228,7 +226,7 @@ def _read_data(
 
 
 def _write_results(
-    annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts
+    annotations,  neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts
 ):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
@@ -274,18 +272,18 @@ def _write_results(
 
 
 def _combine_features_with_external_annotations(
-    annotations: List[NeoantigenAnnotations],
-    external_annotations: List[NeoantigenAnnotations],
+        annotations: List[NeoantigenAnnotations],
+        external_annotations: List[NeoantigenAnnotations],
 ) -> List[NeoantigenAnnotations]:
     final_annotations = []
     for annotation in annotations:
         for annotation_extern in external_annotations:
             if (
-                annotation.neoantigen_identifier
-                == annotation_extern.neoantigen_identifier
+                    annotation.neoantigen_identifier
+                    == annotation_extern.neoantigen_identifier
             ):
                 annotation.annotations = (
-                    annotation.annotations + annotation_extern.annotations
+                        annotation.annotations + annotation_extern.annotations
                 )
         final_annotations.append(annotation)
     return final_annotations
