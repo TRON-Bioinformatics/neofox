@@ -160,12 +160,12 @@ export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 ## Test installation   
 
 The user can test if all the installations have been successful by testing NeoFox with some test data. The test data can be downloaded here:  
-![test_data.txt](test_data.txt)  
-![test_patients.txt](test_patients.txt)  
+![test_data](test_data.txt)  
+![test_patients](test_patients.txt)  
 
 ````commandline
 neofox --candidate-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --with-short-wide-table --with-tall-skinny-table --with-json --output-prefix test
 ````
 
 The resulting output files can be compared to the following test output file:  
-![test_neoantigen_candidates_annotated.tsv](test_neoantigen_candidates_annotated.tsv)  
+![test_neoantigen_candidates_annotated](test_neoantigen_candidates_annotated.tsv)  
