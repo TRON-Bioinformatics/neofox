@@ -34,8 +34,12 @@ def load_references():
 def create_temp_aminoacid_fasta_file():
     fastafile = tempfile.NamedTemporaryFile(mode="w", delete=False)
     with fastafile as f:
-        f.write("".join(random.choices(list(IUPACData.protein_letters), k=25)))
+        f.write(get_random_kmer())
     return fastafile
+
+
+def get_random_kmer(k=25):
+    return "".join(random.choices(list(IUPACData.protein_letters), k=k))
 
 
 def get_mhc_one_test(hla_database):

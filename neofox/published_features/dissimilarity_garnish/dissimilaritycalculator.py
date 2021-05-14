@@ -31,16 +31,11 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 
-class DissimilarityCalculator(BlastpRunner):
+class DissimilarityCalculator:
 
-    def __init__(self, runner, configuration, proteome_db, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
-        super().__init__(runner=runner, configuration=configuration)
+    def __init__(self, proteome_blastp_runner: BlastpRunner, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
         self.affinity_threshold = affinity_threshold
-        self.proteome_db = proteome_db
+        self.proteome_blastp_runner = proteome_blastp_runner
 
     def calculate_dissimilarity(self, mhc_mutation, mhc_affinity, filter_binder=False):
         """
@@ -48,9 +43,8 @@ class DissimilarityCalculator(BlastpRunner):
         """
         dissimilarity = None
         if mhc_mutation != "-" and (not filter_binder or not mhc_affinity >= self.affinity_threshold):
-            similarity = self.calculate_similarity_database(
+            similarity = self.proteome_blastp_runner.calculate_similarity_database(
                 peptide=mhc_mutation,
-                database=os.path.join(self.proteome_db, "homo_sapiens"),
                 a=32,
             )
             if similarity is not None:

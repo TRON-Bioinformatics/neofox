@@ -25,8 +25,12 @@ from neofox.exceptions import NeofoxCommandException
 
 
 class Runner(object):
+
+    def __init__(self, verbose=True):
+        self.verbose = verbose
+
     def run_command(self,  cmd, print_log=True, **kwargs):
-        if print_log:
+        if print_log and self.verbose:
             logger.info("Starting command: {}".format(" ".join(cmd)))
         start = time.time()
         process = subprocess.Popen(
@@ -38,10 +42,10 @@ class Runner(object):
         output, errors = process.communicate()
         return_code = process.returncode
         end = time.time()
-        if print_log:
+        if print_log and self.verbose:
             logger.info("Elapsed time {} seconds".format(round(end - start, 3)))
         if return_code == 0:
-            if print_log:
+            if print_log and self.verbose:
                 logger.info("Finished command correctly!")
         else:
             logger.error("Finished command with return code {}".format(return_code))

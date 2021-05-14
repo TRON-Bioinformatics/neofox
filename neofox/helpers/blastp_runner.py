@@ -17,33 +17,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from neofox.helpers import intermediate_files
+from neofox.helpers.runner import Runner
 from neofox.published_features.neoantigen_fitness.aligner import Aligner
 import os
-from logzero import logger
-from neofox.references.references import PREFIX_HOMO_SAPIENS
+from neofox.references.references import DependenciesConfiguration
 
 
 class BlastpRunner(object):
-    def __init__(self, runner, configuration, proteome_db=""):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
+
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, proteome_db: str):
         self.runner = runner
         self.configuration = configuration
-        self.human_proteome_db = os.path.join(proteome_db, PREFIX_HOMO_SAPIENS)
+        self.database = proteome_db
 
-    def calculate_similarity_database(self, peptide, database, a=26) -> int:
+    def calculate_similarity_database(self, peptide, a=26) -> int:
         """
         This function runs BLASTP on a given database and returns a score defining the similarity of the input sequence
         to best BLAST hit
         """
-        outfile = self.run_blastp(peptide, database)
+        outfile = self.run_blastp(peptide)
         score = self._similarity_score(outfile, a=a)
         os.remove(outfile)
         return score
 
-    def run_blastp(self, peptide, database):
+    def run_blastp(self, peptide):
         """
                 This function runs BLASTP on a given database
                 """
@@ -67,7 +64,7 @@ class BlastpRunner(object):
                 "-out",
                 outfile,
                 "-db",
-                database,
+                self.database,
                 "-evalue",
                 "100000000",
             ]
@@ -99,7 +96,7 @@ class BlastpRunner(object):
                 "-out",
                 outfile,
                 "-db",
-                self.human_proteome_db,
+                self.database,
                 "-evalue",
                 "100000000",
                 "-qcov_hsp_perc",
