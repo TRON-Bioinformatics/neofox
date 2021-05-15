@@ -29,7 +29,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.exceptions import NeofoxDataValidationException
 from logzero import logger
 from collections import defaultdict
-import json
+import orjson as json
 import numpy as np
 
 from neofox.model.mhc_parser import MhcParser
@@ -161,7 +161,7 @@ class ModelConverter(object):
         :return: the parsed JSON into model objects
         """
         return [
-            Neoantigen().from_dict(n) for n in json.load(open(neoantigens_json_file))
+            Neoantigen().from_dict(n) for n in json.loads(open(neoantigens_json_file).read())
         ]
 
     @staticmethod
