@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import time
 from math import exp, log
 import orjson as json
 import subprocess
@@ -52,7 +53,6 @@ class BlastpRunner(object):
             "-evalue",
             "100000000"
         ]
-
         hits = self._run_blastp(cmd=cmd, peptide=peptide)
         local_alignments = []
         for hit in hits:
@@ -69,10 +69,6 @@ class BlastpRunner(object):
     def get_most_similar_wt_epitope(self, peptide):
         cmd = [
             self.configuration.blastp,
-            "-gapopen",
-            "-11",
-            "-gapextend",
-            "-11",
             "-outfmt",
             "15",
             "-db",
