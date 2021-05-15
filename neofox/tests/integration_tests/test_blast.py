@@ -51,13 +51,13 @@ class TestBlast(TestCase):
         sequence = "FIAGLIAIV"
         res = self.proteome_blastp_runner.get_most_similar_wt_epitope(sequence)
         self.assertIsNotNone(res)
-        logger.info(res)
+        self.assertEqual('FVAGLIVLL', res)
 
     def test_calculate_similarity_database(self):
         sequence = "FIAGLIAIV"
         res = self.iedb_blastp_runner.calculate_similarity_database(sequence)
         self.assertIsNotNone(res)
-        logger.info(res)
+        self.assertEqual(1.0, res)
 
     def test_performance_most_similar_wt_epitope(self):
         times = []
