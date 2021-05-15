@@ -78,17 +78,16 @@ class TestBestMultipleBinder(TestCase):
             uniprot=self.uniprot,
             hla_database=self.hla_database
         )
-        self.assertEqual(543.9, best_multiple.best_epitope_by_affinity.affinity_score)
-        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla)
-        self.assertEqual(0.4304, best_multiple.best_epitope_by_rank.rank)
-        self.assertEqual('HLA-C*05:01', best_multiple.best_epitope_by_rank.hla)
-        self.assertEqual("VTDQTRLEA", best_multiple.best_epitope_by_rank.peptide)
+        self.assertEqual(602.12, best_multiple.best_epitope_by_affinity.affinity_score)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)
+        self.assertEqual(0.492, best_multiple.best_epitope_by_rank.rank)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_rank.hla.name)
+        self.assertEqual("ILVTDQTRL", best_multiple.best_epitope_by_rank.peptide)
         self.assertEqual(
-            best_multiple.best_ninemer_epitope_by_rank.hla,
-            best_multiple.best_ninemer_wt_epitope_by_rank.hla,
+            best_multiple.best_ninemer_epitope_by_rank.hla.name,
+            best_multiple.best_ninemer_wt_epitope_by_rank.hla.name,
         )
-        logger.info(best_multiple.best_epitope_by_rank.peptide)
-        logger.info(best_multiple.phbr_i)
+
 
     def test_phbr1(self):
         best_multiple = BestAndMultipleBinder(
@@ -111,7 +110,7 @@ class TestBestMultipleBinder(TestCase):
         )
 
         predicted_neoepitopes = netmhcpan.filter_binding_predictions(
-            predictions=predictions,uniprot=self.uniprot
+            predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
             BestAndMultipleBinder.extract_best_epitope_per_alelle(
@@ -120,7 +119,7 @@ class TestBestMultipleBinder(TestCase):
         )
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele, self.test_mhc_one)
         self.assertIsNotNone(phbr_i)
-        self.assertAlmostEqual(1.9449989270, phbr_i)
+        self.assertAlmostEqual(1.359324592015038, phbr_i)
         # one homozygous allele present
         mhc_alleles = ModelConverter.parse_mhc1_alleles(
             [
@@ -146,7 +145,7 @@ class TestBestMultipleBinder(TestCase):
         )
         phbr_i = best_multiple.calculate_phbr_i(best_epitopes_per_allele, mhc_alleles)
         self.assertIsNotNone(phbr_i)
-        self.assertAlmostEqual(1.131227969630, phbr_i)
+        self.assertAlmostEqual(1.0036998409510969, phbr_i)
         # mo info for one allele
         mhc_alleles = ModelConverter.parse_mhc1_alleles(
             ["HLA-A*24:02", "HLA-A*02:01", "HLA-B*15:01", "HLA-B*44:02", "HLA-C*05:01"], self.hla_database
@@ -184,16 +183,15 @@ class TestBestMultipleBinder(TestCase):
             mhc2_alleles_available=self.available_alleles_mhc2,
             uniprot=self.uniprot
         )
-        logger.info(best_multiple.best_predicted_epitope_rank.rank)
-        logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
-        logger.info(best_multiple.best_predicted_epitope_rank.peptide)
+        logger.info(best_multiple.best_predicted_epitope_rank)
+        logger.info(best_multiple.best_predicted_epitope_affinity)
         logger.info(best_multiple.phbr_ii)
-        self.assertEqual(17.0, best_multiple.best_predicted_epitope_rank.rank)
+        self.assertEqual(3.26, best_multiple.best_predicted_epitope_rank.rank)
         self.assertEqual(
-            1434.66, best_multiple.best_predicted_epitope_affinity.affinity_score
+            1103.46, best_multiple.best_predicted_epitope_affinity.affinity_score
         )
         self.assertEqual(
-            "VTDQTRLEATISPET", best_multiple.best_predicted_epitope_rank.peptide
+            "SQDILVTDQTRLEAT", best_multiple.best_predicted_epitope_rank.peptide
         )
 
     def test_phbr2(self):
@@ -228,11 +226,9 @@ class TestBestMultipleBinder(TestCase):
             best_multiple.extract_best_epitope_per_mhc2_alelle(predictions=filtered_predictions, mhc_isoforms=self.test_mhc_two
             )
         )
-        logger.info(best_predicted_epitopes_per_alelle)
-        logger.info(len(best_predicted_epitopes_per_alelle))
         phbr_ii = best_multiple.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
         self.assertIsNotNone(phbr_ii)
-        self.assertAlmostEqual(37.09795868, phbr_ii)
+        self.assertAlmostEqual(8.895757526065129, phbr_ii)
         # mo info for one allele
         mhc2_alleles = ModelConverter.parse_mhc2_alleles(
             [
@@ -267,8 +263,7 @@ class TestBestMultipleBinder(TestCase):
         logger.info(best_predicted_epitopes_per_alelle)
         logger.info(len(best_predicted_epitopes_per_alelle))
         phbr_ii = best_multiple.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
-        self.assertIsNotNone(phbr_ii)
-        self.assertAlmostEqual(37.7107933753, phbr_ii)
+        self.assertIsNone(phbr_ii)
 
         # one allele present
         mhc2_alleles = ModelConverter.parse_mhc2_alleles(
@@ -389,7 +384,5 @@ class TestBestMultipleBinder(TestCase):
         generator_rate_CDN = best_multiple.determine_number_of_binders(
             predictions=predicted_neoepitopes
         )
-        self.assertEqual(generator_rate_ADN, 2)
-        self.assertEqual(generator_rate_CDN, 8)
-        logger.info(generator_rate_ADN)
-        logger.info(generator_rate_CDN)
+        self.assertEqual(generator_rate_ADN, 0)
+        self.assertEqual(generator_rate_CDN, 0)

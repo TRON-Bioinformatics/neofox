@@ -100,7 +100,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         return self._parse_netmhcpan_output(lines)
     
     def mhc2_prediction_peptide(
-        self, mhc_alleles: List[str], sequence ) -> List[PredictedEpitope]:
+        self, mhc2_isoform: Mhc2Isoform, sequence ) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
         tmp_peptide = intermediate_files.create_temp_peptide(
             [sequence], prefix="tmp_singleseq_"
@@ -109,8 +109,9 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         lines, _ = self.runner.run_command(
             cmd=[
                 self.configuration.net_mhc2_pan,
+                "-BA",
                 "-a",
-                mhc_alleles,
+                self.represent_mhc2_isoforms([mhc2_isoform])[0],
                 "-inptype",
                 "1",
                 "-f",
@@ -135,7 +136,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=self.mhc_parser.parse_mhc2_isoform(line[1]).name,
+                        hla=self.mhc_parser.parse_mhc2_isoform(line[1]),
                         peptide=line[2],
                         affinity_score=float(line[11]),
                         rank=float(line[8]),
