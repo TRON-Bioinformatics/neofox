@@ -77,7 +77,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=self.mhc_parser.parse_mhc_allele(line[1]).name,
+                        hla=self.mhc_parser.parse_mhc_allele(line[1]),
                         peptide=line[2],
                         affinity_score=float(line[15]),
                         rank=float(line[12]),

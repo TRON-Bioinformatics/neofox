@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List, Union
 from dataclasses import dataclass
-from neofox.model.neoantigen import Mhc2Isoform
+from neofox.model.neoantigen import Mhc2Isoform, MhcAllele
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.helpers.blastp_runner import BlastpRunner
@@ -31,7 +31,7 @@ class PredictedEpitope:
     """this is a common data class for both netmhcpan and netmhc2pan"""
     pos: int
     hla: Union[
-        str, Mhc2Isoform
+        MhcAllele, Mhc2Isoform
     ]  # for MHC I a str is enough, but for MCH II we need a complex object
     peptide: str
     affinity_score: float
@@ -76,7 +76,7 @@ class AbstractNetMhcPanPredictor:
             filter(
                 lambda p: len(p.peptide) == len(mutated_prediction.peptide)
                 and p.pos == mutated_prediction.pos
-                and p.hla == mutated_prediction.hla,
+                and p.hla.name == mutated_prediction.hla.name,
                 predictions,
             )
         )
@@ -99,13 +99,13 @@ class AbstractNetMhcPanPredictor:
 
 
     def filter_wt_predictions_from_best_mutated_alernative(
-            self, mut_predictions: List[PredictedEpitope], wt_predictions: List[PredictedEpitope], best_mutated_epitope,
-            best_hla
+            self, mut_predictions: List[PredictedEpitope], wt_predictions: List[PredictedEpitope],
+            best_mutated_epitope: PredictedEpitope
     ) -> PredictedEpitope:
         """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
         best_wt = None
         for mut, wt in zip(mut_predictions, wt_predictions):
-            if wt.hla == best_hla and mut.peptide == best_mutated_epitope:
+            if wt.hla.name == best_mutated_epitope.hla.name and mut.peptide == best_mutated_epitope.peptide:
                 best_wt = wt
                 break
         return best_wt
