@@ -16,23 +16,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
-from math import exp
-
+from math import exp, log
 import orjson as json
 import subprocess
-
 from Bio import pairwise2
 from Bio.SubsMat import MatrixInfo as matlist
-
-from neofox.helpers import intermediate_files
-
 from neofox.helpers.runner import Runner
-from neofox.published_features.neoantigen_fitness.aligner import Aligner
 from neofox.references.references import DependenciesConfiguration
 
 
 class BlastpRunner(object):
+
+    INF = float("inf")
 
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, proteome_db: str):
         self.runner = runner
@@ -69,43 +64,6 @@ class BlastpRunner(object):
                 if al and len(al) > 0:
                     local_alignments.append(al[0])
         similarity_score = self.computeR(alignments=local_alignments, a=a)
-        return similarity_score
-
-    def old_calculate_similarity_database(self, peptide, a=26) -> int:
-        """
-        This function runs BLASTP on a given database and returns a score defining the similarity of the input sequence
-        to best BLAST hit
-        """
-        outfile = intermediate_files.create_temp_file(
-            prefix="tmp_blastp_", suffix=".xml"
-        )
-        input_fasta = intermediate_files.create_temp_fasta(
-            sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix="M_"
-        )
-        cmd = [
-            self.configuration.blastp,
-            "-gapopen",
-            "11",
-            "-gapextend",
-            "1",
-            "-outfmt",
-            "5",
-            "-out",
-            outfile,
-            "-query",
-            input_fasta,
-            "-db",
-            self.database,
-            "-evalue",
-            "100000000"
-        ]
-        self.runner.run_command(cmd=cmd)
-        os.remove(input_fasta)
-        aligner = Aligner()
-        aligner.readAllBlastAlignments(outfile)
-        # TODO: return gene name related to wt peptide
-        aligner.computeR(a=a)
-        similarity_score = aligner.Ri.get(1, 0)
         return similarity_score
 
     def get_most_similar_wt_epitope(self, peptide):
@@ -164,7 +122,19 @@ class BlastpRunner(object):
         # energies of all bound states of neoantigen i
         bindingEnergies = [-k * (a - el[2]) for el in alignments]
         # partition function, over all bound states and an unbound state
-        lZ = Aligner.logSum(bindingEnergies + [0])
-        lGb = Aligner.logSum(bindingEnergies)
+        lZ = BlastpRunner.logSum(bindingEnergies + [0])
+        lGb = BlastpRunner.logSum(bindingEnergies)
         R = exp(lGb - lZ)
         return R
+
+    @staticmethod
+    def logSum(v):
+        """
+        compute the logarithm of a sum of exponentials
+        """
+        if len(v) == 0:
+            return -BlastpRunner.INF
+        ma = max(v)
+        if ma == -BlastpRunner.INF:
+            return -BlastpRunner.INF
+        return log(sum([exp(x - ma) for x in v])) + ma
