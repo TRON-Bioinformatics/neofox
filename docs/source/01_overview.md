@@ -7,7 +7,7 @@ Welcome to the documentation of **NeoFox**!
 
 ## About NeoFox
 
-Neoantigens are tumor-specific antigens encoded by somatic mutations. Their break down products (neoepitopes) are presented by the Major Histocompatibility Complex (MHC) on the surface of tumor cells enabling T cells to recognize these neoepitope sequences as foreign. This neoantigen-specific T-cell recognition may induce a potent anti-tumoral response which makes neoantigens highly interesting targets for cancer immunotherapy. Conventionally,  neoantigens candidates are predicted by mutation calling from tumor and normal genome sequencing, non synonymous mutations are
+Neoantigens are tumor-specific antigens encoded by somatic mutations. Their break down products (neoepitopes) are presented by the Major Histocompatibility Complex (MHC) on the surface of tumor cells enabling T cells to recognize these neoepitope sequences as foreign. This neoantigen-specific T-cell recognition may induce a potent anti-tumoral response which makes neoantigens highly interesting targets for cancer immunotherapy. Conventionally,  neoantigen candidates are predicted by mutation calling from tumor and normal genome sequencing, non synonymous mutations are
 selected and translated amino acid sequences. For the final step, algorithms that predict the likelihood of a neoantigen candidate sequence to be a true neoantigen are required.  
 Several neoantigen features that describe the ability of a neoantigen candidate sequence to induce a T-cell response have been published in the last years.   
 
