@@ -2,10 +2,10 @@
 
 This guide contains two alternatives to install NeoFox:
 - Building a docker image that automates the installation into a container
-- A set of detailed step by step installation instructions
+- A set of detailed step by step installation instructions without docker
 
 The first approach has the lowest entry barrier to use neofox as a command line tool.
-While the second provides access to the command line tool and also allows the integration of the NeoFox API.
+While the second provides access to the command line tool and allows the integration of the NeoFox API.
 
 ## Build and run the docker image
 
@@ -13,12 +13,12 @@ Clone the repository: `git clone git@github.com:TRON-Bioinformatics/neofox.git`
 
 Move into the neofox folder: `cd neofox`
 
-To download NetMHCpan and NetMHC2pan software each user must explicitly accept the software license, thus we cannot
-distribute the software or provide a direct URL to download it. Please, make sure you download the right versions from 
+To download NetMHCpan and NetMHC2pan software, each user must explicitly accept the software license. Thus, we cannot
+distribute the software or provide a direct URL to download it. Please make sure to download the right version from 
 the sites indicated below.
 
-- NetMHCpan 4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
-- NetMHCIIpan 4.0: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.0.Linux.tar.gz`)
+- NetMHCpan-4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
+- NetMHCIIpan-4.0: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.0.Linux.tar.gz`)
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
@@ -29,9 +29,9 @@ Run neofox: `docker run neofox-docker neofox --help`
 See the usage guide [here](03_03_usage.md) for further details.
 
 
-## Step by step guide
+## Step by step guide without docker
 
-This installation instructions were tested on Ubuntu 18.04.
+These installation instructions were tested on Ubuntu 18.04.
 
 Python >=3.6, <=3.8 and R 3.6.0 should be preinstalled.
 
@@ -57,9 +57,9 @@ tar -xvf ncbi-blast-2.10.1+-x64-linux.tar.gz
 export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.10.1+/bin/blastp
 ```
 
-#### Install NetMHCpan 4.0
+#### Install NetMHCpan-4.1
 
-NetMHCpan 4.1 can be downloaded by academic users from https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1
+NetMHCpan-4.1 can be downloaded by academic users from https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1
 
 ```
 tar -xvf netMHCpan-4.1b.Linux.tar.gz
@@ -73,9 +73,9 @@ export NEOFOX_NETMHCPAN=`pwd`/netMHCpan-4.1/netMHCpan
 Configure NetMHCpan as explained in the file `netMHCpan-4.1/netMHCpan-4.1.readme`
 
 
-#### Install NetMHCIIpan 4.0
+#### Install NetMHCIIpan-4.0
 
-NetMHCIIpan can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
+NetMHCIIpan-4.0 can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
 
 ```
 tar -xvf netMHCIIpan-4.0.Linux.tar.gz
@@ -89,10 +89,10 @@ export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 sudo apt-get install tcsh
 ```
 
-Configure NetMHCpan as explained in the file `netMHCIIpan-3.2/netMHCIIpan-3.2.readme`
+Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-3.2/netMHCIIpan-3.2.readme`
          
 
-#### Install MixMHCpred 2.1 (recommended but optional)
+#### Install MixMHCpred-2.1 (recommended but optional)
 
 ```
 wget https://github.com/GfellerLab/MixMHCpred/archive/v2.1.tar.gz
@@ -100,9 +100,9 @@ tar -xvf v2.1.tar.gz
 export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.1/MixMHCpred
 ```
 
-Configure MixMHCpred as explained in the file `MixMHCpred-2.0.1/README`
+Configure MixMHCpred-2.1 as explained in the file `MixMHCpred-2.1/README`
 
-#### Install MixMHC2pred 1.2 (recommended but optional)
+#### Install MixMHC2pred-1.2 (recommended but optional)
 
 ```
 wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
@@ -110,7 +110,7 @@ tar -xvf v1.2.tar.gz
 export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 
-#### PRIME 1.0 (recommended but optional)
+#### PRIME-1.0 (recommended but optional)
 
 ```
 wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
@@ -128,7 +128,7 @@ For installing the reference data we will need `makeblastdb`, set the environmen
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
 ```
 
-netMhcPan, netMhcIIPan and Rscript are also required to install the references, see above.
+NetMHCpan, NetMHCIIpan and Rscript are also required to install the references, see above.
 
 Optionally, you can provide the URL to the IPD-IMGT/HLA database CSV table, see releases here https://www.ebi.ac.uk/ipd/imgt/hla/docs/release.html. 
 If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
@@ -160,12 +160,12 @@ export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 ## Test installation   
 
 The user can test if all the installations have been successful by testing NeoFox with some test data. The test data can be downloaded here:  
-[test_data](../testfiles/test_data.txt)  
-[test_patients](../testfiles/test_patients.txt)  
+[test_data](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_data.txt)  
+[test_patients](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_patients.txt)  
 
 ````commandline
 neofox --candidate-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --with-short-wide-table --with-tall-skinny-table --with-json --output-prefix test
 ````
 
 The resulting output files can be compared to the following test output file:  
-[test_neoantigen_candidates_annotated](../testfiles/test_neoantigen_candidates_annotated.tsv)  
+[test_neoantigen_candidates_annotated](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_neoantigen_candidates_annotated.tsv)  
