@@ -16,10 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from neofox.helpers import intermediate_files
+import json
+import subprocess
 from neofox.helpers.runner import Runner
-from neofox.published_features.neoantigen_fitness.aligner import Aligner
-import os
 from neofox.references.references import DependenciesConfiguration
 
 
@@ -35,98 +34,63 @@ class BlastpRunner(object):
         This function runs BLASTP on a given database and returns a score defining the similarity of the input sequence
         to best BLAST hit
         """
-        outfile = self.run_blastp(peptide)
-        score = self._similarity_score(outfile, a=a)
-        os.remove(outfile)
-        return score
 
-    def run_blastp(self, peptide):
-        """
-                This function runs BLASTP on a given database
-                """
-        input_fasta = intermediate_files.create_temp_fasta(
-            sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix="M_"
-        )
-        outfile = intermediate_files.create_temp_file(
-            prefix="tmp_blastp_", suffix=".xml"
-        )
-        self.runner.run_command(
-            cmd=[
-                self.configuration.blastp,
-                "-gapopen",
-                "11",
-                "-gapextend",
-                "1",
-                "-outfmt",
-                "5",
-                "-query",
-                input_fasta,
-                "-out",
-                outfile,
-                "-db",
-                self.database,
-                "-evalue",
-                "100000000",
-            ]
-        )
-        os.remove(input_fasta)
-        return outfile
+        cmd = [
+            self.configuration.blastp,
+            "-gapopen",
+            "11",
+            "-gapextend",
+            "1",
+            "-outfmt",
+            "15",
+            "-db",
+            self.database,
+            "-evalue",
+            "100000000",
+            "-num_alignments",
+            "1"
+        ]
 
-    def run_blastp_exact_length(self, peptide):
-        """
-                This function runs BLASTP on a given database
-                """
-        input_fasta = intermediate_files.create_temp_fasta(
-            sequences=[peptide], prefix="tmp_dissimilarity_", comment_prefix="M_"
-        )
-        outfile = intermediate_files.create_temp_file(
-            prefix="tmp_blastp_", suffix=".xml"
-        )
-        self.runner.run_command(
-            cmd=[
-                self.configuration.blastp,
-                "-gapopen",
-                "11",
-                "-gapextend",
-                "1",
-                "-outfmt",
-                "5",
-                "-query",
-                input_fasta,
-                "-out",
-                outfile,
-                "-db",
-                self.database,
-                "-evalue",
-                "100000000",
-                "-qcov_hsp_perc",
-                "100"
-            ], print_log=False
-        )
-        os.remove(input_fasta)
-        return outfile
+        best_hit = self._run_blastp(cmd=cmd, peptide=peptide)
+        similarity_score = None
+        if best_hit is not None:
+            similarity_score = best_hit.get("hsps")[0].get("score")
+        return similarity_score
 
     def get_most_similar_wt_epitope(self, peptide):
-        outfile = self.run_blastp_exact_length(peptide)
-        wt_peptide = self._extract_best_blast_peptide_hit(outfile)
+
+        cmd = [
+            self.configuration.blastp,
+            "-gapopen",
+            "11",
+            "-gapextend",
+            "1",
+            "-outfmt",
+            "15",
+            "-db",
+            self.database,
+            "-evalue",
+            "100000000",
+            "-qcov_hsp_perc",
+            "100",
+            "-num_alignments",
+            "1"
+        ]
+
+        best_hit = self._run_blastp(cmd=cmd, peptide=peptide)
+        wt_peptide = None
+        if best_hit is not None:
+            wt_peptide = best_hit.get("hsps")[0].get("hseq")
         return wt_peptide
 
-    def _similarity_score(self, blastp_output_file, a) -> int:
-        aligner = Aligner()
-        # set a to 32 for dissimilarity
-        try:
-            aligner.readAllBlastAlignments(blastp_output_file)
-            aligner.computeR(a=a)
-            result = aligner.Ri.get(1, 0)  # NOTE: returns 0 when not present
-        except SystemError:
-            # NOTE: some rarer aminoacids substitutions may not be present in the BLOSUM matrix and thus cause this to
-            # fail, an example is U>Y
-            result = None
-        return result
-
-    def _extract_best_blast_peptide_hit(self, blastp_output_file):
-        aligner = Aligner()
-        aligner.readAllBlastAlignments(blastp_output_file)
-        # TODO: return gene name related to wt peptide
-        wt_peptide = aligner.maximum_alignment[1][1][1]
-        return wt_peptide
+    def _run_blastp(self, cmd, peptide):
+        with subprocess.Popen(('echo', peptide), stdout=subprocess.PIPE) as echo:
+            output, errors = self.runner.run_command(cmd=cmd, stdin=echo.stdout)
+            echo.wait()
+            echo.kill()
+        results = json.loads(output)
+        hits = results.get("BlastOutput2")[0].get("report").get("results").get("search").get("hits")
+        best_hit = None
+        if hits is not None and len(hits) > 0:
+            best_hit = hits[0]
+        return best_hit
