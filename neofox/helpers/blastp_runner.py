@@ -70,9 +70,9 @@ class BlastpRunner(object):
         cmd = [
             self.configuration.blastp,
             "-gapopen",
-            "11",
+            "-11",
             "-gapextend",
-            "1",
+            "-11",
             "-outfmt",
             "15",
             "-db",
@@ -82,7 +82,9 @@ class BlastpRunner(object):
             "-qcov_hsp_perc",
             "100",
             "-num_alignments",
-            "1"
+            "1",
+            "-ungapped",
+            "-comp_based_stats F"
         ]
 
         hits = self._run_blastp(cmd=cmd, peptide=peptide)
