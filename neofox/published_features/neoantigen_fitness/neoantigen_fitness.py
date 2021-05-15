@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
-import os.path
 from typing import List
 from logzero import logger
 from neofox.helpers.blastp_runner import BlastpRunner
@@ -29,7 +27,6 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 )
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
-from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class NeoantigenFitnessCalculator:
