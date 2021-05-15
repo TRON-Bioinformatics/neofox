@@ -28,6 +28,8 @@ from logzero import logger
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 import os
+
+from neofox.published_features.neoantigen_fitness.aligner import Aligner
 from neofox.references.references import PREFIX_HOMO_SAPIENS
 from neofox.references.references import IEDB_BLAST_PREFIX
 
@@ -80,3 +82,12 @@ class TestBlast(TestCase):
                 times.append(time.time() - start)
             logger.info("Average time for {}-mers: {}".format(k, np.mean(times)))
             logger.info("Standard deviation for {}-mers: {}".format(k, np.std(times)))
+
+    def test_old_blastp(self):
+
+        kmer = 'DMPGISNSE'      # integration_test_tools.get_random_kmer(k=9)
+
+        score1 = self.proteome_blastp_runner.old_calculate_similarity_database(kmer)
+        score2 = self.proteome_blastp_runner.calculate_similarity_database(kmer)
+
+        self.assertEqual(score1, score2)
