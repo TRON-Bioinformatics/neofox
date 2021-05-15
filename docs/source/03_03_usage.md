@@ -234,13 +234,13 @@ annotations = NeoFox(neoantigens=neoantigens, patients=patients, num_cpus=2).get
 ## Performance
 
 As indicated above NeoFox can run in parallel using the parameter `--num-cpus`. 
-Each CPU will process one neoantigen at a time, thus NeoFox uses only as many CPUs as neoantigens are to be processed.
+Each CPU will process one neoantigen candidate at a time, thus NeoFox uses only as many CPUs as candidats are to be processed.
 
-We processed several simulated datasets with 10, 100, 1000 and 10000 neoantigens on 1, 5, 10 and 50 CPUs. We obtained 
-that the average time to process a single neoantigen in a single CPU takes 20.023 seconds, with a standard deviation of 
+We processed several simulated datasets with 10, 100, 1000 and 10000 neoantigen candidates on 1, 5, 10 and 50 CPUs. We obtained 
+that the average time to process a single candidat in a single CPU takes 20.023 seconds, with a standard deviation of 
 6,125 seconds. No significant overhead due to parallelization was observed. 
-In terms of memory the application uses less than 0.5 GB for up to 1000 neoantigens irrespective of the number of CPUs used. 
-The memory use grows to around 2.5 GB when processing 10000 neoantigens. 
+In terms of memory the application uses less than 0.5 GB for up to 1000 neoantigen candidates irrespective of the number of CPUs used. 
+The memory use grows to around 2.5 GB when processing 10000 candidates. 
 
 ![Neofox model](../figures/performance_1.jpg)
 
