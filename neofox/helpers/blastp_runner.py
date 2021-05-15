@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import json
+import orjson as json
 import subprocess
 from neofox.helpers.runner import Runner
 from neofox.references.references import DependenciesConfiguration
