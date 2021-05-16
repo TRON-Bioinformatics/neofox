@@ -90,10 +90,10 @@ class NeoantigenAnnotator:
         # initialise proteome and IEDB BLASTP runners
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=configuration,
-            proteome_db=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
         self.iedb_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=configuration,
-            proteome_db=os.path.join(references.iedb, IEDB_BLAST_PREFIX))
+            database=os.path.join(references.iedb, IEDB_BLAST_PREFIX))
 
         # NOTE: these resources do not read any file thus can be initialised fast
         self.dissimilarity_calculator = DissimilarityCalculator(

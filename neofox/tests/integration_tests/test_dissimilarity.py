@@ -34,7 +34,7 @@ class TestDissimilarity(TestCase):
         self.runner = Runner()
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
-            proteome_db=os.path.join(self.references.proteome_db, "homo_sapiens"))
+            database=os.path.join(self.references.proteome_db, "homo_sapiens"))
 
     def test_dissimilar_sequences(self):
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(

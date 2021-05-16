@@ -37,10 +37,10 @@ class TestBlast(TestCase):
         self.references, self.configuration, self.fastafile = self._load_references()
         self.proteome_blastp_runner = BlastpRunner(
             runner=Runner(verbose=False), configuration=self.configuration,
-            proteome_db=os.path.join(self.references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=os.path.join(self.references.proteome_db, PREFIX_HOMO_SAPIENS))
         self.iedb_blastp_runner = BlastpRunner(
             runner=Runner(verbose=False), configuration=self.configuration,
-            proteome_db=os.path.join(self.references.iedb, IEDB_BLAST_PREFIX))
+            database=os.path.join(self.references.iedb, IEDB_BLAST_PREFIX))
 
     def _load_references(self):
         references, configuration = integration_test_tools.load_references()
