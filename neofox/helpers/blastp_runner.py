@@ -30,10 +30,10 @@ class BlastpRunner(object):
 
     INF = float("inf")
 
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, proteome_db: str):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, database: str):
         self.runner = runner
         self.configuration = configuration
-        self.database = proteome_db
+        self.database = database
 
     def calculate_similarity_database(self, peptide, a=26) -> float:
         """
@@ -55,15 +55,20 @@ class BlastpRunner(object):
         ]
         hits = self._run_blastp(cmd=cmd, peptide=peptide)
         local_alignments = []
-        for hit in hits:
-            hsp = hit.get("hsps")[0]
-            query = hsp.get("qseq")
-            target = hsp.get("hseq")
-            if "-" not in query and "-" not in target:
-                al = BlastpRunner.align(query, target)
-                if al and len(al) > 0:
-                    local_alignments.append(al[0])
-        similarity_score = self.computeR(alignments=local_alignments, a=a)
+        try:
+            for hit in hits:
+                for hsp in hit.get("hsps"):
+                    query = hsp.get("qseq")
+                    target = hsp.get("hseq")
+                    if "-" not in query and "-" not in target:
+                        al = BlastpRunner.align(query, target)
+                        if al and len(al) > 0:
+                            local_alignments.append(al[0])
+            similarity_score = self.computeR(alignments=local_alignments, a=a)
+        except SystemError:
+            # NOTE: some rarer aminoacids substitutions may not be present in the BLOSUM matrix and thus cause this to
+            # fail, an example is U>Y
+            similarity_score = None
         return similarity_score
 
     def get_most_similar_wt_epitope(self, peptide):

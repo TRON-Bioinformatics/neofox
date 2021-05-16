@@ -58,7 +58,7 @@ class TestBestMultipleBinder(TestCase):
         self.uniprot = Uniprot(references.uniprot_pickle)
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
-            proteome_db=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
@@ -77,8 +77,7 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
-            hla_database=self.hla_database,
-            proteome_db=self.proteome_db
+            hla_database=self.hla_database
         )
         self.assertEqual(17.79, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)

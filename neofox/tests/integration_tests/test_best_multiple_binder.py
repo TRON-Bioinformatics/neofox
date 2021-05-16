@@ -57,7 +57,7 @@ class TestBestMultipleBinder(TestCase):
         self.uniprot = Uniprot(references.uniprot_pickle)
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
-            proteome_db=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
