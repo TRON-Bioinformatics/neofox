@@ -84,7 +84,6 @@ class BlastpRunner(object):
             "100",
             "-num_alignments",
             "1",
-            "-ungapped",
             "-comp_based_stats F"
         ]
 
