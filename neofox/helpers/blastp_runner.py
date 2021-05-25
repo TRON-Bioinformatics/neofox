@@ -57,13 +57,13 @@ class BlastpRunner(object):
         local_alignments = []
         try:
             for hit in hits:
-                for hsp in hit.get("hsps"):
-                    query = hsp.get("qseq")
-                    target = hsp.get("hseq")
-                    if "-" not in query and "-" not in target:
-                        al = BlastpRunner.align(query, target)
-                        if al and len(al) > 0:
-                            local_alignments.append(al[0])
+                hsp = hit.get("hsps")[-1]
+                query = hsp.get("qseq")
+                target = hsp.get("hseq")
+                if "-" not in query and "-" not in target:
+                    al = BlastpRunner.align(query, target)
+                    if al and len(al) > 0:
+                        local_alignments.append(al[0])
             similarity_score = self.computeR(alignments=local_alignments, a=a)
         except SystemError:
             # NOTE: some rarer aminoacids substitutions may not be present in the BLOSUM matrix and thus cause this to
