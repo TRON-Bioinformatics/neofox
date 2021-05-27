@@ -82,7 +82,9 @@ class BlastpRunner(object):
             "100000000",
             "-qcov_hsp_perc",
             "100",
-            "-comp_based_stats F"
+            "-comp_based_stats F",
+            "-num_alignments 1",
+            "-ungapped"
         ]
 
         hits = self._run_blastp(cmd=cmd, peptide=peptide)
