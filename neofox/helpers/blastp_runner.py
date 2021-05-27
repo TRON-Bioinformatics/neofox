@@ -82,8 +82,6 @@ class BlastpRunner(object):
             "100000000",
             "-qcov_hsp_perc",
             "100",
-            "-num_alignments",
-            "1",
             "-comp_based_stats F"
         ]
 
