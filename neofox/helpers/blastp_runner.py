@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import time
 from math import exp, log
 import orjson as json
 import subprocess
@@ -87,16 +86,16 @@ class BlastpRunner(object):
             "-ungapped"
         ]
 
-        hits = self._run_blastp(cmd=cmd, peptide=peptide)
+        hits = self._run_blastp(cmd=cmd, peptide=peptide, print_log=False)
         wt_peptide = None
         if hits is not None and len(hits) > 0:
             best_hit = hits[0]
             wt_peptide = best_hit.get("hsps")[0].get("hseq")
         return wt_peptide
 
-    def _run_blastp(self, cmd, peptide):
+    def _run_blastp(self, cmd, peptide, print_log=True):
         with subprocess.Popen(('echo', peptide), stdout=subprocess.PIPE) as echo:
-            output, errors = self.runner.run_command(cmd=cmd, stdin=echo.stdout)
+            output, errors = self.runner.run_command(cmd=cmd, stdin=echo.stdout, print_log=print_log)
             echo.wait()
             echo.kill()
         results = json.loads(output)
