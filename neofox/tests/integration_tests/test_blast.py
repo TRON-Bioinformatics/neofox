@@ -65,8 +65,9 @@ class TestBlast(TestCase):
             for _ in range(10):
                 kmer = integration_test_tools.get_random_kmer(k=9)
                 start = time.time()
-                self.proteome_blastp_runner.get_most_similar_wt_epitope(kmer)
+                similar_wt = self.proteome_blastp_runner.get_most_similar_wt_epitope(kmer)
                 times.append(time.time() - start)
+                logger.info("{}: {}".format(kmer, similar_wt))
             logger.info("Average time for {}-mers: {}".format(k, np.mean(times)))
             logger.info("Standard deviation for {}-mers: {}".format(k, np.std(times)))
 
@@ -76,7 +77,8 @@ class TestBlast(TestCase):
             for _ in range(10):
                 kmer = integration_test_tools.get_random_kmer(k=9)
                 start = time.time()
-                self.proteome_blastp_runner.calculate_similarity_database(kmer)
+                similarity = self.proteome_blastp_runner.calculate_similarity_database(kmer)
                 times.append(time.time() - start)
+                logger.info("{}: {}".format(kmer, similarity))
             logger.info("Average time for {}-mers: {}".format(k, np.mean(times)))
             logger.info("Standard deviation for {}-mers: {}".format(k, np.std(times)))
