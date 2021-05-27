@@ -56,7 +56,7 @@ class BlastpRunner(object):
         local_alignments = []
         try:
             for hit in hits:
-                hsp = hit.get("hsps")[-1]
+                hsp = hit.get("hsps")[0]
                 query = hsp.get("qseq")
                 target = hsp.get("hseq")
                 if "-" not in query and "-" not in target:
