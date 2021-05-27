@@ -308,7 +308,9 @@ class ModelConverter(object):
             del df["index"]
             dfs.append(df)
         annotations_df = pd.concat(dfs, sort=True)
-        return pd.merge(left=neoantigens_df, right=annotations_df, on="identifier")
+        df = pd.merge(left=neoantigens_df, right=annotations_df, on="identifier")
+        del df["identifier"]
+        return df
 
     @staticmethod
     def neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
