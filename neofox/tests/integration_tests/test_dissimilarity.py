@@ -58,8 +58,8 @@ class TestDissimilarity(TestCase):
         self.assertEqual(result, 0)
         # unsimmilar peptide
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
-            mhc_mutation="LFTSPIMTKSAEMIV", mhc_affinity=430)
-        self.assertEqual(9.713825893542527e-06, result)
+            mhc_mutation="LELERVLVQY", mhc_affinity=430)
+        self.assertEqual(0.0038214427855995936, result)
 
     def test_dissimilar_sequences(self):
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(

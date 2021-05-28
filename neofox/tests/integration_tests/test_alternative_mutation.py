@@ -84,14 +84,12 @@ class TestBestMultipleBinder(TestCase):
         self.assertEqual(0.081, best_multiple.best_epitope_by_rank.rank)
         self.assertEqual("HLA-A*02:01", best_multiple.best_epitope_by_rank.hla.name)
         self.assertEqual("TLPEPPLWSV", best_multiple.best_epitope_by_rank.peptide)
-        self.assertEqual("ALPPQPLWSV", best_multiple.best_wt_epitope_by_rank.peptide)
+        self.assertEqual("SLPQPPITEV", best_multiple.best_wt_epitope_by_rank.peptide)
         self.assertEqual(
             best_multiple.best_ninemer_epitope_by_rank.hla.name,
             best_multiple.best_ninemer_wt_epitope_by_rank.hla.name,
         )
-        self.assertEqual(2, best_multiple.generator_rate_adn)
         self.assertEqual(3, best_multiple.generator_rate_cdn)
-        self.assertIsNotNone(best_multiple.phbr_i)
         self.assertAlmostEqual(0.23085258129451622, best_multiple.phbr_i)
 
     def test_best_multiple_mhc2_run(self):
