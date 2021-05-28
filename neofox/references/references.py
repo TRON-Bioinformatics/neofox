@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
+from typing import List
+
 from logzero import logger
 import neofox
 from neofox.exceptions import NeofoxConfigurationException
@@ -202,14 +204,9 @@ class AvailableAlleles(object):
             mhc=neofox.MHC_II, references=references
         )
 
-    def _load_available_hla_alleles(
-        self, references: ReferenceFolder, mhc=neofox.MHC_I
-    ):
+    def _load_available_hla_alleles(self, references: ReferenceFolder, mhc=neofox.MHC_I) -> List:
         """
         loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
-        :type references: neofox.references.ReferenceFolder
-        :type mhc: str
-        :rtype list:
         """
         if mhc == neofox.MHC_II:
             fileMHC = references.available_mhc_ii
