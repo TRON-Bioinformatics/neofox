@@ -4,7 +4,7 @@ This guide contains two alternatives to install NeoFox:
 - Building a docker image that automates the installation into a container
 - A set of detailed step by step installation instructions without docker
 
-The first approach has the lowest entry barrier to use neofox as a command line tool.
+The first approach has the lowest entry barrier to use NeoFox as a command line tool.
 While the second provides access to the command line tool and allows the integration of the NeoFox API.
 
 ## Build and run the docker image
@@ -24,7 +24,7 @@ Store these in the root folder of the repository, next to the `Dockerfile`. Do n
 
 Build the docker image: `docker build --tag neofox-docker .`
 
-Run neofox: `docker run neofox-docker neofox --help`
+Run NeoFox: `docker run neofox-docker neofox --help`
 
 See the usage guide [here](03_03_usage.md) for further details.
 
@@ -40,7 +40,7 @@ Set the environment variable pointing to `Rscript`.
 export NEOFOX_RSCRIPT=`which Rscript`
 ```
 
-### Install Neofox
+### Install NeoFox
 
 ```
 pip install neofox
@@ -89,7 +89,7 @@ export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 sudo apt-get install tcsh
 ```
 
-Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-3.2/netMHCIIpan-3.2.readme`
+Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-4.0/netMHCIIpan-4.0.readme`
          
 
 #### Install MixMHCpred-2.1 (recommended but optional)
