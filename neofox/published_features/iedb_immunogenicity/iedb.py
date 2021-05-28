@@ -139,7 +139,6 @@ class IEDBimmunogenicity:
                     count += 1
         except Exception as ex:
             logger.exception(ex)
-            raise ex
         return score
 
     def calculate_iedb_immunogenicity(

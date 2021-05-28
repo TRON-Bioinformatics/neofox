@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import os
 
 from logzero import logger
 from datetime import datetime
@@ -24,6 +25,7 @@ from distributed import get_client, secede, rejoin
 import neofox
 import time
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
@@ -61,7 +63,7 @@ from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
-    AvailableAlleles,
+    AvailableAlleles, IEDB_BLAST_PREFIX, PREFIX_HOMO_SAPIENS,
 )
 
 
@@ -85,16 +87,18 @@ class NeoantigenAnnotator:
         # NOTE: this one loads a big file, but it is faster loading it multiple times than passing it around
         self.uniprot = Uniprot(references.uniprot_pickle)
 
+        # initialise proteome and IEDB BLASTP runners
+        self.proteome_blastp_runner = BlastpRunner(
+            runner=self.runner, configuration=configuration,
+            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+        self.iedb_blastp_runner = BlastpRunner(
+            runner=self.runner, configuration=configuration,
+            database=os.path.join(references.iedb, IEDB_BLAST_PREFIX))
+
         # NOTE: these resources do not read any file thus can be initialised fast
         self.dissimilarity_calculator = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=configuration,
-            proteome_db=references.proteome_db,
-            affinity_threshold=affinity_threshold
-        )
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
-            runner=self.runner, configuration=configuration, iedb=references.iedb
-        )
+            proteome_blastp_runner=self.proteome_blastp_runner, affinity_threshold=affinity_threshold)
+        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(iedb_blastp_runner=self.iedb_blastp_runner)
         self.neoag_calculator = NeoagCalculator(
             runner=self.runner, configuration=configuration, affinity_threshold=affinity_threshold
         )
@@ -470,14 +474,14 @@ class NeoantigenAnnotator:
             neoantigen: Neoantigen,
             patient: Patient,
     ):
-        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser)
+        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser,
+                                          blastp_runner=self.proteome_blastp_runner)
         netmhcpan.run(
             mutation=neoantigen.mutation,
             mhc1_alleles_patient=patient.mhc1,
             mhc1_alleles_available=available_alleles.get_available_mhc_i(),
             uniprot=self.uniprot,
-            hla_database=self.hla_database,
-            proteome_db=self.proteome_db
+            hla_database=self.hla_database
         )
         return netmhcpan
 
@@ -491,13 +495,13 @@ class NeoantigenAnnotator:
             patient: Patient,
     ):
         netmhc2pan = BestAndMultipleBinderMhcII(
-            runner=runner, configuration=configuration, mhc_parser=mhc_parser)
+            runner=runner, configuration=configuration, mhc_parser=mhc_parser,
+            blastp_runner=self.proteome_blastp_runner)
         netmhc2pan.run(
             mutation=neoantigen.mutation,
             mhc2_alleles_patient=patient.mhc2,
             mhc2_alleles_available=available_alleles.get_available_mhc_ii(),
-            uniprot=self.uniprot,
-            proteome_db=self.proteome_db
+            uniprot=self.uniprot
         )
         return netmhc2pan
 

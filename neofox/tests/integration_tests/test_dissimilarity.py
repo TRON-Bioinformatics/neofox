@@ -16,9 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import os
 from unittest import TestCase
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.runner import Runner
 from neofox.published_features.dissimilarity_garnish.dissimilaritycalculator import (
     DissimilarityCalculator,
@@ -30,61 +32,44 @@ class TestDissimilarity(TestCase):
         self.references, self.configuration = integration_test_tools.load_references()
         self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         self.runner = Runner()
+        self.proteome_blastp_runner = BlastpRunner(
+            runner=self.runner, configuration=self.configuration,
+            database=os.path.join(self.references.proteome_db, "homo_sapiens"))
 
     def test_dissimilar_sequences(self):
-        result = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=self.configuration,
-            proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="tocino", mhc_affinity=600)
+        result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
+            mhc_mutation="tocino", mhc_affinity=600)
         self.assertEqual(1, result)
 
     def test_similar_sequences(self):
-        result = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=self.configuration,
-            proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="DDDDDD", mhc_affinity=600)
+        result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
+            mhc_mutation="DDDDDD", mhc_affinity=600)
         self.assertTrue(result < 0.000001)
 
     def test_missing_aminoacid_change(self):
-        result = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=self.configuration,
-            proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="DDUDDD", mhc_affinity=600)
+        result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
+            mhc_mutation="DDUDDD", mhc_affinity=600)
         self.assertIsNone(result)
 
     def test_dissimilarity_mhcii(self):
         # peptide with point mutation
-        result = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=self.configuration,
-            proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="LGLSDSQFLQTFLFM", mhc_affinity=430)
+        result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
+            mhc_mutation="LGLSDSQFLQTFLFM", mhc_affinity=430)
         self.assertEqual(result, 0)
         # unsimmilar peptide
-        result = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=self.configuration,
-            proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="LFTSPIMTKSAEMIV", mhc_affinity=430)
-        self.assertEqual(9.713825893542527e-06, result)
+        result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
+            mhc_mutation="LELERVLVQY", mhc_affinity=430)
+        self.assertEqual(0.0038214427855995936, result)
 
     def test_dissimilar_sequences(self):
-        result = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=self.configuration,
-            proteome_db=self.references.proteome_db,
-        ).calculate_dissimilarity(mhc_mutation="tocino", mhc_affinity=600)
+        result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
+            mhc_mutation="tocino", mhc_affinity=600)
         self.assertEqual(1, result)
 
     def test_affinity_threshold(self):
         # peptide with point mutation
         dissimilariyty_calculator = DissimilarityCalculator(
-            runner=self.runner,
-            configuration=self.configuration,
-            proteome_db=self.references.proteome_db,
+            proteome_blastp_runner=self.proteome_blastp_runner,
             affinity_threshold=1000
         )
         result = dissimilariyty_calculator.calculate_dissimilarity(

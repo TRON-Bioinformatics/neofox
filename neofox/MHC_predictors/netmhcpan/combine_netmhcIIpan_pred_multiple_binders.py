@@ -25,6 +25,7 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
 )
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName
@@ -35,10 +36,12 @@ LENGTH_MHC2_EPITOPE = 15
 
 
 class BestAndMultipleBinderMhcII:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser,
+                 blastp_runner: BlastpRunner):
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
+        self.proteome_blastp_runner = blastp_runner
         self._initialise()
 
     def _initialise(self):
@@ -149,15 +152,14 @@ class BestAndMultipleBinderMhcII:
         mutation: Mutation,
         mhc2_alleles_patient: List[Mhc2],
         mhc2_alleles_available: Set,
-        uniprot,
-        proteome_db
+        uniprot
     ):
         """predicts MHC II epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed"""
         # mutation
         self._initialise()
         netmhc2pan = NetMhcIIPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
-            proteome_db=proteome_db
+            blastp_runner=self.proteome_blastp_runner
         )
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(
             mhc2_alleles_patient
