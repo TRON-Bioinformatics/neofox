@@ -114,7 +114,11 @@ class BestAndMultipleBinderMhcII:
     def determine_number_of_alternative_binders(predictions: List[PredictedEpitope],
                                                 predictions_wt: List[PredictedEpitope], threshold=4):
         """
-        Determines the number of HLA II neoepitope candidates that bind stronger (4:1) to HLA in comparison to corresponding WT
+        Determines the number of HLA II neoepitope candidates that bind stronger (4:1) to HLA in comparison to corresponding WT.
+        With the netMHCIIpan4.0 the rank score can get a value of 0.0.  If this is the case, the next smaller possible
+        value is used as a measure for best possible binding.
+        This is 0.01 in case of netMHCIIpan4.0
+        TODO: this is not optimal. is there a better long-term solution?
         """
         number_binders = 0
         values = []
@@ -126,7 +130,10 @@ class BestAndMultipleBinderMhcII:
                         predictions_wt, epitope
                     )
                 )
-                dai = wt_peptide.rank / epitope.rank
+                rank_mutation = epitope.rank
+                if rank_mutation == 0:
+                    rank_mutation = 0.01
+                dai = wt_peptide.rank / rank_mutation
                 if dai > threshold:
                     number_binders += 1
         return number_binders if not len(values) == 0 else None

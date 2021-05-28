@@ -29,7 +29,7 @@ where:
 **PLEASE NOTE THE FOLLOWING HINTS**:   
 - provide the neoantigen candidate file either as `--candidate-file` or `--json-file` 
 - if no specific output format is selected, the output will be written in [short-wide](03_02_output_data.md#short-wide-format) format
-- if all expression values are NA, imputated expression will be used for the relevant features
+- if all expression values related to a patient are NA, imputated expression will be used for the relevant features
 
 **EXAMPLE**  
 This is an example to call NeoFox with a candidate-file and obtaining the annotated neoantigen candidates in [short-wide](03_02_output_data.md#short-wide-format) format:  
