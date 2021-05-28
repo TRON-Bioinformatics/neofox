@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
-import os.path
 from typing import List
 from logzero import logger
 from neofox.helpers.blastp_runner import BlastpRunner
@@ -29,23 +27,16 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 )
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
-from neofox.references.references import IEDB_BLAST_PREFIX
 
 
-class NeoantigenFitnessCalculator(BlastpRunner):
-    def __init__(self, runner, configuration, iedb, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
-        super().__init__(runner, configuration)
+class NeoantigenFitnessCalculator:
+
+    def __init__(self, iedb_blastp_runner: BlastpRunner, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
         self.affinity_threshold = affinity_threshold
-        self.iedb = iedb
+        self.iedb_blastp_runner = iedb_blastp_runner
 
     def get_pathogen_similarity(self, mutation):
-        pathsim = self.calculate_similarity_database(
-            peptide=mutation, database=os.path.join(self.iedb, IEDB_BLAST_PREFIX)
-        )
+        pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=mutation)
         logger.info(
             "Peptide {} has a pathogen similarity of {}".format(mutation, pathsim)
         )
