@@ -52,13 +52,14 @@ class DataGenerator:
             mhc_alleles.append(parsed_allele.name)
         return mhc_alleles
 
-    def generate_data(self, num_patients, num_neoantigens_per_patient) -> Tuple[List[Patient], List[Neoantigen]]:
+    def generate_data(self, num_patients, num_neoantigens_per_patient, wildtype) -> Tuple[List[Patient], List[Neoantigen]]:
         patients = []
         neoantigens = []
         for _ in range(num_patients):
             patient = self.patient_provider.patient()
             patients.append(patient)
             for _ in range(num_neoantigens_per_patient):
-                neoantigen = self.neoantigen_provider.neoantigen(patient_identifier=patient.identifier)
+                neoantigen = self.neoantigen_provider.neoantigen(
+                    patient_identifier=patient.identifier, wildtype=wildtype)
                 neoantigens.append(neoantigen)
         return patients, neoantigens
