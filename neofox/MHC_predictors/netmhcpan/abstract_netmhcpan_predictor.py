@@ -38,13 +38,13 @@ class PredictedEpitope:
     rank: float
 
 
-class AbstractNetMhcPanPredictor(BlastpRunner):
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, proteome_db, mhc_parser: MhcParser):
-        super().__init__(runner=runner, configuration=configuration, proteome_db=proteome_db)
+class AbstractNetMhcPanPredictor:
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration,
+                 blastp_runner: BlastpRunner, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
-        self.proteome_db = proteome_db
         self.mhc_parser = mhc_parser
+        self.blastp_runner = blastp_runner
 
     @staticmethod
     def select_best_by_rank(predictions: List[PredictedEpitope]) -> PredictedEpitope:
@@ -89,7 +89,8 @@ class AbstractNetMhcPanPredictor(BlastpRunner):
         class by a BLAST search."""
         mut_peptides = set([mp.peptide for mp in mutated_predictions])
         most_similar_wt_epitopes = {
-            mutated_peptide: self.get_most_similar_wt_epitope(mutated_peptide) for mutated_peptide in mut_peptides
+            mutated_peptide: self.blastp_runner.get_most_similar_wt_epitope(mutated_peptide)
+            for mutated_peptide in mut_peptides
         }
         wt_peptides_full = []
         for mp in mutated_predictions:
