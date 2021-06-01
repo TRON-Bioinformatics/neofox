@@ -91,18 +91,18 @@ class TestMixMHCPred(TestCase):
         self.assertEqual('HLA-A*02:01', best_allele)
 
     def test_mixmhcpred_rare_aminoacid(self):
-        # this is an epitope from IEDB of length 9
-        mutation = ModelValidator._validate_mutation(
-            Mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
-        )
-        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=self.test_mhc_one,
-            uniprot=self.uniprot
-        )
-        self.assertIsNone(best_peptide)
-        self.assertIsNone(best_rank)
-        self.assertIsNone(best_allele)
-        self.assertIsNone(best_score)
+        for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
+            mutation = ModelValidator._validate_mutation(
+                Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            )
+            best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
+                mutation=mutation, mhc=self.test_mhc_one,
+                uniprot=self.uniprot
+            )
+            self.assertIsNone(best_peptide)
+            self.assertIsNone(best_rank)
+            self.assertIsNone(best_allele)
+            self.assertIsNone(best_score)
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15
@@ -143,16 +143,16 @@ class TestMixMHCPred(TestCase):
         self.assertIsNone(best_allele)
 
     def test_mixmhcpred2_no_mutation(self):
-        # this is an epitope from IEDB of length 15
-        mutation = ModelValidator._validate_mutation(
-            Mutation(mutated_xmer="ENPVVHFFKNIVTPR", wild_type_xmer="ENPVVHFFKNIVTPR")
-        )
-        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot
-        )
-        self.assertIsNone(best_peptide)
-        self.assertIsNone(best_rank)
-        self.assertIsNone(best_allele)
+        for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
+            mutation = ModelValidator._validate_mutation(
+                Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            )
+            best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
+                mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot
+            )
+            self.assertIsNone(best_peptide)
+            self.assertIsNone(best_rank)
+            self.assertIsNone(best_allele)
 
     def test_mixmhc2pred_rare_aminoacid(self):
         # this is an epitope from IEDB of length 9

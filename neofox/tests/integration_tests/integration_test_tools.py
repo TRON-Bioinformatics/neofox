@@ -70,3 +70,27 @@ def get_mhc_two_test(hla_database):
                 "HLA-DPB1*04:01",
             ], hla_database
         )
+
+
+mutations_with_rare_aminoacids = [
+            ("UTTDSDGKF", "UTTDSWGKF"),  # this is an epitope from IEDB of length 9
+            ("XTTDSDGKF", "XTTDSWGKF"),
+            ("BTTDSDGKF", "BTTDSWGKF"),
+            ("JTTDSDGKF", "JTTDSWGKF"),
+            ("OTTDSDGKF", "OTTDSWGKF"),
+            ("ZTTDSDGKF", "ZTTDSWGKF"),
+            # only present in the wild type
+            ("UTTDSDGKF", "TTTDSWGKF"),  # this is an epitope from IEDB of length 9
+            ("XTTDSDGKF", "TTTDSWGKF"),
+            ("BTTDSDGKF", "TTTDSWGKF"),
+            ("JTTDSDGKF", "TTTDSWGKF"),
+            ("OTTDSDGKF", "TTTDSWGKF"),
+            ("ZTTDSDGKF", "TTTDSWGKF"),
+            # only present in the mutation
+            ("TTTDSDGKF", "UTTDSWGKF"),  # this is an epitope from IEDB of length 9
+            ("TTTDSDGKF", "XTTDSWGKF"),
+            ("TTTDSDGKF", "BTTDSWGKF"),
+            ("TTTDSDGKF", "JTTDSWGKF"),
+            ("TTTDSDGKF", "OTTDSWGKF"),
+            ("TTTDSDGKF", "ZTTDSWGKF")
+        ]

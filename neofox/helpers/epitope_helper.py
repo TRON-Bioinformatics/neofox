@@ -18,6 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 
+from Bio.Data import IUPACData
+
 from neofox.model.neoantigen import Mutation
 
 
@@ -41,8 +43,6 @@ class EpitopeHelper(object):
                         list_peptides.append(peptide)
 
         return list_peptides
-
-
 
     @staticmethod
     def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
@@ -123,3 +123,10 @@ class EpitopeHelper(object):
                 if start <= position_mutation <= end:
                     covers_mutation = True
         return covers_mutation
+
+    @staticmethod
+    def contains_rare_amino_acid(peptide):
+        found_rare_amino_acid = False
+        for aa in peptide:
+            found_rare_amino_acid |= aa in IUPACData.protein_letters
+        return found_rare_amino_acid

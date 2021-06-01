@@ -407,6 +407,37 @@ class TestNeofox(TestCase):
                 if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
 
+    def test_neofox_synthetic_data(self):
+        """
+        this test just ensures that NeoFox does not crash with the synthetic data
+        """
+        data = [
+            ("resources/synthetic_data/neoantigens_1patients_10neoantigens.2.txt",
+             "resources/synthetic_data/patients_1patients_10neoantigens.2.txt"),
+            ("resources/synthetic_data/neoantigens_10patients_10neoantigens.0.txt",
+             "resources/synthetic_data/patients_10patients_10neoantigens.0.txt"),
+            ("resources/synthetic_data/neoantigens_100patients_10neoantigens.2.txt",
+             "resources/synthetic_data/patients_100patients_10neoantigens.2.txt")
+        ]
+
+        for n, p, in data:
+            input_file = pkg_resources.resource_filename(
+                neofox.tests.__name__, n)
+            data = pd.read_csv(input_file, sep="\t")
+            data = data.replace({np.nan: None})
+            neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+                data
+            )
+            patients_file = pkg_resources.resource_filename(
+                neofox.tests.__name__, p)
+            patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
+            annotations = NeoFox(
+                neoantigens=neoantigens,
+                patients=patients,
+                num_cpus=4,
+            ).get_annotations()
+            self.assertIsNotNone(annotations)
+
     def _regression_test_on_output_file(self, new_file):
         previous_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/output_previous.txt"
