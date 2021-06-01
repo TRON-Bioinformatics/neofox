@@ -21,6 +21,7 @@ from typing import List
 
 from pandas.errors import EmptyDataError
 
+from neofox.exceptions import NeofoxCommandException
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
@@ -109,7 +110,7 @@ class Prime:
         best_allele = None
         best_score = None
 
-        if "U" not in mutation.mutated_xmer:
+        if not EpitopeHelper.contains_rare_amino_acid(mutation.mutated_xmer):
             potential_ligand_sequences = EpitopeHelper.generate_nmers(
                 mutation=mutation, lengths=[8, 9, 10, 11, 12, 13, 14], uniprot=uniprot
             )
