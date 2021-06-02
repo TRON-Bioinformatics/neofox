@@ -174,12 +174,11 @@ class ModelConverter(object):
         )
 
     @staticmethod
-    def objects2json(model_objects: List[betterproto.Message], output_file: str):
+    def objects2json(model_objects: List[betterproto.Message]):
         """
         :param model_objects: list of objects of subclass of betterproto.Message
         """
-        with open(output_file, "wb") as f:
-            f.write(json.dumps([o.to_dict(casing=Casing.SNAKE) for o in model_objects]))
+        return [o.to_dict(casing=Casing.SNAKE) for o in model_objects]
 
     @staticmethod
     def object2series(model_object: betterproto.Message) -> pd.Series:

@@ -20,6 +20,7 @@ import unittest
 from unittest import TestCase
 from datetime import datetime
 import pkg_resources
+import orjson as json
 from neofox.exceptions import NeofoxConfigurationException
 
 from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
@@ -156,8 +157,10 @@ class TestNeofox(TestCase):
         ModelConverter.objects2dataframe(self.neoantigens).to_csv(
             output_file_neoantigens, sep="\t", index=False
         )
-        ModelConverter.objects2json(annotations, output_json_annotations)
-        ModelConverter.objects2json(self.neoantigens, output_json_neoantigens)
+        with open(output_json_annotations, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(annotations)))
+        with open(output_json_neoantigens, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(self.neoantigens)))
 
         # regression test
         self._regression_test_on_output_file(new_file=output_file)
