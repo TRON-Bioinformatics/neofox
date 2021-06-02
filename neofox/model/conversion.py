@@ -117,7 +117,7 @@ class ModelConverter(object):
                 )
         else:
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(data)
+            neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(data)
 
         return neoantigens, external_annotations
 
@@ -143,8 +143,12 @@ class ModelConverter(object):
         return ModelConverter.patient_metadata_csv2objects(df, hla_database)
 
     @staticmethod
-    def parse_neoantigens_file(
-        dataframe,
+    def parse_neoantigens_file(neoantigens_file):
+        return ModelConverter.parse_neoantigens_dataframe(pd.read_csv(neoantigens_file, sep="\t"))
+
+    @staticmethod
+    def parse_neoantigens_dataframe(
+        dataframe: pd.DataFrame,
     ) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
         :param dataframe: a pandas data frame with neoantigens data

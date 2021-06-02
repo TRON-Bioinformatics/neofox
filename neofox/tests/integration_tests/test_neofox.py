@@ -81,7 +81,7 @@ class TestNeofox(TestCase):
         )
         data = pd.read_csv(input_file, sep="\t")
         data = data.replace({np.nan: None})
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(
             data
         )
         patients_file = pkg_resources.resource_filename(
@@ -431,7 +431,7 @@ class TestNeofox(TestCase):
                 neofox.tests.__name__, n)
             data = pd.read_csv(input_file, sep="\t")
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+            neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(
                 data
             )
             patients_file = pkg_resources.resource_filename(
