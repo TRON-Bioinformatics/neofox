@@ -412,12 +412,15 @@ class TestNeofox(TestCase):
         this test just ensures that NeoFox does not crash with the synthetic data
         """
         data = [
-            ("resources/synthetic_data/neoantigens_1patients_10neoantigens.2.txt",
-             "resources/synthetic_data/patients_1patients_10neoantigens.2.txt"),
-            ("resources/synthetic_data/neoantigens_10patients_10neoantigens.0.txt",
-             "resources/synthetic_data/patients_10patients_10neoantigens.0.txt"),
-            ("resources/synthetic_data/neoantigens_100patients_10neoantigens.2.txt",
-             "resources/synthetic_data/patients_100patients_10neoantigens.2.txt")
+            #("resources/synthetic_data/neoantigens_1patients_10neoantigens.2.txt",
+            # "resources/synthetic_data/patients_1patients_10neoantigens.2.txt"),
+            #("resources/synthetic_data/neoantigens_10patients_10neoantigens.0.txt",
+            # "resources/synthetic_data/patients_10patients_10neoantigens.0.txt"),
+            #("resources/synthetic_data/neoantigens_100patients_10neoantigens.2.txt",
+            # "resources/synthetic_data/patients_100patients_10neoantigens.2.txt"),
+
+            ("resources/synthetic_data/neoantigens_no_wt_1patients_10neoantigens.3.txt",
+             "resources/synthetic_data/patients_no_wt_1patients_10neoantigens.3.txt")
         ]
 
         for n, p, in data:

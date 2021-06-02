@@ -265,7 +265,9 @@ class NeoFox:
     ):
         # the logs need to be initialised inside every dask job
         NeoFox._initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation: {}".format(neoantigen.identifier))
+        logger.info("Starting neoantigen annotation: {}-{}".format(
+            neoantigen.identifier, neoantigen.mutation.mutated_xmer)
+        )
         start = time.time()
         annotation = NeoantigenAnnotator(
             reference_folder,
@@ -276,8 +278,7 @@ class NeoFox:
         ).get_annotation(neoantigen, patient)
         end = time.time()
         logger.info(
-            "Elapsed time for annotating neoantigen {}: {} seconds".format(
-                neoantigen.identifier, int(end - start)
-            )
+            "Elapsed time for annotating neoantigen {}-{}: {} seconds".format(
+                neoantigen.identifier, neoantigen.mutation.mutated_xmer, int(end - start))
         )
         return annotation
