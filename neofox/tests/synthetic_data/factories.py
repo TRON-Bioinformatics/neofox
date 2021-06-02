@@ -125,7 +125,7 @@ class NeoantigenProvider(Provider):
                 protein_list.append(str(record.seq))
         return protein_list
 
-    def neoantigen(self, patient_identifier=None) -> Neoantigen:
+    def neoantigen(self, patient_identifier=None, wildtype=True) -> Neoantigen:
 
         neoantigen = None
         found = False
@@ -134,8 +134,8 @@ class NeoantigenProvider(Provider):
                 neoantigen = Neoantigen(
                     identifier=self.generator.unique.uuid4(),
                     patient_identifier=self.generator.unique.uuid4() if patient_identifier is None else patient_identifier,
-                    gene="BRCA2",
-                    mutation=self.mutation(),
+                    gene="BRCA2" if wildtype else None, # no gene if no wildtype provided
+                    mutation=self.mutation(wildtype=wildtype),
                     rna_expression=float(self.random_number(digits=4, fix_len=True))/100,
                     dna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000,
                     rna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000
@@ -147,14 +147,19 @@ class NeoantigenProvider(Provider):
 
         return neoantigen
 
-    def mutation(self) -> Mutation:
+    def mutation(self, wildtype) -> Mutation:
         random_protein = self.random_elements(self.protein_list, length=1)[0]
         random_index = self.random_int(0, len(random_protein) - self.length_xmer)
         wildtype_xmer = random_protein[random_index: random_index + self.length_xmer]
         mutation_position = int(self.length_xmer / 2)
         mutated_xmer = wildtype_xmer[0:mutation_position] + self._mutate_aminoacid(wildtype_xmer[mutation_position]) + \
                        wildtype_xmer[mutation_position + 1:]
-        return Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wildtype_xmer)
+        if wildtype:
+            mutation = Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wildtype_xmer)
+        else:
+            mutation = Mutation(mutated_xmer=mutated_xmer)
+
+        return mutation
 
     def _mutate_aminoacid(self, aminoacid):
         found = False

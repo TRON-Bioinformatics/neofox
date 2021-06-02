@@ -21,7 +21,8 @@ class TestSyntheticData(TestCase):
 
     def test_1patients_10neoantigens(self):
         for i in range(5):
-            patients, neoantigens = self.data_generator.generate_data(num_patients=1, num_neoantigens_per_patient=10)
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=1, num_neoantigens_per_patient=10, wildtype=True)
             self._write_data(
                 neoantigens=neoantigens,
                 neoantigens_filename=pkg_resources.resource_filename(
@@ -34,7 +35,8 @@ class TestSyntheticData(TestCase):
 
     def test_10patients_10neoantigens(self):
         for i in range(5):
-            patients, neoantigens = self.data_generator.generate_data(num_patients=10, num_neoantigens_per_patient=10)
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=10, num_neoantigens_per_patient=10, wildtype=True)
             self._write_data(
                 neoantigens=neoantigens,
                 neoantigens_filename=pkg_resources.resource_filename(
@@ -47,7 +49,8 @@ class TestSyntheticData(TestCase):
 
     def test_100patients_10neoantigens(self):
         for i in range(5):
-            patients, neoantigens = self.data_generator.generate_data(num_patients=100, num_neoantigens_per_patient=10)
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=100, num_neoantigens_per_patient=10, wildtype=True)
             self._write_data(
                 neoantigens=neoantigens,
                 neoantigens_filename=pkg_resources.resource_filename(
@@ -60,7 +63,8 @@ class TestSyntheticData(TestCase):
 
     def test_1000patients_10neoantigens(self):
         for i in range(5):
-            patients, neoantigens = self.data_generator.generate_data(num_patients=1000, num_neoantigens_per_patient=10)
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=1000, num_neoantigens_per_patient=10, wildtype=True)
             self._write_data(
                 neoantigens=neoantigens,
                 neoantigens_filename=pkg_resources.resource_filename(
@@ -70,3 +74,59 @@ class TestSyntheticData(TestCase):
                 patients_filename=pkg_resources.resource_filename(
                     neofox.tests.__name__,
                     "resources/synthetic_data/patients_1000patients_10neoantigens.{}.txt".format(i)))
+
+    def test_1patients_10neoantigens_no_wt(self):
+        for i in range(5):
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=1, num_neoantigens_per_patient=10, wildtype=False)
+            self._write_data(
+                neoantigens=neoantigens,
+                neoantigens_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/neoantigens_no_wt_1patients_10neoantigens.{}.txt".format(i)),
+                 patients=patients,
+                patients_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/patients_no_wt_1patients_10neoantigens.{}.txt".format(i)))
+
+    def test_10patients_10neoantigens_no_wt(self):
+        for i in range(5):
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=10, num_neoantigens_per_patient=10, wildtype=False)
+            self._write_data(
+                neoantigens=neoantigens,
+                neoantigens_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/neoantigens_no_wt_10patients_10neoantigens.{}.txt".format(i)),
+                 patients=patients,
+                patients_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/patients_no_wt_10patients_10neoantigens.{}.txt".format(i)))
+
+    def test_100patients_10neoantigens_no_wt(self):
+        for i in range(5):
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=100, num_neoantigens_per_patient=10, wildtype=False)
+            self._write_data(
+                neoantigens=neoantigens,
+                neoantigens_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/neoantigens_no_wt_100patients_10neoantigens.{}.txt".format(i)),
+                 patients=patients,
+                patients_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/patients_no_wt_100patients_10neoantigens.{}.txt".format(i)))
+
+    def test_1000patients_10neoantigens_no_wt(self):
+        for i in range(5):
+            patients, neoantigens = self.data_generator.generate_data(
+                num_patients=1000, num_neoantigens_per_patient=10, wildtype=False)
+            self._write_data(
+                neoantigens=neoantigens,
+                neoantigens_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/neoantigens_no_wt_1000patients_10neoantigens.{}.txt".format(i)),
+                 patients=patients,
+                patients_filename=pkg_resources.resource_filename(
+                    neofox.tests.__name__,
+                    "resources/synthetic_data/patients_no_wt_1000patients_10neoantigens.{}.txt".format(i)))

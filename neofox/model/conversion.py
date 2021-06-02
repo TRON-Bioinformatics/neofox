@@ -725,6 +725,7 @@ class ModelValidator(object):
             assert (
                 aminoacid in IUPACData.protein_letters_3to1_extended.keys()
             ), "Non existing 3 letter amino acid {}".format(aminoacid)
+            assert aminoacid != "X", "Unknown amino acid X is not supported. Please, remove neoantigens containing an X."
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
             aminoacid = aminoacid.upper()
