@@ -6,6 +6,7 @@ from faker.providers.address import Provider
 
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.conversion import ModelConverter, ModelValidator
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mutation, Mhc2Name, Mhc2Isoform, \
@@ -121,7 +122,8 @@ class NeoantigenProvider(Provider):
         # stores protein sequences of at least 27 AAs
         protein_list = []
         for record in SeqIO.parse(proteome_fasta, "fasta"):
-            if len(record.seq) >= self.length_xmer:
+            # TODO: accept protein with rare aminoacids when all cases are controlled
+            if len(record.seq) >= self.length_xmer and not EpitopeHelper.contains_rare_amino_acid(record.seq):
                 protein_list.append(str(record.seq))
         return protein_list
 
@@ -148,9 +150,7 @@ class NeoantigenProvider(Provider):
         return neoantigen
 
     def mutation(self, wildtype) -> Mutation:
-        random_protein = self.random_elements(self.protein_list, length=1)[0]
-        random_index = self.random_int(0, len(random_protein) - self.length_xmer)
-        wildtype_xmer = random_protein[random_index: random_index + self.length_xmer]
+        wildtype_xmer = self._get_wild_type_xmer()
         mutation_position = int(self.length_xmer / 2)
         mutated_xmer = wildtype_xmer[0:mutation_position] + self._mutate_aminoacid(wildtype_xmer[mutation_position]) + \
                        wildtype_xmer[mutation_position + 1:]
@@ -160,6 +160,11 @@ class NeoantigenProvider(Provider):
             mutation = Mutation(mutated_xmer=mutated_xmer)
 
         return mutation
+
+    def _get_wild_type_xmer(self):
+        random_protein = self.random_elements(self.protein_list, length=1)[0]
+        random_index = self.random_int(0, len(random_protein) - self.length_xmer)
+        return random_protein[random_index: random_index + self.length_xmer]
 
     def _mutate_aminoacid(self, aminoacid):
         found = False

@@ -128,5 +128,7 @@ class EpitopeHelper(object):
     def contains_rare_amino_acid(peptide):
         found_rare_amino_acid = False
         for aa in peptide:
-            found_rare_amino_acid |= aa in IUPACData.protein_letters
+            if aa not in IUPACData.protein_letters:
+                found_rare_amino_acid = True
+                return found_rare_amino_acid
         return found_rare_amino_acid
