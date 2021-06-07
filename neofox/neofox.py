@@ -269,13 +269,18 @@ class NeoFox:
             neoantigen.identifier, neoantigen.mutation.mutated_xmer)
         )
         start = time.time()
-        annotation = NeoantigenAnnotator(
-            reference_folder,
-            configuration,
-            tcell_predictor=tcell_predictor,
-            self_similarity=self_similarity,
-            affinity_threshold=affinity_threshold
-        ).get_annotation(neoantigen, patient)
+        try:
+            annotation = NeoantigenAnnotator(
+                reference_folder,
+                configuration,
+                tcell_predictor=tcell_predictor,
+                self_similarity=self_similarity,
+                affinity_threshold=affinity_threshold
+            ).get_annotation(neoantigen, patient)
+        except Exception as e:
+            logger.error("Error processing neoantigen {}".format(neoantigen.to_dict()))
+            logger.error("Error processing patient {}".format(patient.to_dict()))
+            raise e
         end = time.time()
         logger.info(
             "Elapsed time for annotating neoantigen {}-{}: {} seconds".format(
