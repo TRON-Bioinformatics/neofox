@@ -28,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import NeoantigenAnnotations
+from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Mutation, Patient
 from neofox.model.wrappers import NOT_AVAILABLE_VALUE
 from neofox.neofox import NeoFox
 from neofox.tests.fake_classes import FakeHlaDatabase
@@ -410,20 +410,54 @@ class TestNeofox(TestCase):
                 if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
 
+    def test_neoantigen_without_netmhcpan_results(self):
+        patient_identifier = "12345"
+        neoantigen = Neoantigen(
+            mutation=Mutation(
+                wild_type_xmer="HLAQHQRVHTGEKPYKCNECGKTFRQT",
+                mutated_xmer="HLAQHQRVHTGEKAYKCNECGKTFRQT"
+            ),
+            patient_identifier=patient_identifier
+        )
+        patient = Patient(
+            identifier=patient_identifier,
+            mhc1=ModelConverter.parse_mhc1_alleles([
+                "HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"],
+                hla_database=self.references.get_hla_database()),
+            mhc2=ModelConverter.parse_mhc2_alleles([
+                "HLA-DRB1*07:14", "HLA-DRB1*04:18", "HLA-DPA1*01:05", "HLA-DPA1*03:01", "HLA-DPB1*17:01",
+                "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"],
+                hla_database=self.references.get_hla_database())
+        )
+
+        annotations = NeoFox(
+            neoantigens=[neoantigen],
+            patients=[patient],
+            num_cpus=1,
+        ).get_annotations()
+        # it does not crash even though there are no best 9mers
+        self.assertIsNotNone(annotations)
+
     def test_neofox_synthetic_data(self):
         """
         this test just ensures that NeoFox does not crash with the synthetic data
         """
         data = [
-            #("resources/synthetic_data/neoantigens_1patients_10neoantigens.2.txt",
-            # "resources/synthetic_data/patients_1patients_10neoantigens.2.txt"),
-            #("resources/synthetic_data/neoantigens_10patients_10neoantigens.0.txt",
-            # "resources/synthetic_data/patients_10patients_10neoantigens.0.txt"),
+            ("resources/synthetic_data/neoantigens_1patients_10neoantigens.2.txt",
+             "resources/synthetic_data/patients_1patients_10neoantigens.2.txt"),
+            ("resources/synthetic_data/neoantigens_10patients_10neoantigens.0.txt",
+             "resources/synthetic_data/patients_10patients_10neoantigens.0.txt"),
             #("resources/synthetic_data/neoantigens_100patients_10neoantigens.2.txt",
             # "resources/synthetic_data/patients_100patients_10neoantigens.2.txt"),
 
-            ("resources/synthetic_data/neoantigens_no_wt_1patients_10neoantigens.3.txt",
-             "resources/synthetic_data/patients_no_wt_1patients_10neoantigens.3.txt")
+            #("resources/synthetic_data/neoantigens_no_wt_1patients_10neoantigens.3.txt",
+            # "resources/synthetic_data/patients_no_wt_1patients_10neoantigens.3.txt"),
+            #("resources/synthetic_data/poltergeist_neoantigens.txt",
+            # "resources/synthetic_data/poltergeist_patients.txt")
+            ("resources/synthetic_data/neoantigens_no_wt_10patients_10neoantigens.4.txt",
+             "resources/synthetic_data/patients_no_wt_10patients_10neoantigens.4.txt"),
+            #("resources/synthetic_data/neoantigens_100patients_10neoantigens.4.txt",
+            # "resources/synthetic_data/patients_100patients_10neoantigens.4.txt"),
         ]
 
         for n, p, in data:

@@ -61,7 +61,8 @@ class BestAndMultipleBinder:
         self.best_ninemer_wt_epitope_by_rank = self._get_empy_predicted_epitope()
         self.best_ninemer_wt_epitope_by_affinity = self._get_empy_predicted_epitope()
 
-    def _get_empy_predicted_epitope(self):
+    @staticmethod
+    def _get_empy_predicted_epitope():
         return PredictedEpitope(
             peptide=None,
             pos=None,
@@ -183,9 +184,8 @@ class BestAndMultipleBinder:
             if epitope.affinity_score < 5000:
                 wt_peptide = AbstractNetMhcPanPredictor.select_best_by_affinity(
                     AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
-                        predictions=predictions_wt, mutated_prediction=epitope
-                        )
-                )
+                        predictions=predictions_wt, mutated_prediction=epitope),
+                    none_value=BestAndMultipleBinder._get_empy_predicted_epitope())
                 dai = wt_peptide.affinity_score / epitope.affinity_score
                 if dai > threshold:
                     number_binders += 1
@@ -238,20 +238,18 @@ class BestAndMultipleBinder:
                 [str(epitope.affinity_score) for epitope in filtered_predictions]
             )
             # best prediction
-            self.best_epitope_by_rank = netmhcpan.select_best_by_rank(filtered_predictions)
+            self.best_epitope_by_rank = netmhcpan.select_best_by_rank(
+                filtered_predictions, none_value=self._get_empy_predicted_epitope())
             self.best_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                filtered_predictions
-            )
+                filtered_predictions, none_value=self._get_empy_predicted_epitope())
             logger.info(self.best_epitope_by_rank)
 
             # best predicted epitope of length 9
             ninemer_predictions = netmhcpan.filter_for_9mers(filtered_predictions)
             self.best_ninemer_epitope_by_rank = netmhcpan.select_best_by_rank(
-                ninemer_predictions
-            )
+                ninemer_predictions, none_value=self._get_empy_predicted_epitope())
             self.best_ninemer_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                ninemer_predictions
-            )
+                ninemer_predictions, none_value=self._get_empy_predicted_epitope())
 
             # multiple binding based on affinity
             self.generator_rate_cdn = self.determine_number_of_binders(
@@ -277,32 +275,30 @@ class BestAndMultipleBinder:
                 filtered_predictions_wt = netmhcpan.filter_binding_predictions_wt_snv(
                     position_of_mutation=mutation.position, predictions=predictions_wt
                 )
-                if self.best_epitope_by_rank:
-                    self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
-                        netmhcpan.filter_wt_predictions_from_best_mutated(
-                            filtered_predictions_wt, self.best_epitope_by_rank
-                        )
-                    )
-                if self.best_epitope_by_affinity:
-                    self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                        netmhcpan.filter_wt_predictions_from_best_mutated(
-                            filtered_predictions_wt, self.best_epitope_by_affinity
-                        )
-                    )
+                self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        filtered_predictions_wt, self.best_epitope_by_rank
+                    ),
+                    none_value=BestAndMultipleBinder._get_empy_predicted_epitope()
+                )
+                self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        filtered_predictions_wt, self.best_epitope_by_affinity),
+                    none_value=BestAndMultipleBinder._get_empy_predicted_epitope()
+                )
                 # best predicted epitope of length 9
                 ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
-                if self.best_ninemer_epitope_by_rank:
-                    self.best_ninemer_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
-                        netmhcpan.filter_wt_predictions_from_best_mutated(
-                            ninemer_predictions_wt, self.best_ninemer_epitope_by_rank
-                        )
-                    )
-                if self.best_ninemer_epitope_by_affinity:
-                    self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                        netmhcpan.filter_wt_predictions_from_best_mutated(
-                            ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity
-                        )
-                    )
+                self.best_ninemer_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        ninemer_predictions_wt, self.best_ninemer_epitope_by_rank
+                    ),
+                    none_value=BestAndMultipleBinder._get_empy_predicted_epitope()
+                )
+                self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
+                    netmhcpan.filter_wt_predictions_from_best_mutated(
+                        ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity),
+                    none_value=BestAndMultipleBinder._get_empy_predicted_epitope()
+                )
                 # multiple binding based on affinity
                 self.generator_rate_adn = self.determine_number_of_alternative_binders(
                     predictions=filtered_predictions, predictions_wt=filtered_predictions_wt
