@@ -140,7 +140,7 @@ validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen=neoantigen)
     
 Create a patient model based on models for MHC I and MHC II alleles. Initialise each of these models by passing the required information.
 
-But, in order to parse MHC alleles and being able to normalize them into the standard nomenclature we will need to load some resources.
+In order to parse MHC alleles and being able to normalize them into the standard nomenclature, load the following resources.
 ```python
 from neofox.references.references import ReferenceFolder
 reference_folder = ReferenceFolder()
@@ -250,12 +250,12 @@ As indicated above NeoFox can run in parallel using the parameter `--num-cpus`.
 Each CPU will process one neoantigen candidate at a time, thus NeoFox uses only as many CPUs as candidats are to be processed.
 
 We processed several simulated datasets with 10, 100, 1000 and 10000 neoantigen candidates on 1, 5, 10 and 50 CPUs. We obtained 
-that the average time to process a single candidat in a single CPU takes 20.023 seconds, with a standard deviation of 
-6,125 seconds. No significant overhead due to parallelization was observed. 
+that the average time to process a single candidate in a single CPU takes 37.516 seconds, with a standard deviation of 
+6.739 seconds. No significant overhead due to parallelization was observed. 
 In terms of memory the application uses less than 0.5 GB for up to 1000 neoantigen candidates irrespective of the number of CPUs used. 
 The memory use grows to around 2.5 GB when processing 10000 candidates. 
 
 ![Neofox model](../figures/performance_1.jpg)
 
 If either MHC I or II alleles are not provided at all for a given patient the computation will be lighter as no 
-annotations run for the missing MHC.
+annotations run for the missing MHC. Likewise, if the optional tools are unset performance improves.
