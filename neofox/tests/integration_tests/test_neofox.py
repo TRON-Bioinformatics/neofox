@@ -438,6 +438,30 @@ class TestNeofox(TestCase):
         # it does not crash even though there are no best 9mers
         self.assertIsNotNone(annotations)
 
+    def test_neoantigen_failing(self):
+        patient_identifier = "12345"
+        neoantigen = Neoantigen(
+            mutation=Mutation(
+                wild_type_xmer="ARPDMFCLFHGKRYFPGESWHPYLEPQ",
+                mutated_xmer="ARPDMFCLFHGKRHFPGESWHPYLEPQ"
+            ),
+            patient_identifier=patient_identifier
+        )
+        patient = Patient(
+            identifier=patient_identifier,
+            mhc1=ModelConverter.parse_mhc1_alleles([
+                "HLA-A*03:01", "HLA-A*29:02", "HLA-B*07:02", "HLA-B*44:03", "HLA-C*07:02", "HLA-C*16:01"],
+                hla_database=self.references.get_hla_database()),
+        )
+
+        annotations = NeoFox(
+            neoantigens=[neoantigen],
+            patients=[patient],
+            num_cpus=1,
+        ).get_annotations()
+        # it does not crash even though there are no best 9mers
+        self.assertIsNotNone(annotations)
+
     def test_neofox_synthetic_data(self):
         """
         this test just ensures that NeoFox does not crash with the synthetic data

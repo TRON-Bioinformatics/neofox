@@ -186,9 +186,10 @@ class BestAndMultipleBinder:
                     AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
                         predictions=predictions_wt, mutated_prediction=epitope),
                     none_value=BestAndMultipleBinder._get_empy_epitope())
-                dai = wt_peptide.affinity_score / epitope.affinity_score
-                if dai > threshold:
-                    number_binders += 1
+                if wt_peptide.affinity_score is not None:
+                    dai = wt_peptide.affinity_score / epitope.affinity_score
+                    if dai > threshold:
+                        number_binders += 1
         if len(dai_values) == 0:
             number_binders = None
         return number_binders
