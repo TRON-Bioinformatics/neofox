@@ -240,7 +240,8 @@ class BestAndMultipleBinderMhcII:
                     peptides_wt = netmhc2pan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
                     filtered_predictions_wt = []
                     for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
-                        filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(mut_peptide.hla, wt_peptide))
+                        if wt_peptide is not None:
+                            filtered_predictions_wt.extend(netmhc2pan.mhc2_prediction_peptide(mut_peptide.hla, wt_peptide))
                     if self.best_predicted_epitope_rank:
                         self.best_predicted_epitope_rank_wt = netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
                             mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
