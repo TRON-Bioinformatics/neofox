@@ -86,7 +86,7 @@ class BlastpRunner(object):
             "-ungapped"
         ]
 
-        hits = self._run_blastp(cmd=cmd, peptide=peptide, print_log=False)
+        hits = self._run_blastp(cmd=cmd, peptide=peptide, print_log=True)
         wt_peptide = None
         if hits is not None and len(hits) > 0:
             best_hit = hits[0]

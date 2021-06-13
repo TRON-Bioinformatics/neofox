@@ -265,20 +265,25 @@ class NeoFox:
     ):
         # the logs need to be initialised inside every dask job
         NeoFox._initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation: {}-{}".format(
+        logger.info("Starting neoantigen annotation id='{}' and peptide={}".format(
             neoantigen.identifier, neoantigen.mutation.mutated_xmer)
         )
         start = time.time()
-        annotation = NeoantigenAnnotator(
-            reference_folder,
-            configuration,
-            tcell_predictor=tcell_predictor,
-            self_similarity=self_similarity,
-            affinity_threshold=affinity_threshold
-        ).get_annotation(neoantigen, patient)
+        try:
+            annotation = NeoantigenAnnotator(
+                reference_folder,
+                configuration,
+                tcell_predictor=tcell_predictor,
+                self_similarity=self_similarity,
+                affinity_threshold=affinity_threshold
+            ).get_annotation(neoantigen, patient)
+        except Exception as e:
+            logger.error("Error processing neoantigen {}".format(neoantigen.to_dict()))
+            logger.error("Error processing patient {}".format(patient.to_dict()))
+            raise e
         end = time.time()
         logger.info(
-            "Elapsed time for annotating neoantigen {}-{}: {} seconds".format(
+            "Elapsed time for annotating neoantigen id='{}' and peptide={}: {} seconds".format(
                 neoantigen.identifier, neoantigen.mutation.mutated_xmer, int(end - start))
         )
         return annotation

@@ -99,10 +99,18 @@ class TestMixMHCPred(TestCase):
                 mutation=mutation, mhc=self.test_mhc_one,
                 uniprot=self.uniprot
             )
-            self.assertIsNone(best_peptide)
-            self.assertIsNone(best_rank)
-            self.assertIsNone(best_allele)
-            self.assertIsNone(best_score)
+            # rare aminoacids only return empty results when in the mutated sequence
+            if EpitopeHelper.contains_rare_amino_acid(mutated_xmer):
+                self.assertIsNone(best_peptide)
+                self.assertIsNone(best_rank)
+                self.assertIsNone(best_allele)
+                self.assertIsNone(best_score)
+            else:
+                self.assertIsNotNone(best_peptide)
+                self.assertIsNotNone(best_rank)
+                self.assertIsNotNone(best_allele)
+                self.assertIsNotNone(best_score)
+
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15

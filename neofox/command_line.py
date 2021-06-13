@@ -20,6 +20,7 @@ from argparse import ArgumentParser
 from typing import Tuple, List
 import dotenv
 from logzero import logger
+import orjson as json
 import neofox
 from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
 from neofox.exceptions import NeofoxInputParametersException
@@ -257,18 +258,13 @@ def _write_results(
             index=False,
         )
     if with_json:
-        ModelConverter.objects2json(
-            annotations,
-            os.path.join(
-                output_folder, "{}_neoantigen_features.json".format(output_prefix)
-            ),
-        )
-        ModelConverter.objects2json(
-            neoantigens,
-            os.path.join(
-                output_folder, "{}_neoantigen_candidates.json".format(output_prefix)
-            ),
-        )
+        output_features = os.path.join(output_folder, "{}_neoantigen_features.json".format(output_prefix))
+        with open(output_features, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(annotations)))
+
+        output_neoantigens = os.path.join(output_folder, "{}_neoantigen_candidates.json".format(output_prefix))
+        with open(output_neoantigens, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
 
 
 def _combine_features_with_external_annotations(

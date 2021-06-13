@@ -47,24 +47,22 @@ class AbstractNetMhcPanPredictor:
         self.blastp_runner = blastp_runner
 
     @staticmethod
-    def select_best_by_rank(predictions: List[PredictedEpitope]) -> PredictedEpitope:
+    def select_best_by_rank(predictions: List[PredictedEpitope], none_value=None) -> PredictedEpitope:
         """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
         if rank = False, Aff(nM) is used
         In case of a tie, it chooses the first peptide in alphabetical order
         """
         return min(predictions, key=lambda p: (p.rank, p.peptide)) \
-            if predictions is not None and len(predictions) > 0 else None
+            if predictions is not None and len(predictions) > 0 else none_value
 
     @staticmethod
-    def select_best_by_affinity(
-        predictions: List[PredictedEpitope],
-    ) -> PredictedEpitope:
+    def select_best_by_affinity(predictions: List[PredictedEpitope], none_value=None) -> PredictedEpitope:
         """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
         if rank = False, Aff(nM) is used
         In case of a tie, it chooses the first peptide in alphabetical order
         """
         return min(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
-            if predictions is not None and len(predictions) > 0 else None
+            if predictions is not None and len(predictions) > 0 else none_value
 
     @staticmethod
     def filter_wt_predictions_from_best_mutated(
@@ -73,9 +71,10 @@ class AbstractNetMhcPanPredictor:
         """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
         return list(
             filter(
-                lambda p: len(p.peptide) == len(mutated_prediction.peptide)
-                and p.pos == mutated_prediction.pos
-                and p.hla.name == mutated_prediction.hla.name,
+                lambda p: mutated_prediction.peptide is not None and
+                          len(p.peptide) == len(mutated_prediction.peptide) and
+                          p.pos == mutated_prediction.pos and
+                          p.hla.name == mutated_prediction.hla.name,
                 predictions,
             )
         )

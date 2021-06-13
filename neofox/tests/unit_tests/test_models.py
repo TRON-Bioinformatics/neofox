@@ -171,7 +171,7 @@ class ModelConverterTest(TestCase):
             neofox.tests.__name__, "resources/test_data_model.txt"
         )
         data = pd.read_csv(neoantigens_file, sep="\t")
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(
             data
         )
         self.assertEqual(5, len(neoantigens))
