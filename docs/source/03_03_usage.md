@@ -118,7 +118,7 @@ Create a neoantigen candidate model based on Transcript and Mutation model. Init
 
 ```python
 # model the mutation related to the neoantigen candidate
-mutation = Mutation(mutatedXmer="AAAAAAAAAAAAARAAAAAAAAAAAAA", wildTypeXmer="AAAAAAAAAAAAAMAAAAAAAAAAAAA")
+mutation = Mutation(mutated_xmer="AAAAAAAAAAAAARAAAAAAAAAAAAA", wild_type_xmer="AAAAAAAAAAAAAMAAAAAAAAAAAAA")
 # create a neoantigen candidate model using the transcript and mutation model
 neoantigen = Neoantigen(mutation=mutation, patient_identifier="Ptx", rna_expression=0.52, rna_variant_allele_frequency=0.88, dna_variant_allele_frequency=0.29)
 ```   
@@ -138,13 +138,25 @@ validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen=neoantigen)
 
 ### Create a patient model  
     
-Create a patient model based on models for MHC I and MHC II alleles. Initialise each of these models by passing the required information. The following shows a dummy example:
+Create a patient model based on models for MHC I and MHC II alleles. Initialise each of these models by passing the required information.
+
+In order to parse MHC alleles and being able to normalize them into the standard nomenclature, load the following resources.
+```python
+from neofox.references.references import ReferenceFolder
+reference_folder = ReferenceFolder()
+```
+
+The following shows a dummy example:
 
 ```python
 # model the MHC I alleles of a patient 
-mhc1 = ModelConverter.parse_mhc1_alleles(alleles=["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"])
+mhc1 = ModelConverter.parse_mhc1_alleles(
+       alleles=["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"], 
+       hla_database=reference_folder.get_hla_database())
 # model the MHC II alleles of a patient
-mhc2 = ModelConverter.parse_mhc2_alleles(alleles=["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"])
+mhc2 = ModelConverter.parse_mhc2_alleles(
+       alleles=["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"],
+       hla_database=reference_folder.get_hla_database())
 patient = Patient(identifier="Ptx", mhc1=mhc1, mhc2=mhc2)
 ```
 
@@ -187,6 +199,7 @@ annotations_sw = ModelConverter.annotations2short_wide_table(neoantigen_annotati
 # tall-skinny
 annotations_ts = ModelConverter.annotations2tall_skinny_table(neoantigen_annotations=annotations)
 # JSON 
+neoantigen_json = ModelConverter.objects2json(model_objects=[validated_neoantigen])
 annotations_json = ModelConverter.objects2json(model_objects=annotations)
 ```
    
@@ -200,14 +213,14 @@ annotations_json = ModelConverter.objects2json(model_objects=annotations)
 # convert neoantigens into data frame
 neoantigens_df = ModelConverter.objects2dataframe(model_objects=[validated_neoantigen])
 # convert neoantigens into JSON format 
-neoantiges_json = ModelConverter.objects2json(model_objects=[validated_neoantigen]
+neoantigens_json = ModelConverter.objects2json(model_objects=[validated_neoantigen])
 ```   
 - instead of creating neoantigen or patient models (step2-5), tabular or json files containing this information can be passed:  
   The neoantigen candidates can be provided in [candidate-file format](03_01_input_data.md#tabular-file-format)
 
 ```python
 model_file = "/path/to/neoantigen_candidates.tab"
-neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(neoantigens_file=model_file)
+neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(neoantigens_file=model_file)
 ```
   
  
@@ -237,12 +250,12 @@ As indicated above NeoFox can run in parallel using the parameter `--num-cpus`.
 Each CPU will process one neoantigen candidate at a time, thus NeoFox uses only as many CPUs as candidats are to be processed.
 
 We processed several simulated datasets with 10, 100, 1000 and 10000 neoantigen candidates on 1, 5, 10 and 50 CPUs. We obtained 
-that the average time to process a single candidat in a single CPU takes 20.023 seconds, with a standard deviation of 
-6,125 seconds. No significant overhead due to parallelization was observed. 
+that the average time to process a single candidate in a single CPU takes 37.516 seconds, with a standard deviation of 
+6.739 seconds. No significant overhead due to parallelization was observed. 
 In terms of memory the application uses less than 0.5 GB for up to 1000 neoantigen candidates irrespective of the number of CPUs used. 
 The memory use grows to around 2.5 GB when processing 10000 candidates. 
 
 ![Neofox model](../figures/performance_1.jpg)
 
 If either MHC I or II alleles are not provided at all for a given patient the computation will be lighter as no 
-annotations run for the missing MHC.
+annotations run for the missing MHC. Likewise, if the optional tools are unset performance improves.

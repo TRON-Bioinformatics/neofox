@@ -20,6 +20,7 @@ import unittest
 from unittest import TestCase
 from datetime import datetime
 import pkg_resources
+import orjson as json
 from neofox.exceptions import NeofoxConfigurationException
 
 from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
@@ -27,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import NeoantigenAnnotations
+from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Mutation, Patient
 from neofox.model.wrappers import NOT_AVAILABLE_VALUE
 from neofox.neofox import NeoFox
 from neofox.tests.fake_classes import FakeHlaDatabase
@@ -80,7 +81,7 @@ class TestNeofox(TestCase):
         )
         data = pd.read_csv(input_file, sep="\t")
         data = data.replace({np.nan: None})
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+        neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(
             data
         )
         patients_file = pkg_resources.resource_filename(
@@ -156,8 +157,10 @@ class TestNeofox(TestCase):
         ModelConverter.objects2dataframe(self.neoantigens).to_csv(
             output_file_neoantigens, sep="\t", index=False
         )
-        ModelConverter.objects2json(annotations, output_json_annotations)
-        ModelConverter.objects2json(self.neoantigens, output_json_neoantigens)
+        with open(output_json_annotations, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(annotations)))
+        with open(output_json_neoantigens, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(self.neoantigens)))
 
         # regression test
         self._regression_test_on_output_file(new_file=output_file)
@@ -407,20 +410,101 @@ class TestNeofox(TestCase):
                 if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
 
+    def test_neoantigen_without_netmhcpan_results(self):
+        patient_identifier = "12345"
+        neoantigen = Neoantigen(
+            mutation=Mutation(
+                wild_type_xmer="HLAQHQRVHTGEKPYKCNECGKTFRQT",
+                mutated_xmer="HLAQHQRVHTGEKAYKCNECGKTFRQT"
+            ),
+            patient_identifier=patient_identifier
+        )
+        patient = Patient(
+            identifier=patient_identifier,
+            mhc1=ModelConverter.parse_mhc1_alleles([
+                "HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"],
+                hla_database=self.references.get_hla_database()),
+            mhc2=ModelConverter.parse_mhc2_alleles([
+                "HLA-DRB1*07:14", "HLA-DRB1*04:18", "HLA-DPA1*01:05", "HLA-DPA1*03:01", "HLA-DPB1*17:01",
+                "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"],
+                hla_database=self.references.get_hla_database())
+        )
+
+        annotations = NeoFox(
+            neoantigens=[neoantigen],
+            patients=[patient],
+            num_cpus=1,
+        ).get_annotations()
+        # it does not crash even though there are no best 9mers
+        self.assertIsNotNone(annotations)
+
+    def test_neoantigen_failing(self):
+        patient_identifier = "12345"
+        neoantigen = Neoantigen(
+            mutation=Mutation(
+                wild_type_xmer="ARPDMFCLFHGKRYFPGESWHPYLEPQ",
+                mutated_xmer="ARPDMFCLFHGKRHFPGESWHPYLEPQ"
+            ),
+            patient_identifier=patient_identifier
+        )
+        patient = Patient(
+            identifier=patient_identifier,
+            mhc1=ModelConverter.parse_mhc1_alleles([
+                "HLA-A*03:01", "HLA-A*29:02", "HLA-B*07:02", "HLA-B*44:03", "HLA-C*07:02", "HLA-C*16:01"],
+                hla_database=self.references.get_hla_database()),
+        )
+
+        annotations = NeoFox(
+            neoantigens=[neoantigen],
+            patients=[patient],
+            num_cpus=1,
+        ).get_annotations()
+        # it does not crash even though there are no best 9mers
+        self.assertIsNotNone(annotations)
+
+    def test_neoantigen_no_wt_failing(self):
+        patient_identifier = "12345"
+        neoantigen = Neoantigen(
+            mutation=Mutation(
+                mutated_xmer="SPSFPLEPDDEVFTAIAKAMEEMVEDS"
+            ),
+            patient_identifier=patient_identifier
+        )
+        patient = Patient(
+            identifier=patient_identifier,
+            mhc1=ModelConverter.parse_mhc1_alleles([
+                "HLA-A*02:24", "HLA-A*36:04", "HLA-B*58:25", "HLA-B*35:102", "HLA-C*02:30", "HLA-C*07:139"],
+                hla_database=self.references.get_hla_database()),
+        )
+
+        annotations = NeoFox(
+            neoantigens=[neoantigen],
+            patients=[patient],
+            num_cpus=1,
+        ).get_annotations()
+        # it does not crash even though there are no best 9mers
+        self.assertIsNotNone(annotations)
+
     def test_neofox_synthetic_data(self):
         """
         this test just ensures that NeoFox does not crash with the synthetic data
         """
         data = [
-            #("resources/synthetic_data/neoantigens_1patients_10neoantigens.2.txt",
-            # "resources/synthetic_data/patients_1patients_10neoantigens.2.txt"),
-            #("resources/synthetic_data/neoantigens_10patients_10neoantigens.0.txt",
-            # "resources/synthetic_data/patients_10patients_10neoantigens.0.txt"),
+            ("resources/synthetic_data/neoantigens_1patients_10neoantigens.2.txt",
+             "resources/synthetic_data/patients_1patients_10neoantigens.2.txt"),
+            ("resources/synthetic_data/neoantigens_10patients_10neoantigens.0.txt",
+             "resources/synthetic_data/patients_10patients_10neoantigens.0.txt"),
             #("resources/synthetic_data/neoantigens_100patients_10neoantigens.2.txt",
             # "resources/synthetic_data/patients_100patients_10neoantigens.2.txt"),
 
-            ("resources/synthetic_data/neoantigens_no_wt_1patients_10neoantigens.3.txt",
-             "resources/synthetic_data/patients_no_wt_1patients_10neoantigens.3.txt")
+            #("resources/synthetic_data/neoantigens_no_wt_1patients_10neoantigens.3.txt",
+            # "resources/synthetic_data/patients_no_wt_1patients_10neoantigens.3.txt"),
+            #("resources/synthetic_data/poltergeist_neoantigens.txt",
+            # "resources/synthetic_data/poltergeist_patients.txt")
+            ("resources/synthetic_data/neoantigens_no_wt_10patients_10neoantigens.4.txt",
+             "resources/synthetic_data/patients_no_wt_10patients_10neoantigens.4.txt"),
+            #("resources/synthetic_data/neoantigens_100patients_10neoantigens.4.txt",
+            # "resources/synthetic_data/patients_100patients_10neoantigens.4.txt"),
         ]
 
         for n, p, in data:
@@ -428,7 +512,7 @@ class TestNeofox(TestCase):
                 neofox.tests.__name__, n)
             data = pd.read_csv(input_file, sep="\t")
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(
+            neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(
                 data
             )
             patients_file = pkg_resources.resource_filename(
