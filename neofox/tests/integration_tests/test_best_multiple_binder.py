@@ -109,7 +109,7 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.filter_binding_predictions(
+        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -135,7 +135,7 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.filter_binding_predictions(
+        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
             predictions=predictions,uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -154,7 +154,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhcpan.mhc_prediction(
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
-        predicted_neoepitopes = netmhcpan.filter_binding_predictions(
+        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -217,7 +217,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.filter_binding_predictions(
+        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         logger.info(filtered_predictions)
@@ -252,7 +252,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.filter_binding_predictions(
+        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
@@ -287,7 +287,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.filter_binding_predictions(
+        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
@@ -324,10 +324,10 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.filter_binding_predictions(
+        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
-        filtered_predictions_wt = netmhcpan.filter_binding_predictions_wt_snv(
+        filtered_predictions_wt = netmhcpan.filter_peptides_covering_snv(
             position_of_mutation=mutation.position, predictions=predictions_wt
         )
 
@@ -371,10 +371,10 @@ class TestBestMultipleBinder(TestCase):
             patient_mhc2_isoforms, mutation.wild_type_xmer
         )
 
-        predicted_neoepitopes = netmhc2pan.filter_binding_predictions(
+        predicted_neoepitopes = netmhc2pan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
-        filtered_predictions_wt = netmhc2pan.filter_binding_predictions_wt_snv(
+        filtered_predictions_wt = netmhc2pan.filter_peptides_covering_snv(
             position_of_mutation=mutation.position, predictions=predictions_wt
         )
 

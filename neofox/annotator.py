@@ -481,7 +481,6 @@ class NeoantigenAnnotator:
             mhc1_alleles_patient=patient.mhc1,
             mhc1_alleles_available=available_alleles.get_available_mhc_i(),
             uniprot=self.uniprot,
-            hla_database=self.hla_database
         )
         return netmhcpan
 

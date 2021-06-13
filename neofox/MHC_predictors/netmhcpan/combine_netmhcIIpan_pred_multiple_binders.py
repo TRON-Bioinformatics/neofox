@@ -180,7 +180,12 @@ class BestAndMultipleBinderMhcII:
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
         if len(mutation.mutated_xmer) >= LENGTH_MHC2_EPITOPE:
-            filtered_predictions = netmhc2pan.filter_binding_predictions(
+            if mutation.wild_type_xmer:
+                # make sure that predicted epitopes cover mutation in case of SNVs
+                predictions = netmhc2pan.filter_peptides_covering_snv(
+                    position_of_mutation=mutation.position, predictions=predictions
+                )
+            filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
                 predictions, uniprot
             )
             if len(filtered_predictions) > 0:
@@ -208,7 +213,7 @@ class BestAndMultipleBinderMhcII:
                         patient_mhc2_isoforms, mutation.wild_type_xmer
                     )
                     if len(mutation.wild_type_xmer) >= LENGTH_MHC2_EPITOPE:
-                        filtered_predictions_wt = netmhc2pan.filter_binding_predictions_wt_snv(
+                        filtered_predictions_wt = netmhc2pan.filter_peptides_covering_snv(
                             mutation.position, predictions
                         )
                         # best prediction
@@ -343,7 +348,7 @@ class BestAndMultipleBinderMhcII:
                 )])
         annotations.extend(
             [
-                AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR-II"),
+                AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR_II"),
                 # generator rate
                 AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCII"),
                 AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCII"),
