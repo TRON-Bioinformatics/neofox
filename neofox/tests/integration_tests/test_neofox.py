@@ -485,6 +485,7 @@ class TestNeofox(TestCase):
         # it does not crash even though there are no best 9mers
         self.assertIsNotNone(annotations)
 
+    @unittest.skip
     def test_neofox_synthetic_data(self):
         """
         this test just ensures that NeoFox does not crash with the synthetic data
