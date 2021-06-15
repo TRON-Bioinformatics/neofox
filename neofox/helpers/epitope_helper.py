@@ -18,12 +18,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 
+from Bio.Data import IUPACData
+
 from neofox.model.neoantigen import Mutation
 
 
 class EpitopeHelper(object):
     @staticmethod
-    def generate_nmers(mutation: Mutation, lengths):
+    def generate_nmers(mutation: Mutation, lengths, uniprot):
         """
         Generates peptides covering mutation of all lengths that are provided. Returns peptides as list
         No peptide is shorter than the minimun length provided
@@ -31,17 +33,16 @@ class EpitopeHelper(object):
         """
         length_mut = len(mutation.mutated_xmer)
         list_peptides = []
-        for pos_mut in mutation.position:
-            for length in lengths:
-                if length <= length_mut:
-                    start_first = pos_mut - length
-                    starts = [start_first + s for s in range(length)]
-                    ends = [s + length for s in starts]
-                    for s, e in zip(starts, ends):
-                        list_peptides.append(mutation.mutated_xmer[s:e])
-        return list(
-            set([x for x in list_peptides if not x == "" and len(x) >= min(lengths)])
-        )
+        for length in lengths:
+            if length <= length_mut:
+                starts = range(length_mut - length + 1)
+                ends = [s + length for s in starts]
+                for s, e in zip(starts, ends):
+                    peptide = mutation.mutated_xmer[s:e]
+                    if len(peptide) == length and uniprot.is_sequence_not_in_uniprot(peptide):
+                        list_peptides.append(peptide)
+
+        return list_peptides
 
     @staticmethod
     def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
@@ -114,12 +115,20 @@ class EpitopeHelper(object):
         """
         checks if predicted epitope covers mutation
         """
-        cover_list = [False]
+        covers_mutation = False
         for position_mutation in position_mutation_list:
             if position_mutation != "-1":
                 start = int(position_epitope)
                 end = start + int(length_epitope) - 1
-                if position_mutation >= start and position_mutation <= end:
-                    cover_list.append(True)
-        cover_mutation = any(cover_list)
-        return cover_mutation
+                if start <= position_mutation <= end:
+                    covers_mutation = True
+        return covers_mutation
+
+    @staticmethod
+    def contains_rare_amino_acid(peptide):
+        found_rare_amino_acid = False
+        for aa in peptide:
+            if aa not in IUPACData.protein_letters:
+                found_rare_amino_acid = True
+                return found_rare_amino_acid
+        return found_rare_amino_acid

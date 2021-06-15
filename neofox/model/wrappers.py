@@ -22,20 +22,6 @@ import re
 
 NOT_AVAILABLE_VALUE = "NA"
 
-HLA_ALLELE_PATTERN = re.compile(
-    r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})[:|_]([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
-)
-HLA_MOLECULE_PATTERN = re.compile(
-    r"(?:HLA-)?((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_][0-9]{2,})[-|_]{1,2}"
-    r"((?:DPA1|DPB1|DQA1|DQB1|DRB1)[\*|_]?[0-9]{2,}[:|_][0-9]{2,})"
-)
-HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_][0-9]{2,})")
-GENES_BY_MOLECULE = {
-    Mhc2Name.DR: [Mhc2GeneName.DRB1],
-    Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
-    Mhc2Name.DQ: [Mhc2GeneName.DQA1, Mhc2GeneName.DQB1],
-}
-
 
 class AnnotationFactory(object):
     @staticmethod

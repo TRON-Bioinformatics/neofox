@@ -20,6 +20,8 @@
 from typing import List
 import math
 import os
+
+from neofox.model.conversion import ModelValidator
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
@@ -101,7 +103,8 @@ class SelfSimilarityCalculator:
         Argument mhc indicates if determination for MHC I or MHC II epitopes
         """
         self_similarity = None
-        if mutation != "-":
+        if not ModelValidator.has_peptide_rare_amino_acids(mutation) and \
+                not ModelValidator.has_peptide_rare_amino_acids(wild_type):
             try:
                 self_similarity = str(self.compute_k_hat_3(mutation, wild_type))
             except ZeroDivisionError:
@@ -138,8 +141,9 @@ class SelfSimilarityCalculator:
 
     def get_annnotations(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
 
-        annotations = []
-        if netmhcpan.best_epitope_by_rank and netmhcpan.best_wt_epitope_by_rank:
+        improved_binding_mhc1 = None
+        self_similarity_mhc1 = None
+        if netmhcpan.best_epitope_by_rank.peptide and netmhcpan.best_wt_epitope_by_rank.peptide:
             improved_binding_mhc1 = self.is_improved_binder(
                 score_mutation=netmhcpan.best_epitope_by_rank.rank,
                 score_wild_type=netmhcpan.best_wt_epitope_by_rank.rank,
@@ -148,16 +152,16 @@ class SelfSimilarityCalculator:
                 mutation=netmhcpan.best_epitope_by_rank.peptide,
                 wild_type=netmhcpan.best_wt_epitope_by_rank.peptide,
             )
-            annotations = [
-                AnnotationFactory.build_annotation(
-                    value=improved_binding_mhc1, name="Improved_Binder_MHCI"
+        annotations = [
+            AnnotationFactory.build_annotation(
+                value=improved_binding_mhc1, name="Improved_Binder_MHCI"
+            ),
+            AnnotationFactory.build_annotation(
+                value=self.self_similarity_of_conserved_binder_only(
+                    has_conserved_binder=improved_binding_mhc1,
+                    similarity=self_similarity_mhc1,
                 ),
-                AnnotationFactory.build_annotation(
-                    value=self.self_similarity_of_conserved_binder_only(
-                        has_conserved_binder=improved_binding_mhc1,
-                        similarity=self_similarity_mhc1,
-                    ),
-                    name="Selfsimilarity_MHCI_conserved_binder",
-                ),
-            ]
+                name="Selfsimilarity_MHCI_conserved_binder",
+            ),
+        ]
         return annotations

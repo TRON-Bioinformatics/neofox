@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
 
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.wrappers import AnnotationFactory, NOT_AVAILABLE_VALUE
 
 
 class TestAnnotationFactory(TestCase):
@@ -37,7 +37,7 @@ class TestAnnotationFactory(TestCase):
         )
 
     def test_none(self):
-        self.assertEqual("NA", AnnotationFactory.build_annotation("test", None).value)
+        self.assertEqual(NOT_AVAILABLE_VALUE, AnnotationFactory.build_annotation("test", None).value)
 
     def test_booleans(self):
         self.assertEqual("1", AnnotationFactory.build_annotation("test", True).value)

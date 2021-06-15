@@ -27,11 +27,12 @@ from Bio.Data import IUPACData
 from betterproto import Casing
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.exceptions import NeofoxDataValidationException
-from pandas.io.json import json_normalize
 from logzero import logger
 from collections import defaultdict
-import json
+import orjson as json
 import numpy as np
+
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import (
     Neoantigen,
     Mutation,
@@ -48,15 +49,9 @@ from neofox.model.neoantigen import (
     Mhc1,
     Annotation,
 )
-from neofox.model.wrappers import (
-    HLA_ALLELE_PATTERN,
-    HLA_MOLECULE_PATTERN,
-    HLA_DR_MOLECULE_PATTERN,
-    GENES_BY_MOLECULE,
-    get_mhc2_isoform_name,
-)
+from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
-
+from neofox.references.references import ReferenceFolder, HlaDatabase
 
 EXTERNAL_ANNOTATIONS_NAME = "External"
 FIELD_VAF_DNA = "VAF_in_tumor"
@@ -65,6 +60,11 @@ FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
 FIELD_GENE = "gene"
 FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 FIELD_MUTATED_XMER = "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
+GENES_BY_MOLECULE = {
+    Mhc2Name.DR: [Mhc2GeneName.DRB1],
+    Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
+    Mhc2Name.DQ: [Mhc2GeneName.DQA1, Mhc2GeneName.DQB1],
+}
 
 
 class ModelConverter(object):
@@ -86,17 +86,14 @@ class ModelConverter(object):
                                "mutation.wildTypeXmer": str,
                                "mutation.mutatedXmer": str,
                                "patientIdentifier": str,
-                               "dnaVariantAlleleFrequency": np.float,
-                               "rnaExpression": np.float,
-                               "rnaVariantAlleleFrequency": np.float
+                               "dnaVariantAlleleFrequency": float,
+                               "rnaExpression": float,
+                               "rnaVariantAlleleFrequency": float
                            }
                            )
 
         # check format of input file
         if FIELD_MUTATED_XMER in data.columns.values.tolist():
-            # filter out indels
-            data = data[~data["substitution"].isna()]
-            data = data[~data["substitution"].str.contains("-")]
             data = data.replace({np.nan: None})
             neoantigens = []
             external_annotations = []
@@ -120,12 +117,12 @@ class ModelConverter(object):
                 )
         else:
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter.parse_neoantigens_file(data)
+            neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(data)
 
         return neoantigens, external_annotations
 
     @staticmethod
-    def parse_patients_file(patients_file: str) -> List[Patient]:
+    def parse_patients_file(patients_file: str, hla_database: HlaDatabase) -> List[Patient]:
         """
         :param patients_file: the file to patients data CSV file
         :return: the parsed CSV into model objects
@@ -143,11 +140,15 @@ class ModelConverter(object):
                 "identifier": str
             }
         )
-        return ModelConverter.patient_metadata_csv2objects(df)
+        return ModelConverter.patient_metadata_csv2objects(df, hla_database)
 
     @staticmethod
-    def parse_neoantigens_file(
-        dataframe,
+    def parse_neoantigens_file(neoantigens_file):
+        return ModelConverter.parse_neoantigens_dataframe(pd.read_csv(neoantigens_file, sep="\t"))
+
+    @staticmethod
+    def parse_neoantigens_dataframe(
+        dataframe: pd.DataFrame,
     ) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """
         :param dataframe: a pandas data frame with neoantigens data
@@ -164,7 +165,7 @@ class ModelConverter(object):
         :return: the parsed JSON into model objects
         """
         return [
-            Neoantigen().from_dict(n) for n in json.load(open(neoantigens_json_file))
+            Neoantigen().from_dict(n) for n in json.loads(open(neoantigens_json_file).read())
         ]
 
     @staticmethod
@@ -172,24 +173,23 @@ class ModelConverter(object):
         """
         :param model_objects: list of objects of subclass of betterproto.Message
         """
-        return json_normalize(
+        return pd.json_normalize(
             data=[n.to_dict(include_default_values=True) for n in model_objects]
         )
 
     @staticmethod
-    def objects2json(model_objects: List[betterproto.Message], output_file: str):
+    def objects2json(model_objects: List[betterproto.Message]):
         """
         :param model_objects: list of objects of subclass of betterproto.Message
         """
-        with open(output_file, "w") as f:
-            json.dump([o.to_dict(casing=Casing.SNAKE) for o in model_objects], f)
+        return [o.to_dict(casing=Casing.SNAKE) for o in model_objects]
 
     @staticmethod
     def object2series(model_object: betterproto.Message) -> pd.Series:
         """
         :param model_object: object of subclass of betterproto.Message
         """
-        return json_normalize(
+        return pd.json_normalize(
             data=model_object.to_dict(casing=Casing.SNAKE, include_default_values=True)
         ).iloc[0]
 
@@ -208,7 +208,7 @@ class ModelConverter(object):
         )
 
     @staticmethod
-    def patient_metadata_csv2objects(dataframe: pd.DataFrame) -> List[Patient]:
+    def patient_metadata_csv2objects(dataframe: pd.DataFrame, hla_database: HlaDatabase) -> List[Patient]:
         """transforms an patients CSV into a list of objects"""
         patients = []
         for _, row in dataframe.iterrows():
@@ -217,12 +217,12 @@ class ModelConverter(object):
             mhc_alleles = patient_dict["mhcIAlleles"]
             # NOTE: during the parsing of empty columns empty lists become a list with one empty string ...
             if len(mhc_alleles) > 1 or (len(mhc_alleles) == 1 and len(mhc_alleles[0]) > 0):
-                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles)
+                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles, hla_database)
             else:
                 patient.mhc1 = None
             mhc2_alleles = patient_dict["mhcIIAlleles"]
             if len(mhc2_alleles) > 1 or (len(mhc2_alleles) == 1 and len(mhc2_alleles[0]) > 0):
-                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles)
+                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles, hla_database)
             else:
                 patient.mhc2 = None
             patients.append(patient)
@@ -279,7 +279,6 @@ class ModelConverter(object):
     def _requires_rescue(name, neoantigen_dict):
         return name not in neoantigen_dict or neoantigen_dict[name] is None
 
-
     @staticmethod
     def annotations2short_wide_table(
         neoantigen_annotations: List[NeoantigenAnnotations],
@@ -287,7 +286,20 @@ class ModelConverter(object):
     ) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
-        neoantigens_df = neoantigens_df.replace({None: "NA"})
+        neoantigens_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
+        # we set the order of columns
+        neoantigens_df = neoantigens_df.loc[:,
+                         ["identifier",
+                          "patientIdentifier",
+                          "gene",
+                          "mutation.mutatedXmer",
+                          "mutation.wildTypeXmer",
+                          "mutation.position",
+                          "dnaVariantAlleleFrequency",
+                          "rnaVariantAlleleFrequency",
+                          "rnaExpression",
+                          "imputedGeneExpression"
+                          ]]
         for na in neoantigen_annotations:
             df = (
                 pd.DataFrame([a.to_dict() for a in na.annotations])
@@ -299,9 +311,9 @@ class ModelConverter(object):
             del df["index"]
             dfs.append(df)
         annotations_df = pd.concat(dfs, sort=True)
-        return neoantigens_df.set_index("identifier").merge(
-            annotations_df, on="identifier"
-        )
+        df = pd.merge(left=neoantigens_df, right=annotations_df, on="identifier")
+        del df["identifier"]
+        return df
 
     @staticmethod
     def neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
@@ -321,7 +333,7 @@ class ModelConverter(object):
             del patient_dict["mhc1"]
             del patient_dict["mhc2"]
             patients_dict.append(patient_dict)
-        df = json_normalize(data=patients_dict)
+        df = pd.json_normalize(data=patients_dict)
         return df
 
     @staticmethod
@@ -379,10 +391,10 @@ class ModelConverter(object):
         return ModelValidator.validate_neoantigen(neoantigen)
 
     @staticmethod
-    def parse_mhc1_alleles(alleles: List[str]) -> List[Mhc1]:
+    def parse_mhc1_alleles(alleles: List[str], hla_database: HlaDatabase) -> List[Mhc1]:
         isoforms = []
         try:
-            parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
+            parsed_alleles = list(map(MhcParser(hla_database).parse_mhc_allele, alleles))
             ModelConverter._validate_mhc1_alleles(parsed_alleles)
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
             for gene_name in Mhc1Name:
@@ -402,10 +414,10 @@ class ModelConverter(object):
         return isoforms
 
     @staticmethod
-    def parse_mhc2_alleles(alleles: List[str]) -> List[Mhc2]:
+    def parse_mhc2_alleles(alleles: List[str], hla_database: HlaDatabase) -> List[Mhc2]:
         mhc2s = []
         try:
-            parsed_alleles = list(map(ModelConverter.parse_mhc_allele, alleles))
+            parsed_alleles = list(map(MhcParser(hla_database).parse_mhc_allele, alleles))
             ModelConverter._validate_mhc2_alleles(parsed_alleles)
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
             for isoform_name in Mhc2Name:
@@ -477,59 +489,6 @@ class ModelConverter(object):
                 for b in beta_alleles
             ]
         return isoforms
-
-    @staticmethod
-    def parse_mhc_allele(allele: str) -> MhcAllele:
-        # infers gene, group and protein from the name
-        match = HLA_ALLELE_PATTERN.match(allele)
-        assert match is not None, "Allele does not match HLA allele pattern {}".format(allele) if allele != "" else "Please check the format of provided alleles. An empty allele is provided"
-        gene = match.group(1)
-        group = match.group(2)
-        protein = match.group(3)
-        # builds a normalized representation of the allele
-        name = "HLA-{gene}*{serotype}:{protein}".format(
-            gene=gene, serotype=group, protein=protein
-        )
-        # ensures that full name stores the complete allele as provided but normalizes
-        # its representation
-        full_name = name
-        six_digits_id = match.group(4)
-        if six_digits_id is not None and six_digits_id != "":
-            full_name = full_name + ":{}".format(six_digits_id)
-            eight_digits_id = match.group(5)
-            if eight_digits_id is not None and eight_digits_id != "":
-                full_name = full_name + ":{}".format(eight_digits_id)
-                expression_change = match.group(6)
-                if expression_change is not None and expression_change != "":
-                    full_name = full_name + expression_change
-        return MhcAllele(
-            full_name=full_name, name=name, gene=gene, group=group, protein=protein
-        )
-
-    @staticmethod
-    def parse_mhc2_isoform(isoform: str) -> Mhc2Isoform:
-        # TODO: this method currently fails for netmhc2pan alleles which are like 'HLA-DQA10509-DQB10630'
-        # infers gene, group and protein from the name
-        match = HLA_MOLECULE_PATTERN.match(isoform)
-        if match:
-            alpha_chain = ModelValidator.validate_mhc_allele_representation(
-                MhcAllele(name=match.group(1))
-            )
-            beta_chain = ModelValidator.validate_mhc_allele_representation(
-                MhcAllele(name=match.group(2))
-            )
-        else:
-            match = HLA_DR_MOLECULE_PATTERN.match(isoform)
-            assert (
-                match is not None
-            ), "Molecule does not match HLA isoform pattern {}".format(isoform)
-            alpha_chain = MhcAllele()
-            beta_chain = ModelValidator.validate_mhc_allele_representation(
-                MhcAllele(name=match.group(1))
-            )
-        # builds the final allele representation and validates it just in case
-        name = get_mhc2_isoform_name(alpha_chain, beta_chain)
-        return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
 
     @staticmethod
     def _get_zygosity_from_alleles(alleles: List[MhcAllele]) -> Zygosity:
@@ -658,7 +617,7 @@ class ModelValidator(object):
             ), "A lost gene must have 0 alleles and not {}".format(len(alleles))
         validated_alleles = []
         for allele in alleles:
-            validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
+            validated_allele = MhcParser.validate_mhc_allele_representation(allele)
             validated_alleles.append(validated_allele)
             assert (
                 validated_allele.gene == mhc1.name.name
@@ -697,7 +656,7 @@ class ModelValidator(object):
                 ), "A lost gene must have 0 alleles and not {}".format(len(alleles))
             validated_alleles = []
             for allele in alleles:
-                validated_allele = ModelValidator.validate_mhc_allele_representation(
+                validated_allele = MhcParser.validate_mhc_allele_representation(
                     allele
                 )
                 validated_alleles.append(validated_allele)
@@ -710,7 +669,7 @@ class ModelValidator(object):
         isoforms = mhc2.isoforms
         validated_isoforms = []
         for isoform in isoforms:
-            validated_isoform = ModelValidator.validate_mhc2_isoform_representation(
+            validated_isoform = MhcParser.validate_mhc2_isoform_representation(
                 isoform
             )
             validated_isoforms.append(validated_isoform)
@@ -723,114 +682,6 @@ class ModelValidator(object):
             ], "Beta chain allele not present in th list of alleles"
         mhc2.isoforms = validated_isoforms
         return mhc2
-
-    @staticmethod
-    def validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
-        try:
-            full_name = None
-            if allele.full_name:
-                # infers gene, group and protein from the name
-                match = HLA_ALLELE_PATTERN.match(allele.full_name)
-                assert (
-                    match is not None
-                ), "Allele does not match HLA allele pattern {}".format(allele.name)
-                gene = match.group(1)
-                group = match.group(2)
-                protein = match.group(3)
-                full_name = allele.full_name
-            elif allele.name:
-                # infers gene, group and protein from the name
-                match = HLA_ALLELE_PATTERN.match(allele.name)
-                assert (
-                    match is not None
-                ), "Allele does not match HLA allele pattern {}".format(allele.name)
-                gene = match.group(1)
-                group = match.group(2)
-                protein = match.group(3)
-            elif allele.gene and allele.group and allele.protein:
-                # infers name from gene, group and protein
-                gene = allele.gene
-                group = allele.group
-                protein = allele.protein
-            else:
-                logger.error(allele.to_json(indent=3))
-                raise NeofoxDataValidationException(
-                    "HLA allele missing required fields, either name or gene, group and protein must be provided"
-                )
-
-            assert gene in list(Mhc1Name.__members__.keys()) + list(
-                Mhc2GeneName.__members__.keys()
-            ), "Gene not from classic MHC: {}".format(gene)
-            # builds the final allele representation and validates it just in case
-            name = "HLA-{gene}*{serotype}:{protein}".format(
-                gene=gene, serotype=group, protein=protein
-            )
-            match = HLA_ALLELE_PATTERN.match(name)
-            assert (
-                match is not None
-            ), "Allele does not match HLA allele pattern {}".format(name)
-        except AssertionError as e:
-            logger.error(allele.to_json(indent=3))
-            raise NeofoxDataValidationException(e)
-
-        return MhcAllele(
-            full_name=full_name if full_name else name,
-            name=name,
-            gene=gene,
-            group=group,
-            protein=protein,
-        )
-
-    @staticmethod
-    def validate_mhc2_isoform_representation(isoform: Mhc2Isoform) -> Mhc2Isoform:
-        try:
-            if isoform.name:
-                # infers alpha and beta chains
-                match = HLA_MOLECULE_PATTERN.match(isoform.name)
-                if match:
-                    alpha_chain = ModelValidator.validate_mhc_allele_representation(
-                        MhcAllele(name=match.group(1))
-                    )
-                    beta_chain = ModelValidator.validate_mhc_allele_representation(
-                        MhcAllele(name=match.group(2))
-                    )
-                else:
-                    match = HLA_DR_MOLECULE_PATTERN.match(isoform.name)
-                    assert (
-                        match is not None
-                    ), "Molecule does not match HLA isoform pattern {}".format(
-                        isoform.name
-                    )
-                    alpha_chain = MhcAllele()
-                    beta_chain = ModelValidator.validate_mhc_allele_representation(
-                        MhcAllele(name=match.group(1))
-                    )
-            elif isoform.alpha_chain and isoform.beta_chain:
-                # infers name from gene, group and protein
-                alpha_chain = ModelValidator.validate_mhc_allele_representation(
-                    isoform.alpha_chain
-                )
-                beta_chain = ModelValidator.validate_mhc_allele_representation(
-                    isoform.beta_chain
-                )
-            else:
-                logger.error(isoform.to_json(indent=3))
-                raise NeofoxDataValidationException(
-                    "HLA isoform missing required fields"
-                )
-
-            # builds the final allele representation and validates it just in case
-            name = get_mhc2_isoform_name(alpha_chain, beta_chain)
-            match = HLA_MOLECULE_PATTERN.match(name)
-            match2 = HLA_DR_MOLECULE_PATTERN.match(name)
-            assert (
-                match is not None or match2 is not None
-            ), "Molecule does not match HLA isoform pattern {}".format(name)
-        except AssertionError as e:
-            logger.error(isoform.to_json(indent=3))
-            raise NeofoxDataValidationException(e)
-
-        return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
 
     @staticmethod
     def _validate_expression_values(neoantigen):
@@ -877,6 +728,7 @@ class ModelValidator(object):
             assert (
                 aminoacid in IUPACData.protein_letters_3to1_extended.keys()
             ), "Non existing 3 letter amino acid {}".format(aminoacid)
+            assert aminoacid != "X", "Unknown amino acid X is not supported. Please, remove neoantigens containing an X."
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
             aminoacid = aminoacid.upper()
@@ -893,3 +745,10 @@ class ModelValidator(object):
         return base64.b64encode(
             hashlib.md5(neoantigen.to_json().encode("utf8")).digest()
         ).decode("utf8")
+
+    @staticmethod
+    def has_peptide_rare_amino_acids(peptide: str):
+        has_rare_amino_acid = False
+        for aa in peptide:
+            has_rare_amino_acid |= aa not in list(IUPACData.protein_letters_3to1.values())
+        return has_rare_amino_acid

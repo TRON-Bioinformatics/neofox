@@ -64,13 +64,13 @@ class Amplitude:
     ):
         # MHC I
         if netmhcpan:
-            if netmhcpan.best_epitope_by_affinity and netmhcpan.best_wt_epitope_by_affinity:
+            if netmhcpan.best_epitope_by_affinity.peptide and netmhcpan.best_wt_epitope_by_affinity.peptide:
                 self.amplitude_mhci_affinity = self.calculate_amplitude_mhc(
                     score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
                     score_wild_type=netmhcpan.best_wt_epitope_by_affinity.affinity_score,
                     apply_correction=True,
                 )
-            if netmhcpan.best_ninemer_epitope_by_affinity and netmhcpan.best_ninemer_wt_epitope_by_affinity:
+            if netmhcpan.best_ninemer_epitope_by_affinity.peptide and netmhcpan.best_ninemer_wt_epitope_by_affinity.peptide:
                 self.amplitude_mhci_affinity_9mer = self.calculate_amplitude_mhc(
                     score_mutation=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
                     score_wild_type=netmhcpan.best_ninemer_wt_epitope_by_affinity.affinity_score,
@@ -78,7 +78,7 @@ class Amplitude:
                 )
         # MHC II
         if netmhc2pan:
-            if netmhc2pan.best_predicted_epitope_rank and netmhc2pan.best_predicted_epitope_rank_wt:
+            if netmhc2pan.best_predicted_epitope_rank.peptide and netmhc2pan.best_predicted_epitope_rank_wt.peptide:
                 self.amplitude_mhcii_rank = self.calculate_amplitude_mhc(
                     score_mutation=netmhc2pan.best_predicted_epitope_rank.rank,
                     score_wild_type=netmhc2pan.best_predicted_epitope_rank_wt.rank,
