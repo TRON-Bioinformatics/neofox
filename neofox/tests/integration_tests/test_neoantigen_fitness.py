@@ -16,20 +16,25 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import os
 from unittest import TestCase
+
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.published_features.neoantigen_fitness.neoantigen_fitness import (
     NeoantigenFitnessCalculator,
 )
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
+from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class TestNeoantigenFitness(TestCase):
     def setUp(self):
         self.references, self.configuration, self.fastafile = self._load_references()
-        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
-            runner=Runner(), configuration=self.configuration, iedb=self.references.iedb
-        )
+        self.iedb_blastp_runner = BlastpRunner(
+            runner=Runner(verbose=False), configuration=self.configuration,
+            database=os.path.join(self.references.iedb, IEDB_BLAST_PREFIX))
+        self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(iedb_blastp_runner=self.iedb_blastp_runner)
 
     def _load_references(self):
         references, configuration = integration_test_tools.load_references()
@@ -85,5 +90,16 @@ class TestNeoantigenFitness(TestCase):
             None,
             self.neoantigen_fitness_calculator.calculate_recognition_potential(
                 amplitude=None, pathogen_similarity=1.0, mutation_in_anchor=False
+            ),
+        )
+
+    def test_affinity_threshold(self):
+        # tests a pathogen sequence and expects 1.0 similarity
+        neoantigen_fitness_calculator = NeoantigenFitnessCalculator(
+            iedb_blastp_runner=self.iedb_blastp_runner, affinity_threshold=1
+        )
+        self.assertIsNone(
+            neoantigen_fitness_calculator.calculate_recognition_potential(
+                amplitude=1.0, pathogen_similarity=1.0, mhc_affinity_mut=10, mutation_in_anchor=False
             ),
         )

@@ -24,6 +24,7 @@ from pandas.errors import EmptyDataError
 
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.conversion import ModelConverter
+from neofox.model.mhc_parser import MhcParser
 
 from neofox.references.references import DependenciesConfiguration
 
@@ -42,10 +43,11 @@ RANK = "%Rank_best"
 
 
 class MixMhc2Pred:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self._load_available_alleles()
+        self.mhc_parser = mhc_parser
 
     def _load_available_alleles(self):
         """
@@ -144,7 +146,7 @@ class MixMhc2Pred:
         os.remove(outtmp)
         return results
 
-    def run(self, mhc: List[Mhc2], mutation: Mutation):
+    def run(self, mhc: List[Mhc2], mutation: Mutation, uniprot):
         """
         Runs MixMHC2pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
@@ -154,7 +156,7 @@ class MixMhc2Pred:
         best_rank = None
         best_allele = None
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18]
+            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot
         )
         # filter mps shorter < 13aa
         filtered_sequences = list(
@@ -169,15 +171,15 @@ class MixMhc2Pred:
                 try:
                     best_peptide = best_result[PEPTIDE].iat[0]
                     best_rank = best_result[RANK].iat[0]
-                    best_allele = best_result[ALLELE].iat[0]
+                    best_allele = self.mhc_parser.parse_mhc2_isoform(best_result[ALLELE].iat[0]).name
                 except IndexError:
                     logger.info("MixMHC2pred returned no best result")
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
         return best_peptide, best_rank, best_allele
 
-    def get_annotations(self, mhc: List[Mhc2], mutation: Mutation) -> List[Annotation]:
-        best_peptide, best_rank, best_allele = self.run(mhc=mhc, mutation=mutation)
+    def get_annotations(self, mhc: List[Mhc2], mutation: Mutation, uniprot) -> List[Annotation]:
+        best_peptide, best_rank, best_allele = self.run(mhc=mhc, mutation=mutation, uniprot=uniprot)
         return [
             AnnotationFactory.build_annotation(
                 value=best_peptide, name="MixMHC2pred_best_peptide"

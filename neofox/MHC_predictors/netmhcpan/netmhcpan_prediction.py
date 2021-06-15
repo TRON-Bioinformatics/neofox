@@ -24,21 +24,14 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     AbstractNetMhcPanPredictor,
     PredictedEpitope,
 )
-from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Mhc1
 
 
 class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
-        self.runner = runner
-        self.configuration = configuration
 
     def mhc_prediction(
-        self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
+            self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
+
     ) -> List[PredictedEpitope]:
         """Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file."""
         input_fasta = intermediate_files.create_temp_fasta(
@@ -55,6 +48,23 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         lines, _ = self.runner.run_command(cmd)
         return self._parse_netmhcpan_output(lines)
 
+    def mhc_prediction_peptide(self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence
+    ) -> List[PredictedEpitope]:
+        """Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file."""
+        input_peptide = intermediate_files.create_temp_peptide(
+            sequences=[sequence], prefix="tmp_singleseq_"
+        )
+        cmd = [
+            self.configuration.net_mhc_pan,
+            "-a",
+            self._get_only_available_alleles(mhc_alleles, set_available_mhc),
+            "-p",
+            input_peptide,
+            "-BA",
+        ]
+        lines, _ = self.runner.run_command(cmd, print_log=False)
+        return self._parse_netmhcpan_output(lines)
+
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
@@ -63,14 +73,14 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
                 if line.startswith(("#", "-", "HLA", "Prot", "Pos", "No")):
                     continue
                 line = line.split()
-                line = line[0:-2] if len(line) > 14 else line
+                line = line[0:-2] if len(line) > 16 else line
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=line[1],
+                        hla=self.mhc_parser.parse_mhc_allele(line[1]),
                         peptide=line[2],
-                        affinity_score=float(line[12]),
-                        rank=float(line[13]),
+                        affinity_score=float(line[15]),
+                        rank=float(line[12]),
                     )
                 )
         return results

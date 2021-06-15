@@ -25,31 +25,24 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     AbstractNetMhcPanPredictor,
     PredictedEpitope,
 )
-from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name
+from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name, Mhc2Isoform, Mhc2GeneName
 
 
 class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
-    def __init__(self, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
-        self.runner = runner
-        self.configuration = configuration
 
-    def generate_mhc2_alelle_combinations(self, mhc_alleles: List[Mhc2]) -> List[str]:
+    @staticmethod
+    def generate_mhc2_alelle_combinations(mhc_alleles: List[Mhc2]) -> List[Mhc2Isoform]:
         """given list of HLA II alleles, returns list of HLA-DRB1 (2x), all possible HLA-DPA1/HLA-DPB1 (4x)
         and HLA-DQA1/HLA-DPQ1 (4x)
         """
         dp_dq_isoforms = [
-            self._represent_dp_and_dq_allele(m.alpha_chain, m.beta_chain)
+            m
             for mhc in mhc_alleles
             if mhc.name != Mhc2Name.DR
             for m in mhc.isoforms
         ]
         dr_isoforms = [
-            self._represent_drb1_allele(m.beta_chain)
+            m
             for mhc in mhc_alleles
             if mhc.name == Mhc2Name.DR
             for m in mhc.isoforms
@@ -73,7 +66,16 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             protein_b=mhc_b_allele.protein,
         )
 
-    def mhcII_prediction(
+    @staticmethod
+    def represent_mhc2_isoforms(isoforms: List[Mhc2Isoform]) -> List[str]:
+        return [
+            NetMhcIIPanPredictor._represent_drb1_allele(i.beta_chain)
+            if i.beta_chain.gene == Mhc2GeneName.DRB1.name
+            else NetMhcIIPanPredictor._represent_dp_and_dq_allele(i.alpha_chain, i.beta_chain)
+            for i in isoforms
+        ]
+
+    def mhc2_prediction(
         self, mhc_alleles: List[str], sequence
     ) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
@@ -85,6 +87,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         lines, _ = self.runner.run_command(
             [
                 self.configuration.net_mhc2_pan,
+                "-BA",
                 "-a",
                 ",".join(mhc_alleles),
                 "-f",
@@ -95,23 +98,48 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             ]
         )
         return self._parse_netmhcpan_output(lines)
+    
+    def mhc2_prediction_peptide(
+        self, mhc2_isoform: Mhc2Isoform, sequence ) -> List[PredictedEpitope]:
+        """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
+        tmp_peptide = intermediate_files.create_temp_peptide(
+            [sequence], prefix="tmp_singleseq_"
+        )
+        tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
+        lines, _ = self.runner.run_command(
+            cmd=[
+                self.configuration.net_mhc2_pan,
+                "-BA",
+                "-a",
+                self.represent_mhc2_isoforms([mhc2_isoform])[0],
+                "-inptype",
+                "1",
+                "-f",
+                tmp_peptide,
+                "-tdir",
+                tmp_folder,
+                "-dirty",
+            ],
+            print_log=False
+        )
+        return self._parse_netmhcpan_output(lines)
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
             line = line.rstrip().lstrip()
             if line:
-                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR")):
+                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR", "Pos")):
                     continue
                 line = line.split()
                 line = line[0:-1] if len(line) > 12 else line
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=line[1],
+                        hla=self.mhc_parser.parse_mhc2_isoform(line[1]),
                         peptide=line[2],
-                        affinity_score=float(line[8]),
-                        rank=float(line[9]),
+                        affinity_score=float(line[11]),
+                        rank=float(line[8]),
                     )
                 )
         return results

@@ -24,17 +24,19 @@ NeoFox annotates neoantigen candidate sequences with published neo-epitope descr
 | Priority score                                          | Bjerregaard et al, 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
 | Tcell predictor                                         | Besser et al, 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
+| PRIME                                                   | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 
 ## NeoFox Requirements
  
 **Required Software/Tools/Dependencies:**  
-- Python 3.7
+- Python >=3.6, <=3.8
 - R 3.6.0
 - BLAST 2.10.1
 - netMHCpan 4.0
 - netMHCIIpan 3.2
 - MixMHCpred 2.1
 - MixMHC2pred 1.2
+- PRIME 1.0
 
 
 ## Usage from the command line

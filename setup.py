@@ -21,10 +21,10 @@ import neofox
 
 
 # parses requirements from file
-with open("requirements.txt") as f:
+with open("requirements.txt", encoding="utf-8") as f:
     required = f.read().splitlines()
 
-with open("README.md", "r") as f:
+with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
 # Build the Python package
@@ -40,7 +40,7 @@ setup(
         ],
     },
     author_email="franziska.lang@tron-mainz.de",
-    author="TRON – Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz "
+    author="TRON - Translational Oncology at the University Medical Center of the Johannes Gutenberg University Mainz "
     "- Computational Medicine group",
     description="Annotation of mutated peptide sequences (mps) with published or novel potential neo-epitope "
     "descriptors",
@@ -57,6 +57,15 @@ setup(
         "Intended Audience :: Healthcare Industry",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Programming Language :: Python",
         "Programming Language :: Python :: 3",
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        "Programming Language :: Python :: 3 :: Only",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: Unix"
     ],
+    python_requires='>=3.6,<=3.8.8',
+    license='GPLv3',
 )

@@ -19,6 +19,7 @@
 
 from unittest import TestCase
 
+from neofox.model.wrappers import NOT_AVAILABLE_VALUE
 from neofox.published_features.expression import Expression
 
 
@@ -35,6 +36,6 @@ class TestExpression(TestCase):
         self.assertEqual(result.value, "0")
         # no reads for mut/wt
         result = Expression(transcript_expression=12.0, vaf_rna=-1).get_annotations()[0]
-        self.assertEqual(result.value, "NA")
+        self.assertEqual(result.value, NOT_AVAILABLE_VALUE)
         result = Expression(transcript_expression=None, vaf_rna=-1).get_annotations()[0]
-        self.assertEqual(result.value, "NA")
+        self.assertEqual(result.value, NOT_AVAILABLE_VALUE)

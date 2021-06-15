@@ -1,6 +1,10 @@
+import pickle
 import subprocess
 import os
 import pandas as pd
+from Bio import SeqIO
+
+from neofox import NEOFOX_HLA_DATABASE_ENV
 from neofox.exceptions import NeofoxReferenceException
 from neofox.helpers.runner import Runner
 from neofox.references.references import (
@@ -12,7 +16,7 @@ from neofox.references.references import (
     IEDB_BLAST_PREFIX,
     IEDB_FASTA,
     HOMO_SAPIENS_FASTA,
-    PREFIX_HOMO_SAPIENS,
+    PREFIX_HOMO_SAPIENS, HLA_DATABASE_AVAILABLE_ALLELES_FILE, HOMO_SAPIENS_PICKLE,
 )
 from logzero import logger
 
@@ -32,6 +36,7 @@ class NeofoxReferenceInstaller(object):
         self._set_netmhc2pan_alleles()
         self._set_iedb()
         self._set_proteome()
+        self._set_ipd_imgt_hla_database()
         if self.install_r_dependencies:
             self._install_r_dependencies()
         else:
@@ -44,7 +49,7 @@ class NeofoxReferenceInstaller(object):
         available_alleles_file = os.path.join(
             self.reference_folder, NETMHCPAN_AVAILABLE_ALLELES_FILE
         )
-        cmd = '{netmhcpan} -listMHC | grep "HLA-" > {available_alleles_file}'.format(
+        cmd = '{netmhcpan} -listMHC | grep "HLA-" | grep -v "#" > {available_alleles_file}'.format(
             netmhcpan=self.config.net_mhc_pan,
             available_alleles_file=available_alleles_file,
         )
@@ -140,6 +145,26 @@ class NeofoxReferenceInstaller(object):
             proteome_file=proteome_file,
             output_folder=output_folder,
         )
+        self._run_command(cmd)
+
+        # builds proteome in pickle for querying
+        prepared_proteome = []
+        for record in SeqIO.parse(proteome_file, "fasta"):
+            prepared_proteome.append(str(record.seq))
+
+        proteome_pickle = os.path.join(
+            self.reference_folder, PROTEOME_DB_FOLDER, HOMO_SAPIENS_PICKLE
+        )
+        outfile = open(proteome_pickle, 'wb')
+        pickle.dump("\n".join(prepared_proteome), outfile)
+        outfile.close()
+
+    def _set_ipd_imgt_hla_database(self):
+        logger.info("Downloading the IPD-IMGT/HLA database")
+        allele_list = os.path.join(self.reference_folder, HLA_DATABASE_AVAILABLE_ALLELES_FILE)
+        url = os.environ.get(
+            NEOFOX_HLA_DATABASE_ENV, "https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt")
+        cmd = "wget {url} -O {allele_list}".format(url=url, allele_list=allele_list)
         self._run_command(cmd)
 
     def _install_r_dependencies(self):

@@ -2,7 +2,9 @@
 
 ## General information
 
-NeoFox requires two input files: a file with neoantigen candidates derived from point mutations and a file with patient data. The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain additional user-specific input that will be kept during the annotation process. The patient file is required in tabular format.
+NeoFox requires two input files: a file with neoantigen candidates derived from point mutations and a file with patient data. 
+The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain 
+additional user-specific input that will be kept during the annotation process. The patient file is required in tabular format.
 
 ## File with neoantigen candidates
 
@@ -19,9 +21,9 @@ This is an dummy example of a table with neoantigen candidates in tabular format
 | BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 
 where:
-- `gene`: the HGNC gene symbol   
-- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle. We advise that the mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neoepitopes
-- `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
+- `gene`: the HGNC gene symbol. (This field is not required for neoantigen candidates derived from other sources than SNVs)      
+- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neoepitopes
+- `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs.  
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
 - `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (Should be empty or NA if no value available, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
@@ -57,7 +59,7 @@ This is an dummy example of a patient file in tabular format:
 where:
 - `identifier`: the patient identifier
 - `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
-- `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.
+- `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.  
 - `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
 
 | Study Name                                                         | Abbreviation |

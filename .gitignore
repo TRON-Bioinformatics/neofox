@@ -2,6 +2,7 @@
 .idea
 venv-win
 venv
+venv37
 .env
 dist
 build/*
@@ -11,3 +12,9 @@ neofox/tests/resources/output*
 docs/build
 .ipynb_checkpoints
 neofox-dask-report*
+.tox
+venv*
+py36
+/netMHCIIpan-3.2.Linux.tar.gz
+/netMHCIIpan-4.0.Linux.tar.gz
+/netMHCpan-4.1b.Linux.tar.gz

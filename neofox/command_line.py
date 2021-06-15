@@ -18,15 +18,17 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
 from typing import Tuple, List
+import dotenv
 from logzero import logger
+import orjson as json
 import neofox
 from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.neofox import NeoFox
+from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
-
+from neofox.references.references import ReferenceFolder, HlaDatabase
 
 epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
          "TRON – Translational Oncology at the University Medical Center of the " \
@@ -120,6 +122,14 @@ def neofox_cli():
         'if the column "patient" has not been added to the candidate file',
     )
     parser.add_argument(
+        "--affinity-threshold",
+        dest="affinity_threshold",
+        help="neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be "
+             "not annotated with features that specifically model neoepitope recognition. A threshold that is commonly "
+             "used is 500 nM",
+        default=AFFINITY_THRESHOLD_DEFAULT
+    )
+    parser.add_argument(
         "--num-cpus", dest="num_cpus", default=1, help="number of CPUs for computation"
     )
     parser.add_argument(
@@ -138,6 +148,7 @@ def neofox_cli():
     with_sw = args.with_short_wide_table
     with_ts = args.with_tall_skinny_table
     with_json = args.with_json
+    affinity_threshold = int(args.affinity_threshold)
     num_cpus = int(args.num_cpus)
     config = args.config
 
@@ -157,9 +168,14 @@ def neofox_cli():
         # makes sure that the output folder exists
         os.makedirs(output_folder, exist_ok=True)
 
+        # loads configuration
+        if config:
+            dotenv.load_dotenv(config, override=True)
+        reference_folder = ReferenceFolder()
+
         # reads the input data
         neoantigens, patients, external_annotations = _read_data(
-            candidate_file, json_file, patients_data, patient_id
+            candidate_file, json_file, patients_data, patient_id, reference_folder.get_hla_database()
         )
 
         # run annotations
@@ -170,12 +186,12 @@ def neofox_cli():
             work_folder=output_folder,
             output_prefix=output_prefix,
             num_cpus=num_cpus,
-            configuration_file=config,
-        ).get_annotations(output_folder)
+            reference_folder=reference_folder,
+            affinity_threshold=affinity_threshold
+        ).get_annotations()
+
         # combine neoantigen feature annotations and potential user-specific external annotation
-        neoantigen_annotations = _combine_features_with_external_annotations(
-            annotations, external_annotations
-        )
+        neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
 
         _write_results(
             neoantigen_annotations,
@@ -194,10 +210,10 @@ def neofox_cli():
 
 
 def _read_data(
-    candidate_file, json_file, patients_data, patient_id
+    candidate_file, json_file, patients_data, patient_id, hla_database: HlaDatabase
 ) -> Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
     # parse patient data
-    patients = ModelConverter.parse_patients_file(patients_data)
+    patients = ModelConverter.parse_patients_file(patients_data, hla_database)
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens, external_annotations = ModelConverter.parse_candidate_file(
@@ -211,7 +227,7 @@ def _read_data(
 
 
 def _write_results(
-    annotations, neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts
+    annotations,  neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts
 ):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
@@ -242,33 +258,28 @@ def _write_results(
             index=False,
         )
     if with_json:
-        ModelConverter.objects2json(
-            annotations,
-            os.path.join(
-                output_folder, "{}_neoantigen_features.json".format(output_prefix)
-            ),
-        )
-        ModelConverter.objects2json(
-            neoantigens,
-            os.path.join(
-                output_folder, "{}_neoantigen_candidates.json".format(output_prefix)
-            ),
-        )
+        output_features = os.path.join(output_folder, "{}_neoantigen_features.json".format(output_prefix))
+        with open(output_features, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(annotations)))
+
+        output_neoantigens = os.path.join(output_folder, "{}_neoantigen_candidates.json".format(output_prefix))
+        with open(output_neoantigens, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
 
 
 def _combine_features_with_external_annotations(
-    annotations: List[NeoantigenAnnotations],
-    external_annotations: List[NeoantigenAnnotations],
+        annotations: List[NeoantigenAnnotations],
+        external_annotations: List[NeoantigenAnnotations],
 ) -> List[NeoantigenAnnotations]:
     final_annotations = []
     for annotation in annotations:
         for annotation_extern in external_annotations:
             if (
-                annotation.neoantigen_identifier
-                == annotation_extern.neoantigen_identifier
+                    annotation.neoantigen_identifier
+                    == annotation_extern.neoantigen_identifier
             ):
                 annotation.annotations = (
-                    annotation.annotations + annotation_extern.annotations
+                        annotation.annotations + annotation_extern.annotations
                 )
         final_annotations.append(annotation)
     return final_annotations
