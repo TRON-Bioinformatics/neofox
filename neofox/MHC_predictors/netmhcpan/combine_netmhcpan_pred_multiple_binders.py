@@ -52,17 +52,17 @@ class BestAndMultipleBinder:
         self.generator_rate = None
         self.generator_rate_adn = None
         self.generator_rate_cdn = None
-        self.best_epitope_by_rank = self._get_empy_epitope()
-        self.best_epitope_by_affinity = self._get_empy_epitope()
-        self.best_ninemer_epitope_by_affinity = self._get_empy_epitope()
-        self.best_ninemer_epitope_by_rank = self._get_empy_epitope()
-        self.best_wt_epitope_by_rank = self._get_empy_epitope()
-        self.best_wt_epitope_by_affinity = self._get_empy_epitope()
-        self.best_ninemer_wt_epitope_by_rank = self._get_empy_epitope()
-        self.best_ninemer_wt_epitope_by_affinity = self._get_empy_epitope()
+        self.best_epitope_by_rank = self._get_empty_epitope()
+        self.best_epitope_by_affinity = self._get_empty_epitope()
+        self.best_ninemer_epitope_by_affinity = self._get_empty_epitope()
+        self.best_ninemer_epitope_by_rank = self._get_empty_epitope()
+        self.best_wt_epitope_by_rank = self._get_empty_epitope()
+        self.best_wt_epitope_by_affinity = self._get_empty_epitope()
+        self.best_ninemer_wt_epitope_by_rank = self._get_empty_epitope()
+        self.best_ninemer_wt_epitope_by_affinity = self._get_empty_epitope()
 
     @staticmethod
-    def _get_empy_epitope():
+    def _get_empty_epitope():
         return PredictedEpitope(
             peptide=None,
             pos=None,
@@ -185,11 +185,11 @@ class BestAndMultipleBinder:
                 wt_peptide = AbstractNetMhcPanPredictor.select_best_by_affinity(
                     AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
                         predictions=predictions_wt, mutated_prediction=epitope),
-                    none_value=BestAndMultipleBinder._get_empy_epitope())
-                if wt_peptide.affinity_score is not None:
-                    dai = wt_peptide.affinity_score / epitope.affinity_score
-                    if dai > threshold:
-                        number_binders += 1
+                    none_value=BestAndMultipleBinder._get_empty_epitope())
+                dai = wt_peptide.affinity_score / epitope.affinity_score
+                if dai > threshold:
+                    number_binders += 1
+
         if len(dai_values) == 0:
             number_binders = None
         return number_binders
@@ -204,7 +204,7 @@ class BestAndMultipleBinder:
         dai_values = []
         for mut, wt in zip(predictions, predictions_wt):
             dai_values.append(mut.affinity_score)
-            if mut.affinity_score < 5000:
+            if mut.affinity_score < 5000 and wt.affinity_score:
                 dai = mut.affinity_score / wt.affinity_score
                 if dai > threshold:
                     number_binders += 1
@@ -216,7 +216,6 @@ class BestAndMultipleBinder:
         mhc1_alleles_patient: List[Mhc1],
         mhc1_alleles_available: Set,
         uniprot,
-        hla_database
     ):
         """
         predicts MHC epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed
@@ -226,13 +225,19 @@ class BestAndMultipleBinder:
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.blastp_runner
         )
-        # print alleles
         predictions = netmhcpan.mhc_prediction(
             mhc1_alleles_patient, mhc1_alleles_available, mutation.mutated_xmer
         )
-        filtered_predictions = netmhcpan.filter_binding_predictions(
+        if mutation.wild_type_xmer:
+            # make sure that predicted epitopes cover mutation in case of SNVs
+            predictions = netmhcpan.filter_peptides_covering_snv(
+                position_of_mutation=mutation.position, predictions=predictions
+            )
+        # make sure that predicted neoepitopes are part of the WT proteome
+        filtered_predictions = netmhcpan.remove_peptides_in_proteome(
             predictions=predictions, uniprot=uniprot
         )
+
         if len(filtered_predictions) > 0:
             # multiple binding
             self.epitope_affinities = "/".join(
@@ -240,17 +245,17 @@ class BestAndMultipleBinder:
             )
             # best prediction
             self.best_epitope_by_rank = netmhcpan.select_best_by_rank(
-                filtered_predictions, none_value=self._get_empy_epitope())
+                filtered_predictions, none_value=self._get_empty_epitope())
             self.best_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                filtered_predictions, none_value=self._get_empy_epitope())
+                filtered_predictions, none_value=self._get_empty_epitope())
             logger.info(self.best_epitope_by_rank)
 
             # best predicted epitope of length 9
             ninemer_predictions = netmhcpan.filter_for_9mers(filtered_predictions)
             self.best_ninemer_epitope_by_rank = netmhcpan.select_best_by_rank(
-                ninemer_predictions, none_value=self._get_empy_epitope())
+                ninemer_predictions, none_value=self._get_empty_epitope())
             self.best_ninemer_epitope_by_affinity = netmhcpan.select_best_by_affinity(
-                ninemer_predictions, none_value=self._get_empy_epitope())
+                ninemer_predictions, none_value=self._get_empty_epitope())
 
             # multiple binding based on affinity
             self.generator_rate_cdn = self.determine_number_of_binders(
@@ -273,19 +278,19 @@ class BestAndMultipleBinder:
                 predictions_wt = netmhcpan.mhc_prediction(
                     mhc1_alleles_patient, mhc1_alleles_available, mutation.wild_type_xmer
                 )
-                filtered_predictions_wt = netmhcpan.filter_binding_predictions_wt_snv(
+                filtered_predictions_wt = netmhcpan.filter_peptides_covering_snv(
                     position_of_mutation=mutation.position, predictions=predictions_wt
                 )
                 self.best_wt_epitope_by_rank = netmhcpan.select_best_by_rank(
                     netmhcpan.filter_wt_predictions_from_best_mutated(
                         filtered_predictions_wt, self.best_epitope_by_rank
                     ),
-                    none_value=BestAndMultipleBinder._get_empy_epitope()
+                    none_value=BestAndMultipleBinder._get_empty_epitope()
                 )
                 self.best_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
                     netmhcpan.filter_wt_predictions_from_best_mutated(
                         filtered_predictions_wt, self.best_epitope_by_affinity),
-                    none_value=BestAndMultipleBinder._get_empy_epitope()
+                    none_value=BestAndMultipleBinder._get_empty_epitope()
                 )
                 # best predicted epitope of length 9
                 ninemer_predictions_wt = netmhcpan.filter_for_9mers(filtered_predictions_wt)
@@ -293,12 +298,12 @@ class BestAndMultipleBinder:
                     netmhcpan.filter_wt_predictions_from_best_mutated(
                         ninemer_predictions_wt, self.best_ninemer_epitope_by_rank
                     ),
-                    none_value=BestAndMultipleBinder._get_empy_epitope()
+                    none_value=BestAndMultipleBinder._get_empty_epitope()
                 )
                 self.best_ninemer_wt_epitope_by_affinity = netmhcpan.select_best_by_affinity(
                     netmhcpan.filter_wt_predictions_from_best_mutated(
                         ninemer_predictions_wt, self.best_ninemer_epitope_by_affinity),
-                    none_value=BestAndMultipleBinder._get_empy_epitope()
+                    none_value=BestAndMultipleBinder._get_empty_epitope()
                 )
                 # multiple binding based on affinity
                 self.generator_rate_adn = self.determine_number_of_alternative_binders(
@@ -458,7 +463,7 @@ class BestAndMultipleBinder:
             AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCI"),
             AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCI"),
             AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCI"),
-            AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR-I")
+            AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR_I")
         ])
         annotations.extend(self._get_positions_and_mutation_in_anchor(mutation))
         return annotations

@@ -108,8 +108,8 @@ class AbstractNetMhcPanPredictor:
         return best_wt
 
     @staticmethod
-    def filter_binding_predictions(predictions: List[PredictedEpitope], uniprot
-    ) -> List[PredictedEpitope]:
+    def remove_peptides_in_proteome(predictions: List[PredictedEpitope], uniprot
+                                    ) -> List[PredictedEpitope]:
         """filters prediction file for predicted epitopes that cover mutations by searching for epitope
         in uniprot proteome database with an exact match search"""
         return list(
@@ -128,7 +128,7 @@ class AbstractNetMhcPanPredictor:
         return list(filter(lambda p: len(p.peptide) == 9, predictions))
 
     @staticmethod
-    def filter_binding_predictions_wt_snv(
+    def filter_peptides_covering_snv(
             position_of_mutation, predictions: List[PredictedEpitope]
     ) -> List[PredictedEpitope]:
         """filters prediction file for predicted epitopes that cover mutations"""
