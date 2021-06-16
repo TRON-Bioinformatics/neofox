@@ -13,13 +13,13 @@ Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrö
 
 ## Table of Contents
 
-[Implemented neoantigen features](#Implemented-Neoantigen-Features)  
-[NeoFox requirements](#NeoFox-Requirements)  
-[Usage from the command line](#Usage-from-the-command-line)  
-[Input data](#input-data)  
-[Output data](#output-data)  
+[1 Implemented neoantigen features](#1-Implemented-Neoantigen-Features)  
+[2 NeoFox requirements](#2-NeoFox-Requirements)  
+[3 Usage from the command line](#3-Usage-from-the-command-line)  
+[4 Input data](#4-input-data)  
+[5 Output data](#5-output-data)  
 
-## Implemented Neoantigen Features
+## 1 Implemented Neoantigen Features
 
 NeoFox covers the following neoantigen features and prediction algorithms:  
 
@@ -43,7 +43,7 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 | neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
 | PRIME                                                   | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 
-## NeoFox Requirements
+## 2 NeoFox Requirements
  
 NeoFox depends on the following tools:  
 
@@ -57,17 +57,17 @@ NeoFox depends on the following tools:
 - PRIME 1.0
 
 
-## Usage from the command line
+## 3 Usage from the command line
 
 NeoFox can be used from the command line as shown below or programmatically (see [https://neofox.readthedocs.io](https://neofox.readthedocs.io/) for more information).
 
 ````commandline
 neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus] [--affinity-threshold]
 ````
-- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#neoantigen-candidates-in-tabular-format)
-- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#neoantigen-candidates-in-json-format)
+- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
+- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
 - `--patient-id`: patient identifier (*optional*, this will be used if the patient id the column `patient` is missing the candidate input file)
-- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](#patient-data-format)
+- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](#43-patient-data-format)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
 - `--with-short-wide-table`: output file in short-wide format (*default*, *optional*)
@@ -92,9 +92,9 @@ export NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
 export NEOFOX_PRIME=/path/to/PRIME/PRIME
 ````
 
-## Input data
+## 4 Input data
 
-### Neoantigen candidates in tabular format
+### 4.1 Neoantigen candidates in tabular format
 This is an dummy example of a table with neoantigen candidates:  
 
 | gene  | mutation.wildTypeXmer       | mutation.mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
@@ -116,7 +116,7 @@ where:
 
 **NOTE:** If rnaExpression is not provided, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). 
 
-### Neoantigen candidates in JSON format 
+### 4.2 Neoantigen candidates in JSON format 
 
 Besides tabular format, neoantigen candidates can be provided as a list of neoantigen models in JSON format as shown below. To simplify, only one full neoantigen model is shown:  
 
@@ -132,7 +132,7 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 }]
 ``` 
 
-### Patient-data format
+### 4.3 Patient-data format
 
 This is an dummy example of a patient file:  
 
@@ -148,6 +148,6 @@ where:
 - `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
 
 
-## Output data
+## 5 Output data
 
 The output data is returned by default in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON format (`--with-json`).  
