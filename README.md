@@ -13,11 +13,11 @@ Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrö
 
 ## Table of Contents
 
-[Implemented neoantigen features](#Implemented-Neoantigen-Features)
-[NeoFox requirements](#NeoFox-Requirements)
-[Usage from the command line](#Usage-from-the-command-line)
-[Input data](#input-data)
-[Output data](#output-data)
+[Implemented neoantigen features](#Implemented-Neoantigen-Features)  
+[NeoFox requirements](#NeoFox-Requirements)  
+[Usage from the command line](#Usage-from-the-command-line)  
+[Input data](#input-data)  
+[Output data](#output-data)  
 
 ## Implemented Neoantigen Features
 
