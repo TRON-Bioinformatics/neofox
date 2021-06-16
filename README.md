@@ -9,7 +9,7 @@ NeoFox annotates neoantigen candidate sequences with published neoantigen featur
 For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
 
 If you use NeoFox, please cite the following publication:  
-Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, **NeoFox: annotating neoantigen candidates with neoantigen features**, Bioinformatics, 2021;, btab344, [https://doi.org/10.1093/bioinformatics/btab344](https://doi.org/10.1093/bioinformatics/btab344)
+Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, **NeoFox: annotating neoantigen candidates with neoantigen features**, *Bioinformatics*, 2021;, btab344, [https://doi.org/10.1093/bioinformatics/btab344](https://doi.org/10.1093/bioinformatics/btab344)
 
 ## Table of Contents
 
