@@ -4,7 +4,24 @@
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
 
 
-NeoFox annotates neoantigen candidate sequences with published neo-epitope descriptors. For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
+NeoFox annotates neoantigen candidate sequences with published neoantigen features. 
+
+For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
+
+If you use NeoFox, please cite the following publication:  
+Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, **NeoFox: annotating neoantigen candidates with neoantigen features**, *Bioinformatics*, 2021;, btab344, [https://doi.org/10.1093/bioinformatics/btab344](https://doi.org/10.1093/bioinformatics/btab344)
+
+## Table of Contents
+
+[1 Implemented neoantigen features](#1-Implemented-Neoantigen-Features)  
+[2 NeoFox requirements](#2-NeoFox-Requirements)  
+[3 Usage from the command line](#3-Usage-from-the-command-line)  
+[4 Input data](#4-input-data)  
+[5 Output data](#5-output-data)  
+
+## 1 Implemented Neoantigen Features
+
+NeoFox covers the following neoantigen features and prediction algorithms:  
 
 | Name                                                    | Reference                                                                | DOI                                                                                       |
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
@@ -26,40 +43,58 @@ NeoFox annotates neoantigen candidate sequences with published neo-epitope descr
 | neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
 | PRIME                                                   | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 
-## NeoFox Requirements
+## 2 NeoFox Requirements
  
-**Required Software/Tools/Dependencies:**  
+NeoFox depends on the following tools:  
+
 - Python >=3.6, <=3.8
 - R 3.6.0
 - BLAST 2.10.1
-- netMHCpan 4.0
-- netMHCIIpan 3.2
+- netMHCpan 4.1
+- netMHCIIpan 4.0
 - MixMHCpred 2.1
 - MixMHC2pred 1.2
 - PRIME 1.0
 
 
-## Usage from the command line
+## 3 Usage from the command line
+
+NeoFox can be used from the command line as shown below or programmatically (see [https://neofox.readthedocs.io](https://neofox.readthedocs.io/) for more information).
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus] [--affinity-threshold]
 ````
-
-where:
-- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences
-- `--json-file`: JSON file neoantigens in NeoFox model format
+- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
+- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
 - `--patient-id`: patient identifier (*optional*, this will be used if the patient id the column `patient` is missing the candidate input file)
-- `--patient-data`: a table of tab separated values containing metadata on the patient
+- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](#43-patient-data-format)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-short-wide-table`: output file in short-wide format (*optional*)
-- `--with-tall-skinny-table`: output file in tall-skinny format (*optional*)
+- `--with-short-wide-table`: output file in short-wide format (*default*, *optional*)
+- `--with-tall-skinny-table`:output file in tall-skinny format (*optional*)
 - `--with-json`: output file in JSON format (*optional*)
 - `--num_cpus`: number of CPUs to use (*optional*)
+- `--config`: a config file with the paths to dependencies as shown below  (*optional*)
+- `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
+                        neoepitope recognition. A threshold that is commonly used is 500 nM. 
+                        
+                        
+The optional config file with the paths to the dependencies can look like this:  
+````commandline
+NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
+NEOFOX_RSCRIPT=`which Rscript`
+NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
+NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
+NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
+NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.1/MixMHCpred
+NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-1.2/MixMHC2pred_unix
+NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
+NEOFOX_PRIME=/path/to/PRIME/PRIME
+````
 
-### Input data
+## 4 Input data
 
-#### Neoantigen candidates in tabular format
+### 4.1 Neoantigen candidates in tabular format
 This is an dummy example of a table with neoantigen candidates:  
 
 | gene  | mutation.wildTypeXmer       | mutation.mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
@@ -81,7 +116,7 @@ where:
 
 **NOTE:** If rnaExpression is not provided, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). 
 
-### Neoantigen candidates in JSON format 
+### 4.2 Neoantigen candidates in JSON format 
 
 Besides tabular format, neoantigen candidates can be provided as a list of neoantigen models in JSON format as shown below. To simplify, only one full neoantigen model is shown:  
 
@@ -97,7 +132,7 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 }]
 ``` 
 
-#### patient-file format
+### 4.3 Patient-data format
 
 This is an dummy example of a patient file:  
 
@@ -113,35 +148,6 @@ where:
 - `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
 
 
-| Study Name                                                         | Abbreviation |
-|--------------------------------------------------------------------|-------------------|
-| Adrenocortical carcinoma                                           | ACC               |
-| Bladder Urothelial Carcinoma                                       | BLCA              |
-| Breast invasive carcinoma                                          | BRCA              |
-| Cervical squamous cell carcinoma and endocervical adenocarcinoma   | CESC              |
-| Cholangiocarcinoma                                                 | CHOL              |
-| Colon adenocarcinoma                                               | COAD              |
-| Esophageal carcinoma                                               | ESCA              |
-| Glioblastoma multiforme                                            | GBM               |
-| Head and Neck squamous cell carcinoma                              | HNSC              |
-| Kidney Chromophobe                                                 | KICH              |
-| Kidney renal papillary cell carcinoma                              | KIRP              |
-| Liver hepatocellular carcinoma                                     | LIHC              |
-| Lung adenocarcinoma                                                | LUAD              |
-| Lung squamous cell carcinoma                                       | LUSC              |
-| Ovarian serous cystadenocarcinoma                                  | OV                |
-| Pancreatic adenocarcinoma                                          | PAAD              |
-| Prostate adenocarcinoma                                            | PRAD              |
-| Rectum adenocarcinoma                                              | READ              |
-| Sarcoma                                                            | SARC              |
-| Skin Cutaneous Melanoma                                            | SKCM              |
-| Testicular Germ Cell Tumors                                        | TGCT              |
-| Uterine Corpus Endometrial Carcinoma                               | UCEC              |
+## 5 Output data
 
-
-
-### Output data
-
-The output data is returned in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON format (`--with-json`).  
-
-For a more information, please check out our documentation on [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
+The output data is returned by default in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON format (`--with-json`).  
