@@ -89,36 +89,15 @@ align_to_ref_epitopes <-
     else{
       stop("Unsupported object as ref. Must be either matrix or character")
     }
-    for (i in 1:refSeqCount)
-    {
-      xAlnScore <- 0
-      #match <- ""
-      #misMatch <- ""
-      refSeq <- ref[i, ]
-      refName <- rownames(ref)[i]
-      
+    
+    xAlnScoreVec <- apply(ref, 1, function(refSeq){
       xAlnMat <- diag(aln_matrix[x, refSeq])
       xAlnAmp <- xPosWt * xAlnMat
       xAlnScore <- sum(xAlnAmp)
-      
-      #match <- which(x == refSeq)
-      ##print(match)
-      #misMatch <- which(!x == refSeq)
-      ##print(misMatch)
-      #
-      #if(length(match)>0){
-      #	#print(sum(xPosWt[match]))
-      #	xAlnScore <- sum(xPosWt[match])
-      #}
-      #if(length(misMatch)>0){
-      #	#print(sum(0-xPosWt[misMatch]))
-      #	xAlnScore <- xAlnScore + (0-sum(xPosWt[misMatch]))
-      #}
-      xAlnScoreVec[i] <- xAlnScore
-      names(xAlnScoreVec)[i] <- refName
-      
-    }
-    
+      return(xAlnScore)
+    })
+    names(xAlnScoreVec) <- rownames(ref)
+
     return(xAlnScoreVec)
   }
 

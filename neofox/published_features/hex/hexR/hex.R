@@ -16,7 +16,6 @@ qAASet <- AAStringSet(epitope)
 qAASet <- Biostrings::as.matrix(qAASet, use.names=T)
 
 # virus database
-#path_virus_db <- "/home/franlang/neofox_test/test_references_nets/iedb/IEDB.fasta"
 rAASet <- readAAStringSet(path_virus_db, format="fasta")
 # do filtering based on length of neoepitope sequence
 rAASet <- rAASet[which(rAASet@ranges@width == length(qAASet))]
