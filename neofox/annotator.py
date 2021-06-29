@@ -59,6 +59,7 @@ from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicit
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.published_features.prime import Prime
+from neofox.published_features.hex.hex import Hex
 from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 from neofox.references.references import (
     ReferenceFolder,
@@ -106,6 +107,7 @@ class NeoantigenAnnotator:
         self.priority_score_calculator = PriorityScore()
         self.iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=affinity_threshold)
         self.amplitude = Amplitude()
+        self.hex = Hex()
         self.hla_database = references.get_hla_database()
         self.mhc_parser = MhcParser(self.hla_database)
 
@@ -327,6 +329,17 @@ class NeoantigenAnnotator:
             end = time.time()
             logger.info(
                 "Vaxrank annotation elapsed time {} seconds".format(round(end - start, 3))
+            )
+
+        # hex
+        if netmhcpan and netmhcpan.epitope_affinities:
+            start = time.time()
+            self.annotations.annotations.append(
+                self.hex.get_annotation(netmhcpan=netmhcpan)
+            )
+            end = time.time()
+            logger.info(
+                "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
             )
         return self.annotations
 
