@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-
+from typing import List
 import os
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
@@ -40,13 +40,12 @@ class Hex(object):
         self.configuration = configuration
         self.iedb_fasta = os.path.join(references.iedb, "IEDB.fasta")
 
-    def _apply_hex(self, mut_peptide):
+    def apply_hex(self, mut_peptide):
         """this function calls hex tool. this tool analyses the neoepitope candidate sequence for molecular mimicry to viral epitopes
         """
         my_path = os.path.abspath(os.path.dirname(__file__))
-        hex_path = os.path.join(my_path, "hexR")
-        tool_path = os.path.join(hex_path, "hex.R")
-        cmd = [self.configuration.rscript, tool_path, mut_peptide, self.iedb_fasta, hex_path]
+        tool_path = os.path.join(my_path, "hex.R")
+        cmd = [self.configuration.rscript, tool_path, mut_peptide, self.iedb_fasta, my_path]
         output, _ = self.runner.run_command(cmd)
         return output
 
@@ -57,7 +56,7 @@ class Hex(object):
         hex_aln_score = None
         hex_b_score = None
         if netmhcpan.best_epitope_by_affinity.peptide:
-            hex_aln_score, hex_b_score = self._apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
+            hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
 
         annotations = [
             AnnotationFactory.build_annotation(

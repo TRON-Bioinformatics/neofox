@@ -107,7 +107,7 @@ class NeoantigenAnnotator:
         self.priority_score_calculator = PriorityScore()
         self.iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=affinity_threshold)
         self.amplitude = Amplitude()
-        self.hex = Hex()
+        self.hex = Hex(runner=self.runner, configuration=configuration, references=references)
         self.hla_database = references.get_hla_database()
         self.mhc_parser = MhcParser(self.hla_database)
 
@@ -334,7 +334,7 @@ class NeoantigenAnnotator:
         # hex
         if netmhcpan and netmhcpan.epitope_affinities:
             start = time.time()
-            self.annotations.annotations.append(
+            self.annotations.annotations.extend(
                 self.hex.get_annotation(netmhcpan=netmhcpan)
             )
             end = time.time()
