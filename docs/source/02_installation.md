@@ -150,6 +150,7 @@ caret
 Peptides
 doParallel
 gbm
+Biostrings
 ```
 
 Add the reference folder to the Path
