@@ -51,18 +51,19 @@ class Hex(object):
 
     def get_annotation(
             self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
-        """wrapper function for HEX (Homology evaluation of Xenopeptides) (Chiaro et al., 2021)"""
-
+        """wrapper function for HEX (Homology evaluation of Xenopeptides) (Chiaro et al., 2021)
+        """
+        # TODO: add annotation of b score when re-implemented in python. The annotation is too slow for bigger datasets
         hex_aln_score = None
-        hex_b_score = None
+        # hex_b_score = None
         if netmhcpan.best_epitope_by_affinity.peptide:
-            hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
-
+            # hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
+            hex_aln_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
         annotations = [
             AnnotationFactory.build_annotation(
                 value=hex_aln_score, name="hex_alignment_score"),
-            AnnotationFactory.build_annotation(
-                value=hex_b_score, name="hex_B_score"
-            )
+            # AnnotationFactory.build_annotation(
+             #   value=hex_b_score, name="hex_B_score"
+            #)
         ]
         return annotations

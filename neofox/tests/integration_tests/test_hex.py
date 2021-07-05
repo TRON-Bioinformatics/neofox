@@ -39,6 +39,6 @@ class TestHex(TestCase):
         ).split(" ")
         logger.info(res)
         self.assertEqual(float(res[0]), 148)
-        self.assertEqual(float(res[1]), -24.59143)
+
 
 
