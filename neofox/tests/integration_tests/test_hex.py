@@ -36,9 +36,9 @@ class TestHex(TestCase):
             runner=self.runner, configuration=self.configuration, references=self.references
         ).apply_hex(
             mut_peptide="FGLAIDVDD"
-        ).split(" ")
+        )
         logger.info(res)
-        self.assertEqual(float(res[0]), 148)
+        self.assertEqual(float(res), 148)
 
 
 
