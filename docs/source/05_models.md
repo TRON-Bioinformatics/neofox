@@ -224,9 +224,9 @@ Valid names for MHC I classic genes
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| A | 0 |  |
-| B | 1 |  |
-| C | 2 |  |
+| A | 0 | HLA-A |
+| B | 1 | HLA-B |
+| C | 2 |  HLA-C|
 
 
 
@@ -239,11 +239,11 @@ considered constant.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| DRB1 | 0 |  |
-| DPA1 | 1 |  |
-| DPB1 | 2 |  |
-| DQA1 | 3 |  |
-| DQB1 | 4 |  |
+| DRB1 | 0 | HLA-DRB1 |
+| DPA1 | 1 |  HLA-DPA1|
+| DPB1 | 2 |  HLA-DPB1|
+| DQA1 | 3 |  HLA-DQA1|
+| DQB1 | 4 |  HLA-DQB1|
 
 
 
@@ -254,9 +254,9 @@ Valid names for MHC II classic molecules
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| DR | 0 |  |
-| DP | 1 |  |
-| DQ | 2 |  |
+| DR | 0 |  HLA-DR|
+| DP | 1 |  HLA-DP|
+| DQ | 2 |  HLA-DQ|
 
 
 

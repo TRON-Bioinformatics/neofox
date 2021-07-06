@@ -16,22 +16,29 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-VERSION = "0.5.1.dev3"
+from unittest import TestCase
+from logzero import logger
+from neofox.published_features.hex.hex import Hex
+from neofox.helpers.runner import Runner
+
+import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 
 
-REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"
-NEOFOX_BLASTP_ENV = "NEOFOX_BLASTP"
-NEOFOX_MIXMHC2PRED_ENV = "NEOFOX_MIXMHC2PRED"
-NEOFOX_MIXMHCPRED_ENV = "NEOFOX_MIXMHCPRED"
-NEOFOX_RSCRIPT_ENV = "NEOFOX_RSCRIPT"
-NEOFOX_NETMHC2PAN_ENV = "NEOFOX_NETMHC2PAN"
-NEOFOX_NETMHCPAN_ENV = "NEOFOX_NETMHCPAN"
-NEOFOX_MAKEBLASTDB_ENV = "NEOFOX_MAKEBLASTDB"
-NEOFOX_LOG_FILE_ENV = "NEOFOX_LOGFILE"
-NEOFOX_PRIME_ENV = "NEOFOX_PRIME"
-NEOFOX_HLA_DATABASE_ENV = "NEOFOX_HLA_DATABASE"
 
-MHC_II = "mhcII"
-MHC_I = "mhcI"
+class TestHex(TestCase):
+    def setUp(self):
+        self.references, self.configuration = integration_test_tools.load_references()
+        self.runner = Runner()
 
-AFFINITY_THRESHOLD_DEFAULT = 500000
+
+    def test_hex(self):
+        res = Hex(
+            runner=self.runner, configuration=self.configuration, references=self.references
+        ).apply_hex(
+            mut_peptide="FGLAIDVDD"
+        )
+        logger.info(res)
+        self.assertEqual(float(res), 148)
+
+
+

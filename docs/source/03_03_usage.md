@@ -40,15 +40,15 @@ neofox --candidate-file neoantigens_candidates.tab --patient-id Ptx --patient-da
 
 The optional **config** file with the paths to the dependencies can look like this:  
 ````commandline
-export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
-export NEOFOX_RSCRIPT=`which Rscript`
-export NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
-export NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
-export NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
-export NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.1/MixMHCpred
-export NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-1.2/MixMHC2pred_unix
-export NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
-export NEOFOX_PRIME=/path/to/PRIME/PRIME
+NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
+NEOFOX_RSCRIPT=`which Rscript`
+NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
+NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
+NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
+NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.1/MixMHCpred
+NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-1.2/MixMHC2pred_unix
+NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
+NEOFOX_PRIME=/path/to/PRIME/PRIME
 ````
 
 ### Running from docker
