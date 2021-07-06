@@ -1,7 +1,3 @@
-#data(BLOSUM45, BLOSUM50, BLOSUM62, BLOSUM80, BLOSUM100, PAM30, PAM40, PAM70, PAM120, PAM250)
-utils::data(list=c("BLOSUM45", "BLOSUM50", "BLOSUM62", "BLOSUM80", "BLOSUM100", "PAM30", "PAM40", "PAM70", "PAM120", "PAM250"), envir=environment())
-utils::globalVariables(names=c("BLOSUM45", "BLOSUM50", "BLOSUM62", "BLOSUM80", "BLOSUM100", "PAM30", "PAM40", "PAM70", "PAM120", "PAM250"))
-
 #' Get position specific weights, higher scores for the mid bases compared to tails.
 #'
 #' Compute the position specific scores for the amino acid bases with heavier weight for the middle bases 
@@ -97,7 +93,7 @@ align_to_ref_epitopes <-
       return(xAlnScore)
     })
     names(xAlnScoreVec) <- rownames(ref)
-
+    
     return(xAlnScoreVec)
   }
 
@@ -182,7 +178,6 @@ align_sets <- function(query.set, ref.set, env=NULL, num.cores=2, aln_matrix="BL
             env <- environment()
         }
 
-	t1 <- proc.time()
 	# align the neoepitope sequence against a set of viral epitopes
 	alnRes <- align_to_ref_epitopes(query.set, ref=ref.set, aln_matrix=aln_matrix)
 
@@ -263,16 +258,16 @@ align_to_cpl <- function(x, ref){
   cpl <- matrix(nrow=xlen, ncol=20)
   aacols <- Biostrings::AAString("ACDEFGHIKLMNPQRSTVWY")
   
-  for (i in 1:xlen) {
-    for (j in 1:20) {
-      if(x[i] == as.character(aacols[j])){
-        cpl[i,j] <- 100
-      }else{
-        cpl[i,j] <- 1
+  cpl <- sapply(1:20, function(j) {
+    sapply(1:xlen, function(xl) {
+      if (x[xl] == as.character(aacols[j])) {
+        100
+      } else{
+        1
       }
-    }
-  }
-  
+    })
+  })
+
   colnames(cpl) <- c("A","C","D","E","F","G","H","I","K","L",
                      "M","N","P","Q","R","S","T","V","W","Y")
   
@@ -280,25 +275,23 @@ align_to_cpl <- function(x, ref){
   # scoring matrix
   cpl <- log(cpl / rowSums(cpl))
   
-  for (i in 1:reflen) {
-    peptide <- ref[i,]
-    ref_name <- rownames(ref)[i]
-    score <- 0
-    
+  score_vec <- apply(ref, 1, function(peptide){
     # this has been changed in comparison to the original version
     # the loop over i  was not over the length of the peptide 
-    for (l in 1:xlen){
-      for (j in 1:20) {
-        if(peptide[l] == as.character(aacols[j])){
-        # if(peptide[i] == aacols[j]){
-          score <- score + cpl[l,j]
-        }
-      }
-    }
-    
-    score_vec[i] <- score
-    names(score_vec)[i] <- ref_name
-  }
+    sum(sapply(1:xlen, function(l) {
+      sum(score <-
+            sapply(1:20, function(j) {
+              if (peptide[l] == as.character(aacols[j])) {
+                # if(peptide[i] == aacols[j]){
+                cpl[l, j]
+              } else{
+                NA
+              }
+            }), na.rm = T)
+      return(score)
+    }), na.rm = T)
+  })
+  names(score_vec) <- rownames(ref)
   return(score_vec)
 }
 
