@@ -25,7 +25,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
     BestAndMultipleBinder,
 )
 from neofox.references.references import (
-    ReferenceFolder,
+    ReferenceFolder, IEDB_FASTA
 )
 
 
@@ -38,7 +38,7 @@ class Hex(object):
         """
         self.runner = runner
         self.configuration = configuration
-        self.iedb_fasta = os.path.join(references.iedb, "IEDB.fasta")
+        self.iedb_fasta = os.path.join(references.iedb, IEDB_FASTA)
 
     def apply_hex(self, mut_peptide):
         """this function calls hex tool. this tool analyses the neoepitope candidate sequence for molecular mimicry to viral epitopes
@@ -47,6 +47,8 @@ class Hex(object):
         tool_path = os.path.join(my_path, "hex.R")
         cmd = [self.configuration.rscript, tool_path, mut_peptide, self.iedb_fasta, my_path]
         output, _ = self.runner.run_command(cmd)
+        if output == "":
+            output = None
         return output
 
     def get_annotation(
@@ -58,7 +60,7 @@ class Hex(object):
         # hex_b_score = None
         if netmhcpan.best_epitope_by_affinity.peptide:
             # hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
-            hex_aln_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
+            hex_aln_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=hex_aln_score, name="hex_alignment_score"),
