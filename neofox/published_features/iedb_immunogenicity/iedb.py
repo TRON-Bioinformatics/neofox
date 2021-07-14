@@ -157,8 +157,10 @@ class IEDBimmunogenicity:
                 score = self.predict_immunogenicity(
                     peptide, mhc_allele.name.replace("*", "").replace(":", "")
                 )
+                logger.info(score)
         except (ValueError, AttributeError):
             pass
+        logger.info(score)
         return score
 
     def get_annotations(
