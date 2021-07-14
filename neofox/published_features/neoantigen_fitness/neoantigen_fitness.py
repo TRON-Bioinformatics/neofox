@@ -25,6 +25,9 @@ from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
+    BestAndMultipleBinderMhcII
+)
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
 
@@ -35,10 +38,10 @@ class NeoantigenFitnessCalculator:
         self.affinity_threshold = affinity_threshold
         self.iedb_blastp_runner = iedb_blastp_runner
 
-    def get_pathogen_similarity(self, mutation):
-        pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=mutation)
+    def get_pathogen_similarity(self, epitope_candidate):
+        pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=epitope_candidate)
         logger.info(
-            "Peptide {} has a pathogen similarity of {}".format(mutation, pathsim)
+            "Peptide {} has a pathogen similarity of {}".format(epitope_candidate, pathsim)
         )
         return pathsim
 
@@ -93,13 +96,14 @@ class NeoantigenFitnessCalculator:
         return recognition_potential
 
     def get_annotations(
-        self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude
+        self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude, netmhc2pan:BestAndMultipleBinderMhcII
     ) -> List[Annotation]:
         pathogen_similarity_9mer = None
+        pathogen_similarity_mhcii = None
         recognition_potential = None
         if netmhcpan.best_ninemer_epitope_by_affinity.peptide:
             pathogen_similarity_9mer = self.get_pathogen_similarity(
-                mutation=netmhcpan.best_ninemer_epitope_by_affinity.peptide
+                epitope_candidate=netmhcpan.best_ninemer_epitope_by_affinity.peptide
             )
             if pathogen_similarity_9mer is not None:
                 recognition_potential = self.calculate_recognition_potential(
@@ -108,6 +112,11 @@ class NeoantigenFitnessCalculator:
                             mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer,
                             mhc_affinity_mut=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
                         )
+        if netmhc2pan.best_predicted_epitope_affinity.peptide:
+            pathogen_similarity_mhcii = self.get_pathogen_similarity(
+                epitope_candidate=netmhc2pan.best_predicted_epitope_affinity.peptide
+            )
+
         annotations = [
             AnnotationFactory.build_annotation(
                 name="Pathogensimiliarity_MHCI_affinity_9mer",
@@ -116,6 +125,10 @@ class NeoantigenFitnessCalculator:
             AnnotationFactory.build_annotation(
                 name="Recognition_Potential_MHCI_affinity_9mer",
                 value=recognition_potential
+            ),
+            AnnotationFactory.build_annotation(
+                name="Pathogensimiliarity_MHCII_affinity",
+                value=pathogen_similarity_mhcii
             ),
         ]
         return annotations
