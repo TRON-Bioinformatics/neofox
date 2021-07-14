@@ -38,10 +38,10 @@ class NeoantigenFitnessCalculator:
         self.affinity_threshold = affinity_threshold
         self.iedb_blastp_runner = iedb_blastp_runner
 
-    def get_pathogen_similarity(self, epitope_candidate):
-        pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=epitope_candidate)
+    def get_pathogen_similarity(self, peptide):
+        pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=peptide)
         logger.info(
-            "Peptide {} has a pathogen similarity of {}".format(epitope_candidate, pathsim)
+            "Peptide {} has a pathogen similarity of {}".format(peptide, pathsim)
         )
         return pathsim
 
@@ -96,14 +96,14 @@ class NeoantigenFitnessCalculator:
         return recognition_potential
 
     def get_annotations(
-        self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude, netmhc2pan:BestAndMultipleBinderMhcII
+        self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude, netmhc2pan: BestAndMultipleBinderMhcII
     ) -> List[Annotation]:
         pathogen_similarity_9mer = None
         pathogen_similarity_mhcii = None
         recognition_potential = None
         if netmhcpan.best_ninemer_epitope_by_affinity.peptide:
             pathogen_similarity_9mer = self.get_pathogen_similarity(
-                epitope_candidate=netmhcpan.best_ninemer_epitope_by_affinity.peptide
+                peptide=netmhcpan.best_ninemer_epitope_by_affinity.peptide
             )
             if pathogen_similarity_9mer is not None:
                 recognition_potential = self.calculate_recognition_potential(
@@ -114,7 +114,7 @@ class NeoantigenFitnessCalculator:
                         )
         if netmhc2pan.best_predicted_epitope_affinity.peptide:
             pathogen_similarity_mhcii = self.get_pathogen_similarity(
-                epitope_candidate=netmhc2pan.best_predicted_epitope_affinity.peptide
+                peptide=netmhc2pan.best_predicted_epitope_affinity.peptide
             )
 
         annotations = [

@@ -191,11 +191,11 @@ class NeoantigenAnnotator:
         )
 
         # Neoantigen fitness
-        if netmhcpan:
+        if netmhcpan and netmhc2pan:
             start = time.time()
             self.annotations.annotations.extend(
                 self.neoantigen_fitness_calculator.get_annotations(
-                    netmhcpan, self.amplitude
+                    netmhcpan, self.amplitude, netmhc2pan
                 )
             )
             end = time.time()
@@ -241,10 +241,10 @@ class NeoantigenAnnotator:
             )
 
         # self-similarity
-        if netmhcpan:
+        if netmhcpan and netmhc2pan:
             start = time.time()
             self.annotations.annotations.extend(
-                self.self_similarity.get_annnotations(netmhcpan=netmhcpan)
+                self.self_similarity.get_annnotations(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
             )
             end = time.time()
             logger.info(
@@ -292,11 +292,11 @@ class NeoantigenAnnotator:
             )
 
         # IEDB immunogenicity
-        if netmhcpan and netmhcpan.best_epitope_by_affinity:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity and netmhc2pan and netmhc2pan.best_predicted_epitope_affinity:
             start = time.time()
             self.annotations.annotations.extend(
                 self.iedb_immunogenicity.get_annotations(
-                    netmhcpan=netmhcpan, mhci_allele=netmhcpan.best_epitope_by_affinity.hla
+                    netmhcpan=netmhcpan, netmhc2pan=netmhc2pan
                 )
             )
             end = time.time()
