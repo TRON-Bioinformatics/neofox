@@ -27,27 +27,28 @@ class TestImmunogenicity(TestCase):
     def test_immunogenicity(self):
         iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=500)
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
-            epitope="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600
+            peptide="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=400
         )
         self.assertGreater(result, 0)
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
-            epitope="ENPVVHFF",
+            peptide="ENPVVHFF",
             mhc_allele=MhcAllele(name="HLA-A*68:01"),
             mhc_score=600,
-            affin_filtering=True,
         )
         self.assertIsNone(result)
 
     def test_affinity_threshold(self):
         iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=1000)
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
-            epitope="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600, affin_filtering=True
+            peptide="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600
         )
         self.assertGreater(result, 0)
 
     def test_default_affinity_threshold(self):
         iedb_immunogenicity = IEDBimmunogenicity()
         result = iedb_immunogenicity.calculate_iedb_immunogenicity(
-            epitope="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600, affin_filtering=True
+            peptide="ENPVVHFF", mhc_allele=MhcAllele(name="HLA-A*68:01"), mhc_score=600
         )
         self.assertGreater(result, 0)
+
+

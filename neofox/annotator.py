@@ -305,10 +305,10 @@ class NeoantigenAnnotator:
             )
 
         # dissimilarity to self-proteome
-        if netmhcpan and netmhcpan.best_epitope_by_affinity:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity and netmhc2pan and netmhc2pan.best_predicted_epitope_affinity:
             start = time.time()
             self.annotations.annotations.extend(
-                self.dissimilarity_calculator.get_annotations(netmhcpan=netmhcpan)
+                self.dissimilarity_calculator.get_annotations(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
             )
             end = time.time()
             logger.info(
@@ -332,7 +332,7 @@ class NeoantigenAnnotator:
             )
 
         # hex
-        if netmhcpan and netmhcpan.epitope_affinities:
+        if netmhcpan and netmhcpan.best_epitope_by_affinity and netmhc2pan and netmhc2pan.best_predicted_epitope_affinity:
             start = time.time()
             self.annotations.annotations.extend(
                 self.hex.get_annotation(netmhcpan=netmhcpan)

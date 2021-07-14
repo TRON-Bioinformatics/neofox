@@ -24,6 +24,9 @@ from neofox.model.wrappers import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
+    BestAndMultipleBinderMhcII
+)
 from neofox.references.references import (
     ReferenceFolder, IEDB_FASTA
 )
@@ -52,18 +55,23 @@ class Hex(object):
         return output
 
     def get_annotation(
-            self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
+            self, netmhcpan: BestAndMultipleBinder, netmhc2pan: BestAndMultipleBinderMhcII) -> List[Annotation]:
         """wrapper function for HEX (Homology evaluation of Xenopeptides) (Chiaro et al., 2021)
         """
         # TODO: add annotation of b score when re-implemented in python. The annotation is too slow for bigger datasets
-        hex_aln_score = None
+        hex_aln_score_mhci = None
+        hex_aln_score_mhcii = None
         # hex_b_score = None
         if netmhcpan.best_epitope_by_affinity.peptide:
             # hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
-            hex_aln_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide)
+            hex_aln_score_mhci = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide)
+        if netmhc2pan.best_predicted_epitope_affinity.peptide:
+            hex_aln_score_mhcii = self.apply_hex(netmhc2pan.best_predicted_epitope_affinity.peptide)
         annotations = [
             AnnotationFactory.build_annotation(
-                value=hex_aln_score, name="hex_alignment_score"),
+                value=hex_aln_score_mhci, name="Hex_alignment_score_MHCI"),
+            AnnotationFactory.build_annotation(
+                value=hex_aln_score_mhcii, name="Hex_alignment_score_MHCII")
             # AnnotationFactory.build_annotation(
              #   value=hex_b_score, name="hex_B_score"
             #)
