@@ -71,7 +71,7 @@ class DissimilarityCalculator:
         annotations = [
             AnnotationFactory.build_annotation(
                 value=dissimilarity_mhci,
-                name="Dissimilarity_MHCII",
+                name="Dissimilarity_MHCI",
             ),
             AnnotationFactory.build_annotation(
                 value=dissimilarity_mhcii,

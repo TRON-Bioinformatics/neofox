@@ -24,6 +24,7 @@ from neofox.helpers.runner import Runner
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.references.references import DependenciesConfiguration
 from neofox.model.mhc_parser import MhcParser
+from logzero import logger
 
 
 @dataclass

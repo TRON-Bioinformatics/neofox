@@ -160,7 +160,6 @@ class IEDBimmunogenicity:
                 logger.info(score)
         except (ValueError, AttributeError):
             pass
-        logger.info(score)
         return score
 
     def get_annotations(
