@@ -335,7 +335,7 @@ class NeoantigenAnnotator:
         if netmhcpan and netmhcpan.best_epitope_by_affinity and netmhc2pan and netmhc2pan.best_predicted_epitope_affinity:
             start = time.time()
             self.annotations.annotations.extend(
-                self.hex.get_annotation(netmhcpan=netmhcpan)
+                self.hex.get_annotation(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
             )
             end = time.time()
             logger.info(
