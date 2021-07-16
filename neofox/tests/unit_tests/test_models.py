@@ -90,7 +90,7 @@ class ModelConverterTest(TestCase):
         neoantigen = get_random_neoantigen()
         annotations = NeoantigenAnnotations()
         annotations.neoantigen_identifier = (
-            ModelValidator.generate_neoantigen_identifier(neoantigen)
+            ModelConverter.generate_neoantigen_identifier(neoantigen.to_json())
         )
         annotations.annotations = [
             Annotation(name="string_annotation", value="blabla"),
@@ -105,7 +105,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(annotations_dict.get("annotations")[2].get("value"), 1.1)
         self.assertTrue(
             annotations_dict.get("neoantigenIdentifier"),
-            ModelValidator.generate_neoantigen_identifier(neoantigen),
+            ModelConverter.generate_neoantigen_identifier(neoantigen.to_json()),
         )
 
     def test_candidate_neoantigens2model(self):
@@ -143,7 +143,7 @@ class ModelConverterTest(TestCase):
 
         # test external annotations
         self._assert_external_annotations(
-            expected_number_external_annotations=44,
+            expected_number_external_annotations=45,
             external_annotations=external_annotations,
         )
 

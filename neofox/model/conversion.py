@@ -33,6 +33,7 @@ import orjson as json
 import numpy as np
 
 from neofox.model.mhc_parser import MhcParser
+from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import (
     Neoantigen,
     Mutation,
@@ -95,6 +96,11 @@ class ModelConverter(object):
         # check format of input file
         if FIELD_MUTATED_XMER in data.columns.values.tolist():
             data = data.replace({np.nan: None})
+            identifier = []
+            for row in data.to_json(orient='records', lines=True).splitlines():
+                id = ModelConverter.generate_neoantigen_identifier(row)
+                identifier.append(id)
+            data['identifier'] = identifier
             neoantigens = []
             external_annotations = []
             for _, candidate_entry in data.iterrows():
@@ -229,12 +235,46 @@ class ModelConverter(object):
         return patients
 
     @staticmethod
+    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
+        """parses an row from a candidate file into a model object"""
+
+        mutation = Mutation()
+        mutation.wild_type_xmer = candidate_entry.get(FIELD_WILD_TYPE_XMER)
+        mutation.mutated_xmer = candidate_entry.get(FIELD_MUTATED_XMER)
+
+        neoantigen = Neoantigen()
+        neoantigen.patient_identifier = (
+            patient_id if patient_id else candidate_entry.get("patient")
+        )
+        if neoantigen.patient_identifier is None:
+            raise NeofoxInputParametersException(
+                "Please, define the parameter `patient_id` or provide a column ´patient´ in the candidate file "
+            )
+        neoantigen.mutation = mutation
+        neoantigen.identifier = candidate_entry.get("identifier")
+        neoantigen.gene = candidate_entry.get(FIELD_GENE)
+        # missing RNA expression values are represented as -1
+        logger.info(neoantigen.patient_identifier)
+        vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
+        neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None
+        neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
+        neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
+
+        return ModelValidator.validate_neoantigen(neoantigen)
+
+
+    @staticmethod
     def neoantigens_csv2objects(
         dataframe: pd.DataFrame,
     ) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
         """transforms an patients CSV into a list of objects"""
         neoantigens = []
         external_annotations = []
+        identifier = []
+        for row in dataframe.to_json(orient='records', lines=True).splitlines():
+            id = ModelConverter.generate_neoantigen_identifier(row)
+            identifier.append(id)
+        dataframe['identifier'] = identifier
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
             neoantigen = ModelConverter._rescueNoneValues(nested_dict)
@@ -361,33 +401,6 @@ class ModelConverter(object):
             else:
                 nested_dict[k] = v
         return dict(nested_dict)
-
-    @staticmethod
-    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
-        """parses an row from a candidate file into a model object"""
-
-        mutation = Mutation()
-        mutation.wild_type_xmer = candidate_entry.get(FIELD_WILD_TYPE_XMER)
-        mutation.mutated_xmer = candidate_entry.get(FIELD_MUTATED_XMER)
-
-        neoantigen = Neoantigen()
-        neoantigen.patient_identifier = (
-            patient_id if patient_id else candidate_entry.get("patient")
-        )
-        if neoantigen.patient_identifier is None:
-            raise NeofoxInputParametersException(
-                "Please, define the parameter `patient_id` or provide a column ´patient´ in the candidate file "
-            )
-        neoantigen.mutation = mutation
-        neoantigen.gene = candidate_entry.get(FIELD_GENE)
-        # missing RNA expression values are represented as -1
-        logger.info(neoantigen.patient_identifier)
-        vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
-        neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None
-        neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
-        neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
-
-        return ModelValidator.validate_neoantigen(neoantigen)
 
     @staticmethod
     def parse_mhc1_alleles(alleles: List[str], hla_database: HlaDatabase) -> List[Mhc1]:
@@ -521,233 +534,8 @@ class ModelConverter(object):
                 a.gene in Mhc2GeneName.__members__
             ), "MHC II allele is not valid {} at {}".format(a.gene, a.full_name) if a.full_name != "" else "Gene from MHC II allele is empty"
 
-
-class ModelValidator(object):
     @staticmethod
-    def validate(model: betterproto.Message):
-        # TODO: make this method capture appropriately validation issues when dealing with int and float
-        try:
-            model.__bytes__()
-        except Exception as e:
-            raise NeofoxDataValidationException(e)
+    def generate_neoantigen_identifier(json_obj) -> str:
+        return base64.b64encode(hashlib.md5(json_obj.encode("utf8")).digest()).decode("utf8")
 
-    # TODO: add patient validation: validate GTEx tissue and MHC alleles
 
-    @staticmethod
-    def validate_neoantigen(neoantigen: Neoantigen) -> Neoantigen:
-
-        # checks format consistency first
-        ModelValidator.validate(neoantigen)
-
-        try:
-            assert neoantigen.patient_identifier is not None and len(neoantigen.patient_identifier) > 0, \
-                "A patient identifier is missing. Please provide patientIdentifier in the input file"
-
-            # checks mutation
-            neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
-
-            # check the expression values
-            ModelValidator._validate_expression_values(neoantigen)
-        except AssertionError as e:
-            logger.error(neoantigen.to_json(indent=3))
-            raise NeofoxDataValidationException(e)
-
-        # calculates the identifier now once the object is valid
-        neoantigen.identifier = ModelValidator.generate_neoantigen_identifier(
-            neoantigen
-        )
-
-        return neoantigen
-
-    @staticmethod
-    def validate_patient(patient: Patient) -> Patient:
-
-        # checks format consistency first
-        ModelValidator.validate(patient)
-
-        try:
-            # checks that patient id is not empty considering white spaces
-            patient_id = (
-                patient.identifier.strip() if patient.identifier else patient.identifier
-            )
-            assert (
-                patient_id is not None and patient_id != ""
-            ), "A patient identifier is missing"
-            patient.identifier = patient_id
-
-            # TODO: validate new model with isoforms, genes and alleles
-            # checks MHC I
-            validated_mhc1s = []
-            if patient.mhc1:
-                for m in patient.mhc1:
-                    validated_mhc1s.append(ModelValidator._validate_mhc1(m))
-            patient.mhc1 = validated_mhc1s
-            # checks MHC II
-            validated_mhc2s = []
-            if patient.mhc2:
-                for m in patient.mhc2:
-                    validated_mhc2s.append(ModelValidator._validate_mhc2(m))
-            patient.mhc2 = validated_mhc2s
-
-        except AssertionError as e:
-            logger.error(patient.to_json(indent=3))
-            raise NeofoxDataValidationException(e)
-
-        return patient
-
-    @staticmethod
-    def _validate_mhc1(mhc1: Mhc1) -> Mhc1:
-        assert mhc1.name in Mhc1Name, "Invalid MHC I name"
-        assert mhc1.zygosity in Zygosity, "Invalid zygosity"
-        alleles = mhc1.alleles
-        if mhc1.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
-            assert (
-                len(alleles) == 1
-            ), "A homozygous or hemizygous gene must have 1 allele and not {}".format(len(alleles))
-        elif mhc1.zygosity == Zygosity.HETEROZYGOUS:
-            assert (
-                len(alleles) == 2
-            ), "A heterozygous gene must have 2 alleles and not {}".format(
-                len(alleles)
-            )
-        elif mhc1.zygosity == Zygosity.LOSS:
-            assert (
-                len(alleles) == 0
-            ), "A lost gene must have 0 alleles and not {}".format(len(alleles))
-        validated_alleles = []
-        for allele in alleles:
-            validated_allele = MhcParser.validate_mhc_allele_representation(allele)
-            validated_alleles.append(validated_allele)
-            assert (
-                validated_allele.gene == mhc1.name.name
-            ), "The allele referring to gene {} is inside gene {}".format(
-                validated_allele.gene, mhc1.name.name
-            )
-        mhc1.alleles = validated_alleles
-        return mhc1
-
-    @staticmethod
-    def _validate_mhc2(mhc2: Mhc2) -> Mhc2:
-        assert mhc2.name in Mhc2Name, "Invalid MHC II name"
-        genes = mhc2.genes
-        for gene in genes:
-            assert gene.name in Mhc2GeneName, "Invalid gene name from MHC II"
-            assert gene.name in GENES_BY_MOLECULE.get(
-                mhc2.name
-            ), "Gene {} referring to isoform {}".format(gene.name, mhc2.name.name)
-            assert gene.zygosity in Zygosity, "Invalid zygosity"
-            alleles = gene.alleles
-            if gene.zygosity in [Zygosity.HOMOZYGOUS, Zygosity.HEMIZYGOUS]:
-                assert (
-                    len(alleles) == 1
-                ), "A homozygous or hemizygous gene must have 1 allele and not {}".format(
-                    len(alleles)
-                )
-            elif gene.zygosity == Zygosity.HETEROZYGOUS:
-                assert (
-                    len(alleles) == 2
-                ), "A heterozygous gene must have 2 alleles and not {}".format(
-                    len(alleles)
-                )
-            elif gene.zygosity == Zygosity.LOSS:
-                assert (
-                    len(alleles) == 0
-                ), "A lost gene must have 0 alleles and not {}".format(len(alleles))
-            validated_alleles = []
-            for allele in alleles:
-                validated_allele = MhcParser.validate_mhc_allele_representation(
-                    allele
-                )
-                validated_alleles.append(validated_allele)
-                assert (
-                    validated_allele.gene == gene.name.name
-                ), "The allele referring to gene {} is inside gene {}".format(
-                    validated_allele.gene, gene.name.name
-                )
-            gene.alleles = validated_alleles
-        isoforms = mhc2.isoforms
-        validated_isoforms = []
-        for isoform in isoforms:
-            validated_isoform = MhcParser.validate_mhc2_isoform_representation(
-                isoform
-            )
-            validated_isoforms.append(validated_isoform)
-            if mhc2.name != Mhc2Name.DR:
-                assert validated_isoform.alpha_chain.name in [
-                    a.name for g in genes for a in g.alleles
-                ], "Alpha chain allele not present in th list of alleles"
-            assert validated_isoform.beta_chain.name in [
-                a.name for g in genes for a in g.alleles
-            ], "Beta chain allele not present in th list of alleles"
-        mhc2.isoforms = validated_isoforms
-        return mhc2
-
-    @staticmethod
-    def _validate_expression_values(neoantigen):
-        assert (
-            neoantigen.rna_expression is None or neoantigen.rna_expression >= 0
-        ), "RNA expression should be a positive integer or zero {}".format(
-            neoantigen.rna_expression
-        )
-        ModelValidator._validate_vaf(neoantigen.dna_variant_allele_frequency)
-        ModelValidator._validate_vaf(neoantigen.rna_variant_allele_frequency)
-
-    @staticmethod
-    def _validate_mutation(mutation: Mutation) -> Mutation:
-        assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
-            "Missing mutated peptide sequence in input (mutation.mutatedXmer) "
-        mutation.mutated_xmer = "".join(
-            [ModelValidator._validate_aminoacid(aa) for aa in mutation.mutated_xmer]
-        )
-        # avoids this validation when there is no wild type
-        if mutation.wild_type_xmer:
-            mutation.wild_type_xmer = "".join(
-                [
-                    ModelValidator._validate_aminoacid(aa)
-                    for aa in mutation.wild_type_xmer
-                ]
-            )
-            mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=mutation)
-        return mutation
-
-    @staticmethod
-    def _validate_vaf(vaf):
-        assert (
-            vaf is None or vaf == -1.0 or 0.0 <= vaf <= 1.0
-        ), "VAF should be a decimal number in the range [0.0, 1.0], or else -1.0 for missing values. " \
-           "Provided value {}".format(vaf)
-
-    @staticmethod
-    def _validate_aminoacid(aminoacid):
-        assert aminoacid is not None, "Amino acid field cannot be empty"
-        aminoacid = aminoacid.strip()
-        assert isinstance(aminoacid, str), "Amino acid has to be a string"
-        # this chunk is unused but let's leave in case it is handy in the future
-        if len(aminoacid) == 3:
-            assert (
-                aminoacid in IUPACData.protein_letters_3to1_extended.keys()
-            ), "Non existing 3 letter amino acid {}".format(aminoacid)
-            assert aminoacid != "X", "Unknown amino acid X is not supported. Please, remove neoantigens containing an X."
-            aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
-        if len(aminoacid) == 1:
-            aminoacid = aminoacid.upper()
-            assert (
-                aminoacid in ExtendedIUPACProtein.letters
-            ), "Non existing aminoacid {}".format(aminoacid)
-        else:
-            assert False, "Invalid aminoacid {}".format(aminoacid)
-        return aminoacid
-
-    @staticmethod
-    def generate_neoantigen_identifier(neoantigen: Neoantigen) -> str:
-        neoantigen.identifier = None  # this needs to be done otherwise we cannot rreproduce the id after it is set
-        return base64.b64encode(
-            hashlib.md5(neoantigen.to_json().encode("utf8")).digest()
-        ).decode("utf8")
-
-    @staticmethod
-    def has_peptide_rare_amino_acids(peptide: str):
-        has_rare_amino_acid = False
-        for aa in peptide:
-            has_rare_amino_acid |= aa not in list(IUPACData.protein_letters_3to1.values())
-        return has_rare_amino_acid
