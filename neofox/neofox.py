@@ -171,6 +171,7 @@ class NeoFox:
 
         # check that there are no repeated neoantigens
         neoantigen_identifiers = [n.identifier for n in self.neoantigens]
+        logger.info(neoantigen_identifiers)
         if len(neoantigen_identifiers) != len(set(neoantigen_identifiers)):
             raise NeofoxDataValidationException("There are repeated neoantigens!")
 
