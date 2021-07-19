@@ -240,9 +240,8 @@ class ModelConverter(object):
             neoantigen = ModelConverter._rescueNoneValues(nested_dict)
             validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
             neoantigens.append(validated_neoantigen)
-            external_annotation_names = set(
-                [stringcase.snakecase(k) for k in nested_dict.keys()]
-            ).difference(set(Neoantigen.__annotations__.keys()))
+            neoantigen_names = set(Neoantigen.__annotations__.keys())
+            external_annotation_names = dict.fromkeys(nam for nam in nested_dict.keys() if stringcase.snakecase(nam) not in neoantigen_names)
             external_annotations.append(
                 NeoantigenAnnotations(
                     neoantigen_identifier=validated_neoantigen.identifier,
