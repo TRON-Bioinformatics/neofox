@@ -191,19 +191,21 @@ class NeoantigenAnnotator:
         )
 
         # Neoantigen fitness
-        if netmhcpan and netmhc2pan:
-            start = time.time()
-            self.annotations.annotations.extend(
-                self.neoantigen_fitness_calculator.get_annotations(
-                    netmhcpan, self.amplitude, netmhc2pan
-                )
+        start = time.time()
+        self.annotations.annotations.extend(
+            self.neoantigen_fitness_calculator.get_annotations(
+                best_epitope_mhc_i=netmhcpan.best_ninemer_epitope_by_affinity if netmhcpan else None,
+                mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer if netmhcpan else None,
+                amplitude=self.amplitude.amplitude_mhci_affinity_9mer,
+                best_epitope_mhc_ii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
-            end = time.time()
-            logger.info(
-                "Neoantigen annotation elapsed time {} seconds".format(
-                    round(end - start, 3)
-                )
+        )
+        end = time.time()
+        logger.info(
+            "Neoantigen annotation elapsed time {} seconds".format(
+                round(end - start, 3)
             )
+        )
 
         # Differential Binding
         start = time.time()
@@ -241,17 +243,21 @@ class NeoantigenAnnotator:
             )
 
         # self-similarity
-        if netmhcpan and netmhc2pan:
-            start = time.time()
-            self.annotations.annotations.extend(
-                self.self_similarity.get_annnotations(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
+        start = time.time()
+        self.annotations.annotations.extend(
+            self.self_similarity.get_annnotations(
+                best_epitope_mhc_i=netmhcpan.best_epitope_by_rank if netmhcpan else None,
+                best_epitope_mhc_i_wt=netmhcpan.best_wt_epitope_by_rank if netmhcpan else None,
+                best_epitope_mhc_ii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None,
+                best_epitope_mhc_ii_wt=netmhc2pan.best_predicted_epitope_affinity_wt if netmhc2pan else None,
             )
-            end = time.time()
-            logger.info(
-                "Self similarity annotation elapsed time {} seconds".format(
-                    round(end - start, 3)
-                )
+        )
+        end = time.time()
+        logger.info(
+            "Self similarity annotation elapsed time {} seconds".format(
+                round(end - start, 3)
             )
+        )
 
         # number of mismatches and priority score
         if netmhcpan and netmhcpan:
@@ -292,30 +298,31 @@ class NeoantigenAnnotator:
             )
 
         # IEDB immunogenicity
-        if netmhcpan and netmhcpan.best_epitope_by_affinity and netmhc2pan and netmhc2pan.best_predicted_epitope_affinity:
-            start = time.time()
-            self.annotations.annotations.extend(
-                self.iedb_immunogenicity.get_annotations(
-                    netmhcpan=netmhcpan, netmhc2pan=netmhc2pan
-                )
+        start = time.time()
+        self.annotations.annotations.extend(
+            self.iedb_immunogenicity.get_annotations(
+                best_epitope_mhc_i=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
+                best_epitope_mhc_ii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
-            end = time.time()
-            logger.info(
-                "IEDB annotation elapsed time {} seconds".format(round(end - start, 3))
-            )
+        )
+        end = time.time()
+        logger.info(
+            "IEDB annotation elapsed time {} seconds".format(round(end - start, 3))
+        )
 
         # dissimilarity to self-proteome
-        if netmhcpan and netmhcpan.best_epitope_by_affinity and netmhc2pan and netmhc2pan.best_predicted_epitope_affinity:
-            start = time.time()
-            self.annotations.annotations.extend(
-                self.dissimilarity_calculator.get_annotations(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
+        start = time.time()
+        self.annotations.annotations.extend(
+            self.dissimilarity_calculator.get_annotations(
+                best_epitope_mhc_i=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
+                best_epitope_mhc_ii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
+        )
+        end = time.time()
+        logger.info(
+            "Dissimilarity annotation elapsed time {} seconds".format(
+                round(end - start, 3)
             )
-            end = time.time()
-            logger.info(
-                "Dissimilarity annotation elapsed time {} seconds".format(
-                    round(end - start, 3)
-                )
-            )
+        )
 
         # vaxrank
         if netmhcpan and netmhcpan.epitope_affinities:
@@ -332,15 +339,17 @@ class NeoantigenAnnotator:
             )
 
         # hex
-        if netmhcpan and netmhcpan.best_epitope_by_affinity and netmhc2pan and netmhc2pan.best_predicted_epitope_affinity:
-            start = time.time()
-            self.annotations.annotations.extend(
-                self.hex.get_annotation(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
-            )
-            end = time.time()
-            logger.info(
-                "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
-            )
+        start = time.time()
+        self.annotations.annotations.extend(
+            self.hex.get_annotation(
+                best_epitope_mhc_i=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
+                best_epitope_mhc_ii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
+        )
+        end = time.time()
+        logger.info(
+            "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
+        )
+
         return self.annotations
 
     def _compute_long_running_tasks(self, neoantigen, patient, sequential=True):
