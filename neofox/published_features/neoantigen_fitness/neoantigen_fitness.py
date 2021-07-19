@@ -19,17 +19,12 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 from logzero import logger
+
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
-    BestAndMultipleBinder,
-)
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
-    BestAndMultipleBinderMhcII
-)
 from neofox import AFFINITY_THRESHOLD_DEFAULT
-from neofox.published_features.differential_binding.amplitude import Amplitude
 
 
 class NeoantigenFitnessCalculator:
@@ -96,26 +91,23 @@ class NeoantigenFitnessCalculator:
         return recognition_potential
 
     def get_annotations(
-        self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude, netmhc2pan: BestAndMultipleBinderMhcII
+            self, best_epitope_mhc_i: PredictedEpitope, best_epitope_mhc_ii: PredictedEpitope,
+            amplitude, mutation_in_anchor
     ) -> List[Annotation]:
         pathogen_similarity_9mer = None
         pathogen_similarity_mhcii = None
         recognition_potential = None
-        if netmhcpan.best_ninemer_epitope_by_affinity.peptide:
-            pathogen_similarity_9mer = self.get_pathogen_similarity(
-                peptide=netmhcpan.best_ninemer_epitope_by_affinity.peptide
-            )
+        if best_epitope_mhc_i and best_epitope_mhc_i.peptide:
+            pathogen_similarity_9mer = self.get_pathogen_similarity(peptide=best_epitope_mhc_i.peptide)
             if pathogen_similarity_9mer is not None:
                 recognition_potential = self.calculate_recognition_potential(
-                            amplitude=amplitude.amplitude_mhci_affinity_9mer,
+                            amplitude=amplitude,
                             pathogen_similarity=pathogen_similarity_9mer,
-                            mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer,
-                            mhc_affinity_mut=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
+                            mutation_in_anchor=mutation_in_anchor,
+                            mhc_affinity_mut=best_epitope_mhc_i.affinity_score,
                         )
-        if netmhc2pan.best_predicted_epitope_affinity.peptide:
-            pathogen_similarity_mhcii = self.get_pathogen_similarity(
-                peptide=netmhc2pan.best_predicted_epitope_affinity.peptide
-            )
+        if best_epitope_mhc_ii and best_epitope_mhc_ii.peptide:
+            pathogen_similarity_mhcii = self.get_pathogen_similarity(peptide=best_epitope_mhc_ii.peptide)
 
         annotations = [
             AnnotationFactory.build_annotation(
