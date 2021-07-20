@@ -49,7 +49,7 @@ class Hex(object):
         return output
 
     def get_annotation(
-            self, best_epitope_mhc_i: PredictedEpitope, best_epitope_mhc_ii: PredictedEpitope) -> List[Annotation]:
+            self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
         """
         wrapper function for HEX (Homology evaluation of Xenopeptides) (Chiaro et al., 2021)
         """
@@ -57,11 +57,11 @@ class Hex(object):
         hex_aln_score_mhci = None
         hex_aln_score_mhcii = None
         # hex_b_score = None
-        if best_epitope_mhc_i and best_epitope_mhc_i.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
             # hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
-            hex_aln_score_mhci = self.apply_hex(best_epitope_mhc_i.peptide)
-        if best_epitope_mhc_ii and best_epitope_mhc_ii.peptide:
-            hex_aln_score_mhcii = self.apply_hex(best_epitope_mhc_ii.peptide)
+            hex_aln_score_mhci = self.apply_hex(mutated_peptide_mhci.peptide)
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
+            hex_aln_score_mhcii = self.apply_hex(mutated_peptide_mhcii.peptide)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=hex_aln_score_mhci, name="Hex_alignment_score_MHCI"),
