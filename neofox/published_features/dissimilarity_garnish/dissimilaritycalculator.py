@@ -46,20 +46,20 @@ class DissimilarityCalculator:
         return dissimilarity
 
     def get_annotations(
-            self, best_epitope_mhc_i: PredictedEpitope, best_epitope_mhc_ii: PredictedEpitope) -> List[Annotation]:
+            self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
         """
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
         dissimilarity_mhci = None
         dissimilarity_mhcii = None
-        if best_epitope_mhc_i and best_epitope_mhc_i.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
             dissimilarity_mhci = self.calculate_dissimilarity(
-                mutated_peptide=best_epitope_mhc_i.peptide,
-                mhc_affinity=best_epitope_mhc_i.affinity_score )
-        if best_epitope_mhc_ii and best_epitope_mhc_ii.peptide:
+                mutated_peptide=mutated_peptide_mhci.peptide,
+                mhc_affinity=mutated_peptide_mhci.affinity_score )
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
             dissimilarity_mhcii = self.calculate_dissimilarity(
-                mutated_peptide=best_epitope_mhc_ii.peptide,
-                mhc_affinity=best_epitope_mhc_ii.affinity_score )
+                mutated_peptide=mutated_peptide_mhcii.peptide,
+                mhc_affinity=mutated_peptide_mhcii.affinity_score )
         annotations = [
             AnnotationFactory.build_annotation(
                 value=dissimilarity_mhci,
