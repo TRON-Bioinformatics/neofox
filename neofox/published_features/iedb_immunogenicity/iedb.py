@@ -151,23 +151,23 @@ class IEDBimmunogenicity:
         return score
 
     def get_annotations(
-            self, best_epitope_mhc_i: PredictedEpitope, best_epitope_mhc_ii: PredictedEpitope) -> List[Annotation]:
+            self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
         """
         returns IEDB immunogenicity for best predicted MHC I (based on affinity) and MHC II (based on affinity) epitopes
         """
         iedb = None
         iedb_mhcii = None
-        if best_epitope_mhc_i and best_epitope_mhc_i.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
             iedb = self.calculate_iedb_immunogenicity(
-                        peptide=best_epitope_mhc_i.peptide,
-                        mhc_allele=best_epitope_mhc_i.hla,
-                        mhc_score=best_epitope_mhc_i.affinity_score,
+                        peptide=mutated_peptide_mhci.peptide,
+                        mhc_allele=mutated_peptide_mhci.hla,
+                        mhc_score=mutated_peptide_mhci.affinity_score,
                     )
-        if best_epitope_mhc_ii and best_epitope_mhc_ii.peptide:
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
             iedb_mhcii = self.calculate_iedb_immunogenicity(
-                peptide=best_epitope_mhc_ii.peptide,
-                mhc_allele=best_epitope_mhc_ii.hla,
-                mhc_score=best_epitope_mhc_ii.affinity_score,
+                peptide=mutated_peptide_mhcii.peptide,
+                mhc_allele=mutated_peptide_mhcii.hla,
+                mhc_score=mutated_peptide_mhcii.affinity_score,
             )
         annotations = [
             AnnotationFactory.build_annotation(

@@ -301,8 +301,8 @@ class NeoantigenAnnotator:
         start = time.time()
         self.annotations.annotations.extend(
             self.iedb_immunogenicity.get_annotations(
-                best_epitope_mhc_i=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
-                best_epitope_mhc_ii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
+                mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
+                mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
         end = time.time()
