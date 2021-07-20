@@ -144,6 +144,7 @@ class ModelConverterTest(TestCase):
         # test external annotations
         self._assert_external_annotations(
             expected_external_annotations=[
+                "identifier",
                 "patient",
                 "key",
                 "mutation",
@@ -190,6 +191,7 @@ class ModelConverterTest(TestCase):
                 "VAF_RNA_limits"
             ],
             non_nullable_annotations=[
+                "identifier",
                 "patient",
                 "key",
                 "mutation",
