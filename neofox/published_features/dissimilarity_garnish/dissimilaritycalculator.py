@@ -17,21 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-
-import os
-import os.path
 from typing import List
-
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
-    BestAndMultipleBinder,
-)
 from neofox import AFFINITY_THRESHOLD_DEFAULT
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
-    BestAndMultipleBinderMhcII
-)
 
 
 class DissimilarityCalculator:
@@ -54,20 +45,21 @@ class DissimilarityCalculator:
                 dissimilarity = 1 - similarity
         return dissimilarity
 
-    def get_annotations(self, netmhcpan: BestAndMultipleBinder, netmhc2pan: BestAndMultipleBinderMhcII) -> List[Annotation]:
+    def get_annotations(
+            self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
         """
         returns dissimilarity for MHC I (affinity) MHC II (affinity)
         """
         dissimilarity_mhci = None
         dissimilarity_mhcii = None
-        if netmhcpan.best_epitope_by_affinity.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
             dissimilarity_mhci = self.calculate_dissimilarity(
-                mutated_peptide=netmhcpan.best_epitope_by_affinity.peptide,
-                mhc_affinity=netmhcpan.best_epitope_by_affinity.affinity_score )
-        if netmhc2pan.best_predicted_epitope_affinity.peptide:
+                mutated_peptide=mutated_peptide_mhci.peptide,
+                mhc_affinity=mutated_peptide_mhci.affinity_score )
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
             dissimilarity_mhcii = self.calculate_dissimilarity(
-                mutated_peptide=netmhc2pan.best_predicted_epitope_affinity.peptide,
-                mhc_affinity=netmhc2pan.best_predicted_epitope_affinity.affinity_score )
+                mutated_peptide=mutated_peptide_mhcii.peptide,
+                mhc_affinity=mutated_peptide_mhcii.affinity_score )
         annotations = [
             AnnotationFactory.build_annotation(
                 value=dissimilarity_mhci,
