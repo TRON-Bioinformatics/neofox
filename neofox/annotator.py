@@ -194,10 +194,10 @@ class NeoantigenAnnotator:
         start = time.time()
         self.annotations.annotations.extend(
             self.neoantigen_fitness_calculator.get_annotations(
-                best_epitope_mhc_i=netmhcpan.best_ninemer_epitope_by_affinity if netmhcpan else None,
+                mutated_peptide_mhci=netmhcpan.best_ninemer_epitope_by_affinity if netmhcpan else None,
                 mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer if netmhcpan else None,
                 amplitude=self.amplitude.amplitude_mhci_affinity_9mer,
-                best_epitope_mhc_ii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
+                mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
         end = time.time()
