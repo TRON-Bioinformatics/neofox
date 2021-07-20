@@ -211,14 +211,19 @@ class NeoantigenAnnotator:
         start = time.time()
         if netmhcpan:
             self.annotations.annotations.extend(
-                self.differential_binding.get_annotations_dai(netmhcpan)
+                self.differential_binding.get_annotations_dai(
+                    mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
+                    wt_peptide_mhcii=netmhcpan.best_wt_epitope_by_affinity
+                )
             )
             self.annotations.annotations.extend(
-                self.differential_binding.get_annotations(netmhcpan, self.amplitude)
+                self.differential_binding.get_annotations(mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
+                                                            amplitude=self.amplitude)
             )
         if netmhc2pan:
             self.annotations.annotations.extend(
-                self.differential_binding.get_annotations_mhc2(netmhc2pan, self.amplitude)
+                self.differential_binding.get_annotations_mhc2(mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_rank,
+                                                               amplitude=self.amplitude)
             )
         end = time.time()
         logger.info(
