@@ -26,7 +26,7 @@ from neofox.published_features.self_similarity.self_similarity import (
 class TestSelfSimilarity(TestCase):
     def test_get_self_similarity(self):
         result = SelfSimilarityCalculator().get_self_similarity(
-            wild_type="DDD", mutation="DDD"
+            wt_peptide="DDD", mutated_peptide="DDD"
         )
         self.assertEqual("1.0", result)
 
@@ -50,6 +50,6 @@ class TestSelfSimilarity(TestCase):
 
     def test_rare_aminoacids(self):
         result = SelfSimilarityCalculator().get_self_similarity(
-            wild_type="DDD", mutation="DUD"
+            wt_peptide="DDD", mutated_peptide="DUD"
         )
         self.assertEqual(None, result)
