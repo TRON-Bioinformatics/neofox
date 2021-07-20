@@ -22,10 +22,8 @@ import os
 from neofox.helpers import intermediate_files
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
-    BestAndMultipleBinder,
-)
 from neofox import AFFINITY_THRESHOLD_DEFAULT
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 
 
 class NeoagCalculator(object):
@@ -79,21 +77,21 @@ class NeoagCalculator(object):
             f.write(epi_row + "\n")
 
     def get_annotation(
-        self, sample_id, netmhcpan: BestAndMultipleBinder, peptide_variant_position, mutation
+        self, sample_id, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhci: PredictedEpitope, peptide_variant_position, mutation
     ) -> Annotation:
         """wrapper function to determine neoag immunogenicity score for a mutated peptide sequence"""
 
         neoag_score = None
-        if mutation.wild_type_xmer and netmhcpan.best_epitope_by_affinity.peptide and netmhcpan.best_wt_epitope_by_affinity.peptide:
+        if mutation.wild_type_xmer and mutated_peptide_mhci.peptide and wt_peptide_mhci.peptide:
             # TODO: move this tmp file creation inside the method
             tmp_file_name = intermediate_files.create_temp_file(
                 prefix="tmp_neoag_", suffix=".txt"
             )
             self._prepare_tmp_for_neoag(
                 sample_id,
-                netmhcpan.best_epitope_by_affinity.peptide,
-                netmhcpan.best_epitope_by_affinity.affinity_score,
-                netmhcpan.best_wt_epitope_by_affinity.peptide,
+                mutated_peptide_mhci.peptide,
+                mutated_peptide_mhci.affinity_score,
+                wt_peptide_mhci.peptide,
                 peptide_variant_position,
                 tmp_file_name,
             )

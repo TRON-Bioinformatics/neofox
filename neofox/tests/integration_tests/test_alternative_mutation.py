@@ -60,6 +60,48 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration,
             database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
 
+    def test_best_multiple_mhc2_run(self):
+        best_multiple = BestAndMultipleBinderMhcII(
+            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
+            blastp_runner=self.proteome_blastp_runner
+        )
+        # this is some valid example neoantigen candidate sequence
+        mutation = ModelValidator._validate_mutation(
+            Mutation(
+                #mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
+                mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTA",
+                wild_type_xmer=None,
+            )
+        )
+        best_multiple.run(
+            mutation=mutation,
+            mhc2_alleles_patient=self.test_mhc_two,
+            mhc2_alleles_available=self.available_alleles_mhc2,
+            uniprot=self.uniprot
+        )
+        logger.info(best_multiple.best_predicted_epitope_rank.rank)
+        logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
+        logger.info(best_multiple.best_predicted_epitope_rank.peptide)
+        logger.info(best_multiple.best_predicted_epitope_rank_wt.peptide)
+        logger.info(best_multiple.phbr_ii)
+        self.assertEqual(0.8, best_multiple.best_predicted_epitope_rank.rank)
+        self.assertEqual(
+            185.02, best_multiple.best_predicted_epitope_affinity.affinity_score
+        )
+        self.assertEqual(
+            "VVKWKFMVSTADPGS", best_multiple.best_predicted_epitope_rank.peptide
+        )
+        self.assertEqual(
+            "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank_wt.peptide
+        )
+        self.assertIsNotNone(best_multiple.phbr_ii)
+        self.assertAlmostEqual(2.9386450524753664, best_multiple.phbr_ii)
+        self.assertEqual(
+            best_multiple.best_predicted_epitope_rank.hla,
+            best_multiple.best_predicted_epitope_rank_wt.hla,
+        )
+
+
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
@@ -77,7 +119,6 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
-            hla_database=self.hla_database
         )
         self.assertEqual(17.79, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)
@@ -91,44 +132,4 @@ class TestBestMultipleBinder(TestCase):
         )
         self.assertEqual(3, best_multiple.generator_rate_cdn)
         self.assertAlmostEqual(0.23085258129451622, best_multiple.phbr_i)
-
-    def test_best_multiple_mhc2_run(self):
-        best_multiple = BestAndMultipleBinderMhcII(
-            runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
-            blastp_runner=self.proteome_blastp_runner
-        )
-        # this is some valid example neoantigen candidate sequence
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
-                wild_type_xmer=None,
-            )
-        )
-        best_multiple.run(
-            mutation=mutation,
-            mhc2_alleles_patient=self.test_mhc_two,
-            mhc2_alleles_available=self.available_alleles_mhc2,
-            uniprot=self.uniprot
-        )
-        logger.info(best_multiple.best_predicted_epitope_rank.rank)
-        logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
-        logger.info(best_multiple.best_predicted_epitope_rank.peptide)
-        logger.info(best_multiple.phbr_ii)
-        self.assertEqual(0.8, best_multiple.best_predicted_epitope_rank.rank)
-        self.assertEqual(
-            172.39, best_multiple.best_predicted_epitope_affinity.affinity_score
-        )
-        self.assertEqual(
-            "VVKWKFMVSTADPGS", best_multiple.best_predicted_epitope_rank.peptide
-        )
-        self.assertEqual(
-            "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank_wt.peptide
-        )
-        self.assertIsNotNone(best_multiple.phbr_ii)
-        self.assertAlmostEqual(2.443747855207474, best_multiple.phbr_ii)
-        self.assertEqual(
-            best_multiple.best_predicted_epitope_rank.hla,
-            best_multiple.best_predicted_epitope_rank_wt.hla,
-        )
-
 

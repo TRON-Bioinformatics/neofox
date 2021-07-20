@@ -165,6 +165,8 @@ class TestNeofox(TestCase):
         # regression test
         self._regression_test_on_output_file(new_file=output_file)
 
+
+
     def test_neofox_only_one_neoantigen(self):
         """"""
         input_file = pkg_resources.resource_filename(
@@ -194,7 +196,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
+        self.assertTrue(len(annotations[0].annotations) == 86)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -285,7 +287,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
+        self.assertTrue(len(annotations[0].annotations) == 65)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients, patient_id = self._get_test_data()
@@ -299,7 +301,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
+        self.assertTrue(len(annotations[0].annotations) == 39)
 
     def test_gene_expression_imputation(self):
         neoantigens, patients, patient_id = self._get_test_data()

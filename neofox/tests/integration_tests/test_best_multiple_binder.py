@@ -76,7 +76,6 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
-            hla_database=self.hla_database
         )
         self.assertEqual(602.12, best_multiple.best_epitope_by_affinity.affinity_score)
         self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)

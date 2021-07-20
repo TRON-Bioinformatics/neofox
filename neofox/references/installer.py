@@ -150,7 +150,7 @@ class NeofoxReferenceInstaller(object):
         # builds proteome in pickle for querying
         prepared_proteome = []
         for record in SeqIO.parse(proteome_file, "fasta"):
-            prepared_proteome.append(str(record.seq))
+            prepared_proteome.append(str(record.seq).replace("*",""))
 
         proteome_pickle = os.path.join(
             self.reference_folder, PROTEOME_DB_FOLDER, HOMO_SAPIENS_PICKLE
