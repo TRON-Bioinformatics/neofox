@@ -137,27 +137,27 @@ class SelfSimilarityCalculator:
         return result
 
     def get_annnotations(
-            self, best_epitope_mhc_i: PredictedEpitope, best_epitope_mhc_i_wt: PredictedEpitope,
-            best_epitope_mhc_ii: PredictedEpitope, best_epitope_mhc_ii_wt: PredictedEpitope) -> List[Annotation]:
+            self, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhci: PredictedEpitope,
+            mutated_peptide_mhcii: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
 
         improved_binding_mhci = None
         self_similarity_mhci = None
         self_similarity_mhcii = None
-        if best_epitope_mhc_i and best_epitope_mhc_i_wt and \
-                best_epitope_mhc_i.peptide and best_epitope_mhc_i_wt.peptide:
+        if mutated_peptide_mhci and wt_peptide_mhci and \
+                mutated_peptide_mhci.peptide and wt_peptide_mhci.peptide:
             improved_binding_mhci = self.is_improved_binder(
-                score_mutation=best_epitope_mhc_i.rank,
-                score_wild_type=best_epitope_mhc_i_wt.rank,
+                score_mutation=mutated_peptide_mhci.rank,
+                score_wild_type=wt_peptide_mhci.rank,
             )
             self_similarity_mhci = self.get_self_similarity(
-                mutated_peptide=best_epitope_mhc_i.peptide,
-                wt_peptide=best_epitope_mhc_i_wt.peptide,
+                mutated_peptide=mutated_peptide_mhci.peptide,
+                wt_peptide=wt_peptide_mhci.peptide,
             )
-        if best_epitope_mhc_ii and best_epitope_mhc_ii_wt and \
-                best_epitope_mhc_ii.peptide and best_epitope_mhc_ii_wt.peptide:
+        if mutated_peptide_mhcii and wt_peptide_mhcii and \
+                mutated_peptide_mhcii.peptide and wt_peptide_mhcii.peptide:
             self_similarity_mhcii = self.get_self_similarity(
-                mutated_peptide=best_epitope_mhc_ii.peptide,
-                wt_peptide=best_epitope_mhc_ii_wt.peptide,
+                mutated_peptide=mutated_peptide_mhcii.peptide,
+                wt_peptide=wt_peptide_mhcii.peptide,
             )
         annotations = [
             AnnotationFactory.build_annotation(
