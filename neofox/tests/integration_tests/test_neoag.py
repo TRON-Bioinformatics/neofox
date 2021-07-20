@@ -25,6 +25,7 @@ from neofox.model.neoantigen import Mutation
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.tests.fake_classes import FakeBestAndMultipleBinder
 from neofox.model.conversion import ModelValidator
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 
 
 class TestNeoantigenFitness(TestCase):
@@ -44,8 +45,11 @@ class TestNeoantigenFitness(TestCase):
             runner=self.runner, configuration=self.configuration
         ).get_annotation(
             sample_id="12345",
-            netmhcpan=FakeBestAndMultipleBinder(
-                mutated_epitope="DDDDDV", wild_type_epitope="DDDDDD", affinity=0
+            mutated_peptide_mhci=PredictedEpitope(
+                peptide="DDDDDV", affinity_score=0, pos=0, hla="hla", rank=0
+            ),
+            wt_peptide_mhci=PredictedEpitope(
+                peptide="DDDDDD", affinity_score=0, pos=0, hla="hla", rank=0
             ),
             mutation=mutation,
             peptide_variant_position="123"
@@ -64,8 +68,11 @@ class TestNeoantigenFitness(TestCase):
             runner=self.runner, configuration=self.configuration, affinity_threshold=1
         ).get_annotation(
             sample_id="12345",
-            netmhcpan=FakeBestAndMultipleBinder(
-                mutated_epitope="DDDDDV", wild_type_epitope="DDDDDD", affinity=10
+            mutated_peptide_mhci=PredictedEpitope(
+                peptide="DDDDDV", affinity_score=10, pos=0, hla="hla", rank=0
+            ),
+            wt_peptide_mhci=PredictedEpitope(
+                peptide="DDDDDD", affinity_score=0, pos=0, hla="hla", rank=0
             ),
             mutation=mutation,
             peptide_variant_position="123"

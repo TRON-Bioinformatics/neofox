@@ -293,7 +293,8 @@ class NeoantigenAnnotator:
             self.annotations.annotations.append(
                 self.neoag_calculator.get_annotation(
                     sample_id=patient.identifier,
-                    netmhcpan=netmhcpan,
+                    mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
+                    wt_peptide_mhci=netmhcpan.best_wt_epitope_by_affinity,
                     peptide_variant_position=peptide_variant_position,
                     mutation=neoantigen.mutation)
             )
