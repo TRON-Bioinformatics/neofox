@@ -30,7 +30,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 )
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
-
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 
 class DifferentialBinding:
 
@@ -79,12 +79,12 @@ class DifferentialBinding:
             pass
         return group
 
-    def get_annotations_dai(self, netmhcpan: BestAndMultipleBinder) -> List[Annotation]:
+    def get_annotations_dai(self, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
         dai = None
-        if netmhcpan.best_epitope_by_affinity.peptide and netmhcpan.best_wt_epitope_by_affinity.peptide:
+        if mutated_peptide_mhci.peptide and wt_peptide_mhcii.peptide:
             dai = self.dai(
-                        score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
-                        score_wild_type=netmhcpan.best_wt_epitope_by_affinity.affinity_score,
+                        score_mutation=mutated_peptide_mhci.affinity_score,
+                        score_wild_type=wt_peptide_mhcii.affinity_score,
                         affin_filtering=True,
                     )
         annotations = [
@@ -96,7 +96,7 @@ class DifferentialBinding:
         return annotations
 
     def get_annotations(
-        self, netmhcpan: BestAndMultipleBinder, amplitude: Amplitude
+        self, mutated_peptide_mhci: PredictedEpitope, amplitude: Amplitude
     ) -> List[Annotation]:
 
         bdg_cutoff_classical_mhci = 50
@@ -105,9 +105,9 @@ class DifferentialBinding:
 
         cdn = None
         adn = None
-        if netmhcpan.best_epitope_by_affinity.peptide:
+        if mutated_peptide_mhci.peptide:
             cdn = self.classify_adn_cdn(
-                        score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                        score_mutation=mutated_peptide_mhci.affinity_score,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
@@ -115,7 +115,7 @@ class DifferentialBinding:
                         category="CDN",
                     )
             adn = self.classify_adn_cdn(
-                        score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
+                        score_mutation=mutated_peptide_mhci.affinity_score,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
@@ -135,7 +135,7 @@ class DifferentialBinding:
         return annotations
 
     def get_annotations_mhc2(
-        self, netmhc2pan: BestAndMultipleBinderMhcII, amplitude: Amplitude
+        self, mutated_peptide_mhcii: PredictedEpitope, amplitude: Amplitude
     ) -> List[Annotation]:
 
         bdg_cutoff_classical_mhcii = 1
@@ -143,9 +143,9 @@ class DifferentialBinding:
         amplitude_cutoff_mhcii = 4
         cdn = None
         adn = None
-        if netmhc2pan.best_predicted_epitope_rank.peptide:
+        if mutated_peptide_mhcii.peptide:
             cdn = self.classify_adn_cdn(
-                        score_mutation=netmhc2pan.best_predicted_epitope_rank.rank,
+                        score_mutation=mutated_peptide_mhcii.rank,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
@@ -153,7 +153,7 @@ class DifferentialBinding:
                         category="CDN",
                     )
             adn = self.classify_adn_cdn(
-                        score_mutation=netmhc2pan.best_predicted_epitope_rank.rank,
+                        score_mutation=mutated_peptide_mhcii.rank,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
