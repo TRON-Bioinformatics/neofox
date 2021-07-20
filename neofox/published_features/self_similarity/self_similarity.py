@@ -20,16 +20,11 @@
 from typing import List
 import math
 import os
-
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.model.conversion import ModelValidator
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
-    BestAndMultipleBinder,
-)
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
-    BestAndMultipleBinderMhcII
-)
+
 
 THRESHOLD_IMPROVED_BINDER = 1.2
 
@@ -141,24 +136,28 @@ class SelfSimilarityCalculator:
             pass
         return result
 
-    def get_annnotations(self, netmhcpan: BestAndMultipleBinder, netmhc2pan: BestAndMultipleBinderMhcII) -> List[Annotation]:
+    def get_annnotations(
+            self, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhci: PredictedEpitope,
+            mutated_peptide_mhcii: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
 
         improved_binding_mhci = None
         self_similarity_mhci = None
         self_similarity_mhcii = None
-        if netmhcpan.best_epitope_by_rank.peptide and netmhcpan.best_wt_epitope_by_rank.peptide:
+        if mutated_peptide_mhci and wt_peptide_mhci and \
+                mutated_peptide_mhci.peptide and wt_peptide_mhci.peptide:
             improved_binding_mhci = self.is_improved_binder(
-                score_mutation=netmhcpan.best_epitope_by_rank.rank,
-                score_wild_type=netmhcpan.best_wt_epitope_by_rank.rank,
+                score_mutation=mutated_peptide_mhci.rank,
+                score_wild_type=wt_peptide_mhci.rank,
             )
             self_similarity_mhci = self.get_self_similarity(
-                mutated_peptide=netmhcpan.best_epitope_by_rank.peptide,
-                wt_peptide=netmhcpan.best_wt_epitope_by_rank.peptide,
+                mutated_peptide=mutated_peptide_mhci.peptide,
+                wt_peptide=wt_peptide_mhci.peptide,
             )
-        if netmhc2pan.best_predicted_epitope_affinity.peptide and netmhc2pan.best_predicted_epitope_affinity_wt.peptide:
+        if mutated_peptide_mhcii and wt_peptide_mhcii and \
+                mutated_peptide_mhcii.peptide and wt_peptide_mhcii.peptide:
             self_similarity_mhcii = self.get_self_similarity(
-                mutated_peptide=netmhc2pan.best_predicted_epitope_affinity.peptide,
-                wt_peptide=netmhc2pan.best_predicted_epitope_affinity_wt.peptide,
+                mutated_peptide=mutated_peptide_mhcii.peptide,
+                wt_peptide=wt_peptide_mhcii.peptide,
             )
         annotations = [
             AnnotationFactory.build_annotation(
