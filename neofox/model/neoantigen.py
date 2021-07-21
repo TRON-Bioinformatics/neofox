@@ -63,25 +63,53 @@ class Mutation(betterproto.Message):
 
 
 @dataclass
+class Annotation(betterproto.Message):
+    """*This is a generic class to hold annotations from Neofox"""
+
+    # *The name of the annotation
+    name: str = betterproto.string_field(1)
+    # *The value of the annotation
+    value: str = betterproto.string_field(2)
+
+
+@dataclass
+class NeoantigenAnnotations(betterproto.Message):
+    """*A set of annotations for a neoantigen"""
+
+    # *List of annotations
+    annotations: List["Annotation"] = betterproto.message_field(1)
+    # *The annotator
+    annotator: str = betterproto.string_field(2)
+    # *The version of the annotator
+    annotator_version: str = betterproto.string_field(3)
+    # *A timestamp determined when the annotation was created
+    timestamp: str = betterproto.string_field(4)
+    # *Annotation resources MD5 hash
+    resources_hash: str = betterproto.string_field(5)
+
+
+@dataclass
 class Neoantigen(betterproto.Message):
     """*A neoantigen minimal definition"""
 
-    # *A unique identifier of a neoantigen
-    identifier: str = betterproto.string_field(1)
     # *Patient identifier
-    patient_identifier: str = betterproto.string_field(2)
+    patient_identifier: str = betterproto.string_field(1)
     # *The HGNC gene symbol or gene identifier
-    gene: str = betterproto.string_field(3)
+    gene: str = betterproto.string_field(2)
     # *The mutation
-    mutation: "Mutation" = betterproto.message_field(4)
+    mutation: "Mutation" = betterproto.message_field(3)
     # *Expression value of the transcript from RNA data. Range [0, +inf].
-    rna_expression: float = betterproto.float_field(5)
+    rna_expression: float = betterproto.float_field(4)
     # *Expression value of the transcript from TCGA data. Range [0, +inf].
-    imputed_gene_expression: float = betterproto.float_field(6)
+    imputed_gene_expression: float = betterproto.float_field(5)
     # *Variant allele frequency from the DNA. Range [0.0, 1.0]
-    dna_variant_allele_frequency: float = betterproto.float_field(7)
+    dna_variant_allele_frequency: float = betterproto.float_field(6)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
-    rna_variant_allele_frequency: float = betterproto.float_field(8)
+    rna_variant_allele_frequency: float = betterproto.float_field(7)
+    # *The NeoFox neoantigen annotations
+    neofox_annotations: "NeoantigenAnnotations" = betterproto.message_field(8)
+    # *List of external annotations
+    external_annotations: List["Annotation"] = betterproto.message_field(9)
 
 
 @dataclass
@@ -103,34 +131,6 @@ class Patient(betterproto.Message):
     mhc1: List["Mhc1"] = betterproto.message_field(4)
     # *MHC II classic molecules
     mhc2: List["Mhc2"] = betterproto.message_field(5)
-
-
-@dataclass
-class Annotation(betterproto.Message):
-    """*This is a generic class to hold annotations from Neofox"""
-
-    # *The name of the annotation
-    name: str = betterproto.string_field(1)
-    # *The value of the annotation
-    value: str = betterproto.string_field(2)
-
-
-@dataclass
-class NeoantigenAnnotations(betterproto.Message):
-    """*A set of annotations for a neoantigen"""
-
-    # *A unique identifier of a neoantigen
-    neoantigen_identifier: str = betterproto.string_field(1)
-    # *List of annotations
-    annotations: List["Annotation"] = betterproto.message_field(2)
-    # *The annotator
-    annotator: str = betterproto.string_field(3)
-    # *The version of the annotator
-    annotator_version: str = betterproto.string_field(4)
-    # *A timestamp determined when the annotation was created
-    timestamp: str = betterproto.string_field(5)
-    # *Annotation resources MD5 hash
-    resources_hash: str = betterproto.string_field(6)
 
 
 @dataclass

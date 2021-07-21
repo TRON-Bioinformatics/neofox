@@ -148,24 +148,14 @@ class TestNeofox(TestCase):
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
         # writes output
-        ModelConverter.annotations2short_wide_table(
-            neoantigen_annotations=annotations, neoantigens=self.neoantigens
-        ).to_csv(output_file, sep="\t", index=False)
-        ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
-            output_file_tall_skinny, sep="\t", index=False
-        )
-        ModelConverter.objects2dataframe(self.neoantigens).to_csv(
-            output_file_neoantigens, sep="\t", index=False
-        )
-        with open(output_json_annotations, "wb") as f:
-            f.write(json.dumps(ModelConverter.objects2json(annotations)))
+        ModelConverter.annotations2short_wide_table(neoantigens=self.neoantigens).to_csv(
+            output_file, sep="\t", index=False)
+        ModelConverter.objects2dataframe(self.neoantigens).to_csv(output_file_neoantigens, sep="\t", index=False)
         with open(output_json_neoantigens, "wb") as f:
             f.write(json.dumps(ModelConverter.objects2json(self.neoantigens)))
 
         # regression test
         self._regression_test_on_output_file(new_file=output_file)
-
-
 
     def test_neofox_only_one_neoantigen(self):
         """"""

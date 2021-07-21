@@ -134,7 +134,6 @@ class NeoantigenProvider(Provider):
         while not found:
             try:
                 neoantigen = Neoantigen(
-                    identifier=self.generator.unique.uuid4(),
                     patient_identifier=self.generator.unique.uuid4() if patient_identifier is None else patient_identifier,
                     gene="BRCA2" if wildtype else None, # no gene if no wildtype provided
                     mutation=self.mutation(wildtype=wildtype),

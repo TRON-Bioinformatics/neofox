@@ -54,7 +54,6 @@ from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.references.references import ReferenceFolder, HlaDatabase
 
-EXTERNAL_ANNOTATIONS_NAME = "External"
 FIELD_VAF_DNA = "VAF_in_tumor"
 FIELD_VAF_RNA = "VAF_in_RNA"
 FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
@@ -70,62 +69,50 @@ GENES_BY_MOLECULE = {
 
 class ModelConverter(object):
     @staticmethod
-    def parse_candidate_file(
-        candidate_file: str, patient_id: str = None
-    ) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
+    def parse_candidate_file(candidate_file: str, patient_id: str = None) -> List[Neoantigen]:
         """
         :param candidate_file: the path to an neoantigen candidate input file
         :param patient_id: the patient identifier for all neoantigens in the input file, if not provided it is
         expected as column named `patient.id` or `patient`
-        :return neoantigens in model objects + external annotations coming with the input
+        :return neoantigens in model objects
         """
-        data = pd.read_csv(candidate_file, sep="\t",
-                           # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
-                           dtype={
-                               "identifier": str,
-                               "gene": str,
-                               "mutation.wildTypeXmer": str,
-                               "mutation.mutatedXmer": str,
-                               "patientIdentifier": str,
-                               "dnaVariantAlleleFrequency": float,
-                               "rnaExpression": float,
-                               "rnaVariantAlleleFrequency": float
-                           }
-                           )
+        data = pd.read_csv(
+            candidate_file, sep="\t",
+            # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
+            dtype={
+                "gene": str,
+                "mutation.wildTypeXmer": str,
+                "mutation.mutatedXmer": str,
+                "patientIdentifier": str,
+                "dnaVariantAlleleFrequency": float,
+                "rnaExpression": float,
+                "rnaVariantAlleleFrequency": float
+            }
+        )
 
         # check format of input file
         if FIELD_MUTATED_XMER in data.columns.values.tolist():
+            # NOTE: this is the support for the iCaM format
             data = data.replace({np.nan: None})
-            identifier = []
-            for row in data.to_json(orient='records', lines=True).splitlines():
-                id = ModelConverter.generate_neoantigen_identifier(row)
-                identifier.append(id)
-            data['identifier'] = identifier
             neoantigens = []
-            external_annotations = []
             for _, candidate_entry in data.iterrows():
                 neoantigen = ModelConverter._candidate_entry2model(
                     candidate_entry, patient_id=patient_id
                 )
+                neoantigen.external_annotations = [
+                    # NOTE: we need to exclude the field gene from the external annotations as it matches a field
+                    # in the model and thus it causes a conflict when both are renamed to gene_x and gene_y when
+                    # joining
+                    Annotation(name=name, value=str(value)) for name, value
+                    in candidate_entry.iteritems() if name != FIELD_GENE
+                ]
                 neoantigens.append(neoantigen)
-                external_annotations.append(
-                    NeoantigenAnnotations(
-                        neoantigen_identifier=neoantigen.identifier,
-                        annotations=[
-                            # NOTE: we need to exclude the field gene from the external annotations as it matches a field
-                            # in the model and thus it causes a conflict when both are renamed to gene_x and gene_y when
-                            # joining
-                            Annotation(name=name, value=value) for name, value
-                            in candidate_entry.iteritems() if name != FIELD_GENE
-                        ],
-                        annotator=EXTERNAL_ANNOTATIONS_NAME,
-                    )
-                )
         else:
+            # NOTE: this is the support for the NeoFox format
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(data)
+            neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
 
-        return neoantigens, external_annotations
+        return neoantigens
 
     @staticmethod
     def parse_patients_file(patients_file: str, hla_database: HlaDatabase) -> List[Patient]:
@@ -153,16 +140,12 @@ class ModelConverter(object):
         return ModelConverter.parse_neoantigens_dataframe(pd.read_csv(neoantigens_file, sep="\t"))
 
     @staticmethod
-    def parse_neoantigens_dataframe(
-        dataframe: pd.DataFrame,
-    ) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
+    def parse_neoantigens_dataframe(dataframe: pd.DataFrame) -> List[Neoantigen]:
         """
         :param dataframe: a pandas data frame with neoantigens data
         :return: the parsed CSV into model objects
         """
-        return ModelConverter.neoantigens_csv2objects(
-            dataframe
-        )
+        return ModelConverter.neoantigens_csv2objects(dataframe)
 
     @staticmethod
     def parse_neoantigens_json_file(neoantigens_json_file: str) -> List[Neoantigen]:
@@ -251,7 +234,6 @@ class ModelConverter(object):
                 "Please, define the parameter `patient_id` or provide a column ´patient´ in the candidate file "
             )
         neoantigen.mutation = mutation
-        neoantigen.identifier = candidate_entry.get("identifier")
         neoantigen.gene = candidate_entry.get(FIELD_GENE)
         # missing RNA expression values are represented as -1
         logger.info(neoantigen.patient_identifier)
@@ -262,37 +244,22 @@ class ModelConverter(object):
 
         return ModelValidator.validate_neoantigen(neoantigen)
 
-
     @staticmethod
-    def neoantigens_csv2objects(
-        dataframe: pd.DataFrame,
-    ) -> Tuple[List[Neoantigen], List[NeoantigenAnnotations]]:
+    def neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
         """transforms an patients CSV into a list of objects"""
         neoantigens = []
-        external_annotations = []
-        identifier = []
-        for row in dataframe.to_json(orient='records', lines=True).splitlines():
-            id = ModelConverter.generate_neoantigen_identifier(row)
-            identifier.append(id)
-        dataframe['identifier'] = identifier
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
             neoantigen = ModelConverter._rescueNoneValues(nested_dict)
+            neoantigen_field_names = set(Neoantigen.__annotations__.keys())
+            external_annotation_names = dict.fromkeys(
+                nam for nam in nested_dict.keys() if stringcase.snakecase(nam) not in neoantigen_field_names)
+            neoantigen.external_annotations = [
+                Annotation(name=name, value=str(nested_dict.get(name))) for name in external_annotation_names]
             validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
             neoantigens.append(validated_neoantigen)
-            neoantigen_names = set(Neoantigen.__annotations__.keys())
-            external_annotation_names = dict.fromkeys(nam for nam in nested_dict.keys() if stringcase.snakecase(nam) not in neoantigen_names)
-            external_annotations.append(
-                NeoantigenAnnotations(
-                    neoantigen_identifier=validated_neoantigen.identifier,
-                    annotations=[
-                        Annotation(name=name, value=nested_dict.get(name))
-                        for name in external_annotation_names
-                    ],
-                    annotator=EXTERNAL_ANNOTATIONS_NAME,
-                )
-            )
-        return neoantigens, external_annotations
+
+        return neoantigens
 
     @staticmethod
     def _rescueNoneValues(
@@ -319,17 +286,13 @@ class ModelConverter(object):
         return name not in neoantigen_dict or neoantigen_dict[name] is None
 
     @staticmethod
-    def annotations2short_wide_table(
-        neoantigen_annotations: List[NeoantigenAnnotations],
-        neoantigens: List[Neoantigen],
-    ) -> pd.DataFrame:
+    def annotations2short_wide_table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
         neoantigens_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
         # we set the order of columns
         neoantigens_df = neoantigens_df.loc[:,
-                         ["identifier",
-                          "patientIdentifier",
+                         ["patientIdentifier",
                           "gene",
                           "mutation.mutatedXmer",
                           "mutation.wildTypeXmer",
@@ -339,19 +302,18 @@ class ModelConverter(object):
                           "rnaExpression",
                           "imputedGeneExpression"
                           ]]
-        for na in neoantigen_annotations:
+        for n in neoantigens:
             df = (
-                pd.DataFrame([a.to_dict() for a in na.annotations])
+                pd.DataFrame([a.to_dict() for a in n.neofox_annotations.annotations])
                 .set_index("name")
                 .transpose()
             )
-            df["identifier"] = na.neoantigen_identifier
-            df.reset_index(inplace=True)
-            del df["index"]
+            #df.reset_index(inplace=True)
+            #del df["index"]
             dfs.append(df)
-        annotations_df = pd.concat(dfs, sort=True)
-        df = pd.merge(left=neoantigens_df, right=annotations_df, on="identifier")
-        del df["identifier"]
+        neofox_annotations_df = pd.concat(dfs, sort=True).reset_index()
+        del neofox_annotations_df["index"]
+        df = pd.concat([neoantigens_df, neofox_annotations_df], axis=1)
         return df
 
     @staticmethod
@@ -374,17 +336,6 @@ class ModelConverter(object):
             patients_dict.append(patient_dict)
         df = pd.json_normalize(data=patients_dict)
         return df
-
-    @staticmethod
-    def annotations2tall_skinny_table(
-        neoantigen_annotations: List[NeoantigenAnnotations],
-    ) -> pd.DataFrame:
-        dfs = []
-        for na in neoantigen_annotations:
-            df = pd.DataFrame([a.to_dict() for a in na.annotations])
-            df["neoantigen_identifier"] = na.neoantigen_identifier
-            dfs.append(df)  # avoid writing NA values
-        return pd.concat(dfs, sort=True)
 
     @staticmethod
     def _flat_dict2nested_dict(flat_dict: dict) -> dict:
@@ -533,9 +484,3 @@ class ModelConverter(object):
             assert (
                 a.gene in Mhc2GeneName.__members__
             ), "MHC II allele is not valid {} at {}".format(a.gene, a.full_name) if a.full_name != "" else "Gene from MHC II allele is empty"
-
-    @staticmethod
-    def generate_neoantigen_identifier(json_obj) -> str:
-        return base64.b64encode(hashlib.md5(json_obj.encode("utf8")).digest()).decode("utf8")
-
-

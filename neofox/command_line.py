@@ -22,7 +22,7 @@ import dotenv
 from logzero import logger
 import orjson as json
 import neofox
-from neofox.model.neoantigen import Neoantigen, Patient, NeoantigenAnnotations
+from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
 import os
@@ -104,12 +104,6 @@ def neofox_cli():
         "(if no format is specified this is the default)",
     )
     parser.add_argument(
-        "--with-tall-skinny-table",
-        dest="with_tall_skinny_table",
-        action="store_true",
-        help="output results in a tall skinny tab-separated table",
-    )
-    parser.add_argument(
         "--with-json",
         dest="with_json",
         action="store_true",
@@ -146,7 +140,6 @@ def neofox_cli():
     output_folder = args.output_folder
     output_prefix = args.output_prefix
     with_sw = args.with_short_wide_table
-    with_ts = args.with_tall_skinny_table
     with_json = args.with_json
     affinity_threshold = int(args.affinity_threshold)
     num_cpus = int(args.num_cpus)
@@ -162,7 +155,7 @@ def neofox_cli():
             raise NeofoxInputParametersException(
                 "Please, define one input file, either a candidate file, a standard input file or a JSON file"
             )
-        if not with_sw and not with_ts and not with_json:
+        if not with_sw and not with_json:
             with_sw = True  # if none specified short wide is the default
 
         # makes sure that the output folder exists
@@ -174,12 +167,15 @@ def neofox_cli():
         reference_folder = ReferenceFolder()
 
         # reads the input data
-        neoantigens, patients, external_annotations = _read_data(
-            candidate_file, json_file, patients_data, patient_id, reference_folder.get_hla_database()
-        )
+        neoantigens, patients = _read_data(
+            candidate_file,
+            json_file,
+            patients_data,
+            patient_id,
+            reference_folder.get_hla_database())
 
         # run annotations
-        annotations = NeoFox(
+        annotated_neoantigens = NeoFox(
             neoantigens=neoantigens,
             patients=patients,
             patient_id=patient_id,
@@ -190,17 +186,12 @@ def neofox_cli():
             affinity_threshold=affinity_threshold
         ).get_annotations()
 
-        # combine neoantigen feature annotations and potential user-specific external annotation
-        neoantigen_annotations = _combine_features_with_external_annotations(annotations, external_annotations)
-
         _write_results(
-            neoantigen_annotations,
-            neoantigens,
+            annotated_neoantigens,
             output_folder,
             output_prefix,
             with_json,
             with_sw,
-            with_ts,
         )
     except Exception as e:
         logger.exception(e)  # logs every exception in the file
@@ -211,30 +202,27 @@ def neofox_cli():
 
 def _read_data(
     candidate_file, json_file, patients_data, patient_id, hla_database: HlaDatabase
-) -> Tuple[List[Neoantigen], List[Patient], List[NeoantigenAnnotations]]:
+) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
     patients = ModelConverter.parse_patients_file(patients_data, hla_database)
     # parse the neoantigen candidate data
     if candidate_file is not None:
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(
+        neoantigens = ModelConverter.parse_candidate_file(
             candidate_file, patient_id
         )
     else:
         neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
-        external_annotations = []
 
-    return neoantigens, patients, external_annotations
+    return neoantigens, patients
 
 
-def _write_results(
-    annotations,  neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts
-):
+def _write_results(neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
 
     # writes the output
     if with_sw:
-        ModelConverter.annotations2short_wide_table(annotations, neoantigens).to_csv(
+        ModelConverter.annotations2short_wide_table(neoantigens).to_csv(
             os.path.join(
                 output_folder,
                 "{}_neoantigen_candidates_annotated.tsv".format(output_prefix),
@@ -242,44 +230,7 @@ def _write_results(
             sep="\t",
             index=False,
         )
-    if with_ts:
-        ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
-            os.path.join(
-                output_folder, "{}_neoantigen_features.tsv".format(output_prefix)
-            ),
-            sep="\t",
-            index=False,
-        )
-        ModelConverter.neoantigens2table(neoantigens).to_csv(
-            os.path.join(
-                output_folder, "{}_neoantigen_candidates.tsv".format(output_prefix)
-            ),
-            sep="\t",
-            index=False,
-        )
     if with_json:
-        output_features = os.path.join(output_folder, "{}_neoantigen_features.json".format(output_prefix))
+        output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
         with open(output_features, "wb") as f:
-            f.write(json.dumps(ModelConverter.objects2json(annotations)))
-
-        output_neoantigens = os.path.join(output_folder, "{}_neoantigen_candidates.json".format(output_prefix))
-        with open(output_neoantigens, "wb") as f:
             f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
-
-
-def _combine_features_with_external_annotations(
-        annotations: List[NeoantigenAnnotations],
-        external_annotations: List[NeoantigenAnnotations],
-) -> List[NeoantigenAnnotations]:
-    final_annotations = []
-    for annotation in annotations:
-        for annotation_extern in external_annotations:
-            if (
-                    annotation.neoantigen_identifier
-                    == annotation_extern.neoantigen_identifier
-            ):
-                annotation.annotations = (
-                        annotation.annotations + annotation_extern.annotations
-                )
-        final_annotations.append(annotation)
-    return final_annotations

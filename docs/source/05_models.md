@@ -164,13 +164,15 @@ A neoantigen minimal definition
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| identifier | [string](#string) |  | A unique identifier of a neoantigen |
 | patientIdentifier | [string](#string) |  | Patient identifier |
 | gene | [string](#string) |  | The HGNC gene symbol or gene identifier |
 | mutation | [Mutation](#neoantigen.Mutation) |  | The mutation |
 | rnaExpression | [float](#float) |  | Expression value of the transcript from RNA data. Range [0, +inf]. |
+| imputedGeneExpression | [float](#float) |  | Expression value of the transcript from TCGA data. Range [0, +inf]. |
 | dnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the DNA. Range [0.0, 1.0] |
 | rnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the RNA. Range [0.0, 1.0] |
+| neofoxAnnotations | [NeoantigenAnnotations](#neoantigen.NeoantigenAnnotations) |  | The NeoFox neoantigen annotations |
+| externalAnnotations | [Annotation](#neoantigen.Annotation) | repeated | List of external annotations |
 
 
 
@@ -185,7 +187,6 @@ A set of annotations for a neoantigen
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| neoantigenIdentifier | [string](#string) |  | A unique identifier of a neoantigen |
 | annotations | [Annotation](#neoantigen.Annotation) | repeated | List of annotations |
 | annotator | [string](#string) |  | The annotator |
 | annotatorVersion | [string](#string) |  | The version of the annotator |
@@ -206,6 +207,7 @@ The metadata required for analysis for a given patient + its patient identifier
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | identifier | [string](#string) |  | Patient identifier |
+| isRnaAvailable | [bool](#bool) |  | Is RNA expression available? |
 | tumorType | [string](#string) |  | Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations |
 | mhc1 | [Mhc1](#neoantigen.Mhc1) | repeated | MHC I classic molecules |
 | mhc2 | [Mhc2](#neoantigen.Mhc2) | repeated | MHC II classic molecules |
@@ -224,9 +226,9 @@ Valid names for MHC I classic genes
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| A | 0 | HLA-A |
-| B | 1 | HLA-B |
-| C | 2 |  HLA-C|
+| A | 0 |  |
+| B | 1 |  |
+| C | 2 |  |
 
 
 
@@ -239,11 +241,11 @@ considered constant.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| DRB1 | 0 | HLA-DRB1 |
-| DPA1 | 1 |  HLA-DPA1|
-| DPB1 | 2 |  HLA-DPB1|
-| DQA1 | 3 |  HLA-DQA1|
-| DQB1 | 4 |  HLA-DQB1|
+| DRB1 | 0 |  |
+| DPA1 | 1 |  |
+| DPB1 | 2 |  |
+| DQA1 | 3 |  |
+| DQB1 | 4 |  |
 
 
 
@@ -254,9 +256,9 @@ Valid names for MHC II classic molecules
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| DR | 0 |  HLA-DR|
-| DP | 1 |  HLA-DP|
-| DQ | 2 |  HLA-DQ|
+| DR | 0 |  |
+| DP | 1 |  |
+| DQ | 2 |  |
 
 
 

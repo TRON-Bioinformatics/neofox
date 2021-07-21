@@ -159,7 +159,6 @@ class NeoFox:
             logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
         return logfile
 
-
     def _validate_input_data(self):
 
         patient_identifiers_from_neoantigens = set(
@@ -168,12 +167,6 @@ class NeoFox:
         patient_identifiers_from_patients = set(
             [p.identifier for p in self.patients.values()]
         )
-
-        # check that there are no repeated neoantigens
-        neoantigen_identifiers = [n.identifier for n in self.neoantigens]
-        logger.info(neoantigen_identifiers)
-        if len(neoantigen_identifiers) != len(set(neoantigen_identifiers)):
-            raise NeofoxDataValidationException("There are repeated neoantigens!")
 
         # checks that no neoantigen is referring to an empty patient
         if (
@@ -195,7 +188,7 @@ class NeoFox:
                 )
             )
 
-    def get_annotations(self) -> List[NeoantigenAnnotations]:
+    def get_annotations(self) -> List[Neoantigen]:
         """
         Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
@@ -244,14 +237,14 @@ class NeoFox:
                     self.affinity_threshold
                 )
             )
-        annotations = dask_client.gather(futures)
+        annotated_neoantigens = dask_client.gather(futures)
         end = time.time()
         logger.info(
             "Elapsed time for annotating {} neoantigens {} seconds".format(
                 len(self.neoantigens), int(end - start)
             )
         )
-        return annotations
+        return annotated_neoantigens
 
     @staticmethod
     def annotate_neoantigen(
@@ -266,12 +259,10 @@ class NeoFox:
     ):
         # the logs need to be initialised inside every dask job
         NeoFox._initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation id='{}' and peptide={}".format(
-            neoantigen.identifier, neoantigen.mutation.mutated_xmer)
-        )
+        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutation.mutated_xmer))
         start = time.time()
         try:
-            annotation = NeoantigenAnnotator(
+            annotated_neoantigen = NeoantigenAnnotator(
                 reference_folder,
                 configuration,
                 tcell_predictor=tcell_predictor,
@@ -284,7 +275,7 @@ class NeoFox:
             raise e
         end = time.time()
         logger.info(
-            "Elapsed time for annotating neoantigen id='{}' and peptide={}: {} seconds".format(
-                neoantigen.identifier, neoantigen.mutation.mutated_xmer, int(end - start))
+            "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
+                neoantigen.mutation.mutated_xmer, int(end - start))
         )
-        return annotation
+        return annotated_neoantigen
