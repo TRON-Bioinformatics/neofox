@@ -111,11 +111,14 @@ class NeoantigenAnnotator:
         self.hla_database = references.get_hla_database()
         self.mhc_parser = MhcParser(self.hla_database)
 
-    def get_annotation(
-        self, neoantigen: Neoantigen, patient: Patient
-    ) -> NeoantigenAnnotations:
+    def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> Neoantigen:
         """Calculate new epitope features and add to dictonary that stores all properties"""
-        self._initialise_annotations(neoantigen)
+        neoantigen.neofox_annotations = NeoantigenAnnotations(
+            annotator="NeoFox",
+            annotator_version=neofox.VERSION,
+            timestamp="{:%Y%m%d%H%M%S%f}".format(datetime.now()),
+            annotations=[]
+        )
 
         # Runs netmhcpan, netmhc2pan, mixmhcpred and mixmhc2prd in parallel
         (
@@ -128,23 +131,23 @@ class NeoantigenAnnotator:
 
         # HLA I predictions: NetMHCpan
         if netmhcpan:
-            self.annotations.annotations.extend(netmhcpan.get_annotations(mutation=neoantigen.mutation))
+            neoantigen.neofox_annotations.annotations.extend(netmhcpan.get_annotations(mutation=neoantigen.mutation))
 
         # HLA II predictions: NetMHCIIpan
         if netmhc2pan:
-            self.annotations.annotations.extend(netmhc2pan.get_annotations())
+            neoantigen.neofox_annotations.annotations.extend(netmhc2pan.get_annotations())
 
         # MixMHCpred
         if mixmhcpred_annotations is not None:
-            self.annotations.annotations.extend(mixmhcpred_annotations)
+            neoantigen.neofox_annotations.annotations.extend(mixmhcpred_annotations)
 
         # PRIME
         if prime_annotations is not None:
-            self.annotations.annotations.extend(prime_annotations)
+            neoantigen.neofox_annotations.annotations.extend(prime_annotations)
 
         # MixMHC2pred
         if mixmhc2pred_annotations is not None:
-            self.annotations.annotations.extend(mixmhc2pred_annotations)
+            neoantigen.neofox_annotations.annotations.extend(mixmhc2pred_annotations)
 
         # decides which VAF to use
         vaf_rna = neoantigen.rna_variant_allele_frequency
@@ -160,7 +163,7 @@ class NeoantigenAnnotator:
         expression_calculator = Expression(
             transcript_expression=neoantigen.rna_expression, vaf_rna=vaf_rna
         )
-        self.annotations.annotations.extend(expression_calculator.get_annotations())
+        neoantigen.neofox_annotations.annotations.extend(expression_calculator.get_annotations())
         end = time.time()
         logger.info(
             "Expression annotation elapsed time {} seconds".format(
@@ -172,7 +175,7 @@ class NeoantigenAnnotator:
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(
             neoantigen.mutation.mutated_xmer
         )
-        self.annotations.annotations.extend(
+        neoantigen.neofox_annotations.annotations.extend(
             self.uniprot.get_annotations(sequence_not_in_uniprot)
         )
         end = time.time()
@@ -183,8 +186,8 @@ class NeoantigenAnnotator:
         # Amplitude
         start = time.time()
         self.amplitude.run(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
-        self.annotations.annotations.extend(self.amplitude.get_annotations())
-        self.annotations.annotations.extend(self.amplitude.get_annotations_mhc2())
+        neoantigen.neofox_annotations.annotations.extend(self.amplitude.get_annotations())
+        neoantigen.neofox_annotations.annotations.extend(self.amplitude.get_annotations_mhc2())
         end = time.time()
         logger.info(
             "Amplitude annotation elapsed time {} seconds".format(round(end - start, 3))
@@ -192,7 +195,7 @@ class NeoantigenAnnotator:
 
         # Neoantigen fitness
         start = time.time()
-        self.annotations.annotations.extend(
+        neoantigen.neofox_annotations.annotations.extend(
             self.neoantigen_fitness_calculator.get_annotations(
                 mutated_peptide_mhci=netmhcpan.best_ninemer_epitope_by_affinity if netmhcpan else None,
                 mutation_in_anchor=netmhcpan.mutation_in_anchor_9mer if netmhcpan else None,
@@ -210,18 +213,18 @@ class NeoantigenAnnotator:
         # Differential Binding
         start = time.time()
         if netmhcpan:
-            self.annotations.annotations.extend(
+            neoantigen.neofox_annotations.annotations.extend(
                 self.differential_binding.get_annotations_dai(
                     mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
                     wt_peptide_mhcii=netmhcpan.best_wt_epitope_by_affinity
                 )
             )
-            self.annotations.annotations.extend(
+            neoantigen.neofox_annotations.annotations.extend(
                 self.differential_binding.get_annotations(mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
                                                             amplitude=self.amplitude)
             )
         if netmhc2pan:
-            self.annotations.annotations.extend(
+            neoantigen.neofox_annotations.annotations.extend(
                 self.differential_binding.get_annotations_mhc2(mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_rank,
                                                                amplitude=self.amplitude)
             )
@@ -235,7 +238,7 @@ class NeoantigenAnnotator:
         # T cell predictor
         if netmhcpan:
             start = time.time()
-            self.annotations.annotations.extend(
+            neoantigen.neofox_annotations.annotations.extend(
                 self.tcell_predictor.get_annotations(
                     neoantigen=neoantigen, netmhcpan=netmhcpan
                 )
@@ -249,7 +252,7 @@ class NeoantigenAnnotator:
 
         # self-similarity
         start = time.time()
-        self.annotations.annotations.extend(
+        neoantigen.neofox_annotations.annotations.extend(
             self.self_similarity.get_annnotations(
                 mutated_peptide_mhci=netmhcpan.best_epitope_by_rank if netmhcpan else None,
                 wt_peptide_mhci=netmhcpan.best_wt_epitope_by_rank if netmhcpan else None,
@@ -267,7 +270,7 @@ class NeoantigenAnnotator:
         # number of mismatches and priority score
         if netmhcpan and netmhcpan:
             start = time.time()
-            self.annotations.annotations.extend(
+            neoantigen.neofox_annotations.annotations.extend(
                 self.priority_score_calculator.get_annotations(
                     netmhcpan=netmhcpan,
                     vaf_transcr=vaf_rna,
@@ -290,7 +293,7 @@ class NeoantigenAnnotator:
                 wild_type=netmhcpan.best_wt_epitope_by_affinity.peptide,
                 mutation=netmhcpan.best_epitope_by_affinity.peptide,
             )
-            self.annotations.annotations.append(
+            neoantigen.neofox_annotations.annotations.append(
                 self.neoag_calculator.get_annotation(
                     sample_id=patient.identifier,
                     mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
@@ -305,7 +308,7 @@ class NeoantigenAnnotator:
 
         # IEDB immunogenicity
         start = time.time()
-        self.annotations.annotations.extend(
+        neoantigen.neofox_annotations.annotations.extend(
             self.iedb_immunogenicity.get_annotations(
                 mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
@@ -318,7 +321,7 @@ class NeoantigenAnnotator:
 
         # dissimilarity to self-proteome
         start = time.time()
-        self.annotations.annotations.extend(
+        neoantigen.neofox_annotations.annotations.extend(
             self.dissimilarity_calculator.get_annotations(
                 mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
@@ -338,7 +341,7 @@ class NeoantigenAnnotator:
                 mutation_scores=netmhcpan.epitope_affinities,
                 expression_score=expression_calculator.expression,
             )
-            self.annotations.annotations.extend(vaxrankscore.get_annotations())
+            neoantigen.neofox_annotations.annotations.extend(vaxrankscore.get_annotations())
             end = time.time()
             logger.info(
                 "Vaxrank annotation elapsed time {} seconds".format(round(end - start, 3))
@@ -346,7 +349,7 @@ class NeoantigenAnnotator:
 
         # hex
         start = time.time()
-        self.annotations.annotations.extend(
+        neoantigen.neofox_annotations.annotations.extend(
             self.hex.get_annotation(
                 mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
@@ -356,7 +359,7 @@ class NeoantigenAnnotator:
             "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
         )
 
-        return self.annotations
+        return neoantigen
 
     def _compute_long_running_tasks(self, neoantigen, patient, sequential=True):
 
@@ -483,15 +486,6 @@ class NeoantigenAnnotator:
             rejoin()
 
         return mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan, prime_annotations
-
-    def _initialise_annotations(self, neoantigen):
-        self.annotations = NeoantigenAnnotations()
-        self.annotations.neoantigen_identifier = neoantigen.identifier
-        self.annotations.annotator = "Neofox"
-        self.annotations.annotator_version = neofox.VERSION
-        self.annotations.timestamp = "{:%Y%m%d%H%M%S%f}".format(datetime.now())
-        # TODO: set the hash fro the resources
-        self.annotations.annotations = []
 
     def run_netmhcpan(
             self,

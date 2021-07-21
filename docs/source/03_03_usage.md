@@ -195,12 +195,9 @@ Depending on the use case, the user can transform the resulting neoantigen featu
 
 ```python
 # short-wide 
-annotations_sw = ModelConverter.annotations2short_wide_table(neoantigen_annotations=annotations, neoantigens=[validated_neoantigen])
-# tall-skinny
-annotations_ts = ModelConverter.annotations2tall_skinny_table(neoantigen_annotations=annotations)
+annotations_sw = ModelConverter.annotations2short_wide_table(neoantigens=[validated_neoantigen])
 # JSON 
 neoantigen_json = ModelConverter.objects2json(model_objects=[validated_neoantigen])
-annotations_json = ModelConverter.objects2json(model_objects=annotations)
 ```
    
    

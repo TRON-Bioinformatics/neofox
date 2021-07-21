@@ -48,3 +48,17 @@ python -m unittest discover neofox.tests.unit_tests
 ## Logging
 
 Logs are written to the standard error and to the output folder by default. Optionally they can be written to a file by setting the environment variable `NEOFOX_LOGFILE` pointing to the desired file.
+
+
+## Build the protocol buffers models
+
+The protocol buffers model rely on the betterproto library. Install it as follows:
+```
+pip install "betterproto[compiler]"
+```
+
+The models and the required scripts are in the folder `neofox/models`
+
+Build the models into Python code with `make models`.
+
+Build the HTML documentation with `make html`.
