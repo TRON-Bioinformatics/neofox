@@ -180,11 +180,10 @@ validated_patient = ModelValidator.validate_patient(patient=patient)
 Run NeoFox by passing the validated neoantigen object and the validated patient object to get the neoantigen features. The output is a list of type `NeoantigenAnnotations`:  
 
 ```python
-annotations = NeoFox(neoantigens=[validated_neoantigen], patients=[validated_patient], num_cpus=2).get_annotations()
+annotated_neoantigens = NeoFox(neoantigens=[validated_neoantigen], patients=[validated_patient], num_cpus=2).get_annotations()
 ```  
 
-where:  
-       - `anotations`: list of type `NeoantigenAnnotations`, i.e. a list of neoantigen features and there values for given neoantigen candidates (further explanation is provided [here](05_models.md#neoantigenannotations))  
+where:
        - `neoantigens`: a list of validated neoantigen objects  
        - `patients`: a list of validated patient objects  
        - `num_cpus`: number of CPUs to use (*optional*)
@@ -194,8 +193,8 @@ where:
 Depending on the use case, the user can transform the resulting neoantigen feature annotations into the formats described [here](03_02_output_data.md).
 
 ```python
-# short-wide 
-annotations_sw = ModelConverter.annotations2short_wide_table(neoantigens=[validated_neoantigen])
+# table
+annotations_table = ModelConverter.annotations2table(neoantigens=[validated_neoantigen])
 # JSON 
 neoantigen_json = ModelConverter.objects2json(model_objects=[validated_neoantigen])
 ```
@@ -217,7 +216,7 @@ neoantigens_json = ModelConverter.objects2json(model_objects=[validated_neoantig
 
 ```python
 model_file = "/path/to/neoantigen_candidates.tab"
-neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(neoantigens_file=model_file)
+neoantigens = ModelConverter.parse_neoantigens_dataframe(neoantigens_file=model_file)
 ```
   
  
@@ -225,7 +224,7 @@ or in [JSON format](03_01_input_data.md#json-file-format).
 
 ```python
 json_file = "/path/to/neoantigen_candidates.json"
-neoantigens, external_annotations = ModelConverter.parse_neoantigens_json_file(json_file=json_file)  
+neoantigens = ModelConverter.parse_neoantigens_json_file(json_file=json_file)  
 ```  
 
 The patient information should be provided in [tabular format](03_01_input_data.md#file-with-patient-information)
@@ -238,7 +237,7 @@ patients = ModelConverter.parse_patients_file(patients_data)
 Then, run NeoFox as explained in step 6 by calling:
 
 ```python
-annotations = NeoFox(neoantigens=neoantigens, patients=patients, num_cpus=2).get_annotations()
+neoantigens_annotated = NeoFox(neoantigens=neoantigens, patients=patients, num_cpus=2).get_annotations()
 ```
 
 ## Performance

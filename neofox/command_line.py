@@ -97,8 +97,8 @@ def neofox_cli():
         default="neofox",
     )
     parser.add_argument(
-        "--with-short-wide-table",
-        dest="with_short_wide_table",
+        "--with-table",
+        dest="with_table",
         action="store_true",
         help="output results in a short wide tab-separated table "
         "(if no format is specified this is the default)",
@@ -139,7 +139,7 @@ def neofox_cli():
     patients_data = args.patients_data
     output_folder = args.output_folder
     output_prefix = args.output_prefix
-    with_sw = args.with_short_wide_table
+    with_table = args.with_table
     with_json = args.with_json
     affinity_threshold = int(args.affinity_threshold)
     num_cpus = int(args.num_cpus)
@@ -155,7 +155,7 @@ def neofox_cli():
             raise NeofoxInputParametersException(
                 "Please, define one input file, either a candidate file, a standard input file or a JSON file"
             )
-        if not with_sw and not with_json:
+        if not with_table and not with_json:
             with_sw = True  # if none specified short wide is the default
 
         # makes sure that the output folder exists
@@ -191,7 +191,7 @@ def neofox_cli():
             output_folder,
             output_prefix,
             with_json,
-            with_sw,
+            with_table,
         )
     except Exception as e:
         logger.exception(e)  # logs every exception in the file
@@ -216,13 +216,13 @@ def _read_data(
     return neoantigens, patients
 
 
-def _write_results(neoantigens, output_folder, output_prefix, with_json, with_sw, with_ts):
+def _write_results(neoantigens, output_folder, output_prefix, with_json, with_table):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
 
     # writes the output
-    if with_sw:
-        ModelConverter.annotations2short_wide_table(neoantigens).to_csv(
+    if with_table:
+        ModelConverter.annotations2table(neoantigens).to_csv(
             os.path.join(
                 output_folder,
                 "{}_neoantigen_candidates_annotated.tsv".format(output_prefix),

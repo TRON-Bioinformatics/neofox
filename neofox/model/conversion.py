@@ -16,16 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import base64
-import hashlib
-from typing import List, Tuple
+from typing import List
 import pandas as pd
 import betterproto
 import stringcase
-from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
-from Bio.Data import IUPACData
 from betterproto import Casing
-from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.exceptions import NeofoxDataValidationException
 from logzero import logger
 from collections import defaultdict
@@ -38,7 +33,6 @@ from neofox.model.neoantigen import (
     Neoantigen,
     Mutation,
     Patient,
-    NeoantigenAnnotations,
     Mhc2Name,
     Mhc2GeneName,
     Zygosity,
@@ -52,7 +46,7 @@ from neofox.model.neoantigen import (
 )
 from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.references.references import ReferenceFolder, HlaDatabase
+from neofox.references.references import HlaDatabase
 
 FIELD_VAF_DNA = "VAF_in_tumor"
 FIELD_VAF_RNA = "VAF_in_RNA"
@@ -286,7 +280,7 @@ class ModelConverter(object):
         return name not in neoantigen_dict or neoantigen_dict[name] is None
 
     @staticmethod
-    def annotations2short_wide_table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
+    def annotations2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
         neoantigens_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
@@ -308,8 +302,6 @@ class ModelConverter(object):
                 .set_index("name")
                 .transpose()
             )
-            #df.reset_index(inplace=True)
-            #del df["index"]
             dfs.append(df)
         neofox_annotations_df = pd.concat(dfs, sort=True).reset_index()
         del neofox_annotations_df["index"]
