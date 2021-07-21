@@ -148,7 +148,7 @@ class TestNeofox(TestCase):
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
         # writes output
-        ModelConverter.annotations2short_wide_table(neoantigens=self.neoantigens).to_csv(
+        ModelConverter.annotations2table(neoantigens=self.neoantigens).to_csv(
             output_file, sep="\t", index=False)
         ModelConverter.objects2dataframe(self.neoantigens).to_csv(output_file_neoantigens, sep="\t", index=False)
         with open(output_json_neoantigens, "wb") as f:
