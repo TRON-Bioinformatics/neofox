@@ -28,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Mutation, Patient
+from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 from neofox.model.wrappers import NOT_AVAILABLE_VALUE
 from neofox.neofox import NeoFox
 from neofox.tests.fake_classes import FakeHlaDatabase
@@ -56,9 +56,7 @@ class TestNeofox(TestCase):
         )
         self.hla_database = self.references.get_hla_database()
         self.patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
-        self.neoantigens, external_annotations = ModelConverter.parse_candidate_file(
-            input_file
-        )
+        self.neoantigens = ModelConverter.parse_candidate_file(input_file)
 
     def test_neoantigens_without_gene(self):
         """"""
@@ -72,8 +70,8 @@ class TestNeofox(TestCase):
             num_cpus=1,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
+        self.assertIsInstance(annotations[0], Neoantigen)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) > 10)
 
     def _get_test_data(self):
         input_file = pkg_resources.resource_filename(
@@ -81,9 +79,7 @@ class TestNeofox(TestCase):
         )
         data = pd.read_csv(input_file, sep="\t")
         data = data.replace({np.nan: None})
-        neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(
-            data
-        )
+        neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
@@ -133,7 +129,7 @@ class TestNeofox(TestCase):
             patients=self.patients,
             num_cpus=4,
         ).get_annotations()
-        annotation_names = [a.name for n in annotations for a in n.annotations]
+        annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
 
         # check it does contain any of the MixMHCpred annotations
         self.assertIn("MixMHC2pred_best_peptide", annotation_names)
@@ -148,24 +144,14 @@ class TestNeofox(TestCase):
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
         # writes output
-        ModelConverter.annotations2short_wide_table(
-            neoantigen_annotations=annotations, neoantigens=self.neoantigens
-        ).to_csv(output_file, sep="\t", index=False)
-        ModelConverter.annotations2tall_skinny_table(annotations).to_csv(
-            output_file_tall_skinny, sep="\t", index=False
-        )
-        ModelConverter.objects2dataframe(self.neoantigens).to_csv(
-            output_file_neoantigens, sep="\t", index=False
-        )
-        with open(output_json_annotations, "wb") as f:
-            f.write(json.dumps(ModelConverter.objects2json(annotations)))
+        ModelConverter.annotations2table(neoantigens=self.neoantigens).to_csv(
+            output_file, sep="\t", index=False)
+        ModelConverter.objects2dataframe(self.neoantigens).to_csv(output_file_neoantigens, sep="\t", index=False)
         with open(output_json_neoantigens, "wb") as f:
             f.write(json.dumps(ModelConverter.objects2json(self.neoantigens)))
 
         # regression test
         self._regression_test_on_output_file(new_file=output_file)
-
-
 
     def test_neofox_only_one_neoantigen(self):
         """"""
@@ -182,8 +168,8 @@ class TestNeofox(TestCase):
             num_cpus=4,
         ).get_annotations()
         self.assertEqual(1, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
+        self.assertIsInstance(annotations[0], Neoantigen)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) > 10)
 
     def test_neofox_model_input(self):
         """"""
@@ -195,8 +181,8 @@ class TestNeofox(TestCase):
             num_cpus=2,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) == 86)
+        self.assertIsInstance(annotations[0], Neoantigen)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 86)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -211,7 +197,7 @@ class TestNeofox(TestCase):
             patients=self.patients,
             num_cpus=1,
         ).get_annotations()
-        annotation_names = [a.name for n in annotations for a in n.annotations]
+        annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
         # check it does not contain any of the MixMHCpred annotations
         self.assertNotIn("MixMHC2pred_best_peptide", annotation_names)
         self.assertNotIn("MixMHC2pred_best_rank", annotation_names)
@@ -286,8 +272,8 @@ class TestNeofox(TestCase):
             num_cpus=1,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) == 65)
+        self.assertIsInstance(annotations[0], Neoantigen)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 65)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients, patient_id = self._get_test_data()
@@ -300,8 +286,8 @@ class TestNeofox(TestCase):
             num_cpus=1,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) == 39)
+        self.assertIsInstance(annotations[0], Neoantigen)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 39)
 
     def test_gene_expression_imputation(self):
         neoantigens, patients, patient_id = self._get_test_data()
@@ -405,10 +391,10 @@ class TestNeofox(TestCase):
             num_cpus=1,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
-        self.assertIsInstance(annotations[0], NeoantigenAnnotations)
-        self.assertTrue(len(annotations[0].annotations) > 10)
+        self.assertIsInstance(annotations[0], Neoantigen)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) > 10)
         for na in annotations:
-            for a in na.annotations:
+            for a in na.neofox_annotations.annotations:
                 if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
 
