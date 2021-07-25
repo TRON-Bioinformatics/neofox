@@ -63,7 +63,7 @@ NeoFox depends on the following tools:
 NeoFox can be used from the command line as shown below or programmatically (see [https://neofox.readthedocs.io](https://neofox.readthedocs.io/) for more information).
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-short-wide-table] [--with-tall-skinny-table] [--with-json] [--num_cpus] [--affinity-threshold]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num_cpus] [--affinity-threshold]
 ````
 - `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
 - `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
@@ -123,7 +123,6 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 
 ```json
 [{
-    "identifier": "odJ99FdqvJoK1znK+iCpWQ==",
     "patientIdentifier": "Ptx",
     "gene": "BRCA2",
     "mutation": {
@@ -151,4 +150,4 @@ where:
 
 ## 5 Output data
 
-The output data is returned by default in a short wide tab separated values file (`--with-short-wide-table`). Optionally, it can be provided in a tall skinny tab separated values file (`--with-tall-skinny-table`) or in JSON format (`--with-json`).  
+The output data is returned by default in a short wide tab separated values file (`--with-table`). Optionally, it can be provided in JSON format (`--with-json`).  

@@ -37,7 +37,6 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 
 ```json
 [{
-    "identifier": "odJ99FdqvJoK1znK+iCpWQ==",
     "patientIdentifier": "Ptx",
     "gene": "BRCA2",
     "mutation": {
