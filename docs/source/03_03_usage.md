@@ -17,8 +17,7 @@ where:
 - `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-short-wide-table`: output file in [short-wide](03_02_output_data.md#short-wide-format) format (*optional*)
-- `--with-tall-skinny-table`: output file in [tall-skinny](03_02_output_data.md#tall-skinny-format) format (*optional*)
+- `--with-table`: output file in [short-wide](03_02_output_data.md#tabular-format) format (*optional*)
 - `--with-json`: output file in [JSON](03_02_output_data.md#json-format) format (*optional*)
 - `--num_cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
