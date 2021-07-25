@@ -46,7 +46,6 @@ class TestFactories(TestCase):
         self._assert_neoantigen(neoantigen)
 
     def _assert_neoantigen(self, neoantigen):
-        self.assertIsNotNone(neoantigen.identifier)
         self.assertIsNotNone(neoantigen.patient_identifier)
         self.assertTrue(len(neoantigen.mutation.mutated_xmer) == 27)
         self.assertTrue(len(neoantigen.mutation.wild_type_xmer) == 27)

@@ -106,61 +106,25 @@ The following table describes each of the annotations in the output:
 | Hex_alignment_score_MHCI                    | the alignment score by HEX for ` Best_affinity_MHCI_epitope `                                                                                                                                                                                                                                                   | HEX                               |
 | Hex_alignment_score_MHCII                   | the alignment score by HEX for ` Best_affinity_MHCII_epitope`                                                                                                                                                                                                                                                   | HEX                               |
 
-## Short-wide format
+## Tabular format
 
-If the `--with-short-wide-table` flag is enabled an output table with the suffix "*_neoantigen_candidates_annotated.tsv*" is created. This table contains the neoantigen candidates information, the neoantigen annotations and if some user-specific additional columns were provided in the input table, these external annotations.  
+If the `--with-table` flag is enabled an output table with the suffix "*_neoantigen_candidates_annotated.tsv*" is created. This table contains the neoantigen candidates information, the neoantigen annotations and if some user-specific additional columns were provided in the input table, these external annotations.  
 
 This is a dummy example:  
 
-| identifier               | dnaVariantAlleleFrequency | gene  |imputedGeneExpression	 | mutation.mutatedXmer        | mutation.position | mutation.wildTypeXmer       | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | ADN_MHCI | ADN_MHCII | Amplitude_MHCII_rank | Amplitude_MHCI_affinity | Amplitude_MHCI_affinity_9mer | Best_affinity_MHCII_allele | Best_affinity_MHCII_allele_WT | Best_affinity_MHCII_epitope | Best_affinity_MHCII_epitope_WT | Best_affinity_MHCII_score | Best_affinity_MHCII_score_WT | Best_affinity_MHCI_9mer_allele | Best_affinity_MHCI_9mer_allele_WT | Best_affinity_MHCI_9mer_anchor_mutated | Best_affinity_MHCI_9mer_epitope | Best_affinity_MHCI_9mer_epitope_WT | Best_affinity_MHCI_9mer_position_mutation | Best_affinity_MHCI_9mer_score | Best_affinity_MHCI_9mer_score_WT | Best_affinity_MHCI_allele | Best_affinity_MHCI_allele_WT | Best_affinity_MHCI_epitope | Best_affinity_MHCI_epitope_WT | Best_affinity_MHCI_score | Best_affinity_MHCI_score_WT | Best_rank_MHCII_score | Best_rank_MHCII_score_WT | Best_rank_MHCII_score_allele | Best_rank_MHCII_score_allele_WT | Best_rank_MHCII_score_epitope | Best_rank_MHCII_score_epitope_WT | Best_rank_MHCI_9mer_allele | Best_rank_MHCI_9mer_allele_WT | Best_rank_MHCI_9mer_epitope | Best_rank_MHCI_9mer_epitope_WT | Best_rank_MHCI_9mer_score | Best_rank_MHCI_9mer_score_WT | Best_rank_MHCI_score | Best_rank_MHCI_score_WT | Best_rank_MHCI_score_allele | Best_rank_MHCI_score_allele_WT | Best_rank_MHCI_score_epitope | Best_rank_MHCI_score_epitope_WT | CDN_MHCI | CDN_MHCII | DAI_MHCI_affinity_cutoff500nM | Dissimilarity_MHCI_cutoff500nM | Expression_mutated_transcript | Generator_rate | IEDB_Immunogenicity_MHCI_cutoff500nM | Improved_Binder_MHCI | MixMHC2pred_best_allele | MixMHC2pred_best_peptide | MixMHC2pred_best_rank | MixMHCpred_best_allele | MixMHCpred_best_peptide | MixMHCpred_best_rank | MixMHCpred_best_score | Neoag_immunogenicity | Number_of_mismatches_MCHI | PHBR-I  | PHBR-II | Pathogensimiliarity_MHCI_affinity_9mer | Priority_score | Recognition_Potential_MHCI_affinity_9mer | Selfsimilarity_MHCI_conserved_binder | Tcell_predictor_score_cutoff500nM | VAF_in_RNA | VAF_in_tumor | [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | mutation_not_found_in_proteome | patient | substitution | transcript_expression | vaxrank_binding_score | vaxrank_total_score |
-|--------------------------|---------------------------|-------|-----------------------------|-----------------------------|-------------------|-----------------------------|-------------------|---------------|---------------------------|----------------------------------------|----------|-----------|----------------------|-------------------------|------------------------------|----------------------------|-------------------------------|-----------------------------|--------------------------------|---------------------------|------------------------------|--------------------------------|-----------------------------------|----------------------------------------|---------------------------------|------------------------------------|-------------------------------------------|-------------------------------|----------------------------------|---------------------------|------------------------------|----------------------------|-------------------------------|--------------------------|-----------------------------|-----------------------|--------------------------|------------------------------|---------------------------------|-------------------------------|----------------------------------|----------------------------|-------------------------------|-----------------------------|--------------------------------|---------------------------|------------------------------|----------------------|-------------------------|-----------------------------|--------------------------------|------------------------------|---------------------------------|----------|-----------|-------------------------------|--------------------------------|-------------------------------|----------------|--------------------------------------|----------------------|-------------------------|--------------------------|-----------------------|------------------------|-------------------------|----------------------|-----------------------|----------------------|---------------------------|---------|---------|----------------------------------------|----------------|------------------------------------------|--------------------------------------|-----------------------------------|------------|--------------|---------------------------------------------|--------------------------------|---------|--------------|-----------------------|-----------------------|---------------------|
-| ou11p7RD+tZvjY88DA55Mw== | 0.294                     | BRCA2 | 0.5| AAAAAAAAAAAAAFAAAAAAAAAAAAA|  14                | AAAAAAAAAAAAALAAAAAAAAAAAAA | Ptx               | 0.51950689    | 0.857                     | AAAAAAAAAAAAAFAAAAAAAAAAAAA            | 0        | 1         | 28                   | 0.88723                 | 0.88723                      | HLA-DQA10401-DQB10402      | HLA-DQA10401-DQB10402         | AAAAFAAAAAAAAAA             | AAAALAAAAAAAAAA                | 251.77                    | 513.02                       | HLA-C*16:01                    | HLA-C*16:01                       | 1                                      | AAAAAAAAF                       | AAAAAAAAL                          | 9                                         | 24.3                          | 21.7                             | HLA-C*16:01               | HLA-C*16:01                  | AAAAAAAAF                  | AAAAAAAAL                     | 24.3                     | 21.7                        | 0.05                  | 1.4                      | HLA-DQA10301-DQB10402        | HLA-DQA10301-DQB10402           | AAAAFAAAAAAAAAA               | AAAALAAAAAAAAAA                  | HLA-C*16:01                | HLA-C*16:01                   | AAAAAAAAF                   | AAAAAAAAL                      | 0.0592                    | 0.0493                       | 0.0592               | 0.0493                  | HLA-C*16:01                 | HLA-C*16:01                    | AAAAAAAAF                    | AAAAAAAAL                       | 1        | 1         | -2.6                          | 1                              | 0.44522                       | 1              | 0.18288                              | 0                    | DPA1_01_03__DPB1_04_01  | AAAAFAAAAAAAAAAA         | 0.997                 | B0702                  | AAAAAAAAF               | 0.1                  | 0.50487               | 13.16998             | 1                         | 0.31193 | 0.21892 | 0                                      | 0.07017        | 0                                        | 0.99178271                           | 0.40327581                        | 0.857      | 0.294        | AAAAAAAAAAAAALAAAAAAAAAAAAA                 | 1                              | Ptx     | I547T        | 0.51950689            | 3.7689                | 1.678               |
-| rzXB3nQlZ5misn6VN8EA2A== | 0.173                     | BRCA2 | 0.5| AAAAAAAAAAAAAMAAAAAAAAAAAAA | 14                | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 0.71575659    | 0.556                     | AAAAAAAAAAAAAMAAAAAAAAAAAAA            | 1        | 1         | 10                   | 90.685                  | 90.685                       | HLA-DQA10401-DQB10402      | HLA-DQA10401-DQB10402         | AAAAAAAAAMAAAAA             | AAAAAAAAARAAAAA                | 421.53                    | 554.92                       | HLA-C*16:01                    | HLA-C*16:01                       | 1                                      | AAAAAAAAM                       | AAAAAAAAR                          | 9                                         | 24.1                          | 6346.9                           | HLA-C*16:01               | HLA-C*16:01                  | AAAAAAAAM                  | AAAAAAAAR                     | 24.1                     | 6346.9                      | 0.25                  | 2.5                      | HLA-DQA10401-DQB10302        | HLA-DQA10401-DQB10302           | AAAAAAAAAAMAAAA               | AAAAAAAAAARAAAA                  | HLA-C*16:01                | HLA-C*16:01                   | AAAAAAAAM                   | AAAAAAAAR                      | 0.0587                    | 8.9317                       | 0.0587               | 8.9317                  | HLA-C*16:01                 | HLA-C*16:01                    | AAAAAAAAM                    | AAAAAAAAR                       | 1        | 1         | 6322.8                        | 1                              | 0.39796                       | 1              | 0.18288                              | 1                    | DPA1_01_03__DPB1_04_01  | AAAAMAAAAAAAAAAA         | 2.44                  | B0702                  | AAAAAAAAM               | 0.07                 | 0.5444                | 39.51379             | 1                         | 0.29303 | 1.5594  | 0                                      | 0.10626        | 0                                        | NA                                   | 0.46452844                        | 0.556      | 0.173        | AAAAAAAAAAAAARAAAAAAAAAAAAA                 | 1                              | Ptx     | E135S        | 0.71575659            | 3.8741                | 1.5417              |
-
-## Tall-skinny format
-
-If the `--with-tall-skinny-table` flag is enabled an output table with the suffix "*_neoantigen_candidates.tsv*" is created. This file contains neoantigen candidates information in short-wide format. Furthermore, a second file with the suffix "*_neoantigen_features.tsv*" is created. This file contains the annotated neoantigen features in tall-skinny format. 
-
-This is a dummy example of a "*_neoantigen_candidates.tsv"*" file with headers following the descriptions in **TABLE 1**:  
-
-| dnaVariantAlleleFrequency | gene  | identifier               | imputedGeneExpression| mutation.mutatedXmer        | mutation.position | mutation.wildTypeXmer       | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency |
-|---------------------------|-------|--------------------------|-----------------------------|-----------------------------|-------------------|-----------------------------|-------------------|---------------|---------------------------|
-| 0.294                     | BRCA2 | ou11p7RD+tZvjY88DA55Mw== | 0.5 | AAAAAAAAAAAAAFAAAAAAAAAAAAA | 14                | AAAAAAAAAAAAALAAAAAAAAAAAAA | Ptx               | 0.51950689    | 0.857                     |
-| 0.173                     | BRCA2 | rzXB3nQlZ5misn6VN8EA2A== | 0.5 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | 14                | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 0.71575659    | 0.556                     |
-
-This is the head of a dummy *"_neoantigen_features.tsv"* file:  
-
-| name                            | neoantigen_identifier    | value       |
-|---------------------------------|--------------------------|-------------|
-| Best_rank_MHCI_score            | ou11p7RD+tZvjY88DA55Mw== | 0.0592      |
-| Best_rank_MHCI_score_epitope    | ou11p7RD+tZvjY88DA55Mw== | AAAAAAAAF   |
-| Best_rank_MHCI_score_allele     | ou11p7RD+tZvjY88DA55Mw== | HLA-C*16:01 |
-| Best_affinity_MHCI_score        | ou11p7RD+tZvjY88DA55Mw== | 24.3        |
-| Best_affinity_MHCI_epitope      | ou11p7RD+tZvjY88DA55Mw== | AAAAAAAAF   |
-| Best_affinity_MHCI_allele       | ou11p7RD+tZvjY88DA55Mw== | HLA-C*16:01 |
-| Best_rank_MHCI_9mer_score       | ou11p7RD+tZvjY88DA55Mw== | 0.0592      |
-| Best_rank_MHCI_9mer_epitope     | ou11p7RD+tZvjY88DA55Mw== | AAAAAAAAF   |
-| Best_rank_MHCI_9mer_allele      | ou11p7RD+tZvjY88DA55Mw== | HLA-C*16:01 |
-| Best_affinity_MHCI_9mer_score   | ou11p7RD+tZvjY88DA55Mw== | 24.3        |
-| Best_affinity_MHCI_9mer_allele  | ou11p7RD+tZvjY88DA55Mw== | HLA-C*16:01 |
-| Best_affinity_MHCI_9mer_epitope | ou11p7RD+tZvjY88DA55Mw== | AAAAAAAAF   |
-| Best_affinity_MHCI_score_WT     | ou11p7RD+tZvjY88DA55Mw== | 21.7        |
-
-\
-where:
-- name: name of the neoantigen feature, following the descriptions given in **TABLE 1**.
-- value: value of the neoantigen feature
-- neoantigen_identifier: unique neoantigen id given by NeoFox and the same as `identifier` in the  "*_neoantigen_candidates.tsv*" file.
+| dnaVariantAlleleFrequency | gene  |imputedGeneExpression	 | mutation.mutatedXmer        | mutation.position | mutation.wildTypeXmer       | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | +-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | ADN_MHCI | ADN_MHCII | Amplitude_MHCII_rank | Amplitude_MHCI_affinity | Amplitude_MHCI_affinity_9mer | Best_affinity_MHCII_allele | Best_affinity_MHCII_allele_WT | Best_affinity_MHCII_epitope | Best_affinity_MHCII_epitope_WT | Best_affinity_MHCII_score | Best_affinity_MHCII_score_WT | Best_affinity_MHCI_9mer_allele | Best_affinity_MHCI_9mer_allele_WT | Best_affinity_MHCI_9mer_anchor_mutated | Best_affinity_MHCI_9mer_epitope | Best_affinity_MHCI_9mer_epitope_WT | Best_affinity_MHCI_9mer_position_mutation | Best_affinity_MHCI_9mer_score | Best_affinity_MHCI_9mer_score_WT | Best_affinity_MHCI_allele | Best_affinity_MHCI_allele_WT | Best_affinity_MHCI_epitope | Best_affinity_MHCI_epitope_WT | Best_affinity_MHCI_score | Best_affinity_MHCI_score_WT | Best_rank_MHCII_score | Best_rank_MHCII_score_WT | Best_rank_MHCII_score_allele | Best_rank_MHCII_score_allele_WT | Best_rank_MHCII_score_epitope | Best_rank_MHCII_score_epitope_WT | Best_rank_MHCI_9mer_allele | Best_rank_MHCI_9mer_allele_WT | Best_rank_MHCI_9mer_epitope | Best_rank_MHCI_9mer_epitope_WT | Best_rank_MHCI_9mer_score | Best_rank_MHCI_9mer_score_WT | Best_rank_MHCI_score | Best_rank_MHCI_score_WT | Best_rank_MHCI_score_allele | Best_rank_MHCI_score_allele_WT | Best_rank_MHCI_score_epitope | Best_rank_MHCI_score_epitope_WT | CDN_MHCI | CDN_MHCII | DAI_MHCI_affinity_cutoff500nM | Dissimilarity_MHCI_cutoff500nM | Expression_mutated_transcript | Generator_rate | IEDB_Immunogenicity_MHCI_cutoff500nM | Improved_Binder_MHCI | MixMHC2pred_best_allele | MixMHC2pred_best_peptide | MixMHC2pred_best_rank | MixMHCpred_best_allele | MixMHCpred_best_peptide | MixMHCpred_best_rank | MixMHCpred_best_score | Neoag_immunogenicity | Number_of_mismatches_MCHI | PHBR-I  | PHBR-II | Pathogensimiliarity_MHCI_affinity_9mer | Priority_score | Recognition_Potential_MHCI_affinity_9mer | Selfsimilarity_MHCI_conserved_binder | Tcell_predictor_score_cutoff500nM | VAF_in_RNA | VAF_in_tumor | [WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL) | mutation_not_found_in_proteome | patient | substitution | transcript_expression | vaxrank_binding_score | vaxrank_total_score |
+|---------------------------|-------|-----------------------------|-----------------------------|-------------------|-----------------------------|-------------------|---------------|---------------------------|----------------------------------------|----------|-----------|----------------------|-------------------------|------------------------------|----------------------------|-------------------------------|-----------------------------|--------------------------------|---------------------------|------------------------------|--------------------------------|-----------------------------------|----------------------------------------|---------------------------------|------------------------------------|-------------------------------------------|-------------------------------|----------------------------------|---------------------------|------------------------------|----------------------------|-------------------------------|--------------------------|-----------------------------|-----------------------|--------------------------|------------------------------|---------------------------------|-------------------------------|----------------------------------|----------------------------|-------------------------------|-----------------------------|--------------------------------|---------------------------|------------------------------|----------------------|-------------------------|-----------------------------|--------------------------------|------------------------------|---------------------------------|----------|-----------|-------------------------------|--------------------------------|-------------------------------|----------------|--------------------------------------|----------------------|-------------------------|--------------------------|-----------------------|------------------------|-------------------------|----------------------|-----------------------|----------------------|---------------------------|---------|---------|----------------------------------------|----------------|------------------------------------------|--------------------------------------|-----------------------------------|------------|--------------|---------------------------------------------|--------------------------------|---------|--------------|-----------------------|-----------------------|---------------------|
+ | 0.294                     | BRCA2 | 0.5| AAAAAAAAAAAAAFAAAAAAAAAAAAA|  14                | AAAAAAAAAAAAALAAAAAAAAAAAAA | Ptx               | 0.51950689    | 0.857                     | AAAAAAAAAAAAAFAAAAAAAAAAAAA            | 0        | 1         | 28                   | 0.88723                 | 0.88723                      | HLA-DQA10401-DQB10402      | HLA-DQA10401-DQB10402         | AAAAFAAAAAAAAAA             | AAAALAAAAAAAAAA                | 251.77                    | 513.02                       | HLA-C*16:01                    | HLA-C*16:01                       | 1                                      | AAAAAAAAF                       | AAAAAAAAL                          | 9                                         | 24.3                          | 21.7                             | HLA-C*16:01               | HLA-C*16:01                  | AAAAAAAAF                  | AAAAAAAAL                     | 24.3                     | 21.7                        | 0.05                  | 1.4                      | HLA-DQA10301-DQB10402        | HLA-DQA10301-DQB10402           | AAAAFAAAAAAAAAA               | AAAALAAAAAAAAAA                  | HLA-C*16:01                | HLA-C*16:01                   | AAAAAAAAF                   | AAAAAAAAL                      | 0.0592                    | 0.0493                       | 0.0592               | 0.0493                  | HLA-C*16:01                 | HLA-C*16:01                    | AAAAAAAAF                    | AAAAAAAAL                       | 1        | 1         | -2.6                          | 1                              | 0.44522                       | 1              | 0.18288                              | 0                    | DPA1_01_03__DPB1_04_01  | AAAAFAAAAAAAAAAA         | 0.997                 | B0702                  | AAAAAAAAF               | 0.1                  | 0.50487               | 13.16998             | 1                         | 0.31193 | 0.21892 | 0                                      | 0.07017        | 0                                        | 0.99178271                           | 0.40327581                        | 0.857      | 0.294        | AAAAAAAAAAAAALAAAAAAAAAAAAA                 | 1                              | Ptx     | I547T        | 0.51950689            | 3.7689                | 1.678               |
+| 0.173                     | BRCA2 | 0.5| AAAAAAAAAAAAAMAAAAAAAAAAAAA | 14                | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 0.71575659    | 0.556                     | AAAAAAAAAAAAAMAAAAAAAAAAAAA            | 1        | 1         | 10                   | 90.685                  | 90.685                       | HLA-DQA10401-DQB10402      | HLA-DQA10401-DQB10402         | AAAAAAAAAMAAAAA             | AAAAAAAAARAAAAA                | 421.53                    | 554.92                       | HLA-C*16:01                    | HLA-C*16:01                       | 1                                      | AAAAAAAAM                       | AAAAAAAAR                          | 9                                         | 24.1                          | 6346.9                           | HLA-C*16:01               | HLA-C*16:01                  | AAAAAAAAM                  | AAAAAAAAR                     | 24.1                     | 6346.9                      | 0.25                  | 2.5                      | HLA-DQA10401-DQB10302        | HLA-DQA10401-DQB10302           | AAAAAAAAAAMAAAA               | AAAAAAAAAARAAAA                  | HLA-C*16:01                | HLA-C*16:01                   | AAAAAAAAM                   | AAAAAAAAR                      | 0.0587                    | 8.9317                       | 0.0587               | 8.9317                  | HLA-C*16:01                 | HLA-C*16:01                    | AAAAAAAAM                    | AAAAAAAAR                       | 1        | 1         | 6322.8                        | 1                              | 0.39796                       | 1              | 0.18288                              | 1                    | DPA1_01_03__DPB1_04_01  | AAAAMAAAAAAAAAAA         | 2.44                  | B0702                  | AAAAAAAAM               | 0.07                 | 0.5444                | 39.51379             | 1                         | 0.29303 | 1.5594  | 0                                      | 0.10626        | 0                                        | NA                                   | 0.46452844                        | 0.556      | 0.173        | AAAAAAAAAAAAARAAAAAAAAAAAAA                 | 1                              | Ptx     | E135S        | 0.71575659            | 3.8741                | 1.5417              |
 
 
 ## JSON format
 
-If the `--with-json` flag is enabled an output file with the suffix "*_neoantigen_candidates.json*" is created. This file contains neoantigen candidates information in JSON format. Furthermore, a second file with the suffix *"_neoantigen_features.json"* is created. This file contains the annotated neoantigen features in JSON format. The names within the models are described in **TABLE 1**.   
+If the `--with-json` flag is enabled an output file with the suffix "*_neoantigen_candidates_annotated.json*" is created. This file contains neoantigen candidates information in JSON format. Furthermore, a second file with the suffix *"_neoantigen_features.json"* is created. This file contains the annotated neoantigen features in JSON format. The names within the models are described in **TABLE 1**.   
 \
 This is a dummy example of a "*_neoantigen_candidates.json*" file. This file contains a list of neoantigen candidate models (for further information, please see [here](05_models.md). To simplify, only one full neoantigen candidate model is shown:
 ```json
 [{
-    "identifier": "ou11p7RD+tZvjY88DA55Mw==",
     "patient_identifier": "Ptx",
     "gene": "BRCA2",
     "mutation": {
@@ -171,9 +135,10 @@ This is a dummy example of a "*_neoantigen_candidates.json*" file. This file con
     "rna_expression": 0.5195068939999999,
     "imputed_gene_expression": 0.5,
     "dna_variant_allele_frequency": 0.294,
-    "rna_variant_allele_frequency": 0.857
+    "rna_variant_allele_frequency": 0.857,
+    "neofox_annotations": [...],
+    "external_annotations": [...]
 }, {
-    "identifier": "rzXB3nQlZ5misn6VN8EA2A==",
     "patient_identifier": "Ptx",
     "gene": "BRCA2",
     "mutation": {
@@ -184,15 +149,19 @@ This is a dummy example of a "*_neoantigen_candidates.json*" file. This file con
     "rna_expression": 0.715756594,
     "imputed_gene_expression": 0.5,
     "dna_variant_allele_frequency": 0.17300000000000001,
-    "rna_variant_allele_frequency": 0.556
+    "rna_variant_allele_frequency": 0.556,
+    "neofox_annotations": [ ... ],
+    "external_annotations": [ ... ]
 }]
-```  
+```
 
-This is a dummy example of a "*_neoantigen_candidates.json*" file. This file contains a list of neoantigen candidate models (for further information, please see [here](05_models.md). To simplify, only one full annotated neoantigen candidate model is shown:
+Notice that for simplicity purposes both fields `neofox_annotations` and `external_annotations` are not shown above. 
+For further information, please see [here](05_models.md).
 
-````json
-[{
-    "neoantigen_identifier": "ou11p7RD+tZvjY88DA55Mw==",
+This is a dummy example of the field `neofox_annotations`.
+
+```json
+{
     "annotations": [{
         "name": "Best_rank_MHCI_score",
         "value": "0.0592"
@@ -411,7 +380,7 @@ This is a dummy example of a "*_neoantigen_candidates.json*" file. This file con
         "value": "I547T"
     }, {
         "name": "transcript_expression",
-        "value": 0.5195068939999999
+        "value": "0.5195068939999999"
     }, {
         "name": "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)",
         "value": "AAAAAAAAAAAAAFAAAAAAAAAAAAA"
@@ -420,10 +389,10 @@ This is a dummy example of a "*_neoantigen_candidates.json*" file. This file con
         "value": "AAAAAAAAAAAAALAAAAAAAAAAAAA"
     }, {
         "name": "VAF_in_tumor",
-        "value": 0.294
+        "value": "0.294"
     }, {
         "name": "VAF_in_RNA",
-        "value": 0.857
+        "value": "0.857"
     }, {
         "name": "Unnamed: 8",
         "value": null
@@ -431,5 +400,18 @@ This is a dummy example of a "*_neoantigen_candidates.json*" file. This file con
     "annotator": "Neofox",
     "annotator_version": "0.4.0",
     "timestamp": "20201211115212061465"
-}]
-````
+}
+```
+
+And this is a dummy example of the field `external_annotations`:
+```json
+[
+  {
+        "name": "external_annotation_1",
+        "value": "0.857"
+    }, {
+        "name": "external_annotation_2",
+        "value": "that"
+    }
+]
+```
