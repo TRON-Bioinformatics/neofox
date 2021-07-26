@@ -110,10 +110,8 @@ class NeofoxReferenceInstaller(object):
 
         # download IEDB
         iedb_zip = os.path.join(self.reference_folder, IEDB_FOLDER, "Iedb.zip")
-        #cmd = 'wget "http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip" -O {}'.format(
-        #    iedb_zip
-        #)
-        #self._run_command(cmd)
+        cmd = 'wget "http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip" -O {}'.format(iedb_zip)
+        self._run_command(cmd)
 
         # unzip IEDB
         path_to_iedb_folder = os.path.join(self.reference_folder, IEDB_FOLDER)
@@ -309,10 +307,3 @@ class IedbFastaBuilder:
             for index, row in filtered_iedb.iterrows():
                 fasta.write(">{header}\n".format(header=str(row["fasta_header"])))
                 fasta.write("{sequence}\n".format(sequence=str(row["seq"])))
-
-
-if __name__ == '__main__':
-    dotenv.load_dotenv(override=True)
-    NeofoxReferenceInstaller(
-        reference_folder="/home/priesgo/neofox_install/reference_data_11", install_r_dependencies=False
-    ).install()
