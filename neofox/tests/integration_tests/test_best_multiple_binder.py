@@ -37,7 +37,6 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.references.references import PREFIX_HOMO_SAPIENS
 
 
 class TestBestMultipleBinder(TestCase):
@@ -57,7 +56,7 @@ class TestBestMultipleBinder(TestCase):
         self.uniprot = Uniprot(references.uniprot_pickle)
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
-            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=references.get_proteome_database())
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(

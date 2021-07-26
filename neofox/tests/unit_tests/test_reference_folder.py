@@ -23,7 +23,7 @@ from unittest import TestCase
 import neofox
 import neofox.tests.unit_tests.tools as test_tools
 from neofox.exceptions import NeofoxConfigurationException
-from neofox.references.references import ReferenceFolder
+from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
 from neofox.tests.fake_classes import FakeReferenceFolder
 
 
@@ -62,6 +62,25 @@ class TestReferenceFolder(TestCase):
         )
         with self.assertRaises(NeofoxConfigurationException):
             ReferenceFolder()
+
+    def test_non_supported_organism(self):
+        test_tools.mock_file_existence(
+            existing_files=self.fake_reference_folder.resources
+        )
+        with self.assertRaises(NeofoxConfigurationException):
+            ReferenceFolder(organism="rat")
+
+    def test_organism_mouse(self):
+        test_tools.mock_file_existence(
+            existing_files=self.fake_reference_folder.resources
+        )
+        ReferenceFolder(organism=ORGANISM_MUS_MUSCULUS)
+
+    def test_organism_human(self):
+        test_tools.mock_file_existence(
+            existing_files=self.fake_reference_folder.resources
+        )
+        ReferenceFolder(organism=ORGANISM_HOMO_SAPIENS)
 
 
 if __name__ == "__main__":

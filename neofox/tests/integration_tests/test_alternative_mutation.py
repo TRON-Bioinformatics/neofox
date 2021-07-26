@@ -25,19 +25,16 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mutation
 
-from neofox.model.conversion import ModelConverter, ModelValidator
+from neofox.model.conversion import ModelValidator
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
-from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
     BestAndMultipleBinderMhcII,
 )
-from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.references.references import PREFIX_HOMO_SAPIENS
 
 
 class TestBestMultipleBinder(TestCase):
@@ -58,7 +55,7 @@ class TestBestMultipleBinder(TestCase):
         self.uniprot = Uniprot(references.uniprot_pickle)
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
-            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=references.get_proteome_database())
 
     def test_best_multiple_mhc2_run(self):
         best_multiple = BestAndMultipleBinderMhcII(

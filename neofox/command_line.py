@@ -28,7 +28,7 @@ from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
-from neofox.references.references import ReferenceFolder, HlaDatabase
+from neofox.references.references import ReferenceFolder, HlaDatabase, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
 
 epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
          "TRON – Translational Oncology at the University Medical Center of the " \
@@ -88,7 +88,7 @@ def neofox_cli():
         required=True,
     )
     parser.add_argument(
-        "--output-folder", dest="output_folder", help="output folder", required=True
+        "--output-folder", dest="output_folder", help="output folder", required=True,
     )
     parser.add_argument(
         "--output-prefix",
@@ -131,6 +131,13 @@ def neofox_cli():
         dest="config",
         help="an optional configuration file with all the environment variables",
     )
+    parser.add_argument(
+        "--organism",
+        dest="organism",
+        choices=[ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS],
+        help="the organism to which the data corresponds",
+        default="human"
+    )
     args = parser.parse_args()
 
     candidate_file = args.candidate_file
@@ -144,6 +151,7 @@ def neofox_cli():
     affinity_threshold = int(args.affinity_threshold)
     num_cpus = int(args.num_cpus)
     config = args.config
+    organism = args.organism
 
     try:
         # check parameters
@@ -164,7 +172,7 @@ def neofox_cli():
         # loads configuration
         if config:
             dotenv.load_dotenv(config, override=True)
-        reference_folder = ReferenceFolder()
+        reference_folder = ReferenceFolder(organism=organism)
 
         # reads the input data
         neoantigens, patients = _read_data(

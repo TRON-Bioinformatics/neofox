@@ -27,9 +27,6 @@ from neofox.helpers.blastp_runner import (
 from logzero import logger
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-import os
-from neofox.references.references import PREFIX_HOMO_SAPIENS
-from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class TestBlast(TestCase):
@@ -37,10 +34,10 @@ class TestBlast(TestCase):
         self.references, self.configuration, self.fastafile = self._load_references()
         self.proteome_blastp_runner = BlastpRunner(
             runner=Runner(verbose=False), configuration=self.configuration,
-            database=os.path.join(self.references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=self.references.get_proteome_database())
         self.iedb_blastp_runner = BlastpRunner(
             runner=Runner(verbose=False), configuration=self.configuration,
-            database=os.path.join(self.references.iedb, IEDB_BLAST_PREFIX))
+            database=self.references.get_iedb_database())
 
     def _load_references(self):
         references, configuration = integration_test_tools.load_references()

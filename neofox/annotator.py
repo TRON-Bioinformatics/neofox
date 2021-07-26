@@ -64,7 +64,7 @@ from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
-    AvailableAlleles, IEDB_BLAST_PREFIX, PREFIX_HOMO_SAPIENS,
+    AvailableAlleles
 )
 
 
@@ -91,10 +91,10 @@ class NeoantigenAnnotator:
         # initialise proteome and IEDB BLASTP runners
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=configuration,
-            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=references.get_proteome_database())
         self.iedb_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=configuration,
-            database=os.path.join(references.iedb, IEDB_BLAST_PREFIX))
+            database=references.get_iedb_database())
 
         # NOTE: these resources do not read any file thus can be initialised fast
         self.dissimilarity_calculator = DissimilarityCalculator(
