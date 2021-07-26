@@ -2,6 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
+[![Documentation Status](https://readthedocs.org/projects/neofox/badge/?version=latest)](https://neofox.readthedocs.io/en/latest/?badge=latest)
 
 
 NeoFox annotates neoantigen candidate sequences with published neoantigen features. 
