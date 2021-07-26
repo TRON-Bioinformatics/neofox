@@ -26,16 +26,28 @@ import pandas as pd
 
 from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName
 
+ORGANISM_HOMO_SAPIENS = 'human'
+ORGANISM_MUS_MUSCULUS = 'mouse'
+
 PREFIX_HOMO_SAPIENS = "homo_sapiens"
 HOMO_SAPIENS_FASTA = "Homo_sapiens.fa"
 HOMO_SAPIENS_PICKLE = "Homo_sapiens.pickle"
-
-IEDB_FASTA = "IEDB.fasta"
+PREFIX_MUS_MUSCULUS = "mus_musculus"
+MUS_MUSCULUS_FASTA = "Mus_musculus.fa"
+MUS_MUSCULUS_PICKLE = "Mus_musculus.pickle"
 PROTEOME_DB_FOLDER = "proteome_db"
+
+IEDB_FASTA_HOMO_SAPIENS = "IEDB_homo_sapiens.fasta"
+IEDB_BLAST_PREFIX_HOMO_SAPIENS = "iedb_blast_db_homo_sapiens"
+IEDB_FASTA_MUS_MUSCULUS = "IEDB_mus_musculus.fasta"
+IEDB_BLAST_PREFIX_MUS_MUSCULUS = "iedb_blast_db_mus_musculus"
 IEDB_FOLDER = "iedb"
-IEDB_BLAST_PREFIX = "iedb_blast_db"
-NETMHCPAN_AVAILABLE_ALLELES_FILE = "netmhcpan_available_alleles.txt"
-NETMHC2PAN_AVAILABLE_ALLELES_FILE = "netmhc2pan_available_alleles.txt"
+
+
+NETMHCPAN_AVAILABLE_ALLELES_FILE = "netmhcpan_available_alleles_human.txt"
+NETMHCPAN_AVAILABLE_ALLELES_MICE_FILE = "netmhcpan_available_alleles_mice.txt"
+NETMHC2PAN_AVAILABLE_ALLELES_FILE = "netmhc2pan_available_alleles_human.txt"
+NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE = "netmhc2pan_available_alleles_mice.txt"
 HLA_DATABASE_AVAILABLE_ALLELES_FILE = "hla_database_allele_list.csv"
 MIXMHCPRED_AVAILABLE_ALLELES_FILE = "allele_list.txt"
 MIXMHC2PRED_AVAILABLE_ALLELES_FILE = "Alleles_list.txt"
@@ -110,7 +122,13 @@ class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):
 
 
 class ReferenceFolder(object):
-    def __init__(self):
+
+    def __init__(self, organism=ORGANISM_HOMO_SAPIENS):
+        self.organism = organism
+        if not organism == ORGANISM_HOMO_SAPIENS and not organism == ORGANISM_MUS_MUSCULUS:
+            raise NeofoxConfigurationException(
+                "Non supported organism: {}. Use {} or {}".format(
+                    organism, ORGANISM_HOMO_SAPIENS, ORGANISM_HOMO_SAPIENS))
         self.reference_genome_folder = self._check_reference_genome_folder()
         # sets the right file names for the resources
         self.available_mhc_ii = self._get_reference_file_name(
@@ -135,7 +153,7 @@ class ReferenceFolder(object):
             self.iedb,
             self.proteome_db,
             self.uniprot,
-            os.path.join(self.iedb, IEDB_FASTA),
+            os.path.join(self.iedb, IEDB_FASTA_HOMO_SAPIENS),
             os.path.join(self.proteome_db, HOMO_SAPIENS_FASTA),
             self.hla_database
         ]
@@ -155,6 +173,17 @@ class ReferenceFolder(object):
         if not self.__hla_database:
             self.__hla_database = HlaDatabase(self.hla_database)
         return self.__hla_database
+
+    def get_proteome_database(self):
+        return os.path.join(
+            self.proteome_db,
+            PREFIX_HOMO_SAPIENS if self.organism == ORGANISM_HOMO_SAPIENS else ORGANISM_MUS_MUSCULUS)
+
+    def get_iedb_database(self):
+        return os.path.join(
+            self.iedb,
+            IEDB_BLAST_PREFIX_HOMO_SAPIENS if self.organism == ORGANISM_HOMO_SAPIENS
+            else IEDB_BLAST_PREFIX_MUS_MUSCULUS)
 
     def _check_reference_genome_folder(self):
         reference_genome_folder = os.environ.get(neofox.REFERENCE_FOLDER_ENV)

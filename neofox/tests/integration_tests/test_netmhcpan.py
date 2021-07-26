@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
 from unittest import TestCase
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.helpers.blastp_runner import BlastpRunner
@@ -24,7 +23,6 @@ from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.model.mhc_parser import MhcParser
-from neofox.references.references import PREFIX_HOMO_SAPIENS
 
 
 class TestNetMhcPanPredictor(TestCase):
@@ -37,7 +35,7 @@ class TestNetMhcPanPredictor(TestCase):
         self.mhc_parser = MhcParser(references.get_hla_database())
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
-            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=references.get_proteome_database())
 
     def test_netmhcpan_epitope_iedb(self):
         netmhcpan_predictor = NetMhcPanPredictor(
