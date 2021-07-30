@@ -1,4 +1,4 @@
-## NeoFox - NEOantigen Feature tOolboX  <img src="docs/figures/neofox_logo_small.png" width="20%">  
+# NeoFox - NEOantigen Feature tOolboX  <img src="docs/figures/neofox_logo_small.png" width="10% style="float: right;">  
 
 [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
