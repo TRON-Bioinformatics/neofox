@@ -19,41 +19,85 @@ message Mutation {
 }
 
 /**
+This is a generic class to hold annotations from Neofox
+*/
+message Annotation {
+	/**
+	The name of the annotation
+	*/
+	string name = 1;
+	/**
+	The value of the annotation
+	*/
+	string value = 2;
+}
+
+/**
+A set of annotations for a neoantigen
+*/
+message NeoantigenAnnotations {
+	/**
+	List of annotations
+	*/
+	repeated Annotation annotations = 1;
+	/**
+	The annotator
+	*/
+	string annotator = 2;
+	/**
+	The version of the annotator
+	*/
+	string annotatorVersion = 3;
+	/**
+	A timestamp determined when the annotation was created
+	*/
+	string timestamp = 4;
+	/**
+	Annotation resources MD5 hash
+	*/
+	string resourcesHash = 5;
+}
+
+/**
 A neoantigen minimal definition
 */
 message Neoantigen {
 	/**
-	A unique identifier of a neoantigen
-	*/
-	string identifier = 1;
-	/**
 	Patient identifier
 	*/
-	string patientIdentifier = 2;
+	string patientIdentifier = 1;
 	/**
 	The HGNC gene symbol or gene identifier
 	*/
-	string gene = 3;
+	string gene = 2;
 	/**
 	The mutation
 	*/
-	Mutation mutation = 4;
+	Mutation mutation = 3;
 	/**
 	Expression value of the transcript from RNA data. Range [0, +inf].
 	*/
-	float rnaExpression = 5;
+	float rnaExpression = 4;
 	/**
 	Expression value of the transcript from TCGA data. Range [0, +inf].
 	*/
-	float imputedGeneExpression = 6;
+	float imputedGeneExpression = 5;
 	/**
 	Variant allele frequency from the DNA. Range [0.0, 1.0]
 	*/
-	float dnaVariantAlleleFrequency = 7;
+	float dnaVariantAlleleFrequency = 6;
 	/**
 	Variant allele frequency from the RNA. Range [0.0, 1.0]
 	*/
-	float rnaVariantAlleleFrequency = 8;
+	float rnaVariantAlleleFrequency = 7;
+	/**
+	The NeoFox neoantigen annotations
+	 */
+	NeoantigenAnnotations neofoxAnnotations = 8;
+	/**
+	List of external annotations
+	*/
+	repeated Annotation externalAnnotations = 9;
 }
 
 /**
@@ -80,50 +124,6 @@ message Patient {
 	MHC II classic molecules
 	*/
 	repeated Mhc2 mhc2 = 5;
-}
-
-/**
-This is a generic class to hold annotations from Neofox
-*/
-message Annotation {
-	/**
-	The name of the annotation
-	*/
-	string name = 1;
-	/**
-	The value of the annotation
-	*/
-	string value = 2;
-}
-
-/**
-A set of annotations for a neoantigen
-*/
-message NeoantigenAnnotations {
-	/**
-	A unique identifier of a neoantigen
-	*/
-	string neoantigenIdentifier = 1;
-	/**
-	List of annotations
-	*/
-	repeated Annotation annotations = 2;
-	/**
-	The annotator
-	*/
-	string annotator = 3;
-	/**
-	The version of the annotator
-	*/
-	string annotatorVersion = 4;
-	/**
-	A timestamp determined when the annotation was created
-	*/
-	string timestamp = 5;
-	/**
-	Annotation resources MD5 hash
-	*/
-	string resourcesHash = 6;
 }
 
 /**
