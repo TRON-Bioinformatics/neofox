@@ -1,11 +1,11 @@
-# Overview
+# <img src="docs/figures/neofox_logo_small.png" width="10%"> Overview
 
 Welcome to the documentation of **NeoFox**!
 
 [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
 
-## <img src="docs/figures/neofox_logo_small.png" width="10%"> NeoFox
+## About NeoFox
 
 Neoantigens are tumor-specific antigens encoded by somatic mutations. Their break down products (neoepitopes) 
 are presented by the major histocompatibility complex (MHC) on the surface of tumor cells enabling T cells to 
