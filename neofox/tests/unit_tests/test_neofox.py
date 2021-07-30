@@ -162,17 +162,6 @@ class TestNeofox(TestCase):
                 configuration=FakeDependenciesConfiguration(),
             )
 
-    def test_repeated_neoantigens(self):
-        neoantigen = self._get_test_neoantigen()
-        with self.assertRaises(NeofoxDataValidationException):
-            NeoFox(
-                neoantigens=[neoantigen, neoantigen],
-                patient_id=None,
-                patients=[self._get_test_patient()],
-                reference_folder=FakeReferenceFolder(),
-                configuration=FakeDependenciesConfiguration(),
-            )
-
     def test_no_expression_imputation(self):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_candidate_file.txt"
@@ -181,9 +170,7 @@ class TestNeofox(TestCase):
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
         patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(
-            input_file
-        )
+        neoantigens = ModelConverter.parse_candidate_file(input_file)
         neofox_runner = NeoFox(
             neoantigens=neoantigens,
             patients=patients,
@@ -192,7 +179,7 @@ class TestNeofox(TestCase):
         )
         for neoantigen in neoantigens:
             for neoantigen_imputed in neofox_runner.neoantigens:
-                if neoantigen.identifier == neoantigen_imputed.identifier:
+                if neoantigen.mutation.mutated_xmer == neoantigen_imputed.mutation.mutated_xmer:
                     self.assertEqual(
                         neoantigen.rna_expression, neoantigen_imputed.rna_expression
                     )
@@ -201,9 +188,7 @@ class TestNeofox(TestCase):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_candidate_file_Pty.txt"
         )
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(
-            input_file
-        )
+        neoantigens= ModelConverter.parse_candidate_file(input_file)
         import copy
 
         original_neoantigens = copy.deepcopy(neoantigens)
@@ -219,10 +204,9 @@ class TestNeofox(TestCase):
         )
         for neoantigen in original_neoantigens:
             for neoantigen_imputed in neofox_runner.neoantigens:
-                if neoantigen.identifier == neoantigen_imputed.identifier:
-                    self.assertFalse(
-                        neoantigen.rna_expression == neoantigen_imputed.rna_expression
-                    )
+                self.assertFalse(
+                    neoantigen.rna_expression == neoantigen_imputed.rna_expression
+                )
 
     def _get_test_neoantigen(self):
         return Neoantigen(

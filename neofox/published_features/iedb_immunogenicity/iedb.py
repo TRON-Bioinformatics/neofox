@@ -17,14 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-
 from logzero import logger
-
+from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.model.neoantigen import Annotation, MhcAllele
 from neofox.model.wrappers import AnnotationFactory
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
-    BestAndMultipleBinder,
-)
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 immunoweight = [0.00, 0.00, 0.10, 0.31, 0.30, 0.29, 0.26, 0.18, 0.00]
@@ -59,45 +55,45 @@ allele_dict = {
     "H-2-Kd": "2,5,9",
     "H-2-Kk": "2,8,9",
     "H-2-Ld": "2,5,9",
-    "HLA-A0101": "2,3,9",
-    "HLA-A0201": "1,2,9",
-    "HLA-A0202": "1,2,9",
-    "HLA-A0203": "1,2,9",
-    "HLA-A0206": "1,2,9",
-    "HLA-A0211": "1,2,9",
-    "HLA-A0301": "1,2,9",
-    "HLA-A1101": "1,2,9",
-    "HLA-A2301": "2,7,9",
-    "HLA-A2402": "2,7,9",
-    "HLA-A2601": "1,2,9",
-    "HLA-A2902": "2,7,9",
-    "HLA-A3001": "1,3,9",
-    "HLA-A3002": "2,7,9",
-    "HLA-A3101": "1,2,9",
-    "HLA-A3201": "1,2,9",
-    "HLA-A3301": "1,2,9",
-    "HLA-A6801": "1,2,9",
-    "HLA-A6802": "1,2,9",
-    "HLA-A6901": "1,2,9",
-    "HLA-B0702": "1,2,9",
-    "HLA-B0801": "2,5,9",
-    "HLA-B1501": "1,2,9",
-    "HLA-B1502": "1,2,9",
-    "HLA-B1801": "1,2,9",
-    "HLA-B2705": "2,3,9",
-    "HLA-B3501": "1,2,9",
-    "HLA-B3901": "1,2,9",
-    "HLA-B4001": "1,2,9",
-    "HLA-B4002": "1,2,9",
-    "HLA-B4402": "2,3,9",
-    "HLA-B4403": "2,3,9",
-    "HLA-B4501": "1,2,9",
-    "HLA-B4601": "1,2,9",
-    "HLA-B5101": "1,2,9",
-    "HLA-B5301": "1,2,9",
-    "HLA-B5401": "1,2,9",
-    "HLA-B5701": "1,2,9",
-    "HLA-B5801": "1,2,9",
+    "HLA-A*01:01": "2,3,9",
+    "HLA-A*02:01": "1,2,9",
+    "HLA-A*02:02": "1,2,9",
+    "HLA-A*02:03": "1,2,9",
+    "HLA-A*02:06": "1,2,9",
+    "HLA-A*02:11": "1,2,9",
+    "HLA-A*03:01": "1,2,9",
+    "HLA-A*11:01": "1,2,9",
+    "HLA-A*23:01": "2,7,9",
+    "HLA-A*24:02": "2,7,9",
+    "HLA-A*26:01": "1,2,9",
+    "HLA-A*29:02": "2,7,9",
+    "HLA-A*30:01": "1,3,9",
+    "HLA-A*30:02": "2,7,9",
+    "HLA-A*31:01": "1,2,9",
+    "HLA-A*32:01": "1,2,9",
+    "HLA-A*33:01": "1,2,9",
+    "HLA-A*68:01": "1,2,9",
+    "HLA-A*68:02": "1,2,9",
+    "HLA-A*69:01": "1,2,9",
+    "HLA-B*07:02": "1,2,9",
+    "HLA-B*08:01": "2,5,9",
+    "HLA-B*15:01": "1,2,9",
+    "HLA-B*15:02": "1,2,9",
+    "HLA-B*18:01": "1,2,9",
+    "HLA-B*27:05": "2,3,9",
+    "HLA-B*35:01": "1,2,9",
+    "HLA-B*39:01": "1,2,9",
+    "HLA-B*40:01": "1,2,9",
+    "HLA-B*40:02": "1,2,9",
+    "HLA-B*44:02": "2,3,9",
+    "HLA-B*44:03": "2,3,9",
+    "HLA-B*45:01": "1,2,9",
+    "HLA-B*46:01": "1,2,9",
+    "HLA-B*51:01": "1,2,9",
+    "HLA-B*53:01": "1,2,9",
+    "HLA-B*54:01": "1,2,9",
+    "HLA-B*57:01": "1,2,9",
+    "HLA-B*58:01": "1,2,9",
 }
 
 
@@ -142,39 +138,45 @@ class IEDBimmunogenicity:
         return score
 
     def calculate_iedb_immunogenicity(
-        self, epitope, mhc_allele: MhcAllele, mhc_score, affin_filtering=False
+        self, peptide, mhc_allele: MhcAllele, mhc_score
     ):
         """This function determines the IEDB immunogenicity score"""
         score = None
         try:
-            if (
-                epitope != "-"
-                and (affin_filtering and float(mhc_score) < self.affinity_threshold)
-                or not affin_filtering
-            ):
-                score = self.predict_immunogenicity(
-                    epitope, mhc_allele.name.replace("*", "").replace(":", "")
-                )
+            if peptide != "-" and float(mhc_score) < self.affinity_threshold:
+                score = self.predict_immunogenicity(peptide, mhc_allele.name)
+                logger.info(score)
         except (ValueError, AttributeError):
             pass
         return score
 
     def get_annotations(
-        self, netmhcpan: BestAndMultipleBinder, mhci_allele: MhcAllele
-    ) -> List[Annotation]:
-        """returns IEDB immunogenicity for MHC I (based on affinity) and MHC II (based on rank)"""
+            self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
+        """
+        returns IEDB immunogenicity for best predicted MHC I (based on affinity) and MHC II (based on affinity) epitopes
+        """
         iedb = None
-        if netmhcpan.best_epitope_by_affinity.peptide:
+        iedb_mhcii = None
+        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
             iedb = self.calculate_iedb_immunogenicity(
-                        epitope=netmhcpan.best_epitope_by_affinity.peptide,
-                        mhc_allele=mhci_allele,
-                        mhc_score=netmhcpan.best_epitope_by_affinity.affinity_score,
-                        affin_filtering=True,
+                        peptide=mutated_peptide_mhci.peptide,
+                        mhc_allele=mutated_peptide_mhci.hla,
+                        mhc_score=mutated_peptide_mhci.affinity_score,
                     )
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
+            iedb_mhcii = self.calculate_iedb_immunogenicity(
+                peptide=mutated_peptide_mhcii.peptide,
+                mhc_allele=mutated_peptide_mhcii.hla,
+                mhc_score=mutated_peptide_mhcii.affinity_score,
+            )
         annotations = [
             AnnotationFactory.build_annotation(
                 value=iedb,
                 name="IEDB_Immunogenicity_MHCI",
             ),
+            AnnotationFactory.build_annotation(
+                name="IEDB_Immunogenicity_MHCII",
+                value=iedb_mhcii
+            )
         ]
         return annotations
