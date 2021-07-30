@@ -1,4 +1,4 @@
-# Overview
+# <img src="docs/figures/neofox_logo_small.png" width="10%"> Overview
 
 Welcome to the documentation of **NeoFox**!
 
