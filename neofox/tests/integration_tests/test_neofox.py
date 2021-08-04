@@ -158,7 +158,7 @@ class TestNeofox(TestCase):
         input_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_data_only_one.txt"
         )
-        neoantigens, external_annotations = ModelConverter.parse_candidate_file(
+        neoantigens = ModelConverter.parse_candidate_file(
             input_file
         )
         annotations = NeoFox(
