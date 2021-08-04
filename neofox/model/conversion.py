@@ -105,7 +105,6 @@ class ModelConverter(object):
             # NOTE: this is the support for the NeoFox format
             data = data.replace({np.nan: None})
             neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
-
         return neoantigens
 
     @staticmethod
@@ -297,15 +296,19 @@ class ModelConverter(object):
                           "imputedGeneExpression"
                           ]]
         for n in neoantigens:
+            annotations = [a.to_dict() for a in n.neofox_annotations.annotations]
+            annotations.extend([a.to_dict() for a in n.external_annotations])
             df = (
-                pd.DataFrame([a.to_dict() for a in n.neofox_annotations.annotations])
-                .set_index("name")
-                .transpose()
+                    pd.DataFrame(annotations)
+                    .set_index("name")
+                   .transpose()
             )
+
             dfs.append(df)
         neofox_annotations_df = pd.concat(dfs, sort=True).reset_index()
         del neofox_annotations_df["index"]
         df = pd.concat([neoantigens_df, neofox_annotations_df], axis=1)
+        df.replace('None', NOT_AVAILABLE_VALUE, inplace=True)
         return df
 
     @staticmethod
