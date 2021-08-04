@@ -156,7 +156,7 @@ def neofox_cli():
                 "Please, define one input file, either a candidate file, a standard input file or a JSON file"
             )
         if not with_table and not with_json:
-            with_sw = True  # if none specified short wide is the default
+            with_table = True  # if none specified short wide is the default
 
         # makes sure that the output folder exists
         os.makedirs(output_folder, exist_ok=True)
@@ -219,7 +219,6 @@ def _read_data(
 def _write_results(neoantigens, output_folder, output_prefix, with_json, with_table):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
-
     # writes the output
     if with_table:
         ModelConverter.annotations2table(neoantigens).to_csv(
