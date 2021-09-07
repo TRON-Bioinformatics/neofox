@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
-
 from logzero import logger
 from datetime import datetime
 from distributed import get_client, secede, rejoin
@@ -64,7 +62,7 @@ from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
-    AvailableAlleles
+    AvailableAlleles, ORGANISM_MUS_MUSCULUS, ORGANISM_HOMO_SAPIENS
 )
 
 
@@ -84,6 +82,7 @@ class NeoantigenAnnotator:
         self.available_alleles = references.get_available_alleles()
         self.tcell_predictor = tcell_predictor
         self.self_similarity = self_similarity
+        self.organism = references.organism
 
         # NOTE: this one loads a big file, but it is faster loading it multiple times than passing it around
         self.uniprot = Uniprot(references.uniprot_pickle)
@@ -390,30 +389,32 @@ class NeoantigenAnnotator:
                     neoantigen,
                     patient
                 )
-            if self.configuration.mix_mhc2_pred is not None and has_mhc2:
-                mixmhc2pred_annotations = self.run_mixmhc2pred(
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
-            if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                mixmhcpred_annotations = self.run_mixmhcpred(
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
-            if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                prime_annotations = self.run_prime(
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
+            # avoids running MixMHCpred and PRIME for non human organisms
+            if self.organism == ORGANISM_HOMO_SAPIENS:
+                if self.configuration.mix_mhc2_pred is not None and has_mhc2:
+                    mixmhc2pred_annotations = self.run_mixmhc2pred(
+                        self.runner,
+                        self.configuration,
+                        self.mhc_parser,
+                        neoantigen,
+                        patient,
+                    )
+                if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                    mixmhcpred_annotations = self.run_mixmhcpred(
+                        self.runner,
+                        self.configuration,
+                        self.mhc_parser,
+                        neoantigen,
+                        patient,
+                    )
+                if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                    prime_annotations = self.run_prime(
+                        self.runner,
+                        self.configuration,
+                        self.mhc_parser,
+                        neoantigen,
+                        patient,
+                    )
         else:
             dask_client = get_client()
 
@@ -440,36 +441,38 @@ class NeoantigenAnnotator:
                     neoantigen,
                     patient,
                 )
+            # avoids running MixMHCpred and PRIME for non human organisms
             mixmhc2pred_future = None
-            if self.configuration.mix_mhc2_pred is not None and has_mhc2:
-                mixmhc2pred_future = dask_client.submit(
-                    self.run_mixmhc2pred,
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
             mixmhcpred_future = None
-            if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                mixmhcpred_future = dask_client.submit(
-                    self.run_mixmhcpred,
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
             prime_future = None
-            if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                prime_future = dask_client.submit(
-                    self.run_prime,
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
+            if self.organism == ORGANISM_HOMO_SAPIENS:
+                if self.configuration.mix_mhc2_pred is not None and has_mhc2:
+                    mixmhc2pred_future = dask_client.submit(
+                        self.run_mixmhc2pred,
+                        self.runner,
+                        self.configuration,
+                        self.mhc_parser,
+                        neoantigen,
+                        patient,
+                    )
+                if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                    mixmhcpred_future = dask_client.submit(
+                        self.run_mixmhcpred,
+                        self.runner,
+                        self.configuration,
+                        self.mhc_parser,
+                        neoantigen,
+                        patient,
+                    )
+                if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                    prime_future = dask_client.submit(
+                        self.run_prime,
+                        self.runner,
+                        self.configuration,
+                        self.mhc_parser,
+                        neoantigen,
+                        patient,
+                    )
 
             secede()
 
@@ -477,12 +480,14 @@ class NeoantigenAnnotator:
                 netmhcpan = dask_client.gather([netmhcpan_future])[0]
             if netmhc2pan_future:
                 netmhc2pan = dask_client.gather([netmhc2pan_future])[0]
-            if mixmhcpred_future:
-                mixmhcpred_annotations = dask_client.gather([mixmhcpred_future])[0]
-            if mixmhc2pred_future:
-                mixmhc2pred_annotations = dask_client.gather([mixmhc2pred_future])[0]
-            if prime_future:
-                prime_annotations = dask_client.gather([prime_future])[0]
+
+            if self.organism == ORGANISM_HOMO_SAPIENS:
+                if mixmhcpred_future:
+                    mixmhcpred_annotations = dask_client.gather([mixmhcpred_future])[0]
+                if mixmhc2pred_future:
+                    mixmhc2pred_annotations = dask_client.gather([mixmhc2pred_future])[0]
+                if prime_future:
+                    prime_annotations = dask_client.gather([prime_future])[0]
             rejoin()
 
         return mixmhc2pred_annotations, mixmhcpred_annotations, netmhc2pan, netmhcpan, prime_annotations
