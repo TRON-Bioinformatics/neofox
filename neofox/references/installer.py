@@ -3,7 +3,7 @@ import subprocess
 import os
 import pandas as pd
 from Bio import SeqIO
-
+from Bio.Seq import Seq
 from neofox import NEOFOX_HLA_DATABASE_ENV
 from neofox.exceptions import NeofoxReferenceException
 from neofox.helpers.runner import Runner
@@ -140,17 +140,23 @@ class NeofoxReferenceInstaller(object):
         output_folder = os.path.join(
             self.reference_folder, PROTEOME_DB_FOLDER, PREFIX_HOMO_SAPIENS
         )
+
+        # prepare proteome for blast database and for pickle
+        prepared_proteome = []
+        proteome_database = []
+        for record in SeqIO.parse(proteome_file, "fasta"):
+            seq = str(record.seq).replace("*", "")
+            record.seq = Seq(seq)
+            proteome_database.append(record)
+            prepared_proteome.append(seq)
+        SeqIO.write(proteome_database, proteome_file, "fasta")
+
         cmd = "{makeblastdb} -in {proteome_file} -dbtype prot -parse_seqids -out {output_folder}".format(
             makeblastdb=self.config.make_blastdb,
             proteome_file=proteome_file,
             output_folder=output_folder,
         )
         self._run_command(cmd)
-
-        # builds proteome in pickle for querying
-        prepared_proteome = []
-        for record in SeqIO.parse(proteome_file, "fasta"):
-            prepared_proteome.append(str(record.seq).replace("*",""))
 
         proteome_pickle = os.path.join(
             self.reference_folder, PROTEOME_DB_FOLDER, HOMO_SAPIENS_PICKLE
