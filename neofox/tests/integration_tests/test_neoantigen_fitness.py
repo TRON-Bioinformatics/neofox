@@ -18,8 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
 from unittest import TestCase
-from logzero import logger
-import pandas as pd
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.published_features.neoantigen_fitness.neoantigen_fitness import (
     NeoantigenFitnessCalculator,
@@ -42,28 +40,7 @@ class TestNeoantigenFitness(TestCase):
         fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         return references, configuration, fastafile
 
-    def test_get_pathogensimilarities(self):
-        logger.info("HLKBÖJBDÖGS")
-        file = "/projects/SUMMIT/WP1.2/immunogenicity_data/easyfuse/minimal_epitopes/test_peptide_sequences.csv"
-        dat = pd.read_csv(file)
-        seqs = dat["OLP"].tolist()
-        scores = []
-        for seq in seqs:
-            scores.append(self.neoantigen_fitness_calculator.get_pathogen_similarity(
-                peptide=seq
-            ))
-        res = {
-            "sequences" : seqs,
-            "pathogensimilarity" : scores
-
-        }
-        res = pd.DataFrame(res)
-        res.to_csv("/projects/SUMMIT/WP1.2/immunogenicity_data/easyfuse/minimal_epitopes/test_peptide_sequences_annotated.csv")
-        logger.info(scores)
-
-
-    '''
-        def test_pathogen_similarity(self):
+    def test_pathogen_similarity(self):
         # tests a pathogen sequence and expects 1.0 similarity
         result = self.neoantigen_fitness_calculator.get_pathogen_similarity(
             peptide="FIAGLIAIV"
@@ -125,5 +102,3 @@ class TestNeoantigenFitness(TestCase):
                 amplitude=1.0, pathogen_similarity=1.0, mhc_affinity_mut=10, mutation_in_anchor=False
             ),
         )
-
-    '''
