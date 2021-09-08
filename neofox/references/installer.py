@@ -146,12 +146,10 @@ class NeofoxReferenceInstaller(object):
         proteome_database = []
         for record in SeqIO.parse(proteome_file, "fasta"):
             seq = str(record.seq).replace("*", "")
-            record.seq = Seq(str(record.seq).replace("*", ""))
+            record.seq = Seq(seq)
             proteome_database.append(record)
             prepared_proteome.append(seq)
-        #proteome_database = (r for r in proteome_database)
         SeqIO.write(proteome_database, proteome_file, "fasta")
-
 
         cmd = "{makeblastdb} -in {proteome_file} -dbtype prot -parse_seqids -out {output_folder}".format(
             makeblastdb=self.config.make_blastdb,
