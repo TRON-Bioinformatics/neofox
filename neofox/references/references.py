@@ -144,6 +144,12 @@ class MhcDatabase(ABC):
     def exists(self, allele: MhcAllele):
         pass
 
+    def is_homo_sapiens(self):
+        return self.organism == ORGANISM_HOMO_SAPIENS
+
+    def is_mus_musculus(self):
+        return self.organism == ORGANISM_MUS_MUSCULUS
+
 
 class HlaDatabase(MhcDatabase):
 
@@ -250,7 +256,7 @@ class ReferenceFolder(object):
             self.__available_alleles = AvailableAlleles(self)
         return self.__available_alleles
 
-    def get_hla_database(self) -> MhcDatabase:
+    def get_mhc_database(self) -> MhcDatabase:
         # this enforces lazy initialisation (useful for testing)
         if not self.__mhc_database:
             if self.organism == ORGANISM_HOMO_SAPIENS:

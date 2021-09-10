@@ -353,7 +353,8 @@ class ModelConverter(object):
     def parse_mhc1_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc1]:
         isoforms = []
         try:
-            parsed_alleles = list(map(MhcParser(mhc_database).parse_mhc_allele, alleles))
+            mhc_parser = MhcParser.get_mhc_parser(mhc_database)
+            parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
             ModelConverter._validate_mhc1_alleles(parsed_alleles)
 
             if mhc_database.organism == ORGANISM_HOMO_SAPIENS:
@@ -384,7 +385,8 @@ class ModelConverter(object):
     def parse_mhc2_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc2]:
         mhc2s = []
         try:
-            parsed_alleles = list(map(MhcParser(mhc_database).parse_mhc_allele, alleles))
+            mhc_parser = MhcParser.get_mhc_parser(mhc_database)
+            parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
             ModelConverter._validate_mhc2_alleles(parsed_alleles)
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
             for isoform_name in Mhc2Name:

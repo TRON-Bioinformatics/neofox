@@ -32,7 +32,6 @@ from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAll
 from neofox.model.wrappers import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 from logzero import logger
-from neofox.model.conversion import ModelConverter
 
 
 class BestAndMultipleBinder:

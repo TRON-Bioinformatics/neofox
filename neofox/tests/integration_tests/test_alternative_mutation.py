@@ -47,9 +47,9 @@ class TestBestMultipleBinder(TestCase):
         self.available_alleles_mhc2 = (
             references.get_available_alleles().get_available_mhc_ii()
         )
-        self.hla_database = references.get_hla_database()
+        self.hla_database = references.get_mhc_database()
         self.proteome_db = references.proteome_db
-        self.mhc_parser = MhcParser(self.hla_database)
+        self.mhc_parser = MhcParser.get_mhc_parser(self.hla_database)
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
         self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
         self.uniprot = Uniprot(references.uniprot_pickle)

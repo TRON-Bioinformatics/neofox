@@ -180,7 +180,7 @@ def neofox_cli():
             json_file,
             patients_data,
             patient_id,
-            reference_folder.get_hla_database())
+            reference_folder.get_mhc_database())
 
         # run annotations
         annotated_neoantigens = NeoFox(

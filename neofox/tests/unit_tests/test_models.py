@@ -32,8 +32,7 @@ from neofox.model.neoantigen import (
     Zygosity,
     Mhc2Name,
 )
-from neofox.model.validation import ModelValidator
-from neofox.tests.fake_classes import FakeHlaDatabase
+from neofox.tests.fake_classes import FakeHlaDatabase, FakeH2Database
 from neofox.tests.unit_tests.tools import get_random_neoantigen
 
 
@@ -41,6 +40,7 @@ class ModelConverterTest(TestCase):
 
     def setUp(self) -> None:
         self.hla_database = FakeHlaDatabase()
+        self.h2_database = FakeH2Database()
 
     def test_model2json(self):
         neoantigens = [get_random_neoantigen() for _ in range(5)]

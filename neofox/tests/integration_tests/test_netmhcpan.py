@@ -30,9 +30,9 @@ class TestNetMhcPanPredictor(TestCase):
         references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
         self.available_alleles = references.get_available_alleles()
-        self.test_mhc_one = integration_test_tools.get_mhc_one_test(references.get_hla_database())
-        self.test_mhc_two = integration_test_tools.get_mhc_two_test(references.get_hla_database())
-        self.mhc_parser = MhcParser(references.get_hla_database())
+        self.test_mhc_one = integration_test_tools.get_mhc_one_test(references.get_mhc_database())
+        self.test_mhc_two = integration_test_tools.get_mhc_two_test(references.get_mhc_database())
+        self.mhc_parser = MhcParser.get_mhc_parser(references.get_mhc_database())
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
             database=references.get_proteome_database())

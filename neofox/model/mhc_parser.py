@@ -16,13 +16,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from neofox.exceptions import NeofoxDataValidationException
-from neofox.model.neoantigen import Mhc2GeneName, MhcAllele, Mhc2Isoform, Mhc1Name
+from abc import ABC, abstractmethod
+
+from neofox.exceptions import NeofoxInputParametersException
+from neofox.model.neoantigen import MhcAllele, Mhc2Isoform
 import re
 from logzero import logger
 
 from neofox.model.wrappers import get_mhc2_isoform_name
-from neofox.references.references import HlaDatabase, MhcDatabase
+from neofox.references.references import MhcDatabase
 
 HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR = re.compile(
     r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
@@ -36,11 +38,64 @@ HLA_MOLECULE_PATTERN = re.compile(
 )
 HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})")
 
+H2_ALLELE_PATTERN = re.compile(r"(H2K|H2D|H2L|H2A|H2E)([a-z][0-9]?)")
+H2_MOLECULE_PATTERN = re.compile(r"(H2A|H2E)([a-z][0-9]?)")
 
-class MhcParser:
+
+class MhcParser(ABC):
 
     def __init__(self, mhc_database: MhcDatabase):
+        super().__init__()
         self.mhc_database = mhc_database
+
+    @abstractmethod
+    def parse_mhc_allele(self, allele: str):
+        pass
+
+    @abstractmethod
+    def parse_mhc2_isoform(self, allele: str):
+        pass
+
+    @staticmethod
+    def get_mhc_parser(mhc_database: MhcDatabase):
+        if mhc_database.is_homo_sapiens():
+            mhc_parser = HlaParser(mhc_database=mhc_database)
+        elif mhc_database.is_mus_musculus():
+            mhc_parser = H2Parser(mhc_database=mhc_database)
+        else:
+            raise NeofoxInputParametersException("Organism not supported {}".format(mhc_database.organism))
+        return mhc_parser
+
+
+class H2Parser(MhcParser):
+
+    def parse_mhc_allele(self, allele: str, pattern=H2_ALLELE_PATTERN) -> MhcAllele:
+        match = H2_ALLELE_PATTERN.match(allele)
+        assert match is not None, "Allele does not match H2 allele pattern {}".format(
+            allele) if allele != "" else "Please check the format of provided alleles. An empty allele is provided"
+
+        gene = match.group(1)
+        protein = match.group(2)
+
+        # controls for existence in the HLA database and warns the user
+        mhc_allele = MhcAllele(gene=gene, protein=protein)
+        if not self.mhc_database.exists(mhc_allele):
+            logger.warning("Allele {} does not exist in the H2 database".format(allele))
+
+        # builds a normalized representation of the allele
+        name = "{gene}{protein}".format(gene=gene, protein=protein)
+
+        # full name is the same as name in this case as the pattern does not allow variability
+        mhc_allele.name = name
+        mhc_allele.full_name = name
+        return mhc_allele
+
+    def parse_mhc2_isoform(self, allele: str):
+        # MHC II molecules in H2 lab mouse are represented as single chain proteins
+        return self.parse_mhc_allele(allele=allele, pattern=H2_MOLECULE_PATTERN)
+
+
+class HlaParser(MhcParser):
 
     def parse_mhc_allele(self, allele: str) -> MhcAllele:
         match = HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR.match(allele)
@@ -104,112 +159,4 @@ class MhcParser:
             beta_chain = self.parse_mhc_allele(match.group(1))
         # builds the final allele representation and validates it just in case
         name = get_mhc2_isoform_name(alpha_chain, beta_chain)
-        return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
-
-    @staticmethod
-    def validate_mhc_allele_representation(allele: MhcAllele) -> MhcAllele:
-        try:
-            full_name = None
-            if allele.full_name:
-                # infers gene, group and protein from the name
-                match = HLA_ALLELE_PATTERN.match(allele.full_name)
-                assert (
-                        match is not None
-                ), "Allele does not match HLA allele pattern {}".format(allele.name)
-                gene = match.group(1)
-                group = match.group(2)
-                protein = match.group(3)
-                full_name = allele.full_name
-            elif allele.name:
-                # infers gene, group and protein from the name
-                match = HLA_ALLELE_PATTERN.match(allele.name)
-                assert (
-                        match is not None
-                ), "Allele does not match HLA allele pattern {}".format(allele.name)
-                gene = match.group(1)
-                group = match.group(2)
-                protein = match.group(3)
-            elif allele.gene and allele.group and allele.protein:
-                # infers name from gene, group and protein
-                gene = allele.gene
-                group = allele.group
-                protein = allele.protein
-            else:
-                logger.error(allele.to_json(indent=3))
-                raise NeofoxDataValidationException(
-                    "HLA allele missing required fields, either name or gene, group and protein must be provided"
-                )
-
-            assert gene in list(Mhc1Name.__members__.keys()) + list(
-                Mhc2GeneName.__members__.keys()
-            ), "Gene not from classic MHC: {}".format(gene)
-            # builds the final allele representation and validates it just in case
-            name = "HLA-{gene}*{serotype}:{protein}".format(
-                gene=gene, serotype=group, protein=protein
-            )
-            match = HLA_ALLELE_PATTERN.match(name)
-            assert (
-                    match is not None
-            ), "Allele does not match HLA allele pattern {}".format(name)
-        except AssertionError as e:
-            logger.error(allele.to_json(indent=3))
-            raise NeofoxDataValidationException(e)
-
-        return MhcAllele(
-            full_name=full_name if full_name else name,
-            name=name,
-            gene=gene,
-            group=group,
-            protein=protein,
-        )
-
-    @staticmethod
-    def validate_mhc2_isoform_representation(isoform: Mhc2Isoform) -> Mhc2Isoform:
-        try:
-            if isoform.name:
-                # infers alpha and beta chains
-                match = HLA_MOLECULE_PATTERN.match(isoform.name)
-                if match:
-                    alpha_chain = MhcParser.validate_mhc_allele_representation(
-                        MhcAllele(name=match.group(1))
-                    )
-                    beta_chain = MhcParser.validate_mhc_allele_representation(
-                        MhcAllele(name=match.group(2))
-                    )
-                else:
-                    match = HLA_DR_MOLECULE_PATTERN.match(isoform.name)
-                    assert (
-                            match is not None
-                    ), "Molecule does not match HLA isoform pattern {}".format(
-                        isoform.name
-                    )
-                    alpha_chain = MhcAllele()
-                    beta_chain = MhcParser.validate_mhc_allele_representation(
-                        MhcAllele(name=match.group(1))
-                    )
-            elif isoform.alpha_chain and isoform.beta_chain:
-                # infers name from gene, group and protein
-                alpha_chain = MhcParser.validate_mhc_allele_representation(
-                    isoform.alpha_chain
-                )
-                beta_chain = MhcParser.validate_mhc_allele_representation(
-                    isoform.beta_chain
-                )
-            else:
-                logger.error(isoform.to_json(indent=3))
-                raise NeofoxDataValidationException(
-                    "HLA isoform missing required fields"
-                )
-
-            # builds the final allele representation and validates it just in case
-            name = get_mhc2_isoform_name(alpha_chain, beta_chain)
-            match = HLA_MOLECULE_PATTERN.match(name)
-            match2 = HLA_DR_MOLECULE_PATTERN.match(name)
-            assert (
-                    match is not None or match2 is not None
-            ), "Molecule does not match HLA isoform pattern {}".format(name)
-        except AssertionError as e:
-            logger.error(isoform.to_json(indent=3))
-            raise NeofoxDataValidationException(e)
-
         return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
