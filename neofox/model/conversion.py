@@ -47,7 +47,7 @@ from neofox.model.neoantigen import (
 from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.references.references import MhcDatabase, HOMO_SAPIENS_MHC_I_GENES, ORGANISM_HOMO_SAPIENS, \
-    ORGANISM_MUS_MUSCULUS, MUS_MUSCULUS_MHC_I_GENES
+    ORGANISM_MUS_MUSCULUS, MUS_MUSCULUS_MHC_I_GENES, HOMO_SAPIENS_MHC_II_MOLECULES, MUS_MUSCULUS_MHC_II_MOLECULES
 
 FIELD_VAF_DNA = "VAF_in_tumor"
 FIELD_VAF_RNA = "VAF_in_RNA"
@@ -59,6 +59,8 @@ GENES_BY_MOLECULE = {
     Mhc2Name.DR: [Mhc2GeneName.DRB1],
     Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
     Mhc2Name.DQ: [Mhc2GeneName.DQA1, Mhc2GeneName.DQB1],
+    Mhc2Name.H2E_molecule: [Mhc2GeneName.H2E],
+    Mhc2Name.H2A_molecule: [Mhc2GeneName.H2A],
 }
 
 
@@ -388,8 +390,16 @@ class ModelConverter(object):
             mhc_parser = MhcParser.get_mhc_parser(mhc_database)
             parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
             ModelConverter._validate_mhc2_alleles(parsed_alleles)
+
+            if mhc_database.organism == ORGANISM_HOMO_SAPIENS:
+                molecules = HOMO_SAPIENS_MHC_II_MOLECULES
+            elif mhc_database.organism == ORGANISM_MUS_MUSCULUS:
+                molecules = MUS_MUSCULUS_MHC_II_MOLECULES
+            else:
+                raise NeofoxDataValidationException("Not supported organism {}".format(mhc_database.organism))
+
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for isoform_name in Mhc2Name:
+            for isoform_name in molecules:
                 isoform_alleles = list(
                     filter(lambda a: isoform_name.name in a.gene, parsed_alleles)
                 )
