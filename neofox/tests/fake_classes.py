@@ -28,7 +28,7 @@ from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
 from neofox.references.references import (
     ReferenceFolder,
     AvailableAlleles,
-    DependenciesConfiguration, HlaDatabase,
+    DependenciesConfiguration, HlaDatabase, H2Database,
 )
 
 
@@ -81,5 +81,12 @@ class FakeAvailableAlleles(AvailableAlleles):
 class FakeHlaDatabase(HlaDatabase):
 
     def __init__(self):
-        super().__init__(hla_database_filename=pkg_resources.resource_filename(
+        super().__init__(database_filename=pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/hla_database.txt"))
+
+
+class FakeH2Database(H2Database):
+
+    def __init__(self):
+        super().__init__(database_filename=pkg_resources.resource_filename(
+            neofox.references.__name__, "h2_database_allele_list.csv"))

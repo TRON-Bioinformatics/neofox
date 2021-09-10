@@ -46,7 +46,8 @@ from neofox.model.neoantigen import (
 )
 from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.references.references import HlaDatabase
+from neofox.references.references import MhcDatabase, HOMO_SAPIENS_MHC_I_GENES, ORGANISM_HOMO_SAPIENS, \
+    ORGANISM_MUS_MUSCULUS, MUS_MUSCULUS_MHC_I_GENES
 
 FIELD_VAF_DNA = "VAF_in_tumor"
 FIELD_VAF_RNA = "VAF_in_RNA"
@@ -108,7 +109,7 @@ class ModelConverter(object):
         return neoantigens
 
     @staticmethod
-    def parse_patients_file(patients_file: str, hla_database: HlaDatabase) -> List[Patient]:
+    def parse_patients_file(patients_file: str, mhc_database: MhcDatabase) -> List[Patient]:
         """
         :param patients_file: the file to patients data CSV file
         :return: the parsed CSV into model objects
@@ -126,7 +127,7 @@ class ModelConverter(object):
                 "identifier": str
             }
         )
-        return ModelConverter.patient_metadata_csv2objects(df, hla_database)
+        return ModelConverter.patient_metadata_csv2objects(df, mhc_database)
 
     @staticmethod
     def parse_neoantigens_file(neoantigens_file):
@@ -190,7 +191,7 @@ class ModelConverter(object):
         )
 
     @staticmethod
-    def patient_metadata_csv2objects(dataframe: pd.DataFrame, hla_database: HlaDatabase) -> List[Patient]:
+    def patient_metadata_csv2objects(dataframe: pd.DataFrame, mhc_database: MhcDatabase) -> List[Patient]:
         """transforms an patients CSV into a list of objects"""
         patients = []
         for _, row in dataframe.iterrows():
@@ -199,12 +200,12 @@ class ModelConverter(object):
             mhc_alleles = patient_dict["mhcIAlleles"]
             # NOTE: during the parsing of empty columns empty lists become a list with one empty string ...
             if len(mhc_alleles) > 1 or (len(mhc_alleles) == 1 and len(mhc_alleles[0]) > 0):
-                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles, hla_database)
+                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles, mhc_database)
             else:
                 patient.mhc1 = None
             mhc2_alleles = patient_dict["mhcIIAlleles"]
             if len(mhc2_alleles) > 1 or (len(mhc2_alleles) == 1 and len(mhc2_alleles[0]) > 0):
-                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles, hla_database)
+                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles, mhc_database)
             else:
                 patient.mhc2 = None
             patients.append(patient)
@@ -349,13 +350,21 @@ class ModelConverter(object):
         return dict(nested_dict)
 
     @staticmethod
-    def parse_mhc1_alleles(alleles: List[str], hla_database: HlaDatabase) -> List[Mhc1]:
+    def parse_mhc1_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc1]:
         isoforms = []
         try:
-            parsed_alleles = list(map(MhcParser(hla_database).parse_mhc_allele, alleles))
+            parsed_alleles = list(map(MhcParser(mhc_database).parse_mhc_allele, alleles))
             ModelConverter._validate_mhc1_alleles(parsed_alleles)
+
+            if mhc_database.organism == ORGANISM_HOMO_SAPIENS:
+                genes = HOMO_SAPIENS_MHC_I_GENES
+            elif mhc_database.organism == ORGANISM_MUS_MUSCULUS:
+                genes = MUS_MUSCULUS_MHC_I_GENES
+            else:
+                raise NeofoxDataValidationException("Not supported organism {}".format(mhc_database.organism))
+
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for gene_name in Mhc1Name:
+            for gene_name in genes:
                 gene_alleles = list(
                     filter(lambda a: a.gene == gene_name.name, parsed_alleles)
                 )
@@ -372,10 +381,10 @@ class ModelConverter(object):
         return isoforms
 
     @staticmethod
-    def parse_mhc2_alleles(alleles: List[str], hla_database: HlaDatabase) -> List[Mhc2]:
+    def parse_mhc2_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc2]:
         mhc2s = []
         try:
-            parsed_alleles = list(map(MhcParser(hla_database).parse_mhc_allele, alleles))
+            parsed_alleles = list(map(MhcParser(mhc_database).parse_mhc_allele, alleles))
             ModelConverter._validate_mhc2_alleles(parsed_alleles)
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
             for isoform_name in Mhc2Name:

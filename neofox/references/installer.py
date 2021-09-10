@@ -1,8 +1,7 @@
 import pickle
 import subprocess
 import os
-
-import dotenv
+from shutil import copyfile
 import pandas as pd
 from Bio import SeqIO
 
@@ -20,7 +19,7 @@ from neofox.references.references import (
     PREFIX_HOMO_SAPIENS, HLA_DATABASE_AVAILABLE_ALLELES_FILE, HOMO_SAPIENS_PICKLE,
     NETMHCPAN_AVAILABLE_ALLELES_MICE_FILE, NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE, MUS_MUSCULUS_FASTA,
     PREFIX_MUS_MUSCULUS, MUS_MUSCULUS_PICKLE, IEDB_FASTA_MUS_MUSCULUS, IEDB_BLAST_PREFIX_HOMO_SAPIENS,
-    IEDB_BLAST_PREFIX_MUS_MUSCULUS,
+    IEDB_BLAST_PREFIX_MUS_MUSCULUS, H2_DATABASE_AVAILABLE_ALLELES_FILE,
 )
 from logzero import logger
 
@@ -43,6 +42,7 @@ class NeofoxReferenceInstaller(object):
         self._set_iedb()
         self._set_proteome()
         self._set_ipd_imgt_hla_database()
+        self._set_h2_resource()
         if self.install_r_dependencies:
             self._install_r_dependencies()
         else:
@@ -227,6 +227,12 @@ class NeofoxReferenceInstaller(object):
             NEOFOX_HLA_DATABASE_ENV, "https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt")
         cmd = "wget {url} -O {allele_list}".format(url=url, allele_list=allele_list)
         self._run_command(cmd)
+
+    def _set_h2_resource(self):
+        logger.info("Copying the H2 alleles resource")
+        source_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), H2_DATABASE_AVAILABLE_ALLELES_FILE)
+        target_file = os.path.join(self.reference_folder, H2_DATABASE_AVAILABLE_ALLELES_FILE)
+        copyfile(source_file, target_file)
 
     def _install_r_dependencies(self):
         logger.info("Installing R dependencies...")

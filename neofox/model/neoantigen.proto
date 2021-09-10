@@ -150,24 +150,38 @@ enum Zygosity {
 
 /**
 Valid names for MHC I classic genes
+Mus musculus gene names are preceded by the prefix H2 to avoid naming collisions.
  */
 enum Mhc1Name {
+	// Homo sapiens
 	A = 0;
 	B = 1;
 	C = 2;
+	// Mus musculus
+	H2K = 3;
+	H2D = 4;
+	H2L = 5;
 }
 
 /**
 Valid names for MHC II classic genes.
 DRA is not included in this list as it does not have much variability in the population and for our purpose is
 considered constant.
+For Mus musculus we do not represent alpha and beta chains as in cell lines these genotypes are always linked.
+Hence, they can be treated as a single gene, like DR is for HLA.
+See http://www.imgt.org/IMGTrepertoireMH/Polymorphism/haplotypes/mouse/MHC/Mu_haplotypes.html
+Mus musculus gene names are preceded by the prefix H2 to avoid naming collisions.
  */
 enum Mhc2GeneName {
+	// Homo sapiens
 	DRB1 = 0;
 	DPA1 = 1;
 	DPB1 = 2;
 	DQA1 = 3;
 	DQB1 = 4;
+	// Mus musculus
+	H2A = 5;
+	H2E = 6;
 }
 
 /**

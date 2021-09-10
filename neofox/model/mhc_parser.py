@@ -22,7 +22,7 @@ import re
 from logzero import logger
 
 from neofox.model.wrappers import get_mhc2_isoform_name
-from neofox.references.references import HlaDatabase
+from neofox.references.references import HlaDatabase, MhcDatabase
 
 HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR = re.compile(
     r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
@@ -39,8 +39,8 @@ HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]
 
 class MhcParser:
 
-    def __init__(self, hla_database: HlaDatabase):
-        self.hla_database = hla_database
+    def __init__(self, mhc_database: MhcDatabase):
+        self.mhc_database = mhc_database
 
     def parse_mhc_allele(self, allele: str) -> MhcAllele:
         match = HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR.match(allele)
@@ -49,7 +49,7 @@ class MhcParser:
             gene = match.group(1)
             group = match.group(2)
             protein = match.group(3)
-            default_allele_exists = self.hla_database.exists(gene, group, protein)
+            default_allele_exists = self.mhc_database.exists(MhcAllele(gene=gene, group=group, protein=protein))
             if not default_allele_exists:
                 # if default allele does not exist, tries alternative
                 protein = group[-1:] + protein
@@ -64,7 +64,8 @@ class MhcParser:
             protein = match.group(3)
 
         # controls for existence in the HLA database and warns the user
-        if not self.hla_database.exists(gene, group, protein):
+        mhc_allele = MhcAllele(gene=gene, group=group, protein=protein)
+        if not self.mhc_database.exists(mhc_allele):
             logger.warning("Allele {} does not exist in the HLA database".format(allele))
 
         # builds a normalized representation of the allele
@@ -83,9 +84,9 @@ class MhcParser:
                 expression_change = match.group(6)
                 if expression_change is not None and expression_change != "":
                     full_name = full_name + expression_change
-        return MhcAllele(
-            full_name=full_name, name=name, gene=gene, group=group, protein=protein
-        )
+        mhc_allele.name = name
+        mhc_allele.full_name = full_name
+        return mhc_allele
 
     def parse_mhc2_isoform(self, isoform: str) -> Mhc2Isoform:
         # TODO: this method currently fails for netmhc2pan alleles which are like 'HLA-DQA10509-DQB10630'
