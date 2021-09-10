@@ -18,7 +18,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
 from unittest import TestCase
-
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.published_features.neoantigen_fitness.neoantigen_fitness import (
     NeoantigenFitnessCalculator,
