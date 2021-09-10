@@ -23,6 +23,7 @@ from distributed import get_client, secede, rejoin
 import neofox
 import time
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.exceptions import NeofoxInputParametersException
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
@@ -107,8 +108,8 @@ class NeoantigenAnnotator:
         self.iedb_immunogenicity = IEDBimmunogenicity(affinity_threshold=affinity_threshold)
         self.amplitude = Amplitude()
         self.hex = Hex(runner=self.runner, configuration=configuration, references=references)
-        self.hla_database = references.get_hla_database()
-        self.mhc_parser = MhcParser(self.hla_database)
+        self.mhc_database = references.get_mhc_database()
+        self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
 
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> Neoantigen:
         """Calculate new epitope features and add to dictonary that stores all properties"""

@@ -3,13 +3,14 @@ import unittest
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import MhcAllele
+from neofox.model.validation import ModelValidator
 from neofox.tests.fake_classes import FakeHlaDatabase
 
 
-class TestMhcParser(unittest.TestCase):
+class TestHlaParser(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.mhc_parser = MhcParser(FakeHlaDatabase())
+        self.mhc_parser = MhcParser.get_mhc_parser(FakeHlaDatabase())
 
     def test_parse_mhc_with_3_digits_in_second_place(self):
         mhc = self.mhc_parser.parse_mhc_allele("B15:228")
@@ -73,7 +74,7 @@ class TestMhcParser(unittest.TestCase):
         )
 
     def _assert_allele_validation(self, allele, expected):
-        validated_allele = MhcParser.validate_mhc_allele_representation(allele)
+        validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
         self.assertEqual(expected, validated_allele.name)
 
     def test_mhc_ii_allele_validation(self):
@@ -139,7 +140,7 @@ class TestMhcParser(unittest.TestCase):
     def _assert_invalid_allele(self, allele):
         self.assertRaises(
             NeofoxDataValidationException,
-            MhcParser.validate_mhc_allele_representation,
+            ModelValidator.validate_mhc_allele_representation,
             allele,
         )
 

@@ -150,12 +150,13 @@ The following shows a dummy example:
 ```python
 # model the MHC I alleles of a patient 
 mhc1 = ModelConverter.parse_mhc1_alleles(
-       alleles=["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"], 
-       hla_database=reference_folder.get_hla_database())
+    alleles=["HLA-A*01:01:02:03N", "HLA-A*01:02:02:03N", "HLA-B*01:01:02:03N", "HLA-B*01:01:02:04N", "HLA-C*01:01"],
+    hla_database=reference_folder.get_mhc_database())
 # model the MHC II alleles of a patient
 mhc2 = ModelConverter.parse_mhc2_alleles(
-       alleles=["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01", "HLA-DRB1*01:01"],
-       hla_database=reference_folder.get_hla_database())
+    alleles=["HLA-DPA1*01:01", "HLA-DPA1*01:02", "HLA-DPB1*01:01", "HLA-DPB1*01:01", "HLA-DRB1*01:01",
+             "HLA-DRB1*01:01"],
+    hla_database=reference_folder.get_mhc_database())
 patient = Patient(identifier="Ptx", mhc1=mhc1, mhc2=mhc2)
 ```
 

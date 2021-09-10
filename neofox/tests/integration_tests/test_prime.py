@@ -21,7 +21,7 @@ from logzero import logger
 
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.conversion import ModelValidator, ModelConverter
-from neofox.model.mhc_parser import MhcParser
+from neofox.model.mhc_parser import MhcParser, HlaParser
 from neofox.model.neoantigen import Mutation
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
@@ -36,9 +36,9 @@ class TestPrime(TestCase):
         self.runner = Runner()
         self.prime = Prime(
             runner=self.runner, configuration=self.configuration,
-            mhc_parser=MhcParser(self.references.get_hla_database())
+            mhc_parser=HlaParser(self.references.get_mhc_database())
         )
-        self.hla_database = self.references.get_hla_database()
+        self.hla_database = self.references.get_mhc_database()
         self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
         self.uniprot = Uniprot(self.references.uniprot_pickle)
 
