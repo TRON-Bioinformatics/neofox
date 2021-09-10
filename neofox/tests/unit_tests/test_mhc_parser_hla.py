@@ -4,6 +4,7 @@ from neofox.exceptions import NeofoxDataValidationException
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import MhcAllele
 from neofox.model.validation import ModelValidator
+from neofox.references.references import ORGANISM_HOMO_SAPIENS
 from neofox.tests.fake_classes import FakeHlaDatabase
 
 
@@ -73,8 +74,8 @@ class TestHlaParser(unittest.TestCase):
             expected="HLA-A*01:01", allele=MhcAllele(gene="A", group="01", protein="01")
         )
 
-    def _assert_allele_validation(self, allele, expected):
-        validated_allele = ModelValidator.validate_mhc_allele_representation(allele)
+    def _assert_allele_validation(self, allele, expected, organism=ORGANISM_HOMO_SAPIENS):
+        validated_allele = ModelValidator.validate_mhc_allele_representation(allele, organism)
         self.assertEqual(expected, validated_allele.name)
 
     def test_mhc_ii_allele_validation(self):
@@ -137,11 +138,12 @@ class TestHlaParser(unittest.TestCase):
         self._assert_invalid_allele(MhcAllele(gene="F", group="01", protein="01"))
         self._assert_invalid_allele(MhcAllele(gene="G", group="01", protein="01"))
 
-    def _assert_invalid_allele(self, allele):
+    def _assert_invalid_allele(self, allele, organism=ORGANISM_HOMO_SAPIENS):
         self.assertRaises(
             NeofoxDataValidationException,
             ModelValidator.validate_mhc_allele_representation,
             allele,
+            organism
         )
 
     def test_invalid_mhc_ii_alleles(self):
