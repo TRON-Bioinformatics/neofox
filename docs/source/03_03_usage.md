@@ -170,7 +170,7 @@ where:
 Check for validity of the patient model: 
 
 ```python
-validated_patient = ModelValidator.validate_patient(patient=patient)
+ModelValidator.validate_patient(patient=patient)
 ```  
 
 **NOTE**: `ModelValidator.validate_patient(patient)` will internally validate MHC I and MHC II alleles.
@@ -180,7 +180,7 @@ validated_patient = ModelValidator.validate_patient(patient=patient)
 Run NeoFox by passing the validated neoantigen object and the validated patient object to get the neoantigen features. The output is a list of type `NeoantigenAnnotations`:  
 
 ```python
-annotated_neoantigens = NeoFox(neoantigens=[validated_neoantigen], patients=[validated_patient], num_cpus=2).get_annotations()
+annotated_neoantigens = NeoFox(neoantigens=[validated_neoantigen], patients=[patient], num_cpus=2).get_annotations()
 ```  
 
 where:
