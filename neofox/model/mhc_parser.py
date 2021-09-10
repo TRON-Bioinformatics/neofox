@@ -24,7 +24,7 @@ import re
 from logzero import logger
 
 from neofox.model.wrappers import get_mhc2_isoform_name
-from neofox.references.references import MhcDatabase
+from neofox.references.references import MhcDatabase, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
 
 HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR = re.compile(
     r"(?:HLA-)?((?:A|B|C|DPA1|DPB1|DQA1|DQB1|DRB1))[\*|_]?([0-9]{2,})([0-9]{2,3})[:|_]?([0-9]{2,})?[:|_]?([0-9]{2,})?([N|L|S|Q]{0,1})"
@@ -40,6 +40,11 @@ HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]
 
 H2_ALLELE_PATTERN = re.compile(r"(H2K|H2D|H2L|H2A|H2E)([a-z][0-9]?)")
 H2_MOLECULE_PATTERN = re.compile(r"(H2A|H2E)([a-z][0-9]?)")
+
+ALLELE_PATTERN_BY_ORGANISM = {
+    ORGANISM_HOMO_SAPIENS: HLA_ALLELE_PATTERN,
+    ORGANISM_MUS_MUSCULUS: H2_ALLELE_PATTERN,
+}
 
 
 class MhcParser(ABC):
