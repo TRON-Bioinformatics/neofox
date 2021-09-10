@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
+from abc import ABCMeta, abstractmethod, ABC
 from typing import List
 
 from logzero import logger
@@ -24,10 +25,15 @@ import neofox
 from neofox.exceptions import NeofoxConfigurationException
 import pandas as pd
 
-from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName
+from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName, MhcAllele
 
 ORGANISM_HOMO_SAPIENS = 'human'
+HOMO_SAPIENS_MHC_I_GENES = [Mhc1Name.A, Mhc1Name.B, Mhc1Name.C]
+HOMO_SAPIENS_MHC_II_GENES = [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1, Mhc2GeneName.DQA1, Mhc2GeneName.DQB1,
+                             Mhc2GeneName.DRB1]
 ORGANISM_MUS_MUSCULUS = 'mouse'
+MUS_MUSCULUS_MHC_I_GENES = [Mhc1Name.H2K, Mhc1Name.H2L, Mhc1Name.H2D]
+MUS_MUSCULUS_MHC_II_GENES = [Mhc2GeneName.H2E, Mhc2GeneName.H2A]
 
 PREFIX_HOMO_SAPIENS = "homo_sapiens"
 HOMO_SAPIENS_FASTA = "Homo_sapiens.fa"
@@ -49,6 +55,7 @@ NETMHCPAN_AVAILABLE_ALLELES_MICE_FILE = "netmhcpan_available_alleles_mice.txt"
 NETMHC2PAN_AVAILABLE_ALLELES_FILE = "netmhc2pan_available_alleles_human.txt"
 NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE = "netmhc2pan_available_alleles_mice.txt"
 HLA_DATABASE_AVAILABLE_ALLELES_FILE = "hla_database_allele_list.csv"
+H2_DATABASE_AVAILABLE_ALLELES_FILE = "h2_database_allele_list.csv"
 MIXMHCPRED_AVAILABLE_ALLELES_FILE = "allele_list.txt"
 MIXMHC2PRED_AVAILABLE_ALLELES_FILE = "Alleles_list.txt"
 PRIME_AVAILABLE_ALLELES_FILE = "alleles.txt"
@@ -121,6 +128,76 @@ class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):
         self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
 
 
+class MhcDatabase(ABC):
+
+    organism = None
+
+    def __init__(self, database_filename: str):
+        super().__init__()
+        self.alleles = self._load_alleles(database_filename)
+
+    @abstractmethod
+    def _load_alleles(self, hla_database_filename: str):
+        pass
+
+    @abstractmethod
+    def exists(self, allele: MhcAllele):
+        pass
+
+
+class HlaDatabase(MhcDatabase):
+
+    organism = ORGANISM_HOMO_SAPIENS
+
+    def _load_alleles(self, hla_database_filename: str):
+        # Assumes there is a column named Allele which contains the HLA alleles following the HLA nomenclature
+        hla_database = pd.read_csv(hla_database_filename, comment="#")
+        hla_database["parsed_allele"] = hla_database.Allele.transform(self._parse_allele)
+        alleles = hla_database["parsed_allele"].dropna()
+        alleles = alleles[
+            alleles.str.startswith(Mhc1Name.A.name) | alleles.str.startswith(Mhc1Name.B.name) |
+            alleles.str.startswith(Mhc1Name.C.name) |
+            alleles.str.startswith(Mhc2GeneName.DPA1.name) | alleles.str.startswith(Mhc2GeneName.DPB1.name) |
+            alleles.str.startswith(Mhc2GeneName.DQA1.name) | alleles.str.startswith(Mhc2GeneName.DQB1.name) |
+            alleles.str.startswith(Mhc2GeneName.DRB1.name)]
+        return alleles.unique()
+
+    def _parse_allele(self, allele):
+        values = allele.split(":")
+        if len(values) > 1:
+            return values[0] + ":" + values[1]
+        else:
+            return None
+
+    def exists(self, allele: MhcAllele):
+        return "{gene}*{group}:{protein}".format(
+            gene=allele.gene, group=allele.group, protein=allele.protein) in self.alleles
+
+
+class H2Database(MhcDatabase):
+
+    organism = ORGANISM_MUS_MUSCULUS
+
+    def _load_alleles(self, h2_database_filename: str):
+        # Assumes there is a column named Allele which contains the HLA alleles following the HLA nomenclature
+        # the format of H2 alleles is gene and then allele without separator
+        # (eg: H2Kb where H2K is the gene and b is the allele)
+        h2_database = pd.read_csv(h2_database_filename, comment="#")
+        alleles = h2_database["Allele"].dropna()
+        alleles = alleles[
+            alleles.str.startswith(Mhc1Name.H2D.name) |
+            alleles.str.startswith(Mhc1Name.H2K.name) |
+            alleles.str.startswith(Mhc1Name.H2L.name) |
+            alleles.str.startswith(Mhc2GeneName.H2A.name) |
+            alleles.str.startswith(Mhc2GeneName.H2E.name)]
+        return alleles.unique()
+
+    def exists(self, allele: MhcAllele):
+        # because there is no nomenclature distinguishing alleles by their serological classification and then at
+        # the sequence level we will here use the protein field only and skip the group
+        return "{gene}{protein}".format(gene=allele.gene, protein=allele.protein) in self.alleles
+
+
 class ReferenceFolder(object):
 
     def __init__(self, organism=ORGANISM_HOMO_SAPIENS):
@@ -145,7 +222,12 @@ class ReferenceFolder(object):
         self.uniprot_pickle = self._get_reference_file_name(
             os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_PICKLE)
         )
-        self.hla_database = self._get_reference_file_name(HLA_DATABASE_AVAILABLE_ALLELES_FILE)
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            self.mhc_database_filename = self._get_reference_file_name(HLA_DATABASE_AVAILABLE_ALLELES_FILE)
+        elif self.organism == ORGANISM_MUS_MUSCULUS:
+            self.mhc_database_filename = self._get_reference_file_name(H2_DATABASE_AVAILABLE_ALLELES_FILE)
+        else:
+            raise NeofoxConfigurationException("No support for organism {}".format(self.organism))
 
         self.resources = [
             self.available_mhc_ii,
@@ -155,12 +237,12 @@ class ReferenceFolder(object):
             self.uniprot,
             os.path.join(self.iedb, IEDB_FASTA_HOMO_SAPIENS),
             os.path.join(self.proteome_db, HOMO_SAPIENS_FASTA),
-            self.hla_database
+            self.mhc_database_filename
         ]
         self._check_resources()
         self._log_configuration()
         self.__available_alleles = None
-        self.__hla_database = None
+        self.__mhc_database = None
 
     def get_available_alleles(self):
         # this enforces lazy initialisation (useful for testing)
@@ -168,11 +250,16 @@ class ReferenceFolder(object):
             self.__available_alleles = AvailableAlleles(self)
         return self.__available_alleles
 
-    def get_hla_database(self):
+    def get_hla_database(self) -> MhcDatabase:
         # this enforces lazy initialisation (useful for testing)
-        if not self.__hla_database:
-            self.__hla_database = HlaDatabase(self.hla_database)
-        return self.__hla_database
+        if not self.__mhc_database:
+            if self.organism == ORGANISM_HOMO_SAPIENS:
+                self.__mhc_database = HlaDatabase(self.mhc_database_filename)
+            elif self.organism == ORGANISM_MUS_MUSCULUS:
+                self.__mhc_database = H2Database(self.mhc_database_filename)
+            else:
+                raise NeofoxConfigurationException("No support for organism {}".format(self.organism))
+        return self.__mhc_database
 
     def get_proteome_database(self):
         return os.path.join(
@@ -252,32 +339,3 @@ class AvailableAlleles(object):
 
     def get_available_mhc_ii(self):
         return self.available_mhc_ii
-
-
-class HlaDatabase:
-
-    def __init__(self, hla_database_filename: str):
-        self.alleles = self._load_alleles(hla_database_filename)
-
-    def _load_alleles(self, hla_database_filename: str):
-        # Assumes there is a column named Allele which contains the HLA alleles following the HLA nomenclature
-        hla_database = pd.read_csv(hla_database_filename, comment="#")
-        hla_database["parsed_allele"] = hla_database.Allele.transform(self._parse_allele)
-        alleles = hla_database["parsed_allele"].dropna()
-        alleles = alleles[
-            alleles.str.startswith(Mhc1Name.A.name) | alleles.str.startswith(Mhc1Name.B.name) |
-            alleles.str.startswith(Mhc1Name.C.name) |
-            alleles.str.startswith(Mhc2GeneName.DPA1.name) | alleles.str.startswith(Mhc2GeneName.DPB1.name) |
-            alleles.str.startswith(Mhc2GeneName.DQA1.name) | alleles.str.startswith(Mhc2GeneName.DQB1.name) |
-            alleles.str.startswith(Mhc2GeneName.DRB1.name)]
-        return alleles.unique()
-
-    def _parse_allele(self, allele):
-        values = allele.split(":")
-        if len(values) > 1:
-            return values[0] + ":" + values[1]
-        else:
-            return None
-
-    def exists(self, gene, group, protein):
-        return "{gene}*{group}:{protein}".format(gene=gene, group=group, protein=protein) in self.alleles

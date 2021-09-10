@@ -28,7 +28,7 @@ from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
-from neofox.references.references import ReferenceFolder, HlaDatabase, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
+from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS, MhcDatabase
 
 epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
          "TRON – Translational Oncology at the University Medical Center of the " \
@@ -209,10 +209,10 @@ def neofox_cli():
 
 
 def _read_data(
-    candidate_file, json_file, patients_data, patient_id, hla_database: HlaDatabase
+    candidate_file, json_file, patients_data, patient_id, mhc_database: MhcDatabase
 ) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
-    patients = ModelConverter.parse_patients_file(patients_data, hla_database)
+    patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens = ModelConverter.parse_candidate_file(
