@@ -25,15 +25,17 @@ import neofox
 from neofox.exceptions import NeofoxConfigurationException
 import pandas as pd
 
-from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName, MhcAllele
+from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName, MhcAllele, Mhc2Name
 
 ORGANISM_HOMO_SAPIENS = 'human'
 HOMO_SAPIENS_MHC_I_GENES = [Mhc1Name.A, Mhc1Name.B, Mhc1Name.C]
 HOMO_SAPIENS_MHC_II_GENES = [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1, Mhc2GeneName.DQA1, Mhc2GeneName.DQB1,
                              Mhc2GeneName.DRB1]
+HOMO_SAPIENS_MHC_II_MOLECULES = [Mhc2Name.DP, Mhc2Name.DQ, Mhc2Name.DR]
 ORGANISM_MUS_MUSCULUS = 'mouse'
 MUS_MUSCULUS_MHC_I_GENES = [Mhc1Name.H2K, Mhc1Name.H2L, Mhc1Name.H2D]
 MUS_MUSCULUS_MHC_II_GENES = [Mhc2GeneName.H2E, Mhc2GeneName.H2A]
+MUS_MUSCULUS_MHC_II_MOLECULES = [Mhc2Name.H2E_molecule, Mhc2Name.H2A_molecule]
 
 MHC_I_GENES_BY_ORGANISM = {
     ORGANISM_HOMO_SAPIENS: HOMO_SAPIENS_MHC_I_GENES,

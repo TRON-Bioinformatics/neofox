@@ -20,6 +20,8 @@
 
 import tempfile
 from typing import List
+
+from neofox.exceptions import NeofoxConfigurationException
 from neofox.helpers import intermediate_files
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     AbstractNetMhcPanPredictor,
@@ -38,7 +40,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         dp_dq_isoforms = [
             m
             for mhc in mhc_alleles
-            if mhc.name != Mhc2Name.DR
+            if mhc.name in [Mhc2Name.DQ, Mhc2Name.DP]
             for m in mhc.isoforms
         ]
         dr_isoforms = [
@@ -47,33 +49,39 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
             if mhc.name == Mhc2Name.DR
             for m in mhc.isoforms
         ]
-        return dp_dq_isoforms + dr_isoforms
-
-    @staticmethod
-    def _represent_drb1_allele(mhc_allele: MhcAllele):
-        return "{gene}_{group}{protein}".format(
-            gene=mhc_allele.gene, group=mhc_allele.group, protein=mhc_allele.protein
-        )
-
-    @staticmethod
-    def _represent_dp_and_dq_allele(mhc_a_allele: MhcAllele, mhc_b_allele: MhcAllele):
-        return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
-            gene_a=mhc_a_allele.gene,
-            group_a=mhc_a_allele.group,
-            protein_a=mhc_a_allele.protein,
-            gene_b=mhc_b_allele.gene,
-            group_b=mhc_b_allele.group,
-            protein_b=mhc_b_allele.protein,
-        )
-
-    @staticmethod
-    def represent_mhc2_isoforms(isoforms: List[Mhc2Isoform]) -> List[str]:
-        return [
-            NetMhcIIPanPredictor._represent_drb1_allele(i.beta_chain)
-            if i.beta_chain.gene == Mhc2GeneName.DRB1.name
-            else NetMhcIIPanPredictor._represent_dp_and_dq_allele(i.alpha_chain, i.beta_chain)
-            for i in isoforms
+        mice_isoforms = [
+            m
+            for mhc in mhc_alleles
+            if mhc.name in [Mhc2Name.H2A_molecule, Mhc2Name.H2E_molecule]
+            for m in mhc.isoforms
         ]
+        return dp_dq_isoforms + dr_isoforms + mice_isoforms
+
+    def represent_mhc2_isoforms(self, isoforms: List[Mhc2Isoform]) -> List[str]:
+
+        if self.mhc_parser.mhc_database.is_homo_sapiens():
+            def transformation_function(x):
+                if x.beta_chain.gene == Mhc2GeneName.DRB1.name:
+                    return "{gene}_{group}{protein}".format(
+                        gene=x.beta_chain.gene, group=x.beta_chain.group, protein=x.beta_chain.protein
+                    )
+                else:
+                    return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
+                        gene_a=x.alpha_chain.gene,
+                        group_a=x.alpha_chain.group,
+                        protein_a=x.alpha_chain.protein,
+                        gene_b=x.beta_chain.gene,
+                        group_b=x.beta_chain.group,
+                        protein_b=x.beta_chain.protein,
+                    )
+        elif self.mhc_parser.mhc_database.is_mus_musculus():
+            # transforms internal representation H2Dk to H2-Dk expected by NetMHCpan
+            def transformation_function(x):
+                return "H-2-I{gene}{protein}".format(gene=x.alpha_chain.gene.strip("H2"), protein=x.alpha_chain.protein)
+        else:
+            raise NeofoxConfigurationException("Not supported organism")
+
+        return [transformation_function(i) for i in isoforms]
 
     def mhc2_prediction(
         self, mhc_alleles: List[str], sequence

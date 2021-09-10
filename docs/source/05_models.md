@@ -269,6 +269,8 @@ Valid names for MHC II classic molecules
 | DR | 0 |  |
 | DP | 1 |  |
 | DQ | 2 |  |
+| H2A_molecule | 3 |  |
+| H2E_molecule | 4 |  |
 
 
 
