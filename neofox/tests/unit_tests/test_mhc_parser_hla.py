@@ -46,68 +46,68 @@ class TestHlaParser(unittest.TestCase):
     def test_mhc_i_allele_validation(self):
         # adds the star
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01")
+            expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01")
         )
         # adds the HLA-
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="A01:01")
+            expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("A01:01")
         )
         # adds the colon to homogenise representation
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01")
+            expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01")
         )
         # does not modify an originally good representation
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A*01:01")
+            expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A*01:01")
         )
         # removes further information
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01:02:03N")
+            expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01:02:03N")
         )
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01:02N")
+            expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01:02N")
         )
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(name="HLA-A01:01N")
+            expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01N")
         )
         self._assert_allele_validation(
-            expected="HLA-A*01:01", allele=MhcAllele(gene="A", group="01", protein="01")
+            expected="HLA-A*01:01", allele=MhcAllele(gene="A", group="01", protein="01", name="HLA-A*01:01")
         )
 
     def _assert_allele_validation(self, allele, expected, organism=ORGANISM_HOMO_SAPIENS):
-        validated_allele = ModelValidator.validate_mhc_allele_representation(allele, organism)
-        self.assertEqual(expected, validated_allele.name)
+        ModelValidator.validate_mhc_allele_representation(allele, organism)
+        self.assertEqual(expected, allele.name)
 
     def test_mhc_ii_allele_validation(self):
         # add the star
         self._assert_allele_validation(
-            expected="HLA-DPB1*01:01", allele=MhcAllele(name="HLA-DPB101:01")
+            expected="HLA-DPB1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPB101:01")
         )
         # adds the HLA-
         self._assert_allele_validation(
-            expected="HLA-DPB1*01:01", allele=MhcAllele(name="DPB1*01:01")
+            expected="HLA-DPB1*01:01", allele=self.mhc_parser.parse_mhc_allele("DPB1*01:01")
         )
         # adds the colon to homogenise representation
         self._assert_allele_validation(
-            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA101:01")
+            expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA101:01")
         )
         # does not reove the star
         self._assert_allele_validation(
-            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA1*01:01")
+            expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA1*01:01")
         )
         # removes further information
         self._assert_allele_validation(
-            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA101:01:02:03N")
+            expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA101:01:02:03N")
         )
         self._assert_allele_validation(
-            expected="HLA-DPA1*01:01", allele=MhcAllele(name="HLA-DPA101:01:02N")
+            expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA101:01:02N")
         )
         self._assert_allele_validation(
-            expected="HLA-DPB1*01:01", allele=MhcAllele(name="HLA-DPB101:01")
+            expected="HLA-DPB1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPB101:01")
         )
         self._assert_allele_validation(
             expected="HLA-DPA1*01:01",
-            allele=MhcAllele(gene="DPA1", group="01", protein="01"),
+            allele=MhcAllele(gene="DPA1", group="01", protein="01", name="HLA-DPA1*01:01"),
         )
 
     def test_invalid_mhc_i_alleles(self):

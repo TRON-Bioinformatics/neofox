@@ -95,9 +95,11 @@ class H2Parser(MhcParser):
         mhc_allele.full_name = name
         return mhc_allele
 
-    def parse_mhc2_isoform(self, allele: str):
+    def parse_mhc2_isoform(self, allele: str) -> Mhc2Isoform:
         # MHC II molecules in H2 lab mouse are represented as single chain proteins
-        return self.parse_mhc_allele(allele=allele, pattern=H2_MOLECULE_PATTERN)
+        # NOTE: by convention we represent this allele in both the alpha and beta chains
+        allele = self.parse_mhc_allele(allele=allele, pattern=H2_MOLECULE_PATTERN)
+        return Mhc2Isoform(name=allele.name, alpha_chain=allele, beta_chain=allele)
 
 
 class HlaParser(MhcParser):

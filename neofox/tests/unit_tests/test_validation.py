@@ -16,9 +16,14 @@ from neofox.model.neoantigen import (
     Mhc2Isoform,
 )
 from neofox.model.conversion import ModelValidator
+from neofox.tests.fake_classes import FakeHlaDatabase
 
 
 class TestModelValidator(TestCase):
+
+    def setUp(self) -> None:
+        self.mhc_parser = MhcParser.get_mhc_parser(FakeHlaDatabase())
+
     def test_bad_type_raises_exception(self):
 
         self.assertRaises(
@@ -79,19 +84,19 @@ class TestModelValidator(TestCase):
                         name=Mhc1Name.A,
                         zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[
-                            MhcAllele(name="HLA-A01:01"),
-                            MhcAllele(name="HLA-A01:02"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:01"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:02"),
                         ],
                     ),
                     Mhc1(
                         name=Mhc1Name.B,
                         zygosity=Zygosity.HOMOZYGOUS,
-                        alleles=[MhcAllele(name="HLA-B01:01")],
+                        alleles=[self.mhc_parser.parse_mhc_allele("HLA-B01:01")],
                     ),
                     Mhc1(
                         name=Mhc1Name.C,
                         zygosity=Zygosity.HEMIZYGOUS,
-                        alleles=[MhcAllele(name="HLA-C01:01")],
+                        alleles=[self.mhc_parser.parse_mhc_allele("HLA-C01:01")],
                     ),
                 ],
             )
@@ -107,9 +112,9 @@ class TestModelValidator(TestCase):
                         name=Mhc1Name.A,
                         zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[
-                            MhcAllele(name="HLA-A01:01"),
-                            MhcAllele(name="HLA-A01:02"),
-                            MhcAllele(name="HLA-A01:03"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:01"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:02"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:03"),
                         ],
                     )
                 ],
@@ -124,8 +129,8 @@ class TestModelValidator(TestCase):
                         name=Mhc1Name.A,
                         zygosity=Zygosity.HOMOZYGOUS,
                         alleles=[
-                            MhcAllele(name="HLA-A01:01"),
-                            MhcAllele(name="HLA-A01:02"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:01"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:02"),
                         ],
                     )
                 ],
@@ -139,7 +144,7 @@ class TestModelValidator(TestCase):
                     Mhc1(
                         name=Mhc1Name.A,
                         zygosity=Zygosity.HETEROZYGOUS,
-                        alleles=[MhcAllele(name="HLA-A01:01")],
+                        alleles=[self.mhc_parser.parse_mhc_allele("HLA-A01:01")],
                     )
                 ],
             )
@@ -153,8 +158,8 @@ class TestModelValidator(TestCase):
                         name=Mhc1Name.A,
                         zygosity=Zygosity.HEMIZYGOUS,
                         alleles=[
-                            MhcAllele(name="HLA-A01:01"),
-                            MhcAllele(name="HLA-A01:02"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:01"),
+                            self.mhc_parser.parse_mhc_allele("HLA-A01:02"),
                         ],
                     )
                 ],
@@ -169,8 +174,8 @@ class TestModelValidator(TestCase):
                         name=Mhc1Name.A,
                         zygosity=Zygosity.HETEROZYGOUS,
                         alleles=[
-                            MhcAllele(name="HLA-B01:01"),
-                            MhcAllele(name="HLA-B01:02"),
+                            self.mhc_parser.parse_mhc_allele("HLA-B01:01"),
+                            self.mhc_parser.parse_mhc_allele("HLA-B01:02"),
                         ],
                     )
                 ],
@@ -186,88 +191,41 @@ class TestModelValidator(TestCase):
         ModelValidator.validate_patient(patient)
 
     def test_valid_mhc_ii_genotype(self):
-        self._assert_valid_patient(
-            patient=Patient(
-                identifier="123",
-                mhc2=[
-                    Mhc2(
-                        name=Mhc2Name.DQ,
-                        genes=[
-                            Mhc2Gene(
-                                name=Mhc2GeneName.DQA1,
-                                zygosity=Zygosity.HETEROZYGOUS,
-                                alleles=[
-                                    MhcAllele(name="HLA-DQA1*01:01"),
-                                    MhcAllele(name="HLA-DQA1*01:02"),
-                                ],
-                            ),
-                            Mhc2Gene(
-                                name=Mhc2GeneName.DQB1,
-                                zygosity=Zygosity.HOMOZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
-                            ),
-                        ],
-                        isoforms=[
-                            Mhc2Isoform(name="HLA-DQA1*01:01-DQB1*01:01"),
-                            Mhc2Isoform(name="HLA-DQA1*01:02-DQB1*01:01"),
-                        ],
-                    )
-                ],
-            )
-        )
-        self._assert_valid_patient(
-            patient=Patient(
-                identifier="123",
-                mhc2=[
-                    Mhc2(
-                        name=Mhc2Name.DR,
-                        genes=[
-                            Mhc2Gene(
-                                name=Mhc2GeneName.DRB1,
-                                zygosity=Zygosity.HOMOZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DRB1*01:01")],
-                            )
-                        ],
-                        isoforms=[Mhc2Isoform(name="HLA-DRB1*01:01")],
-                    )
-                ],
-            )
-        )
-        self._assert_valid_patient(
-            patient=Patient(
-                identifier="123",
-                mhc2=[
-                    Mhc2(
-                        name=Mhc2Name.DQ,
-                        genes=[
-                            Mhc2Gene(
-                                name=Mhc2GeneName.DQA1,
-                                zygosity=Zygosity.HETEROZYGOUS,
-                                alleles=[
-                                    MhcAllele(name="HLA-DQA1*01:01"),
-                                    MhcAllele(name="HLA-DQA1*01:02"),
-                                ],
-                            ),
-                            Mhc2Gene(
-                                name=Mhc2GeneName.DQB1,
-                                zygosity=Zygosity.HOMOZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
-                            ),
-                        ],
-                        isoforms=[
-                            Mhc2Isoform(
-                                alpha_chain=MhcAllele(name="HLA-DQA1*01:01"),
-                                beta_chain=MhcAllele(name="HLA-DQB1*01:01"),
-                            ),
-                            Mhc2Isoform(
-                                alpha_chain=MhcAllele(name="HLA-DQA1*01:02"),
-                                beta_chain=MhcAllele(name="HLA-DQB1*01:01"),
-                            ),
-                        ],
-                    )
-                ],
-            )
-        )
+        patient = Patient(identifier="123", mhc2=[Mhc2(name=Mhc2Name.DQ, genes=[
+            Mhc2Gene(name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+                     alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01"),
+                              self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:02"), ], ),
+            Mhc2Gene(name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                     alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")], ), ], isoforms=[
+            self.mhc_parser.parse_mhc2_isoform("HLA-DQA1*01:01-DQB1*01:01"),
+            self.mhc_parser.parse_mhc2_isoform("HLA-DQA1*01:02-DQB1*01:01"), ], )], )
+        self._assert_valid_patient(patient=patient)
+
+        patient2 = Patient(identifier="123", mhc2=[Mhc2(name=Mhc2Name.DR, genes=[
+            Mhc2Gene(name=Mhc2GeneName.DRB1, zygosity=Zygosity.HOMOZYGOUS,
+                     alleles=[self.mhc_parser.parse_mhc_allele("HLA-DRB1*01:01")],
+                     )], isoforms=[self.mhc_parser.parse_mhc2_isoform("HLA-DRB1*01:01")], )], )
+        self._assert_valid_patient(patient=patient2)
+
+        patient3 = Patient(identifier="123",
+                           mhc2=[
+                               Mhc2(
+                                   name=Mhc2Name.DQ,
+                                   genes=[
+                                       Mhc2Gene(name=Mhc2GeneName.DQA1, zygosity=Zygosity.HETEROZYGOUS,
+                                                alleles=[
+                                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01"),
+                                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:02"),
+                                                ], ),
+                                       Mhc2Gene(name=Mhc2GeneName.DQB1, zygosity=Zygosity.HOMOZYGOUS,
+                                                alleles=[
+                                                    self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")
+                                                ], ), ],
+                                   isoforms=[
+                                       self.mhc_parser.parse_mhc2_isoform("HLA-DQA1*01:01-DQB1*01:01"),
+                                       self.mhc_parser.parse_mhc2_isoform("HLA-DQA1*01:02-DQB1*01:01"),
+                                   ], )], )
+        self._assert_valid_patient(patient=patient3)
 
     def test_invalid_mhc_ii_genotype(self):
         # 3 alleles for gene
@@ -282,15 +240,15 @@ class TestModelValidator(TestCase):
                                 name=Mhc2GeneName.DQA1,
                                 zygosity=Zygosity.HETEROZYGOUS,
                                 alleles=[
-                                    MhcAllele(name="HLA-DQA1*01:01"),
-                                    MhcAllele(name="HLA-DQA1*01:02"),
-                                    MhcAllele(name="HLA-DQA1*01:03"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:02"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:03"),
                                 ],
                             ),
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQB1,
                                 zygosity=Zygosity.HOMOZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")],
                             ),
                         ],
                     )
@@ -309,16 +267,16 @@ class TestModelValidator(TestCase):
                                 name=Mhc2GeneName.DQA1,
                                 zygosity=Zygosity.HETEROZYGOUS,
                                 alleles=[
-                                    MhcAllele(name="HLA-DQA1*01:01"),
-                                    MhcAllele(name="HLA-DQA1*01:02"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:02"),
                                 ],
                             ),
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQB1,
                                 zygosity=Zygosity.HOMOZYGOUS,
                                 alleles=[
-                                    MhcAllele(name="HLA-DQB1*01:01"),
-                                    MhcAllele(name="HLA-DQB1*01:02"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:02"),
                                 ],
                             ),
                         ],
@@ -337,12 +295,12 @@ class TestModelValidator(TestCase):
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQA1,
                                 zygosity=Zygosity.HETEROZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQA1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01")],
                             ),
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQB1,
                                 zygosity=Zygosity.HOMOZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")],
                             ),
                         ],
                     )
@@ -360,12 +318,12 @@ class TestModelValidator(TestCase):
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQA1,
                                 zygosity=Zygosity.HETEROZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQA1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01")],
                             ),
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQB1,
                                 zygosity=Zygosity.HEMIZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")],
                             ),
                         ],
                     )
@@ -383,12 +341,12 @@ class TestModelValidator(TestCase):
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQA1,
                                 zygosity=Zygosity.HETEROZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")],
                             ),
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQB1,
                                 zygosity=Zygosity.HEMIZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQA1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01")],
                             ),
                         ],
                     )
@@ -406,12 +364,12 @@ class TestModelValidator(TestCase):
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQA1,
                                 zygosity=Zygosity.HETEROZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQA1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01")],
                             ),
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQB1,
                                 zygosity=Zygosity.HEMIZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")],
                             ),
                         ],
                     )
@@ -430,14 +388,14 @@ class TestModelValidator(TestCase):
                                 name=Mhc2GeneName.DQA1,
                                 zygosity=Zygosity.HETEROZYGOUS,
                                 alleles=[
-                                    MhcAllele(name="HLA-DQA1*01:01"),
-                                    MhcAllele(name="HLA-DQA1*01:02"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:01"),
+                                    self.mhc_parser.parse_mhc_allele("HLA-DQA1*01:02"),
                                 ],
                             ),
                             Mhc2Gene(
                                 name=Mhc2GeneName.DQB1,
                                 zygosity=Zygosity.HOMOZYGOUS,
-                                alleles=[MhcAllele(name="HLA-DQB1*01:01")],
+                                alleles=[self.mhc_parser.parse_mhc_allele("HLA-DQB1*01:01")],
                             ),
                         ],
                         isoforms=[
