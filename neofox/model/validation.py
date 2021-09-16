@@ -176,16 +176,16 @@ class ModelValidator(object):
             for allele in alleles:
                 ModelValidator.validate_mhc_allele_representation(allele, organism)
                 assert (allele.gene == gene.name.name,
-                        "The allele referring to gene {} is inside gene {}".format(allele.gene, gene.name.name))
+                        "The allele {} is inside gene {}".format(allele.name, gene.name.name))
         for isoform in mhc2.isoforms:
             ModelValidator.validate_mhc2_isoform_representation(isoform, organism)
             if mhc2.name != Mhc2Name.DR:
                 assert isoform.alpha_chain.name in [
                     a.name for g in genes for a in g.alleles
-                ], "Alpha chain allele not present in th list of alleles"
+                ], "Alpha chain allele not present in the list of alleles"
             assert isoform.beta_chain.name in [
                 a.name for g in genes for a in g.alleles
-            ], "Beta chain allele not present in th list of alleles"
+            ], "Beta chain allele not present in the list of alleles"
         return mhc2
 
     @staticmethod
@@ -260,13 +260,15 @@ class ModelValidator(object):
 
             assert allele_pattern.match(allele.name) is not None, \
                 "Allele name does not match expected pattern: {}".format(allele.name)
-            assert allele.gene in valid_genes, "Gene {} not from classic MHC for organism {}".format(
+            assert allele.gene in valid_genes, "MHC gene {} not from classic MHC for organism {}".format(
                 allele.gene, organism)
-            assert isinstance(allele.protein, str), "Protein {} of wrong type {}".format(allele.protein,
-                                                                                         type(allele.protein))
+            assert isinstance(allele.protein, str), \
+                "The field protein in MHC allele model has the value {} and wrong type but must be a character " \
+                "instead of {}".format(allele.protein, type(allele.protein))
             if organism == ORGANISM_HOMO_SAPIENS:
-                assert isinstance(allele.group, str), "Group {} of wrong type {}".format(
-                    allele.group, type(allele.group))
+                assert isinstance(allele.group, str), \
+                    "The field group in MHC allele model has the value {} and wrong type but must be a character " \
+                    "instead of {}".format(allele.group, type(allele.group))
             elif organism == ORGANISM_MUS_MUSCULUS:
                 assert allele.group is None or allele.group == "", \
                     "Provided group for H2 allele"
@@ -282,7 +284,7 @@ class ModelValidator(object):
             if organism == ORGANISM_HOMO_SAPIENS:
                 match_molecule = HLA_MOLECULE_PATTERN.match(isoform.name)
                 match_single_allele = HLA_DR_MOLECULE_PATTERN.match(isoform.name)
-                assert match_molecule or match_single_allele, "Isoform not following molecule pattern"
+                assert match_molecule or match_single_allele, "MHC II isoform not following molecule pattern"
                 ModelValidator.validate_mhc_allele_representation(isoform.beta_chain, organism)
                 if match_molecule:
                     # the DR molecule does not have alpha chain
@@ -294,7 +296,7 @@ class ModelValidator(object):
                     ModelValidator.validate_mhc_allele_representation(isoform.beta_chain, organism)
                 else:
                     raise NeofoxDataValidationException(
-                        "Molecule does not match H2 isoform pattern {}".format(isoform.name))
+                        "Transformed MHC II molecule name does not match H2 isoform pattern {}".format(isoform.name))
             else:
                 raise NeofoxDataValidationException("Not supported organism {}".format(organism))
 

@@ -41,11 +41,10 @@ class Mhc2GeneName(betterproto.Enum):
     *Valid names for MHC II classic genes.DRA is not included in this list as
     it does not have much variability in the population and for our purpose
     isconsidered constant.For Mus musculus we do not represent alpha and beta
-    chains as in cell lines these genotypes are always linked.Hence, they can
-    be treated as a single gene, like DR is for HLA.See http://www.imgt.org/IMG
-    TrepertoireMH/Polymorphism/haplotypes/mouse/MHC/Mu_haplotypes.htmlMus
-    musculus gene names are preceded by the prefix H2 to avoid naming
-    collisions.
+    chains as they are homozygotes at all their MHC loci.Hence, they can be
+    treated as a single gene, like DR is for HLA.See http://www.imgt.org/IMGTre
+    pertoireMH/Polymorphism/haplotypes/mouse/MHC/Mu_haplotypes.htmlMus musculus
+    gene names are preceded by the prefix H2 to avoid naming collisions.
     """
 
     # Homo sapiens
