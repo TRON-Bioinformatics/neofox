@@ -57,31 +57,33 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         ]
         return dp_dq_isoforms + dr_isoforms + mice_isoforms
 
-    def represent_mhc2_isoforms(self, isoforms: List[Mhc2Isoform]) -> List[str]:
+    def represent_mhc2_isoforms_homo_sapiens(x):
+        if x.beta_chain.gene == Mhc2GeneName.DRB1.name:
+            return "{gene}_{group}{protein}".format(
+                gene=x.beta_chain.gene, group=x.beta_chain.group, protein=x.beta_chain.protein
+            )
+        else:
+            return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
+                gene_a=x.alpha_chain.gene,
+                group_a=x.alpha_chain.group,
+                protein_a=x.alpha_chain.protein,
+                gene_b=x.beta_chain.gene,
+                group_b=x.beta_chain.group,
+                protein_b=x.beta_chain.protein,
+            )
 
+    def represent_mhc2_isoforms_mus_musculus(x):
+        return "H-2-I{gene}{protein}".format(gene=x.alpha_chain.gene.strip("H2"), protein=x.alpha_chain.protein)
+
+    def represent_mhc2_isoforms(self, isoforms: List[Mhc2Isoform]) -> List[str]:
         if self.mhc_parser.mhc_database.is_homo_sapiens():
-            def transformation_function(x):
-                if x.beta_chain.gene == Mhc2GeneName.DRB1.name:
-                    return "{gene}_{group}{protein}".format(
-                        gene=x.beta_chain.gene, group=x.beta_chain.group, protein=x.beta_chain.protein
-                    )
-                else:
-                    return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
-                        gene_a=x.alpha_chain.gene,
-                        group_a=x.alpha_chain.group,
-                        protein_a=x.alpha_chain.protein,
-                        gene_b=x.beta_chain.gene,
-                        group_b=x.beta_chain.group,
-                        protein_b=x.beta_chain.protein,
-                    )
+            transformed_isoforms = [self.represent_mhc2_isoforms_homo_sapiens(i) for i in isoforms]
         elif self.mhc_parser.mhc_database.is_mus_musculus():
             # transforms internal representation H2Dk to H2-Dk expected by NetMHCpan
-            def transformation_function(x):
-                return "H-2-I{gene}{protein}".format(gene=x.alpha_chain.gene.strip("H2"), protein=x.alpha_chain.protein)
+            transformed_isoforms = [self.represent_mhc2_isoforms_mus_musculus(i) for i in isoforms]
         else:
             raise NeofoxConfigurationException("Not supported organism")
-
-        return [transformation_function(i) for i in isoforms]
+        return transformed_isoforms
 
     def mhc2_prediction(
         self, mhc_alleles: List[str], sequence

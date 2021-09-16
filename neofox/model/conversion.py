@@ -360,16 +360,16 @@ class ModelConverter(object):
             ModelConverter._validate_mhc1_alleles(parsed_alleles)
 
             if mhc_database.organism == ORGANISM_HOMO_SAPIENS:
-                genes = HOMO_SAPIENS_MHC_I_GENES
+                mhc1_genes = HOMO_SAPIENS_MHC_I_GENES
             elif mhc_database.organism == ORGANISM_MUS_MUSCULUS:
-                genes = MUS_MUSCULUS_MHC_I_GENES
+                mhc1_genes = MUS_MUSCULUS_MHC_I_GENES
             else:
                 raise NeofoxDataValidationException("Not supported organism {}".format(mhc_database.organism))
 
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for gene_name in genes:
+            for mhc1_gene in mhc1_genes:
                 gene_alleles = list(
-                    filter(lambda a: a.gene == gene_name.name, parsed_alleles)
+                    filter(lambda a: a.gene == mhc1_gene.name, parsed_alleles)
                 )
                 zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
                 if zygosity == Zygosity.HOMOZYGOUS:
@@ -377,7 +377,7 @@ class ModelConverter(object):
                         gene_alleles[0]
                     ]  # we don't want repeated instances of the same allele
                 isoforms.append(
-                    Mhc1(name=gene_name, zygosity=zygosity, alleles=gene_alleles)
+                    Mhc1(name=mhc1_gene, zygosity=zygosity, alleles=gene_alleles)
                 )
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
@@ -392,19 +392,19 @@ class ModelConverter(object):
             ModelConverter._validate_mhc2_alleles(parsed_alleles)
 
             if mhc_database.organism == ORGANISM_HOMO_SAPIENS:
-                molecules = HOMO_SAPIENS_MHC_II_MOLECULES
+                mhc2_molecules = HOMO_SAPIENS_MHC_II_MOLECULES
             elif mhc_database.organism == ORGANISM_MUS_MUSCULUS:
-                molecules = MUS_MUSCULUS_MHC_II_MOLECULES
+                mhc2_molecules = MUS_MUSCULUS_MHC_II_MOLECULES
             else:
                 raise NeofoxDataValidationException("Not supported organism {}".format(mhc_database.organism))
 
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for isoform_name in molecules:
+            for mhc2_isoform_name in mhc2_molecules:
                 isoform_alleles = list(
-                    filter(lambda a: isoform_name.name in a.gene, parsed_alleles)
+                    filter(lambda a: mhc2_isoform_name.name in a.gene, parsed_alleles)
                 )
                 genes = []
-                for gene_name in GENES_BY_MOLECULE.get(isoform_name):
+                for gene_name in GENES_BY_MOLECULE.get(mhc2_isoform_name):
                     gene_alleles = list(
                         filter(lambda a: a.gene == gene_name.name, isoform_alleles)
                     )
@@ -418,8 +418,8 @@ class ModelConverter(object):
                             name=gene_name, zygosity=zygosity, alleles=gene_alleles
                         )
                     )
-                isoforms = ModelConverter._get_mhc2_isoforms(isoform_name, genes)
-                mhc2s.append(Mhc2(name=isoform_name, genes=genes, isoforms=isoforms))
+                isoforms = ModelConverter._get_mhc2_isoforms(mhc2_isoform_name, genes)
+                mhc2s.append(Mhc2(name=mhc2_isoform_name, genes=genes, isoforms=isoforms))
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
         return mhc2s
