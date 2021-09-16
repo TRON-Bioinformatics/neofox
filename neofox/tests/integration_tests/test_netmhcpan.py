@@ -85,7 +85,7 @@ class TestNetMhcPanPredictor(TestCase):
         )
         # this is an epitope from IEDB of length 15
         mutated = "ENPVVHFFKNIVTPR"
-        combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
+        combinations = netmhc2pan_predictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
         predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(10, len(predictions))
@@ -103,7 +103,7 @@ class TestNetMhcPanPredictor(TestCase):
         )
         # this is an epitope from IEDB of length 15
         mutated = "ENPVVH"
-        combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
+        combinations = netmhc2pan_predictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
         predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(0, len(predictions))
@@ -115,7 +115,7 @@ class TestNetMhcPanPredictor(TestCase):
         )
         # this is an epitope from IEDB of length 15
         mutated = "XTTDSWGKFDDDDDDDDD"
-        combinations = NetMhcIIPanPredictor.represent_mhc2_isoforms(
+        combinations = netmhc2pan_predictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
         predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(40, len(predictions))

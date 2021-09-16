@@ -57,7 +57,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
         ]
         return dp_dq_isoforms + dr_isoforms + mice_isoforms
 
-    def represent_mhc2_isoforms_homo_sapiens(x):
+    def represent_mhc2_isoforms_homo_sapiens(self, x):
         if x.beta_chain.gene == Mhc2GeneName.DRB1.name:
             return "{gene}_{group}{protein}".format(
                 gene=x.beta_chain.gene, group=x.beta_chain.group, protein=x.beta_chain.protein
@@ -72,7 +72,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 protein_b=x.beta_chain.protein,
             )
 
-    def represent_mhc2_isoforms_mus_musculus(x):
+    def represent_mhc2_isoforms_mus_musculus(self, x):
         return "H-2-I{gene}{protein}".format(gene=x.alpha_chain.gene.strip("H2"), protein=x.alpha_chain.protein)
 
     def represent_mhc2_isoforms(self, isoforms: List[Mhc2Isoform]) -> List[str]:
