@@ -19,8 +19,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List, Set
 from logzero import logger
-
-from neofox.exceptions import NeofoxConfigurationException
 from neofox.helpers import intermediate_files
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     AbstractNetMhcPanPredictor,
@@ -88,19 +86,9 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         return results
 
     def get_alleles_netmhcpan_representation(self, mhc_isoforms: List[Mhc1]) -> List[str]:
-        if self.mhc_parser.mhc_database.is_homo_sapiens():
-            def transformation_function(x):
-                return "HLA-{gene}{group}:{protein}".format(gene=x.gene, group=x.group, protein=x.protein)
-        elif self.mhc_parser.mhc_database.is_mus_musculus():
-            # transforms internal representation H2Dk to H2-Dk expected by NetMHCpan
-            def transformation_function(x):
-                return "H2-{gene}{protein}".format(gene=x.gene.strip("H2"), protein=x.protein)
-        else:
-            raise NeofoxConfigurationException("Not supported organism")
-
         return list(
             map(
-                transformation_function, [a for m in mhc_isoforms for a in m.alleles],
+                self.mhc_parser.get_netmhcpan_representation, [a for m in mhc_isoforms for a in m.alleles],
             )
         )
 

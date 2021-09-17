@@ -359,15 +359,8 @@ class ModelConverter(object):
             parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
             ModelConverter._validate_mhc1_alleles(parsed_alleles)
 
-            if mhc_database.organism == ORGANISM_HOMO_SAPIENS:
-                mhc1_genes = HOMO_SAPIENS_MHC_I_GENES
-            elif mhc_database.organism == ORGANISM_MUS_MUSCULUS:
-                mhc1_genes = MUS_MUSCULUS_MHC_I_GENES
-            else:
-                raise NeofoxDataValidationException("Not supported organism {}".format(mhc_database.organism))
-
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for mhc1_gene in mhc1_genes:
+            for mhc1_gene in mhc_database.mhc1_genes:
                 gene_alleles = list(
                     filter(lambda a: a.gene == mhc1_gene.name, parsed_alleles)
                 )
@@ -391,20 +384,14 @@ class ModelConverter(object):
             parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
             ModelConverter._validate_mhc2_alleles(parsed_alleles)
 
-            if mhc_database.organism == ORGANISM_HOMO_SAPIENS:
-                mhc2_molecules = HOMO_SAPIENS_MHC_II_MOLECULES
-            elif mhc_database.organism == ORGANISM_MUS_MUSCULUS:
-                mhc2_molecules = MUS_MUSCULUS_MHC_II_MOLECULES
-            else:
-                raise NeofoxDataValidationException("Not supported organism {}".format(mhc_database.organism))
-
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for mhc2_isoform_name in mhc2_molecules:
+            for mhc2_isoform_name in mhc_database.mhc2_molecules:
+                mhc2_isoform_genes = GENES_BY_MOLECULE.get(mhc2_isoform_name)
                 isoform_alleles = list(
-                    filter(lambda a: mhc2_isoform_name.name in a.gene, parsed_alleles)
+                    filter(lambda a: a.gene in [g.name for g in mhc2_isoform_genes], parsed_alleles)
                 )
                 genes = []
-                for gene_name in GENES_BY_MOLECULE.get(mhc2_isoform_name):
+                for gene_name in mhc2_isoform_genes:
                     gene_alleles = list(
                         filter(lambda a: a.gene == gene_name.name, isoform_alleles)
                     )
@@ -466,6 +453,19 @@ class ModelConverter(object):
                 )
                 for a in alpha_alleles
                 for b in beta_alleles
+            ]
+        # mouse MHC II molecules do not act as pairs
+        elif isoform_name == Mhc2Name.H2A_molecule:
+            assert len(genes) <= 2, "More than two genes provided for H2A"
+            isoforms = [
+                Mhc2Isoform(name=a.name, alpha_chain=a, beta_chain=MhcAllele())
+                for g in genes if g.name == Mhc2GeneName.H2A for a in g.alleles
+            ]
+        elif isoform_name == Mhc2Name.H2E_molecule:
+            assert len(genes) <= 2, "More than two genes provided for H2E"
+            isoforms = [
+                Mhc2Isoform(name=a.name, alpha_chain=a, beta_chain=MhcAllele())
+                for g in genes if g.name == Mhc2GeneName.H2E for a in g.alleles
             ]
         return isoforms
 

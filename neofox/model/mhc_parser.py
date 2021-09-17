@@ -18,8 +18,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from abc import ABC, abstractmethod
 
-from neofox.exceptions import NeofoxInputParametersException
-from neofox.model.neoantigen import MhcAllele, Mhc2Isoform
+from neofox.exceptions import NeofoxInputParametersException, NeofoxDataValidationException
+from neofox.model.neoantigen import MhcAllele, Mhc2Isoform, Mhc2GeneName
 import re
 from logzero import logger
 
@@ -61,6 +61,14 @@ class MhcParser(ABC):
     def parse_mhc2_isoform(self, allele: str):
         pass
 
+    @abstractmethod
+    def get_netmhcpan_representation(self, allele: MhcAllele):
+        pass
+
+    @abstractmethod
+    def get_netmhc2pan_representation(self, isoform: Mhc2Isoform):
+        pass
+
     @staticmethod
     def get_mhc_parser(mhc_database: MhcDatabase):
         if mhc_database.is_homo_sapiens():
@@ -76,8 +84,10 @@ class H2Parser(MhcParser):
 
     def parse_mhc_allele(self, allele: str, pattern=H2_ALLELE_PATTERN) -> MhcAllele:
         match = H2_ALLELE_PATTERN.match(allele)
-        assert match is not None, "Allele does not match H2 allele pattern {}".format(
-            allele) if allele != "" else "Please check the format of provided alleles. An empty allele is provided"
+        if match is None:
+            raise NeofoxDataValidationException(
+                "Allele does not match H2 allele pattern {}".format(allele) if allele != "" else
+                "Please check the format of provided alleles. An empty allele is provided")
 
         gene = match.group(1)
         protein = match.group(2)
@@ -101,6 +111,13 @@ class H2Parser(MhcParser):
         allele = self.parse_mhc_allele(allele=allele, pattern=H2_MOLECULE_PATTERN)
         return Mhc2Isoform(name=allele.name, alpha_chain=allele, beta_chain=allele)
 
+    def get_netmhcpan_representation(self, allele: MhcAllele):
+        return "H2-{gene}{protein}".format(gene=allele.gene.strip("H2"), protein=allele.protein)
+
+    def get_netmhc2pan_representation(self, isoform: Mhc2Isoform):
+        return "H-2-I{gene}{protein}".format(
+            gene=isoform.alpha_chain.gene.strip("H2"), protein=isoform.alpha_chain.protein)
+
 
 class HlaParser(MhcParser):
 
@@ -119,8 +136,10 @@ class HlaParser(MhcParser):
         else:
             # infers gene, group and protein from the name
             match = HLA_ALLELE_PATTERN.match(allele)
-            assert match is not None, "Allele does not match HLA allele pattern {}".format(
-                allele) if allele != "" else "Please check the format of provided alleles. An empty allele is provided"
+            if match is None:
+                raise NeofoxDataValidationException(
+                    "Allele does not match HLA allele pattern {}".format(allele) if allele != "" else
+                    "Please check the format of provided alleles. An empty allele is provided")
             gene = match.group(1)
             group = match.group(2)
             protein = match.group(3)
@@ -167,3 +186,21 @@ class HlaParser(MhcParser):
         # builds the final allele representation and validates it just in case
         name = get_mhc2_isoform_name(alpha_chain, beta_chain)
         return Mhc2Isoform(name=name, alpha_chain=alpha_chain, beta_chain=beta_chain)
+
+    def get_netmhcpan_representation(self, allele: MhcAllele):
+        return "HLA-{gene}{group}:{protein}".format(gene=allele.gene, group=allele.group, protein=allele.protein)
+
+    def get_netmhc2pan_representation(self, isoform: Mhc2Isoform):
+        if isoform.beta_chain.gene == Mhc2GeneName.DRB1.name:
+            return "{gene}_{group}{protein}".format(
+                gene=isoform.beta_chain.gene, group=isoform.beta_chain.group, protein=isoform.beta_chain.protein
+            )
+        else:
+            return "HLA-{gene_a}{group_a}{protein_a}-{gene_b}{group_b}{protein_b}".format(
+                gene_a=isoform.alpha_chain.gene,
+                group_a=isoform.alpha_chain.group,
+                protein_a=isoform.alpha_chain.protein,
+                gene_b=isoform.beta_chain.gene,
+                group_b=isoform.beta_chain.group,
+                protein_b=isoform.beta_chain.protein,
+            )

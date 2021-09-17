@@ -142,6 +142,9 @@ class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):
 class MhcDatabase(ABC):
 
     organism = None
+    mhc1_genes = None
+    mhc2_genes = None
+    mhc2_molecules = None
 
     def __init__(self, database_filename: str):
         super().__init__()
@@ -165,6 +168,9 @@ class MhcDatabase(ABC):
 class HlaDatabase(MhcDatabase):
 
     organism = ORGANISM_HOMO_SAPIENS
+    mhc1_genes = HOMO_SAPIENS_MHC_I_GENES
+    mhc2_genes = HOMO_SAPIENS_MHC_II_GENES
+    mhc2_molecules = HOMO_SAPIENS_MHC_II_MOLECULES
 
     def _load_alleles(self, hla_database_filename: str):
         # Assumes there is a column named Allele which contains the HLA alleles following the HLA nomenclature
@@ -194,6 +200,9 @@ class HlaDatabase(MhcDatabase):
 class H2Database(MhcDatabase):
 
     organism = ORGANISM_MUS_MUSCULUS
+    mhc1_genes = MUS_MUSCULUS_MHC_I_GENES
+    mhc2_genes = MUS_MUSCULUS_MHC_II_GENES
+    mhc2_molecules = MUS_MUSCULUS_MHC_II_MOLECULES
 
     def _load_alleles(self, h2_database_filename: str):
         # Assumes there is a column named Allele which contains the HLA alleles following the HLA nomenclature
