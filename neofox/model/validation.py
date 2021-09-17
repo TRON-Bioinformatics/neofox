@@ -183,9 +183,10 @@ class ModelValidator(object):
                 assert isoform.alpha_chain.name in [
                     a.name for g in genes for a in g.alleles
                 ], "Alpha chain allele not present in the list of alleles"
-            assert isoform.beta_chain.name in [
-                a.name for g in genes for a in g.alleles
-            ], "Beta chain allele not present in the list of alleles"
+            if mhc2.name not in [Mhc2Name.H2A_molecule, Mhc2Name.H2E_molecule]:
+                assert isoform.beta_chain.name in [
+                    a.name for g in genes for a in g.alleles
+                ], "Beta chain allele not present in the list of alleles"
         return mhc2
 
     @staticmethod
@@ -293,7 +294,7 @@ class ModelValidator(object):
                 match = H2_MOLECULE_PATTERN.match(isoform.name)
                 if match:
                     ModelValidator.validate_mhc_allele_representation(isoform.alpha_chain, organism)
-                    ModelValidator.validate_mhc_allele_representation(isoform.beta_chain, organism)
+                    #ModelValidator.validate_mhc_allele_representation(isoform.beta_chain, organism)
                 else:
                     raise NeofoxDataValidationException(
                         "Transformed MHC II molecule name does not match H2 isoform pattern {}".format(isoform.name))

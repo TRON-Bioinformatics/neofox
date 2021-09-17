@@ -23,12 +23,12 @@ import dotenv
 from Bio.Alphabet.IUPAC import IUPACData
 
 from neofox.model.conversion import ModelConverter
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 
 
-def load_references():
+def load_references(organism=ORGANISM_HOMO_SAPIENS):
     dotenv.load_dotenv(override=True)
-    return ReferenceFolder(), DependenciesConfiguration()
+    return ReferenceFolder(organism=organism), DependenciesConfiguration()
 
 
 def create_temp_aminoacid_fasta_file():
@@ -42,7 +42,7 @@ def get_random_kmer(k=25):
     return "".join(random.choices(list(IUPACData.protein_letters), k=k))
 
 
-def get_mhc_one_test(hla_database):
+def get_hla_one_test(hla_database):
     return ModelConverter.parse_mhc1_alleles(
         [
             "HLA-A*24:02",
@@ -55,7 +55,20 @@ def get_mhc_one_test(hla_database):
     )
 
 
-def get_mhc_two_test(hla_database):
+def get_h2_one_test(h2_database):
+    return ModelConverter.parse_mhc1_alleles(
+        [
+            "H2Kd",
+            "H2Kd",
+            "H2Dd",
+            "H2Dd",
+            "H2Ld",
+            "H2Ld",
+        ], h2_database
+    )
+
+
+def get_hla_two_test(hla_database):
     return ModelConverter.parse_mhc2_alleles(
             [
                 "HLA-DRB1*04:02",
@@ -70,6 +83,17 @@ def get_mhc_two_test(hla_database):
                 "HLA-DPB1*04:01",
             ], hla_database
         )
+
+
+def get_h2_two_test(h2_database):
+    return ModelConverter.parse_mhc2_alleles(
+        [
+            "H2Ad",
+            "H2Ad",
+            "H2Ed",
+            "H2Ed"
+        ], h2_database
+    )
 
 
 mutations_with_rare_aminoacids = [

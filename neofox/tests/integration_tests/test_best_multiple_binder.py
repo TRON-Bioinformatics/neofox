@@ -51,8 +51,8 @@ class TestBestMultipleBinder(TestCase):
         )
         self.hla_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.hla_database)
-        self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
-        self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
+        self.test_mhc_one = integration_test_tools.get_hla_one_test(self.hla_database)
+        self.test_mhc_two = integration_test_tools.get_hla_two_test(self.hla_database)
         self.uniprot = Uniprot(references.uniprot_pickle)
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
