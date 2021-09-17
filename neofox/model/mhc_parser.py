@@ -39,6 +39,7 @@ HLA_MOLECULE_PATTERN = re.compile(
 HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})")
 
 H2_ALLELE_PATTERN = re.compile(r"(H2K|H2D|H2L|H2A|H2E)([a-z][0-9]?)")
+H2_NETMHCPAN_ALLELE_PATTERN = re.compile(r"H-2-I?(K|D|L|A|E)([a-z][0-9]?)")
 H2_MOLECULE_PATTERN = re.compile(r"(H2A|H2E)([a-z][0-9]?)")
 
 ALLELE_PATTERN_BY_ORGANISM = {
@@ -83,6 +84,10 @@ class MhcParser(ABC):
 class H2Parser(MhcParser):
 
     def parse_mhc_allele(self, allele: str, pattern=H2_ALLELE_PATTERN) -> MhcAllele:
+        match = H2_NETMHCPAN_ALLELE_PATTERN.match(allele)
+        if match:
+            # this ensures that netmhcpan output is normalized
+            allele = "H2{gene}{protein}".format(gene=match.group(1), protein=match.group(2))
         match = H2_ALLELE_PATTERN.match(allele)
         if match is None:
             raise NeofoxDataValidationException(
@@ -108,11 +113,15 @@ class H2Parser(MhcParser):
     def parse_mhc2_isoform(self, allele: str) -> Mhc2Isoform:
         # MHC II molecules in H2 lab mouse are represented as single chain proteins
         # NOTE: by convention we represent this allele in both the alpha and beta chains
+        match = H2_NETMHCPAN_ALLELE_PATTERN.match(allele)
+        if match:
+            # this ensures that netmhcpan output is normalized
+            allele = "H2{gene}{protein}".format(gene=match.group(1), protein=match.group(2))
         allele = self.parse_mhc_allele(allele=allele, pattern=H2_MOLECULE_PATTERN)
         return Mhc2Isoform(name=allele.name, alpha_chain=allele, beta_chain=allele)
 
     def get_netmhcpan_representation(self, allele: MhcAllele):
-        return "H2-{gene}{protein}".format(gene=allele.gene.strip("H2"), protein=allele.protein)
+        return "H-2-{gene}{protein}".format(gene=allele.gene.strip("H2"), protein=allele.protein)
 
     def get_netmhc2pan_representation(self, isoform: Mhc2Isoform):
         return "H-2-I{gene}{protein}".format(

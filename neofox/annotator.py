@@ -348,16 +348,18 @@ class NeoantigenAnnotator:
             )
 
         # hex
-        start = time.time()
-        neoantigen.neofox_annotations.annotations.extend(
-            self.hex.get_annotation(
-                mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
-                mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
-        )
-        end = time.time()
-        logger.info(
-            "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
-        )
+        # TODO: hex is failing for mouse with the current IEDB fasta with only 2 entries
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            start = time.time()
+            neoantigen.neofox_annotations.annotations.extend(
+                self.hex.get_annotation(
+                    mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
+                    mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
+            )
+            end = time.time()
+            logger.info(
+                "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
+            )
 
         return neoantigen
 

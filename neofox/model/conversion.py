@@ -46,8 +46,7 @@ from neofox.model.neoantigen import (
 )
 from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.references.references import MhcDatabase, HOMO_SAPIENS_MHC_I_GENES, ORGANISM_HOMO_SAPIENS, \
-    ORGANISM_MUS_MUSCULUS, MUS_MUSCULUS_MHC_I_GENES, HOMO_SAPIENS_MHC_II_MOLECULES, MUS_MUSCULUS_MHC_II_MOLECULES
+from neofox.references.references import MhcDatabase
 
 FIELD_VAF_DNA = "VAF_in_tumor"
 FIELD_VAF_RNA = "VAF_in_RNA"

@@ -23,7 +23,7 @@ import os
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.model.neoantigen import Annotation
 from neofox.model.wrappers import AnnotationFactory
-from neofox.references.references import ReferenceFolder, IEDB_FASTA_HOMO_SAPIENS
+from neofox.references.references import ReferenceFolder
 
 
 class Hex(object):
@@ -35,7 +35,7 @@ class Hex(object):
         """
         self.runner = runner
         self.configuration = configuration
-        self.iedb_fasta = os.path.join(references.iedb, IEDB_FASTA_HOMO_SAPIENS)
+        self.iedb_fasta = references.get_iedb_fasta()
 
     def apply_hex(self, mut_peptide):
         """this function calls hex tool. this tool analyses the neoepitope candidate sequence for molecular mimicry to viral epitopes

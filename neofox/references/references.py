@@ -231,27 +231,21 @@ class ReferenceFolder(object):
         if not organism == ORGANISM_HOMO_SAPIENS and not organism == ORGANISM_MUS_MUSCULUS:
             raise NeofoxConfigurationException(
                 "Non supported organism: {}. Use {} or {}".format(
-                    organism, ORGANISM_HOMO_SAPIENS, ORGANISM_HOMO_SAPIENS))
+                    organism, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS))
         self.reference_genome_folder = self._check_reference_genome_folder()
-        # sets the right file names for the resources
-        self.available_mhc_ii = self._get_reference_file_name(
-            NETMHC2PAN_AVAILABLE_ALLELES_FILE
-        )
-        self.available_mhc_i = self._get_reference_file_name(
-            NETMHCPAN_AVAILABLE_ALLELES_FILE
-        )
+
         self.iedb = self._get_reference_file_name(IEDB_FOLDER)
         self.proteome_db = self._get_reference_file_name(PROTEOME_DB_FOLDER)
-        self.uniprot = self._get_reference_file_name(
-            os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_FASTA)
-        )
-        self.uniprot_pickle = self._get_reference_file_name(
-            os.path.join(PROTEOME_DB_FOLDER, HOMO_SAPIENS_PICKLE)
-        )
+        self.uniprot = self.get_proteome_fasta()
+        self.uniprot_pickle = self.get_proteome_pickle()
         if self.organism == ORGANISM_HOMO_SAPIENS:
             self.mhc_database_filename = self._get_reference_file_name(HLA_DATABASE_AVAILABLE_ALLELES_FILE)
+            self.available_mhc_ii = self._get_reference_file_name(NETMHC2PAN_AVAILABLE_ALLELES_FILE)
+            self.available_mhc_i = self._get_reference_file_name(NETMHCPAN_AVAILABLE_ALLELES_FILE)
         elif self.organism == ORGANISM_MUS_MUSCULUS:
             self.mhc_database_filename = self._get_reference_file_name(H2_DATABASE_AVAILABLE_ALLELES_FILE)
+            self.available_mhc_ii = self._get_reference_file_name(NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE)
+            self.available_mhc_i = self._get_reference_file_name(NETMHCPAN_AVAILABLE_ALLELES_MICE_FILE)
         else:
             raise NeofoxConfigurationException("No support for organism {}".format(self.organism))
 
@@ -261,8 +255,7 @@ class ReferenceFolder(object):
             self.iedb,
             self.proteome_db,
             self.uniprot,
-            os.path.join(self.iedb, IEDB_FASTA_HOMO_SAPIENS),
-            os.path.join(self.proteome_db, HOMO_SAPIENS_FASTA),
+            self.get_iedb_fasta(),
             self.mhc_database_filename
         ]
         self._check_resources()
@@ -290,13 +283,31 @@ class ReferenceFolder(object):
     def get_proteome_database(self):
         return os.path.join(
             self.proteome_db,
-            PREFIX_HOMO_SAPIENS if self.organism == ORGANISM_HOMO_SAPIENS else ORGANISM_MUS_MUSCULUS)
+            PREFIX_HOMO_SAPIENS if self.organism == ORGANISM_HOMO_SAPIENS else PREFIX_MUS_MUSCULUS)
+
+    def get_proteome_fasta(self):
+        return os.path.join(
+            self.proteome_db,
+            HOMO_SAPIENS_FASTA if self.organism == ORGANISM_HOMO_SAPIENS
+            else MUS_MUSCULUS_FASTA)
+
+    def get_proteome_pickle(self):
+        return os.path.join(
+            self.proteome_db,
+            HOMO_SAPIENS_PICKLE if self.organism == ORGANISM_HOMO_SAPIENS
+            else MUS_MUSCULUS_PICKLE)
 
     def get_iedb_database(self):
         return os.path.join(
             self.iedb,
             IEDB_BLAST_PREFIX_HOMO_SAPIENS if self.organism == ORGANISM_HOMO_SAPIENS
             else IEDB_BLAST_PREFIX_MUS_MUSCULUS)
+
+    def get_iedb_fasta(self):
+        return os.path.join(
+            self.iedb,
+            IEDB_FASTA_HOMO_SAPIENS if self.organism == ORGANISM_HOMO_SAPIENS
+            else IEDB_FASTA_MUS_MUSCULUS)
 
     def _check_reference_genome_folder(self):
         reference_genome_folder = os.environ.get(neofox.REFERENCE_FOLDER_ENV)
@@ -339,14 +350,14 @@ class ReferenceFolder(object):
 
 class AvailableAlleles(object):
     def __init__(self, references):
-        self.available_mhc_i = self._load_available_hla_alleles(
+        self.available_mhc_i = self._load_available_mhc_alleles(
             mhc=neofox.MHC_I, references=references
         )
-        self.available_mhc_ii = self._load_available_hla_alleles(
+        self.available_mhc_ii = self._load_available_mhc_alleles(
             mhc=neofox.MHC_II, references=references
         )
 
-    def _load_available_hla_alleles(self, references: ReferenceFolder, mhc=neofox.MHC_I) -> List:
+    def _load_available_mhc_alleles(self, references: ReferenceFolder, mhc=neofox.MHC_I) -> List:
         """
         loads file with available hla alllels for netmhcpan4/netmhcIIpan prediction, returns set
         """
