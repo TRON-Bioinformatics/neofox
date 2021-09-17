@@ -43,131 +43,108 @@ class TestHlaParser(unittest.TestCase):
         self.assertEqual("104", mhc.group)
         self.assertEqual("01", mhc.protein)
 
-    def test_mhc_i_allele_validation(self):
+    def test_mhc_i_allele_parsing(self):
         # adds the star
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01")
         )
         # adds the HLA-
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("A01:01")
         )
         # adds the colon to homogenise representation
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01")
         )
         # does not modify an originally good representation
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A*01:01")
         )
         # removes further information
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01:02:03N")
         )
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01:02N")
         )
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-A01:01N")
         )
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-A*01:01", allele=MhcAllele(gene="A", group="01", protein="01", name="HLA-A*01:01")
         )
 
-    def _assert_allele_validation(self, allele, expected, organism=ORGANISM_HOMO_SAPIENS):
+    def _assert_allele_parsing(self, allele, expected, organism=ORGANISM_HOMO_SAPIENS):
         ModelValidator.validate_mhc_allele_representation(allele, organism)
         self.assertEqual(expected, allele.name)
 
-    def test_mhc_ii_allele_validation(self):
+    def test_mhc_ii_allele_parsing(self):
         # add the star
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPB1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPB101:01")
         )
         # adds the HLA-
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPB1*01:01", allele=self.mhc_parser.parse_mhc_allele("DPB1*01:01")
         )
         # adds the colon to homogenise representation
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA101:01")
         )
         # does not reove the star
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA1*01:01")
         )
         # removes further information
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA101:01:02:03N")
         )
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPA1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPA101:01:02N")
         )
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPB1*01:01", allele=self.mhc_parser.parse_mhc_allele("HLA-DPB101:01")
         )
-        self._assert_allele_validation(
+        self._assert_allele_parsing(
             expected="HLA-DPA1*01:01",
             allele=MhcAllele(gene="DPA1", group="01", protein="01", name="HLA-DPA1*01:01"),
         )
 
     def test_invalid_mhc_i_alleles(self):
         # P gene is not valid
-        self._assert_invalid_allele(MhcAllele(name="HLA-P01:01"))
+        self._assert_invalid_allele("HLA-P01:01")
         # serotype 1 is not valid
-        self._assert_invalid_allele(MhcAllele(name="HLA-A1:01"))
+        self._assert_invalid_allele("HLA-A1:01")
         # no protein information
-        self._assert_invalid_allele(MhcAllele(name="HLA-A01"))
+        self._assert_invalid_allele("HLA-A01")
         # bad protein format
-        self._assert_invalid_allele(MhcAllele(name="HLA-A01:ABC"))
+        self._assert_invalid_allele("HLA-A01:ABC")
         # wrong organism, only human
-        self._assert_invalid_allele(MhcAllele(name="GOGO-A01:01"))
+        self._assert_invalid_allele("GOGO-A01:01")
         # no gene
-        self._assert_invalid_allele(MhcAllele(name="HLA-0123456"))
+        self._assert_invalid_allele("HLA-0123456")
         # nonsense
-        self._assert_invalid_allele(MhcAllele(name="nonsense"))
-        # missing protein
-        self._assert_invalid_allele(MhcAllele(gene="A", group="01"))
-        # bad protein
-        self._assert_invalid_allele(MhcAllele(gene="A", group="01", protein="NaN"))
-        # bad group
-        self._assert_invalid_allele(MhcAllele(gene="A", group="NaN", protein="01"))
-        # non existing gene
-        self._assert_invalid_allele(MhcAllele(gene="Z", group="01", protein="01"))
-        # MHC I non classical
-        self._assert_invalid_allele(MhcAllele(gene="E", group="01", protein="01"))
-        self._assert_invalid_allele(MhcAllele(gene="F", group="01", protein="01"))
-        self._assert_invalid_allele(MhcAllele(gene="G", group="01", protein="01"))
+        self._assert_invalid_allele("nonsense")
 
-    def _assert_invalid_allele(self, allele, organism=ORGANISM_HOMO_SAPIENS):
+    def _assert_invalid_allele(self, allele):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelValidator.validate_mhc_allele_representation,
-            allele,
-            organism
+            self.mhc_parser.parse_mhc_allele,
+            allele
         )
 
     def test_invalid_mhc_ii_alleles(self):
         # P gene is not valid
-        self._assert_invalid_allele(MhcAllele(name="HLA-DPR01:01"))
+        self._assert_invalid_allele("HLA-DPR01:01")
         # serotype 1 is not valid
-        self._assert_invalid_allele(MhcAllele(name="HLA-DPA11:01"))
+        self._assert_invalid_allele("HLA-DPA11:01")
         # no protein information
-        self._assert_invalid_allele(MhcAllele(name="HLA-DPA101"))
+        self._assert_invalid_allele("HLA-DPA101")
         # bad protein format
-        self._assert_invalid_allele(MhcAllele(name="HLA-DPA101:ABC"))
+        self._assert_invalid_allele("HLA-DPA101:ABC")
         # wrong organism, only human
-        self._assert_invalid_allele(MhcAllele(name="GOGO-DPA101:01"))
+        self._assert_invalid_allele("GOGO-DPA101:01")
         # no gene
-        self._assert_invalid_allele(MhcAllele(name="HLA-0123456"))
+        self._assert_invalid_allele("HLA-0123456")
         # nonsense
-        self._assert_invalid_allele(MhcAllele(name="nonsense"))
-        # missing protein
-        self._assert_invalid_allele(MhcAllele(gene="DPA1", group="01"))
-        # bad protein
-        self._assert_invalid_allele(MhcAllele(gene="DPA1", group="01", protein="NaN"))
-        # bad group
-        self._assert_invalid_allele(MhcAllele(gene="DPA1", group="NaN", protein="01"))
-        # non existing gene
-        self._assert_invalid_allele(
-            MhcAllele(gene="DPA1ZZZZ", group="01", protein="01")
-        )
+        self._assert_invalid_allele("nonsense")

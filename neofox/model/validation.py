@@ -34,10 +34,8 @@ from neofox.model.neoantigen import (
     Mhc2,
     Mhc2Isoform,
     MhcAllele,
-    Mhc1Name,
     Mhc1
 )
-from neofox.model.wrappers import get_mhc2_isoform_name
 from neofox.references.references import ORGANISM_HOMO_SAPIENS, MHC_I_GENES_BY_ORGANISM, MHC_II_GENES_BY_ORGANISM, \
     ORGANISM_MUS_MUSCULUS
 
@@ -52,6 +50,8 @@ GENES_BY_MOLECULE = {
     Mhc2Name.DR: [Mhc2GeneName.DRB1],
     Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
     Mhc2Name.DQ: [Mhc2GeneName.DQA1, Mhc2GeneName.DQB1],
+    Mhc2Name.H2A_molecule: [Mhc2GeneName.H2A],
+    Mhc2Name.H2E_molecule: [Mhc2GeneName.H2E]
 }
 
 
