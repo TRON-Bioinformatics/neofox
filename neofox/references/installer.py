@@ -237,7 +237,7 @@ class NeofoxReferenceInstaller(object):
         self._run_command(cmd)
 
     def _set_h2_resource(self):
-        logger.info("Copying the H2 alleles resource")
+        logger.info("Adding the available mouse MHC alleles resource")
         source_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), H2_DATABASE_AVAILABLE_ALLELES_FILE)
         target_file = os.path.join(self.reference_folder, H2_DATABASE_AVAILABLE_ALLELES_FILE)
         copyfile(source_file, target_file)
