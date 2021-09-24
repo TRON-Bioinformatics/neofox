@@ -51,7 +51,7 @@ class NeofoxReferenceInstaller(object):
     def _set_netmhcpan_alleles(self):
         # available MHC alleles netMHCpan
         # $NEOFOX_NETMHCPAN -listMHC | grep "HLA-" > "$NEOFOX_REFERENCE_FOLDER"/MHC_available.csv
-        logger.info("Fetching available alleles from NetMHCpan")
+        logger.info("Fetching available MHC alleles from NetMHCpan for human")
         available_alleles_file = os.path.join(
             self.reference_folder, NETMHCPAN_AVAILABLE_ALLELES_FILE
         )
