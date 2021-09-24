@@ -8,7 +8,7 @@ dist
 build/*
 neofox.egg-info/
 neofox/tests/resources/output*
-neofox/tests/resources/test*
+neofox/tests/resources/test_installation*
 **/dask-worker-space
 docs/build
 .ipynb_checkpoints

@@ -1,0 +1,3 @@
+identifier	mhcIAlleles	mhcIIAlleles	estimatedTumorContent	isRnaAvailable	tissue
+Ptx	H2Kd,H2Kd,H2Dd,H2Dd,H2Ld,H2Ld	H2Ad,H2Ad,H2Ed,H2Ed	0.69	True	skin
+Pty	H2Kd,H2Kd,H2Dd,H2Dd,H2Ld,H2Ld	H2Ad,H2Ad,H2Ed,H2Ed	0.69	True	skin
