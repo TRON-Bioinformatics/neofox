@@ -229,7 +229,7 @@ class NeofoxReferenceInstaller(object):
         outfile.close()
 
     def _set_ipd_imgt_hla_database(self):
-        logger.info("Downloading the IPD-IMGT/HLA database")
+        logger.info("Adding the available human HLA allele database")
         allele_list = os.path.join(self.reference_folder, HLA_DATABASE_AVAILABLE_ALLELES_FILE)
         url = os.environ.get(
             NEOFOX_HLA_DATABASE_ENV, "https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt")
