@@ -41,7 +41,7 @@ class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
         )
         available_alleles = self._get_only_available_alleles(mhc_alleles, set_available_mhc)
         if available_alleles is None or available_alleles == "":
-            raise NeofoxCommandException("None of the provided alleles are supported: {}".format(mhc_alleles))
+            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(mhc_alleles))
         cmd = [
             self.configuration.net_mhc_pan,
             "-a",
