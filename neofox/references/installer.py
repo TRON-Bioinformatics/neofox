@@ -62,7 +62,7 @@ class NeofoxReferenceInstaller(object):
         self._run_command(cmd)
 
     def _set_netmhcpan_alleles_mouse(self):
-        logger.info("Fetching available alleles from NetMHCpan for mice")
+        logger.info("Fetching available MHC alleles from NetMHCpan for mouse")
         available_alleles_file = os.path.join(
             self.reference_folder, NETMHCPAN_AVAILABLE_ALLELES_MICE_FILE
         )
