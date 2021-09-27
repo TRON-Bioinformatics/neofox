@@ -23,14 +23,13 @@ from unittest import TestCase
 import neofox
 import neofox.tests.unit_tests.tools as test_tools
 from neofox.exceptions import NeofoxConfigurationException
-from neofox.references.references import ReferenceFolder
+from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
 from neofox.tests.fake_classes import FakeReferenceFolder
 
 
 class TestReferenceFolder(TestCase):
     def setUp(self):
         os.environ[neofox.REFERENCE_FOLDER_ENV] = "."
-        self.fake_reference_folder = FakeReferenceFolder()
 
     def test_not_provided_reference(self):
         del os.environ[neofox.REFERENCE_FOLDER_ENV]
@@ -48,20 +47,44 @@ class TestReferenceFolder(TestCase):
             ReferenceFolder()
 
     def test_all_resources_exist(self):
+        fake_reference_folder = FakeReferenceFolder()
         test_tools.mock_file_existence(
-            existing_files=self.fake_reference_folder.resources
+            existing_files=fake_reference_folder.resources
         )
         ReferenceFolder()
 
     def test_one_resource_do_not_exist(self):
+        fake_reference_folder = FakeReferenceFolder()
         test_tools.mock_file_existence(
-            existing_files=self.fake_reference_folder.resources[
-                1 : len(self.fake_reference_folder.resources)
+            existing_files=fake_reference_folder.resources[
+                1 : len(fake_reference_folder.resources)
             ],
-            non_existing_files=[self.fake_reference_folder.resources[0]],
+            non_existing_files=[fake_reference_folder.resources[0]],
         )
         with self.assertRaises(NeofoxConfigurationException):
             ReferenceFolder()
+
+    def test_non_supported_organism(self):
+        fake_reference_folder = FakeReferenceFolder()
+        test_tools.mock_file_existence(
+            existing_files=fake_reference_folder.resources
+        )
+        with self.assertRaises(NeofoxConfigurationException):
+            ReferenceFolder(organism="rat")
+
+    def test_organism_mouse(self):
+        fake_reference_folder = FakeReferenceFolder(organism=ORGANISM_MUS_MUSCULUS)
+        test_tools.mock_file_existence(
+            existing_files=fake_reference_folder.resources
+        )
+        ReferenceFolder(organism=ORGANISM_MUS_MUSCULUS)
+
+    def test_organism_human(self):
+        fake_reference_folder = FakeReferenceFolder()
+        test_tools.mock_file_existence(
+            existing_files=fake_reference_folder.resources
+        )
+        ReferenceFolder(organism=ORGANISM_HOMO_SAPIENS)
 
 
 if __name__ == "__main__":

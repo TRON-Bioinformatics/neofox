@@ -37,7 +37,6 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.references.references import PREFIX_HOMO_SAPIENS
 
 
 class TestBestMultipleBinder(TestCase):
@@ -50,14 +49,14 @@ class TestBestMultipleBinder(TestCase):
         self.available_alleles_mhc2 = (
             references.get_available_alleles().get_available_mhc_ii()
         )
-        self.hla_database = references.get_hla_database()
-        self.mhc_parser = MhcParser(self.hla_database)
-        self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
-        self.test_mhc_two = integration_test_tools.get_mhc_two_test(self.hla_database)
+        self.hla_database = references.get_mhc_database()
+        self.mhc_parser = MhcParser.get_mhc_parser(self.hla_database)
+        self.test_mhc_one = integration_test_tools.get_hla_one_test(self.hla_database)
+        self.test_mhc_two = integration_test_tools.get_hla_two_test(self.hla_database)
         self.uniprot = Uniprot(references.uniprot_pickle)
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
-            database=os.path.join(references.proteome_db, PREFIX_HOMO_SAPIENS))
+            database=references.get_proteome_database())
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(

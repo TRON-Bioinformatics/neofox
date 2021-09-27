@@ -23,15 +23,16 @@ from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.model.mhc_parser import MhcParser
+from neofox.references.references import ORGANISM_MUS_MUSCULUS
 
 
-class TestNetMhcPanPredictor(TestCase):
+class TestNetMhcPanPredictorOnMouse(TestCase):
     def setUp(self):
-        references, self.configuration = integration_test_tools.load_references()
+        references, self.configuration = integration_test_tools.load_references(organism=ORGANISM_MUS_MUSCULUS)
         self.runner = Runner()
         self.available_alleles = references.get_available_alleles()
-        self.test_mhc_one = integration_test_tools.get_hla_one_test(references.get_mhc_database())
-        self.test_mhc_two = integration_test_tools.get_hla_two_test(references.get_mhc_database())
+        self.test_mhc_one = integration_test_tools.get_h2_one_test(references.get_mhc_database())
+        self.test_mhc_two = integration_test_tools.get_h2_two_test(references.get_mhc_database())
         self.mhc_parser = MhcParser.get_mhc_parser(references.get_mhc_database())
         self.proteome_blastp_runner = BlastpRunner(
             runner=self.runner, configuration=self.configuration,
@@ -49,7 +50,7 @@ class TestNetMhcPanPredictor(TestCase):
             mhc_alleles=self.test_mhc_one,
             set_available_mhc=self.available_alleles.get_available_mhc_i(),
         )
-        self.assertEqual(18, len(predictions))
+        self.assertEqual(9, len(predictions))
 
     def test_netmhcpan_too_small_epitope(self):
         netmhcpan_predictor = NetMhcPanPredictor(
@@ -76,7 +77,7 @@ class TestNetMhcPanPredictor(TestCase):
             mhc_alleles=self.test_mhc_one,
             set_available_mhc=self.available_alleles.get_available_mhc_i(),
         )
-        self.assertEqual(18, len(predictions))
+        self.assertEqual(9, len(predictions))
 
     def test_netmhc2pan_epitope_iedb(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
@@ -88,7 +89,10 @@ class TestNetMhcPanPredictor(TestCase):
         combinations = netmhc2pan_predictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
         predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
-        self.assertEqual(10, len(predictions))
+        self.assertEqual(2, len(predictions))
+        self._assert_predictions(predictions)
+
+    def _assert_predictions(self, predictions):
         for p in predictions:
             self.assertIsNotNone(p.peptide)
             self.assertIsNotNone(p.hla)
@@ -107,6 +111,7 @@ class TestNetMhcPanPredictor(TestCase):
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
         predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(0, len(predictions))
+        self._assert_predictions(predictions)
 
     def test_netmhc2pan_rare_aminoacid(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
@@ -118,4 +123,5 @@ class TestNetMhcPanPredictor(TestCase):
         combinations = netmhc2pan_predictor.represent_mhc2_isoforms(
             netmhc2pan_predictor.generate_mhc2_alelle_combinations(self.test_mhc_two))
         predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
-        self.assertEqual(40, len(predictions))
+        self.assertEqual(8, len(predictions))
+        self._assert_predictions(predictions)

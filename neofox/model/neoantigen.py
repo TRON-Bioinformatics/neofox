@@ -21,25 +21,41 @@ class Zygosity(betterproto.Enum):
 
 
 class Mhc1Name(betterproto.Enum):
-    """*Valid names for MHC I classic genes"""
+    """
+    *Valid names for MHC I classic genesMus musculus gene names are preceded by
+    the prefix H2 to avoid naming collisions.
+    """
 
+    # Homo sapiens
     A = 0
     B = 1
     C = 2
+    # Mus musculus
+    H2K = 3
+    H2D = 4
+    H2L = 5
 
 
 class Mhc2GeneName(betterproto.Enum):
     """
     *Valid names for MHC II classic genes.DRA is not included in this list as
     it does not have much variability in the population and for our purpose
-    isconsidered constant.
+    isconsidered constant.For Mus musculus we do not represent alpha and beta
+    chains as they are homozygotes at all their MHC loci.Hence, they can be
+    treated as a single gene, like DR is for HLA.See http://www.imgt.org/IMGTre
+    pertoireMH/Polymorphism/haplotypes/mouse/MHC/Mu_haplotypes.htmlMus musculus
+    gene names are preceded by the prefix H2 to avoid naming collisions.
     """
 
+    # Homo sapiens
     DRB1 = 0
     DPA1 = 1
     DPB1 = 2
     DQA1 = 3
     DQB1 = 4
+    # Mus musculus
+    H2A = 5
+    H2E = 6
 
 
 class Mhc2Name(betterproto.Enum):
@@ -48,6 +64,8 @@ class Mhc2Name(betterproto.Enum):
     DR = 0
     DP = 1
     DQ = 2
+    H2A_molecule = 3
+    H2E_molecule = 4
 
 
 @dataclass
