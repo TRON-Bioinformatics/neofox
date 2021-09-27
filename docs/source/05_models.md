@@ -223,12 +223,16 @@ The metadata required for analysis for a given patient + its patient identifier
 
 ### Mhc1Name
 Valid names for MHC I classic genes
+Mus musculus gene names are preceded by the prefix H2 to avoid naming collisions.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| A | 0 |  |
+| A | 0 | Homo sapiens |
 | B | 1 |  |
 | C | 2 |  |
+| H2K | 3 | Mus musculus |
+| H2D | 4 |  |
+| H2L | 5 |  |
 
 
 
@@ -238,14 +242,20 @@ Valid names for MHC I classic genes
 Valid names for MHC II classic genes.
 DRA is not included in this list as it does not have much variability in the population and for our purpose is
 considered constant.
+For Mus musculus we do not represent alpha and beta chains as they are homozygotes at all their MHC loci.
+Hence, they can be treated as a single gene, like DR is for HLA.
+See http://www.imgt.org/IMGTrepertoireMH/Polymorphism/haplotypes/mouse/MHC/Mu_haplotypes.html
+Mus musculus gene names are preceded by the prefix H2 to avoid naming collisions.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| DRB1 | 0 |  |
+| DRB1 | 0 | Homo sapiens |
 | DPA1 | 1 |  |
 | DPB1 | 2 |  |
 | DQA1 | 3 |  |
 | DQB1 | 4 |  |
+| H2A | 5 | Mus musculus |
+| H2E | 6 |  |
 
 
 
@@ -259,6 +269,8 @@ Valid names for MHC II classic molecules
 | DR | 0 |  |
 | DP | 1 |  |
 | DQ | 2 |  |
+| H2A_molecule | 3 |  |
+| H2E_molecule | 4 |  |
 
 
 

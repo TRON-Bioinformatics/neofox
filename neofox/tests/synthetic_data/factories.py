@@ -20,7 +20,7 @@ class PatientProvider(Provider):
     def __init__(self, generator, mhc1_alleles, mhc2_alleles, hla_database: HlaDatabase):
         Provider.__init__(self, generator)
         self.hla_database = hla_database
-        self.mhc_parser = MhcParser(hla_database)
+        self.mhc_parser = MhcParser.get_mhc_parser(hla_database)
         # gets available alleles from netmhcpan and netmhc2pan
         self.available_mhc1_alleles = self.load_mhc1_alleles(mhc1_alleles)
         self.available_mhc2_isoforms = self.load_mhc2_isoforms(mhc2_alleles)

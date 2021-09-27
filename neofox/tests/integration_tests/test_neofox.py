@@ -27,11 +27,10 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter
-from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 from neofox.model.wrappers import NOT_AVAILABLE_VALUE
 from neofox.neofox import NeoFox
-from neofox.tests.fake_classes import FakeHlaDatabase
+from neofox.references.references import ORGANISM_MUS_MUSCULUS
 from neofox.tests.integration_tests import integration_test_tools
 import pandas as pd
 from logzero import logger
@@ -43,8 +42,11 @@ import timeit
 
 
 class TestNeofox(TestCase):
+
     def setUp(self):
         self.references, self.configuration = integration_test_tools.load_references()
+        self.references_mouse, self.configuration_mouse = integration_test_tools.load_references(
+            organism=ORGANISM_MUS_MUSCULUS)
         # self.fastafile = integration_test_tools.create_temp_aminoacid_fasta_file()
         # self.runner = Runner()
         self.patient_id = "Pt29"
@@ -54,9 +56,15 @@ class TestNeofox(TestCase):
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
-        self.hla_database = self.references.get_hla_database()
+        patients_file_mouse = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_patient_file_mouse.txt"
+        )
+        self.hla_database = self.references.get_mhc_database()
+        self.h2_database = self.references_mouse.get_mhc_database()
         self.patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
+        self.patients_mouse = ModelConverter.parse_patients_file(patients_file_mouse, self.h2_database)
         self.neoantigens = ModelConverter.parse_candidate_file(input_file)
+        self.neoantigens_mouse = ModelConverter.parse_candidate_file(input_file)
 
     def test_neoantigens_without_gene(self):
         """"""
@@ -101,12 +109,6 @@ class TestNeofox(TestCase):
                 datetime.now()
             ),
         )
-        output_file_tall_skinny = pkg_resources.resource_filename(
-            neofox.tests.__name__,
-            "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.tsv".format(
-                datetime.now()
-            ),
-        )
         output_file_neoantigens = pkg_resources.resource_filename(
             neofox.tests.__name__,
             "resources/output_{:%Y%m%d%H%M%S}.neoantigens.tsv".format(datetime.now()),
@@ -114,12 +116,6 @@ class TestNeofox(TestCase):
         output_json_neoantigens = pkg_resources.resource_filename(
             neofox.tests.__name__,
             "resources/output_{:%Y%m%d%H%M%S}.neoantigen_candidates.json".format(
-                datetime.now()
-            ),
-        )
-        output_json_annotations = pkg_resources.resource_filename(
-            neofox.tests.__name__,
-            "resources/output_{:%Y%m%d%H%M%S}.neoantigen_features.json".format(
                 datetime.now()
             ),
         )
@@ -144,14 +140,54 @@ class TestNeofox(TestCase):
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
         # writes output
-        ModelConverter.annotations2table(neoantigens=self.neoantigens).to_csv(
+        ModelConverter.annotations2table(neoantigens=annotations).to_csv(
             output_file, sep="\t", index=False)
-        ModelConverter.objects2dataframe(self.neoantigens).to_csv(output_file_neoantigens, sep="\t", index=False)
+        ModelConverter.objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
         with open(output_json_neoantigens, "wb") as f:
-            f.write(json.dumps(ModelConverter.objects2json(self.neoantigens)))
+            f.write(json.dumps(ModelConverter.objects2json(annotations)))
 
         # regression test
         self._regression_test_on_output_file(new_file=output_file)
+
+    def test_neomouse(self):
+        output_file = pkg_resources.resource_filename(
+            neofox.tests.__name__,
+            "resources/output_mouse_{:%Y%m%d%H%M%S}_neoantigen_candidates_annotated.tsv".format(
+                datetime.now()
+            ),
+        )
+        output_file_neoantigens = pkg_resources.resource_filename(
+            neofox.tests.__name__,
+            "resources/output_mouse_{:%Y%m%d%H%M%S}.neoantigens.tsv".format(datetime.now()),
+        )
+        output_json_neoantigens = pkg_resources.resource_filename(
+            neofox.tests.__name__,
+            "resources/output_mouse_{:%Y%m%d%H%M%S}.neoantigen_candidates.json".format(
+                datetime.now()
+            ),
+        )
+        annotations = NeoFox(
+            neoantigens=self.neoantigens_mouse,
+            patient_id=self.patient_id,
+            patients=self.patients_mouse,
+            num_cpus=4,
+            reference_folder=self.references_mouse
+        ).get_annotations()
+        annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
+
+        # checks it does have some of the NetMHCpan annotations
+        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
+        self.assertIn("Best_rank_MHCII_score", annotation_names)
+
+        # writes output
+        ModelConverter.annotations2table(neoantigens=annotations).to_csv(
+            output_file, sep="\t", index=False)
+        ModelConverter.objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
+        with open(output_json_neoantigens, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(annotations)))
+
+        # regression test
+        self._regression_test_on_output_file(new_file=output_file, previous_filename="resources/output_previous_mouse.txt")
 
     def test_neofox_only_one_neoantigen(self):
         """"""
@@ -240,8 +276,6 @@ class TestNeofox(TestCase):
 
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
-
-
     def test_neofox_with_config(self):
         neoantigens, patients, patient_id = self._get_test_data()
         config_file = pkg_resources.resource_filename(
@@ -264,7 +298,7 @@ class TestNeofox(TestCase):
         """"""
         neoantigens, patients, patient_id = self._get_test_data()
         for p in patients:
-            p.mhc2 = None
+            p.mhc2 = []
         annotations = NeoFox(
             neoantigens=neoantigens,
             patient_id=self.patient_id,
@@ -278,7 +312,7 @@ class TestNeofox(TestCase):
     def test_neofox_without_mhc1(self):
         neoantigens, patients, patient_id = self._get_test_data()
         for p in patients:
-            p.mhc1 = None
+            p.mhc1 = []
         annotations = NeoFox(
             neoantigens=neoantigens,
             patient_id=patient_id,
@@ -364,11 +398,7 @@ class TestNeofox(TestCase):
         neoantigens, patients, patient_id = self._get_test_data()
         for p in patients:
             # sets one MHC I allele to a non existing allele
-            allele = p.mhc1[0].alleles[0]
-            allele.group = "999"
-            allele.name = None
-            allele.full_name = None
-            p.mhc1[0].alleles[0] = MhcParser(FakeHlaDatabase()).validate_mhc_allele_representation(allele)
+            p.mhc1[0].alleles[0] = ModelConverter.parse_mhc1_alleles(["HLA-A*99:99"], mhc_database=self.hla_database)[0].alleles[0]
         neofox = NeoFox(
             neoantigens=neoantigens,
             patient_id=patient_id,
@@ -411,11 +441,11 @@ class TestNeofox(TestCase):
             identifier=patient_identifier,
             mhc1=ModelConverter.parse_mhc1_alleles([
                 "HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"],
-                hla_database=self.references.get_hla_database()),
+                mhc_database=self.references.get_mhc_database()),
             mhc2=ModelConverter.parse_mhc2_alleles([
                 "HLA-DRB1*07:14", "HLA-DRB1*04:18", "HLA-DPA1*01:05", "HLA-DPA1*03:01", "HLA-DPB1*17:01",
                 "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"],
-                hla_database=self.references.get_hla_database())
+                mhc_database=self.references.get_mhc_database())
         )
 
         annotations = NeoFox(
@@ -439,7 +469,7 @@ class TestNeofox(TestCase):
             identifier=patient_identifier,
             mhc1=ModelConverter.parse_mhc1_alleles([
                 "HLA-A*03:01", "HLA-A*29:02", "HLA-B*07:02", "HLA-B*44:03", "HLA-C*07:02", "HLA-C*16:01"],
-                hla_database=self.references.get_hla_database()),
+                mhc_database=self.references.get_mhc_database()),
         )
 
         annotations = NeoFox(
@@ -462,7 +492,7 @@ class TestNeofox(TestCase):
             identifier=patient_identifier,
             mhc1=ModelConverter.parse_mhc1_alleles([
                 "HLA-A*02:24", "HLA-A*36:04", "HLA-B*58:25", "HLA-B*35:102", "HLA-C*02:30", "HLA-C*07:139"],
-                hla_database=self.references.get_hla_database()),
+                mhc_database=self.references.get_mhc_database()),
         )
 
         annotations = NeoFox(
@@ -514,10 +544,8 @@ class TestNeofox(TestCase):
             ).get_annotations()
             self.assertIsNotNone(annotations)
 
-    def _regression_test_on_output_file(self, new_file):
-        previous_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/output_previous.txt"
-        )
+    def _regression_test_on_output_file(self, new_file, previous_filename="resources/output_previous.txt"):
+        previous_file = pkg_resources.resource_filename(neofox.tests.__name__, previous_filename)
         if os.path.exists(previous_file):
             NeofoxChecker(previous_file, new_file)
         else:
@@ -544,7 +572,9 @@ class NeofoxChecker:
                 )
             )
             logger.error("Differing columns {}".format(differing_columns))
-        assert len(differing_columns) == 0, "The regression test contains errors"
+            logger.error("The regression test contains errors")
+        else:
+            logger.info("The regression test was successful!")
 
     def _check_values(self, column_name, new_df, previous_df):
         error = False
