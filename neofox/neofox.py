@@ -117,7 +117,7 @@ class NeoFox:
             self.patients[patient].is_rna_available = all(e is not None for e in expression_per_patient[self.patients[patient].identifier])
 
         # only performs the expression imputation for humans
-        if reference_folder.organism == ORGANISM_HOMO_SAPIENS:
+        if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:
             # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
             # otherwise original values is reported
             # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
