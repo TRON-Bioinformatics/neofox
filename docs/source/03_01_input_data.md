@@ -87,4 +87,14 @@ where:
 | Uterine Corpus Endometrial Carcinoma                               | UCEC              |
 
 
+An example for Mus musculus with H-2 alleles (note that the tumour type is not applicable):
+
+| identifier | mhcIAlleles                                                                  | mhcIIAlleles                                                                                                                                                   |
+|------------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ptz        | H2Db,H2Db,H2Kb,H2Kb,H2Lb,H2Lb | H2Ab,H2Ab,H2Eb,H2Eb |
+
+
+**WARNING**: alleles in homozygous state need to be provided twice, otherwise they are considered as hemizygous. 
+ For instance `["HLA-A*01:01"]` would be interpreted as hemizygous and `["HLA-A*01:01", "HLA-A*01:01"]` as homozygous.
+In the case of Mus musculus strains you will want to provide genes in homozygous state in most of cases.
 
