@@ -26,8 +26,8 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | MHC I binding affinity/rank score (netMHCpan-v4.1)      | Reynisson et al., 2020, Nucleic Acids Res.                             | https://doi.org/10.1093/nar/gkaa379                                                  |
 | MHC II binding affinity/rank score (netMHCIIpan-v4.0)   | Reynisson et al., 2020, Nucleic Acids Res.                                            | https://doi.org/10.1093/nar/gkaa379                                                         |
-| MixMHCpred score v2.1                                   | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
-| MixMHC2pred score v1.2                                  | Racle et al., 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
+| MixMHCpred score v2.1 §                                   | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
+| MixMHC2pred score v1.2 §                                 | Racle et al., 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
 | Differential Agretopicity Index (DAI)                   | Duan et al., 2014, JEM; Ghorani et al., 2018, Ann Oncol.                  | https://doi.org/10.1084/jem.20141308                                                      |
 | Self-Similarity                                         | Bjerregaard et al., 2017, Front Immunol.                                  | https://doi.org/10.3389/fimmu.2017.01566                                                  |
 | IEDB immunogenicity                                     | Calis et al., 2013, PLoS Comput Biol.                                     | https://doi.org/10.1371/journal.pcbi.1003266                                              |
@@ -40,8 +40,10 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 | Priority score                                          | Bjerregaard et al., 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
 | Tcell predictor                                         | Besser et al., 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | neoag                                                   | Smith et al., 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
-| PRIME                                                   | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
-| HEX                                                   | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             | 
+| PRIME §                                                  | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
+| HEX §                                                  | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             | 
+
+*§ not available for Mus musculus*
 
 Besides comprehensive annotation of neoantigen candidates, NeoFox creates biologically meaningful representations of 
 neoantigens and related biological entities as programmatic models. For this purpose, Protocol buffers is employed to 
@@ -62,4 +64,4 @@ Happy annotation and modelling!
 For questions, please contact Franziska Lang ([franziska.lang@tron-mainz.de](mailto:franziska.lang@tron-mainz.de)) or Pablo Riesgo Ferreiro ([pablo.riesgoferreiro@tron-mainz.de](mailto:pablo.riesgoferreiro@tron-mainz.de)).
 
 ## How to cite
-Franziska Lang, Pablo Riesgo Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, NeoFox: annotating neoantigen candidates with neoantigen features, Bioinformatics, 2021;, btab344, [https://doi.org/10.1093/bioinformatics/btab344](https://doi.org/10.1093/bioinformatics/btab344)
+Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, NeoFox: annotating neoantigen candidates with neoantigen features, Bioinformatics, 2021;, btab344, [https://doi.org/10.1093/bioinformatics/btab344](https://doi.org/10.1093/bioinformatics/btab344)
