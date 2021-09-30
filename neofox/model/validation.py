@@ -22,7 +22,7 @@ from Bio.Data import IUPACData
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.exceptions import NeofoxDataValidationException
 from logzero import logger
-from neofox.model.mhc_parser import HLA_MOLECULE_PATTERN, HLA_ALLELE_PATTERN, HLA_DR_MOLECULE_PATTERN, \
+from neofox.model.mhc_parser import HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, \
     ALLELE_PATTERN_BY_ORGANISM, H2_MOLECULE_PATTERN
 from neofox.model.neoantigen import (
     Neoantigen,

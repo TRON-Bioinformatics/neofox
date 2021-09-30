@@ -33,7 +33,7 @@ from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
 from neofox.published_features.self_similarity.self_similarity import (
     SelfSimilarityCalculator,
 )
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 from neofox import NEOFOX_LOG_FILE_ENV, AFFINITY_THRESHOLD_DEFAULT
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import (
@@ -116,11 +116,13 @@ class NeoFox:
         for patient in self.patients:
             self.patients[patient].is_rna_available = all(e is not None for e in expression_per_patient[self.patients[patient].identifier])
 
-        # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
-        # otherwise original values is reported
-        # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
-        # NOTE: add gene expression to neoantigen candidate model
-        self.neoantigens = self._conditional_expression_imputation()
+        # only performs the expression imputation for humans
+        if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:
+            # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
+            # otherwise original values is reported
+            # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
+            # NOTE: add gene expression to neoantigen candidate model
+            self.neoantigens = self._conditional_expression_imputation()
 
         logger.info("Data loaded")
 
