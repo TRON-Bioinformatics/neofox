@@ -23,6 +23,7 @@ where:
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 - `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
                         neoepitope recognition. A threshold that is commonly used is 500 nM. 
+- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 
 
 **PLEASE NOTE THE FOLLOWING HINTS**:   
@@ -106,7 +107,7 @@ annotations = NeoFox(neoantigens=[validated_neoantigen], patients=[validated_pat
   
 ```python
 from neofox.model.conversion import ModelConverter
-from neofox.model.conversion import ModelValidator
+from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 from neofox.neofox import NeoFox
 ```    
@@ -142,8 +143,10 @@ Create a patient model based on models for MHC I and MHC II alleles. Initialise 
 In order to parse MHC alleles and being able to normalize them into the standard nomenclature, load the following resources.
 ```python
 from neofox.references.references import ReferenceFolder
-reference_folder = ReferenceFolder()
+reference_folder = ReferenceFolder(organism='human')
 ```
+
+To parse mouse H-2 alleles use `ReferenceFolder(organism='mouse')`.
 
 The following shows a dummy example:
 
@@ -164,6 +167,9 @@ where:
        - `mhc1`: Model of MHC class I alleles, created with `ModelConverter.parse_mhc1_alleles()`. Single alleles for HLA-A, HLA-B and HLA-C should be provided with *at least 4-digits* but more digits are allowed. Homozygous alleles should be added twice. (more details about this model are provided [here](05_models.md#mhc1))  
        - `mhc2`: Model of MHC class II alleles, created with `ModelConverter.parse_mhc2_alleles()`. Single alleles for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1 should be provided with *at least 4-digits* but more digits are allowed. Homozygous alleles should be added twice. (more deteails are provided [here](05_models.md#mhc2))   
        - `patient`: Patient model  created with `Patient()`(explanation of the parameters is provided [here](05_models.md#patient))
+
+ **WARNING**: alleles in homozygous state need to be provided twice, otherwise they are considered as hemizygous. 
+ For instance `["HLA-A*01:01"]` would be interpreted as hemizygous and `["HLA-A*01:01", "HLA-A*01:01"]` as homozygous.
        
 ### Validate the patient model  
 
@@ -171,9 +177,9 @@ Check for validity of the patient model:
 
 ```python
 ModelValidator.validate_patient(patient=patient)
-```  
+```
 
-**NOTE**: `ModelValidator.validate_patient(patient)` will internally validate MHC I and MHC II alleles.
+This will throw an exception if the provided date is not valid.
    
 ### Run NeoFox  
 
@@ -255,3 +261,30 @@ The memory use grows to around 2.5 GB when processing 10000 candidates.
 
 If either MHC I or II alleles are not provided at all for a given patient the computation will be lighter as no 
 annotations run for the missing MHC. Likewise, if the optional tools are unset performance improves.
+
+
+## A note on the support for mouse
+
+NeoFox was originally conceived for Homo sapiens data and later extended to Mus musculus.
+There are some fundamental differences to take into account when processing mouse data.
+First, not all annotations are available for mouse. 
+MixMHCpred, MixMHC2pred, PRIME and HEX are not available for mouse. 
+At the time of this writing the expression imputation is not available either.
+The MHC for Mus musculus, H-2, is not described with the same level of detail as HLA is. 
+Furthermore, the Mus musculus strains used in laboratory experimentation are different from the wild type Mus musculus 
+and their variability is much more limited. 
+NetMHCpan and netMHC2pan, and by extension NeoFox, support a subset of the H-2 alleles found in laboratory mice which
+is again a small subset of the wild type.
+A consequence of this is that MHC II is highly simplified, the genes for chains alpha and beta are considered to be 
+part of the same haplotype always. Furthermore, only homozygosity is considered. 
+Thus there is only one possible MHC II isoform for each pair of genes, as opposed to four in human.
+
+H-2 alleles are not standardized as HLA alleles are through the WHO Nomenclature Committee for Factors of the HLA System.
+In NeoFox we represent H-2 alleles as follows.
+For MHC I genes K, D and L: H2K, H2D and H2L
+For MHC II genes A and E: H2A and H2E
+Then a last small case single letter (eg: d, k, p) with an optional number (eg: d1, p2) represent a given allele.
+
+This is an example of H-2 alleles: H2Kd, H2Dd, H2Lp 
+
+

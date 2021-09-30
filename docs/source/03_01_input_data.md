@@ -46,7 +46,7 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 }]
 ``` 
 
-## File with patient information
+## Human
 
 This is an dummy example of a patient file in tabular format:  
 
@@ -87,4 +87,17 @@ where:
 | Uterine Corpus Endometrial Carcinoma                               | UCEC              |
 
 
+## Mouse
+
+This is a dummy example of a "patient" file in tabular format for mouse:
+
+| identifier | mhcIAlleles                                                                  | mhcIIAlleles                                                                                                                                                   |
+|------------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Ptz        | H2Db,H2Db,H2Kb,H2Kb,H2Lb,H2Lb | H2Ab,H2Ab,H2Eb,H2Eb |
+
+
+**WARNING**: NeoFox requires MHC alleles in homozygosity to be provided twice, also for mouse. 
+Otherwise they are considered as hemizygous. 
+For instance each gene would be interpreted as hemizygous when `H2Db,H2Kb,H2Lb` is provided.
+In the case of inbred mouse strains the MHC alleles are homozygous state in most of cases.
 
