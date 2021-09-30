@@ -43,7 +43,7 @@ NeoFox covers neoepitope prediction by MHC binding and ligand prediction, simila
 | PRIME §                                                  | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 | HEX §                                                  | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             | 
 
-*§ not available for Mus musculus*
+*§ currently not supported for mouse*
 
 Besides comprehensive annotation of neoantigen candidates, NeoFox creates biologically meaningful representations of 
 neoantigens and related biological entities as programmatic models. For this purpose, Protocol buffers is employed to 
