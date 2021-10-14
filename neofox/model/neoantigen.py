@@ -91,6 +91,16 @@ class Annotation(betterproto.Message):
 
 
 @dataclass
+class Resource(betterproto.Message):
+    """*This is a class to track the version of an annotation resource"""
+
+    # *The name of the resource
+    name: str = betterproto.string_field(1)
+    # *The version of the resource
+    version: str = betterproto.string_field(2)
+
+
+@dataclass
 class NeoantigenAnnotations(betterproto.Message):
     """*A set of annotations for a neoantigen"""
 
@@ -102,8 +112,8 @@ class NeoantigenAnnotations(betterproto.Message):
     annotator_version: str = betterproto.string_field(3)
     # *A timestamp determined when the annotation was created
     timestamp: str = betterproto.string_field(4)
-    # *Annotation resources MD5 hash
-    resources_hash: str = betterproto.string_field(5)
+    # *List of resources
+    resources: List["Resource"] = betterproto.message_field(5)
 
 
 @dataclass
