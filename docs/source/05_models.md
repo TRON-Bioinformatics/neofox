@@ -18,6 +18,7 @@ Protocol Buffers is employed to model Neofox's input and output data: neoantigen
     - [Neoantigen](#neoantigen.Neoantigen)
     - [NeoantigenAnnotations](#neoantigen.NeoantigenAnnotations)
     - [Patient](#neoantigen.Patient)
+    - [Resource](#neoantigen.Resource)
   
     - [Mhc1Name](#neoantigen.Mhc1Name)
     - [Mhc2GeneName](#neoantigen.Mhc2GeneName)
@@ -191,7 +192,7 @@ A set of annotations for a neoantigen
 | annotator | [string](#string) |  | The annotator |
 | annotatorVersion | [string](#string) |  | The version of the annotator |
 | timestamp | [string](#string) |  | A timestamp determined when the annotation was created |
-| resourcesHash | [string](#string) |  | Annotation resources MD5 hash |
+| resources | [Resource](#neoantigen.Resource) | repeated | List of resources |
 
 
 
@@ -211,6 +212,22 @@ The metadata required for analysis for a given patient + its patient identifier
 | tumorType | [string](#string) |  | Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations |
 | mhc1 | [Mhc1](#neoantigen.Mhc1) | repeated | MHC I classic molecules |
 | mhc2 | [Mhc2](#neoantigen.Mhc2) | repeated | MHC II classic molecules |
+
+
+
+
+
+
+<a name="neoantigen.Resource"></a>
+
+### Resource
+This is a class to track the version of an annotation resource
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  | The name of the resource |
+| version | [string](#string) |  | The version of the resource |
 
 
 
