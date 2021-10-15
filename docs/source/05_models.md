@@ -228,6 +228,7 @@ This is a class to track the version of an annotation resource
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The name of the resource |
 | version | [string](#string) |  | The version of the resource |
+| url | [string](#string) |  | The URL of the resource if applicable |
 
 
 

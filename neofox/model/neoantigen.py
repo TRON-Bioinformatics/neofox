@@ -98,6 +98,8 @@ class Resource(betterproto.Message):
     name: str = betterproto.string_field(1)
     # *The version of the resource
     version: str = betterproto.string_field(2)
+    # *The URL of the resource if applicable
+    url: str = betterproto.string_field(3)
 
 
 @dataclass

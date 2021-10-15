@@ -25,6 +25,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
     PredictedEpitope,
 )
+from neofox.model.neoantigen import Resource
 from neofox.references.references import (
     ReferenceFolder,
     AvailableAlleles,
@@ -42,6 +43,11 @@ class FakeReferenceFolder(ReferenceFolder):
 
     def _check_resources(self):
         pass
+
+    def _load_resources_versions(self):
+        return [
+            Resource(name='fake', version='version')
+        ]
 
     def get_available_alleles(self):
         return FakeAvailableAlleles(

@@ -44,6 +44,10 @@ message Resource {
 	The version of the resource
 	*/
 	string version = 2;
+	/**
+	The URL of the resource if applicable
+	 */
+	string url = 3;
 }
 
 /**
