@@ -48,6 +48,10 @@ message Resource {
 	The URL of the resource if applicable
 	 */
 	string url = 3;
+	/**
+	The MD5 hash of the resource if applicable. This may be used when version is not available
+	 */
+	string hash = 4;
 }
 
 /**
