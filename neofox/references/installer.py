@@ -7,6 +7,7 @@ import pandas as pd
 from Bio import SeqIO
 from Bio.Seq import Seq
 from datetime import datetime
+import hashlib
 from neofox import NEOFOX_HLA_DATABASE_ENV
 from neofox.exceptions import NeofoxReferenceException
 from neofox.helpers.runner import Runner
@@ -49,27 +50,38 @@ class NeofoxReferenceInstaller(object):
         self._set_netmhc2pan_alleles()
         self._set_netmhcpan_alleles_mouse()
         self._set_netmhc2pan_alleles_mouse()
-        iedb_download_timestamp = self._set_iedb()
-        self._set_proteome()
-        hla_url, hla_version = self._set_ipd_imgt_hla_database()
+        iedb_download_timestamp, iedb_hash = self._set_iedb()
+        hash_human, hash_mouse = self._set_proteome()
+        hla_url, hla_version, hla_hash = self._set_ipd_imgt_hla_database()
         self._set_h2_resource()
         if self.install_r_dependencies:
             self._install_r_dependencies()
         else:
             logger.warning("R dependencies will need to be installed manually")
-        self._save_resources_versions(iedb_timestamp=iedb_download_timestamp, hla_url=hla_url, hla_version=hla_version)
+        self._save_resources_versions(
+            iedb_timestamp=iedb_download_timestamp,
+            iedb_hash=iedb_hash,
+            hla_url=hla_url,
+            hla_version=hla_version,
+            hla_hash=hla_hash,
+            human_proteome_hash=hash_human,
+            mouse_proteome_hash=hash_mouse,
+        )
 
-    def _save_resources_versions(self, iedb_timestamp, hla_url, hla_version):
+    def _save_resources_versions(
+            self, iedb_timestamp, iedb_hash, hla_url, hla_version, hla_hash, human_proteome_hash, mouse_proteome_hash):
         resources_version_file = os.path.join(self.reference_folder, RESOURCES_VERSIONS)
         resources_version = [
             Resource(name="netMHCpan", version="4.1"),
             Resource(name="netMHCIIpan", version="4.0"),
             Resource(name="mixMHCpred", version="2.1"),
             Resource(name="mixMHC2pred", version="1.2"),
-            Resource(name="IEDB", version=iedb_timestamp, url=IEDB_URL),
-            Resource(name="Human Ensembl proteome", version=HUMAN_PROTEOME_VERSION, url=HUMAN_PROTEOME),
-            Resource(name="Mouse Ensembl proteome", version=MOUSE_PROTEOME_VERSION, url=MOUSE_PROTEOME),
-            Resource(name="IMGT/HLA database", version=hla_version, url=hla_url)
+            Resource(name="IEDB", version=iedb_timestamp, url=IEDB_URL, hash=iedb_hash),
+            Resource(name="Human Ensembl proteome", version=HUMAN_PROTEOME_VERSION, url=HUMAN_PROTEOME,
+                     hash=human_proteome_hash),
+            Resource(name="Mouse Ensembl proteome", version=MOUSE_PROTEOME_VERSION, url=MOUSE_PROTEOME,
+                     hash=mouse_proteome_hash),
+            Resource(name="IMGT/HLA database", version=hla_version, url=hla_url, hash=hla_hash)
         ]
         json.dump([r.to_dict() for r in resources_version], open(resources_version_file, "w"), indent=4)
 
@@ -147,7 +159,9 @@ class NeofoxReferenceInstaller(object):
         self._run_command(cmd)
 
         # transforms IEDB into fasta
-        iedb_builder = IedbFastaBuilder(os.path.join(self.reference_folder, IEDB_FOLDER, "tcell_full_v3.csv"))
+        tcell_full_iedb_file = os.path.join(self.reference_folder, IEDB_FOLDER, "tcell_full_v3.csv")
+        hash = self._get_md5_hash(tcell_full_iedb_file)
+        iedb_builder = IedbFastaBuilder(tcell_full_iedb_file)
 
         iedb_fasta_homo_sapiens = os.path.join(self.reference_folder, IEDB_FOLDER, IEDB_FASTA_HOMO_SAPIENS)
         iedb_builder.build_fasta(
@@ -181,8 +195,10 @@ class NeofoxReferenceInstaller(object):
             iedb_folder=os.path.join(path_to_iedb_folder, IEDB_BLAST_PREFIX_MUS_MUSCULUS),
         )
         self._run_command(cmd)
-        return download_timestamp
+        return download_timestamp, hash
 
+    def _get_md5_hash(self, tcell_full_iedb_file):
+        return hashlib.md5(tcell_full_iedb_file).hexdigest()
 
     def _set_proteome(self):
         # human proteome database
@@ -198,7 +214,7 @@ class NeofoxReferenceInstaller(object):
         # installs Homo sapiens proteome
         # url_human = "ftp://ftp.ensembl.org/pub/release-100/fasta/homo_sapiens/pep/Homo_sapiens.GRCh38.pep.all.fa.gz"
         url_human = HUMAN_PROTEOME
-        self._prepare_proteome(
+        hash_human = self._prepare_proteome(
             url=url_human,
             proteome_file_name=HOMO_SAPIENS_FASTA,
             proteome_prefix=PREFIX_HOMO_SAPIENS,
@@ -206,11 +222,13 @@ class NeofoxReferenceInstaller(object):
 
         # installs Mus musculus proteome
         url_mouse = MOUSE_PROTEOME
-        self._prepare_proteome(
+        hash_mouse = self._prepare_proteome(
             url=url_mouse,
             proteome_file_name=MUS_MUSCULUS_FASTA,
             proteome_prefix=PREFIX_MUS_MUSCULUS,
             proteome_pickle_file_name=MUS_MUSCULUS_PICKLE)
+
+        return hash_human, hash_mouse
 
     def _prepare_proteome(self, url, proteome_file_name, proteome_prefix, proteome_pickle_file_name):
         # download proteome
@@ -222,6 +240,8 @@ class NeofoxReferenceInstaller(object):
             url=url, proteome_file=proteome_compressed_file
         )
         self._run_command(cmd)
+        hash = self._get_md5_hash(proteome_compressed_file)
+
         cmd = "gunzip -f {proteome_file}".format(proteome_file=proteome_compressed_file)
         self._run_command(cmd)
         proteome_file = os.path.join(
@@ -255,6 +275,8 @@ class NeofoxReferenceInstaller(object):
         pickle.dump("\n".join(prepared_proteome), outfile)
         outfile.close()
 
+        return hash
+
     def _set_ipd_imgt_hla_database(self):
         logger.info("Adding the available human HLA allele database")
         allele_list = os.path.join(self.reference_folder, HLA_DATABASE_AVAILABLE_ALLELES_FILE)
@@ -262,6 +284,7 @@ class NeofoxReferenceInstaller(object):
             NEOFOX_HLA_DATABASE_ENV, IMGT_HLA_DB_URL)
         cmd = "wget {url} -O {allele_list}".format(url=url, allele_list=allele_list)
         self._run_command(cmd)
+        hash = self._get_md5_hash(allele_list)
 
         version = None
         with open(allele_list, 'r') as fd:
@@ -271,7 +294,7 @@ class NeofoxReferenceInstaller(object):
                     version = line.split(" ")[0]
                     break
 
-        return url, version
+        return url, version, hash
 
     def _set_h2_resource(self):
         logger.info("Adding the available mouse MHC alleles resource")

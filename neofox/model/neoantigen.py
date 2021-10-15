@@ -100,6 +100,9 @@ class Resource(betterproto.Message):
     version: str = betterproto.string_field(2)
     # *The URL of the resource if applicable
     url: str = betterproto.string_field(3)
+    # *The MD5 hash of the resource if applicable. This may be used when version
+    # is not available
+    hash: str = betterproto.string_field(4)
 
 
 @dataclass
