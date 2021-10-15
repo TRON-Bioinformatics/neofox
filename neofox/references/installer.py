@@ -298,7 +298,7 @@ class NeofoxReferenceInstaller(object):
             while True:
                 line = fd.readline()
                 if "version" in line:
-                    version = line.split(" ")[0]
+                    version = line.split(" ")[-1]
                     break
 
         return url, version, hash
