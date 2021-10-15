@@ -71,7 +71,7 @@ class NeofoxReferenceInstaller(object):
             Resource(name="Mouse Ensembl proteome", version=MOUSE_PROTEOME_VERSION, url=MOUSE_PROTEOME),
             Resource(name="IMGT/HLA database", version=hla_version, url=hla_url)
         ]
-        json.dump([r.to_json() for r in resources_version], open(resources_version_file), indent=4)
+        json.dump([r.to_dict() for r in resources_version], open(resources_version_file, "w"), indent=4)
 
     def _set_netmhcpan_alleles(self):
         # available MHC alleles netMHCpan
