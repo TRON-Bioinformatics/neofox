@@ -52,6 +52,10 @@ message Resource {
 	The MD5 hash of the resource if applicable. This may be used when version is not available
 	 */
 	string hash = 4;
+	/**
+	The timestamp when the download happened
+	 */
+	string download_timestamp = 5;
 }
 
 /**

@@ -230,6 +230,7 @@ This is a class to track the version of an annotation resource
 | version | [string](#string) |  | The version of the resource |
 | url | [string](#string) |  | The URL of the resource if applicable |
 | hash | [string](#string) |  | The MD5 hash of the resource if applicable. This may be used when version is not available |
+| download_timestamp | [string](#string) |  | The timestamp when the download happened |
 
 
 
