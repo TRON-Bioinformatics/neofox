@@ -103,6 +103,8 @@ class Resource(betterproto.Message):
     # *The MD5 hash of the resource if applicable. This may be used when version
     # is not available
     hash: str = betterproto.string_field(4)
+    # *The timestamp when the download happened
+    download_timestamp: str = betterproto.string_field(5)
 
 
 @dataclass

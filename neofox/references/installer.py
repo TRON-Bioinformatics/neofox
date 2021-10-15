@@ -50,7 +50,7 @@ class NeofoxReferenceInstaller(object):
         self._set_netmhc2pan_alleles()
         self._set_netmhcpan_alleles_mouse()
         self._set_netmhc2pan_alleles_mouse()
-        iedb_download_timestamp, iedb_hash = self._set_iedb()
+        iedb_hash = self._set_iedb()
         hash_human, hash_mouse = self._set_proteome()
         hla_url, hla_version, hla_hash = self._set_ipd_imgt_hla_database()
         self._set_h2_resource()
@@ -59,7 +59,6 @@ class NeofoxReferenceInstaller(object):
         else:
             logger.warning("R dependencies will need to be installed manually")
         self._save_resources_versions(
-            iedb_timestamp=iedb_download_timestamp,
             iedb_hash=iedb_hash,
             hla_url=hla_url,
             hla_version=hla_version,
@@ -69,19 +68,22 @@ class NeofoxReferenceInstaller(object):
         )
 
     def _save_resources_versions(
-            self, iedb_timestamp, iedb_hash, hla_url, hla_version, hla_hash, human_proteome_hash, mouse_proteome_hash):
+            self, iedb_hash, hla_url, hla_version, hla_hash, human_proteome_hash, mouse_proteome_hash):
+
+        download_timestamp = datetime.today().strftime('%Y%m%d%H%M%S')
         resources_version_file = os.path.join(self.reference_folder, RESOURCES_VERSIONS)
         resources_version = [
             Resource(name="netMHCpan", version="4.1"),
             Resource(name="netMHCIIpan", version="4.0"),
             Resource(name="mixMHCpred", version="2.1"),
             Resource(name="mixMHC2pred", version="1.2"),
-            Resource(name="IEDB", version=iedb_timestamp, url=IEDB_URL, hash=iedb_hash),
+            Resource(name="IEDB", url=IEDB_URL, hash=iedb_hash, download_timestamp=download_timestamp),
             Resource(name="Human Ensembl proteome", version=HUMAN_PROTEOME_VERSION, url=HUMAN_PROTEOME,
-                     hash=human_proteome_hash),
+                     hash=human_proteome_hash, download_timestamp=download_timestamp),
             Resource(name="Mouse Ensembl proteome", version=MOUSE_PROTEOME_VERSION, url=MOUSE_PROTEOME,
-                     hash=mouse_proteome_hash),
-            Resource(name="IMGT/HLA database", version=hla_version, url=hla_url, hash=hla_hash)
+                     hash=mouse_proteome_hash, download_timestamp=download_timestamp),
+            Resource(name="IMGT/HLA database", version=hla_version, url=hla_url, hash=hla_hash,
+                     download_timestamp=download_timestamp)
         ]
         json.dump([r.to_dict() for r in resources_version], open(resources_version_file, "w"), indent=4)
 
@@ -149,7 +151,6 @@ class NeofoxReferenceInstaller(object):
         iedb_zip = os.path.join(self.reference_folder, IEDB_FOLDER, "Iedb.zip")
         cmd = 'wget "{}" -O {}'.format(IEDB_URL, iedb_zip)
         self._run_command(cmd)
-        download_timestamp = datetime.today().strftime('%Y%m%d%H%M%S')
 
         # unzip IEDB
         path_to_iedb_folder = os.path.join(self.reference_folder, IEDB_FOLDER)
@@ -195,7 +196,7 @@ class NeofoxReferenceInstaller(object):
             iedb_folder=os.path.join(path_to_iedb_folder, IEDB_BLAST_PREFIX_MUS_MUSCULUS),
         )
         self._run_command(cmd)
-        return download_timestamp, hash
+        return hash
 
     def _get_md5_hash(self, filepath):
         file_hash = hashlib.md5()
@@ -298,7 +299,7 @@ class NeofoxReferenceInstaller(object):
             while True:
                 line = fd.readline()
                 if "version" in line:
-                    version = line.split(" ")[-1]
+                    version = line.split(" ")[-1].strip("\n")
                     break
 
         return url, version, hash
