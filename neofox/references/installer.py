@@ -197,8 +197,15 @@ class NeofoxReferenceInstaller(object):
         self._run_command(cmd)
         return download_timestamp, hash
 
-    def _get_md5_hash(self, tcell_full_iedb_file):
-        return hashlib.md5(tcell_full_iedb_file).hexdigest()
+    def _get_md5_hash(self, filepath):
+        file_hash = hashlib.md5()
+        with open(filepath, "rb") as f:
+            while True:
+                chunk = f.read(8192)
+                if not chunk:
+                    break
+                file_hash.update(chunk)
+        return file_hash.hexdigest()
 
     def _set_proteome(self):
         # human proteome database
