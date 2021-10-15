@@ -16,6 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import json
 import os
 from abc import ABCMeta, abstractmethod, ABC
 from typing import List
@@ -25,7 +26,7 @@ import neofox
 from neofox.exceptions import NeofoxConfigurationException
 import pandas as pd
 
-from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName, MhcAllele, Mhc2Name
+from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName, MhcAllele, Mhc2Name, Resource
 
 ORGANISM_HOMO_SAPIENS = 'human'
 HOMO_SAPIENS_MHC_I_GENES = [Mhc1Name.A, Mhc1Name.B, Mhc1Name.C]
@@ -60,7 +61,6 @@ IEDB_FASTA_MUS_MUSCULUS = "IEDB_mus_musculus.fasta"
 IEDB_BLAST_PREFIX_MUS_MUSCULUS = "iedb_blast_db_mus_musculus"
 IEDB_FOLDER = "iedb"
 
-
 NETMHCPAN_AVAILABLE_ALLELES_FILE = "netmhcpan_available_alleles_human.txt"
 NETMHCPAN_AVAILABLE_ALLELES_MICE_FILE = "netmhcpan_available_alleles_mice.txt"
 NETMHC2PAN_AVAILABLE_ALLELES_FILE = "netmhc2pan_available_alleles_human.txt"
@@ -70,6 +70,8 @@ H2_DATABASE_AVAILABLE_ALLELES_FILE = "h2_database_allele_list.csv"
 MIXMHCPRED_AVAILABLE_ALLELES_FILE = "allele_list.txt"
 MIXMHC2PRED_AVAILABLE_ALLELES_FILE = "Alleles_list.txt"
 PRIME_AVAILABLE_ALLELES_FILE = "alleles.txt"
+
+RESOURCES_VERSIONS = "resources_versions.json"
 
 
 class AbstractDependenciesConfiguration:
@@ -249,6 +251,8 @@ class ReferenceFolder(object):
         else:
             raise NeofoxConfigurationException("No support for organism {}".format(self.organism))
 
+        self.resources_versions_file = self._get_reference_file_name(RESOURCES_VERSIONS)
+
         self.resources = [
             self.available_mhc_ii,
             self.available_mhc_i,
@@ -256,12 +260,23 @@ class ReferenceFolder(object):
             self.proteome_db,
             self.uniprot,
             self.get_iedb_fasta(),
-            self.mhc_database_filename
+            self.mhc_database_filename,
+            self.resources_versions_file
         ]
         self._check_resources()
+        self.resources_versions = self.get_resources_versions()
         self._log_configuration()
         self.__available_alleles = None
         self.__mhc_database = None
+
+    def get_resources_versions(self):
+        try:
+            resources_version = json.loads(open(self.resources_versions_file).read())
+        except FileNotFoundError:
+            # NOTE: capturing this error is here to make unit tests easier, otherwise we need to create this resources
+            # file always.
+            resources_version = []
+        return [Resource().from_dict(r) for r in resources_version]
 
     def get_available_alleles(self):
         # this enforces lazy initialisation (useful for testing)
@@ -343,6 +358,9 @@ class ReferenceFolder(object):
         logger.info("Resources")
         for r in self.resources:
             logger.info(r)
+        logger.info("Annotation resources")
+        for r in self.resources_versions:
+            logger.info(r.to_json())
 
     def _get_reference_file_name(self, file_name_suffix):
         return os.path.join(self.reference_genome_folder, file_name_suffix)

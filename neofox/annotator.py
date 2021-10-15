@@ -111,12 +111,15 @@ class NeoantigenAnnotator:
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
 
+        self.resources_versions = references.get_resources_versions()
+
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> Neoantigen:
         """Calculate new epitope features and add to dictonary that stores all properties"""
         neoantigen.neofox_annotations = NeoantigenAnnotations(
             annotator="NeoFox",
             annotator_version=neofox.VERSION,
             timestamp="{:%Y%m%d%H%M%S%f}".format(datetime.now()),
+            resources=self.resources_versions,
             annotations=[]
         )
 
