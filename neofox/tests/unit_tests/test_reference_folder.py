@@ -23,7 +23,8 @@ from unittest import TestCase
 import neofox
 import neofox.tests.unit_tests.tools as test_tools
 from neofox.exceptions import NeofoxConfigurationException
-from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
+from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS, \
+    RESOURCES_VERSIONS
 from neofox.tests.fake_classes import FakeReferenceFolder
 
 
