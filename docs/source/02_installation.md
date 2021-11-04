@@ -142,8 +142,8 @@ Run the following to install NeoFox references:
 neofox-configure --reference-folder /your/neofox/folder
 ```
 
-The above command will install several resources and store their versions, MD5 checksums and download timestamp as
-annotations metadata.
+The above command will install several resources and store in the annotations metadata their version, MD5 checksum and 
+download timestamp.
 
 Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R dependencies. These dependencies are the following:
 ```
