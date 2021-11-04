@@ -33,7 +33,7 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 These installation instructions were tested on Ubuntu 18.04.
 
-Python >=3.6, <=3.8 and R 3.6.0 should be preinstalled.
+Python >=3.7, <=3.8 and R 3.6.0 should be preinstalled.
 
 Set the environment variable pointing to `Rscript`.
 ```
@@ -125,7 +125,7 @@ Configure PRIME as explained in the file `PRIME-master/README`
 For installing the reference data we will need `makeblastdb`, set the environment variable required for building the reference:
 
 ```
-export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
+export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.10.1+/bin/makeblastdb
 ```
 
 NetMHCpan, NetMHCIIpan and Rscript are also required to install the references, see above.
