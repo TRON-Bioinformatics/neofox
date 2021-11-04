@@ -160,13 +160,16 @@ export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 
 ## Test installation   
 
-The user can test if all the installations have been successful by testing NeoFox with some test data. The test data can be downloaded here:  
-[test_data](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_data.txt)  
-[test_patients](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_patients.txt)  
+The user can test if all the installations have been successful by testing NeoFox with some test data. 
+The test data can be downloaded here:
+
+* [test_data.tsv](_static/test_data.tsv)
+* [test_patients.tsv](_static/test_patients.tsv)
 
 ````commandline
 neofox --candidate-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --with-short-wide-table --with-json --output-prefix test
 ````
 
-The resulting output files can be compared to the following test output file:  
-[test_neoantigen_candidates_annotated](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_neoantigen_candidates_annotated.tsv)  
+The resulting output files can be compared to the following test output file:
+
+* [test_neoantigen_candidates_annotated.tsv](_static/test_neoantigen_candidates_annotated.tsv)  
