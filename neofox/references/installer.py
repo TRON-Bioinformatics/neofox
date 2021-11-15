@@ -270,12 +270,12 @@ class NeofoxReferenceInstaller(object):
         prepared_proteome = []
         proteome_database = []
         for record in SeqIO.parse(proteome_file, "fasta"):
-            seq = str(record.seq).replace("*", "")
+            seq = str(record.seq)
             record.seq = Seq(seq)
             proteome_database.append(record)
             prepared_proteome.append(seq)
         for record in SeqIO.parse(proteome_isoforms_file, "fasta"):
-            seq = str(record.seq).replace("*", "")
+            seq = str(record.seq)
             record.seq = Seq(seq)
             proteome_database.append(record)
             prepared_proteome.append(seq)
