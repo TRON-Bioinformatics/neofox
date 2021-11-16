@@ -267,18 +267,14 @@ class NeofoxReferenceInstaller(object):
         )
 
         # prepare proteome for blast database and for pickle
-        prepared_proteome = []
+        proteome_sequences_to_serialize = []
         proteome_database = []
         for record in SeqIO.parse(proteome_file, "fasta"):
-            seq = str(record.seq)
-            record.seq = Seq(seq)
             proteome_database.append(record)
-            prepared_proteome.append(seq)
+            proteome_sequences_to_serialize.append(record.seq)
         for record in SeqIO.parse(proteome_isoforms_file, "fasta"):
-            seq = str(record.seq)
-            record.seq = Seq(seq)
             proteome_database.append(record)
-            prepared_proteome.append(seq)
+            proteome_sequences_to_serialize.append(record.seq)
 
         SeqIO.write(proteome_database, proteome_file, "fasta")
 
@@ -293,7 +289,7 @@ class NeofoxReferenceInstaller(object):
             self.reference_folder, PROTEOME_DB_FOLDER, proteome_pickle_file_name
         )
         outfile = open(proteome_pickle, 'wb')
-        pickle.dump("\n".join(prepared_proteome), outfile)
+        pickle.dump("\n".join(proteome_sequences_to_serialize), outfile)
         outfile.close()
 
         # fetches the proteome version
