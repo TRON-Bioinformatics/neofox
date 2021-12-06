@@ -162,7 +162,7 @@ class ModelConverter(object):
         return NeoantigenFactory.build_neoantigen(
             wild_type_xmer=candidate_entry.get(FIELD_WILD_TYPE_XMER),
             mutated_xmer=candidate_entry.get(FIELD_MUTATED_XMER),
-            patient_id=patient_id if patient_id else candidate_entry.get("patient"),
+            patient_identifier=patient_id if patient_id else candidate_entry.get("patient"),
             gene=candidate_entry.get(FIELD_GENE),
             rna_expression=vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None,
             rna_variant_allele_frequency=candidate_entry.get(FIELD_VAF_RNA),
@@ -188,7 +188,7 @@ class ModelConverter(object):
             neoantigen = NeoantigenFactory.build_neoantigen(
                 wild_type_xmer=nested_dict.get("mutation", {}).get("wildTypeXmer"),
                 mutated_xmer=nested_dict.get("mutation", {}).get("mutatedXmer"),
-                patient_id=nested_dict.get("patientIdentifier"),
+                patient_identifier=nested_dict.get("patientIdentifier"),
                 gene=nested_dict.get("gene"),
                 rna_expression=nested_dict.get("rnaExpression"),
                 rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),

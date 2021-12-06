@@ -60,7 +60,7 @@ def get_random_neoantigen():
     right_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
 
     neoantigen = NeoantigenFactory.build_neoantigen(
-        patient_id="12345",
+        patient_identifier="12345",
         rna_variant_allele_frequency=np.random.uniform(0, 1),
         dna_variant_allele_frequency=np.random.uniform(0, 1),
         imputed_gene_expression=np.random.uniform(0, 50),
