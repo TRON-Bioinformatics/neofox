@@ -27,6 +27,7 @@ from dask.distributed import Client
 from dask.distributed import performance_report
 
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
     TcellPrediction,
 )
@@ -94,13 +95,14 @@ class NeoFox:
         ):
             raise NeofoxConfigurationException("Missing input data to run Neofox")
 
-        # TODO: avoid overriding patient id parameter
-        for n in neoantigens:
+        # validates neoantigens
+        self.neoantigens = neoantigens
+        for n in self.neoantigens:
             if n.patient_identifier is None:
                 n.patient_identifier = patient_id
-
-        # validates input data
-        self.neoantigens = [ModelValidator.validate_neoantigen(n) for n in neoantigens]
+            # NOTE: the position of the mutations is not expected from the user and if provide the value is ignored
+            n.mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=n.mutation)
+            ModelValidator.validate_neoantigen(n)
 
         # validates patients
         self.patients = {}

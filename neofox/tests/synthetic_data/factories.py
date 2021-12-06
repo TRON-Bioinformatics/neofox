@@ -141,7 +141,7 @@ class NeoantigenProvider(Provider):
                     dna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000,
                     rna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000
                 )
-                neoantigen = ModelValidator.validate_neoantigen(neoantigen)
+                ModelValidator.validate_neoantigen(neoantigen)
             except NeofoxDataValidationException:
                 continue
             found = True
@@ -157,6 +157,7 @@ class NeoantigenProvider(Provider):
             mutation = Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wildtype_xmer)
         else:
             mutation = Mutation(mutated_xmer=mutated_xmer)
+        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
 
         return mutation
 

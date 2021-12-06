@@ -131,7 +131,7 @@ neoantigen = Neoantigen(mutation=mutation, patient_identifier="Ptx", rna_express
 Check for validity of the entered parameters into the neoantigen models and the validity of the full neoantigen model:   
 
 ```python
-validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen=neoantigen)
+ModelValidator.validate_neoantigen(neoantigen=neoantigen)
 ``` 
    
 **NOTE**: `ModelValidator.validate_neoantigen(neoantigen)` will internally validate the transcript and mutation model.

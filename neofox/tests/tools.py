@@ -21,7 +21,10 @@ import random
 import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
+
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient, MhcAllele
+from neofox.model.validation import ModelValidator
 
 
 def mock_file_existence(existing_files=[], non_existing_files=[]):
@@ -72,3 +75,13 @@ def get_random_neoantigen():
     neoantigen.mutation = mutation
     neoantigen.gene = "BRCA2"
     return neoantigen
+
+
+def get_mutation(mutated_xmer, wild_type_xmer):
+    mutation = Mutation(
+        mutated_xmer=mutated_xmer,
+        wild_type_xmer=wild_type_xmer,
+    )
+    mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=mutation)
+    ModelValidator._validate_mutation(mutation)
+    return mutation

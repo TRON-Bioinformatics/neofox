@@ -27,6 +27,7 @@ from collections import defaultdict
 import orjson as json
 import numpy as np
 
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import (
@@ -219,6 +220,7 @@ class ModelConverter(object):
         mutation = Mutation()
         mutation.wild_type_xmer = candidate_entry.get(FIELD_WILD_TYPE_XMER)
         mutation.mutated_xmer = candidate_entry.get(FIELD_MUTATED_XMER)
+        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
 
         neoantigen = Neoantigen()
         neoantigen.patient_identifier = (
@@ -237,7 +239,9 @@ class ModelConverter(object):
         neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
         neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
 
-        return ModelValidator.validate_neoantigen(neoantigen)
+        ModelValidator.validate_neoantigen(neoantigen)
+
+        return neoantigen
 
     @staticmethod
     def neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
@@ -251,8 +255,9 @@ class ModelConverter(object):
                 nam for nam in nested_dict.keys() if stringcase.snakecase(nam) not in neoantigen_field_names)
             neoantigen.external_annotations = [
                 Annotation(name=name, value=str(nested_dict.get(name))) for name in external_annotation_names]
-            validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
-            neoantigens.append(validated_neoantigen)
+            neoantigen.mutation.position = EpitopeHelper.mut_position_xmer_seq(neoantigen.mutation)
+            ModelValidator.validate_neoantigen(neoantigen)
+            neoantigens.append(neoantigen)
 
         return neoantigens
 
