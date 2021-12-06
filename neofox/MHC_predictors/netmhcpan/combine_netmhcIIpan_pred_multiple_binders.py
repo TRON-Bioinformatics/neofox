@@ -29,7 +29,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 
 LENGTH_MHC2_EPITOPE = 15

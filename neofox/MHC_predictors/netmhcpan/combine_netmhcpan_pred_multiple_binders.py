@@ -29,7 +29,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAllele
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 from logzero import logger
 

@@ -21,7 +21,7 @@
 from typing import List
 
 from neofox.model.neoantigen import Annotation
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
     BestAndMultipleBinderMhcII,
 )

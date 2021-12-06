@@ -20,7 +20,7 @@
 from typing import List
 
 from neofox.model.neoantigen import Annotation
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 
 
 class Expression:

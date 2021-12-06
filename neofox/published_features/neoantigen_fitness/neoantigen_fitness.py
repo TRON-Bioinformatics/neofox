@@ -23,7 +23,7 @@ from logzero import logger
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.neoantigen import Annotation
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 

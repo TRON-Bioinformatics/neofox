@@ -32,7 +32,7 @@ from neofox.model.neoantigen import (
     Zygosity,
     Mhc2Name,
 )
-from neofox.model.wrappers import MhcFactory
+from neofox.model.factories import MhcFactory, NeoantigenFactory
 from neofox.tests.fake_classes import FakeHlaDatabase, FakeH2Database
 from neofox.tests.tools import get_random_neoantigen
 
@@ -61,30 +61,18 @@ class ModelConverterTest(TestCase):
 
     def test_model2csv(self):
         neoantigen = get_random_neoantigen()
-        csv_data = ModelConverter.object2series(neoantigen)
+        csv_data = ModelConverter.objects2dataframe([neoantigen])
         self.assertIsNotNone(csv_data)
-        self.assertIsInstance(csv_data, pd.Series)
+        self.assertIsInstance(csv_data, pd.DataFrame)
         self.assertEqual(
             neoantigen.dna_variant_allele_frequency,
-            csv_data.dna_variant_allele_frequency,
-        )
-
-    def test_model2flat_dict(self):
-        neoantigen = get_random_neoantigen()
-        flat_dict = ModelConverter.object2flat_dict(neoantigen)
-        self.assertIsNotNone(flat_dict)
-        self.assertEqual(
-            neoantigen.dna_variant_allele_frequency,
-            flat_dict["dna_variant_allele_frequency"],
-        )
-        self.assertEqual(
-            neoantigen.mutation.mutated_xmer, flat_dict["mutation.mutated_xmer"]
+            csv_data.iloc[0].dnaVariantAlleleFrequency,
         )
 
     def test_model2csv2model(self):
         neoantigen = get_random_neoantigen()
-        csv_data = ModelConverter.object2series(neoantigen)
-        neoantigen2 = ModelConverter.neoantigens_csv2object(csv_data)
+        csv_data = ModelConverter.objects2dataframe([neoantigen])
+        neoantigen2 = ModelConverter.neoantigens_csv2objects(csv_data)[0]
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_neoantigen_annotations(self):
@@ -220,7 +208,7 @@ class ModelConverterTest(TestCase):
             neofox.tests.__name__, "resources/test_data_model.txt"
         )
         data = pd.read_csv(neoantigens_file, sep="\t")
-        neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
+        neoantigens = ModelConverter.neoantigens_csv2objects(data)
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))

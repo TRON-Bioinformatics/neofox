@@ -19,7 +19,7 @@
 
 from unittest import TestCase
 
-from neofox.model.wrappers import NOT_AVAILABLE_VALUE
+from neofox.model.factories import NOT_AVAILABLE_VALUE
 from neofox.published_features.expression import Expression
 
 

@@ -19,36 +19,17 @@
 from typing import List
 import pandas as pd
 import betterproto
-import stringcase
 from betterproto import Casing
-
 from neofox import NOT_AVAILABLE_VALUE
-from neofox.exceptions import NeofoxDataValidationException
-from logzero import logger
 from collections import defaultdict
 import orjson as json
 import numpy as np
-
-from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.mhc_parser import MhcParser, get_mhc2_isoform_name
-from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import (
     Neoantigen,
-    Mutation,
     Patient,
-    Mhc2Name,
-    Mhc2GeneName,
-    Zygosity,
-    Mhc2Gene,
-    Mhc2,
-    Mhc2Isoform,
-    MhcAllele,
-    Mhc1Name,
-    Mhc1,
     Annotation,
 )
-from neofox.model.wrappers import PatientFactory
-from neofox.exceptions import NeofoxInputParametersException
+from neofox.model.factories import PatientFactory, NeoantigenFactory
 from neofox.references.references import MhcDatabase
 
 FIELD_VAF_DNA = "VAF_in_tumor"
@@ -102,7 +83,7 @@ class ModelConverter(object):
         else:
             # NOTE: this is the support for the NeoFox format
             data = data.replace({np.nan: None})
-            neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
+            neoantigens = ModelConverter.neoantigens_csv2objects(data)
         return neoantigens
 
     @staticmethod
@@ -128,15 +109,7 @@ class ModelConverter(object):
 
     @staticmethod
     def parse_neoantigens_file(neoantigens_file):
-        return ModelConverter.parse_neoantigens_dataframe(pd.read_csv(neoantigens_file, sep="\t"))
-
-    @staticmethod
-    def parse_neoantigens_dataframe(dataframe: pd.DataFrame) -> List[Neoantigen]:
-        """
-        :param dataframe: a pandas data frame with neoantigens data
-        :return: the parsed CSV into model objects
-        """
-        return ModelConverter.neoantigens_csv2objects(dataframe)
+        return ModelConverter.neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep="\t"))
 
     @staticmethod
     def parse_neoantigens_json_file(neoantigens_json_file: str) -> List[Neoantigen]:
@@ -165,29 +138,6 @@ class ModelConverter(object):
         return [o.to_dict(casing=Casing.SNAKE) for o in model_objects]
 
     @staticmethod
-    def object2series(model_object: betterproto.Message) -> pd.Series:
-        """
-        :param model_object: object of subclass of betterproto.Message
-        """
-        return pd.json_normalize(
-            data=model_object.to_dict(casing=Casing.SNAKE, include_default_values=True)
-        ).iloc[0]
-
-    @staticmethod
-    def object2flat_dict(model: betterproto.Message) -> dict:
-        """
-        Transforms a model object into a flat dict. Nested fields are concatenated with a dot
-        """
-        return ModelConverter.object2series(model).to_dict()
-
-    @staticmethod
-    def neoantigens_csv2object(series: pd.Series) -> Neoantigen:
-        """transforms an entry from a CSV into an object"""
-        return Neoantigen().from_dict(
-            ModelConverter._flat_dict2nested_dict(flat_dict=series.to_dict())
-        )
-
-    @staticmethod
     def patient_metadata_csv2objects(dataframe: pd.DataFrame, mhc_database: MhcDatabase) -> List[Patient]:
         """transforms an patients CSV into a list of objects"""
         patients = []
@@ -208,31 +158,16 @@ class ModelConverter(object):
     def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
         """parses an row from a candidate file into a model object"""
 
-        mutation = Mutation()
-        mutation.wild_type_xmer = candidate_entry.get(FIELD_WILD_TYPE_XMER)
-        mutation.mutated_xmer = candidate_entry.get(FIELD_MUTATED_XMER)
-        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
-
-        neoantigen = Neoantigen()
-        neoantigen.patient_identifier = (
-            patient_id if patient_id else candidate_entry.get("patient")
-        )
-        if neoantigen.patient_identifier is None:
-            raise NeofoxInputParametersException(
-                "Please, define the parameter `patient_id` or provide a column ´patient´ in the candidate file "
-            )
-        neoantigen.mutation = mutation
-        neoantigen.gene = candidate_entry.get(FIELD_GENE)
-        # missing RNA expression values are represented as -1
-        logger.info(neoantigen.patient_identifier)
         vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
-        neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None
-        neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
-        neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
-
-        ModelValidator.validate_neoantigen(neoantigen)
-
-        return neoantigen
+        return NeoantigenFactory.build_neoantigen(
+            wild_type_xmer=candidate_entry.get(FIELD_WILD_TYPE_XMER),
+            mutated_xmer=candidate_entry.get(FIELD_MUTATED_XMER),
+            patient_id=patient_id if patient_id else candidate_entry.get("patient"),
+            gene=candidate_entry.get(FIELD_GENE),
+            rna_expression=vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None,
+            rna_variant_allele_frequency=candidate_entry.get(FIELD_VAF_RNA),
+            dna_variant_allele_frequency=candidate_entry.get(FIELD_VAF_DNA)
+        )
 
     @staticmethod
     def neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
@@ -240,41 +175,30 @@ class ModelConverter(object):
         neoantigens = []
         for _, row in dataframe.iterrows():
             nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
-            neoantigen = ModelConverter._rescueNoneValues(nested_dict)
-            neoantigen_field_names = set(Neoantigen.__annotations__.keys())
-            external_annotation_names = dict.fromkeys(
-                nam for nam in nested_dict.keys() if stringcase.snakecase(nam) not in neoantigen_field_names)
-            neoantigen.external_annotations = [
-                Annotation(name=name, value=str(nested_dict.get(name))) for name in external_annotation_names]
-            neoantigen.mutation.position = EpitopeHelper.mut_position_xmer_seq(neoantigen.mutation)
-            ModelValidator.validate_neoantigen(neoantigen)
+
+            # build the external annotations from anything not from the model
+            external_annotations = nested_dict.copy()
+            external_annotations.pop("mutation", None)
+            external_annotations.pop("patientIdentifier", None)
+            external_annotations.pop("gene", None)
+            external_annotations.pop("rnaExpression", None)
+            external_annotations.pop("rnaVariantAlleleFrequency", None)
+            external_annotations.pop("dnaVariantAlleleFrequency", None)
+
+            neoantigen = NeoantigenFactory.build_neoantigen(
+                wild_type_xmer=nested_dict.get("mutation", {}).get("wildTypeXmer"),
+                mutated_xmer=nested_dict.get("mutation", {}).get("mutatedXmer"),
+                patient_id=nested_dict.get("patientIdentifier"),
+                gene=nested_dict.get("gene"),
+                rna_expression=nested_dict.get("rnaExpression"),
+                rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
+                dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
+                imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                **external_annotations
+            )
             neoantigens.append(neoantigen)
 
         return neoantigens
-
-    @staticmethod
-    def _rescueNoneValues(
-            neoantigen_dict: dict,
-    ) -> Neoantigen:
-        neoantigen = Neoantigen().from_dict(neoantigen_dict)
-
-        if ModelConverter._requires_rescue("dnaVariantAlleleFrequency", neoantigen_dict):
-            neoantigen.dna_variant_allele_frequency = None
-
-        if ModelConverter._requires_rescue("rnaExpression", neoantigen_dict):
-            neoantigen.rna_expression = None
-
-        if ModelConverter._requires_rescue("rnaVariantAlleleFrequency", neoantigen_dict):
-            neoantigen.rna_variant_allele_frequency = None
-
-        if ModelConverter._requires_rescue("imputedGeneExpression", neoantigen_dict):
-            neoantigen.imputed_gene_expression = None
-
-        return neoantigen
-
-    @staticmethod
-    def _requires_rescue(name, neoantigen_dict):
-        return name not in neoantigen_dict or neoantigen_dict[name] is None
 
     @staticmethod
     def annotations2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:

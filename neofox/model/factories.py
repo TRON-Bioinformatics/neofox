@@ -17,12 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-
+import stringcase
 from neofox import NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxDataValidationException
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser, get_mhc2_isoform_name
 from neofox.model.neoantigen import Annotation, Patient, Mhc1, Zygosity, Mhc2, Mhc2Gene, Mhc2Name, Mhc2Isoform, \
-    MhcAllele, Mhc2GeneName, Mhc1Name
+    MhcAllele, Mhc2GeneName, Mhc1Name, Mutation, Neoantigen
 from neofox.model.validation import ModelValidator, GENES_BY_MOLECULE
 from neofox.references.references import MhcDatabase
 
@@ -41,6 +42,37 @@ class AnnotationFactory(object):
         if value is None:
             value = NOT_AVAILABLE_VALUE
         return Annotation(name=name, value=value)
+
+
+class NeoantigenFactory(object):
+    @staticmethod
+    def build_neoantigen(wild_type_xmer=None, mutated_xmer=None, patient_id=None, gene=None,
+                         rna_expression=None, rna_variant_allele_frequency=None, dna_variant_allele_frequency=None,
+                         imputed_gene_expression=None, **kw):
+
+        neoantigen = Neoantigen()
+        neoantigen.patient_identifier = patient_id
+        neoantigen.gene = gene
+        neoantigen.rna_expression = rna_expression
+        neoantigen.rna_variant_allele_frequency = rna_variant_allele_frequency
+        neoantigen.dna_variant_allele_frequency = dna_variant_allele_frequency
+        neoantigen.imputed_gene_expression = imputed_gene_expression
+
+        mutation = Mutation()
+        mutation.wild_type_xmer = wild_type_xmer
+        mutation.mutated_xmer = mutated_xmer
+        if wild_type_xmer is not None and mutated_xmer is not None:
+            mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
+        neoantigen.mutation = mutation
+
+        external_annotation_names = dict.fromkeys(
+            nam for nam in kw.keys() if stringcase.snakecase(nam) not in set(Neoantigen.__annotations__.keys()))
+        neoantigen.external_annotations = [
+            Annotation(name=name, value=str(kw.get(name))) for name in external_annotation_names]
+
+        ModelValidator.validate_neoantigen(neoantigen)
+
+        return neoantigen
 
 
 class PatientFactory(object):
@@ -67,7 +99,8 @@ class MhcFactory(object):
             mhc_parser = MhcParser.get_mhc_parser(mhc_database)
             # NOTE: during the pandas parsing of empty columns empty lists become a list with one empty string
             parsed_alleles = list(map(mhc_parser.parse_mhc_allele, filter(lambda a: a != "", alleles)))
-            MhcFactory._validate_mhc1_alleles(parsed_alleles)
+            for a in parsed_alleles:
+                ModelValidator.validate_mhc1_gene(a)
 
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
             for mhc1_gene in mhc_database.mhc1_genes:
@@ -93,7 +126,8 @@ class MhcFactory(object):
             mhc_parser = MhcParser.get_mhc_parser(mhc_database)
             # NOTE: during the pandas parsing of empty columns empty lists become a list with one empty string
             parsed_alleles = list(map(mhc_parser.parse_mhc_allele, filter(lambda a: a != "", alleles)))
-            MhcFactory._validate_mhc2_alleles(parsed_alleles)
+            for a in parsed_alleles:
+                ModelValidator.validate_mhc2_gene(a)
 
             # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
             for mhc2_isoform_name in mhc_database.mhc2_molecules:
@@ -197,18 +231,3 @@ class MhcFactory(object):
         else:
             zygosity = Zygosity.LOSS
         return zygosity
-
-    @staticmethod
-    def _validate_mhc1_alleles(parsed_alleles: List[MhcAllele]):
-        for a in parsed_alleles:
-            assert (
-                    a.gene in Mhc1Name.__members__
-            ), "MHC I allele is not valid {} at {}".format(a.gene, a.full_name)
-
-    @staticmethod
-    def _validate_mhc2_alleles(parsed_alleles: List[MhcAllele]):
-        for a in parsed_alleles:
-            assert (
-                    a.gene in Mhc2GeneName.__members__
-            ), "MHC II allele is not valid {} at {}".format(a.gene,
-                                                            a.full_name) if a.full_name != "" else "Gene from MHC II allele is empty"
