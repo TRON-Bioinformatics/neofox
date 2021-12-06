@@ -54,7 +54,6 @@ GENES_BY_MOLECULE = {
     Mhc2Name.H2E_molecule: [Mhc2GeneName.H2E]
 }
 
-
 class ModelValidator(object):
     @staticmethod
     def validate(model: betterproto.Message):

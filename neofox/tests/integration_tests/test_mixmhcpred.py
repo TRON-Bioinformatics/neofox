@@ -77,7 +77,7 @@ class TestMixMHCPred(TestCase):
         mutation = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
             mutation=mutation,
-            mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
+            mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
         self.assertEqual('SIYGGLVLI', best_peptide)
@@ -165,7 +165,7 @@ class TestMixMHCPred(TestCase):
 
         mutation = get_mutation(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
         # this is a MHC II genotype which results in no available alleles for MixMHC2pred
-        MHC_TWO_NEW = ModelConverter.parse_mhc2_alleles(
+        MHC_TWO_NEW = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*14:54",
                 "HLA-DRB1*14:54",

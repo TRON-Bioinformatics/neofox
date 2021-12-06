@@ -116,7 +116,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNotNone(phbr_i)
         self.assertAlmostEqual(1.359324592015038, phbr_i)
         # one homozygous allele present
-        mhc_alleles = ModelConverter.parse_mhc1_alleles(
+        mhc_alleles = MhcFactory.build_mhc1_alleles(
             [
                 "HLA-A*24:02",
                 "HLA-A*02:01",
@@ -142,7 +142,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNotNone(phbr_i)
         self.assertAlmostEqual(1.0036998409510969, phbr_i)
         # mo info for one allele
-        mhc_alleles = ModelConverter.parse_mhc1_alleles(
+        mhc_alleles = MhcFactory.build_mhc1_alleles(
             ["HLA-A*24:02", "HLA-A*02:01", "HLA-B*15:01", "HLA-B*44:02", "HLA-C*05:01"], self.hla_database
         )
 
@@ -221,7 +221,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNotNone(phbr_ii)
         self.assertAlmostEqual(8.895757526065129, phbr_ii)
         # mo info for one allele
-        mhc2_alleles = ModelConverter.parse_mhc2_alleles(
+        mhc2_alleles = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*04:02",
                 "HLA-DRB1*08:01",
@@ -257,7 +257,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNone(phbr_ii)
 
         # one allele present
-        mhc2_alleles = ModelConverter.parse_mhc2_alleles(
+        mhc2_alleles = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*04:02",
                 "HLA-DRB1*08:01",

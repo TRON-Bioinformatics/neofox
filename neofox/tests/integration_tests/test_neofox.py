@@ -28,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
-from neofox.model.wrappers import NOT_AVAILABLE_VALUE
+from neofox.model.wrappers import NOT_AVAILABLE_VALUE, PatientFactory
 from neofox.neofox import NeoFox
 from neofox.references.references import ORGANISM_MUS_MUSCULUS
 from neofox.tests.integration_tests import integration_test_tools
@@ -398,7 +398,7 @@ class TestNeofox(TestCase):
         neoantigens, patients, patient_id = self._get_test_data()
         for p in patients:
             # sets one MHC I allele to a non existing allele
-            p.mhc1[0].alleles[0] = ModelConverter.parse_mhc1_alleles(["HLA-A*99:99"], mhc_database=self.hla_database)[0].alleles[0]
+            p.mhc1[0].alleles[0] = MhcFactory.build_mhc1_alleles(["HLA-A*99:99"], mhc_database=self.hla_database)[0].alleles[0]
         neofox = NeoFox(
             neoantigens=neoantigens,
             patient_id=patient_id,
@@ -437,15 +437,14 @@ class TestNeofox(TestCase):
             ),
             patient_identifier=patient_identifier
         )
-        patient = Patient(
+        patient = PatientFactory.build_patient(
             identifier=patient_identifier,
-            mhc1=ModelConverter.parse_mhc1_alleles([
-                "HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"],
-                mhc_database=self.references.get_mhc_database()),
-            mhc2=ModelConverter.parse_mhc2_alleles([
+            mhc_alleles=",".join([
+                "HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"]),
+            mhc2_alleles=",".join([
                 "HLA-DRB1*07:14", "HLA-DRB1*04:18", "HLA-DPA1*01:05", "HLA-DPA1*03:01", "HLA-DPB1*17:01",
-                "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"],
-                mhc_database=self.references.get_mhc_database())
+                "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"]),
+            mhc_database=self.references.get_mhc_database()
         )
 
         annotations = NeoFox(
@@ -467,7 +466,7 @@ class TestNeofox(TestCase):
         )
         patient = Patient(
             identifier=patient_identifier,
-            mhc1=ModelConverter.parse_mhc1_alleles([
+            mhc1=MhcFactory.build_mhc1_alleles([
                 "HLA-A*03:01", "HLA-A*29:02", "HLA-B*07:02", "HLA-B*44:03", "HLA-C*07:02", "HLA-C*16:01"],
                 mhc_database=self.references.get_mhc_database()),
         )
@@ -490,7 +489,7 @@ class TestNeofox(TestCase):
         )
         patient = Patient(
             identifier=patient_identifier,
-            mhc1=ModelConverter.parse_mhc1_alleles([
+            mhc1=MhcFactory.build_mhc1_alleles([
                 "HLA-A*02:24", "HLA-A*36:04", "HLA-B*58:25", "HLA-B*35:102", "HLA-C*02:30", "HLA-C*07:139"],
                 mhc_database=self.references.get_mhc_database()),
         )

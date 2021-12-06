@@ -81,13 +81,13 @@ class PatientProvider(Provider):
                     is_rna_available=True,
                     tumor_type=self.random_elements(self.available_tumor_types, length=1)[0],
                     # by setting unique=True we enforce that all patients are heterozygous
-                    mhc1=ModelConverter.parse_mhc1_alleles(
+                    mhc1=MhcFactory.build_mhc1_alleles(
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.A), unique=True, length=2) +
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.B), unique=True, length=2) +
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.C), unique=True, length=2),
                         self.hla_database
                     ),
-                    mhc2=ModelConverter.parse_mhc2_alleles(
+                    mhc2=MhcFactory.build_mhc2_alleles(
                         [i.alpha_chain.name for i in dp_isoforms] +
                         [i.beta_chain.name for i in dp_isoforms] +
                         [i.alpha_chain.name for i in dq_isoforms] +
