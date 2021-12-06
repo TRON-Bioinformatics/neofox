@@ -46,12 +46,12 @@ class AnnotationFactory(object):
 
 class NeoantigenFactory(object):
     @staticmethod
-    def build_neoantigen(wild_type_xmer=None, mutated_xmer=None, patient_id=None, gene=None,
+    def build_neoantigen(wild_type_xmer=None, mutated_xmer=None, patient_identifier=None, gene=None,
                          rna_expression=None, rna_variant_allele_frequency=None, dna_variant_allele_frequency=None,
                          imputed_gene_expression=None, **kw):
 
         neoantigen = Neoantigen()
-        neoantigen.patient_identifier = patient_id
+        neoantigen.patient_identifier = patient_identifier
         neoantigen.gene = gene
         neoantigen.rna_expression = rna_expression
         neoantigen.rna_variant_allele_frequency = rna_variant_allele_frequency
