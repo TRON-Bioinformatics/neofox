@@ -88,20 +88,18 @@ class ModelValidator(object):
         return neoantigen
 
     @staticmethod
-    def validate_patient(patient: Patient, organism=ORGANISM_HOMO_SAPIENS) -> Patient:
+    def validate_patient(patient: Patient, organism=ORGANISM_HOMO_SAPIENS):
 
         # checks format consistency first
         ModelValidator.validate(patient)
 
         try:
             # checks that patient id is not empty considering white spaces
-            patient_id = (
-                patient.identifier.strip() if patient.identifier else patient.identifier
-            )
-            assert (
-                patient_id is not None and patient_id != ""
-            ), "A patient identifier is missing"
-            patient.identifier = patient_id
+
+            patient_id = patient.identifier.strip() if patient.identifier else patient.identifier
+            assert patient_id is not None and patient_id != "", "A patient identifier is missing"
+            assert patient.identifier == patient.identifier.strip(), \
+                "Patient identifier contains white spaces at start or end: {}".format(patient.identifier)
 
             # TODO: validate new model with isoforms, genes and alleles
             # checks MHC I
@@ -116,8 +114,6 @@ class ModelValidator(object):
         except AssertionError as e:
             logger.error(patient.to_json(indent=3))
             raise NeofoxDataValidationException(e)
-
-        return patient
 
     @staticmethod
     def _validate_mhc1(mhc1: Mhc1, organism: str):

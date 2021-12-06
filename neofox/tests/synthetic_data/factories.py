@@ -96,7 +96,7 @@ class PatientProvider(Provider):
                         self.hla_database
                     )
                 )
-                patient = ModelValidator.validate_patient(patient)
+                ModelValidator.validate_patient(patient)
             except NeofoxDataValidationException:
                 continue
             found = True
