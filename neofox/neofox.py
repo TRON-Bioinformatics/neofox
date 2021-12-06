@@ -101,10 +101,13 @@ class NeoFox:
 
         # validates input data
         self.neoantigens = [ModelValidator.validate_neoantigen(n) for n in neoantigens]
-        self.patients = {
-            patient.identifier: ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
-            for patient in patients
-        }
+
+        # validates patients
+        self.patients = {}
+        for patient in patients:
+            ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
+            self.patients[patient.identifier] = patient
+
         self._validate_input_data()
 
         # retrieve from the data, if RNA-seq was available
