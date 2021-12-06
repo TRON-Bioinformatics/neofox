@@ -22,6 +22,7 @@ from logzero import logger
 from unittest import TestCase
 
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mutation
 
@@ -35,6 +36,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
     BestAndMultipleBinderMhcII,
 )
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.tests.tools import get_mutation
 
 
 class TestBestMultipleBinder(TestCase):
@@ -63,12 +65,10 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                #mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
-                mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTA",
-                wild_type_xmer=None,
-            )
+        mutation = get_mutation(
+            # mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
+            mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTA",
+            wild_type_xmer=None,
         )
         best_multiple.run(
             mutation=mutation,
@@ -98,18 +98,15 @@ class TestBestMultipleBinder(TestCase):
             best_multiple.best_predicted_epitope_rank_wt.hla,
         )
 
-
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
-                wild_type_xmer=None,
-            )
+        mutation = get_mutation(
+            mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
+            wild_type_xmer=None,
         )
         best_multiple.run(
             mutation=mutation,

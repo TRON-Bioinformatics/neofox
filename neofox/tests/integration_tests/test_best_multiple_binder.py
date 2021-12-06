@@ -37,6 +37,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.tests.tools import get_mutation
 
 
 class TestBestMultipleBinder(TestCase):
@@ -64,11 +65,9 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
         )
         best_multiple.run(
             mutation=mutation,
@@ -96,11 +95,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
         )
         # all alleles = heterozygous
         predictions = netmhcpan.mhc_prediction(
@@ -169,11 +166,9 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
         )
         best_multiple.run(
             mutation=mutation,
@@ -201,11 +196,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
-                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
+        mutation = get_mutation(
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(self.test_mhc_two)
@@ -307,11 +300,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
-                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
+        mutation = get_mutation(
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
         predictions = netmhcpan.mhc_prediction(
@@ -350,11 +341,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="RTNLLAALHRSVRWRAADQGHRSAFLV",
-                wild_type_xmer="RTNLLAALHRSVRRRAADQGHRSAFLV",
-            )
+        mutation = get_mutation(
+            mutated_xmer="RTNLLAALHRSVRWRAADQGHRSAFLV",
+            wild_type_xmer="RTNLLAALHRSVRRRAADQGHRSAFLV",
         )
         # all alleles = heterozygous
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(self.test_mhc_two)

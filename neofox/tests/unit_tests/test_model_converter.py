@@ -33,7 +33,7 @@ from neofox.model.neoantigen import (
     Mhc2Name,
 )
 from neofox.tests.fake_classes import FakeHlaDatabase, FakeH2Database
-from neofox.tests.unit_tests.tools import get_random_neoantigen
+from neofox.tests.tools import get_random_neoantigen
 
 
 class ModelConverterTest(TestCase):
@@ -106,9 +106,7 @@ class ModelConverterTest(TestCase):
         )
         with open(candidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(
-            candidate_file
-        )
+        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
         self.assertIsNotNone(neoantigens)
         self.assertEqual(self.count_lines -1, len(neoantigens))
         for n in neoantigens:

@@ -67,7 +67,7 @@ class ModelValidator(object):
     # TODO: add patient validation: validate GTEx tissue and MHC alleles
 
     @staticmethod
-    def validate_neoantigen(neoantigen: Neoantigen) -> Neoantigen:
+    def validate_neoantigen(neoantigen: Neoantigen):
 
         # checks format consistency first
         ModelValidator.validate(neoantigen)
@@ -77,15 +77,13 @@ class ModelValidator(object):
                 "A patient identifier is missing. Please provide patientIdentifier in the input file"
 
             # checks mutation
-            neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
+            ModelValidator._validate_mutation(neoantigen.mutation)
 
             # check the expression values
             ModelValidator._validate_expression_values(neoantigen)
         except AssertionError as e:
             logger.error(neoantigen.to_json(indent=3))
             raise NeofoxDataValidationException(e)
-
-        return neoantigen
 
     @staticmethod
     def validate_patient(patient: Patient, organism=ORGANISM_HOMO_SAPIENS):
@@ -196,7 +194,7 @@ class ModelValidator(object):
         ModelValidator._validate_vaf(neoantigen.rna_variant_allele_frequency)
 
     @staticmethod
-    def _validate_mutation(mutation: Mutation) -> Mutation:
+    def _validate_mutation(mutation: Mutation):
         assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
             "Missing mutated peptide sequence in input (mutation.mutatedXmer) "
         mutation.mutated_xmer = "".join(
@@ -210,8 +208,8 @@ class ModelValidator(object):
                     for aa in mutation.wild_type_xmer
                 ]
             )
-            mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=mutation)
-        return mutation
+        assert mutation.position is not None and mutation.position != "", \
+            "The position of the mutation is empty, please use EpitopeHelper.mut_position_xmer_seq() to fill it"
 
     @staticmethod
     def _validate_vaf(vaf):
