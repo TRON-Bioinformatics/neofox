@@ -7,11 +7,11 @@ from faker.providers.address import Provider
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.conversion import ModelConverter, ModelValidator
+from neofox.model.validation import ModelValidator
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mutation, Mhc2Name, Mhc2Isoform, \
     MhcAllele
-from neofox.model.wrappers import get_mhc2_isoform_name
+from neofox.model.factories import get_mhc2_isoform_name, MhcFactory
 from neofox.references.references import HlaDatabase
 
 

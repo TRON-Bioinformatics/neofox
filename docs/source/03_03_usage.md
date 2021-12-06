@@ -222,7 +222,7 @@ neoantigens_json = ModelConverter.objects2json(model_objects=[validated_neoantig
 
 ```python
 model_file = "/path/to/neoantigen_candidates.tab"
-neoantigens = ModelConverter.parse_neoantigens_dataframe(neoantigens_file=model_file)
+neoantigens = ModelConverter.parse_neoantigens_file(neoantigens_file=model_file)
 ```
   
  

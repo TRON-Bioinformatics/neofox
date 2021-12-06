@@ -21,10 +21,7 @@ import random
 import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
-
-from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Neoantigen, Mutation, Patient, MhcAllele
-from neofox.model.validation import ModelValidator
+from neofox.model.factories import NeoantigenFactory
 
 
 def mock_file_existence(existing_files=[], non_existing_files=[]):
@@ -56,32 +53,27 @@ def mock_file_is_executable(executable_files=[], non_executable_files=[]):
 
 
 def get_random_neoantigen():
-    neoantigen = Neoantigen()
-    neoantigen.variant_allele_frequency = np.random.uniform(0, 1)
-    neoantigen.expression_value = np.random.uniform(0, 50)
-    mutation = Mutation()
+
     mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
     wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
     left_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
-    right_flanking_region = "".join(
-        random.choices(list(IUPACData.protein_letters), k=5)
+    right_flanking_region = "".join(random.choices(list(IUPACData.protein_letters), k=5))
+
+    neoantigen = NeoantigenFactory.build_neoantigen(
+        patient_id="12345",
+        rna_variant_allele_frequency=np.random.uniform(0, 1),
+        dna_variant_allele_frequency=np.random.uniform(0, 1),
+        imputed_gene_expression=np.random.uniform(0, 50),
+        rna_expression=np.random.uniform(0, 50),
+        mutated_xmer=left_flanking_region + mutated_aminoacid + right_flanking_region,
+        wild_type_xmer=left_flanking_region + wild_type_aminoacid + right_flanking_region,
+        gene="BRCA2"
     )
-    mutation.mutated_xmer = (
-        left_flanking_region + mutated_aminoacid + right_flanking_region
-    )
-    mutation.wild_type_xmer = (
-        left_flanking_region + wild_type_aminoacid + right_flanking_region
-    )
-    neoantigen.mutation = mutation
-    neoantigen.gene = "BRCA2"
     return neoantigen
 
 
 def get_mutation(mutated_xmer, wild_type_xmer):
-    mutation = Mutation(
+
+    return NeoantigenFactory.build_neoantigen(
         mutated_xmer=mutated_xmer,
-        wild_type_xmer=wild_type_xmer,
-    )
-    mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=mutation)
-    ModelValidator._validate_mutation(mutation)
-    return mutation
+        wild_type_xmer=wild_type_xmer).mutation

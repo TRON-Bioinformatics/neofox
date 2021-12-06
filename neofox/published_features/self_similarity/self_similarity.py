@@ -21,9 +21,9 @@ from typing import List
 import math
 import os
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
-from neofox.model.conversion import ModelValidator
+from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import Annotation
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 
 
 THRESHOLD_IMPROVED_BINDER = 1.2

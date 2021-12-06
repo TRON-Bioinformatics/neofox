@@ -34,7 +34,7 @@ from neofox.model.neoantigen import (
     Mhc2,
     Mhc2Isoform,
     MhcAllele,
-    Mhc1
+    Mhc1, Mhc1Name
 )
 from neofox.references.references import ORGANISM_HOMO_SAPIENS, MHC_I_GENES_BY_ORGANISM, MHC_II_GENES_BY_ORGANISM, \
     ORGANISM_MUS_MUSCULUS
@@ -46,6 +46,8 @@ FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
 FIELD_GENE = "gene"
 FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 FIELD_MUTATED_XMER = "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
+
+
 GENES_BY_MOLECULE = {
     Mhc2Name.DR: [Mhc2GeneName.DRB1],
     Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
@@ -54,7 +56,9 @@ GENES_BY_MOLECULE = {
     Mhc2Name.H2E_molecule: [Mhc2GeneName.H2E]
 }
 
+
 class ModelValidator(object):
+
     @staticmethod
     def validate(model: betterproto.Message):
         # TODO: make this method capture appropriately validation issues when dealing with int and float
@@ -62,8 +66,6 @@ class ModelValidator(object):
             model.__bytes__()
         except Exception as e:
             raise NeofoxDataValidationException(e)
-
-    # TODO: add patient validation: validate GTEx tissue and MHC alleles
 
     @staticmethod
     def validate_neoantigen(neoantigen: Neoantigen):
@@ -98,7 +100,6 @@ class ModelValidator(object):
             assert patient.identifier == patient.identifier.strip(), \
                 "Patient identifier contains white spaces at start or end: {}".format(patient.identifier)
 
-            # TODO: validate new model with isoforms, genes and alleles
             # checks MHC I
             if patient.mhc1:
                 for m in patient.mhc1:
@@ -297,3 +298,14 @@ class ModelValidator(object):
         except AssertionError as e:
             logger.error(isoform.to_json(indent=3))
             raise NeofoxDataValidationException(e)
+
+    @staticmethod
+    def validate_mhc1_gene(allele: MhcAllele):
+        assert allele.gene in Mhc1Name.__members__, \
+            "MHC I allele is not valid {} at {}".format(allele.gene, allele.full_name)
+
+    @staticmethod
+    def validate_mhc2_gene(allele: MhcAllele):
+        assert allele.gene in Mhc2GeneName.__members__, \
+            "MHC II allele is not valid {} at {}".format(
+                allele.gene, allele.full_name) if allele.full_name != "" else "Gene from MHC II allele is empty"

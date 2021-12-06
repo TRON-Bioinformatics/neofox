@@ -28,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
-from neofox.model.wrappers import NOT_AVAILABLE_VALUE, PatientFactory
+from neofox.model.factories import NOT_AVAILABLE_VALUE, PatientFactory
 from neofox.neofox import NeoFox
 from neofox.references.references import ORGANISM_MUS_MUSCULUS
 from neofox.tests.integration_tests import integration_test_tools
@@ -87,7 +87,7 @@ class TestNeofox(TestCase):
         )
         data = pd.read_csv(input_file, sep="\t")
         data = data.replace({np.nan: None})
-        neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
+        neoantigens = ModelConverter.neoantigens_csv2objects(data)
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
@@ -530,9 +530,7 @@ class TestNeofox(TestCase):
                 neofox.tests.__name__, n)
             data = pd.read_csv(input_file, sep="\t")
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter.parse_neoantigens_dataframe(
-                data
-            )
+            neoantigens, external_annotations = ModelConverter.neoantigens_csv2objects(data)
             patients_file = pkg_resources.resource_filename(
                 neofox.tests.__name__, p)
             patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)

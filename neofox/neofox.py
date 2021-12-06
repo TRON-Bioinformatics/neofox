@@ -41,8 +41,8 @@ from neofox.exceptions import (
     NeofoxConfigurationException,
     NeofoxDataValidationException,
 )
-from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
-from neofox.model.conversion import ModelValidator
+from neofox.model.neoantigen import Neoantigen, Patient
+from neofox.model.validation import ModelValidator
 import dotenv
 
 

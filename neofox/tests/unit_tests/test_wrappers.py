@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
 
-from neofox.model.wrappers import AnnotationFactory, NOT_AVAILABLE_VALUE
+from neofox.model.factories import AnnotationFactory, NOT_AVAILABLE_VALUE
 
 
 class TestAnnotationFactory(TestCase):

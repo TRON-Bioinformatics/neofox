@@ -29,7 +29,7 @@ from neofox.references.references import DependenciesConfiguration
 from neofox.helpers.runner import Runner
 
 from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
 import os
