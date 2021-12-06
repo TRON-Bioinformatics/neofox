@@ -17,13 +17,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from abc import ABC, abstractmethod
+from typing import List
 
 from neofox.exceptions import NeofoxInputParametersException, NeofoxDataValidationException
-from neofox.model.neoantigen import MhcAllele, Mhc2Isoform, Mhc2GeneName
+from neofox.model.neoantigen import MhcAllele, Mhc2Isoform, Mhc2GeneName, Mhc2
 import re
 from logzero import logger
 
-from neofox.model.wrappers import get_mhc2_isoform_name
 from neofox.references.references import MhcDatabase, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
 
 HLA_ALLELE_PATTERN_WITHOUT_SEPARATOR = re.compile(
@@ -213,3 +213,19 @@ class HlaParser(MhcParser):
                 group_b=isoform.beta_chain.group,
                 protein_b=isoform.beta_chain.protein,
             )
+
+
+def get_alleles_by_gene(
+    mhc_isoforms: List[Mhc2], gene: Mhc2GeneName
+) -> List[MhcAllele]:
+    return [
+        a for m in mhc_isoforms for g in m.genes if g.name == gene for a in g.alleles
+    ]
+
+
+def get_mhc2_isoform_name(a: MhcAllele, b: MhcAllele):
+    # NOTE: this is needed as jus setting alpha chain to None wouldn't work with protobuf
+    if a is not None and a.name:
+        return "{}-{}".format(a.name, b.name.replace("HLA-", ""))
+    else:
+        return b.name

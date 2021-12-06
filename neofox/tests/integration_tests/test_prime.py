@@ -70,7 +70,7 @@ class TestPrime(TestCase):
         mutation = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
             mutation=mutation,
-            mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
+            mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
         self.assertEqual('SIYGGLVLI', best_peptide)

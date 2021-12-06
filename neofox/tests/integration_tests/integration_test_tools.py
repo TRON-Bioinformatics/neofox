@@ -43,7 +43,7 @@ def get_random_kmer(k=25):
 
 
 def get_hla_one_test(hla_database):
-    return ModelConverter.parse_mhc1_alleles(
+    return MhcFactory.build_mhc1_alleles(
         [
             "HLA-A*24:02",
             "HLA-A*02:01",
@@ -56,7 +56,7 @@ def get_hla_one_test(hla_database):
 
 
 def get_h2_one_test(h2_database):
-    return ModelConverter.parse_mhc1_alleles(
+    return MhcFactory.build_mhc1_alleles(
         [
             "H2Kd",
             "H2Kd",
@@ -69,7 +69,7 @@ def get_h2_one_test(h2_database):
 
 
 def get_hla_two_test(hla_database):
-    return ModelConverter.parse_mhc2_alleles(
+    return MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*04:02",
                 "HLA-DRB1*08:01",
@@ -86,7 +86,7 @@ def get_hla_two_test(hla_database):
 
 
 def get_h2_two_test(h2_database):
-    return ModelConverter.parse_mhc2_alleles(
+    return MhcFactory.build_mhc2_alleles(
         [
             "H2Ad",
             "H2Ad",

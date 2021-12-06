@@ -21,6 +21,8 @@ import pandas as pd
 import betterproto
 import stringcase
 from betterproto import Casing
+
+from neofox import NOT_AVAILABLE_VALUE
 from neofox.exceptions import NeofoxDataValidationException
 from logzero import logger
 from collections import defaultdict
@@ -28,7 +30,7 @@ import orjson as json
 import numpy as np
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.mhc_parser import MhcParser
+from neofox.model.mhc_parser import MhcParser, get_mhc2_isoform_name
 from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import (
     Neoantigen,
@@ -45,7 +47,7 @@ from neofox.model.neoantigen import (
     Mhc1,
     Annotation,
 )
-from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
+from neofox.model.wrappers import PatientFactory
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.references.references import MhcDatabase
 
@@ -55,13 +57,6 @@ FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
 FIELD_GENE = "gene"
 FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 FIELD_MUTATED_XMER = "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
-GENES_BY_MOLECULE = {
-    Mhc2Name.DR: [Mhc2GeneName.DRB1],
-    Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
-    Mhc2Name.DQ: [Mhc2GeneName.DQA1, Mhc2GeneName.DQB1],
-    Mhc2Name.H2E_molecule: [Mhc2GeneName.H2E],
-    Mhc2Name.H2A_molecule: [Mhc2GeneName.H2A],
-}
 
 
 class ModelConverter(object):
@@ -198,18 +193,14 @@ class ModelConverter(object):
         patients = []
         for _, row in dataframe.iterrows():
             patient_dict = row.to_dict()
-            patient = Patient().from_dict(patient_dict)
-            mhc_alleles = patient_dict["mhcIAlleles"]
-            # NOTE: during the parsing of empty columns empty lists become a list with one empty string ...
-            if len(mhc_alleles) > 1 or (len(mhc_alleles) == 1 and len(mhc_alleles[0]) > 0):
-                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles, mhc_database)
-            else:
-                patient.mhc1 = None
-            mhc2_alleles = patient_dict["mhcIIAlleles"]
-            if len(mhc2_alleles) > 1 or (len(mhc2_alleles) == 1 and len(mhc2_alleles[0]) > 0):
-                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles, mhc_database)
-            else:
-                patient.mhc2 = None
+            patient = PatientFactory.build_patient(
+                identifier=patient_dict.get("identifier"),
+                is_rna_available=patient_dict.get("isRnaAvailable", False),
+                tumor_type=patient_dict.get("tumorType"),
+                mhc_alleles=patient_dict["mhcIAlleles"],
+                mhc2_alleles=patient_dict["mhcIIAlleles"],
+                mhc_database=mhc_database
+            )
             patients.append(patient)
         return patients
 
@@ -355,152 +346,3 @@ class ModelConverter(object):
                 nested_dict[k] = v
         return dict(nested_dict)
 
-    @staticmethod
-    def parse_mhc1_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc1]:
-        isoforms = []
-        try:
-            mhc_parser = MhcParser.get_mhc_parser(mhc_database)
-            parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
-            ModelConverter._validate_mhc1_alleles(parsed_alleles)
-
-            # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for mhc1_gene in mhc_database.mhc1_genes:
-                gene_alleles = list(
-                    filter(lambda a: a.gene == mhc1_gene.name, parsed_alleles)
-                )
-                zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
-                if zygosity == Zygosity.HOMOZYGOUS:
-                    gene_alleles = [
-                        gene_alleles[0]
-                    ]  # we don't want repeated instances of the same allele
-                isoforms.append(
-                    Mhc1(name=mhc1_gene, zygosity=zygosity, alleles=gene_alleles)
-                )
-        except AssertionError as e:
-            raise NeofoxDataValidationException(e)
-        return isoforms
-
-    @staticmethod
-    def parse_mhc2_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc2]:
-        mhc2s = []
-        try:
-            mhc_parser = MhcParser.get_mhc_parser(mhc_database)
-            parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
-            ModelConverter._validate_mhc2_alleles(parsed_alleles)
-
-            # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for mhc2_isoform_name in mhc_database.mhc2_molecules:
-                mhc2_isoform_genes = GENES_BY_MOLECULE.get(mhc2_isoform_name)
-                isoform_alleles = list(
-                    filter(lambda a: a.gene in [g.name for g in mhc2_isoform_genes], parsed_alleles)
-                )
-                genes = []
-                for gene_name in mhc2_isoform_genes:
-                    gene_alleles = list(
-                        filter(lambda a: a.gene == gene_name.name, isoform_alleles)
-                    )
-                    zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
-                    if zygosity == Zygosity.HOMOZYGOUS:
-                        gene_alleles = [
-                            gene_alleles[0]
-                        ]  # we don't want repeated instances of the same allele
-                    genes.append(
-                        Mhc2Gene(
-                            name=gene_name, zygosity=zygosity, alleles=gene_alleles
-                        )
-                    )
-                isoforms = ModelConverter._get_mhc2_isoforms(mhc2_isoform_name, genes)
-                mhc2s.append(Mhc2(name=mhc2_isoform_name, genes=genes, isoforms=isoforms))
-        except AssertionError as e:
-            raise NeofoxDataValidationException(e)
-        return mhc2s
-
-    @staticmethod
-    def _get_mhc2_isoforms(
-        isoform_name: Mhc2Name, genes: List[Mhc2Gene]
-    ) -> List[Mhc2Isoform]:
-        isoforms = []
-        if isoform_name == Mhc2Name.DR:
-            assert len(genes) <= 1, "More than one gene provided for MHC II DR"
-            # alpha chain of the MHC II DR is not modelled as it is constant
-            isoforms = [
-                Mhc2Isoform(name=a.name, alpha_chain=MhcAllele(), beta_chain=a)
-                for g in genes
-                for a in g.alleles
-            ]
-        elif isoform_name == Mhc2Name.DP:
-            assert len(genes) <= 2, "More than two genes provided for MHC II DP"
-            alpha_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DPA1 for a in g.alleles
-            ]
-            beta_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DPB1 for a in g.alleles
-            ]
-            isoforms = [
-                Mhc2Isoform(
-                    name=get_mhc2_isoform_name(a, b), alpha_chain=a, beta_chain=b
-                )
-                for a in alpha_alleles
-                for b in beta_alleles
-            ]
-        elif isoform_name == Mhc2Name.DQ:
-            assert len(genes) <= 2, "More than two genes provided for MHC II DQ"
-            alpha_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DQA1 for a in g.alleles
-            ]
-            beta_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DQB1 for a in g.alleles
-            ]
-            isoforms = [
-                Mhc2Isoform(
-                    name=get_mhc2_isoform_name(a, b), alpha_chain=a, beta_chain=b
-                )
-                for a in alpha_alleles
-                for b in beta_alleles
-            ]
-        # mouse MHC II molecules do not act as pairs
-        elif isoform_name == Mhc2Name.H2A_molecule:
-            assert len(genes) <= 2, "More than two genes provided for H2A"
-            isoforms = [
-                Mhc2Isoform(name=a.name, alpha_chain=a, beta_chain=MhcAllele())
-                for g in genes if g.name == Mhc2GeneName.H2A for a in g.alleles
-            ]
-        elif isoform_name == Mhc2Name.H2E_molecule:
-            assert len(genes) <= 2, "More than two genes provided for H2E"
-            isoforms = [
-                Mhc2Isoform(name=a.name, alpha_chain=a, beta_chain=MhcAllele())
-                for g in genes if g.name == Mhc2GeneName.H2E for a in g.alleles
-            ]
-        return isoforms
-
-    @staticmethod
-    def _get_zygosity_from_alleles(alleles: List[MhcAllele]) -> Zygosity:
-        assert (
-            len(set([a.gene for a in alleles])) <= 1
-        ), "Trying to get zygosity from alleles of different genes"
-        assert len(alleles) <= 2, "More than 2 alleles for gene {}".format(
-            alleles[0].gene
-        )
-        if len(alleles) == 2 and alleles[0].name == alleles[1].name:
-            zygosity = Zygosity.HOMOZYGOUS
-        elif len(alleles) == 2:
-            zygosity = Zygosity.HETEROZYGOUS
-        elif len(alleles) == 1:
-            zygosity = Zygosity.HEMIZYGOUS
-        else:
-            zygosity = Zygosity.LOSS
-        return zygosity
-
-    @staticmethod
-    def _validate_mhc1_alleles(parsed_alleles: List[MhcAllele]):
-        for a in parsed_alleles:
-            assert (
-                a.gene in Mhc1Name.__members__
-            ), "MHC I allele is not valid {} at {}".format(a.gene, a.full_name)
-
-    @staticmethod
-    def _validate_mhc2_alleles(parsed_alleles: List[MhcAllele]):
-        for a in parsed_alleles:
-            assert (
-                a.gene in Mhc2GeneName.__members__
-            ), "MHC II allele is not valid {} at {}".format(a.gene, a.full_name) if a.full_name != "" else "Gene from MHC II allele is empty"
