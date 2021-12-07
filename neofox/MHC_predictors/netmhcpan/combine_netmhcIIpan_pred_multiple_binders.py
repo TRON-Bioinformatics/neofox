@@ -137,9 +137,10 @@ class BestAndMultipleBinderMhcII:
                 rank_mutation = epitope.rank
                 if rank_mutation == 0:
                     rank_mutation = 0.01
-                dai = wt_peptide.rank / rank_mutation
-                if dai > threshold:
-                    number_binders += 1
+                if wt_peptide is not None:
+                    dai = wt_peptide.rank / rank_mutation
+                    if dai > threshold:
+                        number_binders += 1
         return number_binders if not len(values) == 0 else None
 
     @staticmethod
