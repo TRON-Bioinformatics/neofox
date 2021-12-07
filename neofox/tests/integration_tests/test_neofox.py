@@ -28,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
 import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
-from neofox.model.factories import NOT_AVAILABLE_VALUE, PatientFactory
+from neofox.model.factories import NOT_AVAILABLE_VALUE, PatientFactory, MhcFactory
 from neofox.neofox import NeoFox
 from neofox.references.references import ORGANISM_MUS_MUSCULUS
 from neofox.tests.integration_tests import integration_test_tools
