@@ -61,8 +61,7 @@ class NeoantigenFactory(object):
         mutation = Mutation()
         mutation.wild_type_xmer = wild_type_xmer
         mutation.mutated_xmer = mutated_xmer
-        if wild_type_xmer is not None and mutated_xmer is not None:
-            mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
+        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
         neoantigen.mutation = mutation
 
         external_annotation_names = dict.fromkeys(
@@ -77,7 +76,7 @@ class NeoantigenFactory(object):
 
 class PatientFactory(object):
     @staticmethod
-    def build_patient(identifier, is_rna_available=False, tumor_type=None, mhc_alleles=None, mhc2_alleles=None,
+    def build_patient(identifier, is_rna_available=False, tumor_type=None, mhc_alleles=[], mhc2_alleles=[],
                       mhc_database=None):
         patient = Patient(
             identifier=identifier,
@@ -117,7 +116,7 @@ class MhcFactory(object):
                 )
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
-        return isoforms
+        return list(filter(lambda i: i.zygosity != Zygosity.LOSS, isoforms))
 
     @staticmethod
     def build_mhc2_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc2]:
@@ -154,7 +153,7 @@ class MhcFactory(object):
                 mhc2s.append(Mhc2(name=mhc2_isoform_name, genes=genes, isoforms=isoforms))
         except AssertionError as e:
             raise NeofoxDataValidationException(e)
-        return mhc2s
+        return list(filter(lambda m: all(map(lambda g: g.zygosity != Zygosity.LOSS, m.genes)), mhc2s))
 
     @staticmethod
     def _get_mhc2_isoforms(

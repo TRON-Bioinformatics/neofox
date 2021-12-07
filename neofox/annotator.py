@@ -59,7 +59,7 @@ from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.published_features.prime import Prime
 from neofox.published_features.hex.hex import Hex
-from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
+from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations, Zygosity
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
