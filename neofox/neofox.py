@@ -58,7 +58,7 @@ class NeoFox:
         output_prefix=None,
         reference_folder: ReferenceFolder = None,
         configuration: DependenciesConfiguration = None,
-        verbose=False,
+        verbose=True,
         configuration_file=None,
         affinity_threshold=AFFINITY_THRESHOLD_DEFAULT
     ):
@@ -76,7 +76,7 @@ class NeoFox:
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
         # testable with fake objects
         self.reference_folder = (
-            reference_folder if reference_folder else ReferenceFolder()
+            reference_folder if reference_folder else ReferenceFolder(verbose=verbose)
         )
         # NOTE: makes this call to force the loading of the available alleles here
         self.reference_folder.get_available_alleles()
@@ -155,9 +155,9 @@ class NeoFox:
             logzero.logfile(logfile)
         # TODO: this does not work
         if verbose:
-            logzero.loglevel(logging.DEBUG)
-        else:
             logzero.loglevel(logging.INFO)
+        else:
+            logzero.loglevel(logging.WARN)
 
     def _get_log_file_name(self, output_prefix, work_folder):
         if work_folder and os.path.exists(work_folder):

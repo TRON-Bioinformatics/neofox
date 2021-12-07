@@ -228,7 +228,7 @@ class H2Database(MhcDatabase):
 
 class ReferenceFolder(object):
 
-    def __init__(self, organism=ORGANISM_HOMO_SAPIENS):
+    def __init__(self, organism=ORGANISM_HOMO_SAPIENS, verbose=False):
         self.organism = organism
         if not organism == ORGANISM_HOMO_SAPIENS and not organism == ORGANISM_MUS_MUSCULUS:
             raise NeofoxConfigurationException(
@@ -265,7 +265,8 @@ class ReferenceFolder(object):
         ]
         self._check_resources()
         self.resources_versions = self.get_resources_versions()
-        self._log_configuration()
+        if verbose:
+            self._log_configuration()
         self.__available_alleles = None
         self.__mhc_database = None
 

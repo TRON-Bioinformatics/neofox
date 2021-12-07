@@ -154,7 +154,7 @@ class NeoantigenAnnotator:
 
         # decides which VAF to use
         vaf_rna = neoantigen.rna_variant_allele_frequency
-        if not patient.is_rna_available:
+        if not patient.is_rna_available and neoantigen.dna_variant_allele_frequency is not None:
             logger.warning(
                 "Using the DNA VAF to estimate the RNA VAF as the patient does not have RNA available"
             )
