@@ -87,7 +87,7 @@ class TestNeofox(TestCase):
         )
         data = pd.read_csv(input_file, sep="\t")
         data = data.replace({np.nan: None})
-        neoantigens = ModelConverter.neoantigens_csv2objects(data)
+        neoantigens = ModelConverter._neoantigens_csv2objects(data)
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
@@ -142,7 +142,7 @@ class TestNeofox(TestCase):
         # writes output
         ModelConverter.annotations2table(neoantigens=annotations).to_csv(
             output_file, sep="\t", index=False)
-        ModelConverter.objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
+        ModelConverter._objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
         with open(output_json_neoantigens, "wb") as f:
             f.write(json.dumps(ModelConverter.objects2json(annotations)))
 
@@ -182,7 +182,7 @@ class TestNeofox(TestCase):
         # writes output
         ModelConverter.annotations2table(neoantigens=annotations).to_csv(
             output_file, sep="\t", index=False)
-        ModelConverter.objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
+        ModelConverter._objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
         with open(output_json_neoantigens, "wb") as f:
             f.write(json.dumps(ModelConverter.objects2json(annotations)))
 
@@ -439,11 +439,9 @@ class TestNeofox(TestCase):
         )
         patient = PatientFactory.build_patient(
             identifier=patient_identifier,
-            mhc_alleles=",".join([
-                "HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"]),
-            mhc2_alleles=",".join([
-                "HLA-DRB1*07:14", "HLA-DRB1*04:18", "HLA-DPA1*01:05", "HLA-DPA1*03:01", "HLA-DPB1*17:01",
-                "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"]),
+            mhc_alleles=["HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"],
+            mhc2_alleles=["HLA-DRB1*07:14", "HLA-DRB1*04:18", "HLA-DPA1*01:05", "HLA-DPA1*03:01", "HLA-DPB1*17:01",
+                          "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"],
             mhc_database=self.references.get_mhc_database()
         )
 
@@ -530,7 +528,7 @@ class TestNeofox(TestCase):
                 neofox.tests.__name__, n)
             data = pd.read_csv(input_file, sep="\t")
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter.neoantigens_csv2objects(data)
+            neoantigens, external_annotations = ModelConverter._neoantigens_csv2objects(data)
             patients_file = pkg_resources.resource_filename(
                 neofox.tests.__name__, p)
             patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)

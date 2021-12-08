@@ -22,7 +22,7 @@ import tempfile
 import dotenv
 from Bio.Alphabet.IUPAC import IUPACData
 
-from neofox.model.conversion import ModelConverter
+from neofox.model.factories import MhcFactory
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 
 

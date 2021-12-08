@@ -76,8 +76,8 @@ class NeoantigenFactory(object):
 
 class PatientFactory(object):
     @staticmethod
-    def build_patient(identifier, is_rna_available=False, tumor_type=None, mhc_alleles=[], mhc2_alleles=[],
-                      mhc_database=None):
+    def build_patient(identifier, is_rna_available=False, tumor_type=None, mhc_alleles: List = [],
+                      mhc2_alleles: List = [], mhc_database: MhcDatabase =None):
         patient = Patient(
             identifier=identifier,
             is_rna_available=is_rna_available,

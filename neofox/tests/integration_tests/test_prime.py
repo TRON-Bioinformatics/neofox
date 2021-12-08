@@ -17,13 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
-from logzero import logger
-
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.conversion import ModelValidator, ModelConverter
-from neofox.model.mhc_parser import MhcParser, HlaParser
-from neofox.model.neoantigen import Mutation
-
+from neofox.model.factories import MhcFactory
+from neofox.model.mhc_parser import HlaParser
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.published_features.prime import Prime
 from neofox.helpers.runner import Runner

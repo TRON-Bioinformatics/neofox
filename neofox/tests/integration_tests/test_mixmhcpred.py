@@ -19,12 +19,10 @@
 from unittest import TestCase
 from logzero import logger
 
-from neofox.model.conversion import ModelValidator, ModelConverter
+from neofox.model.factories import MhcFactory
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Mutation, Mhc2GeneName, Mhc2Name
-
+from neofox.model.neoantigen import Mhc2Name
 from neofox.helpers.epitope_helper import EpitopeHelper
-
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred

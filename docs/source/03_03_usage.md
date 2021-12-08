@@ -133,7 +133,7 @@ neoantigen = NeoantigenFactory.build_neoantigen(
 )
 ```   
 
-### Create a patient model
+### Create a patient object
 
 In order to parse MHC alleles and being able to normalize them into a standard nomenclature, load the following resources.
 ```python
@@ -175,34 +175,36 @@ where:
        - `neoantigens`: a list of neoantigen objects  
        - `patients`: a list of patient objects  
        - `num_cpus`: number of CPUs to use (*optional*)
-       
-### Transformation of the output   
+
+
+**HINT**: process multiple neoantigens by passing a list of neoantigens and a list of patients to `NeoFox().get_annotations()`.
+
+
+### Data transformation   
     
-Depending on the use case, the user can transform the resulting neoantigen feature annotations into the formats described [here](03_02_output_data.md).
+Depending on the use case, the user can transform the resulting neoantigen feature annotations into 
+a Pandas data frame or into JSON format, as described [here](03_02_output_data.md).
 
 ```python
 from neofox.model.conversion import ModelConverter
 
 # Pandas data frame
-annotations_table = ModelConverter.annotations2table(neoantigens=[neoantigen])
+annotations_table = ModelConverter.annotations2table(neoantigens=annotated_neoantigens)
 
 # JSON 
-neoantigen_json = ModelConverter.objects2json(model_objects=[neoantigen])
+neoantigen_json = ModelConverter.objects2json(model_objects=annotated_neoantigens)
 ```
-   
-   
-**PLEASE NOTE THE FOLLOWING HINTS**:   
 
-- process multiple neoantigens by passing a list of neoantigens and a list of patients to `NeoFox().get_annotations()`.
-- only the transformation of the annotation with `ModelConverter.annotations2short_wide_table()` will keep both information of neoantigen candidates and annotated features values. with Neoantigen objects can be transformed into other formats, too when `ModelConverter.annotations2tall_skinny_table()` or `ModelConverter.objects2json()` were used. In case of our example:  
+The same is applicable for a list of input patients.
 
 ```python
-# convert neoantigens into data frame
-neoantigens_df = ModelConverter.objects2dataframe(model_objects=[neoantigen])
+# Pandas data frame
+patients_table = ModelConverter.patients2table(patients=patients)
 
-# convert neoantigens into JSON format 
-neoantigens_json = ModelConverter.objects2json(model_objects=[neoantigen])
-```   
+# JSON 
+patients_json = ModelConverter.objects2json(model_objects=patients)
+```
+
 - instead of creating neoantigen or patient models, tabular or json files containing this information can be passed:  
   The neoantigen candidates can be provided in [candidate-file format](03_01_input_data.md#tabular-file-format)
 
@@ -210,8 +212,7 @@ neoantigens_json = ModelConverter.objects2json(model_objects=[neoantigen])
 model_file = "/path/to/neoantigen_candidates.tab"
 neoantigens = ModelConverter.parse_neoantigens_file(neoantigens_file=model_file)
 ```
-  
- 
+
 or in [JSON format](03_01_input_data.md#json-file-format). 
 
 ```python

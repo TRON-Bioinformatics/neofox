@@ -22,6 +22,7 @@ import numpy as np
 from Bio.Data import IUPACData
 from mock import Mock
 from neofox.model.factories import NeoantigenFactory
+from neofox.model.neoantigen import Mutation, Neoantigen
 
 
 def mock_file_existence(existing_files=[], non_existing_files=[]):
@@ -52,7 +53,7 @@ def mock_file_is_executable(executable_files=[], non_executable_files=[]):
     os.access = Mock(side_effect=side_effect)
 
 
-def get_random_neoantigen():
+def get_random_neoantigen() -> Neoantigen:
 
     mutated_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
     wild_type_aminoacid = random.choices(list(IUPACData.protein_letters), k=1)[0]
@@ -72,8 +73,9 @@ def get_random_neoantigen():
     return neoantigen
 
 
-def get_mutation(mutated_xmer, wild_type_xmer):
+def get_mutation(mutated_xmer, wild_type_xmer) -> Mutation:
 
     return NeoantigenFactory.build_neoantigen(
+        patient_identifier="123",
         mutated_xmer=mutated_xmer,
         wild_type_xmer=wild_type_xmer).mutation
