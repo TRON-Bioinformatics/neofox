@@ -21,10 +21,7 @@ from unittest import TestCase
 from neofox.model.neoantigen import Annotation
 from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.helpers.runner import Runner
-from neofox.model.neoantigen import Mutation
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.tests.fake_classes import FakeBestAndMultipleBinder
-from neofox.model.conversion import ModelValidator
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.tests.tools import get_mutation
 

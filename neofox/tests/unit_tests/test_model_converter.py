@@ -61,7 +61,7 @@ class ModelConverterTest(TestCase):
 
     def test_model2csv(self):
         neoantigen = get_random_neoantigen()
-        csv_data = ModelConverter.objects2dataframe([neoantigen])
+        csv_data = ModelConverter._objects2dataframe([neoantigen])
         self.assertIsNotNone(csv_data)
         self.assertIsInstance(csv_data, pd.DataFrame)
         self.assertEqual(
@@ -71,8 +71,8 @@ class ModelConverterTest(TestCase):
 
     def test_model2csv2model(self):
         neoantigen = get_random_neoantigen()
-        csv_data = ModelConverter.objects2dataframe([neoantigen])
-        neoantigen2 = ModelConverter.neoantigens_csv2objects(csv_data)[0]
+        csv_data = ModelConverter._objects2dataframe([neoantigen])
+        neoantigen2 = ModelConverter._neoantigens_csv2objects(csv_data)[0]
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_neoantigen_annotations(self):
@@ -208,7 +208,7 @@ class ModelConverterTest(TestCase):
             neofox.tests.__name__, "resources/test_data_model.txt"
         )
         data = pd.read_csv(neoantigens_file, sep="\t")
-        neoantigens = ModelConverter.neoantigens_csv2objects(data)
+        neoantigens = ModelConverter._neoantigens_csv2objects(data)
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
@@ -490,17 +490,11 @@ class ModelConverterTest(TestCase):
 
     def test_parse_mhc1_loss_alleles(self):
         mhc1s = MhcFactory.build_mhc1_alleles([], self.hla_database)
-        self.assertEqual(3, len(mhc1s))
-        for mhc1 in mhc1s:
-            self.assertEqual(Zygosity.LOSS, mhc1.zygosity)
-            self.assertEqual(0, len(mhc1.alleles))
+        self.assertEqual(0, len(mhc1s))
 
     def test_parse_mhc1_loss_alleles_mouse(self):
         mhc1s = MhcFactory.build_mhc1_alleles([], self.h2_database)
-        self.assertEqual(3, len(mhc1s))
-        for mhc1 in mhc1s:
-            self.assertEqual(Zygosity.LOSS, mhc1.zygosity)
-            self.assertEqual(0, len(mhc1.alleles))
+        self.assertEqual(0, len(mhc1s))
 
     def test_parse_mhc1_bad_format_fails(self):
         self.assertRaises(
@@ -760,23 +754,11 @@ class ModelConverterTest(TestCase):
 
     def test_parse_mhc2_loss(self):
         mhc2s = MhcFactory.build_mhc2_alleles([], self.hla_database)
-        self.assertEqual(3, len(mhc2s))
-        for mhc2 in mhc2s:
-            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
-            for gene in mhc2.genes:
-                self.assertEqual(Zygosity.LOSS, gene.zygosity)
-                self.assertEqual(0, len(gene.alleles))
-            self.assertEqual(0, len(mhc2.isoforms))
+        self.assertEqual(0, len(mhc2s))
 
     def test_parse_mhc2_loss_mouse(self):
         mhc2s = MhcFactory.build_mhc2_alleles([], self.h2_database)
-        self.assertEqual(2, len(mhc2s))
-        for mhc2 in mhc2s:
-            self.assertEqual(1, len(mhc2.genes))
-            for gene in mhc2.genes:
-                self.assertEqual(Zygosity.LOSS, gene.zygosity)
-                self.assertEqual(0, len(gene.alleles))
-            self.assertEqual(0, len(mhc2.isoforms))
+        self.assertEqual(0, len(mhc2s))
 
     def test_parse_mhc2_bad_format_fails(self):
         self.assertRaises(
