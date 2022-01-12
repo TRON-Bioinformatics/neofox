@@ -20,7 +20,7 @@ from typing import List
 from logzero import logger
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.model.neoantigen import Annotation, MhcAllele
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 immunoweight = [0.00, 0.00, 0.10, 0.31, 0.30, 0.29, 0.26, 0.18, 0.00]

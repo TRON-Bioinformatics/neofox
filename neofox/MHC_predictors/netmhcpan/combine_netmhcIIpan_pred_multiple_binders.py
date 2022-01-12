@@ -29,7 +29,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 
 LENGTH_MHC2_EPITOPE = 15
@@ -137,9 +137,10 @@ class BestAndMultipleBinderMhcII:
                 rank_mutation = epitope.rank
                 if rank_mutation == 0:
                     rank_mutation = 0.01
-                dai = wt_peptide.rank / rank_mutation
-                if dai > threshold:
-                    number_binders += 1
+                if wt_peptide is not None:
+                    dai = wt_peptide.rank / rank_mutation
+                    if dai > threshold:
+                        number_binders += 1
         return number_binders if not len(values) == 0 else None
 
     @staticmethod

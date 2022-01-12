@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-VERSION = "0.5.4.dev7"
+VERSION = "0.5.4.dev8"
 
 
 REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"
@@ -33,5 +33,7 @@ NEOFOX_HLA_DATABASE_ENV = "NEOFOX_HLA_DATABASE"
 
 MHC_II = "mhcII"
 MHC_I = "mhcI"
+
+NOT_AVAILABLE_VALUE = "NA"
 
 AFFINITY_THRESHOLD_DEFAULT = 500000

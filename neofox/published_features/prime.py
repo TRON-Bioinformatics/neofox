@@ -27,7 +27,7 @@ from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 
 from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
 import os

@@ -20,7 +20,7 @@ import pickle
 from typing import List
 from logzero import logger
 from neofox.model.neoantigen import Annotation
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 
 
 class Uniprot(object):

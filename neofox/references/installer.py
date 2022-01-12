@@ -271,10 +271,10 @@ class NeofoxReferenceInstaller(object):
         proteome_database = []
         for record in SeqIO.parse(proteome_file, "fasta"):
             proteome_database.append(record)
-            proteome_sequences_to_serialize.append(record.seq)
+            proteome_sequences_to_serialize.append(str(record.seq))
         for record in SeqIO.parse(proteome_isoforms_file, "fasta"):
             proteome_database.append(record)
-            proteome_sequences_to_serialize.append(record.seq)
+            proteome_sequences_to_serialize.append(str(record.seq))
 
         SeqIO.write(proteome_database, proteome_file, "fasta")
 

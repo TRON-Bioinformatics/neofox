@@ -19,33 +19,17 @@
 from typing import List
 import pandas as pd
 import betterproto
-import stringcase
 from betterproto import Casing
-from neofox.exceptions import NeofoxDataValidationException
-from logzero import logger
+from neofox import NOT_AVAILABLE_VALUE
 from collections import defaultdict
 import orjson as json
 import numpy as np
-
-from neofox.model.mhc_parser import MhcParser
-from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import (
     Neoantigen,
-    Mutation,
     Patient,
-    Mhc2Name,
-    Mhc2GeneName,
-    Zygosity,
-    Mhc2Gene,
-    Mhc2,
-    Mhc2Isoform,
-    MhcAllele,
-    Mhc1Name,
-    Mhc1,
     Annotation,
 )
-from neofox.model.wrappers import get_mhc2_isoform_name, NOT_AVAILABLE_VALUE
-from neofox.exceptions import NeofoxInputParametersException
+from neofox.model.factories import PatientFactory, NeoantigenFactory
 from neofox.references.references import MhcDatabase
 
 FIELD_VAF_DNA = "VAF_in_tumor"
@@ -54,16 +38,10 @@ FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
 FIELD_GENE = "gene"
 FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 FIELD_MUTATED_XMER = "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
-GENES_BY_MOLECULE = {
-    Mhc2Name.DR: [Mhc2GeneName.DRB1],
-    Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
-    Mhc2Name.DQ: [Mhc2GeneName.DQA1, Mhc2GeneName.DQB1],
-    Mhc2Name.H2E_molecule: [Mhc2GeneName.H2E],
-    Mhc2Name.H2A_molecule: [Mhc2GeneName.H2A],
-}
 
 
 class ModelConverter(object):
+
     @staticmethod
     def parse_candidate_file(candidate_file: str, patient_id: str = None) -> List[Neoantigen]:
         """
@@ -106,7 +84,7 @@ class ModelConverter(object):
         else:
             # NOTE: this is the support for the NeoFox format
             data = data.replace({np.nan: None})
-            neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
+            neoantigens = ModelConverter._neoantigens_csv2objects(data)
         return neoantigens
 
     @staticmethod
@@ -128,19 +106,24 @@ class ModelConverter(object):
                 "identifier": str
             }
         )
-        return ModelConverter.patient_metadata_csv2objects(df, mhc_database)
+
+        patients = []
+        for _, row in df.iterrows():
+            patient_dict = row.to_dict()
+            patient = PatientFactory.build_patient(
+                identifier=patient_dict.get("identifier"),
+                is_rna_available=patient_dict.get("isRnaAvailable", False),
+                tumor_type=patient_dict.get("tumorType"),
+                mhc_alleles=patient_dict["mhcIAlleles"],
+                mhc2_alleles=patient_dict["mhcIIAlleles"],
+                mhc_database=mhc_database
+            )
+            patients.append(patient)
+        return patients
 
     @staticmethod
     def parse_neoantigens_file(neoantigens_file):
-        return ModelConverter.parse_neoantigens_dataframe(pd.read_csv(neoantigens_file, sep="\t"))
-
-    @staticmethod
-    def parse_neoantigens_dataframe(dataframe: pd.DataFrame) -> List[Neoantigen]:
-        """
-        :param dataframe: a pandas data frame with neoantigens data
-        :return: the parsed CSV into model objects
-        """
-        return ModelConverter.neoantigens_csv2objects(dataframe)
+        return ModelConverter._neoantigens_csv2objects(pd.read_csv(neoantigens_file, sep="\t"))
 
     @staticmethod
     def parse_neoantigens_json_file(neoantigens_json_file: str) -> List[Neoantigen]:
@@ -153,15 +136,6 @@ class ModelConverter(object):
         ]
 
     @staticmethod
-    def objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:
-        """
-        :param model_objects: list of objects of subclass of betterproto.Message
-        """
-        return pd.json_normalize(
-            data=[n.to_dict(include_default_values=True) for n in model_objects]
-        )
-
-    @staticmethod
     def objects2json(model_objects: List[betterproto.Message]):
         """
         :param model_objects: list of objects of subclass of betterproto.Message
@@ -169,121 +143,9 @@ class ModelConverter(object):
         return [o.to_dict(casing=Casing.SNAKE) for o in model_objects]
 
     @staticmethod
-    def object2series(model_object: betterproto.Message) -> pd.Series:
-        """
-        :param model_object: object of subclass of betterproto.Message
-        """
-        return pd.json_normalize(
-            data=model_object.to_dict(casing=Casing.SNAKE, include_default_values=True)
-        ).iloc[0]
-
-    @staticmethod
-    def object2flat_dict(model: betterproto.Message) -> dict:
-        """
-        Transforms a model object into a flat dict. Nested fields are concatenated with a dot
-        """
-        return ModelConverter.object2series(model).to_dict()
-
-    @staticmethod
-    def neoantigens_csv2object(series: pd.Series) -> Neoantigen:
-        """transforms an entry from a CSV into an object"""
-        return Neoantigen().from_dict(
-            ModelConverter._flat_dict2nested_dict(flat_dict=series.to_dict())
-        )
-
-    @staticmethod
-    def patient_metadata_csv2objects(dataframe: pd.DataFrame, mhc_database: MhcDatabase) -> List[Patient]:
-        """transforms an patients CSV into a list of objects"""
-        patients = []
-        for _, row in dataframe.iterrows():
-            patient_dict = row.to_dict()
-            patient = Patient().from_dict(patient_dict)
-            mhc_alleles = patient_dict["mhcIAlleles"]
-            # NOTE: during the parsing of empty columns empty lists become a list with one empty string ...
-            if len(mhc_alleles) > 1 or (len(mhc_alleles) == 1 and len(mhc_alleles[0]) > 0):
-                patient.mhc1 = ModelConverter.parse_mhc1_alleles(mhc_alleles, mhc_database)
-            else:
-                patient.mhc1 = None
-            mhc2_alleles = patient_dict["mhcIIAlleles"]
-            if len(mhc2_alleles) > 1 or (len(mhc2_alleles) == 1 and len(mhc2_alleles[0]) > 0):
-                patient.mhc2 = ModelConverter.parse_mhc2_alleles(mhc2_alleles, mhc_database)
-            else:
-                patient.mhc2 = None
-            patients.append(patient)
-        return patients
-
-    @staticmethod
-    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
-        """parses an row from a candidate file into a model object"""
-
-        mutation = Mutation()
-        mutation.wild_type_xmer = candidate_entry.get(FIELD_WILD_TYPE_XMER)
-        mutation.mutated_xmer = candidate_entry.get(FIELD_MUTATED_XMER)
-
-        neoantigen = Neoantigen()
-        neoantigen.patient_identifier = (
-            patient_id if patient_id else candidate_entry.get("patient")
-        )
-        if neoantigen.patient_identifier is None:
-            raise NeofoxInputParametersException(
-                "Please, define the parameter `patient_id` or provide a column ´patient´ in the candidate file "
-            )
-        neoantigen.mutation = mutation
-        neoantigen.gene = candidate_entry.get(FIELD_GENE)
-        # missing RNA expression values are represented as -1
-        logger.info(neoantigen.patient_identifier)
-        vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
-        neoantigen.rna_expression = vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None
-        neoantigen.rna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_RNA)
-        neoantigen.dna_variant_allele_frequency = candidate_entry.get(FIELD_VAF_DNA)
-
-        return ModelValidator.validate_neoantigen(neoantigen)
-
-    @staticmethod
-    def neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
-        """transforms an patients CSV into a list of objects"""
-        neoantigens = []
-        for _, row in dataframe.iterrows():
-            nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
-            neoantigen = ModelConverter._rescueNoneValues(nested_dict)
-            neoantigen_field_names = set(Neoantigen.__annotations__.keys())
-            external_annotation_names = dict.fromkeys(
-                nam for nam in nested_dict.keys() if stringcase.snakecase(nam) not in neoantigen_field_names)
-            neoantigen.external_annotations = [
-                Annotation(name=name, value=str(nested_dict.get(name))) for name in external_annotation_names]
-            validated_neoantigen = ModelValidator.validate_neoantigen(neoantigen)
-            neoantigens.append(validated_neoantigen)
-
-        return neoantigens
-
-    @staticmethod
-    def _rescueNoneValues(
-            neoantigen_dict: dict,
-    ) -> Neoantigen:
-        neoantigen = Neoantigen().from_dict(neoantigen_dict)
-
-        if ModelConverter._requires_rescue("dnaVariantAlleleFrequency", neoantigen_dict):
-            neoantigen.dna_variant_allele_frequency = None
-
-        if ModelConverter._requires_rescue("rnaExpression", neoantigen_dict):
-            neoantigen.rna_expression = None
-
-        if ModelConverter._requires_rescue("rnaVariantAlleleFrequency", neoantigen_dict):
-            neoantigen.rna_variant_allele_frequency = None
-
-        if ModelConverter._requires_rescue("imputedGeneExpression", neoantigen_dict):
-            neoantigen.imputed_gene_expression = None
-
-        return neoantigen
-
-    @staticmethod
-    def _requires_rescue(name, neoantigen_dict):
-        return name not in neoantigen_dict or neoantigen_dict[name] is None
-
-    @staticmethod
     def annotations2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
         dfs = []
-        neoantigens_df = ModelConverter.neoantigens2table(neoantigens)
+        neoantigens_df = ModelConverter._neoantigens2table(neoantigens)
         neoantigens_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
         # we set the order of columns
         neoantigens_df = neoantigens_df.loc[:,
@@ -301,9 +163,9 @@ class ModelConverter(object):
             annotations = [a.to_dict() for a in n.neofox_annotations.annotations]
             annotations.extend([a.to_dict() for a in n.external_annotations])
             df = (
-                    pd.DataFrame(annotations)
+                pd.DataFrame(annotations)
                     .set_index("name")
-                   .transpose()
+                    .transpose()
             )
 
             dfs.append(df)
@@ -311,13 +173,6 @@ class ModelConverter(object):
         del neofox_annotations_df["index"]
         df = pd.concat([neoantigens_df, neofox_annotations_df], axis=1)
         df.replace('None', NOT_AVAILABLE_VALUE, inplace=True)
-        return df
-
-    @staticmethod
-    def neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
-        df = ModelConverter.objects2dataframe(neoantigens)
-        df["mutation.position"] = df["mutation.position"].transform(
-            lambda x: ",".join([str(y) for y in x]) if x is not None else x)
         return df
 
     @staticmethod
@@ -332,6 +187,68 @@ class ModelConverter(object):
             del patient_dict["mhc2"]
             patients_dict.append(patient_dict)
         df = pd.json_normalize(data=patients_dict)
+        return df
+
+    @staticmethod
+    def _objects2dataframe(model_objects: List[betterproto.Message]) -> pd.DataFrame:
+        """
+        :param model_objects: list of objects of subclass of betterproto.Message
+        """
+        return pd.json_normalize(
+            data=[n.to_dict(include_default_values=True) for n in model_objects]
+        )
+
+    @staticmethod
+    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
+        """parses an row from a candidate file into a model object"""
+
+        vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
+        return NeoantigenFactory.build_neoantigen(
+            wild_type_xmer=candidate_entry.get(FIELD_WILD_TYPE_XMER),
+            mutated_xmer=candidate_entry.get(FIELD_MUTATED_XMER),
+            patient_identifier=patient_id if patient_id else candidate_entry.get("patient"),
+            gene=candidate_entry.get(FIELD_GENE),
+            rna_expression=vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None,
+            rna_variant_allele_frequency=candidate_entry.get(FIELD_VAF_RNA),
+            dna_variant_allele_frequency=candidate_entry.get(FIELD_VAF_DNA)
+        )
+
+    @staticmethod
+    def _neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
+        """transforms an patients CSV into a list of objects"""
+        neoantigens = []
+        for _, row in dataframe.iterrows():
+            nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
+
+            # build the external annotations from anything not from the model
+            external_annotations = nested_dict.copy()
+            external_annotations.pop("mutation", None)
+            external_annotations.pop("patientIdentifier", None)
+            external_annotations.pop("gene", None)
+            external_annotations.pop("rnaExpression", None)
+            external_annotations.pop("rnaVariantAlleleFrequency", None)
+            external_annotations.pop("dnaVariantAlleleFrequency", None)
+
+            neoantigen = NeoantigenFactory.build_neoantigen(
+                wild_type_xmer=nested_dict.get("mutation", {}).get("wildTypeXmer"),
+                mutated_xmer=nested_dict.get("mutation", {}).get("mutatedXmer"),
+                patient_identifier=nested_dict.get("patientIdentifier"),
+                gene=nested_dict.get("gene"),
+                rna_expression=nested_dict.get("rnaExpression"),
+                rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
+                dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
+                imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                **external_annotations
+            )
+            neoantigens.append(neoantigen)
+
+        return neoantigens
+
+    @staticmethod
+    def _neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
+        df = ModelConverter._objects2dataframe(neoantigens)
+        df["mutation.position"] = df["mutation.position"].transform(
+            lambda x: ",".join([str(y) for y in x]) if x is not None else x)
         return df
 
     @staticmethod
@@ -350,152 +267,3 @@ class ModelConverter(object):
                 nested_dict[k] = v
         return dict(nested_dict)
 
-    @staticmethod
-    def parse_mhc1_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc1]:
-        isoforms = []
-        try:
-            mhc_parser = MhcParser.get_mhc_parser(mhc_database)
-            parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
-            ModelConverter._validate_mhc1_alleles(parsed_alleles)
-
-            # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for mhc1_gene in mhc_database.mhc1_genes:
-                gene_alleles = list(
-                    filter(lambda a: a.gene == mhc1_gene.name, parsed_alleles)
-                )
-                zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
-                if zygosity == Zygosity.HOMOZYGOUS:
-                    gene_alleles = [
-                        gene_alleles[0]
-                    ]  # we don't want repeated instances of the same allele
-                isoforms.append(
-                    Mhc1(name=mhc1_gene, zygosity=zygosity, alleles=gene_alleles)
-                )
-        except AssertionError as e:
-            raise NeofoxDataValidationException(e)
-        return isoforms
-
-    @staticmethod
-    def parse_mhc2_alleles(alleles: List[str], mhc_database: MhcDatabase) -> List[Mhc2]:
-        mhc2s = []
-        try:
-            mhc_parser = MhcParser.get_mhc_parser(mhc_database)
-            parsed_alleles = list(map(mhc_parser.parse_mhc_allele, alleles))
-            ModelConverter._validate_mhc2_alleles(parsed_alleles)
-
-            # do we need to validate genes anymore? add test creating MhcAllele with bad gene and see what happens
-            for mhc2_isoform_name in mhc_database.mhc2_molecules:
-                mhc2_isoform_genes = GENES_BY_MOLECULE.get(mhc2_isoform_name)
-                isoform_alleles = list(
-                    filter(lambda a: a.gene in [g.name for g in mhc2_isoform_genes], parsed_alleles)
-                )
-                genes = []
-                for gene_name in mhc2_isoform_genes:
-                    gene_alleles = list(
-                        filter(lambda a: a.gene == gene_name.name, isoform_alleles)
-                    )
-                    zygosity = ModelConverter._get_zygosity_from_alleles(gene_alleles)
-                    if zygosity == Zygosity.HOMOZYGOUS:
-                        gene_alleles = [
-                            gene_alleles[0]
-                        ]  # we don't want repeated instances of the same allele
-                    genes.append(
-                        Mhc2Gene(
-                            name=gene_name, zygosity=zygosity, alleles=gene_alleles
-                        )
-                    )
-                isoforms = ModelConverter._get_mhc2_isoforms(mhc2_isoform_name, genes)
-                mhc2s.append(Mhc2(name=mhc2_isoform_name, genes=genes, isoforms=isoforms))
-        except AssertionError as e:
-            raise NeofoxDataValidationException(e)
-        return mhc2s
-
-    @staticmethod
-    def _get_mhc2_isoforms(
-        isoform_name: Mhc2Name, genes: List[Mhc2Gene]
-    ) -> List[Mhc2Isoform]:
-        isoforms = []
-        if isoform_name == Mhc2Name.DR:
-            assert len(genes) <= 1, "More than one gene provided for MHC II DR"
-            # alpha chain of the MHC II DR is not modelled as it is constant
-            isoforms = [
-                Mhc2Isoform(name=a.name, alpha_chain=MhcAllele(), beta_chain=a)
-                for g in genes
-                for a in g.alleles
-            ]
-        elif isoform_name == Mhc2Name.DP:
-            assert len(genes) <= 2, "More than two genes provided for MHC II DP"
-            alpha_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DPA1 for a in g.alleles
-            ]
-            beta_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DPB1 for a in g.alleles
-            ]
-            isoforms = [
-                Mhc2Isoform(
-                    name=get_mhc2_isoform_name(a, b), alpha_chain=a, beta_chain=b
-                )
-                for a in alpha_alleles
-                for b in beta_alleles
-            ]
-        elif isoform_name == Mhc2Name.DQ:
-            assert len(genes) <= 2, "More than two genes provided for MHC II DQ"
-            alpha_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DQA1 for a in g.alleles
-            ]
-            beta_alleles = [
-                a for g in genes if g.name == Mhc2GeneName.DQB1 for a in g.alleles
-            ]
-            isoforms = [
-                Mhc2Isoform(
-                    name=get_mhc2_isoform_name(a, b), alpha_chain=a, beta_chain=b
-                )
-                for a in alpha_alleles
-                for b in beta_alleles
-            ]
-        # mouse MHC II molecules do not act as pairs
-        elif isoform_name == Mhc2Name.H2A_molecule:
-            assert len(genes) <= 2, "More than two genes provided for H2A"
-            isoforms = [
-                Mhc2Isoform(name=a.name, alpha_chain=a, beta_chain=MhcAllele())
-                for g in genes if g.name == Mhc2GeneName.H2A for a in g.alleles
-            ]
-        elif isoform_name == Mhc2Name.H2E_molecule:
-            assert len(genes) <= 2, "More than two genes provided for H2E"
-            isoforms = [
-                Mhc2Isoform(name=a.name, alpha_chain=a, beta_chain=MhcAllele())
-                for g in genes if g.name == Mhc2GeneName.H2E for a in g.alleles
-            ]
-        return isoforms
-
-    @staticmethod
-    def _get_zygosity_from_alleles(alleles: List[MhcAllele]) -> Zygosity:
-        assert (
-            len(set([a.gene for a in alleles])) <= 1
-        ), "Trying to get zygosity from alleles of different genes"
-        assert len(alleles) <= 2, "More than 2 alleles for gene {}".format(
-            alleles[0].gene
-        )
-        if len(alleles) == 2 and alleles[0].name == alleles[1].name:
-            zygosity = Zygosity.HOMOZYGOUS
-        elif len(alleles) == 2:
-            zygosity = Zygosity.HETEROZYGOUS
-        elif len(alleles) == 1:
-            zygosity = Zygosity.HEMIZYGOUS
-        else:
-            zygosity = Zygosity.LOSS
-        return zygosity
-
-    @staticmethod
-    def _validate_mhc1_alleles(parsed_alleles: List[MhcAllele]):
-        for a in parsed_alleles:
-            assert (
-                a.gene in Mhc1Name.__members__
-            ), "MHC I allele is not valid {} at {}".format(a.gene, a.full_name)
-
-    @staticmethod
-    def _validate_mhc2_alleles(parsed_alleles: List[MhcAllele]):
-        for a in parsed_alleles:
-            assert (
-                a.gene in Mhc2GeneName.__members__
-            ), "MHC II allele is not valid {} at {}".format(a.gene, a.full_name) if a.full_name != "" else "Gene from MHC II allele is empty"

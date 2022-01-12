@@ -34,7 +34,7 @@ from neofox.model.neoantigen import (
     Mhc2,
     Mhc2Isoform,
     MhcAllele,
-    Mhc1
+    Mhc1, Mhc1Name
 )
 from neofox.references.references import ORGANISM_HOMO_SAPIENS, MHC_I_GENES_BY_ORGANISM, MHC_II_GENES_BY_ORGANISM, \
     ORGANISM_MUS_MUSCULUS
@@ -46,6 +46,8 @@ FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
 FIELD_GENE = "gene"
 FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 FIELD_MUTATED_XMER = "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
+
+
 GENES_BY_MOLECULE = {
     Mhc2Name.DR: [Mhc2GeneName.DRB1],
     Mhc2Name.DP: [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1],
@@ -56,6 +58,7 @@ GENES_BY_MOLECULE = {
 
 
 class ModelValidator(object):
+
     @staticmethod
     def validate(model: betterproto.Message):
         # TODO: make this method capture appropriately validation issues when dealing with int and float
@@ -64,10 +67,8 @@ class ModelValidator(object):
         except Exception as e:
             raise NeofoxDataValidationException(e)
 
-    # TODO: add patient validation: validate GTEx tissue and MHC alleles
-
     @staticmethod
-    def validate_neoantigen(neoantigen: Neoantigen) -> Neoantigen:
+    def validate_neoantigen(neoantigen: Neoantigen):
 
         # checks format consistency first
         ModelValidator.validate(neoantigen)
@@ -77,7 +78,7 @@ class ModelValidator(object):
                 "A patient identifier is missing. Please provide patientIdentifier in the input file"
 
             # checks mutation
-            neoantigen.mutation = ModelValidator._validate_mutation(neoantigen.mutation)
+            ModelValidator._validate_mutation(neoantigen.mutation)
 
             # check the expression values
             ModelValidator._validate_expression_values(neoantigen)
@@ -85,25 +86,20 @@ class ModelValidator(object):
             logger.error(neoantigen.to_json(indent=3))
             raise NeofoxDataValidationException(e)
 
-        return neoantigen
-
     @staticmethod
-    def validate_patient(patient: Patient, organism=ORGANISM_HOMO_SAPIENS) -> Patient:
+    def validate_patient(patient: Patient, organism=ORGANISM_HOMO_SAPIENS):
 
         # checks format consistency first
         ModelValidator.validate(patient)
 
         try:
             # checks that patient id is not empty considering white spaces
-            patient_id = (
-                patient.identifier.strip() if patient.identifier else patient.identifier
-            )
-            assert (
-                patient_id is not None and patient_id != ""
-            ), "A patient identifier is missing"
-            patient.identifier = patient_id
 
-            # TODO: validate new model with isoforms, genes and alleles
+            patient_id = patient.identifier.strip() if patient.identifier else patient.identifier
+            assert patient_id is not None and patient_id != "", "A patient identifier is missing"
+            assert patient.identifier == patient.identifier.strip(), \
+                "Patient identifier contains white spaces at start or end: {}".format(patient.identifier)
+
             # checks MHC I
             if patient.mhc1:
                 for m in patient.mhc1:
@@ -116,8 +112,6 @@ class ModelValidator(object):
         except AssertionError as e:
             logger.error(patient.to_json(indent=3))
             raise NeofoxDataValidationException(e)
-
-        return patient
 
     @staticmethod
     def _validate_mhc1(mhc1: Mhc1, organism: str):
@@ -200,7 +194,7 @@ class ModelValidator(object):
         ModelValidator._validate_vaf(neoantigen.rna_variant_allele_frequency)
 
     @staticmethod
-    def _validate_mutation(mutation: Mutation) -> Mutation:
+    def _validate_mutation(mutation: Mutation):
         assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
             "Missing mutated peptide sequence in input (mutation.mutatedXmer) "
         mutation.mutated_xmer = "".join(
@@ -214,8 +208,8 @@ class ModelValidator(object):
                     for aa in mutation.wild_type_xmer
                 ]
             )
-            mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=mutation)
-        return mutation
+        assert mutation.position is not None and mutation.position != "", \
+            "The position of the mutation is empty, please use EpitopeHelper.mut_position_xmer_seq() to fill it"
 
     @staticmethod
     def _validate_vaf(vaf):
@@ -304,3 +298,14 @@ class ModelValidator(object):
         except AssertionError as e:
             logger.error(isoform.to_json(indent=3))
             raise NeofoxDataValidationException(e)
+
+    @staticmethod
+    def validate_mhc1_gene(allele: MhcAllele):
+        assert allele.gene in Mhc1Name.__members__, \
+            "MHC I allele is not valid {} at {}".format(allele.gene, allele.full_name)
+
+    @staticmethod
+    def validate_mhc2_gene(allele: MhcAllele):
+        assert allele.gene in Mhc2GeneName.__members__, \
+            "MHC II allele is not valid {} at {}".format(
+                allele.gene, allele.full_name) if allele.full_name != "" else "Gene from MHC II allele is empty"
