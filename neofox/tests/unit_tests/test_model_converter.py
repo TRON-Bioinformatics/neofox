@@ -185,6 +185,26 @@ class ModelConverterTest(TestCase):
                 neoantigen_annotations=n.external_annotations,
             )
 
+    def test_candidate_neoantigens2model_with_dot_in_column_name(self):
+        candidate_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_data_with_dot_in_column_name.txt"
+        )
+        with open(candidate_file) as f:
+            self.count_lines = len(f.readlines())
+        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
+        for n in neoantigens:
+            self.assertTrue(sum(a.name == "my.annotation.with.dots" for a in n.external_annotations) > 0)
+
+    def test_candidate_neoantigens2model_with_mutation_in_column_name(self):
+        candidate_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_data_with_mutation_in_column_name.txt"
+        )
+        with open(candidate_file) as f:
+            self.count_lines = len(f.readlines())
+        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
+        for n in neoantigens:
+            self.assertTrue(sum(a.name == "mutation" for a in n.external_annotations) > 0)
+
     def _assert_external_annotations(
         self, expected_external_annotations, neoantigen_annotations, non_nullable_annotations=[]
     ):
