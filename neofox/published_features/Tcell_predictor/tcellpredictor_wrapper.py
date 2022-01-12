@@ -48,7 +48,8 @@ class TcellPrediction:
                 ),
                 'rb'
             ) as f:
-                self.classifier = pickle.load(f)
+                # this sets the n_jobs parameter otherwise inherited from the pickle file
+                self.classifier = pickle.load(f).set_params(n_jobs=1)
 
     def _triple_gen_seq_subst(self, gene, substitution, epitope, score):
         """
