@@ -272,7 +272,8 @@ class ReferenceFolder(object):
 
     def get_resources_versions(self):
         try:
-            resources_version = json.loads(open(self.resources_versions_file).read())
+            with open(self.resources_versions_file) as fd:
+                resources_version = json.loads(fd.read())
         except FileNotFoundError:
             # NOTE: capturing this error is here to make unit tests easier, otherwise we need to create this resources
             # file always.
