@@ -16,16 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
-
 from logzero import logger
 from unittest import TestCase
-
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.model.factories import MhcFactory
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Mutation
-
-from neofox.model.conversion import ModelConverter, ModelValidator
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.helpers.runner import Runner
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
@@ -37,6 +32,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.tests.tools import get_mutation
 
 
 class TestBestMultipleBinder(TestCase):
@@ -64,11 +60,9 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
         )
         best_multiple.run(
             mutation=mutation,
@@ -96,11 +90,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
         )
         # all alleles = heterozygous
         predictions = netmhcpan.mhc_prediction(
@@ -119,7 +111,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNotNone(phbr_i)
         self.assertAlmostEqual(1.359324592015038, phbr_i)
         # one homozygous allele present
-        mhc_alleles = ModelConverter.parse_mhc1_alleles(
+        mhc_alleles = MhcFactory.build_mhc1_alleles(
             [
                 "HLA-A*24:02",
                 "HLA-A*02:01",
@@ -145,7 +137,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNotNone(phbr_i)
         self.assertAlmostEqual(1.0036998409510969, phbr_i)
         # mo info for one allele
-        mhc_alleles = ModelConverter.parse_mhc1_alleles(
+        mhc_alleles = MhcFactory.build_mhc1_alleles(
             ["HLA-A*24:02", "HLA-A*02:01", "HLA-B*15:01", "HLA-B*44:02", "HLA-C*05:01"], self.hla_database
         )
 
@@ -169,11 +161,9 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
         )
         best_multiple.run(
             mutation=mutation,
@@ -201,11 +191,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
-                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
+        mutation = get_mutation(
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(self.test_mhc_two)
@@ -228,7 +216,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNotNone(phbr_ii)
         self.assertAlmostEqual(8.895757526065129, phbr_ii)
         # mo info for one allele
-        mhc2_alleles = ModelConverter.parse_mhc2_alleles(
+        mhc2_alleles = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*04:02",
                 "HLA-DRB1*08:01",
@@ -264,7 +252,7 @@ class TestBestMultipleBinder(TestCase):
         self.assertIsNone(phbr_ii)
 
         # one allele present
-        mhc2_alleles = ModelConverter.parse_mhc2_alleles(
+        mhc2_alleles = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*04:02",
                 "HLA-DRB1*08:01",
@@ -307,11 +295,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
-                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
+        mutation = get_mutation(
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
         predictions = netmhcpan.mhc_prediction(
@@ -350,11 +336,9 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
-                mutated_xmer="RTNLLAALHRSVRWRAADQGHRSAFLV",
-                wild_type_xmer="RTNLLAALHRSVRRRAADQGHRSAFLV",
-            )
+        mutation = get_mutation(
+            mutated_xmer="RTNLLAALHRSVRWRAADQGHRSAFLV",
+            wild_type_xmer="RTNLLAALHRSVRRRAADQGHRSAFLV",
         )
         # all alleles = heterozygous
         allele_combinations = netmhc2pan.generate_mhc2_alelle_combinations(self.test_mhc_two)

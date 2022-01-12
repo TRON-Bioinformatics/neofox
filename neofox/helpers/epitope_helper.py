@@ -51,21 +51,22 @@ class EpitopeHelper(object):
         """
         # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
         pos_mut = []
-        if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
-            p1 = -1
-            for i, aa in enumerate(mutation.mutated_xmer):
-                if aa != mutation.wild_type_xmer[i]:
-                    p1 = i + 1
-                    pos_mut.append(p1)
-        else:
-            p1 = 0
-            # in case sequences do not have same length
-            for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
-                if a1 == a2:
-                    p1 += 1
-                elif a1 != a2:
-                    p1 += 1
-                    pos_mut.append(p1)
+        if mutation.wild_type_xmer is not None and mutation.mutated_xmer is not None:
+            if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
+                p1 = -1
+                for i, aa in enumerate(mutation.mutated_xmer):
+                    if aa != mutation.wild_type_xmer[i]:
+                        p1 = i + 1
+                        pos_mut.append(p1)
+            else:
+                p1 = 0
+                # in case sequences do not have same length
+                for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
+                    if a1 == a2:
+                        p1 += 1
+                    elif a1 != a2:
+                        p1 += 1
+                        pos_mut.append(p1)
         return pos_mut
 
     @staticmethod

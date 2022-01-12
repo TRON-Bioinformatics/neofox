@@ -59,7 +59,7 @@ from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.published_features.prime import Prime
 from neofox.published_features.hex.hex import Hex
-from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
+from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations, Zygosity
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
@@ -154,7 +154,7 @@ class NeoantigenAnnotator:
 
         # decides which VAF to use
         vaf_rna = neoantigen.rna_variant_allele_frequency
-        if not patient.is_rna_available:
+        if not patient.is_rna_available and neoantigen.dna_variant_allele_frequency is not None:
             logger.warning(
                 "Using the DNA VAF to estimate the RNA VAF as the patient does not have RNA available"
             )

@@ -21,11 +21,9 @@ from unittest import TestCase
 from neofox.model.neoantigen import Annotation
 from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.helpers.runner import Runner
-from neofox.model.neoantigen import Mutation
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.tests.fake_classes import FakeBestAndMultipleBinder
-from neofox.model.conversion import ModelValidator
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
+from neofox.tests.tools import get_mutation
 
 
 class TestNeoantigenFitness(TestCase):
@@ -35,11 +33,10 @@ class TestNeoantigenFitness(TestCase):
         self.runner = Runner()
 
     def test_neoag(self):
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
-                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
+                wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET"
         )
         result = NeoagCalculator(
             runner=self.runner, configuration=self.configuration
@@ -58,11 +55,9 @@ class TestNeoantigenFitness(TestCase):
         self.assertTrue(float(result.value) > 0)
 
     def test_affinity_threshold(self):
-        mutation = ModelValidator._validate_mutation(
-            Mutation(
+        mutation = get_mutation(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
-            )
         )
         result = NeoagCalculator(
             runner=self.runner, configuration=self.configuration, affinity_threshold=1

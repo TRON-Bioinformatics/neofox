@@ -14,7 +14,7 @@ from neofox.model.neoantigen import (
     Mhc2Gene,
     Mhc2Isoform,
 )
-from neofox.model.conversion import ModelValidator
+from neofox.model.validation import ModelValidator
 from neofox.references.references import ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
 from neofox.tests.fake_classes import FakeHlaDatabase, FakeH2Database
 

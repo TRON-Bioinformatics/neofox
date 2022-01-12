@@ -7,11 +7,11 @@ from faker.providers.address import Provider
 from neofox.exceptions import NeofoxDataValidationException
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.conversion import ModelConverter, ModelValidator
+from neofox.model.validation import ModelValidator
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mutation, Mhc2Name, Mhc2Isoform, \
     MhcAllele
-from neofox.model.wrappers import get_mhc2_isoform_name
+from neofox.model.factories import get_mhc2_isoform_name, MhcFactory
 from neofox.references.references import HlaDatabase
 
 
@@ -81,13 +81,13 @@ class PatientProvider(Provider):
                     is_rna_available=True,
                     tumor_type=self.random_elements(self.available_tumor_types, length=1)[0],
                     # by setting unique=True we enforce that all patients are heterozygous
-                    mhc1=ModelConverter.parse_mhc1_alleles(
+                    mhc1=MhcFactory.build_mhc1_alleles(
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.A), unique=True, length=2) +
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.B), unique=True, length=2) +
                         self.random_elements(self.get_hla_i_alleles_by_gene(Mhc1Name.C), unique=True, length=2),
                         self.hla_database
                     ),
-                    mhc2=ModelConverter.parse_mhc2_alleles(
+                    mhc2=MhcFactory.build_mhc2_alleles(
                         [i.alpha_chain.name for i in dp_isoforms] +
                         [i.beta_chain.name for i in dp_isoforms] +
                         [i.alpha_chain.name for i in dq_isoforms] +
@@ -96,7 +96,7 @@ class PatientProvider(Provider):
                         self.hla_database
                     )
                 )
-                patient = ModelValidator.validate_patient(patient)
+                ModelValidator.validate_patient(patient)
             except NeofoxDataValidationException:
                 continue
             found = True
@@ -141,7 +141,7 @@ class NeoantigenProvider(Provider):
                     dna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000,
                     rna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000
                 )
-                neoantigen = ModelValidator.validate_neoantigen(neoantigen)
+                ModelValidator.validate_neoantigen(neoantigen)
             except NeofoxDataValidationException:
                 continue
             found = True
@@ -157,6 +157,7 @@ class NeoantigenProvider(Provider):
             mutation = Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wildtype_xmer)
         else:
             mutation = Mutation(mutated_xmer=mutated_xmer)
+        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
 
         return mutation
 

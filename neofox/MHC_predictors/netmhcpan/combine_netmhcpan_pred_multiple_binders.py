@@ -29,7 +29,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAllele
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration
 from logzero import logger
 
@@ -189,9 +189,10 @@ class BestAndMultipleBinder:
                     AbstractNetMhcPanPredictor.filter_wt_predictions_from_best_mutated(
                         predictions=predictions_wt, mutated_prediction=epitope),
                     none_value=BestAndMultipleBinder._get_empty_epitope())
-                dai = wt_peptide.affinity_score / epitope.affinity_score
-                if dai > threshold:
-                    number_binders += 1
+                if wt_peptide is not None:
+                    dai = wt_peptide.affinity_score / epitope.affinity_score
+                    if dai > threshold:
+                        number_binders += 1
 
         if len(dai_values) == 0:
             number_binders = None

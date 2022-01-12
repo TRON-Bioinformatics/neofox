@@ -21,7 +21,7 @@ import unittest
 from unittest import TestCase
 
 import neofox
-import neofox.tests.unit_tests.tools as test_tools
+import neofox.tests.tools as test_tools
 from neofox.exceptions import NeofoxConfigurationException
 from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS, \
     RESOURCES_VERSIONS

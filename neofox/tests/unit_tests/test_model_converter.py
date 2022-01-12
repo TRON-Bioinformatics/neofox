@@ -32,8 +32,9 @@ from neofox.model.neoantigen import (
     Zygosity,
     Mhc2Name,
 )
+from neofox.model.factories import MhcFactory, NeoantigenFactory
 from neofox.tests.fake_classes import FakeHlaDatabase, FakeH2Database
-from neofox.tests.unit_tests.tools import get_random_neoantigen
+from neofox.tests.tools import get_random_neoantigen
 
 
 class ModelConverterTest(TestCase):
@@ -60,30 +61,18 @@ class ModelConverterTest(TestCase):
 
     def test_model2csv(self):
         neoantigen = get_random_neoantigen()
-        csv_data = ModelConverter.object2series(neoantigen)
+        csv_data = ModelConverter._objects2dataframe([neoantigen])
         self.assertIsNotNone(csv_data)
-        self.assertIsInstance(csv_data, pd.Series)
+        self.assertIsInstance(csv_data, pd.DataFrame)
         self.assertEqual(
             neoantigen.dna_variant_allele_frequency,
-            csv_data.dna_variant_allele_frequency,
-        )
-
-    def test_model2flat_dict(self):
-        neoantigen = get_random_neoantigen()
-        flat_dict = ModelConverter.object2flat_dict(neoantigen)
-        self.assertIsNotNone(flat_dict)
-        self.assertEqual(
-            neoantigen.dna_variant_allele_frequency,
-            flat_dict["dna_variant_allele_frequency"],
-        )
-        self.assertEqual(
-            neoantigen.mutation.mutated_xmer, flat_dict["mutation.mutated_xmer"]
+            csv_data.iloc[0].dnaVariantAlleleFrequency,
         )
 
     def test_model2csv2model(self):
         neoantigen = get_random_neoantigen()
-        csv_data = ModelConverter.object2series(neoantigen)
-        neoantigen2 = ModelConverter.neoantigens_csv2object(csv_data)
+        csv_data = ModelConverter._objects2dataframe([neoantigen])
+        neoantigen2 = ModelConverter._neoantigens_csv2objects(csv_data)[0]
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_neoantigen_annotations(self):
@@ -106,9 +95,7 @@ class ModelConverterTest(TestCase):
         )
         with open(candidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(
-            candidate_file
-        )
+        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
         self.assertIsNotNone(neoantigens)
         self.assertEqual(self.count_lines -1, len(neoantigens))
         for n in neoantigens:
@@ -221,7 +208,7 @@ class ModelConverterTest(TestCase):
             neofox.tests.__name__, "resources/test_data_model.txt"
         )
         data = pd.read_csv(neoantigens_file, sep="\t")
-        neoantigens = ModelConverter.parse_neoantigens_dataframe(data)
+        neoantigens = ModelConverter._neoantigens_csv2objects(data)
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
@@ -367,7 +354,8 @@ class ModelConverterTest(TestCase):
         self.assertTrue(len(patients) == 1)
         self.assertIsInstance(patients[0], Patient)
         self.assertEqual(patients[0].identifier, "Pt29")
-        self.assertIsNone(patients[0].mhc1)
+        for m in patients[0].mhc1:
+            self.assertEqual(m.zygosity, Zygosity.LOSS)
         self.assertEqual(3, len(patients[0].mhc2))
         self.assertEqual(
             9, len([a for m in patients[0].mhc2 for g in m.genes for a in g.alleles])
@@ -415,7 +403,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(0, df[df["mutation.position"].transform(lambda x: isinstance(x, list))].shape[0])
 
     def test_parse_mhc1_heterozygous_alleles(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             [
                 "HLA-A*01:01",
                 "HLA-A*01:02",
@@ -431,7 +419,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(2, len(mhc1.alleles))
 
     def test_parse_mhc1_heterozygous_alleles_mouse(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             [
                 "H2Kd",
                 "H2Kp",
@@ -447,7 +435,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(2, len(mhc1.alleles))
 
     def test_parse_mhc1_homozygous_alleles(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             [
                 "HLA-A*01:01",
                 "HLA-A*01:01",
@@ -463,7 +451,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(1, len(mhc1.alleles))
 
     def test_parse_mhc1_homozygous_alleles_mouse(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             [
                 "H2Kd",
                 "H2Kd",
@@ -479,7 +467,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(1, len(mhc1.alleles))
 
     def test_parse_mhc1_hemizygous_alleles(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             ["HLA-A*01:01", "HLA-B*07:02", "HLA-C*01:02"], self.hla_database
         )
         self.assertEqual(3, len(mhc1s))
@@ -488,7 +476,7 @@ class ModelConverterTest(TestCase):
             self.assertEqual(1, len(mhc1.alleles))
 
     def test_parse_mhc1_hemizygous_alleles_mouse(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             [
                 "H2Kd",
                 "H2Dd",
@@ -501,23 +489,17 @@ class ModelConverterTest(TestCase):
             self.assertEqual(1, len(mhc1.alleles))
 
     def test_parse_mhc1_loss_alleles(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles([], self.hla_database)
-        self.assertEqual(3, len(mhc1s))
-        for mhc1 in mhc1s:
-            self.assertEqual(Zygosity.LOSS, mhc1.zygosity)
-            self.assertEqual(0, len(mhc1.alleles))
+        mhc1s = MhcFactory.build_mhc1_alleles([], self.hla_database)
+        self.assertEqual(0, len(mhc1s))
 
     def test_parse_mhc1_loss_alleles_mouse(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles([], self.h2_database)
-        self.assertEqual(3, len(mhc1s))
-        for mhc1 in mhc1s:
-            self.assertEqual(Zygosity.LOSS, mhc1.zygosity)
-            self.assertEqual(0, len(mhc1.alleles))
+        mhc1s = MhcFactory.build_mhc1_alleles([], self.h2_database)
+        self.assertEqual(0, len(mhc1s))
 
     def test_parse_mhc1_bad_format_fails(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc1_alleles,
+            MhcFactory.build_mhc1_alleles,
             [
                 "c.12345C>G",
                 "HLA-A*01:02",
@@ -532,7 +514,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc1_bad_format_fails_mouse(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc1_alleles,
+            MhcFactory.build_mhc1_alleles,
             [
                 "c.12345C>G",
                 "H2Kd",
@@ -545,7 +527,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc1_too_many_alleles_fails(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc1_alleles,
+            MhcFactory.build_mhc1_alleles,
             [
                 "HLA-A*01:01",
                 "HLA-A*01:02",
@@ -560,7 +542,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc1_too_many_alleles_fails_mouse(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc1_alleles,
+            MhcFactory.build_mhc1_alleles,
             [
                 "H2Kd",
                 "H2Kd",
@@ -574,7 +556,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc1_bad_gene_fails(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc1_alleles,
+            MhcFactory.build_mhc1_alleles,
             [
                 "HLA-A*01:01",
                 "HLA-A*01:02",
@@ -589,7 +571,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc1_bad_gene_fails_mouse(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc1_alleles,
+            MhcFactory.build_mhc1_alleles,
             [
                 "H2Kd",
                 "H2Kd",
@@ -601,7 +583,7 @@ class ModelConverterTest(TestCase):
         )
 
     def test_parse_mhc1_non_existing_allele_does_not_fail(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             [
                 "HLA-A*01:01",
                 "HLA-A*01:01",
@@ -614,7 +596,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(3, len(mhc1s))
 
     def test_parse_mhc1_non_existing_allele_does_not_fail_mouse(self):
-        mhc1s = ModelConverter.parse_mhc1_alleles(
+        mhc1s = MhcFactory.build_mhc1_alleles(
             [
                 "H2Kd",
                 "H2Kz",     # this one does not exist
@@ -625,7 +607,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(3, len(mhc1s))
 
     def test_parse_mhc2_heterozygous_alleles(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:02",
@@ -650,7 +632,7 @@ class ModelConverterTest(TestCase):
             self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_heterozygous_alleles_mouse(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "H2Ad",
                 "H2Ap",
@@ -669,7 +651,7 @@ class ModelConverterTest(TestCase):
             self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_homozygous_alleles(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:01",
@@ -694,7 +676,7 @@ class ModelConverterTest(TestCase):
             self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_homozygous_alleles_mouse(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "H2Ad",
                 "H2Ad",
@@ -713,7 +695,7 @@ class ModelConverterTest(TestCase):
             self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_hemizygous_alleles(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*01:01",
                 "HLA-DPA1*01:03",
@@ -733,7 +715,7 @@ class ModelConverterTest(TestCase):
             self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_hemizygous_alleles_mouse(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "H2Ad",
                 "H2Ed",
@@ -750,7 +732,7 @@ class ModelConverterTest(TestCase):
             self._assert_isoforms(mhc2)
 
     def test_parse_mhc2_hetero_and_homozygous_alleles(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:01",
@@ -771,29 +753,17 @@ class ModelConverterTest(TestCase):
             self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.isoforms))
 
     def test_parse_mhc2_loss(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles([], self.hla_database)
-        self.assertEqual(3, len(mhc2s))
-        for mhc2 in mhc2s:
-            self.assertEqual(1 if mhc2.name == Mhc2Name.DR else 2, len(mhc2.genes))
-            for gene in mhc2.genes:
-                self.assertEqual(Zygosity.LOSS, gene.zygosity)
-                self.assertEqual(0, len(gene.alleles))
-            self.assertEqual(0, len(mhc2.isoforms))
+        mhc2s = MhcFactory.build_mhc2_alleles([], self.hla_database)
+        self.assertEqual(0, len(mhc2s))
 
     def test_parse_mhc2_loss_mouse(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles([], self.h2_database)
-        self.assertEqual(2, len(mhc2s))
-        for mhc2 in mhc2s:
-            self.assertEqual(1, len(mhc2.genes))
-            for gene in mhc2.genes:
-                self.assertEqual(Zygosity.LOSS, gene.zygosity)
-                self.assertEqual(0, len(gene.alleles))
-            self.assertEqual(0, len(mhc2.isoforms))
+        mhc2s = MhcFactory.build_mhc2_alleles([], self.h2_database)
+        self.assertEqual(0, len(mhc2s))
 
     def test_parse_mhc2_bad_format_fails(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc2_alleles,
+            MhcFactory.build_mhc2_alleles,
             [
                 "c.12345C>G",
                 "HLA-DRB1*01:01",
@@ -812,7 +782,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc2_bad_format_fails_mouse(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc2_alleles,
+            MhcFactory.build_mhc2_alleles,
             [
                 "c.12345C>G",
                 "H2Ad",
@@ -824,7 +794,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc2_too_many_alleles_fails(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc2_alleles,
+            MhcFactory.build_mhc2_alleles,
             [
                 "HLA-DRB1*01:01",
                 "HLA-DRB1*01:02",
@@ -843,7 +813,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc2_too_many_alleles_fails_mouse(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc2_alleles,
+            MhcFactory.build_mhc2_alleles,
             [
                 "H2Ad",
                 "H2Ae",
@@ -856,7 +826,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc2_bad_gene_fails(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc2_alleles,
+            MhcFactory.build_mhc2_alleles,
             [
                 "HLA-A*01:01",
                 "HLA-A*01:02",
@@ -871,7 +841,7 @@ class ModelConverterTest(TestCase):
     def test_parse_mhc2_bad_gene_fails_mouse(self):
         self.assertRaises(
             NeofoxDataValidationException,
-            ModelConverter.parse_mhc2_alleles,
+            MhcFactory.build_mhc2_alleles,
             [
                 "H2Ad",
                 "H2Ae",
@@ -882,7 +852,7 @@ class ModelConverterTest(TestCase):
         )
 
     def test_parse_mhc2_non_existing_allele_does_not_fail(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "HLA-DRB1*999:01",      # this one does not exist
                 "HLA-DPA1*01:03",
@@ -895,7 +865,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(3, len(mhc2s))
 
     def test_parse_mhc2_non_existing_allele_does_not_fail_mouse(self):
-        mhc2s = ModelConverter.parse_mhc2_alleles(
+        mhc2s = MhcFactory.build_mhc2_alleles(
             [
                 "H2Ad",
                 "H2Az", # this one does not exist
