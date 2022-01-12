@@ -357,10 +357,10 @@ class ReferenceFolder(object):
 
     def _log_configuration(self):
         logger.info("Reference genome folder: {}".format(self.reference_genome_folder))
-        logger.info("Resources")
+        logger.info("Resources:")
         for r in self.resources:
             logger.info(r)
-        logger.info("Annotation resources")
+        logger.info("Annotation resources:")
         for r in self.resources_versions:
             logger.info(r.to_json())
 
