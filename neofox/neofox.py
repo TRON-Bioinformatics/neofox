@@ -204,9 +204,7 @@ class NeoFox:
         logger.info("Starting NeoFox annotations...")
         # initialise dask
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
-        dask_client = Client(
-            n_workers=self.num_cpus, threads_per_worker=1,
-        )
+        dask_client = Client(n_workers=self.num_cpus, threads_per_worker=1)
         annotations = self.send_to_client(dask_client)
         dask_client.close()
 
