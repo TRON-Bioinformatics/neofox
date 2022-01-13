@@ -169,8 +169,8 @@ class ModelValidator(object):
                 ), "A lost gene must have 0 alleles and not {}".format(len(alleles))
             for allele in alleles:
                 ModelValidator.validate_mhc_allele_representation(allele, organism)
-                assert (allele.gene == gene.name.name,
-                        "The allele {} is inside gene {}".format(allele.name, gene.name.name))
+                assert allele.gene == gene.name.name, \
+                    "The allele {} is inside gene {}".format(allele.name, gene.name.name)
         for isoform in mhc2.isoforms:
             ModelValidator.validate_mhc2_isoform_representation(isoform, organism)
             if mhc2.name != Mhc2Name.DR:

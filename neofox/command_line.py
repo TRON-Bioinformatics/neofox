@@ -153,6 +153,8 @@ def neofox_cli():
     config = args.config
     organism = args.organism
 
+    logger.info("NeoFox v{}".format(neofox.VERSION))
+
     try:
         # check parameters
         if bool(candidate_file) + bool(json_file) > 1:
