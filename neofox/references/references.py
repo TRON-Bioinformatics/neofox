@@ -272,7 +272,8 @@ class ReferenceFolder(object):
 
     def get_resources_versions(self):
         try:
-            resources_version = json.loads(open(self.resources_versions_file).read())
+            with open(self.resources_versions_file) as fd:
+                resources_version = json.loads(fd.read())
         except FileNotFoundError:
             # NOTE: capturing this error is here to make unit tests easier, otherwise we need to create this resources
             # file always.
@@ -356,10 +357,10 @@ class ReferenceFolder(object):
 
     def _log_configuration(self):
         logger.info("Reference genome folder: {}".format(self.reference_genome_folder))
-        logger.info("Resources")
+        logger.info("Resources:")
         for r in self.resources:
             logger.info(r)
-        logger.info("Annotation resources")
+        logger.info("Annotation resources:")
         for r in self.resources_versions:
             logger.info(r.to_json())
 

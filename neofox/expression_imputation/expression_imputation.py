@@ -67,13 +67,13 @@ class ExpressionAnnotator(object):
 
     def _get_gene_expression(self, gene_name: str, cohort_index: int) -> float:
         median_gene_expression = None
-        logger.info(
+        logger.debug(
             "Fetching the gene expression at {}:{}".format(gene_name, cohort_index)
         )
         try:
             results = self.expression.fetch(gene_name, cohort_index - 1, cohort_index)
             median_gene_expression = float(next(results).split("\t")[2])
-            logger.info(
+            logger.debug(
                 "Fetched a gene expression of {}".format(median_gene_expression)
             )
         except (StopIteration, ValueError):

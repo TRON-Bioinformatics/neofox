@@ -23,7 +23,7 @@ import pkg_resources
 import orjson as json
 from neofox.exceptions import NeofoxConfigurationException
 
-from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV
+from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV, NEOFOX_PRIME_ENV
 
 import neofox.tests
 from neofox.model.conversion import ModelConverter
@@ -428,12 +428,36 @@ class TestNeofox(TestCase):
                 if a.name in ["Selfsimilarity_MHCI_conserved_binder", "Tcell_predictor_score_cutoff"]:
                     self.assertEqual(a.value, NOT_AVAILABLE_VALUE)
 
-    def test_neoantigen_without_netmhcpan_results(self):
+    def test_neoantigen_without_9mer_netmhcpan_results(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
             mutation=Mutation(
                 wild_type_xmer="HLAQHQRVHTGEKPYKCNECGKTFRQT",
                 mutated_xmer="HLAQHQRVHTGEKAYKCNECGKTFRQT"
+            ),
+            patient_identifier=patient_identifier
+        )
+        patient = PatientFactory.build_patient(
+            identifier=patient_identifier,
+            mhc_alleles=["HLA-A*24:106", "HLA-A*02:200", "HLA-B*08:33", "HLA-B*40:94", "HLA-C*02:20", "HLA-C*07:86"],
+            mhc2_alleles=["HLA-DRB1*07:14", "HLA-DRB1*04:18", "HLA-DPA1*01:05", "HLA-DPA1*03:01", "HLA-DPB1*17:01",
+                          "HLA-DPB1*112:01", "HLA-DQA1*01:06", "HLA-DQA1*01:09", "HLA-DQB1*03:08", "HLA-DQB1*06:01"],
+            mhc_database=self.references.get_mhc_database()
+        )
+
+        annotations = NeoFox(
+            neoantigens=[neoantigen],
+            patients=[patient],
+            num_cpus=1,
+        ).get_annotations()
+        # it does not crash even though there are no best 9mers
+        self.assertIsNotNone(annotations)
+
+    def test_neoantigen_in_proteome(self):
+        patient_identifier = "12345"
+        neoantigen = Neoantigen(
+            mutation=Mutation(
+                mutated_xmer="PKLLENLLSKGETISFLECF"
             ),
             patient_identifier=patient_identifier
         )
@@ -528,7 +552,7 @@ class TestNeofox(TestCase):
                 neofox.tests.__name__, n)
             data = pd.read_csv(input_file, sep="\t")
             data = data.replace({np.nan: None})
-            neoantigens, external_annotations = ModelConverter._neoantigens_csv2objects(data)
+            neoantigens = ModelConverter._neoantigens_csv2objects(data)
             patients_file = pkg_resources.resource_filename(
                 neofox.tests.__name__, p)
             patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
