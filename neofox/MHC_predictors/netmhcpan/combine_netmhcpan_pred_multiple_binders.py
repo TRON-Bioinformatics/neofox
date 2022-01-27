@@ -30,7 +30,7 @@ from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAllele
 from neofox.model.factories import AnnotationFactory
-from neofox.references.references import DependenciesConfiguration
+from neofox.references.references import DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 from logzero import logger
 
 
@@ -40,6 +40,7 @@ class BestAndMultipleBinder:
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
+        self.organism = mhc_parser.mhc_database.organism
         self.blastp_runner = blastp_runner
         self._initialise()
         self.netmhcpan = NetMhcPanPredictor(
@@ -459,12 +460,15 @@ class BestAndMultipleBinder:
                     value=self.best_ninemer_wt_epitope_by_affinity.peptide,
                     name="Best_affinity_MHCI_9mer_epitope_WT",
                 )])
+
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            annotations.extend([AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR_I")])
+
         annotations.extend([
             # generator rate
             AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCI"),
             AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCI"),
-            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCI"),
-            AnnotationFactory.build_annotation(value=self.phbr_i, name="PHBR_I")
+            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCI")
         ])
         annotations.extend(self._get_positions_and_mutation_in_anchor(mutation))
         return annotations
