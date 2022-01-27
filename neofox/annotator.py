@@ -310,17 +310,18 @@ class NeoantigenAnnotator:
             )
 
         # IEDB immunogenicity
-        start = time.time()
-        neoantigen.neofox_annotations.annotations.extend(
-            self.iedb_immunogenicity.get_annotations(
-                mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
-                mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            start = time.time()
+            neoantigen.neofox_annotations.annotations.extend(
+                self.iedb_immunogenicity.get_annotations(
+                    mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
+                    mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
+                )
             )
-        )
-        end = time.time()
-        logger.info(
-            "IEDB annotation elapsed time {} seconds".format(round(end - start, 3))
-        )
+            end = time.time()
+            logger.info(
+                "IEDB annotation elapsed time {} seconds".format(round(end - start, 3))
+            )
 
         # dissimilarity to self-proteome
         start = time.time()
