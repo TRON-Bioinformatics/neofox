@@ -30,7 +30,7 @@ from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName
 from neofox.model.factories import AnnotationFactory
-from neofox.references.references import DependenciesConfiguration
+from neofox.references.references import DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 
 LENGTH_MHC2_EPITOPE = 15
 
@@ -41,6 +41,7 @@ class BestAndMultipleBinderMhcII:
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
+        self.organism = mhc_parser.mhc_database.organism
         self.proteome_blastp_runner = blastp_runner
         self.netmhc2pan = NetMhcIIPanPredictor(
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
@@ -345,16 +346,16 @@ class BestAndMultipleBinderMhcII:
                     value=self.best_predicted_epitope_affinity_wt.hla.name,
                     name="Best_affinity_MHCII_allele_WT",
                 )])
-        annotations.extend(
-            [
-                AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR_II"),
-                # generator rate
-                AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCII"),
-                AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCII"),
-                AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCII"),
-            ]
 
-        )
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            annotations.extend([AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR_II")])
+
+        annotations.extend([
+            # generator rate
+            AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCII"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCII"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCII"),
+        ])
         return annotations
 
     @staticmethod
