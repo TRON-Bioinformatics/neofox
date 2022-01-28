@@ -32,7 +32,7 @@ class EpitopeHelper(object):
         There are no repetitions in the results
         """
         length_mut = len(mutation.mutated_xmer)
-        list_peptides = []
+        list_peptides = set()
         for length in lengths:
             if length <= length_mut:
                 starts = range(length_mut - length + 1)
@@ -40,9 +40,9 @@ class EpitopeHelper(object):
                 for s, e in zip(starts, ends):
                     peptide = mutation.mutated_xmer[s:e]
                     if len(peptide) == length and uniprot.is_sequence_not_in_uniprot(peptide):
-                        list_peptides.append(peptide)
+                        list_peptides.add(peptide)
 
-        return list_peptides
+        return list(list_peptides)
 
     @staticmethod
     def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
