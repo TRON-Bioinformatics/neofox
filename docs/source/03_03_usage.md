@@ -7,7 +7,7 @@ There are two ways to use NeoFox for annotation of neoantigen candidates with ne
 To call NeoFox from the command line, use the following command. Make sure that the requirements have been added to PATH as described [here](02_installation.md) or add a config file as described below:  
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num_cpus] [--affinity-threshold]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix  [--with-table] [--with-json] [--num_cpus] [--affinity-threshold] [--config] [--patient-id]
 ````
 
 where:
