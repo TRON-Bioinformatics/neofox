@@ -116,7 +116,7 @@ As a consequence, the MHC II nomenclature is highly simplified. The alpha and be
 part of the same haplotype. Furthermore, only homozygosity is considered. 
 Thus there is only one possible MHC II isoform for each pair of genes, as opposed to four in human.
 
-Murine H-2 alleles are not standardized as the human HLA alleles are by the WHO Nomenclature Committee for Factors of the HLA System.
+Murine H-2 alleles are not standardized as the human HLA alleles are by the WHO Nomenclature Committee for Factors of the HLA System.  
 H-2 alleles are represented as follows in NeoFox:  
 - **MHC I** genes K, D and L: H2K, H2D and H2L
 - **MHC II** genes A and E: H2A and H2E  
