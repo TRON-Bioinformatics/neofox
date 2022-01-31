@@ -16,7 +16,7 @@ where:
 - `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-table`: output file in [short-wide](03_02_output_data.md#tabular-format) tabular format (*default*, *optional*)
+- `--with-table`: output file in [tabular](03_02_output_data.md#tabular-format)  format (*default*, *optional*)
 - `--with-json`: output file in [JSON](03_02_output_data.md#json-format) format (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num_cpus`: number of CPUs to use (*optional*)
