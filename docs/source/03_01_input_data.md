@@ -2,9 +2,9 @@
 
 ## General information
 
-NeoFox requires two input files: a file with neoantigen candidates derived from point mutations and a file with patient data. 
+NeoFox requires two input files: a file with neoantigen candidates and a file with patient data. 
 The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain 
-additional user-specific input that will be kept during the annotation process. The patient file is required in tabular format.
+additional user-specific input that will be kept during the annotation process. The patient file requires a tabular format.
 
 ## File with neoantigen candidates
 
@@ -22,14 +22,18 @@ This is an dummy example of a table with neoantigen candidates in tabular format
 
 where:
 - `gene`: the HGNC gene symbol. (This field is not required for neoantigen candidates derived from other sources than SNVs)      
-- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neoepitopes
+- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neopeptides
 - `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs.  
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
-- `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (Should be empty or NA if no value available, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
-- `dnaVariantAlleleFrequency`: the variant allele frequency calculated from the DNA. Should be empty or NA if no value available.
+- `rnaVariantAlleleFrequency`: the variant allele frequency (VAF) calculated from the RNA (**optional**)
+- `dnaVariantAlleleFrequency`: the VAF calculated from the DNA. (**optional**)
 
-**NOTE:** If rnaExpression is not provided, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). 
+**NOTE:** 
+
+- If rnaExpression is not provided and the tumor type is given in the patient data, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). Please, not that this does not work for mouse data. Here, expression imputation is currently not supported.
+- If `dnaVariantAlleleFrequency` is given while `rnaVariantAlleleFrequency` is not given, the VAF in RNA will be estimated by the VAF in DNA. 
+This means that feature scores that rely on the VAF in RNA will be calulated with the VAF in DNA.
 
 ### JSON file format
 
@@ -46,7 +50,9 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 }]
 ``` 
 
-## Human
+## File with patient data
+
+### Human
 
 This is an dummy example of a patient file in tabular format:  
 
@@ -87,7 +93,7 @@ where:
 | Uterine Corpus Endometrial Carcinoma                               | UCEC              |
 
 
-## Mouse
+### Mouse
 
 This is a dummy example of a "patient" file in tabular format for mouse:
 
@@ -98,6 +104,24 @@ This is a dummy example of a "patient" file in tabular format for mouse:
 
 **WARNING**: NeoFox requires MHC alleles in homozygosity to be provided twice, also for mouse. 
 Otherwise they are considered as hemizygous. 
-For instance each gene would be interpreted as hemizygous when `H2Db,H2Kb,H2Lb` is provided.
+For instance, each gene would be interpreted as hemizygous when `H2Db,H2Kb,H2Lb` is provided.
 In the case of inbred mouse strains the MHC alleles are homozygous state in most of cases.
+
+While using NeoFox to annotate neoantigen candidates from mouse, it should be considered that the nomenclature of the major histocompatibility complex for Mus musculus, 
+H-2, is not described with the same level of detail as in humans (HLA).  
+The Mus musculus strains used in laboratory experimentation are inbred mouse strains with limited variability. 
+NetMHCpan and netMHCIIpan, and by extension NeoFox, support a subset of the H-2 alleles found in laboratory mice which
+is again a small subset of the wild type.
+As a consequence, the MHC II nomenclature is highly simplified. The alpha and beta chain genes are always considered to be 
+part of the same haplotype. Furthermore, only homozygosity is considered. 
+Thus there is only one possible MHC II isoform for each pair of genes, as opposed to four in human.
+
+Murine H-2 alleles are not standardized as the human HLA alleles are by the WHO Nomenclature Committee for Factors of the HLA System.
+H-2 alleles are represented as follows in NeoFox:  
+- **MHC I** genes K, D and L: H2K, H2D and H2L
+- **MHC II** genes A and E: H2A and H2E  
+
+A given allele is represented by a last small case single letter (eg: d, k, p) with an optional number (eg: d1, p2)  .
+
+These are examples of H-2 alleles: H2Kd, H2Dd, H2Lp 
 

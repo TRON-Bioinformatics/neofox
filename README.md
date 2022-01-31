@@ -10,7 +10,7 @@ NeoFox annotates neoantigen candidate sequences with published neoantigen featur
 For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
 
 If you use NeoFox, please cite the following publication:  
-Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, **NeoFox: annotating neoantigen candidates with neoantigen features**, *Bioinformatics*, 2021;, btab344, [https://doi.org/10.1093/bioinformatics/btab344](https://doi.org/10.1093/bioinformatics/btab344)
+Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, **NeoFox: annotating neoantigen candidates with neoantigen features**, Bioinformatics, Volume 37, Issue 22, 15 November 2021, Pages 4246–4247, https://doi.org/10.1093/bioinformatics/btab344   
 
 ## Table of Contents
 
@@ -26,24 +26,26 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 
 | Name                                                    | Reference                                                                | DOI                                                                                       |
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| MHC I binding affinity/rank score (netMHCpan-v4.0)      | Jurtz et al, 2017, The Journal of Immunology                             | https://doi.org/10.4049/jimmunol.1700893                                                  |
-| MHC II binding affinity/rank score (netMHCIIpan-v3.2)   | Jensen et al, 2018, Immunology                                           | https://doi.org/10.1111/imm.12889                                                         |
-| MixMHCpred score v2.1                                   | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
-| MixMHC2pred score v1.2                                  | Racle et al, 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
+| MHC I binding affinity/rank score (netMHCpan-v4.1)      | Reynisson et al, 2020, Nucleic Acids Research                             | https://doi.org/10.4049/jimmunol.1700893                                                  |
+| MHC II binding affinity/rank score (netMHCIIpan-v4.0)   | Reynisson et al, 2020, Nucleic Acids Research                                           | https://doi.org/10.1111/imm.12889                                                         |
+| MixMHCpred score v2.1  §                              | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
+| MixMHC2pred score v1.2  §                              | Racle et al, 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
 | Differential Agretopicity Index (DAI)                   | Duan et al, 2014, JEM; Ghorani et al., 2018, Ann Oncol.                  | https://doi.org/10.1084/jem.20141308                                                      |
 | Self-Similarity                                         | Bjerregaard et al, 2017, Front Immunol.                                  | https://doi.org/10.3389/fimmu.2017.01566                                                  |
 | IEDB immunogenicity                                     | Calis et al, 2013, PLoS Comput Biol.                                     | https://doi.org/10.1371/journal.pcbi.1003266                                              |
 | Neoantigen dissimilarity                                | Richman et al, 2019, Cell Systems                                        | https://doi.org/10.1016/j.cels.2019.08.009                                                |
-| PHBR-I                                                  | Marty et al, 2017, Cell                                                  | https://doi.org/10.1016/j.cell.2017.09.050                                                |
-| PHBR-II                                                 | Marty Pyke et al, 2018, Cell                                             | https://doi.org/10.1016/j.cell.2018.08.048                                                |
+| PHBR-I  §                                                | Marty et al, 2017, Cell                                                  | https://doi.org/10.1016/j.cell.2017.09.050                                                |
+| PHBR-II  §                                               | Marty Pyke et al, 2018, Cell                                             | https://doi.org/10.1016/j.cell.2018.08.048                                                |
 | Generator rate                                          | Rech et al, 2018, Cancer Immunology Research                             | https://doi.org/10.1158/2326-6066.CIR-17-0559                                             |
-| Recognition potential                                   | Łuksza et al, 2017, Nature; Balachandran et al, 2017, Nature             | https://doi.org/10.1038/nature24473 , https://doi.org/10.1038/nature24462                 |
+| Recognition potential   §                                | Łuksza et al, 2017, Nature; Balachandran et al, 2017, Nature             | https://doi.org/10.1038/nature24473 , https://doi.org/10.1038/nature24462                 |
 | Vaxrank                                                 | Rubinsteyn, 2017, Front Immunol                                          | https://doi.org/10.3389/fimmu.2017.01807                                                  |
 | Priority score                                          | Bjerregaard et al, 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
 | Tcell predictor                                         | Besser et al, 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
-| PRIME                                                   | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
-| HEX                                                   | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             |
+| PRIME  §                                                 | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
+| HEX §                                                   | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             |
+
+*§ currently not supported for mouse*
 
 ## 2 NeoFox Requirements
  
@@ -68,15 +70,15 @@ neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candi
 ````
 - `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
 - `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
-- `--patient-id`: patient identifier (*optional*, this will be used if the patient id the column `patient` is missing the candidate input file)
+- `--patient-id`: patient identifier (*optional*, this will be used if the column `patientIdentifier` is missing in the candidate input file)
 - `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](#43-patient-data-format)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-short-wide-table`: output file in short-wide format (*default*, *optional*)
-- `--with-tall-skinny-table`:output file in tall-skinny format (*optional*)
+- `--with-table`: output file in tab-separated format (*default*)
 - `--with-json`: output file in JSON format (*optional*)
 - `--num_cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
+- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
                         neoepitope recognition. A threshold that is commonly used is 500 nM. 
                         
@@ -116,7 +118,7 @@ where:
 - `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)
 - `dnaVariantAlleleFrequency`: the variant allele frequency calculated from the DNA (**optional**)  
 
-**NOTE:** If rnaExpression is not provided, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). 
+**NOTE:** If rnaExpression is not provided, expression will be estimated by gene expression in a respective TCGA cohort and this value will be used for relevant features. The TCGA cohort to be used for imputation of gene expression needs to be indicated in the `tumorType` in the patient data (see below). If `tumorType` is not provided, expression will not be imputed.  
 
 ### 4.2 Neoantigen candidates in JSON format 
 
