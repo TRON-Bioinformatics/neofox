@@ -3,7 +3,7 @@
 ## General information
 
 NeoFox returns the neoantigen candidates and their annotated features as output. 
-Several output formats are supported: [short-wide](#short-wide-format ) tabular format or [json](#json-format) format. 
+Two output formats are supported: [short-wide](#short-wide-format ) tabular format or [json](#json-format) format. 
 The user can choose one preferred format or get the neoantigen annotations in all formats. 
 Despite different structures, both formats provide the same content with the exception of the metadata on 
 the annotations which is only present in the JSON format.
