@@ -13,7 +13,7 @@ class DataGenerator:
 
     def __init__(self, reference_folder: ReferenceFolder, configuration: DependenciesConfiguration):
 
-        self.hla_database = reference_folder.get_hla_database()
+        self.hla_database = reference_folder.get_mhc_database()
 
         faker = Faker()
         mixmhcpred_alleles = set(self.load_mhc1_alleles(
@@ -36,7 +36,7 @@ class DataGenerator:
         mhc_alleles = []
         for a in available_alleles:
             try:
-                parsed_allele = MhcParser(self.hla_database).parse_mhc_allele(a)
+                parsed_allele = MhcParser.get_mhc_parser(self.hla_database).parse_mhc_allele(a)
             except AssertionError:
                 continue
             mhc_alleles.append(parsed_allele.name)
@@ -46,7 +46,7 @@ class DataGenerator:
         mhc_alleles = []
         for a in available_alleles:
             try:
-                parsed_allele = MhcParser(self.hla_database).parse_mhc2_isoform(a)
+                parsed_allele = MhcParser.get_mhc_parser(self.hla_database).parse_mhc2_isoform(a)
             except AssertionError:
                 continue
             mhc_alleles.append(parsed_allele.name)

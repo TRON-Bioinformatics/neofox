@@ -16,7 +16,7 @@ class TestSyntheticData(TestCase):
 
     def _write_data(self, neoantigens: List[Neoantigen], neoantigens_filename,
                    patients: List[Patient], patients_filename):
-        ModelConverter.neoantigens2table(neoantigens).to_csv(neoantigens_filename, sep="\t", index=False)
+        ModelConverter._neoantigens2table(neoantigens).to_csv(neoantigens_filename, sep="\t", index=False)
         ModelConverter.patients2table(patients).to_csv(patients_filename, sep="\t", index=False)
 
     def test_1patients_10neoantigens(self):

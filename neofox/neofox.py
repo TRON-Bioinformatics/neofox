@@ -27,21 +27,22 @@ from dask.distributed import Client
 from dask.distributed import performance_report
 
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
     TcellPrediction,
 )
 from neofox.published_features.self_similarity.self_similarity import (
     SelfSimilarityCalculator,
 )
-from neofox.references.references import ReferenceFolder, DependenciesConfiguration
+from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 from neofox import NEOFOX_LOG_FILE_ENV, AFFINITY_THRESHOLD_DEFAULT
 from neofox.annotator import NeoantigenAnnotator
 from neofox.exceptions import (
     NeofoxConfigurationException,
     NeofoxDataValidationException,
 )
-from neofox.model.neoantigen import NeoantigenAnnotations, Neoantigen, Patient
-from neofox.model.conversion import ModelValidator
+from neofox.model.neoantigen import Neoantigen, Patient
+from neofox.model.validation import ModelValidator
 import dotenv
 
 
@@ -57,7 +58,7 @@ class NeoFox:
         output_prefix=None,
         reference_folder: ReferenceFolder = None,
         configuration: DependenciesConfiguration = None,
-        verbose=False,
+        verbose=True,
         configuration_file=None,
         affinity_threshold=AFFINITY_THRESHOLD_DEFAULT
     ):
@@ -75,7 +76,7 @@ class NeoFox:
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
         # testable with fake objects
         self.reference_folder = (
-            reference_folder if reference_folder else ReferenceFolder()
+            reference_folder if reference_folder else ReferenceFolder(verbose=verbose)
         )
         # NOTE: makes this call to force the loading of the available alleles here
         self.reference_folder.get_available_alleles()
@@ -94,17 +95,21 @@ class NeoFox:
         ):
             raise NeofoxConfigurationException("Missing input data to run Neofox")
 
-        # TODO: avoid overriding patient id parameter
-        for n in neoantigens:
+        # validates neoantigens
+        self.neoantigens = neoantigens
+        for n in self.neoantigens:
             if n.patient_identifier is None:
                 n.patient_identifier = patient_id
+            # NOTE: the position of the mutations is not expected from the user and if provide the value is ignored
+            n.mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=n.mutation)
+            ModelValidator.validate_neoantigen(n)
 
-        # validates input data
-        self.neoantigens = [ModelValidator.validate_neoantigen(n) for n in neoantigens]
-        self.patients = {
-            patient.identifier: ModelValidator.validate_patient(patient)
-            for patient in patients
-        }
+        # validates patients
+        self.patients = {}
+        for patient in patients:
+            ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
+            self.patients[patient.identifier] = patient
+
         self._validate_input_data()
 
         # retrieve from the data, if RNA-seq was available
@@ -116,11 +121,13 @@ class NeoFox:
         for patient in self.patients:
             self.patients[patient].is_rna_available = all(e is not None for e in expression_per_patient[self.patients[patient].identifier])
 
-        # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
-        # otherwise original values is reported
-        # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
-        # NOTE: add gene expression to neoantigen candidate model
-        self.neoantigens = self._conditional_expression_imputation()
+        # only performs the expression imputation for humans
+        if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:
+            # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
+            # otherwise original values is reported
+            # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
+            # NOTE: add gene expression to neoantigen candidate model
+            self.neoantigens = self._conditional_expression_imputation()
 
         logger.info("Data loaded")
 
@@ -148,9 +155,9 @@ class NeoFox:
             logzero.logfile(logfile)
         # TODO: this does not work
         if verbose:
-            logzero.loglevel(logging.DEBUG)
-        else:
             logzero.loglevel(logging.INFO)
+        else:
+            logzero.loglevel(logging.WARN)
 
     def _get_log_file_name(self, output_prefix, work_folder):
         if work_folder and os.path.exists(work_folder):
@@ -197,9 +204,7 @@ class NeoFox:
         logger.info("Starting NeoFox annotations...")
         # initialise dask
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
-        dask_client = Client(
-            n_workers=self.num_cpus, threads_per_worker=1,
-        )
+        dask_client = Client(n_workers=self.num_cpus, threads_per_worker=1)
         annotations = self.send_to_client(dask_client)
         dask_client.close()
 

@@ -5,6 +5,7 @@ include neofox/published_features/Tcell_predictor/genes-expression.pickle
 include neofox/published_features/Tcell_predictor/SIRdata.mat
 include neofox/published_features/Tcell_predictor/Classifier.pickle
 include neofox/references/install_r_dependencies.R
+include neofox/references/h2_database_allele_list.csv
 include neofox/published_features/hex/BLOSUM62.rda
 include neofox/published_features/hex/EPItOMe_modified.R
 include neofox/published_features/hex/hex.R

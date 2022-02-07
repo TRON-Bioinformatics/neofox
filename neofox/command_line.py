@@ -28,7 +28,7 @@ from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
-from neofox.references.references import ReferenceFolder, HlaDatabase
+from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS, MhcDatabase
 
 epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
          "TRON – Translational Oncology at the University Medical Center of the " \
@@ -88,7 +88,7 @@ def neofox_cli():
         required=True,
     )
     parser.add_argument(
-        "--output-folder", dest="output_folder", help="output folder", required=True
+        "--output-folder", dest="output_folder", help="output folder", required=True,
     )
     parser.add_argument(
         "--output-prefix",
@@ -131,6 +131,13 @@ def neofox_cli():
         dest="config",
         help="an optional configuration file with all the environment variables",
     )
+    parser.add_argument(
+        "--organism",
+        dest="organism",
+        choices=[ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS],
+        help="the organism to which the data corresponds",
+        default="human"
+    )
     args = parser.parse_args()
 
     candidate_file = args.candidate_file
@@ -144,6 +151,9 @@ def neofox_cli():
     affinity_threshold = int(args.affinity_threshold)
     num_cpus = int(args.num_cpus)
     config = args.config
+    organism = args.organism
+
+    logger.info("NeoFox v{}".format(neofox.VERSION))
 
     try:
         # check parameters
@@ -164,7 +174,7 @@ def neofox_cli():
         # loads configuration
         if config:
             dotenv.load_dotenv(config, override=True)
-        reference_folder = ReferenceFolder()
+        reference_folder = ReferenceFolder(organism=organism)
 
         # reads the input data
         neoantigens, patients = _read_data(
@@ -172,7 +182,7 @@ def neofox_cli():
             json_file,
             patients_data,
             patient_id,
-            reference_folder.get_hla_database())
+            reference_folder.get_mhc_database())
 
         # run annotations
         annotated_neoantigens = NeoFox(
@@ -201,10 +211,10 @@ def neofox_cli():
 
 
 def _read_data(
-    candidate_file, json_file, patients_data, patient_id, hla_database: HlaDatabase
+    candidate_file, json_file, patients_data, patient_id, mhc_database: MhcDatabase
 ) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
-    patients = ModelConverter.parse_patients_file(patients_data, hla_database)
+    patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
     # parse the neoantigen candidate data
     if candidate_file is not None:
         neoantigens = ModelConverter.parse_candidate_file(

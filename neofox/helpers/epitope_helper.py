@@ -32,7 +32,7 @@ class EpitopeHelper(object):
         There are no repetitions in the results
         """
         length_mut = len(mutation.mutated_xmer)
-        list_peptides = []
+        list_peptides = set()
         for length in lengths:
             if length <= length_mut:
                 starts = range(length_mut - length + 1)
@@ -40,9 +40,9 @@ class EpitopeHelper(object):
                 for s, e in zip(starts, ends):
                     peptide = mutation.mutated_xmer[s:e]
                     if len(peptide) == length and uniprot.is_sequence_not_in_uniprot(peptide):
-                        list_peptides.append(peptide)
+                        list_peptides.add(peptide)
 
-        return list_peptides
+        return list(list_peptides)
 
     @staticmethod
     def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
@@ -51,21 +51,22 @@ class EpitopeHelper(object):
         """
         # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
         pos_mut = []
-        if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
-            p1 = -1
-            for i, aa in enumerate(mutation.mutated_xmer):
-                if aa != mutation.wild_type_xmer[i]:
-                    p1 = i + 1
-                    pos_mut.append(p1)
-        else:
-            p1 = 0
-            # in case sequences do not have same length
-            for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
-                if a1 == a2:
-                    p1 += 1
-                elif a1 != a2:
-                    p1 += 1
-                    pos_mut.append(p1)
+        if mutation.wild_type_xmer is not None and mutation.mutated_xmer is not None:
+            if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
+                p1 = -1
+                for i, aa in enumerate(mutation.mutated_xmer):
+                    if aa != mutation.wild_type_xmer[i]:
+                        p1 = i + 1
+                        pos_mut.append(p1)
+            else:
+                p1 = 0
+                # in case sequences do not have same length
+                for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
+                    if a1 == a2:
+                        p1 += 1
+                    elif a1 != a2:
+                        p1 += 1
+                        pos_mut.append(p1)
         return pos_mut
 
     @staticmethod
