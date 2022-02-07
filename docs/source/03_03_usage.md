@@ -7,35 +7,34 @@ There are two ways to use NeoFox for annotation of neoantigen candidates with ne
 To call NeoFox from the command line, use the following command. Make sure that the requirements have been added to PATH as described [here](02_installation.md) or add a config file as described below:  
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num_cpus] [--affinity-threshold]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix  [--with-table] [--with-json] [--num_cpus] [--affinity-threshold] [--config] [--patient-id]
 ````
 
 where:
 - `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](03_01_input_data.md#tabular-file-format)
 - `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](03_01_input_data.md#json-file-format)
-- `--patient-id`: patient identifier (*optional*, this will be used if the patient id the column `patient` is missing the candidate input file)
 - `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-table`: output file in [short-wide](03_02_output_data.md#tabular-format) tabular format (*default*, *optional*)
+- `--with-table`: output file in [tabular](03_02_output_data.md#tabular-format)  format (*default*, *optional*)
 - `--with-json`: output file in [JSON](03_02_output_data.md#json-format) format (*optional*)
+- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num_cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
-- `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
-                        neoepitope recognition. A threshold that is commonly used is 500 nM. 
-- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
-
+- `--affinity-threshold`: an affinity value (*optional*) neoantigen candidates with a best predicted affinity greater
+ than or equal than this threshold will be not annotated with features that specifically model neoepitope recognition. A threshold that is commonly used is 500 nM. 
+- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
 
 **PLEASE NOTE THE FOLLOWING HINTS**:   
 - provide the neoantigen candidate file either as `--candidate-file` or `--json-file` 
-- if no specific output format is selected, the output will be written in [short-wide](03_02_output_data.md#short-wide-format) format
-- if all expression values related to a patient are NA, imputated expression will be used for the relevant features
+- if no specific output format is selected, the output will be written in [tabular](03_02_output_data.md#tabular-format) format
+- if all expression values related to a patient are NA or `rnaExpression` is not given in the input file but the tumor type has been provided in the patient file, imputated expression will be used for the relevant features
 
 **EXAMPLE**  
-This is an example to call NeoFox with a candidate-file and obtaining the annotated neoantigen candidates in [short-wide](03_02_output_data.md#short-wide-format) format:  
+This is an example to call NeoFox with a candidate-file and obtaining the annotated neoantigen candidates in [tabular](03_02_output_data.md#tabular-format) format:  
 
 ````commandline
-neofox --candidate-file neoantigens_candidates.tab --patient-id Ptx --patient-data patient_data.tab --output-folder /path/to/out --output-prefix test
+neofox --candidate-file neoantigens_candidates.tab --patient-data patient_data.tab --output-folder /path/to/out --output-prefix test
 ````
 
 The optional **config** file with the paths to the dependencies can look like this:  
@@ -85,7 +84,7 @@ $ docker volume inspect neofox-volume
 In the case above the folder is `/var/snap/docker/common/var-lib-docker/volumes/neofox-volume/_data`.
 Copy the input data into that folder.
 
-Now, NeoFox can be run as follows mounting the volume as indicated. 
+Now, NeoFox can be run as following by mounting the volume as indicated. 
 Note that the output folder needs to be specified within the volume, if the output from NeoFox should be recovered.
 ```
 docker run -v neofox-volume:/app/data neofox-docker \
@@ -249,29 +248,5 @@ The memory use grows to around 2.5 GB when processing 10000 candidates.
 If either MHC I or II alleles are not provided at all for a given patient the computation will be lighter as no 
 annotations run for the missing MHC. Likewise, if the optional tools are unset performance improves.
 
-
-## A note on the support for mouse
-
-NeoFox was originally conceived for Homo sapiens data and later extended to Mus musculus.
-There are some fundamental differences to take into account when processing mouse data.
-First, not all annotations are available for mouse. 
-MixMHCpred, MixMHC2pred, PRIME and HEX are not available for mouse. 
-At the time of this writing the expression imputation is not available either.
-The MHC for Mus musculus, H-2, is not described with the same level of detail as HLA is. 
-Furthermore, the Mus musculus strains used in laboratory experimentation are different from the wild type Mus musculus 
-and their variability is much more limited. 
-NetMHCpan and netMHC2pan, and by extension NeoFox, support a subset of the H-2 alleles found in laboratory mice which
-is again a small subset of the wild type.
-A consequence of this is that MHC II is highly simplified, the genes for chains alpha and beta are considered to be 
-part of the same haplotype always. Furthermore, only homozygosity is considered. 
-Thus there is only one possible MHC II isoform for each pair of genes, as opposed to four in human.
-
-H-2 alleles are not standardized as HLA alleles are through the WHO Nomenclature Committee for Factors of the HLA System.
-In NeoFox we represent H-2 alleles as follows.
-For MHC I genes K, D and L: H2K, H2D and H2L
-For MHC II genes A and E: H2A and H2E
-Then a last small case single letter (eg: d, k, p) with an optional number (eg: d1, p2) represent a given allele.
-
-This is an example of H-2 alleles: H2Kd, H2Dd, H2Lp 
 
 
