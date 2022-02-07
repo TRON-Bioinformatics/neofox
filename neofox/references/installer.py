@@ -385,7 +385,7 @@ class IedbFastaBuilder:
 
         # parses peptides and validates them, non-valid peptides are filtered out
         filtered_iedb.loc[:, "seq"] = filtered_iedb.loc[:, "Description"].transform(
-            lambda x: x.strip().split(" ")[0])
+            lambda x: x.strip())
         filtered_iedb.loc[:, "valid_peptide"] = filtered_iedb.loc[:, "seq"].transform(
             lambda x: _verify_alphabet(Seq(x, IUPAC.protein)))
         filtered_iedb = filtered_iedb[filtered_iedb.valid_peptide]
