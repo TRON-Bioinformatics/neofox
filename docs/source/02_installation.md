@@ -13,7 +13,7 @@ Clone the repository: `git clone git@github.com:TRON-Bioinformatics/neofox.git`
 
 Move into the neofox folder: `cd neofox`
 
-To download NetMHCpan and NetMHC2pan software, each user must explicitly accept the software license. Thus, we cannot
+To download NetMHCpan and NetMHCIIpan, each user must explicitly accept the software license. Thus, we cannot
 distribute the software or provide a direct URL to download it. Please make sure to download the right version from 
 the sites indicated below.
 
@@ -33,7 +33,7 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 These installation instructions were tested on Ubuntu 18.04.
 
-Python >=3.6, <=3.8 and R 3.6.0 should be preinstalled.
+Python >=3.7, <=3.8 and R 3.6.0 should be preinstalled.
 
 Set the environment variable pointing to `Rscript`.
 ```
@@ -120,29 +120,33 @@ export NEOFOX_PRIME==`pwd`/PRIME-master/PRIME
 
 Configure PRIME as explained in the file `PRIME-master/README`
 
-### Install references
+### Configuration of the reference folder 
 
-For installing the reference data we will need `makeblastdb`, set the environment variable required for building the reference:
+To configure the reference folder, set the environment variable for `makeblastdb`, NetMHCpan, NetMHCIIpan and Rscript:
 
 ```
-export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.8.1+/bin/makeblastdb
+export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.10.1+/bin/makeblastdb
+export NEOFOX_RSCRIPT=`which Rscript`
+export NEOFOX_NETMHCPAN=`pwd`/netMHCpan-4.1/netMHCpan
+export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 ```
 
-NetMHCpan, NetMHCIIpan and Rscript are also required to install the references, see above.
-
-Optionally, you can provide the URL to the IPD-IMGT/HLA database CSV table, see releases here https://www.ebi.ac.uk/ipd/imgt/hla/docs/release.html. 
+Furthermore, a list of available MHC alleles is required. Optionally, you can provide the URL to the IPD-IMGT/HLA database CSV table, see releases here https://www.ebi.ac.uk/ipd/imgt/hla/docs/release.html. 
 If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
 
 ```
 export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
 ```
 
-Run the following to install NeoFox references:
+Run the following to configure the NeoFox reference folder:
 ```
-neofox-configure --reference-folder /your/neofox/folder
+neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencies]
 ```
 
-Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R dependencies. These dependencies are the following:
+The above command will install several resources and store in the annotations metadata their version, MD5 checksum and 
+download timestamp.
+
+Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R packages. These packages are the following:
 ```
 lattice
 ggplot2
@@ -160,13 +164,18 @@ export NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 
 ## Test installation   
 
-The user can test if all the installations have been successful by testing NeoFox with some test data. The test data can be downloaded here:  
-[test_data](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_data.txt)  
-[test_patients](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_patients.txt)  
+The user can test if all the installations have been successful by testing NeoFox with some test data. 
+The test data can be downloaded here:
+
+* [test_data.tsv](_static/test_data.tsv)
+* [test_patients.tsv](_static/test_patients.tsv)
 
 ````commandline
-neofox --candidate-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --with-short-wide-table --with-json --output-prefix test
+neofox --candidate-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --with-table --with-json --output-prefix test
 ````
 
-The resulting output files can be compared to the following test output file:  
-[test_neoantigen_candidates_annotated](https://github.com/TRON-Bioinformatics/neofox/tree/master/docs/test_neoantigen_candidates_annotated.tsv)  
+The resulting output files can be compared to the following test output files:
+
+* [test_neoantigen_candidates_annotated.tsv](_static/test_neoantigen_candidates_annotated.tsv)
+* [test_neoantigen_candidates_annotated.json](_static/test_neoantigen_candidates_annotated.json)
+

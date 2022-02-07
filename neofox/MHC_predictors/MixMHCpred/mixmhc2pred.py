@@ -18,20 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from logzero import logger
 from neofox.exceptions import NeofoxCommandException
 from pandas.errors import EmptyDataError
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.conversion import ModelConverter
-from neofox.model.mhc_parser import MhcParser
+from neofox.model.mhc_parser import MhcParser, get_alleles_by_gene
 
 from neofox.references.references import DependenciesConfiguration
 
 from neofox.helpers.runner import Runner
 
 from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation
-from neofox.model.wrappers import AnnotationFactory, get_alleles_by_gene
+from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
 import os

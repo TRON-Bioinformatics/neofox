@@ -22,9 +22,9 @@ import pickle
 import warnings
 from typing import List
 from neofox.helpers import intermediate_files
-from neofox.model.conversion import ModelValidator
+from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import Annotation, Neoantigen
-from neofox.model.wrappers import AnnotationFactory
+from neofox.model.factories import AnnotationFactory
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.Tcell_predictor.preprocess import Preprocessor
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
@@ -48,7 +48,8 @@ class TcellPrediction:
                 ),
                 'rb'
             ) as f:
-                self.classifier = pickle.load(f)
+                # this sets the n_jobs parameter otherwise inherited from the pickle file
+                self.classifier = pickle.load(f).set_params(n_jobs=1)
 
     def _triple_gen_seq_subst(self, gene, substitution, epitope, score):
         """

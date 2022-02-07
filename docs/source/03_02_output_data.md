@@ -2,7 +2,11 @@
 
 ## General information
 
-NeoFox returns the neoantigen candidates and their annotated features as output. Several output formats are supported: [short-wide](#short-wide-format ) or [tall-skinny](#tall-skinny-format) tabular formats or [json](#json-format) format. The user can choose one preferred format or get the neoantigen annotations in all formats. Despite different structures, all three formats provide the same content.
+NeoFox returns the neoantigen candidates and their annotated features as output. 
+Two output formats are supported: [tabular](#tabular-format ) tabular format or [json](#json-format) format. 
+The user can choose one preferred format or get the neoantigen annotations in all formats. 
+Despite different structures, both formats provide the same content with the exception of the metadata on 
+the annotations which is only present in the JSON format.
 
 The following table describes each of the annotations in the output:  
   
@@ -414,4 +418,58 @@ And this is a dummy example of the field `external_annotations`:
         "value": "that"
     }
 ]
+```
+
+The metadata on the annotations will look as follows:
+```json
+{
+ annotator: "NeoFox",
+ annotator_version: "0.5.4",
+ timestamp: "20211104154037935536",
+ resources: [
+  {
+   name: "netMHCpan",
+   version: "4.1"
+  },
+  {
+   name: "netMHCIIpan",
+   version: "4.0"
+  },
+  {
+   name: "mixMHCpred",
+   version: "2.1"
+  },
+  {
+   name: "mixMHC2pred",
+   version: "1.2"
+  },
+  {
+   name: "IEDB",
+   url: "http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip",
+   hash: "d225ab671ef375400d387354a5f450ff",
+   download_timestamp: "20211103221051"
+  },
+  {
+   name: "Human Ensembl proteome",
+   version: "2021_03",
+   url: "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000005640/UP000005640_9606.fasta.gz",
+   hash: "a41303fd38380ca0321cf8a3d9beb4bc",
+   download_timestamp: "20211103221051"
+  },
+  {
+   name: "Mouse Ensembl proteome",
+   version: "2021_03",
+   url: "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000000589/UP000000589_10090.fasta.gz",
+   hash: "27a5de8c1eca42eebaf56400945cf7cb",
+   download_timestamp: "20211103221051"
+  },
+  {
+   name: "IMGT/HLA database",
+   version: "3.46.0",
+   url: "https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt",
+   hash: "5a7618819498b88d0790bf4d58975d13",
+   download_timestamp: "20211103221051"
+  }
+ ]
+}
 ```

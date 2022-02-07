@@ -16,16 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-import os
 from unittest import TestCase
-
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.published_features.neoantigen_fitness.neoantigen_fitness import (
     NeoantigenFitnessCalculator,
 )
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.references.references import IEDB_BLAST_PREFIX
 
 
 class TestNeoantigenFitness(TestCase):
@@ -33,7 +30,7 @@ class TestNeoantigenFitness(TestCase):
         self.references, self.configuration, self.fastafile = self._load_references()
         self.iedb_blastp_runner = BlastpRunner(
             runner=Runner(verbose=False), configuration=self.configuration,
-            database=os.path.join(self.references.iedb, IEDB_BLAST_PREFIX))
+            database=self.references.get_iedb_database())
         self.neoantigen_fitness_calculator = NeoantigenFitnessCalculator(iedb_blastp_runner=self.iedb_blastp_runner)
 
     def _load_references(self):

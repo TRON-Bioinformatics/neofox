@@ -18,6 +18,7 @@ Protocol Buffers is employed to model Neofox's input and output data: neoantigen
     - [Neoantigen](#neoantigen.Neoantigen)
     - [NeoantigenAnnotations](#neoantigen.NeoantigenAnnotations)
     - [Patient](#neoantigen.Patient)
+    - [Resource](#neoantigen.Resource)
   
     - [Mhc1Name](#neoantigen.Mhc1Name)
     - [Mhc2GeneName](#neoantigen.Mhc2GeneName)
@@ -191,7 +192,7 @@ A set of annotations for a neoantigen
 | annotator | [string](#string) |  | The annotator |
 | annotatorVersion | [string](#string) |  | The version of the annotator |
 | timestamp | [string](#string) |  | A timestamp determined when the annotation was created |
-| resourcesHash | [string](#string) |  | Annotation resources MD5 hash |
+| resources | [Resource](#neoantigen.Resource) | repeated | List of resources |
 
 
 
@@ -216,6 +217,25 @@ The metadata required for analysis for a given patient + its patient identifier
 
 
 
+
+<a name="neoantigen.Resource"></a>
+
+### Resource
+This is a class to track the version of an annotation resource
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  | The name of the resource |
+| version | [string](#string) |  | The version of the resource |
+| url | [string](#string) |  | The URL of the resource if applicable |
+| hash | [string](#string) |  | The MD5 hash of the resource if applicable. This may be used when version is not available |
+| download_timestamp | [string](#string) |  | The timestamp when the download happened |
+
+
+
+
+
  <!-- end messages -->
 
 
@@ -223,12 +243,16 @@ The metadata required for analysis for a given patient + its patient identifier
 
 ### Mhc1Name
 Valid names for MHC I classic genes
+Mus musculus gene names are preceded by the prefix H2 to avoid naming collisions.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| A | 0 |  |
+| A | 0 | Homo sapiens |
 | B | 1 |  |
 | C | 2 |  |
+| H2K | 3 | Mus musculus |
+| H2D | 4 |  |
+| H2L | 5 |  |
 
 
 
@@ -238,14 +262,20 @@ Valid names for MHC I classic genes
 Valid names for MHC II classic genes.
 DRA is not included in this list as it does not have much variability in the population and for our purpose is
 considered constant.
+For Mus musculus we do not represent alpha and beta chains as they are homozygotes at all their MHC loci.
+Hence, they can be treated as a single gene, like DR is for HLA.
+See http://www.imgt.org/IMGTrepertoireMH/Polymorphism/haplotypes/mouse/MHC/Mu_haplotypes.html
+Mus musculus gene names are preceded by the prefix H2 to avoid naming collisions.
 
 | Name | Number | Description |
 | ---- | ------ | ----------- |
-| DRB1 | 0 |  |
+| DRB1 | 0 | Homo sapiens |
 | DPA1 | 1 |  |
 | DPB1 | 2 |  |
 | DQA1 | 3 |  |
 | DQB1 | 4 |  |
+| H2A | 5 | Mus musculus |
+| H2E | 6 |  |
 
 
 
@@ -259,6 +289,8 @@ Valid names for MHC II classic molecules
 | DR | 0 |  |
 | DP | 1 |  |
 | DQ | 2 |  |
+| H2A_molecule | 3 |  |
+| H2E_molecule | 4 |  |
 
 
 

@@ -17,17 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
-from logzero import logger
-
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.conversion import ModelValidator, ModelConverter
-from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Mutation
-
+from neofox.model.factories import MhcFactory
+from neofox.model.mhc_parser import HlaParser
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.published_features.prime import Prime
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.tests.tools import get_mutation
 
 
 class TestPrime(TestCase):
@@ -36,16 +33,14 @@ class TestPrime(TestCase):
         self.runner = Runner()
         self.prime = Prime(
             runner=self.runner, configuration=self.configuration,
-            mhc_parser=MhcParser(self.references.get_hla_database())
+            mhc_parser=HlaParser(self.references.get_mhc_database())
         )
-        self.hla_database = self.references.get_hla_database()
-        self.test_mhc_one = integration_test_tools.get_mhc_one_test(self.hla_database)
+        self.hla_database = self.references.get_mhc_database()
+        self.test_mhc_one = integration_test_tools.get_hla_one_test(self.hla_database)
         self.uniprot = Uniprot(self.references.uniprot_pickle)
 
     def test_prime_epitope(self):
-        mutation = ModelValidator._validate_mutation(
-            Mutation(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
-        )
+        mutation = get_mutation(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
             mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
         )
@@ -55,9 +50,7 @@ class TestPrime(TestCase):
         self.assertEquals("HLA-C*05:01", best_allele)
 
     def test_prime_too_small_epitope(self):
-        mutation = ModelValidator._validate_mutation(
-            Mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
-        )
+        mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
             mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
         )
@@ -70,12 +63,10 @@ class TestPrime(TestCase):
         """
         this is a combination of neoepitope and HLA alleles from Balachandran
         """
-        mutation = ModelValidator._validate_mutation(
-            Mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
-        )
+        mutation = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         best_peptide, best_rank, best_allele, best_score = self.prime.run(
             mutation=mutation,
-            mhc=ModelConverter.parse_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
+            mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
         self.assertEqual('SIYGGLVLI', best_peptide)
@@ -85,9 +76,7 @@ class TestPrime(TestCase):
 
     def test_prime_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
-            mutation = ModelValidator._validate_mutation(
-                Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
-            )
+            mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             best_peptide, best_rank, best_allele, best_score = self.prime.run(
                 mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
             )
