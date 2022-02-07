@@ -5,6 +5,7 @@ import os
 from shutil import copyfile
 import pandas as pd
 from Bio import SeqIO
+from Bio.Alphabet import _verify_alphabet, IUPAC
 from Bio.Seq import Seq
 from datetime import datetime
 import hashlib
@@ -382,10 +383,13 @@ class IedbFastaBuilder:
             & (iedb["Class"] == "I")
         ]
 
-        # sets values for identifiers and sequences
+        # parses peptides and validates them, non-valid peptides are filtered out
         filtered_iedb.loc[:, "seq"] = filtered_iedb.loc[:, "Description"].transform(
-            lambda x: x.strip()
-        )
+            lambda x: x.strip())
+        filtered_iedb.loc[:, "valid_peptide"] = filtered_iedb.loc[:, "seq"].transform(
+            lambda x: _verify_alphabet(Seq(x, IUPAC.protein)))
+        filtered_iedb = filtered_iedb[filtered_iedb.valid_peptide]
+
         # build fasta header: 449|FL-160-2 protein - Trypanosoma cruzi|JH0823|Trypanosoma cruzi|5693
         # epitope id|Antigen Name|antigen_id|Organism Name|organism_id
         filtered_iedb.loc[:, "epitope_id"] = filtered_iedb.loc[
