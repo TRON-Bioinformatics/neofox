@@ -68,4 +68,3 @@ publish_package:
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://gitlab.rlp.net/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   only:
     - develop
-    - master
