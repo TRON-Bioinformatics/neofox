@@ -7,7 +7,11 @@ There are two ways to use NeoFox for annotation of neoantigen candidates with ne
 To call NeoFox from the command line, use the following command. Make sure that the requirements have been added to PATH as described [here](02_installation.md) or add a config file as described below:  
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data patient_data.txt --output-folder /path/to/out --output-prefix out_prefix  [--with-table] [--with-json] [--num_cpus] [--affinity-threshold] [--config] [--patient-id]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json \
+    --patient-data patient_data.txt \
+    --output-folder /path/to/out \
+    --output-prefix out_prefix  \
+    [--with-table] [--with-json] [--num_cpus] [--affinity-threshold] [--config] [--patient-id]
 ````
 
 where:
@@ -34,7 +38,10 @@ where:
 This is an example to call NeoFox with a candidate-file and obtaining the annotated neoantigen candidates in [tabular](03_02_output_data.md#tabular-format) format:  
 
 ````commandline
-neofox --candidate-file neoantigens_candidates.tab --patient-data patient_data.tab --output-folder /path/to/out --output-prefix test
+neofox --candidate-file neoantigens_candidates.tab \
+    --patient-data patient_data.tab \
+    --output-folder /path/to/out \
+    --output-prefix test
 ````
 
 The optional **config** file with the paths to the dependencies can look like this:  
