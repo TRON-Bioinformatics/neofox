@@ -1,10 +1,5 @@
 # Examples
 
-## Notebooks 
-
-- :ref:`/notebooks/api_usage.ipynb`
-
-
 ## Demo dataset
 
 - :download:`Neoantigens input file </notebooks/test_model_file.txt>`
