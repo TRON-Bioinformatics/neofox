@@ -12,3 +12,5 @@ include neofox/published_features/hex/hex.R
 include neofox/expression_imputation/tcga_cohort_code.tab
 include neofox/expression_imputation/tcga_exp_summary_modified.tab.gz.tbi
 include neofox/expression_imputation/tcga_exp_summary_modified.tab.gz
+include requirements.txt
+include README.md
