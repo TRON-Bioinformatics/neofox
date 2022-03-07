@@ -326,3 +326,18 @@ message MhcAllele {
 	 */
 	string protein = 5;
 }
+
+message Neoepitope {
+	/**
+	Amino acid sequence of the WT corresponding to the neoepitope (IUPAC 1 letter codes)
+	*/
+	string wildTypePeptide = 1;
+	/**
+	Amino acid sequence of the neoepitope (IUPAC 1 letter codes)
+	*/
+	string mutatedPeptide = 2;
+	/**
+	MHC allele
+	 */
+	MhcAllele allele = 3;
+}
