@@ -60,7 +60,7 @@ class AbstractNetMhcPanPredictor:
             filter(
                 lambda p: mutated_prediction.peptide is not None and
                           len(p.peptide) == len(mutated_prediction.peptide) and
-                          p.pos == mutated_prediction.pos and
+                          p.position == mutated_prediction.position and
                           p.hla.name == mutated_prediction.hla.name,
                 predictions,
             )
@@ -122,7 +122,7 @@ class AbstractNetMhcPanPredictor:
         return list(
             filter(
                 lambda p: EpitopeHelper.epitope_covers_mutation(
-                    position_of_mutation, p.pos, len(p.peptide)
+                    position_of_mutation, p.position, len(p.peptide)
                 ),
                 predictions,
             )

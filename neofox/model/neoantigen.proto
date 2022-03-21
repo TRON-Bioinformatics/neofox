@@ -289,7 +289,7 @@ message PredictedEpitope {
 	/**
 	Not sure that we need this... this is in the old PredictedEpitope model
 	 */
-	int32 pos = 1;
+	int32 position = 1;
 	/**
 	The mutated peptide
 	*/

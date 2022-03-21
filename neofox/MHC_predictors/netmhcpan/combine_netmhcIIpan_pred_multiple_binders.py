@@ -53,28 +53,28 @@ class BestAndMultipleBinderMhcII:
         self.generator_rate_cdn = None
         self.best_predicted_epitope_rank = PredictedEpitope(
             peptide=None,
-            pos=None,
+            position=None,
             isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_affinity = PredictedEpitope(
             peptide=None,
-            pos=None,
+            position=None,
             isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_rank_wt = PredictedEpitope(
             peptide=None,
-            pos=None,
+            position=None,
             isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_affinity_wt = PredictedEpitope(
             peptide=None,
-            pos=None,
+            position=None,
             isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
