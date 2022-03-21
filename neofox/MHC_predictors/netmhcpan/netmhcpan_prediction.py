@@ -23,10 +23,9 @@ from logzero import logger
 from neofox.exceptions import NeofoxCommandException
 from neofox.helpers import intermediate_files
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    AbstractNetMhcPanPredictor,
-    PredictedEpitope,
+    AbstractNetMhcPanPredictor
 )
-from neofox.model.neoantigen import Mhc1
+from neofox.model.neoantigen import Mhc1, PredictedEpitope
 
 
 class NetMhcPanPredictor(AbstractNetMhcPanPredictor):

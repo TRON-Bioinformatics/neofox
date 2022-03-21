@@ -21,13 +21,11 @@
 import tempfile
 from typing import List
 
-from neofox.exceptions import NeofoxConfigurationException
 from neofox.helpers import intermediate_files
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    AbstractNetMhcPanPredictor,
-    PredictedEpitope,
+    AbstractNetMhcPanPredictor
 )
-from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name, Mhc2Isoform, Mhc2GeneName
+from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope
 
 
 class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
@@ -121,7 +119,7 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 results.append(
                     PredictedEpitope(
                         pos=int(line[0]),
-                        hla=self.mhc_parser.parse_mhc2_isoform(line[1]),
+                        isoform=self.mhc_parser.parse_mhc2_isoform(line[1]),
                         peptide=line[2],
                         affinity_score=float(line[11]),
                         rank=float(line[8]),

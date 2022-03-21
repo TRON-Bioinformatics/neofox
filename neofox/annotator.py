@@ -59,7 +59,7 @@ from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.published_features.prime import Prime
 from neofox.published_features.hex.hex import Hex
-from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations, Zygosity
+from neofox.model.neoantigen import Patient, Neoantigen, Annotations, Zygosity
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
@@ -114,8 +114,8 @@ class NeoantigenAnnotator:
         self.resources_versions = references.get_resources_versions()
 
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> Neoantigen:
-        """Calculate new epitope features and add to dictonary that stores all properties"""
-        neoantigen.neofox_annotations = NeoantigenAnnotations(
+        """Calculate new epitope features and add to dictionary that stores all properties"""
+        neoantigen.neofox_annotations = Annotations(
             annotator="NeoFox",
             annotator_version=neofox.VERSION,
             timestamp="{:%Y%m%d%H%M%S%f}".format(datetime.now()),

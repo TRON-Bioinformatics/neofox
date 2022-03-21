@@ -20,15 +20,12 @@
 from typing import List, Set
 import scipy.stats as stats
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    PredictedEpitope,
-)
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAllele
+from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAllele, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 from logzero import logger
@@ -149,16 +146,16 @@ class BestAndMultipleBinder:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            epitopes_by_allele.setdefault(p.hla.name, []).append(p)
+            epitopes_by_allele.setdefault(p.allele.name, []).append(p)
         # chooses the best epitope per allele while considering zygosity
         best_epis_per_allele = []
         for list_alleles in epitopes_by_allele.values():
             # sort by rank to choose the best epitope, ties are solved choosing the first peptide in alphabetcial order
-            list_alleles.sort(key=lambda x: (x.rank, x.peptide))
+            list_alleles.sort(key=lambda x: (x.rank, x.mutated_peptide))
             best_epitope = list_alleles[0]
-            if best_epitope.hla.name in hetero_hemizygous_alleles:
+            if best_epitope.allele.name in hetero_hemizygous_alleles:
                 best_epis_per_allele.append(best_epitope)  # adds the epitope once
-            if best_epitope.hla.name in homozygous_alleles:
+            if best_epitope.allele.name in homozygous_alleles:
                 best_epis_per_allele.append(best_epitope)
                 best_epis_per_allele.append(best_epitope)  # adds the epitope twice
         return best_epis_per_allele

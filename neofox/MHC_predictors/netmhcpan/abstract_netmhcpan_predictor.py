@@ -16,26 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List, Union
-from dataclasses import dataclass
-from neofox.model.neoantigen import Mhc2Isoform, MhcAllele
+from typing import List
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.model.neoantigen import PredictedEpitope
 from neofox.references.references import DependenciesConfiguration
 from neofox.model.mhc_parser import MhcParser
-
-
-@dataclass
-class PredictedEpitope:
-    """this is a common data class for both netmhcpan and netmhc2pan"""
-    pos: int
-    hla: Union[
-        MhcAllele, Mhc2Isoform
-    ]  # for MHC I a str is enough, but for MCH II we need a complex object
-    peptide: str
-    affinity_score: float
-    rank: float
 
 
 class AbstractNetMhcPanPredictor:
