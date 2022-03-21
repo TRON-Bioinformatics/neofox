@@ -28,7 +28,7 @@ from neofox.model.neoantigen import (
     Mutation,
     Patient,
     Annotation,
-    NeoantigenAnnotations,
+    Annotations,
     Zygosity,
     Mhc2Name,
 )
@@ -76,7 +76,7 @@ class ModelConverterTest(TestCase):
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_neoantigen_annotations(self):
-        annotations = NeoantigenAnnotations()
+        annotations = Annotations()
         annotations.annotations = [
             Annotation(name="string_annotation", value="blabla"),
             Annotation(name="integer_annotation", value=1),
@@ -396,7 +396,7 @@ class ModelConverterTest(TestCase):
         neoantigens = [
             Neoantigen(
                 mutation=Mutation(wild_type_xmer="AAAAAAA", mutated_xmer="AAACAAA", position=[]),
-                neofox_annotations=NeoantigenAnnotations(
+                neofox_annotations=Annotations(
                     annotations=[
                         Annotation(name="this_name", value="this_value"),
                         Annotation(name="that_name", value="that_value"),
@@ -407,7 +407,7 @@ class ModelConverterTest(TestCase):
             ),
             Neoantigen(
                 mutation=Mutation(wild_type_xmer="AAAGAAA", mutated_xmer="AAAZAAA", position=[1, 2, 3]),
-                neofox_annotations=NeoantigenAnnotations(
+                neofox_annotations=Annotations(
                     annotations=[
                         Annotation(name="this_name", value="0"),
                         Annotation(name="that_name", value="1"),

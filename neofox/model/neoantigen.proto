@@ -61,7 +61,7 @@ message Resource {
 /**
 A set of annotations for a neoantigen
 */
-message NeoantigenAnnotations {
+message Annotations {
 	/**
 	List of annotations
 	*/
@@ -82,48 +82,6 @@ message NeoantigenAnnotations {
 	List of resources
 	*/
 	repeated Resource resources = 5;
-}
-
-/**
-A neoantigen minimal definition
-*/
-message Neoantigen {
-	/**
-	Patient identifier
-	*/
-	string patientIdentifier = 1;
-	/**
-	The HGNC gene symbol or gene identifier
-	*/
-	string gene = 2;
-	/**
-	The mutation
-	*/
-	Mutation mutation = 3;
-	/**
-	Expression value of the transcript from RNA data. Range [0, +inf].
-	*/
-	float rnaExpression = 4;
-	/**
-	Expression value of the transcript from TCGA data. Range [0, +inf].
-	*/
-	float imputedGeneExpression = 5;
-	/**
-	Variant allele frequency from the DNA. Range [0.0, 1.0]
-	*/
-	float dnaVariantAlleleFrequency = 6;
-	/**
-	Variant allele frequency from the RNA. Range [0.0, 1.0]
-	*/
-	float rnaVariantAlleleFrequency = 7;
-	/**
-	The NeoFox neoantigen annotations
-	 */
-	NeoantigenAnnotations neofoxAnnotations = 8;
-	/**
-	List of external annotations
-	*/
-	repeated Annotation externalAnnotations = 9;
 }
 
 /**
@@ -327,17 +285,95 @@ message MhcAllele {
 	string protein = 5;
 }
 
-message Neoepitope {
+message PredictedEpitope {
 	/**
-	Amino acid sequence of the WT corresponding to the neoepitope (IUPAC 1 letter codes)
-	*/
-	string wildTypePeptide = 1;
-	/**
-	Amino acid sequence of the neoepitope (IUPAC 1 letter codes)
-	*/
-	string mutatedPeptide = 2;
-	/**
-	MHC allele
+	Not sure that we need this... this is in the old PredictedEpitope model
 	 */
-	MhcAllele allele = 3;
+	int32 pos = 1;
+	/**
+	The mutated peptide
+	*/
+	string peptide = 2;
+	/**
+	Closest wild type peptide
+	*/
+	string wildTypePeptide = 3;
+	/**
+	MHC I allele
+	 */
+	MhcAllele hla = 4;
+	/**
+	MHC II isoform
+	 */
+	Mhc2Isoform isoform = 5;
+	/**
+	NetMHCpan affinity for the mutated peptide
+	 */
+	float affinityScore = 6;
+	/**
+	NetMHCpan rank for the mutated peptide
+	 */
+	float rank = 7;
+	/**
+	NetMHCpan affinity for the wild type peptide
+	 */
+	float affinityScoreWildType = 8;
+	/**
+	NetMHCpan rank for the wild type peptide
+	 */
+	float rankWildType = 9;
+	/**
+	The NeoFox neoantigen annotations
+	 */
+	Annotations neofoxAnnotations = 10;
+}
+
+/**
+A neoantigen minimal definition
+*/
+message Neoantigen {
+	/**
+	Patient identifier
+	*/
+	string patientIdentifier = 1;
+	/**
+	The HGNC gene symbol or gene identifier
+	*/
+	string gene = 2;
+	/**
+	The mutation
+	*/
+	Mutation mutation = 3;
+	/**
+	Expression value of the transcript from RNA data. Range [0, +inf].
+	*/
+	float rnaExpression = 4;
+	/**
+	Expression value of the transcript from TCGA data. Range [0, +inf].
+	*/
+	float imputedGeneExpression = 5;
+	/**
+	Variant allele frequency from the DNA. Range [0.0, 1.0]
+	*/
+	float dnaVariantAlleleFrequency = 6;
+	/**
+	Variant allele frequency from the RNA. Range [0.0, 1.0]
+	*/
+	float rnaVariantAlleleFrequency = 7;
+	/**
+	The NeoFox neoantigen annotations
+	 */
+	Annotations neofoxAnnotations = 8;
+	/**
+	List of external annotations
+	*/
+	repeated Annotation externalAnnotations = 9;
+	/**
+	List of annotated neoepitopes for MHC-I (optional)
+	 */
+	repeated PredictedEpitope neoepitopesMhcI = 10;
+	/**
+	List of annotated neoepitopes for MHC-II (optional)
+	 */
+	repeated PredictedEpitope neoepitopesMhcII = 11;
 }

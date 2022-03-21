@@ -20,15 +20,12 @@
 from typing import List, Set
 import scipy.stats as stats
 from logzero import logger
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    PredictedEpitope,
-)
 from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import AbstractNetMhcPanPredictor
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName
+from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 
@@ -57,28 +54,28 @@ class BestAndMultipleBinderMhcII:
         self.best_predicted_epitope_rank = PredictedEpitope(
             peptide=None,
             pos=None,
-            hla=Mhc2Isoform(name=None),
+            isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_affinity = PredictedEpitope(
             peptide=None,
             pos=None,
-            hla=Mhc2Isoform(name=None),
+            isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_rank_wt = PredictedEpitope(
             peptide=None,
             pos=None,
-            hla=Mhc2Isoform(name=None),
+            isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
         self.best_predicted_epitope_affinity_wt = PredictedEpitope(
             peptide=None,
             pos=None,
-            hla=Mhc2Isoform(name=None),
+            isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
@@ -93,7 +90,7 @@ class BestAndMultipleBinderMhcII:
         phbr_ii = None
         for allele_with_score in best_epitope_per_allele_mhc2:
             # add DRB1
-            if Mhc2GeneName.DRB1.name in allele_with_score.hla.name:
+            if Mhc2GeneName.DRB1.name in allele_with_score.isoform.name:
                 best_epitope_per_allele_mhc2_new.append(allele_with_score)
         if len(best_epitope_per_allele_mhc2_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
@@ -247,7 +244,7 @@ class BestAndMultipleBinderMhcII:
                     filtered_predictions_wt = []
                     for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
                         if wt_peptide is not None:
-                            filtered_predictions_wt.extend(self.netmhc2pan.mhc2_prediction_peptide(mut_peptide.hla, wt_peptide))
+                            filtered_predictions_wt.extend(self.netmhc2pan.mhc2_prediction_peptide(mut_peptide.isoform, wt_peptide))
                     if self.best_predicted_epitope_rank:
                         self.best_predicted_epitope_rank_wt = self.netmhc2pan.filter_wt_predictions_from_best_mutated_alernative(
                             mut_predictions=filtered_predictions, wt_predictions=filtered_predictions_wt,
@@ -301,7 +298,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank.hla.name,
+                    value=self.best_predicted_epitope_rank.isoform.name,
                     name="Best_rank_MHCII_score_allele",
                 )])
         if self.best_predicted_epitope_affinity:
@@ -315,7 +312,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.hla.name,
+                    value=self.best_predicted_epitope_affinity.isoform.name,
                     name="Best_affinity_MHCII_allele",
                 )])
         if self.best_predicted_epitope_rank_wt:
@@ -329,7 +326,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_rank_MHCII_score_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank_wt.hla.name,
+                    value=self.best_predicted_epitope_rank_wt.isoform.name,
                     name="Best_rank_MHCII_score_allele_WT",
                 )])
         if self.best_predicted_epitope_affinity_wt:
@@ -343,7 +340,7 @@ class BestAndMultipleBinderMhcII:
                     name="Best_affinity_MHCII_epitope_WT",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity_wt.hla.name,
+                    value=self.best_predicted_epitope_affinity_wt.isoform.name,
                     name="Best_affinity_MHCII_allele_WT",
                 )])
 
@@ -399,7 +396,7 @@ class BestAndMultipleBinderMhcII:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            allele = p.hla.name
+            allele = p.isoform.name
             epitopes_by_allele.setdefault(allele, []).append(p)
 
         # chooses the best epitope per allele and considers zygosity
@@ -410,13 +407,13 @@ class BestAndMultipleBinderMhcII:
             best_epitope = epitopes[0]
             num_repetitions = 0
             if (
-                best_epitope.hla.name in hetero_hemizygous_allele_names
-                or best_epitope.hla.name in hetero_hemizygous_allele_names
+                best_epitope.isoform.name in hetero_hemizygous_allele_names
+                or best_epitope.isoform.name in hetero_hemizygous_allele_names
             ):
                 # adds the epitope once if alleles heterozygous
                 num_repetitions = 1
             if (
-                best_epitope.hla in homozygous_allele_names
+                best_epitope.isoform in homozygous_allele_names
             ):
                 # adds the epitope twice if one allele is homozygous
                 num_repetitions = 2
