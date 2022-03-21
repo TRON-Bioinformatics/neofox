@@ -97,7 +97,7 @@ class TestNetMhcPanPredictorOnMouse(TestCase):
             self.assertIsNotNone(p.peptide)
             self.assertIsNotNone(p.hla)
             self.assertIsNotNone(p.affinity_score)
-            self.assertIsNotNone(p.pos)
+            self.assertIsNotNone(p.position)
             self.assertIsNotNone(p.rank)
 
     def test_netmhc2pan_too_small_epitope(self):

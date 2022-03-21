@@ -9,6 +9,7 @@ Protocol Buffers is employed to model Neofox's input and output data: neoantigen
 
 - [neoantigen.proto](#neoantigen.proto)
     - [Annotation](#neoantigen.Annotation)
+    - [Annotations](#neoantigen.Annotations)
     - [Mhc1](#neoantigen.Mhc1)
     - [Mhc2](#neoantigen.Mhc2)
     - [Mhc2Gene](#neoantigen.Mhc2Gene)
@@ -16,8 +17,8 @@ Protocol Buffers is employed to model Neofox's input and output data: neoantigen
     - [MhcAllele](#neoantigen.MhcAllele)
     - [Mutation](#neoantigen.Mutation)
     - [Neoantigen](#neoantigen.Neoantigen)
-    - [NeoantigenAnnotations](#neoantigen.NeoantigenAnnotations)
     - [Patient](#neoantigen.Patient)
+    - [PredictedEpitope](#neoantigen.PredictedEpitope)
     - [Resource](#neoantigen.Resource)
   
     - [Mhc1Name](#neoantigen.Mhc1Name)
@@ -46,6 +47,25 @@ This is a generic class to hold annotations from Neofox
 | ----- | ---- | ----- | ----------- |
 | name | [string](#string) |  | The name of the annotation |
 | value | [string](#string) |  | The value of the annotation |
+
+
+
+
+
+
+<a name="neoantigen.Annotations"></a>
+
+### Annotations
+A set of annotations for a neoantigen
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| annotations | [Annotation](#neoantigen.Annotation) | repeated | List of annotations |
+| annotator | [string](#string) |  | The annotator |
+| annotatorVersion | [string](#string) |  | The version of the annotator |
+| timestamp | [string](#string) |  | A timestamp determined when the annotation was created |
+| resources | [Resource](#neoantigen.Resource) | repeated | List of resources |
 
 
 
@@ -172,27 +192,10 @@ A neoantigen minimal definition
 | imputedGeneExpression | [float](#float) |  | Expression value of the transcript from TCGA data. Range [0, +inf]. |
 | dnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the DNA. Range [0.0, 1.0] |
 | rnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the RNA. Range [0.0, 1.0] |
-| neofoxAnnotations | [NeoantigenAnnotations](#neoantigen.NeoantigenAnnotations) |  | The NeoFox neoantigen annotations |
+| neofoxAnnotations | [Annotations](#neoantigen.Annotations) |  | The NeoFox neoantigen annotations |
 | externalAnnotations | [Annotation](#neoantigen.Annotation) | repeated | List of external annotations |
-
-
-
-
-
-
-<a name="neoantigen.NeoantigenAnnotations"></a>
-
-### NeoantigenAnnotations
-A set of annotations for a neoantigen
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| annotations | [Annotation](#neoantigen.Annotation) | repeated | List of annotations |
-| annotator | [string](#string) |  | The annotator |
-| annotatorVersion | [string](#string) |  | The version of the annotator |
-| timestamp | [string](#string) |  | A timestamp determined when the annotation was created |
-| resources | [Resource](#neoantigen.Resource) | repeated | List of resources |
+| neoepitopesMhcI | [PredictedEpitope](#neoantigen.PredictedEpitope) | repeated | List of annotated neoepitopes for MHC-I (optional) |
+| neoepitopesMhcII | [PredictedEpitope](#neoantigen.PredictedEpitope) | repeated | List of annotated neoepitopes for MHC-II (optional) |
 
 
 
@@ -212,6 +215,30 @@ The metadata required for analysis for a given patient + its patient identifier
 | tumorType | [string](#string) |  | Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations |
 | mhc1 | [Mhc1](#neoantigen.Mhc1) | repeated | MHC I classic molecules |
 | mhc2 | [Mhc2](#neoantigen.Mhc2) | repeated | MHC II classic molecules |
+
+
+
+
+
+
+<a name="neoantigen.PredictedEpitope"></a>
+
+### PredictedEpitope
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| position | [int32](#int32) |  | Not sure that we need this... this is in the old PredictedEpitope model |
+| peptide | [string](#string) |  | The mutated peptide |
+| wildTypePeptide | [string](#string) |  | Closest wild type peptide |
+| hla | [MhcAllele](#neoantigen.MhcAllele) |  | MHC I allele |
+| isoform | [Mhc2Isoform](#neoantigen.Mhc2Isoform) |  | MHC II isoform |
+| affinityScore | [float](#float) |  | NetMHCpan affinity for the mutated peptide |
+| rank | [float](#float) |  | NetMHCpan rank for the mutated peptide |
+| affinityScoreWildType | [float](#float) |  | NetMHCpan affinity for the wild type peptide |
+| rankWildType | [float](#float) |  | NetMHCpan rank for the wild type peptide |
+| neofoxAnnotations | [Annotations](#neoantigen.Annotations) |  | The NeoFox neoantigen annotations |
 
 
 

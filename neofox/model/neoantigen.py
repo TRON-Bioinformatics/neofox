@@ -234,7 +234,7 @@ class MhcAllele(betterproto.Message):
 @dataclass
 class PredictedEpitope(betterproto.Message):
     # *Not sure that we need this... this is in the old PredictedEpitope model
-    pos: int = betterproto.int32_field(1)
+    position: int = betterproto.int32_field(1)
     # *The mutated peptide
     peptide: str = betterproto.string_field(2)
     # *Closest wild type peptide

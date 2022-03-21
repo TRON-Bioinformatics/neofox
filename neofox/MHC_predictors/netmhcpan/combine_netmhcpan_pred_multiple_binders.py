@@ -66,7 +66,7 @@ class BestAndMultipleBinder:
     def _get_empty_epitope():
         return PredictedEpitope(
             peptide=None,
-            pos=None,
+            position=None,
             hla=MhcAllele(name=None),
             affinity_score=None,
             rank=None,
