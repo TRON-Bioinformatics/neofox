@@ -24,7 +24,6 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
-from dask.distributed import performance_report
 
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
@@ -49,19 +48,19 @@ import dotenv
 class NeoFox:
 
     def __init__(
-        self,
-        neoantigens: List[Neoantigen],
-        patients: List[Patient],
-        num_cpus: int = 1,
-        patient_id: str = None,
-        work_folder=None,
-        output_prefix=None,
-        reference_folder: ReferenceFolder = None,
-        configuration: DependenciesConfiguration = None,
-        verbose=True,
-        configuration_file=None,
-        affinity_threshold=AFFINITY_THRESHOLD_DEFAULT
-    ):
+            self,
+            neoantigens: List[Neoantigen],
+            patients: List[Patient],
+            num_cpus: int = 1,
+            patient_id: str = None,
+            work_folder=None,
+            output_prefix=None,
+            reference_folder: ReferenceFolder = None,
+            configuration: DependenciesConfiguration = None,
+            verbose=True,
+            configuration_file=None,
+            affinity_threshold=AFFINITY_THRESHOLD_DEFAULT,
+            with_all_neoepitopes=False):
 
         self.affinity_threshold = affinity_threshold
 

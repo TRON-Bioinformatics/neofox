@@ -110,6 +110,12 @@ def neofox_cli():
         help="output results in JSON format",
     )
     parser.add_argument(
+        "--with-all-neoepitopes",
+        dest="with_all_neoepitopes",
+        action="store_true",
+        help="output annotations for all neoepitopes on all HLA alleles",
+    )
+    parser.add_argument(
         "--patient-id",
         dest="patient_id",
         help="the patient id for the input file. This parameter is only required, "
@@ -148,6 +154,7 @@ def neofox_cli():
     output_prefix = args.output_prefix
     with_table = args.with_table
     with_json = args.with_json
+    with_all_neoepitopes = args.with_all_neoepitopes
     affinity_threshold = int(args.affinity_threshold)
     num_cpus = int(args.num_cpus)
     config = args.config
@@ -193,7 +200,8 @@ def neofox_cli():
             output_prefix=output_prefix,
             num_cpus=num_cpus,
             reference_folder=reference_folder,
-            affinity_threshold=affinity_threshold
+            affinity_threshold=affinity_threshold,
+            with_all_neoepitopes=with_all_neoepitopes
         ).get_annotations()
 
         _write_results(
