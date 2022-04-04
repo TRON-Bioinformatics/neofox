@@ -22,6 +22,7 @@ import scipy.stats as stats
 from neofox.MHC_predictors.netmhcpan.netmhcpan_prediction import NetMhcPanPredictor
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.helpers.mhc_helper import MhcHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAllele, PredictedEpitope
@@ -30,8 +31,9 @@ from neofox.references.references import DependenciesConfiguration, ORGANISM_HOM
 
 
 class BestAndMultipleBinder:
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser,
-                 blastp_runner: BlastpRunner):
+    def __init__(
+            self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser,
+            blastp_runner: BlastpRunner):
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
@@ -67,8 +69,7 @@ class BestAndMultipleBinder:
         )
 
     def calculate_phbr_i(
-        self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]
-    ):
+        self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]):
         """returns list of multiple binding scores for mhcII considering best epitope per allele, applying different types of means (harmonic ==> PHRB-II, Marty et al).
         2 copies of DRA - DRB1 --> consider this gene 2x when averaging mhcii binding scores
         """
@@ -84,53 +85,18 @@ class BestAndMultipleBinder:
 
     @staticmethod
     def extract_best_epitope_per_alelle(
-        epitopes: List[PredictedEpitope], mhc_isoforms: List[Mhc1]
-    ) -> List[PredictedEpitope]:
+            epitopes: List[PredictedEpitope], mhc_isoforms: List[Mhc1]) -> List[PredictedEpitope]:
         """
         This function returns the predicted epitope with the lowest binding score for each patient allele,
         considering homozyogosity
         """
-        homozygous_alleles = BestAndMultipleBinder._get_homozygous_mhc1_alleles(mhc_isoforms)
-        hetero_hemizygous_alleles = (
-            BestAndMultipleBinder._get_heterozygous_or_hemizygous_mhc1_alleles(mhc_isoforms))
-        return BestAndMultipleBinder._get_sorted_epitopes(
-            hetero_hemizygous_alleles, homozygous_alleles, epitopes
-        )
-
-    @staticmethod
-    def _get_homozygous_mhc1_alleles(mhc_isoforms: List[Mhc1]) -> List[str]:
-        """
-        Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
-        Otherwise retunrs empty list
-        """
-        return [
-            a.name
-            for m in mhc_isoforms
-            for a in m.alleles
-            if m.zygosity == Zygosity.HOMOZYGOUS
-        ]
-
-    @staticmethod
-    def _get_heterozygous_or_hemizygous_mhc1_alleles(
-        mhc_isoforms: List[Mhc1],
-    ) -> List[str]:
-        """
-        Returns alleles that occur more than one time in list of patient alleles and hence are homozygous alleles.
-        Otherwise retunrs empty list
-        """
-        return [
-            a.name
-            for m in mhc_isoforms
-            for a in m.alleles
-            if m.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]
-        ]
+        homozygous_alleles = MhcHelper.get_homozygous_mhc1_alleles(mhc_isoforms)
+        hetero_hemizygous_alleles = (MhcHelper.get_heterozygous_or_hemizygous_mhc1_alleles(mhc_isoforms))
+        return BestAndMultipleBinder._get_sorted_epitopes(hetero_hemizygous_alleles, homozygous_alleles, epitopes)
 
     @staticmethod
     def _get_sorted_epitopes(
-        hetero_hemizygous_alleles,
-        homozygous_alleles,
-        predictions: List[PredictedEpitope],
-    ) -> List[PredictedEpitope]:
+        hetero_hemizygous_alleles, homozygous_alleles, predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
 
         # groups epitopes by allele
         epitopes_by_allele = {}
@@ -193,19 +159,19 @@ class BestAndMultipleBinder:
         self._initialise()
 
         # gets all predictions overlapping the mutation and not present in the WT proteome
-        predictions = self._get_predictions(mhc1_alleles_available, mhc1_alleles_patient, mutation, uniprot)
+        predictions = self.netmhcpan.get_predictions(mhc1_alleles_available, mhc1_alleles_patient, mutation, uniprot)
         if mutation.wild_type_xmer:
             # SNVs with available WT
             # runs the netMHCpan WT predictions and then pair them with previous predictions
             # based on length, position within neoepitope and HLA allele
-            predictions_wt = self._get_wt_predictions(mhc1_alleles_available, mhc1_alleles_patient, mutation)
+            predictions_wt = self.netmhcpan.get_wt_predictions(mhc1_alleles_available, mhc1_alleles_patient, mutation)
             predictions = EpitopeHelper.pair_predictions(predictions=predictions, predictions_wt=predictions_wt)
         else:
             # alternative mutation classes or missing WT
             # do BLAST search for all predicted epitopes to identify the closest WT peptide and
             # predict MHC binding for the identified peptide sequence
             predictions = EpitopeHelper.set_wt_epitope_by_homology(predictions, self.blastp_runner)
-            predictions = self._set_wt_netmhcpan_scores(mhc1_alleles_available, predictions)
+            predictions = self.netmhcpan.set_wt_netmhcpan_scores(mhc1_alleles_available, predictions)
 
         self.predictions = predictions
 
@@ -231,43 +197,6 @@ class BestAndMultipleBinder:
 
             # PHBR-I
             self.phbr_i = self.calculate_phbr_i(predictions=predictions, mhc1_alleles=mhc1_alleles_patient)
-
-    def _set_wt_netmhcpan_scores(self, mhc1_alleles_available, predictions) -> List[PredictedEpitope]:
-        for p in predictions:
-            if p.wild_type_peptide is not None:
-                wt_predictions = self.netmhcpan.mhc_prediction(
-                    mhc_alleles=[Mhc1(zygosity=Zygosity.HOMOZYGOUS, alleles=[p.hla])],
-                    set_available_mhc=mhc1_alleles_available,
-                    sequence=p.wild_type_peptide, peptide_mode=True)
-                if len(wt_predictions) >= 1:
-                    # NOTE: netmhcpan in peptide mode should return only one epitope
-                    p.rank_wild_type = wt_predictions[0].rank
-                    p.affinity_score_wild_type = wt_predictions[0].affinity_score
-        return predictions
-
-    def _get_predictions(self, mhc1_alleles_available, mhc1_alleles_patient, mutation, uniprot) -> List[PredictedEpitope]:
-
-        predictions = self.netmhcpan.mhc_prediction(mhc1_alleles_patient, mhc1_alleles_available, mutation.mutated_xmer)
-        if mutation.wild_type_xmer:
-            # make sure that predicted epitopes cover mutation in case of SNVs
-            predictions = EpitopeHelper.filter_peptides_covering_snv(
-                position_of_mutation=mutation.position, predictions=predictions
-            )
-        # make sure that predicted neoepitopes are not part of the WT proteome
-        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
-            predictions=predictions, uniprot=uniprot
-        )
-        return filtered_predictions
-
-    def _get_wt_predictions(self, mhc1_alleles_available, mhc1_alleles_patient, mutation) -> List[PredictedEpitope]:
-        predictions = self.netmhcpan.mhc_prediction(
-            mhc1_alleles_patient, mhc1_alleles_available, mutation.wild_type_xmer
-        )
-        # make sure that predicted epitopes cover mutation in case of SNVs
-        predictions = EpitopeHelper.filter_peptides_covering_snv(
-            position_of_mutation=mutation.position, predictions=predictions
-        )
-        return predictions
 
     def get_annotations(self, mutation) -> List[Annotation]:
         annotations = []
