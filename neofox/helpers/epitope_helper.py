@@ -20,6 +20,7 @@ from typing import List
 
 from Bio.Data import IUPACData
 
+from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.neoantigen import Mutation, PredictedEpitope
 
 
@@ -133,3 +134,88 @@ class EpitopeHelper(object):
                 found_rare_amino_acid = True
                 return found_rare_amino_acid
         return found_rare_amino_acid
+
+    @staticmethod
+    def pair_predictions(predictions, predictions_wt) -> List[PredictedEpitope]:
+        for prediction in predictions:
+            for prediction_wt in predictions_wt:
+                if len(prediction_wt.peptide) == len(prediction.peptide) and \
+                        prediction.position == prediction_wt.position and \
+                        prediction.hla.name == prediction_wt.hla.name:
+                    prediction.wild_type_peptide = prediction_wt.peptide
+                    prediction.rank_wild_type = prediction_wt.rank
+                    prediction.affinity_score_wild_type = prediction_wt.affinity_score
+                    break
+        return predictions
+
+    @staticmethod
+    def pair_mhcii_predictions(predictions, predictions_wt) -> List[PredictedEpitope]:
+        for prediction in predictions:
+            for prediction_wt in predictions_wt:
+                if len(prediction_wt.peptide) == len(prediction.peptide) and \
+                        prediction.position == prediction_wt.position and \
+                        prediction.isoform.name == prediction_wt.isoform.name:
+                    prediction.wild_type_peptide = prediction_wt.peptide
+                    prediction.rank_wild_type = prediction_wt.rank
+                    prediction.affinity_score_wild_type = prediction_wt.affinity_score
+                    break
+        return predictions
+
+    @staticmethod
+    def select_best_by_rank(predictions: List[PredictedEpitope], none_value=None) -> PredictedEpitope:
+        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
+        if rank = False, Aff(nM) is used
+        In case of a tie, it chooses the first peptide in alphabetical order
+        """
+        return min(predictions, key=lambda p: (p.rank, p.peptide)) \
+            if predictions is not None and len(predictions) > 0 else none_value
+
+    @staticmethod
+    def select_best_by_affinity(predictions: List[PredictedEpitope], none_value=None) -> PredictedEpitope:
+        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
+        if rank = False, Aff(nM) is used
+        In case of a tie, it chooses the first peptide in alphabetical order
+        """
+        return min(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
+            if predictions is not None and len(predictions) > 0 else none_value
+
+    @staticmethod
+    def remove_peptides_in_proteome(predictions: List[PredictedEpitope], uniprot
+                                    ) -> List[PredictedEpitope]:
+        """filters prediction file for predicted epitopes that cover mutations by searching for epitope
+        in uniprot proteome database with an exact match search"""
+        return list(
+            filter(
+                lambda p: uniprot.is_sequence_not_in_uniprot(
+                    p.peptide
+                ),
+                predictions,
+            )
+        )
+
+    @staticmethod
+    def filter_for_9mers(predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
+        """returns only predicted 9mers"""
+        return list(filter(lambda p: len(p.peptide) == 9, predictions))
+
+    @staticmethod
+    def filter_peptides_covering_snv(
+            position_of_mutation, predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
+        """filters prediction file for predicted epitopes that cover mutations"""
+        return list(
+            filter(
+                lambda p: EpitopeHelper.epitope_covers_mutation(
+                    position_of_mutation, p.position, len(p.peptide)
+                ),
+                predictions,
+            )
+        )
+
+    @staticmethod
+    def set_wt_epitope_by_homology(predictions: List[PredictedEpitope], blastp_runner: BlastpRunner) -> List[PredictedEpitope]:
+        """returns wt epitope for each neoepitope candidate of a neoantigen candidate from an alternative mutation
+        class by a BLAST search."""
+
+        for p in predictions:
+            p.wild_type_peptide = blastp_runner.get_most_similar_wt_epitope(p.peptide)
+        return predictions

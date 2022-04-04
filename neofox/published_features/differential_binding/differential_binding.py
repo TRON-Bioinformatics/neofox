@@ -20,11 +20,10 @@
 
 from typing import List
 
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 
 
 class DifferentialBinding:

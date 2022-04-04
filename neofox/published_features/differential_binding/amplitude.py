@@ -78,10 +78,10 @@ class Amplitude:
                 )
         # MHC II
         if netmhc2pan:
-            if netmhc2pan.best_predicted_epitope_rank.peptide and netmhc2pan.best_predicted_epitope_rank_wt.peptide:
+            if netmhc2pan.best_predicted_epitope_rank.peptide and netmhc2pan.best_predicted_epitope_rank.wild_type_peptide:
                 self.amplitude_mhcii_rank = self.calculate_amplitude_mhc(
                     score_mutation=netmhc2pan.best_predicted_epitope_rank.rank,
-                    score_wild_type=netmhc2pan.best_predicted_epitope_rank_wt.rank,
+                    score_wild_type=netmhc2pan.best_predicted_epitope_rank.rank_wild_type,
                 )
 
     def get_annotations(self) -> List[Annotation]:

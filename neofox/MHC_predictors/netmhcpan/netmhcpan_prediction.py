@@ -22,13 +22,23 @@ from logzero import logger
 
 from neofox.exceptions import NeofoxCommandException
 from neofox.helpers import intermediate_files
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    AbstractNetMhcPanPredictor
-)
+from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.runner import Runner
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc1, PredictedEpitope
+from neofox.references.references import DependenciesConfiguration
 
 
-class NetMhcPanPredictor(AbstractNetMhcPanPredictor):
+class NetMhcPanPredictor:
+
+    def __init__(
+            self, runner: Runner, configuration: DependenciesConfiguration,
+            blastp_runner: BlastpRunner, mhc_parser: MhcParser):
+
+        self.runner = runner
+        self.configuration = configuration
+        self.mhc_parser = mhc_parser
+        self.blastp_runner = blastp_runner
 
     def mhc_prediction(
             self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence, peptide_mode=False

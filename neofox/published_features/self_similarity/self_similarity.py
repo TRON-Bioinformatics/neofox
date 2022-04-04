@@ -20,9 +20,8 @@
 from typing import List
 import math
 import os
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.model.validation import ModelValidator
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 
 
@@ -137,8 +136,7 @@ class SelfSimilarityCalculator:
         return result
 
     def get_annnotations(
-            self, epitope_mhci: PredictedEpitope,
-            mutated_peptide_mhcii: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
+            self, epitope_mhci: PredictedEpitope, epitope_mhcii: PredictedEpitope) -> List[Annotation]:
 
         improved_binding_mhci = None
         self_similarity_mhci = None
@@ -152,11 +150,10 @@ class SelfSimilarityCalculator:
                 mutated_peptide=epitope_mhci.peptide,
                 wt_peptide=epitope_mhci.wild_type_peptide,
             )
-        if mutated_peptide_mhcii and wt_peptide_mhcii and \
-                mutated_peptide_mhcii.peptide and wt_peptide_mhcii.peptide:
+        if epitope_mhcii and epitope_mhcii.peptide and epitope_mhcii.wild_type_peptide:
             self_similarity_mhcii = self.get_self_similarity(
-                mutated_peptide=mutated_peptide_mhcii.peptide,
-                wt_peptide=wt_peptide_mhcii.peptide,
+                mutated_peptide=epitope_mhcii.peptide,
+                wt_peptide=epitope_mhcii.wild_type_peptide,
             )
         annotations = [
             AnnotationFactory.build_annotation(

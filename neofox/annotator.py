@@ -255,8 +255,7 @@ class NeoantigenAnnotator:
         neoantigen.neofox_annotations.annotations.extend(
             self.self_similarity.get_annnotations(
                 epitope_mhci=netmhcpan.best_epitope_by_rank if netmhcpan else None,
-                mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None,
-                wt_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity_wt if netmhc2pan else None,
+                epitope_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
         end = time.time()
