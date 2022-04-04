@@ -23,6 +23,7 @@ from typing import List
 
 from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope
@@ -136,3 +137,32 @@ class NetMhcIIPanPredictor:
                     )
                 )
         return results
+
+    def set_wt_netmhcpan_scores(self, predictions) -> List[PredictedEpitope]:
+        for p in predictions:
+            if p.wild_type_peptide is not None:
+                wt_predictions = self.mhc2_prediction_peptide(
+                    mhc2_isoform=p.isoform,
+                    sequence=p.wild_type_peptide)
+                if len(wt_predictions) >= 1:
+                    # NOTE: netmhcpan in peptide mode should return only one epitope
+                    p.rank_wild_type = wt_predictions[0].rank
+                    p.affinity_score_wild_type = wt_predictions[0].affinity_score
+        return predictions
+
+    def get_wt_predictions(self, mutation, patient_mhc2_isoforms):
+        predictions = self.mhc2_prediction(patient_mhc2_isoforms, mutation.wild_type_xmer)
+        predictions = EpitopeHelper.filter_peptides_covering_snv(mutation.position, predictions)
+        return predictions
+
+    def get_predictions(self, mutation, patient_mhc2_isoforms, uniprot):
+
+        predictions = self.mhc2_prediction(patient_mhc2_isoforms, mutation.mutated_xmer)
+        if mutation.wild_type_xmer:
+            # make sure that predicted epitopes cover mutation in case of SNVs
+            predictions = EpitopeHelper.filter_peptides_covering_snv(
+                position_of_mutation=mutation.position, predictions=predictions
+            )
+        # make sure that predicted neoepitopes are not part of the WT proteome
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(predictions, uniprot)
+        return filtered_predictions
