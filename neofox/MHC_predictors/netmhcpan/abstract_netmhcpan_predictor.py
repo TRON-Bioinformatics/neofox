@@ -66,30 +66,21 @@ class AbstractNetMhcPanPredictor:
             )
         )
 
-    def find_wt_epitope_for_alternative_mutated_epitope(
-            self,
-            mutated_predictions: List[PredictedEpitope]
-    ) -> List:
+    def set_wt_epitope_by_homology(self, predictions: List[PredictedEpitope]) \
+            -> List[PredictedEpitope]:
         """returns wt epitope for each neoepitope candidate of a neoantigen candidate from an alternative mutation
         class by a BLAST search."""
-        mut_peptides = set([mp.peptide for mp in mutated_predictions])
-        most_similar_wt_epitopes = {
-            mutated_peptide: self.blastp_runner.get_most_similar_wt_epitope(mutated_peptide)
-            for mutated_peptide in mut_peptides
-        }
-        wt_peptides_full = []
-        for mp in mutated_predictions:
-            wt_peptides_full.append(most_similar_wt_epitopes.get(mp.peptide))
-        return wt_peptides_full
+        for p in predictions:
+            p.wild_type_peptide = self.blastp_runner.get_most_similar_wt_epitope(p.peptide)
+        return predictions
 
     def filter_wt_predictions_from_best_mutated_alernative(
-            self, mut_predictions: List[PredictedEpitope], wt_predictions: List[PredictedEpitope],
-            best_mutated_epitope: PredictedEpitope
+            self, predictions: List[PredictedEpitope], best_mutated_epitope: PredictedEpitope
     ) -> PredictedEpitope:
         """returns wt epitope info for given mutated sequence. best wt is restricted to the allele of best neoepitope"""
         best_wt = None
-        for mut, wt in zip(mut_predictions, wt_predictions):
-            if wt.hla.name == best_mutated_epitope.hla.name and mut.peptide == best_mutated_epitope.peptide:
+        for p in predictions:
+            if mut.peptide == best_mutated_epitope.peptide:
                 best_wt = wt
                 break
         return best_wt

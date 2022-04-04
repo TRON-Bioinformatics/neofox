@@ -240,7 +240,7 @@ class BestAndMultipleBinderMhcII:
                     # alternative mutation classes
                     # do BLAST search for all predicted epitopes  covering mutation to identify WT peptide and
                     # predict MHC binding for the identified peptide sequence
-                    peptides_wt = self.netmhc2pan.find_wt_epitope_for_alternative_mutated_epitope(filtered_predictions)
+                    peptides_wt = self.netmhc2pan.set_wt_epitope_by_homology(filtered_predictions)
                     filtered_predictions_wt = []
                     for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
                         if wt_peptide is not None:

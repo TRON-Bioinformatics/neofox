@@ -23,7 +23,6 @@ from distributed import get_client, secede, rejoin
 import neofox
 import time
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.exceptions import NeofoxInputParametersException
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
@@ -59,11 +58,12 @@ from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.published_features.prime import Prime
 from neofox.published_features.hex.hex import Hex
-from neofox.model.neoantigen import Patient, Neoantigen, Annotations, Zygosity
+from neofox.model.neoantigen import Patient, Neoantigen, Annotations
+from neofox.published_features.vaxrank.vaxrank import VaxRank
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
-    AvailableAlleles, ORGANISM_MUS_MUSCULUS, ORGANISM_HOMO_SAPIENS
+    AvailableAlleles, ORGANISM_HOMO_SAPIENS
 )
 
 
@@ -217,10 +217,7 @@ class NeoantigenAnnotator:
         start = time.time()
         if netmhcpan:
             neoantigen.neofox_annotations.annotations.extend(
-                self.differential_binding.get_annotations_dai(
-                    mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
-                    wt_peptide_mhcii=netmhcpan.best_wt_epitope_by_affinity
-                )
+                self.differential_binding.get_annotations_dai(epitope=netmhcpan.best_epitope_by_affinity)
             )
             neoantigen.neofox_annotations.annotations.extend(
                 self.differential_binding.get_annotations(mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
@@ -257,8 +254,7 @@ class NeoantigenAnnotator:
         start = time.time()
         neoantigen.neofox_annotations.annotations.extend(
             self.self_similarity.get_annnotations(
-                mutated_peptide_mhci=netmhcpan.best_epitope_by_rank if netmhcpan else None,
-                wt_peptide_mhci=netmhcpan.best_wt_epitope_by_rank if netmhcpan else None,
+                epitope_mhci=netmhcpan.best_epitope_by_rank if netmhcpan else None,
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None,
                 wt_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity_wt if netmhc2pan else None,
             )
@@ -293,14 +289,11 @@ class NeoantigenAnnotator:
         if netmhcpan and netmhcpan.best_epitope_by_affinity:
             start = time.time()
             peptide_variant_position = EpitopeHelper.position_of_mutation_epitope(
-                wild_type=netmhcpan.best_wt_epitope_by_affinity.peptide,
-                mutation=netmhcpan.best_epitope_by_affinity.peptide,
-            )
+                epitope=netmhcpan.best_epitope_by_affinity)
             neoantigen.neofox_annotations.annotations.append(
                 self.neoag_calculator.get_annotation(
                     sample_id=patient.identifier,
-                    mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
-                    wt_peptide_mhci=netmhcpan.best_wt_epitope_by_affinity,
+                    epitope_mhci=netmhcpan.best_epitope_by_affinity,
                     peptide_variant_position=peptide_variant_position,
                     mutation=neoantigen.mutation)
             )
@@ -338,14 +331,12 @@ class NeoantigenAnnotator:
         )
 
         # vaxrank
-        if netmhcpan and netmhcpan.epitope_affinities:
+        if netmhcpan and netmhcpan.predictions:
             start = time.time()
-            vaxrankscore = vaxrank.VaxRank()
-            vaxrankscore.run(
-                mutation_scores=netmhcpan.epitope_affinities,
+            neoantigen.neofox_annotations.annotations.extend(VaxRank().get_annotations(
+                epitope_predictions=netmhcpan.predictions,
                 expression_score=expression_calculator.expression,
-            )
-            neoantigen.neofox_annotations.annotations.extend(vaxrankscore.get_annotations())
+            ))
             end = time.time()
             logger.info(
                 "Vaxrank annotation elapsed time {} seconds".format(round(end - start, 3))

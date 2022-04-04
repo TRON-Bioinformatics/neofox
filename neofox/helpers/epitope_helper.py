@@ -20,7 +20,7 @@ from typing import List
 
 from Bio.Data import IUPACData
 
-from neofox.model.neoantigen import Mutation
+from neofox.model.neoantigen import Mutation, PredictedEpitope
 
 
 class EpitopeHelper(object):
@@ -70,15 +70,15 @@ class EpitopeHelper(object):
         return pos_mut
 
     @staticmethod
-    def position_of_mutation_epitope(wild_type, mutation) -> int:
+    def position_of_mutation_epitope(epitope: PredictedEpitope) -> int:
         """
         This function determines the position of the mutation within the epitope sequence.
         """
         # TODO: is this efficient? No, a solution with zip is around 25% faster, maybe something else is even faster
         position = -1
         try:
-            for i, aa in enumerate(mutation):
-                if aa != wild_type[i]:
+            for i, aa in enumerate(epitope.peptide):
+                if aa != epitope.wild_type_peptide[i]:
                     position = i + 1
         except Exception:
             position = None

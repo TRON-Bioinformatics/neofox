@@ -74,12 +74,12 @@ class DifferentialBinding:
             pass
         return group
 
-    def get_annotations_dai(self, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
+    def get_annotations_dai(self, epitope: PredictedEpitope) -> List[Annotation]:
         dai = None
-        if mutated_peptide_mhci.peptide and wt_peptide_mhcii.peptide:
+        if epitope.peptide and epitope.wild_type_peptide:
             dai = self.dai(
-                        score_mutation=mutated_peptide_mhci.affinity_score,
-                        score_wild_type=wt_peptide_mhcii.affinity_score,
+                        score_mutation=epitope.affinity_score,
+                        score_wild_type=epitope.affinity_score_wild_type,
                         affin_filtering=True,
                     )
         annotations = [

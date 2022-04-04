@@ -129,10 +129,11 @@ class TcellPrediction:
                 mutation_position - 1
             ]  # it is 1-based
             mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position - 1]
-            tcell_predictor_score = self._calculate_tcell_predictor_score(gene=neoantigen.gene,
-                                                          substitution=wild_type_aminoacid + mutated_aminoacid,
-                                                          epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
-                                                          score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score)
+            tcell_predictor_score = self._calculate_tcell_predictor_score(
+                gene=neoantigen.gene,
+                substitution=wild_type_aminoacid + mutated_aminoacid,
+                epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
+                score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=tcell_predictor_score,
