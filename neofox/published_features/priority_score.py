@@ -96,9 +96,9 @@ class PriorityScore:
         """
         num_mismatches_mhc1 = None
         priority_score = None
-        if netmhcpan.best_wt_epitope_by_rank.peptide and netmhcpan.best_epitope_by_rank.peptide:
+        if netmhcpan.best_epitope_by_rank.wild_type_peptide and netmhcpan.best_epitope_by_rank.peptide:
             num_mismatches_mhc1 = EpitopeHelper.number_of_mismatches(
-                epitope_wild_type=netmhcpan.best_wt_epitope_by_rank.peptide,
+                epitope_wild_type=netmhcpan.best_epitope_by_rank.wild_type_peptide,
                 epitope_mutation=netmhcpan.best_epitope_by_rank.peptide,
             )
             priority_score = self.calc_priority_score(
@@ -107,7 +107,7 @@ class PriorityScore:
                         transcript_expr=expr,
                         no_mismatch=num_mismatches_mhc1,
                         score_mut=netmhcpan.best_epitope_by_rank.rank,
-                        score_wt=netmhcpan.best_wt_epitope_by_rank.rank,
+                        score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
                         mut_not_in_prot=mut_not_in_prot,
                     )
         annotations = [

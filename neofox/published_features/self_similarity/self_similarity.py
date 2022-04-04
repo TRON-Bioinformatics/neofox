@@ -137,21 +137,20 @@ class SelfSimilarityCalculator:
         return result
 
     def get_annnotations(
-            self, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhci: PredictedEpitope,
+            self, epitope_mhci: PredictedEpitope,
             mutated_peptide_mhcii: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
 
         improved_binding_mhci = None
         self_similarity_mhci = None
         self_similarity_mhcii = None
-        if mutated_peptide_mhci and wt_peptide_mhci and \
-                mutated_peptide_mhci.peptide and wt_peptide_mhci.peptide:
+        if epitope_mhci and epitope_mhci.peptide and epitope_mhci.wild_type_peptide:
             improved_binding_mhci = self.is_improved_binder(
-                score_mutation=mutated_peptide_mhci.rank,
-                score_wild_type=wt_peptide_mhci.rank,
+                score_mutation=epitope_mhci.rank,
+                score_wild_type=epitope_mhci.rank_wild_type,
             )
             self_similarity_mhci = self.get_self_similarity(
-                mutated_peptide=mutated_peptide_mhci.peptide,
-                wt_peptide=wt_peptide_mhci.peptide,
+                mutated_peptide=epitope_mhci.peptide,
+                wt_peptide=epitope_mhci.wild_type_peptide,
             )
         if mutated_peptide_mhcii and wt_peptide_mhcii and \
                 mutated_peptide_mhcii.peptide and wt_peptide_mhcii.peptide:

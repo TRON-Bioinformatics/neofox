@@ -42,7 +42,7 @@ class TestNeoantigenFitness(TestCase):
             runner=self.runner, configuration=self.configuration
         ).get_annotation(
             sample_id="12345",
-            mutated_peptide_mhci=PredictedEpitope(
+            epitope_mhci=PredictedEpitope(
                 peptide="DDDDDV", affinity_score=0, position=0, hla="hla", rank=0
             ),
             wt_peptide_mhci=PredictedEpitope(
@@ -63,7 +63,7 @@ class TestNeoantigenFitness(TestCase):
             runner=self.runner, configuration=self.configuration, affinity_threshold=1
         ).get_annotation(
             sample_id="12345",
-            mutated_peptide_mhci=PredictedEpitope(
+            epitope_mhci=PredictedEpitope(
                 peptide="DDDDDV", affinity_score=10, position=0, hla="hla", rank=0
             ),
             wt_peptide_mhci=PredictedEpitope(
