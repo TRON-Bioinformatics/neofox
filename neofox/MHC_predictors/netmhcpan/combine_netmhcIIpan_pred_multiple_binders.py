@@ -148,6 +148,8 @@ class BestAndMultipleBinderMhcII:
                 predictions = EpitopeHelper.set_wt_epitope_by_homology(predictions)
                 predictions = self.netmhc2pan.set_wt_netmhcpan_scores(predictions)
 
+            self.predictions = predictions
+
             if len(predictions) > 0:
 
                 # multiple binding

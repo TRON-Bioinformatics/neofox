@@ -52,7 +52,6 @@ from neofox.published_features.neoantigen_fitness.neoantigen_fitness import (
 from neofox.published_features.self_similarity.self_similarity import (
     SelfSimilarityCalculator,
 )
-from neofox.published_features.vaxrank import vaxrank
 from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
@@ -113,7 +112,7 @@ class NeoantigenAnnotator:
 
         self.resources_versions = references.get_resources_versions()
 
-    def get_annotation(self, neoantigen: Neoantigen, patient: Patient) -> Neoantigen:
+    def get_annotation(self, neoantigen: Neoantigen, patient: Patient, with_all_neoepitopes=False) -> Neoantigen:
         """Calculate new epitope features and add to dictionary that stores all properties"""
         neoantigen.neofox_annotations = Annotations(
             annotator="NeoFox",
@@ -135,10 +134,12 @@ class NeoantigenAnnotator:
         # HLA I predictions: NetMHCpan
         if netmhcpan:
             neoantigen.neofox_annotations.annotations.extend(netmhcpan.get_annotations(mutation=neoantigen.mutation))
+            neoantigen.neoepitopes_mhc_i = netmhcpan.predictions
 
         # HLA II predictions: NetMHCIIpan
         if netmhc2pan:
             neoantigen.neofox_annotations.annotations.extend(netmhc2pan.get_annotations())
+            neoantigen.neoepitopes_mhc_i_i = netmhc2pan.predictions
 
         # MixMHCpred
         if mixmhcpred_annotations is not None:
