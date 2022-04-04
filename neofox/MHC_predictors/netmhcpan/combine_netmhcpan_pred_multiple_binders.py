@@ -317,8 +317,8 @@ class BestAndMultipleBinder:
                 for wt_peptide, mut_peptide in zip(peptides_wt, filtered_predictions):
                     if wt_peptide is not None:
                         hla = Mhc1(name=mut_peptide.hla.gene, zygosity=Zygosity.HOMOZYGOUS, alleles=[mut_peptide.hla])
-                        filtered_predictions_wt.extend(self.netmhcpan.mhc_prediction_peptide(
-                            [hla], mhc1_alleles_available, wt_peptide
+                        filtered_predictions_wt.extend(self.netmhcpan.mhc_prediction(
+                            [hla], mhc1_alleles_available, wt_peptide, peptide_mode=True
                         ))
                 if self.best_epitope_by_rank:
                     self.best_wt_epitope_by_rank = self.netmhcpan.filter_wt_predictions_from_best_mutated_alernative(
