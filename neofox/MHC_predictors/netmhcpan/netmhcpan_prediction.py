@@ -78,7 +78,7 @@ class NetMhcPanPredictor:
                 line = line[0:-2] if len(line) > 16 else line
                 results.append(
                     PredictedEpitope(
-                        pos=int(line[0]),
+                        position=int(line[0]),
                         hla=self.mhc_parser.parse_mhc_allele(line[1]),
                         peptide=line[2],
                         affinity_score=float(line[15]),
@@ -94,7 +94,7 @@ class NetMhcPanPredictor:
             )
         )
 
-    def get_only_available_alleles(self, mhc_alleles: List[Mhc1], set_available_mhc: Set[str]) -> str:
+    def _get_only_available_alleles(self, mhc_alleles: List[Mhc1], set_available_mhc: Set[str]) -> str:
         hla_alleles_names = self.get_alleles_netmhcpan_representation(
             mhc_alleles
         )

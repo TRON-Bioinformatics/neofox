@@ -101,16 +101,16 @@ class BestAndMultipleBinder:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            epitopes_by_allele.setdefault(p.allele.name, []).append(p)
+            epitopes_by_allele.setdefault(p.hla.name, []).append(p)
         # chooses the best epitope per allele while considering zygosity
         best_epis_per_allele = []
         for list_alleles in epitopes_by_allele.values():
             # sort by rank to choose the best epitope, ties are solved choosing the first peptide in alphabetcial order
-            list_alleles.sort(key=lambda x: (x.rank, x.mutated_peptide))
+            list_alleles.sort(key=lambda x: (x.rank, x.peptide))
             best_epitope = list_alleles[0]
-            if best_epitope.allele.name in hetero_hemizygous_alleles:
+            if best_epitope.hla.name in hetero_hemizygous_alleles:
                 best_epis_per_allele.append(best_epitope)  # adds the epitope once
-            if best_epitope.allele.name in homozygous_alleles:
+            if best_epitope.hla.name in homozygous_alleles:
                 best_epis_per_allele.append(best_epitope)
                 best_epis_per_allele.append(best_epitope)  # adds the epitope twice
         return best_epis_per_allele

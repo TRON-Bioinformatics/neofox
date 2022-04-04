@@ -128,6 +128,8 @@ class NeoFox:
             # NOTE: add gene expression to neoantigen candidate model
             self.neoantigens = self._conditional_expression_imputation()
 
+        self.with_all_neoepitopes = with_all_neoepitopes
+
         logger.info("Data loaded")
 
     def _conditional_expression_imputation(self) -> List[Neoantigen]:
@@ -238,7 +240,8 @@ class NeoFox:
                     future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
-                    self.affinity_threshold
+                    self.affinity_threshold,
+                    self.with_all_neoepitopes
                 )
             )
         annotated_neoantigens = dask_client.gather(futures)
@@ -259,7 +262,8 @@ class NeoFox:
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
-        affinity_threshold = AFFINITY_THRESHOLD_DEFAULT
+        affinity_threshold = AFFINITY_THRESHOLD_DEFAULT,
+        with_all_neoepitopes=False
     ):
         # the logs need to be initialised inside every dask job
         NeoFox._initialise_logs(log_file_name)
@@ -272,7 +276,7 @@ class NeoFox:
                 tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
                 affinity_threshold=affinity_threshold
-            ).get_annotation(neoantigen, patient)
+            ).get_annotation(neoantigen, patient, with_all_neoepitopes=with_all_neoepitopes)
         except Exception as e:
             logger.error("Error processing neoantigen {}".format(neoantigen.to_dict()))
             logger.error("Error processing patient {}".format(patient.to_dict()))

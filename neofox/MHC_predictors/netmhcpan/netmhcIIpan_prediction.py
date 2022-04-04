@@ -129,7 +129,7 @@ class NetMhcIIPanPredictor:
                 line = line[0:-1] if len(line) > 12 else line
                 results.append(
                     PredictedEpitope(
-                        pos=int(line[0]),
+                        position=int(line[0]),
                         isoform=self.mhc_parser.parse_mhc2_isoform(line[1]),
                         peptide=line[2],
                         affinity_score=float(line[11]),
