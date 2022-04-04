@@ -19,6 +19,7 @@
 from logzero import logger
 from unittest import TestCase
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.factories import MhcFactory
 from neofox.model.mhc_parser import MhcParser
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
@@ -99,7 +100,7 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -125,7 +126,7 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions,uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -144,7 +145,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhcpan.mhc_prediction(
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -203,7 +204,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         logger.info(filtered_predictions)
@@ -238,7 +239,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
@@ -273,7 +274,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
@@ -308,10 +309,10 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
-        filtered_predictions_wt = netmhcpan.filter_peptides_covering_snv(
+        filtered_predictions_wt = EpitopeHelper.filter_peptides_covering_snv(
             position_of_mutation=mutation.position, predictions=predictions_wt
         )
 
@@ -353,10 +354,10 @@ class TestBestMultipleBinder(TestCase):
             patient_mhc2_isoforms, mutation.wild_type_xmer
         )
 
-        predicted_neoepitopes = netmhc2pan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
-        filtered_predictions_wt = netmhc2pan.filter_peptides_covering_snv(
+        filtered_predictions_wt = EpitopeHelper.filter_peptides_covering_snv(
             position_of_mutation=mutation.position, predictions=predictions_wt
         )
 

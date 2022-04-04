@@ -22,13 +22,23 @@ import tempfile
 from typing import List
 
 from neofox.helpers import intermediate_files
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    AbstractNetMhcPanPredictor
-)
+from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.runner import Runner
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope
+from neofox.references.references import DependenciesConfiguration
 
 
-class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
+class NetMhcIIPanPredictor:
+
+    def __init__(
+            self, runner: Runner, configuration: DependenciesConfiguration,
+            blastp_runner: BlastpRunner, mhc_parser: MhcParser):
+
+        self.runner = runner
+        self.configuration = configuration
+        self.mhc_parser = mhc_parser
+        self.blastp_runner = blastp_runner
 
     @staticmethod
     def generate_mhc2_alelle_combinations(mhc_alleles: List[Mhc2]) -> List[Mhc2Isoform]:

@@ -74,7 +74,7 @@ class TestBestMultipleBinder(TestCase):
         logger.info(best_multiple.best_predicted_epitope_rank.rank)
         logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
         logger.info(best_multiple.best_predicted_epitope_rank.peptide)
-        logger.info(best_multiple.best_predicted_epitope_rank_wt.peptide)
+        logger.info(best_multiple.best_predicted_epitope_rank.wild_type_peptide)
         logger.info(best_multiple.phbr_ii)
         self.assertEqual(0.8, best_multiple.best_predicted_epitope_rank.rank)
         self.assertEqual(
@@ -84,14 +84,10 @@ class TestBestMultipleBinder(TestCase):
             "VVKWKFMVSTADPGS", best_multiple.best_predicted_epitope_rank.peptide
         )
         self.assertEqual(
-            "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank_wt.peptide
+            "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank.wild_type_peptide
         )
         self.assertIsNotNone(best_multiple.phbr_ii)
         self.assertAlmostEqual(2.9386450524753664, best_multiple.phbr_ii)
-        self.assertEqual(
-            best_multiple.best_predicted_epitope_rank.hla,
-            best_multiple.best_predicted_epitope_rank_wt.hla,
-        )
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
