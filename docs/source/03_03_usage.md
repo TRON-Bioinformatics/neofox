@@ -195,7 +195,7 @@ a Pandas data frame or into JSON format, as described [here](03_02_output_data.m
 from neofox.model.conversion import ModelConverter
 
 # Pandas data frame
-annotations_table = ModelConverter.annotations2table(neoantigens=annotated_neoantigens)
+annotations_table = ModelConverter.annotations2neoantigens_table(neoantigens=annotated_neoantigens)
 
 # JSON 
 neoantigen_json = ModelConverter.objects2json(model_objects=annotated_neoantigens)

@@ -205,11 +205,12 @@ def neofox_cli():
         ).get_annotations()
 
         _write_results(
-            annotated_neoantigens,
-            output_folder,
-            output_prefix,
-            with_json,
-            with_table,
+            neoantigens=annotated_neoantigens,
+            output_folder=output_folder,
+            output_prefix=output_prefix,
+            with_json=with_json,
+            with_table=with_table,
+            with_all_neoepitopes=with_all_neoepitopes
         )
     except Exception as e:
         logger.exception(e)  # logs every exception in the file
@@ -234,12 +235,12 @@ def _read_data(
     return neoantigens, patients
 
 
-def _write_results(neoantigens, output_folder, output_prefix, with_json, with_table):
+def _write_results(neoantigens, output_folder, output_prefix, with_json, with_table, with_all_neoepitopes):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
     # writes the output
     if with_table:
-        ModelConverter.annotations2table(neoantigens).to_csv(
+        ModelConverter.annotations2neoantigens_table(neoantigens).to_csv(
             os.path.join(
                 output_folder,
                 "{}_neoantigen_candidates_annotated.tsv".format(output_prefix),
@@ -247,6 +248,25 @@ def _write_results(neoantigens, output_folder, output_prefix, with_json, with_ta
             sep="\t",
             index=False,
         )
+
+    if with_all_neoepitopes and with_table:
+        ModelConverter.annotations2epitopes_table(neoantigens, mhc=neofox.MHC_I).to_csv(
+            os.path.join(
+                output_folder,
+                "{}_mhcI_epitope_candidates_annotated.tsv".format(output_prefix),
+            ),
+            sep="\t",
+            index=False,
+        )
+        ModelConverter.annotations2epitopes_table(neoantigens, mhc=neofox.MHC_II).to_csv(
+            os.path.join(
+                output_folder,
+                "{}_mhcII_epitope_candidates_annotated.tsv".format(output_prefix),
+            ),
+            sep="\t",
+            index=False,
+        )
+
     if with_json:
         output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
         with open(output_features, "wb") as f:
