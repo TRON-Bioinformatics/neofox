@@ -34,6 +34,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
+from neofox.model.factories import AnnotationFactory
 from neofox.model.mhc_parser import MhcParser
 from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.published_features.differential_binding.differential_binding import (
@@ -192,6 +193,18 @@ class NeoantigenAnnotator:
         self.amplitude.run(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
         neoantigen.neofox_annotations.annotations.extend(self.amplitude.get_annotations())
         neoantigen.neofox_annotations.annotations.extend(self.amplitude.get_annotations_mhc2())
+        if with_all_neoepitopes:
+            for e in neoantigen.neoepitopes_mhc_i:
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.amplitude.calculate_amplitude_mhc(
+                        score_mutation=e.affinity_score, score_wild_type=e.affinity_score_wild_type,
+                        apply_correction=True),
+                    name='amplitude'))
+            for e in neoantigen.neoepitopes_mhc_i_i:
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.amplitude.calculate_amplitude_mhc(
+                        score_mutation=e.affinity_score, score_wild_type=e.affinity_score_wild_type),
+                    name='amplitude'))
         end = time.time()
         logger.info(
             "Amplitude annotation elapsed time {} seconds".format(round(end - start, 3))

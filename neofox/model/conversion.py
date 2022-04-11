@@ -197,18 +197,17 @@ class ModelConverter(object):
             # annotations need a custom parsing, thus we remove these columns
             epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='neofoxAnnotations.*')), axis=1, inplace=True)
 
-            # TODO: uncomment when there are any annotations available
             # parses the annotations from each of the epitopes into a data frame
-            #annotations_dfs = []
-            #for e in epitopes:
-            #    annotations = [a.to_dict() for a in e.neofox_annotations.annotations]
-            #    annotations_temp_df = (pd.DataFrame(annotations).set_index("name").transpose())
-            #    annotations_dfs.append(annotations_temp_df)
-            #annotations_df = pd.concat(epitopes_dfs, sort=True).reset_index()
-            #del annotations_df["index"]
+            annotations_dfs = []
+            for e in epitopes:
+                annotations = [a.to_dict() for a in e.neofox_annotations.annotations]
+                annotations_temp_df = (pd.DataFrame(annotations).set_index("name").transpose())
+                annotations_dfs.append(annotations_temp_df)
+            annotations_df = pd.concat(annotations_dfs, sort=True).reset_index()
+            del annotations_df["index"]
 
             # puts together both data frames
-            #epitopes_temp_df = pd.concat([epitopes_temp_df, annotations_df], axis=1)
+            epitopes_temp_df = pd.concat([epitopes_temp_df, annotations_df], axis=1)
             epitopes_temp_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
 
             epitopes_dfs.append(epitopes_temp_df)
