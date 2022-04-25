@@ -21,7 +21,7 @@ from typing import List
 from Bio.Data import IUPACData
 
 from neofox.helpers.blastp_runner import BlastpRunner
-from neofox.model.neoantigen import Mutation, PredictedEpitope, MhcAllele
+from neofox.model.neoantigen import Mutation, PredictedEpitope, MhcAllele, Mhc2Isoform
 
 
 class EpitopeHelper(object):
@@ -226,6 +226,7 @@ class EpitopeHelper(object):
             peptide=None,
             position=None,
             hla=MhcAllele(name=None),
+            isoform=Mhc2Isoform(name=None),
             affinity_score=None,
             rank=None,
         )
