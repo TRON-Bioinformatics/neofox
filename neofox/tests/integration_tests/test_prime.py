@@ -42,18 +42,20 @@ class TestPrime(TestCase):
     def test_prime_epitope(self):
         mutation = get_mutation(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
         self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        self.assertEquals("LVTDQTRL", self.prime.best_peptide)
-        self.assertAlmostEqual(0.163810, self.prime.best_score, delta=0.00001)
-        self.assertEquals(3.00, self.prime.best_rank)
-        self.assertEquals("HLA-C*05:01", self.prime.best_allele)
+        best_result = self.prime.get_best_result()
+        self.assertEquals("LVTDQTRL", best_result.peptide)
+        self.assertAlmostEqual(0.163810, best_result.affinity_score, delta=0.00001)
+        self.assertEquals(3.00, best_result.rank)
+        self.assertEquals("HLA-C*05:01", best_result.hla.name)
 
     def test_prime_too_small_epitope(self):
         mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        self.assertIsNone(self.prime.best_peptide)
-        self.assertIsNone(self.prime.best_score)
-        self.assertIsNone(self.prime.best_rank)
-        self.assertIsNone(self.prime.best_allele)
+        best_result = self.prime.get_best_result()
+        self.assertIsNone(best_result.peptide)
+        self.assertIsNone(best_result.affinity_score)
+        self.assertIsNone(best_result.rank)
+        self.assertIsNone(best_result.hla.name)
 
     def test_prime_not_supported_allele(self):
         """
@@ -65,23 +67,25 @@ class TestPrime(TestCase):
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
-        self.assertEqual('SIYGGLVLI', self.prime.best_peptide)
-        self.assertEqual(0.186328, self.prime.best_score)
-        self.assertEqual(0.2, self.prime.best_rank)
-        self.assertEqual('HLA-A*02:01', self.prime.best_allele)
+        best_result = self.prime.get_best_result()
+        self.assertEqual('SIYGGLVLI', best_result.peptide)
+        self.assertEqual(0.186328, best_result.affinity_score)
+        self.assertEqual(0.2, best_result.rank)
+        self.assertEqual('HLA-A*02:01', best_result.hla.name)
 
     def test_prime_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
             mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
             # rare aminoacids only return empty results when in the mutated sequence
+            best_result = self.prime.get_best_result()
             if EpitopeHelper.contains_rare_amino_acid(mutated_xmer):
-                self.assertIsNone(self.prime.best_peptide)
-                self.assertIsNone(self.prime.best_rank)
-                self.assertIsNone(self.prime.best_allele)
-                self.assertIsNone(self.prime.best_score)
+                self.assertIsNone(best_result.peptide)
+                self.assertIsNone(best_result.rank)
+                self.assertIsNone(best_result.hla.name)
+                self.assertIsNone(best_result.affinity_score)
             else:
-                self.assertIsNotNone(self.prime.best_peptide)
-                self.assertIsNotNone(self.prime.best_rank)
-                self.assertIsNotNone(self.prime.best_allele)
-                self.assertIsNotNone(self.prime.best_score)
+                self.assertIsNotNone(best_result.peptide)
+                self.assertIsNotNone(best_result.rank)
+                self.assertIsNotNone(best_result.hla.name)
+                self.assertIsNotNone(best_result.affinity_score)
