@@ -129,7 +129,7 @@ class NeoantigenAnnotator:
             mixmhcpred,
             netmhc2pan,
             netmhcpan,
-            prime_annotations
+            prime
         ) = self._compute_long_running_tasks(neoantigen, patient)
 
         # HLA I predictions: NetMHCpan
@@ -148,8 +148,8 @@ class NeoantigenAnnotator:
             # TODO: read here results on all neoepitopes
 
         # PRIME
-        if prime_annotations is not None:
-            neoantigen.neofox_annotations.annotations.extend(prime_annotations)
+        if prime is not None:
+            neoantigen.neofox_annotations.annotations.extend(prime.get_annotations())
 
         # MixMHC2pred
         if mixmhc2pred is not None:
@@ -381,7 +381,7 @@ class NeoantigenAnnotator:
         netmhc2pan = None
         mixmhcpred = None
         mixmhc2pred = None
-        prime_annotations = None
+        prime = None
 
         if sequential:
             if has_mhc1:
@@ -420,7 +420,7 @@ class NeoantigenAnnotator:
                         patient,
                     )
                 if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                    prime_annotations = self.run_prime(
+                    prime = self.run_prime(
                         self.runner,
                         self.configuration,
                         self.mhc_parser,
@@ -499,10 +499,10 @@ class NeoantigenAnnotator:
                 if mixmhc2pred_future:
                     mixmhc2pred = dask_client.gather([mixmhc2pred_future])[0]
                 if prime_future:
-                    prime_annotations = dask_client.gather([prime_future])[0]
+                    prime = dask_client.gather([prime_future])[0]
             rejoin()
 
-        return mixmhc2pred, mixmhcpred, netmhc2pan, netmhcpan, prime_annotations
+        return mixmhc2pred, mixmhcpred, netmhc2pan, netmhcpan, prime
 
     def run_netmhcpan(
             self,
@@ -564,7 +564,8 @@ class NeoantigenAnnotator:
             patient: Patient,
     ):
         prime = Prime(runner, configuration, mhc_parser)
-        return prime.get_annotations(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
+        prime.run(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
+        return prime
 
     def run_mixmhc2pred(
             self,

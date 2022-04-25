@@ -48,6 +48,12 @@ class Prime:
         self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
 
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+        self.best_score = None
+        self.results = None
+
     def _load_available_alleles(self):
         """
         loads file with available HLA II alllels for Prime prediction, returns set
@@ -105,10 +111,11 @@ class Prime:
 
     def run(self, mutation: Mutation, mhc: List[Mhc1], uniprot):
         """Wrapper PRIME prediction, extraction of best epitope per mutations"""
-        best_peptide = None
-        best_rank = None
-        best_allele = None
-        best_score = None
+        # TODO: get rid of this
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+        self.best_score = None
 
         if not EpitopeHelper.contains_rare_amino_acid(mutation.mutated_xmer):
             potential_ligand_sequences = EpitopeHelper.generate_nmers(
@@ -117,37 +124,33 @@ class Prime:
             if len(potential_ligand_sequences) > 0:
                 mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])
                 if len(mhc1_alleles) > 0:
-                    results = self._prime(mhc1_alleles, potential_ligand_sequences)
+                    self.results = self._prime(mhc1_alleles, potential_ligand_sequences)
                     try:
                         # get best result by maximum score
-                        best_result = results[results[SCORE] == results[SCORE].max()]
-                        best_peptide = best_result[PEPTIDE].iat[0]
-                        best_rank = best_result[RANK].iat[0]
+                        best_result = self.results[self.results[SCORE] == self.results[SCORE].max()]
+                        self.best_peptide = best_result[PEPTIDE].iat[0]
+                        self.best_rank = best_result[RANK].iat[0]
                         # normalize the HLA allele name
-                        best_allele = self.mhc_parser.parse_mhc_allele(best_result[ALLELE].iat[0]).name
-                        best_score = best_result[SCORE].iat[0]
+                        self.best_allele = self.mhc_parser.parse_mhc_allele(best_result[ALLELE].iat[0]).name
+                        self.best_score = best_result[SCORE].iat[0]
                     except (IndexError, KeyError):
                         logger.info("PRIME returned no best result")
                 else:
                     logger.warning("None of the MHC I alleles are supported by PRIME")
 
-        return best_peptide, best_rank, best_allele, best_score
+    def get_annotations(self) -> List[Annotation]:
 
-    def get_annotations(self, mutation: Mutation, mhc: List[Mhc1], uniprot) -> List[Annotation]:
-        best_peptide, best_rank, best_allele, best_score = self.run(
-            mhc=mhc, mutation=mutation, uniprot=uniprot
-        )
         return [
             AnnotationFactory.build_annotation(
-                value=best_peptide, name="PRIME_best_peptide"
+                value=self.best_peptide, name="PRIME_best_peptide"
             ),
             AnnotationFactory.build_annotation(
-                value=best_score, name="PRIME_best_score"
+                value=self.best_score, name="PRIME_best_score"
             ),
             AnnotationFactory.build_annotation(
-                value=best_rank, name="PRIME_best_rank"
+                value=self.best_rank, name="PRIME_best_rank"
             ),
             AnnotationFactory.build_annotation(
-                value=best_allele, name="PRIME_best_allele"
+                value=self.best_allele, name="PRIME_best_allele"
             ),
         ]
