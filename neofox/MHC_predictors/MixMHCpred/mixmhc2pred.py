@@ -183,18 +183,8 @@ class MixMhc2Pred:
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
 
-    def get_best_result(self) -> PredictedEpitope:
-        """
-        Returns the peptide with the lowest (ie: meaning highest) rank and in case of tie first on alphabetical order
-        to ensure determinism
-        """
-        best_result = EpitopeHelper.get_empty_epitope()
-        if self.results is not None and len(self.results) > 0:
-            best_result = max(self.results, key=lambda x: (-x.rank, x.peptide))
-        return best_result
-
     def get_annotations(self) -> List[Annotation]:
-        best_result = self.get_best_result()
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.results)
         return [
             AnnotationFactory.build_annotation(
                 value=best_result.peptide, name="MixMHC2pred_best_peptide"

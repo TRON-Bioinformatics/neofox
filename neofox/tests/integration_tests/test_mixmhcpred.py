@@ -51,7 +51,8 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 9
         mutation = get_mutation(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
         self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        best_result = self.mixmhcpred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.mixmhcpred.results, maximum=True)
         self.assertEquals("NLVPMVATV", best_result.peptide)
         self.assertAlmostEqual(0.306957, best_result.affinity_score, delta=0.00001)
         self.assertEquals(0.6, best_result.rank)
@@ -60,7 +61,8 @@ class TestMixMHCPred(TestCase):
     def test_mixmhcpred_too_small_epitope(self):
         mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        best_result = self.mixmhcpred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.mixmhcpred.results, maximum=True)
         self.assertIsNone(best_result.peptide)
         self.assertIsNone(best_result.rank)
         self.assertIsNone(best_result.hla.name)
@@ -76,7 +78,8 @@ class TestMixMHCPred(TestCase):
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
-        best_result = self.mixmhcpred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.mixmhcpred.results, maximum=True)
         self.assertEqual('SIYGGLVLI', best_result.peptide)
         self.assertEqual(0.15829400000000002, best_result.affinity_score)
         self.assertEqual(1, best_result.rank)
@@ -86,7 +89,8 @@ class TestMixMHCPred(TestCase):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
             mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-            best_result = self.mixmhcpred.get_best_result()
+            best_result = EpitopeHelper.select_best_by_affinity(
+                predictions=self.mixmhcpred.results, maximum=True)
             # rare aminoacids only return empty results when in the mutated sequence
             if EpitopeHelper.contains_rare_amino_acid(mutated_xmer):
                 self.assertIsNone(best_result.peptide)
@@ -108,7 +112,7 @@ class TestMixMHCPred(TestCase):
             mutation=mutation, mhc=self.test_mhc_two,
             uniprot=self.uniprot
         )
-        best_result = self.mixmhc2pred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertEquals("DEVLGEPSQDILVT", best_result.peptide)
         self.assertEquals(3.06, best_result.rank)
         self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform.name)
@@ -123,7 +127,7 @@ class TestMixMHCPred(TestCase):
             mutation=mutation, mhc=[m for m in self.test_mhc_two if m.name != Mhc2Name.DR],
             uniprot=self.uniprot
         )
-        best_result = self.mixmhc2pred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertEquals("DEVLGEPSQDILVT", best_result.peptide)
         self.assertEquals(3.06, best_result.rank)
         self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform.name)
@@ -131,7 +135,7 @@ class TestMixMHCPred(TestCase):
     def test_mixmhcpred2_too_small_epitope(self):
         mutation = get_mutation(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
         self.mixmhc2pred.run(mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot)
-        best_result = self.mixmhc2pred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.peptide)
         self.assertIsNone(best_result.rank)
         self.assertIsNone(best_result.isoform.name)
@@ -140,7 +144,7 @@ class TestMixMHCPred(TestCase):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
             mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.mixmhc2pred.run(mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot)
-            best_result = self.mixmhc2pred.get_best_result()
+            best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
             self.assertIsNone(best_result.peptide)
             self.assertIsNone(best_result.rank)
             self.assertIsNone(best_result.isoform.name)
@@ -149,7 +153,7 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 9
         mutation = get_mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
         self.mixmhc2pred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        best_result = self.mixmhc2pred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.peptide)
         self.assertIsNone(best_result.rank)
         self.assertIsNone(best_result.isoform.name)
@@ -174,7 +178,7 @@ class TestMixMHCPred(TestCase):
         alleles = self.mixmhc2pred.transform_hla_ii_alleles_for_prediction(MHC_TWO_NEW)
         logger.info(alleles)
         self.mixmhc2pred.run(mutation=mutation, mhc=MHC_TWO_NEW, uniprot=self.uniprot)
-        best_result = self.mixmhc2pred.get_best_result()
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.peptide)
         self.assertIsNone(best_result.rank)
         self.assertIsNone(best_result.isoform.name)

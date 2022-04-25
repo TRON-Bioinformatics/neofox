@@ -135,19 +135,9 @@ class Prime:
                 else:
                     logger.warning("None of the MHC I alleles are supported by PRIME")
 
-    def get_best_result(self) -> PredictedEpitope:
-        """
-        Returns the peptide with the highest affinity score and in case of tie first on alphabetical order
-        to ensure determinism
-        """
-        best_result = EpitopeHelper.get_empty_epitope()
-        if self.results is not None and len(self.results) > 0:
-            best_result = max(self.results, key=lambda x: (x.affinity_score, x.peptide))
-        return best_result
-
     def get_annotations(self) -> List[Annotation]:
 
-        best_result = self.get_best_result()
+        best_result = EpitopeHelper.select_best_by_affinity(predictions=self.results, maximum=True)
         return [
             AnnotationFactory.build_annotation(
                 value=best_result.peptide, name="PRIME_best_peptide"

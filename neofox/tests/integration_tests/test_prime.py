@@ -42,7 +42,8 @@ class TestPrime(TestCase):
     def test_prime_epitope(self):
         mutation = get_mutation(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
         self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        best_result = self.prime.get_best_result()
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.prime.results, maximum=True)
         self.assertEquals("LVTDQTRL", best_result.peptide)
         self.assertAlmostEqual(0.163810, best_result.affinity_score, delta=0.00001)
         self.assertEquals(3.00, best_result.rank)
@@ -51,7 +52,8 @@ class TestPrime(TestCase):
     def test_prime_too_small_epitope(self):
         mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        best_result = self.prime.get_best_result()
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.prime.results, maximum=True)
         self.assertIsNone(best_result.peptide)
         self.assertIsNone(best_result.affinity_score)
         self.assertIsNone(best_result.rank)
@@ -67,7 +69,8 @@ class TestPrime(TestCase):
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
-        best_result = self.prime.get_best_result()
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.prime.results, maximum=True)
         self.assertEqual('SIYGGLVLI', best_result.peptide)
         self.assertEqual(0.186328, best_result.affinity_score)
         self.assertEqual(0.2, best_result.rank)
@@ -78,7 +81,8 @@ class TestPrime(TestCase):
             mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
             # rare aminoacids only return empty results when in the mutated sequence
-            best_result = self.prime.get_best_result()
+            best_result = EpitopeHelper.select_best_by_affinity(
+                predictions=self.prime.results, maximum=True)
             if EpitopeHelper.contains_rare_amino_acid(mutated_xmer):
                 self.assertIsNone(best_result.peptide)
                 self.assertIsNone(best_result.rank)
