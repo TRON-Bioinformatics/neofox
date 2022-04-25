@@ -53,20 +53,10 @@ class BestAndMultipleBinder:
         self.generator_rate = None
         self.generator_rate_adn = None
         self.generator_rate_cdn = None
-        self.best_epitope_by_rank = self._get_empty_epitope()
-        self.best_epitope_by_affinity = self._get_empty_epitope()
-        self.best_ninemer_epitope_by_affinity = self._get_empty_epitope()
-        self.best_ninemer_epitope_by_rank = self._get_empty_epitope()
-
-    @staticmethod
-    def _get_empty_epitope():
-        return PredictedEpitope(
-            peptide=None,
-            position=None,
-            hla=MhcAllele(name=None),
-            affinity_score=None,
-            rank=None,
-        )
+        self.best_epitope_by_rank = EpitopeHelper.get_empty_epitope()
+        self.best_epitope_by_affinity = EpitopeHelper.get_empty_epitope()
+        self.best_ninemer_epitope_by_affinity = EpitopeHelper.get_empty_epitope()
+        self.best_ninemer_epitope_by_rank = EpitopeHelper.get_empty_epitope()
 
     def calculate_phbr_i(
         self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]):
@@ -178,16 +168,16 @@ class BestAndMultipleBinder:
         if len(predictions) > 0:
             # best prediction
             self.best_epitope_by_rank = EpitopeHelper.select_best_by_rank(
-                predictions, none_value=self._get_empty_epitope())
+                predictions, none_value=EpitopeHelper.get_empty_epitope())
             self.best_epitope_by_affinity = EpitopeHelper.select_best_by_affinity(
-                predictions, none_value=self._get_empty_epitope())
+                predictions, none_value=EpitopeHelper.get_empty_epitope())
 
             # best predicted epitope of length 9
             ninemer_predictions = EpitopeHelper.filter_for_9mers(predictions)
             self.best_ninemer_epitope_by_rank = EpitopeHelper.select_best_by_rank(
-                ninemer_predictions, none_value=self._get_empty_epitope())
+                ninemer_predictions, none_value=EpitopeHelper.get_empty_epitope())
             self.best_ninemer_epitope_by_affinity = EpitopeHelper.select_best_by_affinity(
-                ninemer_predictions, none_value=self._get_empty_epitope())
+                ninemer_predictions, none_value=EpitopeHelper.get_empty_epitope())
 
             # multiple binding based on affinity
             self.generator_rate_cdn = self.determine_number_of_binders(predictions=predictions, threshold=50)
