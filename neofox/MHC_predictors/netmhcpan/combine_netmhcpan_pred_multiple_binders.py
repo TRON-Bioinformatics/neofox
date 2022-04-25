@@ -167,17 +167,13 @@ class BestAndMultipleBinder:
 
         if len(predictions) > 0:
             # best prediction
-            self.best_epitope_by_rank = EpitopeHelper.select_best_by_rank(
-                predictions, none_value=EpitopeHelper.get_empty_epitope())
-            self.best_epitope_by_affinity = EpitopeHelper.select_best_by_affinity(
-                predictions, none_value=EpitopeHelper.get_empty_epitope())
+            self.best_epitope_by_rank = EpitopeHelper.select_best_by_rank(predictions)
+            self.best_epitope_by_affinity = EpitopeHelper.select_best_by_affinity(predictions)
 
             # best predicted epitope of length 9
             ninemer_predictions = EpitopeHelper.filter_for_9mers(predictions)
-            self.best_ninemer_epitope_by_rank = EpitopeHelper.select_best_by_rank(
-                ninemer_predictions, none_value=EpitopeHelper.get_empty_epitope())
-            self.best_ninemer_epitope_by_affinity = EpitopeHelper.select_best_by_affinity(
-                ninemer_predictions, none_value=EpitopeHelper.get_empty_epitope())
+            self.best_ninemer_epitope_by_rank = EpitopeHelper.select_best_by_rank(ninemer_predictions)
+            self.best_ninemer_epitope_by_affinity = EpitopeHelper.select_best_by_affinity(ninemer_predictions)
 
             # multiple binding based on affinity
             self.generator_rate_cdn = self.determine_number_of_binders(predictions=predictions, threshold=50)

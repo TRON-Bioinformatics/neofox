@@ -162,22 +162,39 @@ class EpitopeHelper(object):
         return predictions
 
     @staticmethod
-    def select_best_by_rank(predictions: List[PredictedEpitope], none_value=None) -> PredictedEpitope:
-        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
-        if rank = False, Aff(nM) is used
-        In case of a tie, it chooses the first peptide in alphabetical order
-        """
-        return min(predictions, key=lambda p: (p.rank, p.peptide)) \
-            if predictions is not None and len(predictions) > 0 else none_value
+    def get_empty_epitope():
+        return PredictedEpitope(
+            peptide=None,
+            position=None,
+            hla=MhcAllele(name=None),
+            isoform=Mhc2Isoform(name=None),
+            affinity_score=None,
+            rank=None,
+        )
 
     @staticmethod
-    def select_best_by_affinity(predictions: List[PredictedEpitope], none_value=None) -> PredictedEpitope:
-        """reports best predicted epitope (over all alleles). indicate by rank = true if rank score should be used.
-        if rank = False, Aff(nM) is used
-        In case of a tie, it chooses the first peptide in alphabetical order
+    def select_best_by_rank(predictions: List[PredictedEpitope]) -> PredictedEpitope:
         """
-        return min(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
-            if predictions is not None and len(predictions) > 0 else none_value
+        Returns the peptide with the lowest (ie: meaning highest) rank and in case of tie first peptide on
+        alphabetical order to ensure determinism
+        """
+        return max(predictions, key=lambda p: (-p.rank, p.peptide)) \
+            if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
+
+    @staticmethod
+    def select_best_by_affinity(predictions: List[PredictedEpitope], maximum=False) -> PredictedEpitope:
+        """
+        Returns the peptide with the highest affinity score and in case of tie first peptide on
+        alphabetical order to ensure determinism
+        By default the highest affinity score is the lowest (ie: netmhc family) if maximum=True then the highest
+        score is the highest (ie: mixmhcpred and PRIME)
+        """
+        if maximum:
+            return max(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
+                if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
+        else:
+            return max(predictions, key=lambda p: (-p.affinity_score, p.peptide)) \
+                if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
 
     @staticmethod
     def remove_peptides_in_proteome(predictions: List[PredictedEpitope], uniprot
@@ -219,14 +236,3 @@ class EpitopeHelper(object):
         for p in predictions:
             p.wild_type_peptide = blastp_runner.get_most_similar_wt_epitope(p.peptide)
         return predictions
-
-    @staticmethod
-    def get_empty_epitope():
-        return PredictedEpitope(
-            peptide=None,
-            position=None,
-            hla=MhcAllele(name=None),
-            isoform=Mhc2Isoform(name=None),
-            affinity_score=None,
-            rank=None,
-        )
