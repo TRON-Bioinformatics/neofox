@@ -51,18 +51,20 @@ class TestMixMHCPred(TestCase):
         # this is an epitope from IEDB of length 9
         mutation = get_mutation(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
         self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        self.assertEquals("NLVPMVATV", self.mixmhcpred.best_peptide)
-        self.assertAlmostEqual(0.306957, self.mixmhcpred.best_score, delta=0.00001)
-        self.assertEquals(0.6, self.mixmhcpred.best_rank)
-        self.assertEquals("HLA-A*02:01", self.mixmhcpred.best_allele)
+        best_result = self.mixmhcpred.get_best_result()
+        self.assertEquals("NLVPMVATV", best_result.peptide)
+        self.assertAlmostEqual(0.306957, best_result.affinity_score, delta=0.00001)
+        self.assertEquals(0.6, best_result.rank)
+        self.assertEquals("HLA-A*02:01", best_result.hla.name)
 
     def test_mixmhcpred_too_small_epitope(self):
         mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
-        self.assertIsNone(self.mixmhcpred.best_peptide)
-        self.assertIsNone(self.mixmhcpred.best_score)
-        self.assertIsNone(self.mixmhcpred.best_rank)
-        self.assertIsNone(self.mixmhcpred.best_allele)
+        best_result = self.mixmhcpred.get_best_result()
+        self.assertIsNone(best_result.peptide)
+        self.assertIsNone(best_result.rank)
+        self.assertIsNone(best_result.hla.name)
+        self.assertIsNone(best_result.affinity_score)
 
     def test_mixmhcpred_not_supported_allele(self):
         """
@@ -74,26 +76,28 @@ class TestMixMHCPred(TestCase):
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
-        self.assertEqual('SIYGGLVLI', self.mixmhcpred.best_peptide)
-        self.assertEqual(0.15829400000000002, self.mixmhcpred.best_score)
-        self.assertEqual(1, self.mixmhcpred.best_rank)
-        self.assertEqual('HLA-A*02:01', self.mixmhcpred.best_allele)
+        best_result = self.mixmhcpred.get_best_result()
+        self.assertEqual('SIYGGLVLI', best_result.peptide)
+        self.assertEqual(0.15829400000000002, best_result.affinity_score)
+        self.assertEqual(1, best_result.rank)
+        self.assertEqual('HLA-A*02:01', best_result.hla.name)
 
     def test_mixmhcpred_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
             mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+            best_result = self.mixmhcpred.get_best_result()
             # rare aminoacids only return empty results when in the mutated sequence
             if EpitopeHelper.contains_rare_amino_acid(mutated_xmer):
-                self.assertIsNone(self.mixmhcpred.best_peptide)
-                self.assertIsNone(self.mixmhcpred.best_rank)
-                self.assertIsNone(self.mixmhcpred.best_allele)
-                self.assertIsNone(self.mixmhcpred.best_score)
+                self.assertIsNone(best_result.peptide)
+                self.assertIsNone(best_result.rank)
+                self.assertIsNone(best_result.hla.name)
+                self.assertIsNone(best_result.affinity_score)
             else:
-                self.assertIsNotNone(self.mixmhcpred.best_peptide)
-                self.assertIsNotNone(self.mixmhcpred.best_rank)
-                self.assertIsNotNone(self.mixmhcpred.best_allele)
-                self.assertIsNotNone(self.mixmhcpred.best_score)
+                self.assertIsNotNone(best_result.peptide)
+                self.assertIsNotNone(best_result.rank)
+                self.assertIsNotNone(best_result.hla)
+                self.assertIsNotNone(best_result.affinity_score)
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15

@@ -21,7 +21,7 @@ from typing import List
 from Bio.Data import IUPACData
 
 from neofox.helpers.blastp_runner import BlastpRunner
-from neofox.model.neoantigen import Mutation, PredictedEpitope
+from neofox.model.neoantigen import Mutation, PredictedEpitope, MhcAllele
 
 
 class EpitopeHelper(object):
@@ -219,3 +219,13 @@ class EpitopeHelper(object):
         for p in predictions:
             p.wild_type_peptide = blastp_runner.get_most_similar_wt_epitope(p.peptide)
         return predictions
+
+    @staticmethod
+    def get_empty_epitope():
+        return PredictedEpitope(
+            peptide=None,
+            position=None,
+            hla=MhcAllele(name=None),
+            affinity_score=None,
+            rank=None,
+        )
