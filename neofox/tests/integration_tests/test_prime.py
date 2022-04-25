@@ -21,7 +21,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.factories import MhcFactory
 from neofox.model.mhc_parser import HlaParser
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.published_features.prime import Prime
+from neofox.MHC_predictors.prime import Prime
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
 from neofox.tests.tools import get_mutation
@@ -41,53 +41,47 @@ class TestPrime(TestCase):
 
     def test_prime_epitope(self):
         mutation = get_mutation(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
-        best_peptide, best_rank, best_allele, best_score = self.prime.run(
-            mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
-        )
-        self.assertEquals("LVTDQTRL", best_peptide)
-        self.assertAlmostEqual(0.163810, best_score, delta=0.00001)
-        self.assertEquals(3.00, best_rank)
-        self.assertEquals("HLA-C*05:01", best_allele)
+        self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        self.assertEquals("LVTDQTRL", self.prime.best_peptide)
+        self.assertAlmostEqual(0.163810, self.prime.best_score, delta=0.00001)
+        self.assertEquals(3.00, self.prime.best_rank)
+        self.assertEquals("HLA-C*05:01", self.prime.best_allele)
 
     def test_prime_too_small_epitope(self):
         mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
-        best_peptide, best_rank, best_allele, best_score = self.prime.run(
-            mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
-        )
-        self.assertIsNone(best_peptide)
-        self.assertIsNone(best_score)
-        self.assertIsNone(best_rank)
-        self.assertIsNone(best_allele)
+        self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        self.assertIsNone(self.prime.best_peptide)
+        self.assertIsNone(self.prime.best_score)
+        self.assertIsNone(self.prime.best_rank)
+        self.assertIsNone(self.prime.best_allele)
 
     def test_prime_not_supported_allele(self):
         """
         this is a combination of neoepitope and HLA alleles from Balachandran
         """
         mutation = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
-        best_peptide, best_rank, best_allele, best_score = self.prime.run(
+        self.prime.run(
             mutation=mutation,
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
-        self.assertEqual('SIYGGLVLI', best_peptide)
-        self.assertEqual(0.186328, best_score)
-        self.assertEqual(0.2, best_rank)
-        self.assertEqual('HLA-A*02:01', best_allele)
+        self.assertEqual('SIYGGLVLI', self.prime.best_peptide)
+        self.assertEqual(0.186328, self.prime.best_score)
+        self.assertEqual(0.2, self.prime.best_rank)
+        self.assertEqual('HLA-A*02:01', self.prime.best_allele)
 
     def test_prime_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
             mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
-            best_peptide, best_rank, best_allele, best_score = self.prime.run(
-                mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
-            )
+            self.prime.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
             # rare aminoacids only return empty results when in the mutated sequence
             if EpitopeHelper.contains_rare_amino_acid(mutated_xmer):
-                self.assertIsNone(best_peptide)
-                self.assertIsNone(best_rank)
-                self.assertIsNone(best_allele)
-                self.assertIsNone(best_score)
+                self.assertIsNone(self.prime.best_peptide)
+                self.assertIsNone(self.prime.best_rank)
+                self.assertIsNone(self.prime.best_allele)
+                self.assertIsNone(self.prime.best_score)
             else:
-                self.assertIsNotNone(best_peptide)
-                self.assertIsNotNone(best_rank)
-                self.assertIsNotNone(best_allele)
-                self.assertIsNotNone(best_score)
+                self.assertIsNotNone(self.prime.best_peptide)
+                self.assertIsNotNone(self.prime.best_rank)
+                self.assertIsNotNone(self.prime.best_allele)
+                self.assertIsNotNone(self.prime.best_score)
