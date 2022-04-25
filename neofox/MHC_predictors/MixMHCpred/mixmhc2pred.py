@@ -41,11 +41,17 @@ RANK = "%Rank_best"
 
 
 class MixMhc2Pred:
+
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
+
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+        self.results = None
 
     def _load_available_alleles(self):
         """
@@ -150,9 +156,13 @@ class MixMhc2Pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
         Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
         """
-        best_peptide = None
-        best_rank = None
-        best_allele = None
+
+        # TODO: get rid of this
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+
+        # TODO: we may want to adapt these lengths to 15 to ...
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
             mutation=mutation, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot
         )
@@ -163,29 +173,27 @@ class MixMhc2Pred:
         if len(filtered_sequences) > 0:
             mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
             if len(mhc2_alleles) > 0:
-                results = self._mixmhc2prediction(mhc2_alleles, filtered_sequences)
+                self.results = self._mixmhc2prediction(mhc2_alleles, filtered_sequences)
                 # get best result by minimum rank
-                best_result = results[results[RANK] == results[RANK].min()]
+                best_result = self.results[self.results[RANK] == self.results[RANK].min()]
                 try:
-                    best_peptide = best_result[PEPTIDE].iat[0]
-                    best_rank = best_result[RANK].iat[0]
-                    best_allele = self.mhc_parser.parse_mhc2_isoform(best_result[ALLELE].iat[0]).name
+                    self.best_peptide = best_result[PEPTIDE].iat[0]
+                    self.best_rank = best_result[RANK].iat[0]
+                    self.best_allele = self.mhc_parser.parse_mhc2_isoform(best_result[ALLELE].iat[0]).name
                 except IndexError:
                     logger.info("MixMHC2pred returned no best result")
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
-        return best_peptide, best_rank, best_allele
 
-    def get_annotations(self, mhc: List[Mhc2], mutation: Mutation, uniprot) -> List[Annotation]:
-        best_peptide, best_rank, best_allele = self.run(mhc=mhc, mutation=mutation, uniprot=uniprot)
+    def get_annotations(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
-                value=best_peptide, name="MixMHC2pred_best_peptide"
+                value=self.best_peptide, name="MixMHC2pred_best_peptide"
             ),
             AnnotationFactory.build_annotation(
-                value=best_rank, name="MixMHC2pred_best_rank"
+                value=self.best_rank, name="MixMHC2pred_best_rank"
             ),
             AnnotationFactory.build_annotation(
-                value=best_allele, name="MixMHC2pred_best_allele"
+                value=self.best_allele, name="MixMHC2pred_best_allele"
             ),
         ]

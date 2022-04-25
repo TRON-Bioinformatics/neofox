@@ -38,11 +38,18 @@ SCORE = "Score_bestAllele"
 
 
 class MixMHCpred:
+
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
+
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+        self.best_score = None
+        self.results = None
 
     def _load_available_alleles(self):
         """
@@ -99,46 +106,47 @@ class MixMHCpred:
 
     def run(self, mutation: Mutation, mhc: List[Mhc1], uniprot):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR"""
-        best_peptide = None
-        best_rank = None
-        best_allele = None
-        best_score = None
+
+        # TODO: get rid of this
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+        self.best_score = None
+
+        # TODO: we may want to extend this to 8 to 14 bp (coordinate this with netMHCpan)
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
             mutation=mutation, lengths=[8, 9, 10, 11], uniprot=uniprot
         )
         if len(potential_ligand_sequences) > 0:
             mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])
             if len(mhc1_alleles) > 0:
-                results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
+                self.results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
                 try:
                     # get best result by maximum score
-                    best_result = results[results[SCORE] == results[SCORE].max()]
-                    best_peptide = best_result[PEPTIDE].iat[0]
-                    best_rank = best_result[RANK].iat[0]
+                    best_result = self.results[self.results[SCORE] == self.results[SCORE].max()]
+                    self.best_peptide = best_result[PEPTIDE].iat[0]
+                    self.best_rank = best_result[RANK].iat[0]
                     # normalize the HLA allele name
-                    best_allele = self.mhc_parser.parse_mhc_allele(best_result[ALLELE].iat[0]).name
-                    best_score = best_result[SCORE].iat[0]
+                    self.best_allele = self.mhc_parser.parse_mhc_allele(best_result[ALLELE].iat[0]).name
+                    self.best_score = best_result[SCORE].iat[0]
                 except (IndexError, KeyError):
                     logger.info("MixMHCpred returned no best result")
             else:
                 logger.warning("None of the MHC I alleles are supported by MixMHCpred")
-        return best_peptide, best_rank, best_allele, best_score
 
-    def get_annotations(self, mutation: Mutation, mhc: List[Mhc1], uniprot) -> List[Annotation]:
-        best_peptide, best_rank, best_allele, best_score = self.run(
-            mhc=mhc, mutation=mutation, uniprot=uniprot
-        )
+    def get_annotations(self) -> List[Annotation]:
+
         return [
             AnnotationFactory.build_annotation(
-                value=best_peptide, name="MixMHCpred_best_peptide"
+                value=self.best_peptide, name="MixMHCpred_best_peptide"
             ),
             AnnotationFactory.build_annotation(
-                value=best_score, name="MixMHCpred_best_score"
+                value=self.best_score, name="MixMHCpred_best_score"
             ),
             AnnotationFactory.build_annotation(
-                value=best_rank, name="MixMHCpred_best_rank"
+                value=self.best_rank, name="MixMHCpred_best_rank"
             ),
             AnnotationFactory.build_annotation(
-                value=best_allele, name="MixMHCpred_best_allele"
+                value=self.best_allele, name="MixMHCpred_best_allele"
             ),
         ]

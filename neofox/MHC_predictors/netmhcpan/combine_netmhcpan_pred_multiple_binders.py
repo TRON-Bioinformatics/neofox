@@ -198,7 +198,7 @@ class BestAndMultipleBinder:
             # PHBR-I
             self.phbr_i = self.calculate_phbr_i(predictions=predictions, mhc1_alleles=mhc1_alleles_patient)
 
-    def get_annotations(self, mutation) -> List[Annotation]:
+    def get_annotations(self) -> List[Annotation]:
         annotations = []
         if self.best_epitope_by_rank:
             annotations.extend([

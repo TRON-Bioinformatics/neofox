@@ -145,7 +145,7 @@ class BestAndMultipleBinderMhcII:
                 # alternative mutation classes or missing WT
                 # do BLAST search for all predicted epitopes to identify the closest WT peptide and
                 # predict MHC binding for the identified peptide sequence
-                predictions = EpitopeHelper.set_wt_epitope_by_homology(predictions)
+                predictions = EpitopeHelper.set_wt_epitope_by_homology(predictions, blastp_runner=self.proteome_blastp_runner)
                 predictions = self.netmhc2pan.set_wt_netmhcpan_scores(predictions)
 
             self.predictions = predictions
