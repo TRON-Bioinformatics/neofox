@@ -28,7 +28,7 @@ from neofox.references.references import DependenciesConfiguration
 
 from neofox.helpers.runner import Runner
 
-from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation
+from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -48,9 +48,6 @@ class MixMhc2Pred:
         self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
 
-        self.best_peptide = None
-        self.best_rank = None
-        self.best_allele = None
         self.results = None
 
     def _load_available_alleles(self):
@@ -119,9 +116,25 @@ class MixMhc2Pred:
             if a in self.available_alleles
         ]
 
-    def _mixmhc2prediction(
-        self, mhc2: List[str], potential_ligand_sequences
-    ) -> pd.DataFrame:
+    def _parse_mixmhc2pred_output(self, filename: str) -> List[PredictedEpitope]:
+
+        parsed_results = []
+        try:
+            results = pd.read_csv(filename, sep="\t", comment="#")
+        except EmptyDataError:
+            logger.error("Results from MixMHC2pred are empty, something went wrong")
+            results = pd.DataFrame()
+
+        for _, row in results.iterrows():
+            parsed_results.append(
+                PredictedEpitope(
+                    isoform=self.mhc_parser.parse_mhc2_isoform(row[ALLELE]),
+                    peptide=row[PEPTIDE],
+                    rank=float(row[RANK]),
+                ))
+        return parsed_results
+
+    def _mixmhc2prediction(self, mhc2: List[str], potential_ligand_sequences) -> List[PredictedEpitope]:
         """
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         """
@@ -141,12 +154,7 @@ class MixMhc2Pred:
             outtmp,
         ]
         self.runner.run_command(cmd)
-        try:
-            results = pd.read_csv(outtmp, sep="\t", comment="#")
-        except EmptyDataError:
-            message = "Results from MixMHC2pred are empty, something went wrong"
-            logger.error(message)
-            raise NeofoxCommandException(message)
+        results = self._parse_mixmhc2pred_output(filename=outtmp)
         os.remove(outtmp)
         return results
 
@@ -158,9 +166,7 @@ class MixMhc2Pred:
         """
 
         # TODO: get rid of this
-        self.best_peptide = None
-        self.best_rank = None
-        self.best_allele = None
+        self.results = None
 
         # TODO: we may want to adapt these lengths to 15 to ...
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
@@ -174,26 +180,29 @@ class MixMhc2Pred:
             mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
             if len(mhc2_alleles) > 0:
                 self.results = self._mixmhc2prediction(mhc2_alleles, filtered_sequences)
-                # get best result by minimum rank
-                best_result = self.results[self.results[RANK] == self.results[RANK].min()]
-                try:
-                    self.best_peptide = best_result[PEPTIDE].iat[0]
-                    self.best_rank = best_result[RANK].iat[0]
-                    self.best_allele = self.mhc_parser.parse_mhc2_isoform(best_result[ALLELE].iat[0]).name
-                except IndexError:
-                    logger.info("MixMHC2pred returned no best result")
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
 
+    def get_best_result(self) -> PredictedEpitope:
+        """
+        Returns the peptide with the lowest (ie: meaning highest) rank and in case of tie first on alphabetical order
+        to ensure determinism
+        """
+        best_result = EpitopeHelper.get_empty_epitope()
+        if self.results is not None and len(self.results) > 0:
+            best_result = max(self.results, key=lambda x: (-x.rank, x.peptide))
+        return best_result
+
     def get_annotations(self) -> List[Annotation]:
+        best_result = self.get_best_result()
         return [
             AnnotationFactory.build_annotation(
-                value=self.best_peptide, name="MixMHC2pred_best_peptide"
+                value=best_result.peptide, name="MixMHC2pred_best_peptide"
             ),
             AnnotationFactory.build_annotation(
-                value=self.best_rank, name="MixMHC2pred_best_rank"
+                value=best_result.rank, name="MixMHC2pred_best_rank"
             ),
             AnnotationFactory.build_annotation(
-                value=self.best_allele, name="MixMHC2pred_best_allele"
+                value=best_result.isoform.name, name="MixMHC2pred_best_allele"
             ),
         ]
