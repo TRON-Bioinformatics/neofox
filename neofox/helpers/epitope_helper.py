@@ -236,3 +236,12 @@ class EpitopeHelper(object):
         for p in predictions:
             p.wild_type_peptide = blastp_runner.get_most_similar_wt_epitope(p.peptide)
         return predictions
+
+    @staticmethod
+    def get_epitope_id(epitope):
+        if epitope.hla is not None:
+            return "{}-{}".format(epitope.hla.name, epitope.peptide)
+        elif epitope.isoform is not None:
+            return "{}-{}".format(epitope.isoform.name, epitope.peptide)
+        else:
+            raise ValueError('Cannot build id on an epitope without HLA allele or isoform')

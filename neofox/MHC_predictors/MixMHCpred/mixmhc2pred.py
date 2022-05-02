@@ -131,6 +131,7 @@ class MixMhc2Pred:
                     isoform=self.mhc_parser.parse_mhc2_isoform(row[ALLELE]),
                     peptide=row[PEPTIDE],
                     rank=float(row[RANK]),
+                    affinity_score=None
                 ))
         return parsed_results
 

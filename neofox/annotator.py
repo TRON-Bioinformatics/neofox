@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+from typing import List
+
 from logzero import logger
 from datetime import datetime
 from distributed import get_client, secede, rejoin
@@ -56,9 +58,9 @@ from neofox.published_features.self_similarity.self_similarity import (
 from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
-from neofox.published_features.prime import Prime
+from neofox.MHC_predictors.prime import Prime
 from neofox.published_features.hex.hex import Hex
-from neofox.model.neoantigen import Patient, Neoantigen, Annotations
+from neofox.model.neoantigen import Patient, Neoantigen, Annotations, PredictedEpitope
 from neofox.published_features.vaxrank.vaxrank import VaxRank
 from neofox.references.references import (
     ReferenceFolder,
@@ -113,6 +115,37 @@ class NeoantigenAnnotator:
 
         self.resources_versions = references.get_resources_versions()
 
+    def _annotate_epitopes_with_other_scores(
+            self,
+            epitopes: List[PredictedEpitope],
+            annotated_epitopes: List[PredictedEpitope],
+            annotation_name: str) -> List[PredictedEpitope]:
+
+        merged_epitopes = []
+        annotated_epitopes_dict = {EpitopeHelper.get_epitope_id(e): e for e in annotated_epitopes}
+        for e in epitopes:
+
+            # intialise annotations for the epitope if not done already
+            if e.neofox_annotations is None:
+                e.neofox_annotations = Annotations(annotations=[])
+
+            # adds new annotations if any
+            paired_epitope = annotated_epitopes_dict.get(EpitopeHelper.get_epitope_id(e))
+            if paired_epitope is not None:
+                if paired_epitope.affinity_score is not None:
+                    e.neofox_annotations.annotations.append(
+                        AnnotationFactory.build_annotation(
+                            name=annotation_name + '_affinity_score', value=paired_epitope.affinity_score))
+                if paired_epitope.rank is not None:
+                    e.neofox_annotations.annotations.append(
+                        AnnotationFactory.build_annotation(
+                            name=annotation_name + '_rank', value=paired_epitope.rank))
+
+            # updates epitope
+            merged_epitopes.append(e)
+
+        return merged_epitopes
+
     def get_annotation(self, neoantigen: Neoantigen, patient: Patient, with_all_neoepitopes=False) -> Neoantigen:
         """Calculate new epitope features and add to dictionary that stores all properties"""
         neoantigen.neofox_annotations = Annotations(
@@ -145,15 +178,26 @@ class NeoantigenAnnotator:
         # MixMHCpred
         if mixmhcpred is not None:
             neoantigen.neofox_annotations.annotations.extend(mixmhcpred.get_annotations())
-            # TODO: read here results on all neoepitopes
+            neoantigen.neoepitopes_mhc_i = self._annotate_epitopes_with_other_scores(
+                epitopes=neoantigen.neoepitopes_mhc_i,
+                annotated_epitopes=mixmhcpred.results,
+                annotation_name='MixMHCpred')
 
         # PRIME
         if prime is not None:
             neoantigen.neofox_annotations.annotations.extend(prime.get_annotations())
+            neoantigen.neoepitopes_mhc_i = self._annotate_epitopes_with_other_scores(
+                epitopes=neoantigen.neoepitopes_mhc_i,
+                annotated_epitopes=prime.results,
+                annotation_name='PRIME')
 
         # MixMHC2pred
         if mixmhc2pred is not None:
             neoantigen.neofox_annotations.annotations.extend(mixmhc2pred.get_annotations())
+            neoantigen.neoepitopes_mhc_i_i = self._annotate_epitopes_with_other_scores(
+                epitopes=neoantigen.neoepitopes_mhc_i_i,
+                annotated_epitopes=mixmhc2pred.results,
+                annotation_name='MixMHC2pred')
 
         # decides which VAF to use
         vaf_rna = neoantigen.rna_variant_allele_frequency
