@@ -248,7 +248,7 @@ class NeoantigenAnnotator:
             for e in neoantigen.neoepitopes_mhc_i_i:
                 e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
                     value=self.amplitude.calculate_amplitude_mhc(
-                        score_mutation=e.affinity_score, score_wild_type=e.affinity_score_wild_type),
+                        score_mutation=e.rank, score_wild_type=e.rank_wild_type),
                     name='amplitude'))
         end = time.time()
         logger.info(
@@ -325,7 +325,7 @@ class NeoantigenAnnotator:
         )
 
         # number of mismatches and priority score
-        if netmhcpan and netmhcpan:
+        if netmhcpan:
             start = time.time()
             neoantigen.neofox_annotations.annotations.extend(
                 self.priority_score_calculator.get_annotations(
@@ -336,6 +336,13 @@ class NeoantigenAnnotator:
                     mut_not_in_prot=sequence_not_in_uniprot,
                 )
             )
+            if with_all_neoepitopes:
+                for e in neoantigen.neoepitopes_mhc_i:
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=EpitopeHelper.number_of_mismatches(
+                            epitope_wild_type=e.wild_type_peptide,
+                            epitope_mutation=e.peptide,),
+                        name='number_of_mismatches'))
             end = time.time()
             logger.info(
                 "Priotity score annotation elapsed time {} seconds".format(
