@@ -169,6 +169,17 @@ class NeoantigenAnnotator:
         if netmhcpan:
             neoantigen.neofox_annotations.annotations.extend(netmhcpan.get_annotations())
             neoantigen.neoepitopes_mhc_i = netmhcpan.predictions
+            if with_all_neoepitopes:
+                for e in neoantigen.neoepitopes_mhc_i:
+                    position = EpitopeHelper.position_of_mutation_epitope(epitope=e)
+                    mutation_in_anchor = EpitopeHelper.position_in_anchor_position(
+                        position_mhci=position, peptide_length=len(e.peptide),)
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=position,
+                        name='position_mutation'))
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=mutation_in_anchor,
+                        name='anchor_mutated'))
 
         # HLA II predictions: NetMHCIIpan
         if netmhc2pan:
@@ -282,6 +293,12 @@ class NeoantigenAnnotator:
                 self.differential_binding.get_annotations(mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
                                                             amplitude=self.amplitude)
             )
+            if with_all_neoepitopes:
+                for e in neoantigen.neoepitopes_mhc_i:
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=self.differential_binding.dai(
+                            score_mutation=e.affinity_score, score_wild_type=e.affinity_score_wild_type),
+                        name='DAI'))
         if netmhc2pan:
             neoantigen.neofox_annotations.annotations.extend(
                 self.differential_binding.get_annotations_mhc2(mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_rank,
