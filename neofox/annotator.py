@@ -239,15 +239,6 @@ class NeoantigenAnnotator:
         neoantigen.neofox_annotations.annotations.extend(
             self.uniprot.get_annotations(sequence_not_in_uniprot)
         )
-        if with_all_neoepitopes:
-            for e in neoantigen.neoepitopes_mhc_i:
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.uniprot.is_sequence_not_in_uniprot(e.peptide),
-                    name='mutation_not_found_in_proteome'))
-            for e in neoantigen.neoepitopes_mhc_i_i:
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.uniprot.is_sequence_not_in_uniprot(e.peptide),
-                    name='mutation_not_found_in_proteome'))
         end = time.time()
         logger.info(
             "Uniprot annotation elapsed time {} seconds".format(round(end - start, 3))
@@ -364,11 +355,33 @@ class NeoantigenAnnotator:
             )
             if with_all_neoepitopes:
                 for e in neoantigen.neoepitopes_mhc_i:
+
+                    mutation_not_in_proteome = self.uniprot.is_sequence_not_in_uniprot(e.peptide)
                     e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=EpitopeHelper.number_of_mismatches(
-                            epitope_wild_type=e.wild_type_peptide,
-                            epitope_mutation=e.peptide,),
+                        value=mutation_not_in_proteome,
+                        name='mutation_not_found_in_proteome'))
+
+                    num_mismatches = EpitopeHelper.number_of_mismatches(
+                        epitope_wild_type=e.wild_type_peptide, epitope_mutation=e.peptide, )
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=num_mismatches,
                         name='number_of_mismatches'))
+
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=self.priority_score_calculator.calc_priority_score(
+                            vaf_tumor=neoantigen.dna_variant_allele_frequency,
+                            vaf_rna=vaf_rna,
+                            transcript_expr=neoantigen.rna_expression,
+                            no_mismatch=num_mismatches,
+                            score_mut=e.rank,
+                            score_wt=e.rank_wild_type,
+                            mut_not_in_prot=mutation_not_in_proteome),
+                        name='Priority_score'))
+
+                for e in neoantigen.neoepitopes_mhc_i_i:
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=self.uniprot.is_sequence_not_in_uniprot(e.peptide),
+                        name='mutation_not_found_in_proteome'))
             end = time.time()
             logger.info(
                 "Priotity score annotation elapsed time {} seconds".format(
