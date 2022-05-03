@@ -432,6 +432,22 @@ class NeoantigenAnnotator:
                     mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
                 )
             )
+
+            if with_all_neoepitopes:
+                for e in neoantigen.neoepitopes_mhc_i:
+                    iedb = self.iedb_immunogenicity.calculate_iedb_immunogenicity(
+                        peptide=e.peptide, mhc_allele=e.hla, mhc_score=e.affinity_score)
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=iedb,
+                        name='IEDB_Immunogenicity_MHCI'))
+
+                for e in neoantigen.neoepitopes_mhc_i_i:
+                    iedb = self.iedb_immunogenicity.calculate_iedb_immunogenicity(
+                        peptide=e.peptide, mhc_allele=e.hla, mhc_score=e.affinity_score)
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=iedb,
+                        name='IEDB_Immunogenicity_MHCII'))
+
             end = time.time()
             logger.info(
                 "IEDB annotation elapsed time {} seconds".format(round(end - start, 3))
