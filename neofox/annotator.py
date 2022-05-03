@@ -239,6 +239,15 @@ class NeoantigenAnnotator:
         neoantigen.neofox_annotations.annotations.extend(
             self.uniprot.get_annotations(sequence_not_in_uniprot)
         )
+        if with_all_neoepitopes:
+            for e in neoantigen.neoepitopes_mhc_i:
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.uniprot.is_sequence_not_in_uniprot(e.peptide),
+                    name='mutation_not_found_in_proteome'))
+            for e in neoantigen.neoepitopes_mhc_i_i:
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.uniprot.is_sequence_not_in_uniprot(e.peptide),
+                    name='mutation_not_found_in_proteome'))
         end = time.time()
         logger.info(
             "Uniprot annotation elapsed time {} seconds".format(round(end - start, 3))
