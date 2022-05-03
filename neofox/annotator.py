@@ -334,6 +334,23 @@ class NeoantigenAnnotator:
                 epitope_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
+        if with_all_neoepitopes:
+            for e in neoantigen.neoepitopes_mhc_i:
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.self_similarity.is_improved_binder(
+                        score_mutation=e.rank, score_wild_type=e.rank_wild_type),
+                    name='Improved_Binder_MHCI'))
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.self_similarity.get_self_similarity(
+                        mutated_peptide=e.peptide, wt_peptide=e.wild_type_peptide),
+                    name='Selfsimilarity_MHCI'))
+
+            for e in neoantigen.neoepitopes_mhc_i_i:
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.self_similarity.get_self_similarity(
+                        mutated_peptide=e.peptide, wt_peptide=e.wild_type_peptide),
+                    name='Selfsimilarity_MHCII'))
+
         end = time.time()
         logger.info(
             "Self similarity annotation elapsed time {} seconds".format(
