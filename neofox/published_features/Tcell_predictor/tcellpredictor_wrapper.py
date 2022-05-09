@@ -22,8 +22,9 @@ import pickle
 import warnings
 from typing import List
 from neofox.helpers import intermediate_files
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.validation import ModelValidator
-from neofox.model.neoantigen import Annotation, Neoantigen
+from neofox.model.neoantigen import Annotation, Neoantigen, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.Tcell_predictor.preprocess import Preprocessor
@@ -104,17 +105,22 @@ class TcellPrediction:
             pred_out = self._run_prediction(tmpfile_in)
         return pred_out
 
-    def _calculate_tcell_predictor_score(
-        self, gene, substitution, epitope, score
+    def calculate_tcell_predictor_score(
+        self, gene, epitope: PredictedEpitope
     ):
         """returns Tcell_predictor score given mps in dictionary format"""
+        position_of_mutation = EpitopeHelper.position_of_mutation_epitope(epitope=epitope)
+        wild_type_aminoacid = epitope.wild_type_peptide[position_of_mutation - 1]  # it is 1-based
+        mutated_aminoacid = epitope.peptide[position_of_mutation - 1]
+
         tmp_tcellPredIN = intermediate_files.create_temp_file(
             prefix="tmp_TcellPredicIN_", suffix=".txt"
         )
         tcell_predictor_score = None
-        if not ModelValidator.has_peptide_rare_amino_acids(epitope):
+        if not ModelValidator.has_peptide_rare_amino_acids(epitope.peptide):
             tcell_predictor_score = self._wrapper_tcellpredictor(
-                gene=gene, substitution=substitution, epitope=epitope, score=score, tmpfile_in=tmp_tcellPredIN, )
+                gene=gene, substitution=wild_type_aminoacid + mutated_aminoacid,
+                epitope=epitope.peptide, score=epitope.affinity_score, tmpfile_in=tmp_tcellPredIN, )
         return tcell_predictor_score
 
     def get_annotations(
@@ -124,16 +130,9 @@ class TcellPrediction:
         #  position
         tcell_predictor_score = None
         if neoantigen.mutation.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity.peptide:
-            mutation_position = neoantigen.mutation.position[0]
-            wild_type_aminoacid = neoantigen.mutation.wild_type_xmer[
-                mutation_position - 1
-            ]  # it is 1-based
-            mutated_aminoacid = neoantigen.mutation.mutated_xmer[mutation_position - 1]
-            tcell_predictor_score = self._calculate_tcell_predictor_score(
+            tcell_predictor_score = self.calculate_tcell_predictor_score(
                 gene=neoantigen.gene,
-                substitution=wild_type_aminoacid + mutated_aminoacid,
-                epitope=netmhcpan.best_ninemer_epitope_by_affinity.peptide,
-                score=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score)
+                epitope=netmhcpan.best_ninemer_epitope_by_affinity)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=tcell_predictor_score,
