@@ -41,15 +41,10 @@ class TestNeoantigenFitness(TestCase):
         result = NeoagCalculator(
             runner=self.runner, configuration=self.configuration
         ).get_annotation(
-            sample_id="12345",
             epitope_mhci=PredictedEpitope(
                 peptide="DDDDDV", affinity_score=0, position=0, hla="hla", rank=0
             ),
-            wt_peptide_mhci=PredictedEpitope(
-                peptide="DDDDDD", affinity_score=0, position=0, hla="hla", rank=0
-            ),
             mutation=mutation,
-            peptide_variant_position="123"
         )
         self.assertTrue(isinstance(result, Annotation))
         self.assertTrue(float(result.value) > 0)
@@ -62,14 +57,9 @@ class TestNeoantigenFitness(TestCase):
         result = NeoagCalculator(
             runner=self.runner, configuration=self.configuration, affinity_threshold=1
         ).get_annotation(
-            sample_id="12345",
             epitope_mhci=PredictedEpitope(
                 peptide="DDDDDV", affinity_score=10, position=0, hla="hla", rank=0
             ),
-            wt_peptide_mhci=PredictedEpitope(
-                peptide="DDDDDD", affinity_score=0, position=0, hla="hla", rank=0
-            ),
-            mutation=mutation,
-            peptide_variant_position="123"
+            mutation=mutation
         )
         self.assertEqual(result.value, "NA")
