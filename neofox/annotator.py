@@ -347,11 +347,13 @@ class NeoantigenAnnotator:
             )
             if with_all_neoepitopes:
                 for e in neoantigen.neoepitopes_mhc_i:
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=self.tcell_predictor.calculate_tcell_predictor_score(
-                            gene=neoantigen.gene,
-                            epitope=e),
-                        name='Tcell_predictor_score'))
+                    # restricted to 9-mers
+                    if len(e.peptide) == 9:
+                        e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                            value=self.tcell_predictor.calculate_tcell_predictor_score(
+                                gene=neoantigen.gene,
+                                epitope=e),
+                            name='Tcell_predictor_score'))
             end = time.time()
             logger.info(
                 "T-cell predictor annotation elapsed time {} seconds".format(
@@ -447,11 +449,11 @@ class NeoantigenAnnotator:
                     epitope_mhci=netmhcpan.best_epitope_by_affinity,
                     mutation=neoantigen.mutation)
             )
-            if with_all_neoepitopes:
-                for e in neoantigen.neoepitopes_mhc_i:
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=self.neoag_calculator.calculate_neoag_score(epitope=e),
-                        name='neoag_immunogenicity'))
+            #if with_all_neoepitopes:
+            #    for e in neoantigen.neoepitopes_mhc_i:
+            #        e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+            #            value=self.neoag_calculator.calculate_neoag_score(epitope=e),
+            #            name='neoag_immunogenicity'))
             end = time.time()
             logger.info(
                 "Neoag annotation elapsed time {} seconds".format(round(end - start, 3))
