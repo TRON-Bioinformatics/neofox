@@ -20,6 +20,7 @@
 
 import os
 from neofox.helpers import intermediate_files
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox import AFFINITY_THRESHOLD_DEFAULT
@@ -75,27 +76,27 @@ class NeoagCalculator(object):
             f.write("\t".join(header) + "\n")
             f.write(epi_row + "\n")
 
-    def get_annotation(
-        self, sample_id, epitope_mhci: PredictedEpitope, peptide_variant_position, mutation
-    ) -> Annotation:
+    def calculate_neoag_score(self, epitope: PredictedEpitope):
+        tmp_file_name = intermediate_files.create_temp_file(
+            prefix="tmp_neoag_", suffix=".txt"
+        )
+        self._prepare_tmp_for_neoag(
+            "*****",
+            epitope.peptide,
+            epitope.affinity_score,
+            epitope.wild_type_peptide,
+            EpitopeHelper.position_of_mutation_epitope(epitope=epitope),
+            tmp_file_name,
+        )
+        neoag_score = self._apply_gbm(tmp_file_name)
+        return neoag_score
+
+    def get_annotation(self, epitope_mhci: PredictedEpitope, mutation) -> Annotation:
         """wrapper function to determine neoag immunogenicity score for a mutated peptide sequence"""
 
         neoag_score = None
         if mutation.wild_type_xmer and epitope_mhci.peptide and epitope_mhci.wild_type_peptide:
-            # TODO: move this tmp file creation inside the method
-            tmp_file_name = intermediate_files.create_temp_file(
-                prefix="tmp_neoag_", suffix=".txt"
-            )
-            self._prepare_tmp_for_neoag(
-                sample_id,
-                epitope_mhci.peptide,
-                epitope_mhci.affinity_score,
-                epitope_mhci.wild_type_peptide,
-                peptide_variant_position,
-                tmp_file_name,
-            )
-            neoag_score = self._apply_gbm(tmp_file_name)
-        annotation = AnnotationFactory.build_annotation(
-            value=neoag_score, name="Neoag_immunogenicity"
-        )
+            neoag_score = self.calculate_neoag_score(epitope=epitope_mhci)
+
+        annotation = AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogenicity")
         return annotation

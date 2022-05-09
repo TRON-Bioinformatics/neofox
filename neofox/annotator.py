@@ -435,15 +435,16 @@ class NeoantigenAnnotator:
         # neoag immunogenicity model
         if netmhcpan and netmhcpan.best_epitope_by_affinity:
             start = time.time()
-            peptide_variant_position = EpitopeHelper.position_of_mutation_epitope(
-                epitope=netmhcpan.best_epitope_by_affinity)
             neoantigen.neofox_annotations.annotations.append(
                 self.neoag_calculator.get_annotation(
-                    sample_id=patient.identifier,
                     epitope_mhci=netmhcpan.best_epitope_by_affinity,
-                    peptide_variant_position=peptide_variant_position,
                     mutation=neoantigen.mutation)
             )
+            if with_all_neoepitopes:
+                for e in neoantigen.neoepitopes_mhc_i:
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=self.neoag_calculator.calculate_neoag_score(epitope=e),
+                        name='neoag_immunogenicity'))
             end = time.time()
             logger.info(
                 "Neoag annotation elapsed time {} seconds".format(round(end - start, 3))
