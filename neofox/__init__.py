@@ -16,6 +16,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import logzero
+import logging
+
+
 VERSION = "0.7.0dev2"
 
 
@@ -37,3 +41,13 @@ MHC_I = "mhcI"
 NOT_AVAILABLE_VALUE = "NA"
 
 AFFINITY_THRESHOLD_DEFAULT = 500000
+
+
+def initialise_logs(logfile, verbose=False):
+    if logfile is not None:
+        logzero.logfile(logfile)
+    # TODO: this does not work
+    if verbose:
+        logzero.loglevel(logging.INFO)
+    else:
+        logzero.loglevel(logging.WARN)

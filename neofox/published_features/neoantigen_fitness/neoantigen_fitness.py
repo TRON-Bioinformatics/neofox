@@ -32,7 +32,7 @@ class NeoantigenFitnessCalculator:
         self.affinity_threshold = affinity_threshold
         self.iedb_blastp_runner = iedb_blastp_runner
 
-    def get_pathogen_similarity(self, peptide):
+    def get_pathogen_similarity(self, peptide: str):
         pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=peptide)
         logger.info(
             "Peptide {} has a pathogen similarity of {}".format(peptide, pathsim)

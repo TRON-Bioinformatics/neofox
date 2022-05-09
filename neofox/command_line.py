@@ -184,7 +184,7 @@ def neofox_cli():
 
         # initialise logs
         log_file_name = NeoFox.get_log_file_name(work_folder=output_folder, output_prefix=output_prefix)
-        NeoFox.initialise_logs(log_file_name, verbose=args.verbose)
+        neofox.initialise_logs(log_file_name, verbose=args.verbose)
 
         logger.info("NeoFox v{}".format(neofox.VERSION))
 
