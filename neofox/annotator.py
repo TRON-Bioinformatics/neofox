@@ -345,6 +345,13 @@ class NeoantigenAnnotator:
                     neoantigen=neoantigen, netmhcpan=netmhcpan
                 )
             )
+            if with_all_neoepitopes:
+                for e in neoantigen.neoepitopes_mhc_i:
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=self.tcell_predictor.calculate_tcell_predictor_score(
+                            gene=neoantigen.gene,
+                            epitope=e),
+                        name='Tcell_predictor_score'))
             end = time.time()
             logger.info(
                 "T-cell predictor annotation elapsed time {} seconds".format(
