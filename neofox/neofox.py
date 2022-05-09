@@ -53,8 +53,7 @@ class NeoFox:
             patients: List[Patient],
             num_cpus: int = 1,
             patient_id: str = None,
-            work_folder=None,
-            output_prefix=None,
+            log_file_name=None,
             reference_folder: ReferenceFolder = None,
             configuration: DependenciesConfiguration = None,
             verbose=True,
@@ -62,14 +61,14 @@ class NeoFox:
             affinity_threshold=AFFINITY_THRESHOLD_DEFAULT,
             with_all_neoepitopes=False):
 
+        logger.info("Loading reference data...")
+
         self.affinity_threshold = affinity_threshold
 
         if configuration_file:
             dotenv.load_dotenv(configuration_file, override=True)
 
-        # initialise logs
-        self.log_file_name = self._get_log_file_name(output_prefix, work_folder)
-        self._initialise_logs(self.log_file_name, verbose)
+        self.log_file_name = log_file_name
 
         # intialize references folder and configuration
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
@@ -130,7 +129,7 @@ class NeoFox:
 
         self.with_all_neoepitopes = with_all_neoepitopes
 
-        logger.info("Data loaded")
+        logger.info("Reference data loaded")
 
     def _conditional_expression_imputation(self) -> List[Neoantigen]:
         expression_annotator = ExpressionAnnotator()
@@ -151,7 +150,7 @@ class NeoFox:
         return neoantigens_transformed
 
     @staticmethod
-    def _initialise_logs(logfile, verbose=False):
+    def initialise_logs(logfile, verbose=False):
         if logfile is not None:
             logzero.logfile(logfile)
         # TODO: this does not work
@@ -160,7 +159,8 @@ class NeoFox:
         else:
             logzero.loglevel(logging.WARN)
 
-    def _get_log_file_name(self, output_prefix, work_folder):
+    @staticmethod
+    def get_log_file_name(output_prefix, work_folder):
         if work_folder and os.path.exists(work_folder):
             logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
         else:
@@ -266,7 +266,7 @@ class NeoFox:
         with_all_neoepitopes=False
     ):
         # the logs need to be initialised inside every dask job
-        NeoFox._initialise_logs(log_file_name)
+        NeoFox.initialise_logs(log_file_name)
         logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutation.mutated_xmer))
         start = time.time()
         try:
