@@ -276,6 +276,32 @@ class NeoantigenAnnotator:
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
+        if with_all_neoepitopes:
+            for e in neoantigen.neoepitopes_mhc_i:
+                pathogen_similarity = self.neoantigen_fitness_calculator.get_pathogen_similarity(peptide=e.peptide)
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=pathogen_similarity,
+                    name='pathogen_similarity'))
+                amplitude = self.amplitude.calculate_amplitude_mhc(
+                    score_mutation=e.affinity_score, score_wild_type=e.affinity_score_wild_type,
+                    apply_correction=True)
+                # TODO: this is computed twice for each epitope, will it be quicker to fetch it from the annotations?
+                position = EpitopeHelper.position_of_mutation_epitope(epitope=e)
+                mutation_in_anchor = EpitopeHelper.position_in_anchor_position(
+                    position_mhci=position, peptide_length=len(e.peptide), )
+                recognition_potential = self.neoantigen_fitness_calculator.calculate_recognition_potential(
+                    amplitude=amplitude, pathogen_similarity=pathogen_similarity,
+                    mutation_in_anchor=mutation_in_anchor, mhc_affinity_mut=e.affinity_score
+                )
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=recognition_potential,
+                    name='recognition_potential'))
+            for e in neoantigen.neoepitopes_mhc_i_i:
+                pathogen_similarity = self.neoantigen_fitness_calculator.get_pathogen_similarity(peptide=e.peptide)
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=pathogen_similarity,
+                    name='pathogen_similarity'))
+
         end = time.time()
         logger.info(
             "Neoantigen annotation elapsed time {} seconds".format(

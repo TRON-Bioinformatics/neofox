@@ -25,6 +25,7 @@ import logzero
 from logzero import logger
 from dask.distributed import Client
 
+import neofox
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
@@ -61,6 +62,7 @@ class NeoFox:
             affinity_threshold=AFFINITY_THRESHOLD_DEFAULT,
             with_all_neoepitopes=False):
 
+        neofox.initialise_logs(logfile=log_file_name, verbose=verbose)
         logger.info("Loading reference data...")
 
         self.affinity_threshold = affinity_threshold
@@ -266,7 +268,7 @@ class NeoFox:
         with_all_neoepitopes=False
     ):
         # the logs need to be initialised inside every dask job
-        NeoFox.initialise_logs(log_file_name)
+        neofox.initialise_logs(log_file_name)
         logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutation.mutated_xmer))
         start = time.time()
         try:
