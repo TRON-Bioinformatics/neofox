@@ -30,14 +30,14 @@ class DissimilarityCalculator:
         self.affinity_threshold = affinity_threshold
         self.proteome_blastp_runner = proteome_blastp_runner
 
-    def calculate_dissimilarity(self, mutated_peptide, mhc_affinity):
+    def calculate_dissimilarity(self, epitope: PredictedEpitope):
         """
         wrapper for dissimilarity calculation
         """
         dissimilarity = None
-        if mutated_peptide != "-" and not mhc_affinity >= self.affinity_threshold:
+        if epitope.peptide != "-" and not epitope.affinity_score >= self.affinity_threshold:
             similarity = self.proteome_blastp_runner.calculate_similarity_database(
-                peptide=mutated_peptide,
+                peptide=epitope.peptide,
                 a=32,
             )
             if similarity is not None:
@@ -52,13 +52,9 @@ class DissimilarityCalculator:
         dissimilarity_mhci = None
         dissimilarity_mhcii = None
         if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
-            dissimilarity_mhci = self.calculate_dissimilarity(
-                mutated_peptide=mutated_peptide_mhci.peptide,
-                mhc_affinity=mutated_peptide_mhci.affinity_score )
+            dissimilarity_mhci = self.calculate_dissimilarity(epitope=mutated_peptide_mhci)
         if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
-            dissimilarity_mhcii = self.calculate_dissimilarity(
-                mutated_peptide=mutated_peptide_mhcii.peptide,
-                mhc_affinity=mutated_peptide_mhcii.affinity_score )
+            dissimilarity_mhcii = self.calculate_dissimilarity(epitope=mutated_peptide_mhcii)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=dissimilarity_mhci,

@@ -496,6 +496,13 @@ class NeoantigenAnnotator:
                 mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
         )
+        if with_all_neoepitopes:
+            for e in neoantigen.neoepitopes_mhc_i + neoantigen.neoepitopes_mhc_i_i:
+                dissimilarity_score = self.dissimilarity_calculator.calculate_dissimilarity(epitope=e)
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=dissimilarity_score,
+                    name='dissimilarity_score'))
+
         end = time.time()
         logger.info(
             "Dissimilarity annotation elapsed time {} seconds".format(
