@@ -76,7 +76,7 @@ class NeoantigenAnnotator:
         configuration: DependenciesConfiguration,
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
-        affinity_threshold =neofox.AFFINITY_THRESHOLD_DEFAULT
+        affinity_threshold=neofox.AFFINITY_THRESHOLD_DEFAULT
     ):
         """class to annotate neoantigens"""
         self.runner = Runner()
@@ -86,6 +86,7 @@ class NeoantigenAnnotator:
         self.tcell_predictor = tcell_predictor
         self.self_similarity = self_similarity
         self.organism = references.organism
+        self.affinity_threshold = affinity_threshold
 
         # NOTE: this one loads a big file, but it is faster loading it multiple times than passing it around
         self.uniprot = Uniprot(references.uniprot_pickle)
@@ -168,7 +169,7 @@ class NeoantigenAnnotator:
         # HLA I predictions: NetMHCpan
         if netmhcpan:
             neoantigen.neofox_annotations.annotations.extend(netmhcpan.get_annotations())
-            neoantigen.neoepitopes_mhc_i = netmhcpan.predictions
+            neoantigen.neoepitopes_mhc_i = [e for e in netmhcpan.predictions if e.affinity_score < self.affinity_threshold]
             if with_all_neoepitopes:
                 for e in neoantigen.neoepitopes_mhc_i:
                     position = EpitopeHelper.position_of_mutation_epitope(epitope=e)
@@ -184,7 +185,7 @@ class NeoantigenAnnotator:
         # HLA II predictions: NetMHCIIpan
         if netmhc2pan:
             neoantigen.neofox_annotations.annotations.extend(netmhc2pan.get_annotations())
-            neoantigen.neoepitopes_mhc_i_i = netmhc2pan.predictions
+            neoantigen.neoepitopes_mhc_i_i = [e for e in netmhc2pan.predictions if e.affinity_score < self.affinity_threshold]
 
         # MixMHCpred
         if mixmhcpred is not None:
