@@ -532,6 +532,12 @@ class NeoantigenAnnotator:
                     mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
                     mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
             )
+            if with_all_neoepitopes:
+                for e in neoantigen.neoepitopes_mhc_i + neoantigen.neoepitopes_mhc_i_i:
+                    hex_score = self.hex.apply_hex(mut_peptide=e.peptide)
+                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                        value=hex_score,
+                        name='hex_alignment_score'))
             end = time.time()
             logger.info(
                 "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
