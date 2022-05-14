@@ -75,10 +75,10 @@ class DifferentialBinding:
 
     def get_annotations_dai(self, epitope: PredictedEpitope) -> List[Annotation]:
         dai = None
-        if epitope.peptide and epitope.wild_type_peptide:
+        if epitope.mutated_peptide and epitope.wild_type_peptide:
             dai = self.dai(
-                        score_mutation=epitope.affinity_score,
-                        score_wild_type=epitope.affinity_score_wild_type,
+                        score_mutation=epitope.affinity_mutated,
+                        score_wild_type=epitope.affinity_wild_type,
                         affin_filtering=True,
                     )
         annotations = [
@@ -99,9 +99,9 @@ class DifferentialBinding:
 
         cdn = None
         adn = None
-        if mutated_peptide_mhci.peptide:
+        if mutated_peptide_mhci.mutated_peptide:
             cdn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhci.affinity_score,
+                        score_mutation=mutated_peptide_mhci.affinity_mutated,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
@@ -109,7 +109,7 @@ class DifferentialBinding:
                         category="CDN",
                     )
             adn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhci.affinity_score,
+                        score_mutation=mutated_peptide_mhci.affinity_mutated,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
@@ -137,9 +137,9 @@ class DifferentialBinding:
         amplitude_cutoff_mhcii = 4
         cdn = None
         adn = None
-        if mutated_peptide_mhcii.peptide:
+        if mutated_peptide_mhcii.mutated_peptide:
             cdn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhcii.rank,
+                        score_mutation=mutated_peptide_mhcii.rank_mutated,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
@@ -147,7 +147,7 @@ class DifferentialBinding:
                         category="CDN",
                     )
             adn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhcii.rank,
+                        score_mutation=mutated_peptide_mhcii.rank_mutated,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,

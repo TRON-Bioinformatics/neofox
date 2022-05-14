@@ -71,14 +71,14 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
         )
-        self.assertEqual(602.12, best_multiple.best_epitope_by_affinity.affinity_score)
-        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)
-        self.assertEqual(0.492, best_multiple.best_epitope_by_rank.rank)
-        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_rank.hla.name)
-        self.assertEqual("ILVTDQTRL", best_multiple.best_epitope_by_rank.peptide)
+        self.assertEqual(602.12, best_multiple.best_epitope_by_affinity.affinity_mutated)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.allele_mhc_i.name)
+        self.assertEqual(0.492, best_multiple.best_epitope_by_rank.rank_mutated)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_rank.allele_mhc_i.name)
+        self.assertEqual("ILVTDQTRL", best_multiple.best_epitope_by_rank.mutated_peptide)
         self.assertEqual(
-            best_multiple.best_ninemer_epitope_by_rank.hla.name,
-            best_multiple.best_ninemer_wt_epitope_by_rank.hla.name,
+            best_multiple.best_ninemer_epitope_by_rank.allele_mhc_i.name,
+            best_multiple.best_ninemer_wt_epitope_by_rank.allele_mhc_i.name,
         )
 
 
@@ -175,12 +175,12 @@ class TestBestMultipleBinder(TestCase):
         logger.info(best_multiple.best_predicted_epitope_rank)
         logger.info(best_multiple.best_predicted_epitope_affinity)
         logger.info(best_multiple.phbr_ii)
-        self.assertEqual(3.26, best_multiple.best_predicted_epitope_rank.rank)
+        self.assertEqual(3.26, best_multiple.best_predicted_epitope_rank.rank_mutated)
         self.assertEqual(
-            1103.46, best_multiple.best_predicted_epitope_affinity.affinity_score
+            1103.46, best_multiple.best_predicted_epitope_affinity.affinity_mutated
         )
         self.assertEqual(
-            "SQDILVTDQTRLEAT", best_multiple.best_predicted_epitope_rank.peptide
+            "SQDILVTDQTRLEAT", best_multiple.best_predicted_epitope_rank.mutated_peptide
         )
 
     def test_phbr2(self):

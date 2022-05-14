@@ -71,17 +71,17 @@ class TestBestMultipleBinder(TestCase):
             mhc2_alleles_available=self.available_alleles_mhc2,
             uniprot=self.uniprot
         )
-        logger.info(best_multiple.best_predicted_epitope_rank.rank)
-        logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
-        logger.info(best_multiple.best_predicted_epitope_rank.peptide)
+        logger.info(best_multiple.best_predicted_epitope_rank.rank_mutated)
+        logger.info(best_multiple.best_predicted_epitope_affinity.affinity_mutated)
+        logger.info(best_multiple.best_predicted_epitope_rank.mutated_peptide)
         logger.info(best_multiple.best_predicted_epitope_rank.wild_type_peptide)
         logger.info(best_multiple.phbr_ii)
-        self.assertEqual(0.8, best_multiple.best_predicted_epitope_rank.rank)
+        self.assertEqual(0.8, best_multiple.best_predicted_epitope_rank.rank_mutated)
         self.assertEqual(
-            185.02, best_multiple.best_predicted_epitope_affinity.affinity_score
+            185.02, best_multiple.best_predicted_epitope_affinity.affinity_mutated
         )
         self.assertEqual(
-            "VVKWKFMVSTADPGS", best_multiple.best_predicted_epitope_rank.peptide
+            "VVKWKFMVSTADPGS", best_multiple.best_predicted_epitope_rank.mutated_peptide
         )
         self.assertEqual(
             "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank.wild_type_peptide
@@ -105,15 +105,15 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
         )
-        self.assertEqual(17.79, best_multiple.best_epitope_by_affinity.affinity_score)
-        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)
-        self.assertEqual(0.081, best_multiple.best_epitope_by_rank.rank)
-        self.assertEqual("HLA-A*02:01", best_multiple.best_epitope_by_rank.hla.name)
-        self.assertEqual("TLPEPPLWSV", best_multiple.best_epitope_by_rank.peptide)
-        self.assertEqual("SLPQPPITEV", best_multiple.best_wt_epitope_by_rank.peptide)
+        self.assertEqual(17.79, best_multiple.best_epitope_by_affinity.affinity_mutated)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.allele_mhc_i.name)
+        self.assertEqual(0.081, best_multiple.best_epitope_by_rank.rank_mutated)
+        self.assertEqual("HLA-A*02:01", best_multiple.best_epitope_by_rank.allele_mhc_i.name)
+        self.assertEqual("TLPEPPLWSV", best_multiple.best_epitope_by_rank.mutated_peptide)
+        self.assertEqual("SLPQPPITEV", best_multiple.best_wt_epitope_by_rank.mutated_peptide)
         self.assertEqual(
-            best_multiple.best_ninemer_epitope_by_rank.hla.name,
-            best_multiple.best_ninemer_wt_epitope_by_rank.hla.name,
+            best_multiple.best_ninemer_epitope_by_rank.allele_mhc_i.name,
+            best_multiple.best_ninemer_wt_epitope_by_rank.allele_mhc_i.name,
         )
         self.assertEqual(3, best_multiple.generator_rate_cdn)
         self.assertAlmostEqual(0.23085258129451622, best_multiple.phbr_i)

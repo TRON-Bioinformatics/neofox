@@ -141,18 +141,18 @@ class SelfSimilarityCalculator:
         improved_binding_mhci = None
         self_similarity_mhci = None
         self_similarity_mhcii = None
-        if epitope_mhci and epitope_mhci.peptide and epitope_mhci.wild_type_peptide:
+        if epitope_mhci and epitope_mhci.mutated_peptide and epitope_mhci.wild_type_peptide:
             improved_binding_mhci = self.is_improved_binder(
-                score_mutation=epitope_mhci.rank,
+                score_mutation=epitope_mhci.rank_mutated,
                 score_wild_type=epitope_mhci.rank_wild_type,
             )
             self_similarity_mhci = self.get_self_similarity(
-                mutated_peptide=epitope_mhci.peptide,
+                mutated_peptide=epitope_mhci.mutated_peptide,
                 wt_peptide=epitope_mhci.wild_type_peptide,
             )
-        if epitope_mhcii and epitope_mhcii.peptide and epitope_mhcii.wild_type_peptide:
+        if epitope_mhcii and epitope_mhcii.mutated_peptide and epitope_mhcii.wild_type_peptide:
             self_similarity_mhcii = self.get_self_similarity(
-                mutated_peptide=epitope_mhcii.peptide,
+                mutated_peptide=epitope_mhcii.mutated_peptide,
                 wt_peptide=epitope_mhcii.wild_type_peptide,
             )
         annotations = [

@@ -30,6 +30,9 @@ from neofox.model.neoantigen import Mhc1, PredictedEpitope, Zygosity
 from neofox.references.references import DependenciesConfiguration
 
 
+PEPTIDE_LENGTHS = ["8", "9", "10", "11", "12", "13", "14"]
+
+
 class NetMhcPanPredictor:
 
     def __init__(
@@ -59,7 +62,9 @@ class NetMhcPanPredictor:
             "-p" if peptide_mode else "-f",
             input_fasta,
             "-BA",
+            "-l {}".format(",".join(PEPTIDE_LENGTHS)) if not peptide_mode else ""
         ]
+
         lines, _ = self.runner.run_command(cmd)
         return self._parse_netmhcpan_output(lines)
 
@@ -115,13 +120,13 @@ class NetMhcPanPredictor:
         for p in predictions:
             if p.wild_type_peptide is not None:
                 wt_predictions = self.mhc_prediction(
-                    mhc_alleles=[Mhc1(zygosity=Zygosity.HOMOZYGOUS, alleles=[p.hla])],
+                    mhc_alleles=[Mhc1(zygosity=Zygosity.HOMOZYGOUS, alleles=[p.allele_mhc_i])],
                     set_available_mhc=mhc1_alleles_available,
                     sequence=p.wild_type_peptide, peptide_mode=True)
                 if len(wt_predictions) >= 1:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
-                    p.rank_wild_type = wt_predictions[0].rank
-                    p.affinity_score_wild_type = wt_predictions[0].affinity_score
+                    p.rank_wild_type = wt_predictions[0].rank_mutated
+                    p.affinity_wild_type = wt_predictions[0].affinity_mutated
         return predictions
 
     def get_predictions(self, mhc1_alleles_available, mhc1_alleles_patient, mutation, uniprot) -> List[PredictedEpitope]:

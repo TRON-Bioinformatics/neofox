@@ -156,17 +156,17 @@ class IEDBimmunogenicity:
         """
         iedb = None
         iedb_mhcii = None
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
             iedb = self.calculate_iedb_immunogenicity(
-                        peptide=mutated_peptide_mhci.peptide,
-                        mhc_allele=mutated_peptide_mhci.hla,
-                        mhc_score=mutated_peptide_mhci.affinity_score,
+                        peptide=mutated_peptide_mhci.mutated_peptide,
+                        mhc_allele=mutated_peptide_mhci.allele_mhc_i,
+                        mhc_score=mutated_peptide_mhci.affinity_mutated,
                     )
-        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
             iedb_mhcii = self.calculate_iedb_immunogenicity(
-                peptide=mutated_peptide_mhcii.peptide,
-                mhc_allele=mutated_peptide_mhcii.hla,
-                mhc_score=mutated_peptide_mhcii.affinity_score,
+                peptide=mutated_peptide_mhcii.mutated_peptide,
+                mhc_allele=mutated_peptide_mhcii.allele_mhc_i,
+                mhc_score=mutated_peptide_mhcii.affinity_mutated,
             )
         annotations = [
             AnnotationFactory.build_annotation(

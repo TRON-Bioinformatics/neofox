@@ -76,11 +76,11 @@ class BestAndMultipleBinderMhcII:
         phbr_ii = None
         for allele_with_score in best_epitope_per_allele_mhc2:
             # add DRB1
-            if Mhc2GeneName.DRB1.name in allele_with_score.isoform.name:
+            if Mhc2GeneName.DRB1.name in allele_with_score.isoform_mhc_i_i.name:
                 best_epitope_per_allele_mhc2_new.append(allele_with_score)
         if len(best_epitope_per_allele_mhc2_new) == 12:
             # 12 genes gene copies should be included into PHBR_II
-            best_mhc_ii_scores_per_allele = [epitope.rank for epitope in best_epitope_per_allele_mhc2_new]
+            best_mhc_ii_scores_per_allele = [epitope.rank_mutated for epitope in best_epitope_per_allele_mhc2_new]
             phbr_ii = stats.hmean(best_mhc_ii_scores_per_allele)
         return phbr_ii
 
@@ -89,7 +89,7 @@ class BestAndMultipleBinderMhcII:
         """
         Determines the number of HLA II binders per mutation based on a rank threshold. Default is set to 1, which is threshold used in generator rate.
         """
-        scores = [epitope.rank for epitope in predictions]
+        scores = [epitope.rank_mutated for epitope in predictions]
         number_binders = 0
         for score in scores:
             if score < threshold:
@@ -108,9 +108,9 @@ class BestAndMultipleBinderMhcII:
         number_binders = 0
         values = []
         for epitope in predictions:
-            values.append(epitope.rank)
-            if epitope.rank < 4:
-                rank_mutation = epitope.rank
+            values.append(epitope.rank_mutated)
+            if epitope.rank_mutated < 4:
+                rank_mutation = epitope.rank_mutated
                 if rank_mutation == 0:
                     rank_mutation = 0.01
                 if epitope.wild_type_peptide is not None:
@@ -187,15 +187,15 @@ class BestAndMultipleBinderMhcII:
         if self.best_predicted_epitope_rank:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank.rank,
+                    value=self.best_predicted_epitope_rank.rank_mutated,
                     name="Best_rank_MHCII_score",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank.peptide,
+                    value=self.best_predicted_epitope_rank.mutated_peptide,
                     name="Best_rank_MHCII_score_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_rank.isoform.name,
+                    value=self.best_predicted_epitope_rank.isoform_mhc_i_i.name,
                     name="Best_rank_MHCII_score_allele",
                 ),
                 AnnotationFactory.build_annotation(
@@ -210,19 +210,19 @@ class BestAndMultipleBinderMhcII:
         if self.best_predicted_epitope_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.affinity_score,
+                    value=self.best_predicted_epitope_affinity.affinity_mutated,
                     name="Best_affinity_MHCII_score",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.peptide,
+                    value=self.best_predicted_epitope_affinity.mutated_peptide,
                     name="Best_affinity_MHCII_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.isoform.name,
+                    value=self.best_predicted_epitope_affinity.isoform_mhc_i_i.name,
                     name="Best_affinity_MHCII_allele",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_predicted_epitope_affinity.affinity_score_wild_type,
+                    value=self.best_predicted_epitope_affinity.affinity_wild_type,
                     name="Best_affinity_MHCII_score_WT",
                 ),
                 AnnotationFactory.build_annotation(
@@ -283,24 +283,24 @@ class BestAndMultipleBinderMhcII:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            allele = p.isoform.name
+            allele = p.isoform_mhc_i_i.name
             epitopes_by_allele.setdefault(allele, []).append(p)
 
         # chooses the best epitope per allele and considers zygosity
         best_epitopes_per_allele = []
         for allele, epitopes in epitopes_by_allele.items():
             # sort by rank to choose the best epitope, fixes ties with peptide by alphabetical order
-            epitopes.sort(key=lambda e: (e.rank, e.peptide))
+            epitopes.sort(key=lambda e: (e.rank_mutated, e.mutated_peptide))
             best_epitope = epitopes[0]
             num_repetitions = 0
             if (
-                best_epitope.isoform.name in hetero_hemizygous_allele_names
-                or best_epitope.isoform.name in hetero_hemizygous_allele_names
+                best_epitope.isoform_mhc_i_i.name in hetero_hemizygous_allele_names
+                or best_epitope.isoform_mhc_i_i.name in hetero_hemizygous_allele_names
             ):
                 # adds the epitope once if alleles heterozygous
                 num_repetitions = 1
             if (
-                best_epitope.isoform in homozygous_allele_names
+                best_epitope.isoform_mhc_i_i in homozygous_allele_names
             ):
                 # adds the epitope twice if one allele is homozygous
                 num_repetitions = 2

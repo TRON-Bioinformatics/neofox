@@ -142,12 +142,12 @@ class NetMhcIIPanPredictor:
         for p in predictions:
             if p.wild_type_peptide is not None:
                 wt_predictions = self.mhc2_prediction_peptide(
-                    mhc2_isoform=p.isoform,
+                    mhc2_isoform=p.isoform_mhc_i_i,
                     sequence=p.wild_type_peptide)
                 if len(wt_predictions) >= 1:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
-                    p.rank_wild_type = wt_predictions[0].rank
-                    p.affinity_score_wild_type = wt_predictions[0].affinity_score
+                    p.rank_wild_type = wt_predictions[0].rank_mutated
+                    p.affinity_wild_type = wt_predictions[0].affinity_mutated
         return predictions
 
     def get_wt_predictions(self, mutation, patient_mhc2_isoforms):

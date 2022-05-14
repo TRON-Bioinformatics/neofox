@@ -35,9 +35,9 @@ class DissimilarityCalculator:
         wrapper for dissimilarity calculation
         """
         dissimilarity = None
-        if epitope.peptide != "-" and not epitope.affinity_score >= self.affinity_threshold:
+        if epitope.mutated_peptide != "-" and not epitope.affinity_mutated >= self.affinity_threshold:
             similarity = self.proteome_blastp_runner.calculate_similarity_database(
-                peptide=epitope.peptide,
+                peptide=epitope.mutated_peptide,
                 a=32,
             )
             if similarity is not None:
@@ -51,9 +51,9 @@ class DissimilarityCalculator:
         """
         dissimilarity_mhci = None
         dissimilarity_mhcii = None
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
             dissimilarity_mhci = self.calculate_dissimilarity(epitope=mutated_peptide_mhci)
-        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
             dissimilarity_mhcii = self.calculate_dissimilarity(epitope=mutated_peptide_mhcii)
         annotations = [
             AnnotationFactory.build_annotation(

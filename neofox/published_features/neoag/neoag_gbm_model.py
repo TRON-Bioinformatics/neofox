@@ -82,8 +82,8 @@ class NeoagCalculator(object):
         )
         self._prepare_tmp_for_neoag(
             "*****",
-            epitope.peptide,
-            epitope.affinity_score,
+            epitope.mutated_peptide,
+            epitope.affinity_mutated,
             epitope.wild_type_peptide,
             EpitopeHelper.position_of_mutation_epitope(epitope=epitope),
             tmp_file_name,
@@ -95,7 +95,7 @@ class NeoagCalculator(object):
         """wrapper function to determine neoag immunogenicity score for a mutated peptide sequence"""
 
         neoag_score = None
-        if mutation.wild_type_xmer and epitope_mhci.peptide and epitope_mhci.wild_type_peptide:
+        if mutation.wild_type_xmer and epitope_mhci.mutated_peptide and epitope_mhci.wild_type_peptide:
             neoag_score = self.calculate_neoag_score(epitope=epitope_mhci)
 
         annotation = AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogenicity")
