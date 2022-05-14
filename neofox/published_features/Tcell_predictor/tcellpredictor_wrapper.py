@@ -60,8 +60,8 @@ class TcellPrediction:
         """
         result = None
         has_gene = gene is not None and gene.strip() != ""
-        if has_gene and len(epitope.peptide) == 9:
-            if self.affinity_threshold is None or epitope.affinity_score < self.affinity_threshold:
+        if has_gene and len(epitope.mutated_peptide) == 9:
+            if self.affinity_threshold is None or epitope.affinity_mutated < self.affinity_threshold:
 
                 mat = self.preprocessor.main(gene, epitope=epitope)
                 scores = self.classifier.predict_proba(mat)
@@ -81,7 +81,7 @@ class TcellPrediction:
     ):
         """returns Tcell_predictor score given mps in dictionary format"""
         tcell_predictor_score = None
-        if not ModelValidator.has_peptide_rare_amino_acids(epitope.peptide):
+        if not ModelValidator.has_peptide_rare_amino_acids(epitope.mutated_peptide):
             tcell_predictor_score = self._wrapper_tcellpredictor(gene=gene, epitope=epitope)
         return tcell_predictor_score
 
@@ -91,7 +91,7 @@ class TcellPrediction:
         # TODO: this is difficult to extend to more complex mutations (eg: MNVs, indels) as only considers first mutated
         #  position
         tcell_predictor_score = None
-        if neoantigen.mutation.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity.peptide:
+        if neoantigen.mutation.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity.mutated_peptide:
             tcell_predictor_score = self.calculate_tcell_predictor_score(
                 gene=neoantigen.gene,
                 epitope=netmhcpan.best_ninemer_epitope_by_affinity)

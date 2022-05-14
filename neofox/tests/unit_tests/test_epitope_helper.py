@@ -42,13 +42,13 @@ class EpitopeHelperTest(TestCase):
 
     def test_position_mutation(self):
         position = EpitopeHelper().position_of_mutation_epitope(
-            PredictedEpitope(wild_type_peptide="AAAAAA", peptide="AAANAA"))
+            PredictedEpitope(wild_type_peptide="AAAAAA", mutated_peptide="AAANAA"))
         self.assertEqual(position, 4)
         position = EpitopeHelper().position_of_mutation_epitope(
-            PredictedEpitope(wild_type_peptide="AAAAAA", peptide="AAAAAA"))
+            PredictedEpitope(wild_type_peptide="AAAAAA", mutated_peptide="AAAAAA"))
         self.assertEqual(position, -1)
         position = EpitopeHelper().position_of_mutation_epitope(
-            PredictedEpitope(wild_type_peptide="AAAAAA", peptide="AANNNN"))
+            PredictedEpitope(wild_type_peptide="AAAAAA", mutated_peptide="AANNNN"))
         self.assertEqual(position, 6)
 
     # TODO: test ther methods in the EpitopeHelper

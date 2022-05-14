@@ -96,17 +96,17 @@ class NeoantigenFitnessCalculator:
         pathogen_similarity_9mer = None
         pathogen_similarity_mhcii = None
         recognition_potential = None
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
-            pathogen_similarity_9mer = self.get_pathogen_similarity(peptide=mutated_peptide_mhci.peptide)
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
+            pathogen_similarity_9mer = self.get_pathogen_similarity(peptide=mutated_peptide_mhci.mutated_peptide)
             if pathogen_similarity_9mer is not None:
                 recognition_potential = self.calculate_recognition_potential(
                             amplitude=amplitude,
                             pathogen_similarity=pathogen_similarity_9mer,
                             mutation_in_anchor=mutation_in_anchor,
-                            mhc_affinity_mut=mutated_peptide_mhci.affinity_score,
+                            mhc_affinity_mut=mutated_peptide_mhci.affinity_mutated,
                         )
-        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
-            pathogen_similarity_mhcii = self.get_pathogen_similarity(peptide=mutated_peptide_mhcii.peptide)
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
+            pathogen_similarity_mhcii = self.get_pathogen_similarity(peptide=mutated_peptide_mhcii.mutated_peptide)
 
         annotations = [
             AnnotationFactory.build_annotation(

@@ -70,7 +70,7 @@ class BestAndMultipleBinder:
         )
         phbr_i = None
         if len(best_epitopes_per_allele) == 6:
-            phbr_i = stats.hmean(list(map(lambda e: e.rank, best_epitopes_per_allele)))
+            phbr_i = stats.hmean(list(map(lambda e: e.rank_mutated, best_epitopes_per_allele)))
         return phbr_i
 
     @staticmethod
@@ -91,16 +91,16 @@ class BestAndMultipleBinder:
         # groups epitopes by allele
         epitopes_by_allele = {}
         for p in predictions:
-            epitopes_by_allele.setdefault(p.hla.name, []).append(p)
+            epitopes_by_allele.setdefault(p.allele_mhc_i.name, []).append(p)
         # chooses the best epitope per allele while considering zygosity
         best_epis_per_allele = []
         for list_alleles in epitopes_by_allele.values():
             # sort by rank to choose the best epitope, ties are solved choosing the first peptide in alphabetcial order
-            list_alleles.sort(key=lambda x: (x.rank, x.peptide))
+            list_alleles.sort(key=lambda x: (x.rank_mutated, x.mutated_peptide))
             best_epitope = list_alleles[0]
-            if best_epitope.hla.name in hetero_hemizygous_alleles:
+            if best_epitope.allele_mhc_i.name in hetero_hemizygous_alleles:
                 best_epis_per_allele.append(best_epitope)  # adds the epitope once
-            if best_epitope.hla.name in homozygous_alleles:
+            if best_epitope.allele_mhc_i.name in homozygous_alleles:
                 best_epis_per_allele.append(best_epitope)
                 best_epis_per_allele.append(best_epitope)  # adds the epitope twice
         return best_epis_per_allele
@@ -110,7 +110,7 @@ class BestAndMultipleBinder:
         """
         Determines the number of HLA I binders per mutation based on an affinity threshold. Default is set to 50, which is threshold used in generator rate.
         """
-        scores = [epitope.affinity_score for epitope in predictions]
+        scores = [epitope.affinity_mutated for epitope in predictions]
         number_binders = 0
         for score in scores:
             if score < threshold:
@@ -125,10 +125,10 @@ class BestAndMultipleBinder:
         number_binders = 0
         dai_values = []
         for epitope in predictions:
-            dai_values.append(epitope.affinity_score)
-            if epitope.affinity_score < 5000:
-                if epitope.wild_type_peptide is not None and epitope.affinity_score_wild_type is not None:
-                    dai = epitope.affinity_score_wild_type / epitope.affinity_score
+            dai_values.append(epitope.affinity_mutated)
+            if epitope.affinity_mutated < 5000:
+                if epitope.wild_type_peptide is not None and epitope.affinity_wild_type is not None:
+                    dai = epitope.affinity_wild_type / epitope.affinity_mutated
                     if dai > threshold:
                         number_binders += 1
 
@@ -189,14 +189,14 @@ class BestAndMultipleBinder:
         if self.best_epitope_by_rank:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_rank.rank, name="Best_rank_MHCI_score"
+                    value=self.best_epitope_by_rank.rank_mutated, name="Best_rank_MHCI_score"
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_rank.peptide,
+                    value=self.best_epitope_by_rank.mutated_peptide,
                     name="Best_rank_MHCI_score_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_rank.hla.name, name="Best_rank_MHCI_score_allele"
+                    value=self.best_epitope_by_rank.allele_mhc_i.name, name="Best_rank_MHCI_score_allele"
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_rank.rank_wild_type, name="Best_rank_MHCI_score_WT"
@@ -209,19 +209,19 @@ class BestAndMultipleBinder:
         if self.best_epitope_by_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_affinity.affinity_score,
+                    value=self.best_epitope_by_affinity.affinity_mutated,
                     name="Best_affinity_MHCI_score",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_affinity.peptide,
+                    value=self.best_epitope_by_affinity.mutated_peptide,
                     name="Best_affinity_MHCI_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_affinity.hla.name,
+                    value=self.best_epitope_by_affinity.allele_mhc_i.name,
                     name="Best_affinity_MHCI_allele",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_affinity.affinity_score_wild_type,
+                    value=self.best_epitope_by_affinity.affinity_wild_type,
                     name="Best_affinity_MHCI_score_WT",
                 ),
                 AnnotationFactory.build_annotation(
@@ -231,15 +231,15 @@ class BestAndMultipleBinder:
         if self.best_ninemer_epitope_by_rank:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_ninemer_epitope_by_rank.rank,
+                    value=self.best_ninemer_epitope_by_rank.rank_mutated,
                     name="Best_rank_MHCI_9mer_score",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_ninemer_epitope_by_rank.peptide,
+                    value=self.best_ninemer_epitope_by_rank.mutated_peptide,
                     name="Best_rank_MHCI_9mer_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_ninemer_epitope_by_rank.hla.name,
+                    value=self.best_ninemer_epitope_by_rank.allele_mhc_i.name,
                     name="Best_rank_MHCI_9mer_allele",
                 ),
                 AnnotationFactory.build_annotation(
@@ -254,19 +254,19 @@ class BestAndMultipleBinder:
         if self.best_ninemer_epitope_by_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_ninemer_epitope_by_affinity.affinity_score,
+                    value=self.best_ninemer_epitope_by_affinity.affinity_mutated,
                     name="Best_affinity_MHCI_9mer_score",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_ninemer_epitope_by_affinity.hla.name,
+                    value=self.best_ninemer_epitope_by_affinity.allele_mhc_i.name,
                     name="Best_affinity_MHCI_9mer_allele",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_ninemer_epitope_by_affinity.peptide,
+                    value=self.best_ninemer_epitope_by_affinity.mutated_peptide,
                     name="Best_affinity_MHCI_9mer_epitope",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_ninemer_epitope_by_affinity.affinity_score_wild_type,
+                    value=self.best_ninemer_epitope_by_affinity.affinity_wild_type,
                     name="Best_affinity_MHCI_9mer_score_WT",
                 ),
                 AnnotationFactory.build_annotation(
@@ -293,11 +293,11 @@ class BestAndMultipleBinder:
         """
         position_9mer = None
         mutation_in_anchor_9mer = None
-        if self.best_ninemer_epitope_by_affinity.peptide and self.best_ninemer_epitope_by_affinity.wild_type_peptide:
+        if self.best_ninemer_epitope_by_affinity.mutated_peptide and self.best_ninemer_epitope_by_affinity.wild_type_peptide:
             position_9mer = EpitopeHelper.position_of_mutation_epitope(epitope=self.best_ninemer_epitope_by_affinity)
             mutation_in_anchor_9mer = EpitopeHelper.position_in_anchor_position(
                 position_mhci=position_9mer,
-                peptide_length=len(self.best_ninemer_epitope_by_affinity.peptide),
+                peptide_length=len(self.best_ninemer_epitope_by_affinity.mutated_peptide),
             )
         annotations = [
             AnnotationFactory.build_annotation(

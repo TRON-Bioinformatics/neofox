@@ -128,7 +128,7 @@ class Preprocessor(object):
 
     def main(self, gene: str, epitope: PredictedEpitope):
 
-        seq_arr = self.seq2bin(epitope.peptide)
+        seq_arr = self.seq2bin(epitope.mutated_peptide)
         # tap score
         tap_mat = self.load_data.get("tap")
         tap_score = tap_mat.dot(seq_arr.T).ravel()
@@ -139,7 +139,7 @@ class Preprocessor(object):
 
         position_of_mutation = EpitopeHelper.position_of_mutation_epitope(epitope=epitope)
         wild_type_aminoacid = epitope.wild_type_peptide[position_of_mutation - 1]  # it is 1-based
-        mutated_aminoacid = epitope.peptide[position_of_mutation - 1]
+        mutated_aminoacid = epitope.mutated_peptide[position_of_mutation - 1]
         features_aa = self.get_properties(wild_type_aminoacid + mutated_aminoacid)
         # expresion
         expression_value = self.get_gene_expression(gene)

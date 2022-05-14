@@ -66,7 +66,7 @@ class VaxRank:
 
         # logistic transformation and sum over all epitopes deriving from mutations
         for p in epitope_predictions:
-            mut_scores_logistic += self.logistic_epitope_score(ic50=float(p.affinity_score))
+            mut_scores_logistic += self.logistic_epitope_score(ic50=float(p.affinity_mutated))
 
         return mut_scores_logistic
 

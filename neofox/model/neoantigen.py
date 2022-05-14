@@ -236,19 +236,19 @@ class PredictedEpitope(betterproto.Message):
     # *Not sure that we need this... this is in the old PredictedEpitope model
     position: int = betterproto.int32_field(1)
     # *The mutated peptide
-    peptide: str = betterproto.string_field(2)
+    mutated_peptide: str = betterproto.string_field(2)
     # *Closest wild type peptide
     wild_type_peptide: str = betterproto.string_field(3)
     # *MHC I allele
-    hla: "MhcAllele" = betterproto.message_field(4)
+    allele_mhc_i: "MhcAllele" = betterproto.message_field(4)
     # *MHC II isoform
-    isoform: "Mhc2Isoform" = betterproto.message_field(5)
+    isoform_mhc_i_i: "Mhc2Isoform" = betterproto.message_field(5)
     # *NetMHCpan affinity for the mutated peptide
-    affinity_score: float = betterproto.float_field(6)
+    affinity_mutated: float = betterproto.float_field(6)
     # *NetMHCpan rank for the mutated peptide
-    rank: float = betterproto.float_field(7)
+    rank_mutated: float = betterproto.float_field(7)
     # *NetMHCpan affinity for the wild type peptide
-    affinity_score_wild_type: float = betterproto.float_field(8)
+    affinity_wild_type: float = betterproto.float_field(8)
     # *NetMHCpan rank for the wild type peptide
     rank_wild_type: float = betterproto.float_field(9)
     # *The NeoFox neoantigen annotations

@@ -55,11 +55,11 @@ class Hex(object):
         hex_aln_score_mhci = None
         hex_aln_score_mhcii = None
         # hex_b_score = None
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
             # hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
-            hex_aln_score_mhci = self.apply_hex(mutated_peptide_mhci.peptide)
-        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
-            hex_aln_score_mhcii = self.apply_hex(mutated_peptide_mhcii.peptide)
+            hex_aln_score_mhci = self.apply_hex(mutated_peptide_mhci.mutated_peptide)
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
+            hex_aln_score_mhcii = self.apply_hex(mutated_peptide_mhcii.mutated_peptide)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=hex_aln_score_mhci, name="Hex_alignment_score_MHCI"),

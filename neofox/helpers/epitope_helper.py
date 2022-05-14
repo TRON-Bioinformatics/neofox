@@ -78,7 +78,7 @@ class EpitopeHelper(object):
         # TODO: is this efficient? No, a solution with zip is around 25% faster, maybe something else is even faster
         position = -1
         try:
-            for i, aa in enumerate(epitope.peptide):
+            for i, aa in enumerate(epitope.mutated_peptide):
                 if aa != epitope.wild_type_peptide[i]:
                     position = i + 1
         except Exception:
@@ -139,12 +139,12 @@ class EpitopeHelper(object):
     def pair_predictions(predictions, predictions_wt) -> List[PredictedEpitope]:
         for prediction in predictions:
             for prediction_wt in predictions_wt:
-                if len(prediction_wt.peptide) == len(prediction.peptide) and \
+                if len(prediction_wt.mutated_peptide) == len(prediction.mutated_peptide) and \
                         prediction.position == prediction_wt.position and \
-                        prediction.hla.name == prediction_wt.hla.name:
-                    prediction.wild_type_peptide = prediction_wt.peptide
-                    prediction.rank_wild_type = prediction_wt.rank
-                    prediction.affinity_score_wild_type = prediction_wt.affinity_score
+                        prediction.allele_mhc_i.name == prediction_wt.allele_mhc_i.name:
+                    prediction.wild_type_peptide = prediction_wt.mutated_peptide
+                    prediction.rank_wild_type = prediction_wt.rank_mutated
+                    prediction.affinity_wild_type = prediction_wt.affinity_mutated
                     break
         return predictions
 
@@ -152,12 +152,12 @@ class EpitopeHelper(object):
     def pair_mhcii_predictions(predictions, predictions_wt) -> List[PredictedEpitope]:
         for prediction in predictions:
             for prediction_wt in predictions_wt:
-                if len(prediction_wt.peptide) == len(prediction.peptide) and \
+                if len(prediction_wt.mutated_peptide) == len(prediction.mutated_peptide) and \
                         prediction.position == prediction_wt.position and \
-                        prediction.isoform.name == prediction_wt.isoform.name:
-                    prediction.wild_type_peptide = prediction_wt.peptide
-                    prediction.rank_wild_type = prediction_wt.rank
-                    prediction.affinity_score_wild_type = prediction_wt.affinity_score
+                        prediction.isoform_mhc_i_i.name == prediction_wt.isoform_mhc_i_i.name:
+                    prediction.wild_type_peptide = prediction_wt.mutated_peptide
+                    prediction.rank_wild_type = prediction_wt.rank_mutated
+                    prediction.affinity_wild_type = prediction_wt.affinity_mutated
                     break
         return predictions
 
@@ -178,7 +178,7 @@ class EpitopeHelper(object):
         Returns the peptide with the lowest (ie: meaning highest) rank and in case of tie first peptide on
         alphabetical order to ensure determinism
         """
-        return max(predictions, key=lambda p: (-p.rank, p.peptide)) \
+        return max(predictions, key=lambda p: (-p.rank_mutated, p.mutated_peptide)) \
             if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
 
     @staticmethod
@@ -190,10 +190,10 @@ class EpitopeHelper(object):
         score is the highest (ie: mixmhcpred and PRIME)
         """
         if maximum:
-            return max(predictions, key=lambda p: (p.affinity_score, p.peptide)) \
+            return max(predictions, key=lambda p: (p.affinity_mutated, p.mutated_peptide)) \
                 if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
         else:
-            return max(predictions, key=lambda p: (-p.affinity_score, p.peptide)) \
+            return max(predictions, key=lambda p: (-p.affinity_mutated, p.mutated_peptide)) \
                 if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
 
     @staticmethod
@@ -204,7 +204,7 @@ class EpitopeHelper(object):
         return list(
             filter(
                 lambda p: uniprot.is_sequence_not_in_uniprot(
-                    p.peptide
+                    p.mutated_peptide
                 ),
                 predictions,
             )
@@ -213,7 +213,7 @@ class EpitopeHelper(object):
     @staticmethod
     def filter_for_9mers(predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
         """returns only predicted 9mers"""
-        return list(filter(lambda p: len(p.peptide) == 9, predictions))
+        return list(filter(lambda p: len(p.mutated_peptide) == 9, predictions))
 
     @staticmethod
     def filter_peptides_covering_snv(
@@ -222,7 +222,7 @@ class EpitopeHelper(object):
         return list(
             filter(
                 lambda p: EpitopeHelper.epitope_covers_mutation(
-                    position_of_mutation, p.position, len(p.peptide)
+                    position_of_mutation, p.position, len(p.mutated_peptide)
                 ),
                 predictions,
             )
@@ -234,14 +234,14 @@ class EpitopeHelper(object):
         class by a BLAST search."""
 
         for p in predictions:
-            p.wild_type_peptide = blastp_runner.get_most_similar_wt_epitope(p.peptide)
+            p.wild_type_peptide = blastp_runner.get_most_similar_wt_epitope(p.mutated_peptide)
         return predictions
 
     @staticmethod
     def get_epitope_id(epitope):
-        if epitope.hla is not None:
-            return "{}-{}".format(epitope.hla.name, epitope.peptide)
-        elif epitope.isoform is not None:
-            return "{}-{}".format(epitope.isoform.name, epitope.peptide)
+        if epitope.allele_mhc_i is not None:
+            return "{}-{}".format(epitope.allele_mhc_i.name, epitope.mutated_peptide)
+        elif epitope.isoform_mhc_i_i is not None:
+            return "{}-{}".format(epitope.isoform_mhc_i_i.name, epitope.mutated_peptide)
         else:
             raise ValueError('Cannot build id on an epitope without HLA allele or isoform')
