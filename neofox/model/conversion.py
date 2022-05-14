@@ -203,13 +203,14 @@ class ModelConverter(object):
                 annotations = [a.to_dict() for a in e.neofox_annotations.annotations]
                 annotations_temp_df = (pd.DataFrame(annotations).set_index("name").transpose())
                 annotations_dfs.append(annotations_temp_df)
-            annotations_df = pd.concat(annotations_dfs, sort=True).reset_index()
-            del annotations_df["index"]
+            if len(annotations_dfs) > 0:
+                annotations_df = pd.concat(annotations_dfs, sort=True).reset_index()
+                del annotations_df["index"]
 
-            # puts together both data frames
-            epitopes_temp_df = pd.concat([epitopes_temp_df, annotations_df], axis=1)
+                # puts together both data frames
+                epitopes_temp_df = pd.concat([epitopes_temp_df, annotations_df], axis=1)
+
             epitopes_temp_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
-
             epitopes_dfs.append(epitopes_temp_df)
 
         # concatenates all together
