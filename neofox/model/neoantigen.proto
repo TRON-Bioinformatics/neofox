@@ -293,7 +293,7 @@ message PredictedEpitope {
 	/**
 	The mutated peptide
 	*/
-	string peptide = 2;
+	string mutatedPeptide = 2;
 	/**
 	Closest wild type peptide
 	*/
@@ -301,23 +301,23 @@ message PredictedEpitope {
 	/**
 	MHC I allele
 	 */
-	MhcAllele hla = 4;
+	MhcAllele alleleMhcI = 4;
 	/**
 	MHC II isoform
 	 */
-	Mhc2Isoform isoform = 5;
+	Mhc2Isoform isoformMhcII = 5;
 	/**
 	NetMHCpan affinity for the mutated peptide
 	 */
-	float affinityScore = 6;
+	float affinityMutated = 6;
 	/**
 	NetMHCpan rank for the mutated peptide
 	 */
-	float rank = 7;
+	float rankMutated = 7;
 	/**
 	NetMHCpan affinity for the wild type peptide
 	 */
-	float affinityScoreWildType = 8;
+	float affinityWildType = 8;
 	/**
 	NetMHCpan rank for the wild type peptide
 	 */

@@ -230,13 +230,13 @@ The metadata required for analysis for a given patient + its patient identifier
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | position | [int32](#int32) |  | Not sure that we need this... this is in the old PredictedEpitope model |
-| peptide | [string](#string) |  | The mutated peptide |
+| mutatedPeptide | [string](#string) |  | The mutated peptide |
 | wildTypePeptide | [string](#string) |  | Closest wild type peptide |
-| hla | [MhcAllele](#neoantigen.MhcAllele) |  | MHC I allele |
-| isoform | [Mhc2Isoform](#neoantigen.Mhc2Isoform) |  | MHC II isoform |
-| affinityScore | [float](#float) |  | NetMHCpan affinity for the mutated peptide |
-| rank | [float](#float) |  | NetMHCpan rank for the mutated peptide |
-| affinityScoreWildType | [float](#float) |  | NetMHCpan affinity for the wild type peptide |
+| alleleMhcI | [MhcAllele](#neoantigen.MhcAllele) |  | MHC I allele |
+| isoformMhcII | [Mhc2Isoform](#neoantigen.Mhc2Isoform) |  | MHC II isoform |
+| affinityMutated | [float](#float) |  | NetMHCpan affinity for the mutated peptide |
+| rankMutated | [float](#float) |  | NetMHCpan rank for the mutated peptide |
+| affinityWildType | [float](#float) |  | NetMHCpan affinity for the wild type peptide |
 | rankWildType | [float](#float) |  | NetMHCpan rank for the wild type peptide |
 | neofoxAnnotations | [Annotations](#neoantigen.Annotations) |  | The NeoFox neoantigen annotations |
 
