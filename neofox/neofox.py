@@ -62,7 +62,7 @@ class NeoFox:
             affinity_threshold=AFFINITY_THRESHOLD_DEFAULT,
             with_all_neoepitopes=False):
 
-        neofox.initialise_logs(logfile=log_file_name, verbose=verbose)
+        initialise_logs(logfile=log_file_name, verbose=verbose)
         logger.info("Loading reference data...")
 
         self.affinity_threshold = affinity_threshold
@@ -268,7 +268,7 @@ class NeoFox:
         with_all_neoepitopes=False
     ):
         # the logs need to be initialised inside every dask job
-        neofox.initialise_logs(log_file_name)
+        initialise_logs(log_file_name)
         logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutation.mutated_xmer))
         start = time.time()
         try:
@@ -289,3 +289,13 @@ class NeoFox:
                 neoantigen.mutation.mutated_xmer, int(end - start))
         )
         return annotated_neoantigen
+
+
+def initialise_logs(logfile, verbose=False):
+    if logfile is not None:
+        logzero.logfile(logfile)
+    # TODO: this does not work
+    if verbose:
+        logzero.loglevel(logging.INFO)
+    else:
+        logzero.loglevel(logging.WARN)
