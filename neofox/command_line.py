@@ -22,6 +22,7 @@ import dotenv
 from logzero import logger
 import orjson as json
 import neofox
+import neofox.neofox
 from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.exceptions import NeofoxInputParametersException
 from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
@@ -184,7 +185,7 @@ def neofox_cli():
 
         # initialise logs
         log_file_name = NeoFox.get_log_file_name(work_folder=output_folder, output_prefix=output_prefix)
-        neofox.initialise_logs(log_file_name, verbose=args.verbose)
+        neofox.neofox.initialise_logs(log_file_name, verbose=args.verbose)
 
         logger.info("NeoFox v{}".format(neofox.VERSION))
 

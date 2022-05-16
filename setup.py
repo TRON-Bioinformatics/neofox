@@ -51,7 +51,7 @@ setup(
     # NOTE: always specify versions to ensure build reproducibility
     # NOTE2: sklearn==0.19.0 is a hidden dependency as it is required by Classifier.pickle
     install_requires=required,
-    setup_requires=["logzero==1.5.0"],
+    setup_requires=[],
     classifiers=[
         "Development Status :: 5 - Production/Stable",  # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
         "Intended Audience :: Healthcare Industry",
