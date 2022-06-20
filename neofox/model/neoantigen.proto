@@ -307,19 +307,23 @@ message PredictedEpitope {
 	 */
 	Mhc2Isoform isoformMhcII = 5;
 	/**
-	NetMHCpan affinity for the mutated peptide
+	MHC binding affinity for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
 	 */
 	float affinityMutated = 6;
 	/**
-	NetMHCpan rank for the mutated peptide
+	MHC binding rank for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
 	 */
 	float rankMutated = 7;
 	/**
-	NetMHCpan affinity for the wild type peptide
+	MHC binding affinity for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
 	 */
 	float affinityWildType = 8;
 	/**
-	NetMHCpan rank for the wild type peptide
+	MHC binding rank for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
 	 */
 	float rankWildType = 9;
 	/**
@@ -369,11 +373,11 @@ message Neoantigen {
 	*/
 	repeated Annotation externalAnnotations = 9;
 	/**
-	List of annotated neoepitopes for MHC-I (optional)
+	List of predicted neoepitopes for MHC-I with feature annotation (optional)
 	 */
 	repeated PredictedEpitope neoepitopesMhcI = 10;
 	/**
-	List of annotated neoepitopes for MHC-II (optional)
+	List of predicted neoepitopes for MHC-II with feature annotation (optional)
 	 */
 	repeated PredictedEpitope neoepitopesMhcII = 11;
 }
