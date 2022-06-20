@@ -59,7 +59,7 @@ message Resource {
 }
 
 /**
-A set of annotations for a neoantigen
+A set of annotations for a neoantigen candidate
 */
 message Annotations {
 	/**

@@ -56,7 +56,7 @@ This is a generic class to hold annotations from Neofox
 <a name="neoantigen.Annotations"></a>
 
 ### Annotations
-A set of annotations for a neoantigen
+A set of annotations for a neoantigen candidate
 
 
 | Field | Type | Label | Description |
