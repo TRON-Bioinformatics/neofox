@@ -20,7 +20,7 @@
 
 from typing import List
 
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
     BestAndMultipleBinderMhcII,
@@ -101,3 +101,20 @@ class Amplitude:
                 value=self.amplitude_mhcii_rank, name="Amplitude_MHCII_rank"
             )
         ]
+
+    def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_amplitude_mhc(
+                    score_mutation=epitope.rank_mutated, score_wild_type=epitope.rank_wild_type),
+                name='amplitude')
+        ]
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_amplitude_mhc(
+                    score_mutation=epitope.affinity_mutated, score_wild_type=epitope.affinity_wild_type,
+                    apply_correction=True),
+                name='amplitude')
+            ]

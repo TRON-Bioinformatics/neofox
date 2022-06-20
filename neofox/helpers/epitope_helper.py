@@ -21,7 +21,7 @@ from typing import List
 from Bio.Data import IUPACData
 
 from neofox.helpers.blastp_runner import BlastpRunner
-from neofox.model.neoantigen import Mutation, PredictedEpitope, MhcAllele, Mhc2Isoform
+from neofox.model.neoantigen import Mutation, PredictedEpitope, MhcAllele, Mhc2Isoform, Annotation
 
 
 class EpitopeHelper(object):
@@ -245,3 +245,16 @@ class EpitopeHelper(object):
             return "{}-{}".format(epitope.isoform_mhc_i_i.name, epitope.mutated_peptide)
         else:
             raise ValueError('Cannot build id on an epitope without HLA allele or isoform')
+
+    @staticmethod
+    def get_annotation_by_name(annotations: List[Annotation], name: str) -> str:
+        result = None
+        found = False
+        for a in annotations:
+            if a.name == name:
+                result = a.value
+                found = False
+                break
+        if not found:
+            raise ValueError("Expected annotation '{}' not found".format(name))
+        return result

@@ -277,7 +277,7 @@ class NeoFox:
                 self_similarity=self_similarity,
                 rank_mhci_threshold=rank_mhci_threshold,
                 rank_mhcii_threshold=rank_mhcii_threshold
-            ).get_annotation(neoantigen, patient, with_all_neoepitopes=with_all_neoepitopes)
+            ).get_annotated_neoantigen(neoantigen, patient, with_all_neoepitopes=with_all_neoepitopes)
         except Exception as e:
             logger.error("Error processing neoantigen {}".format(neoantigen.to_dict()))
             logger.error("Error processing patient {}".format(patient.to_dict()))

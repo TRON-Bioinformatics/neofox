@@ -156,3 +156,10 @@ class DifferentialBinding:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.dai(score_mutation=epitope.affinity_mutated, score_wild_type=epitope.affinity_wild_type),
+                name='DAI')
+            ]

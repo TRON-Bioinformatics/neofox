@@ -309,3 +309,16 @@ class BestAndMultipleBinder:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        position = EpitopeHelper.position_of_mutation_epitope(epitope=epitope)
+        mutation_in_anchor = EpitopeHelper.position_in_anchor_position(
+            position_mhci=position, peptide_length=len(epitope.mutated_peptide))
+        return [
+            AnnotationFactory.build_annotation(
+                value=position,
+                name='position_mutation'),
+            AnnotationFactory.build_annotation(
+                value=mutation_in_anchor,
+                name='anchor_mutated')
+        ]

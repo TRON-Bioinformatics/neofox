@@ -21,6 +21,7 @@ from typing import List
 from logzero import logger
 
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox import RANK_MHCI_THRESHOLD_DEFAULT
@@ -123,3 +124,29 @@ class NeoantigenFitnessCalculator:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.get_pathogen_similarity(peptide=epitope.mutated_peptide),
+                name='pathogen_similarity')
+        ]
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        # NOTE: this expects the annotations "amplitude" and "anchor_mutated" in the epitope annotations
+        pathogen_similarity = self.get_pathogen_similarity(peptide=epitope.mutated_peptide)
+        amplitude = float(EpitopeHelper.get_annotation_by_name(
+            epitope.neofox_annotations.annotations, name='amplitude'))
+        mutation_in_anchor = bool(EpitopeHelper.get_annotation_by_name(
+            epitope.neofox_annotations.annotations, name='anchor_mutated'))
+        return [
+            AnnotationFactory.build_annotation(
+                value=pathogen_similarity,
+                name='pathogen_similarity'),
+            AnnotationFactory.build_annotation(
+                value=self.calculate_recognition_potential(
+                    amplitude=amplitude, pathogen_similarity=pathogen_similarity,
+                    mutation_in_anchor=mutation_in_anchor, mhc_affinity_mut=epitope.affinity_mutated
+                ),
+                name='recognition_potential')
+            ]

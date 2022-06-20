@@ -146,7 +146,63 @@ class NeoantigenAnnotator:
 
         return merged_epitopes
 
-    def get_annotation(self, neoantigen: Neoantigen, patient: Patient, with_all_neoepitopes=False) -> Neoantigen:
+    def get_annotated_neoepitope_mhci(self, e: PredictedEpitope, neoantigen: Neoantigen, vaf_rna,
+                                      netmhcpan: BestAndMultipleBinder) -> PredictedEpitope:
+
+        e.neofox_annotations.annotations.extend(
+            netmhcpan.get_annotations_epitope_mhci(epitope=e) +
+            self.amplitude.get_annotations_epitope_mhci(epitope=e)
+        )
+
+        # NOTE: this extend() call cannot be joined with the previous as some of the previous annotations are expected
+        e.neofox_annotations.annotations.extend(
+            self.neoantigen_fitness_calculator.get_annotations_epitope_mhci(epitope=e) +
+            self.differential_binding.get_annotations_epitope_mhci(epitope=e) +
+            self.self_similarity.get_annotations_epitope_mhci(epitope=e) +
+            self.uniprot.get_annotations_epitope(epitope=e) +
+            self.dissimilarity_calculator.get_annotations_epitope(epitope=e)
+        )
+
+        # restricted to 9-mers
+        if len(e.mutated_peptide) == 9:
+            e.neofox_annotations.annotations.extend(self.tcell_predictor.get_annotations_epitope_mhci(
+                epitope=e, neoantigen=neoantigen))
+
+        num_mismatches = EpitopeHelper.number_of_mismatches(
+            epitope_wild_type=e.wild_type_peptide, epitope_mutation=e.mutated_peptide, )
+        e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+            value=num_mismatches,
+            name='number_of_mismatches'))
+
+        e.neofox_annotations.annotations.extend(
+            self.priority_score_calculator.get_annotations_epitope_mhci(
+                epitope=e, neoantigen=neoantigen, vaf_rna=vaf_rna))
+
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            e.neofox_annotations.annotations.extend(
+                self.iedb_immunogenicity.get_annotations_epitope_mhci(epitope=e) +
+                self.hex.get_annotations_epitope(epitope=e))
+
+        return e
+
+    def get_annotated_neoepitope_mhcii(self, e: PredictedEpitope) -> PredictedEpitope:
+
+        e.neofox_annotations.annotations.extend(
+            self.amplitude.get_annotations_epitope_mhcii(epitope=e) +
+            self.neoantigen_fitness_calculator.get_annotations_epitope_mhcii(epitope=e) +
+            self.self_similarity.get_annotations_epitope_mhcii(epitope=e) +
+            self.uniprot.get_annotations_epitope(epitope=e) +
+            self.dissimilarity_calculator.get_annotations_epitope(epitope=e))
+
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+
+            e.neofox_annotations.annotations.extend(
+                self.iedb_immunogenicity.get_annotations_epitope_mhcii(epitope=e) +
+                self.hex.get_annotations_epitope(epitope=e))
+
+        return e
+
+    def get_annotated_neoantigen(self, neoantigen: Neoantigen, patient: Patient, with_all_neoepitopes=False) -> Neoantigen:
         """Calculate new epitope features and add to dictionary that stores all properties"""
         neoantigen.neofox_annotations = Annotations(
             annotator="NeoFox",
@@ -169,17 +225,6 @@ class NeoantigenAnnotator:
         if netmhcpan:
             neoantigen.neofox_annotations.annotations.extend(netmhcpan.get_annotations())
             neoantigen.neoepitopes_mhc_i = [e for e in netmhcpan.predictions if e.rank_mutated < self.rank_mhci_threshold]
-            if with_all_neoepitopes:
-                for e in neoantigen.neoepitopes_mhc_i:
-                    position = EpitopeHelper.position_of_mutation_epitope(epitope=e)
-                    mutation_in_anchor = EpitopeHelper.position_in_anchor_position(
-                        position_mhci=position, peptide_length=len(e.mutated_peptide),)
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=position,
-                        name='position_mutation'))
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=mutation_in_anchor,
-                        name='anchor_mutated'))
 
         # HLA II predictions: NetMHCIIpan
         if netmhc2pan:
@@ -220,54 +265,24 @@ class NeoantigenAnnotator:
             vaf_rna = neoantigen.dna_variant_allele_frequency
 
         # MHC binding independent features
-        start = time.time()
         expression_calculator = Expression(
             transcript_expression=neoantigen.rna_expression, vaf_rna=vaf_rna
         )
         neoantigen.neofox_annotations.annotations.extend(expression_calculator.get_annotations())
-        end = time.time()
-        logger.info(
-            "Expression annotation elapsed time {} seconds".format(
-                round(end - start, 3)
-            )
-        )
 
-        start = time.time()
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(
             neoantigen.mutation.mutated_xmer
         )
         neoantigen.neofox_annotations.annotations.extend(
             self.uniprot.get_annotations(sequence_not_in_uniprot)
         )
-        end = time.time()
-        logger.info(
-            "Uniprot annotation elapsed time {} seconds".format(round(end - start, 3))
-        )
 
         # Amplitude
-        start = time.time()
         self.amplitude.run(netmhcpan=netmhcpan, netmhc2pan=netmhc2pan)
         neoantigen.neofox_annotations.annotations.extend(self.amplitude.get_annotations())
         neoantigen.neofox_annotations.annotations.extend(self.amplitude.get_annotations_mhc2())
-        if with_all_neoepitopes:
-            for e in neoantigen.neoepitopes_mhc_i:
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.amplitude.calculate_amplitude_mhc(
-                        score_mutation=e.affinity_mutated, score_wild_type=e.affinity_wild_type,
-                        apply_correction=True),
-                    name='amplitude'))
-            for e in neoantigen.neoepitopes_mhc_i_i:
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.amplitude.calculate_amplitude_mhc(
-                        score_mutation=e.rank_mutated, score_wild_type=e.rank_wild_type),
-                    name='amplitude'))
-        end = time.time()
-        logger.info(
-            "Amplitude annotation elapsed time {} seconds".format(round(end - start, 3))
-        )
 
         # Neoantigen fitness
-        start = time.time()
         neoantigen.neofox_annotations.annotations.extend(
             self.neoantigen_fitness_calculator.get_annotations(
                 mutated_peptide_mhci=netmhcpan.best_ninemer_epitope_by_affinity if netmhcpan else None,
@@ -276,41 +291,8 @@ class NeoantigenAnnotator:
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
-        if with_all_neoepitopes:
-            for e in neoantigen.neoepitopes_mhc_i:
-                pathogen_similarity = self.neoantigen_fitness_calculator.get_pathogen_similarity(peptide=e.mutated_peptide)
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=pathogen_similarity,
-                    name='pathogen_similarity'))
-                amplitude = self.amplitude.calculate_amplitude_mhc(
-                    score_mutation=e.affinity_mutated, score_wild_type=e.affinity_wild_type,
-                    apply_correction=True)
-                # TODO: this is computed twice for each epitope, will it be quicker to fetch it from the annotations?
-                position = EpitopeHelper.position_of_mutation_epitope(epitope=e)
-                mutation_in_anchor = EpitopeHelper.position_in_anchor_position(
-                    position_mhci=position, peptide_length=len(e.mutated_peptide), )
-                recognition_potential = self.neoantigen_fitness_calculator.calculate_recognition_potential(
-                    amplitude=amplitude, pathogen_similarity=pathogen_similarity,
-                    mutation_in_anchor=mutation_in_anchor, mhc_affinity_mut=e.affinity_mutated
-                )
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=recognition_potential,
-                    name='recognition_potential'))
-            for e in neoantigen.neoepitopes_mhc_i_i:
-                pathogen_similarity = self.neoantigen_fitness_calculator.get_pathogen_similarity(peptide=e.mutated_peptide)
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=pathogen_similarity,
-                    name='pathogen_similarity'))
-
-        end = time.time()
-        logger.info(
-            "Neoantigen annotation elapsed time {} seconds".format(
-                round(end - start, 3)
-            )
-        )
 
         # Differential Binding
-        start = time.time()
         if netmhcpan:
             neoantigen.neofox_annotations.annotations.extend(
                 self.differential_binding.get_annotations_dai(epitope=netmhcpan.best_epitope_by_affinity)
@@ -319,90 +301,30 @@ class NeoantigenAnnotator:
                 self.differential_binding.get_annotations(mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity,
                                                             amplitude=self.amplitude)
             )
-            if with_all_neoepitopes:
-                for e in neoantigen.neoepitopes_mhc_i:
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=self.differential_binding.dai(
-                            score_mutation=e.affinity_mutated, score_wild_type=e.affinity_wild_type),
-                        name='DAI'))
         if netmhc2pan:
             neoantigen.neofox_annotations.annotations.extend(
                 self.differential_binding.get_annotations_mhc2(mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_rank,
                                                                amplitude=self.amplitude)
             )
-        end = time.time()
-        logger.info(
-            "Differential binding annotation elapsed time {} seconds".format(
-                round(end - start, 3)
-            )
-        )
 
         # T cell predictor
         if netmhcpan:
-            start = time.time()
             neoantigen.neofox_annotations.annotations.extend(
                 self.tcell_predictor.get_annotations(
                     neoantigen=neoantigen, netmhcpan=netmhcpan
                 )
             )
-            if with_all_neoepitopes:
-                for e in neoantigen.neoepitopes_mhc_i:
-                    # restricted to 9-mers
-                    if len(e.mutated_peptide) == 9:
-                        e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                            value=self.tcell_predictor.calculate_tcell_predictor_score(
-                                gene=neoantigen.gene,
-                                epitope=e),
-                            name='Tcell_predictor_score'))
-            end = time.time()
-            logger.info(
-                "T-cell predictor annotation elapsed time {} seconds".format(
-                    round(end - start, 3)
-                )
-            )
 
         # self-similarity
-        start = time.time()
         neoantigen.neofox_annotations.annotations.extend(
             self.self_similarity.get_annnotations(
                 epitope_mhci=netmhcpan.best_epitope_by_rank if netmhcpan else None,
                 epitope_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
-        if with_all_neoepitopes:
-            for e in neoantigen.neoepitopes_mhc_i:
-                is_improved_binder = self.self_similarity.is_improved_binder(score_mutation=e.rank_mutated,
-                                                                 score_wild_type=e.rank_wild_type)
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=is_improved_binder, name='Improved_Binder_MHCI'))
-
-                self_similarity = self.self_similarity.get_self_similarity(mutated_peptide=e.mutated_peptide,
-                                                                           wt_peptide=e.wild_type_peptide)
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self_similarity, name='Selfsimilarity'))
-
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.self_similarity.self_similarity_of_conserved_binder_only(
-                        similarity=self_similarity,
-                        is_improved_binder=is_improved_binder),
-                    name='Selfsimilarity_conserved_binder'))
-
-            for e in neoantigen.neoepitopes_mhc_i_i:
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.self_similarity.get_self_similarity(
-                        mutated_peptide=e.mutated_peptide, wt_peptide=e.wild_type_peptide),
-                    name='Selfsimilarity'))
-
-        end = time.time()
-        logger.info(
-            "Self similarity annotation elapsed time {} seconds".format(
-                round(end - start, 3)
-            )
-        )
 
         # number of mismatches and priority score
         if netmhcpan:
-            start = time.time()
             neoantigen.neofox_annotations.annotations.extend(
                 self.priority_score_calculator.get_annotations(
                     netmhcpan=netmhcpan,
@@ -412,63 +334,17 @@ class NeoantigenAnnotator:
                     mut_not_in_prot=sequence_not_in_uniprot,
                 )
             )
-            if with_all_neoepitopes:
-                for e in neoantigen.neoepitopes_mhc_i:
-
-                    mutation_not_in_proteome = self.uniprot.is_sequence_not_in_uniprot(e.mutated_peptide)
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=mutation_not_in_proteome,
-                        name='mutation_not_found_in_proteome'))
-
-                    num_mismatches = EpitopeHelper.number_of_mismatches(
-                        epitope_wild_type=e.wild_type_peptide, epitope_mutation=e.mutated_peptide, )
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=num_mismatches,
-                        name='number_of_mismatches'))
-
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=self.priority_score_calculator.calc_priority_score(
-                            vaf_tumor=neoantigen.dna_variant_allele_frequency,
-                            vaf_rna=vaf_rna,
-                            transcript_expr=neoantigen.rna_expression,
-                            no_mismatch=num_mismatches,
-                            score_mut=e.rank_mutated,
-                            score_wt=e.rank_wild_type,
-                            mut_not_in_prot=mutation_not_in_proteome),
-                        name='Priority_score'))
-
-                for e in neoantigen.neoepitopes_mhc_i_i:
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=self.uniprot.is_sequence_not_in_uniprot(e.mutated_peptide),
-                        name='mutation_not_found_in_proteome'))
-            end = time.time()
-            logger.info(
-                "Priotity score annotation elapsed time {} seconds".format(
-                    round(end - start, 3)
-                )
-            )
 
         # neoag immunogenicity model
         if netmhcpan and netmhcpan.best_epitope_by_affinity:
-            start = time.time()
             neoantigen.neofox_annotations.annotations.append(
                 self.neoag_calculator.get_annotation(
                     epitope_mhci=netmhcpan.best_epitope_by_affinity,
                     mutation=neoantigen.mutation)
             )
-            #if with_all_neoepitopes:
-            #    for e in neoantigen.neoepitopes_mhc_i:
-            #        e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-            #            value=self.neoag_calculator.calculate_neoag_score(epitope=e),
-            #            name='neoag_immunogenicity'))
-            end = time.time()
-            logger.info(
-                "Neoag annotation elapsed time {} seconds".format(round(end - start, 3))
-            )
 
         # IEDB immunogenicity
         if self.organism == ORGANISM_HOMO_SAPIENS:
-            start = time.time()
             neoantigen.neofox_annotations.annotations.extend(
                 self.iedb_immunogenicity.get_annotations(
                     mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
@@ -476,78 +352,36 @@ class NeoantigenAnnotator:
                 )
             )
 
-            if with_all_neoepitopes:
-                for e in neoantigen.neoepitopes_mhc_i:
-                    iedb = self.iedb_immunogenicity.calculate_iedb_immunogenicity(
-                        peptide=e.mutated_peptide, mhc_allele=e.allele_mhc_i, mhc_score=e.affinity_mutated)
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=iedb,
-                        name='IEDB_Immunogenicity'))
-
-                for e in neoantigen.neoepitopes_mhc_i_i:
-                    iedb = self.iedb_immunogenicity.calculate_iedb_immunogenicity(
-                        peptide=e.mutated_peptide, mhc_allele=None, mhc_score=e.affinity_mutated)
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=iedb,
-                        name='IEDB_Immunogenicity'))
-
-            end = time.time()
-            logger.info(
-                "IEDB annotation elapsed time {} seconds".format(round(end - start, 3))
-            )
-
         # dissimilarity to self-proteome
-        start = time.time()
         neoantigen.neofox_annotations.annotations.extend(
             self.dissimilarity_calculator.get_annotations(
                 mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
         )
-        if with_all_neoepitopes:
-            for e in neoantigen.neoepitopes_mhc_i + neoantigen.neoepitopes_mhc_i_i:
-                dissimilarity_score = self.dissimilarity_calculator.calculate_dissimilarity(epitope=e)
-                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=dissimilarity_score,
-                    name='dissimilarity_score'))
-
-        end = time.time()
-        logger.info(
-            "Dissimilarity annotation elapsed time {} seconds".format(
-                round(end - start, 3)
-            )
-        )
 
         # vaxrank
         if netmhcpan and netmhcpan.predictions:
-            start = time.time()
             neoantigen.neofox_annotations.annotations.extend(VaxRank().get_annotations(
                 epitope_predictions=netmhcpan.predictions,
                 expression_score=expression_calculator.expression,
             ))
-            end = time.time()
-            logger.info(
-                "Vaxrank annotation elapsed time {} seconds".format(round(end - start, 3))
-            )
 
         # hex
         # TODO: hex is failing for mouse with the current IEDB fasta with only 2 entries
         if self.organism == ORGANISM_HOMO_SAPIENS:
-            start = time.time()
             neoantigen.neofox_annotations.annotations.extend(
                 self.hex.get_annotation(
                     mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
                     mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None)
             )
-            if with_all_neoepitopes:
-                for e in neoantigen.neoepitopes_mhc_i + neoantigen.neoepitopes_mhc_i_i:
-                    hex_score = self.hex.apply_hex(mut_peptide=e.mutated_peptide)
-                    e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                        value=hex_score,
-                        name='hex_alignment_score'))
-            end = time.time()
-            logger.info(
-                "Hex annotation elapsed time {} seconds".format(round(end - start, 3))
-            )
+
+        # annotate neoepitopes
+        if with_all_neoepitopes:
+            neoantigen.neoepitopes_mhc_i = [
+                self.get_annotated_neoepitope_mhci(e=e, neoantigen=neoantigen, vaf_rna=vaf_rna)
+                for e in neoantigen.neoepitopes_mhc_i]
+            neoantigen.neoepitopes_mhc_i_i = [
+                self.get_annotated_neoepitope_mhcii(e=e) for e in neoantigen.neoepitopes_mhc_i_i]
 
         return neoantigen
 

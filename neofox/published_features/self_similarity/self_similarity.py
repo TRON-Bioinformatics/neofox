@@ -174,3 +174,26 @@ class SelfSimilarityCalculator:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.get_self_similarity(
+                    mutated_peptide=epitope.mutated_peptide, wt_peptide=epitope.wild_type_peptide),
+                name='Selfsimilarity')
+            ]
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        is_improved_binder = self.is_improved_binder(
+            score_mutation=epitope.rank_mutated, score_wild_type=epitope.rank_wild_type)
+        self_similarity = self.get_self_similarity(
+            mutated_peptide=epitope.mutated_peptide, wt_peptide=epitope.wild_type_peptide)
+
+        return [
+            AnnotationFactory.build_annotation(value=is_improved_binder, name='Improved_Binder_MHCI'),
+            AnnotationFactory.build_annotation(value=self_similarity, name='Selfsimilarity'),
+            AnnotationFactory.build_annotation(
+                value=self.self_similarity_of_conserved_binder_only(
+                    similarity=self_similarity, is_improved_binder=is_improved_binder),
+                name='Selfsimilarity_conserved_binder')
+        ]
