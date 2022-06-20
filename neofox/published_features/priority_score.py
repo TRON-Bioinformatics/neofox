@@ -23,7 +23,7 @@ import math
 from typing import List
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
@@ -121,3 +121,19 @@ class PriorityScore:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, neoantigen: Neoantigen, vaf_rna) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calc_priority_score(
+                    vaf_tumor=neoantigen.dna_variant_allele_frequency,
+                    vaf_rna=vaf_rna,
+                    transcript_expr=neoantigen.rna_expression,
+                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                name='Priority_score')
+            ]

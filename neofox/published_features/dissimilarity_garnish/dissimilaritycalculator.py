@@ -62,3 +62,10 @@ class DissimilarityCalculator:
             )
         ]
         return annotations
+
+    def get_annotations_epitope(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_dissimilarity(epitope=epitope),
+                name='dissimilarity_score')
+        ]

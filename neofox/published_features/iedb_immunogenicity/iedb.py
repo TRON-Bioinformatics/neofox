@@ -176,3 +176,20 @@ class IEDBimmunogenicity:
             )
         ]
         return annotations
+
+    def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_iedb_immunogenicity(
+                    peptide=epitope.mutated_peptide, mhc_allele=None, mhc_score=epitope.affinity_mutated),
+                name='IEDB_Immunogenicity')
+        ]
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_iedb_immunogenicity(
+                    peptide=epitope.mutated_peptide, mhc_allele=epitope.allele_mhc_i,
+                    mhc_score=epitope.affinity_mutated),
+                name='IEDB_Immunogenicity')
+        ]

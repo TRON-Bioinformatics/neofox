@@ -70,3 +70,10 @@ class Hex(object):
             #)
         ]
         return annotations
+
+    def get_annotations_epitope(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.apply_hex(mut_peptide=epitope.mutated_peptide),
+                name='hex_alignment_score')
+        ]

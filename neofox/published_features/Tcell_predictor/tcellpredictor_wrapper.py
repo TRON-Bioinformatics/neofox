@@ -99,3 +99,10 @@ class TcellPrediction:
             )
         ]
         return annotations
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, neoantigen: Neoantigen) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_tcell_predictor_score(gene=neoantigen.gene, epitope=epitope),
+                name='Tcell_predictor_score')
+            ]
