@@ -21,13 +21,11 @@ from typing import List
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 
 class DissimilarityCalculator:
 
-    def __init__(self, proteome_blastp_runner: BlastpRunner, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        self.affinity_threshold = affinity_threshold
+    def __init__(self, proteome_blastp_runner: BlastpRunner):
         self.proteome_blastp_runner = proteome_blastp_runner
 
     def calculate_dissimilarity(self, epitope: PredictedEpitope):
@@ -35,11 +33,9 @@ class DissimilarityCalculator:
         wrapper for dissimilarity calculation
         """
         dissimilarity = None
-        if epitope.mutated_peptide != "-" and not epitope.affinity_mutated >= self.affinity_threshold:
+        if epitope.mutated_peptide != "-":
             similarity = self.proteome_blastp_runner.calculate_similarity_database(
-                peptide=epitope.mutated_peptide,
-                a=32,
-            )
+                peptide=epitope.mutated_peptide, a=32)
             if similarity is not None:
                 dissimilarity = 1 - similarity
         return dissimilarity

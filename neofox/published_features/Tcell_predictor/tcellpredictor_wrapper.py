@@ -26,7 +26,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import Annotation, Neoantigen, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
+from neofox import RANK_MHCI_THRESHOLD_DEFAULT
 from neofox.published_features.Tcell_predictor.preprocess import Preprocessor
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
@@ -37,8 +37,7 @@ CLASSIFIER_PICKLE = "Classifier.pickle"
 
 class TcellPrediction:
 
-    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        self.affinity_threshold = affinity_threshold
+    def __init__(self):
         # UserWarning: Trying to unpickle estimator DecisionTreeClassifier from version 0.19.0 when using version
         # 0.20.3. This might lead to breaking code or invalid results. Use at your own risk.
         with warnings.catch_warnings():
@@ -61,19 +60,17 @@ class TcellPrediction:
         result = None
         has_gene = gene is not None and gene.strip() != ""
         if has_gene and len(epitope.mutated_peptide) == 9:
-            if self.affinity_threshold is None or epitope.affinity_mutated < self.affinity_threshold:
-
-                mat = self.preprocessor.main(gene, epitope=epitope)
-                scores = self.classifier.predict_proba(mat)
-                result = "indefinable_by_TcellPredictor"
-                if (
-                        scores is not None
-                        and len(scores) > 0
-                        and scores[-1] is not None
-                        and len(scores[-1]) > 0
-                ):
-                    # it returns the last number from the latest entry in the list
-                    result = str(scores[-1][-1])
+            mat = self.preprocessor.main(gene, epitope=epitope)
+            scores = self.classifier.predict_proba(mat)
+            result = "indefinable_by_TcellPredictor"
+            if (
+                    scores is not None
+                    and len(scores) > 0
+                    and scores[-1] is not None
+                    and len(scores[-1]) > 0
+            ):
+                # it returns the last number from the latest entry in the list
+                result = str(scores[-1][-1])
         return result
 
     def calculate_tcell_predictor_score(

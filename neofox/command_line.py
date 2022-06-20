@@ -25,7 +25,7 @@ import neofox
 import neofox.neofox
 from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
+from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
@@ -114,7 +114,7 @@ def neofox_cli():
         "--with-all-neoepitopes",
         dest="with_all_neoepitopes",
         action="store_true",
-        help="output annotations for all neoepitopes on all HLA alleles",
+        help="output annotations for all MHC-I and MHC-II neoepitopes on all HLA alleles",
     )
     parser.add_argument(
         "--patient-id",
@@ -123,12 +123,18 @@ def neofox_cli():
         'if the column "patient" has not been added to the candidate file',
     )
     parser.add_argument(
-        "--affinity-threshold",
-        dest="affinity_threshold",
-        help="neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be "
-             "not annotated with features that specifically model neoepitope recognition. A threshold that is commonly "
-             "used is 500 nM",
-        default=AFFINITY_THRESHOLD_DEFAULT
+        "--rank-mhci-threshold",
+        dest="rank_mhci_threshold",
+        help="MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be "
+             "filtered out",
+        default=neofox.RANK_MHCI_THRESHOLD_DEFAULT
+    )
+    parser.add_argument(
+        "--rank-mhcii-threshold",
+        dest="rank_mhcii_threshold",
+        help="MHC-II epitopes with a netMHCIIpan predicted rank greater than or equal than this threshold will be "
+             "filtered out",
+        default=neofox.RANK_MHCII_THRESHOLD_DEFAULT
     )
     parser.add_argument(
         "--num-cpus", dest="num_cpus", default=1, help="number of CPUs for computation"
@@ -162,7 +168,8 @@ def neofox_cli():
     with_table = args.with_table
     with_json = args.with_json
     with_all_neoepitopes = args.with_all_neoepitopes
-    affinity_threshold = int(args.affinity_threshold)
+    rank_mhci_threshold = float(args.rank_mhci_threshold)
+    rank_mhcii_threshold = float(args.rank_mhcii_threshold)
     num_cpus = int(args.num_cpus)
     config = args.config
     organism = args.organism
@@ -210,7 +217,8 @@ def neofox_cli():
             log_file_name=log_file_name,
             num_cpus=num_cpus,
             reference_folder=reference_folder,
-            affinity_threshold=affinity_threshold,
+            rank_mhci_threshold=rank_mhci_threshold,
+            rank_mhcii_threshold=rank_mhcii_threshold,
             with_all_neoepitopes=with_all_neoepitopes
         ).get_annotations()
 

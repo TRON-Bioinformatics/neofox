@@ -23,12 +23,12 @@ from logzero import logger
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
+from neofox import RANK_MHCI_THRESHOLD_DEFAULT
 
 
 class NeoantigenFitnessCalculator:
 
-    def __init__(self, iedb_blastp_runner: BlastpRunner, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
+    def __init__(self, iedb_blastp_runner: BlastpRunner, affinity_threshold=RANK_MHCI_THRESHOLD_DEFAULT):
         self.affinity_threshold = affinity_threshold
         self.iedb_blastp_runner = iedb_blastp_runner
 

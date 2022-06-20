@@ -20,7 +20,7 @@ from typing import List, Union
 from logzero import logger
 from neofox.model.neoantigen import Annotation, MhcAllele, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
+from neofox import RANK_MHCI_THRESHOLD_DEFAULT
 
 immunoweight = [0.00, 0.00, 0.10, 0.31, 0.30, 0.29, 0.26, 0.18, 0.00]
 
@@ -98,9 +98,6 @@ allele_dict = {
 
 class IEDBimmunogenicity:
 
-    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        self.affinity_threshold = affinity_threshold
-
     def predict_immunogenicity(self, pep, allele):
 
         custom_mask = allele_dict.get(allele, False)
@@ -142,7 +139,7 @@ class IEDBimmunogenicity:
         """This function determines the IEDB immunogenicity score"""
         score = None
         try:
-            if peptide != "-" and float(mhc_score) < self.affinity_threshold:
+            if peptide != "-":
                 score = self.predict_immunogenicity(peptide, mhc_allele.name if mhc_allele else None)
                 logger.info(score)
         except (ValueError, AttributeError):

@@ -22,26 +22,18 @@ from typing import List
 
 from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
 
 
 class DifferentialBinding:
 
-    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        self.affinity_threshold = affinity_threshold
-
-    def dai(self, score_mutation, score_wild_type, affin_filtering=False):
+    def dai(self, score_mutation, score_wild_type):
         """
         Calculates DAI: Returns difference between wt and mut MHC binding score.
         """
         score = None
         try:
-            if affin_filtering:
-                if score_mutation < self.affinity_threshold:
-                    score = score_wild_type - score_mutation
-            else:
-                score = score_wild_type - score_mutation
+            score = score_wild_type - score_mutation
         except TypeError:
             pass
         return score
@@ -78,8 +70,7 @@ class DifferentialBinding:
         if epitope.mutated_peptide and epitope.wild_type_peptide:
             dai = self.dai(
                         score_mutation=epitope.affinity_mutated,
-                        score_wild_type=epitope.affinity_wild_type,
-                        affin_filtering=True,
+                        score_wild_type=epitope.affinity_wild_type
                     )
         annotations = [
             AnnotationFactory.build_annotation(
