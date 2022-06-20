@@ -28,19 +28,12 @@ from dask.distributed import Client
 import neofox
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
-    TcellPrediction,
-)
-from neofox.published_features.self_similarity.self_similarity import (
-    SelfSimilarityCalculator,
-)
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
-from neofox import NEOFOX_LOG_FILE_ENV, AFFINITY_THRESHOLD_DEFAULT
+from neofox import NEOFOX_LOG_FILE_ENV
 from neofox.annotator import NeoantigenAnnotator
-from neofox.exceptions import (
-    NeofoxConfigurationException,
-    NeofoxDataValidationException,
-)
+from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
 from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.model.validation import ModelValidator
 import dotenv
@@ -59,13 +52,15 @@ class NeoFox:
             configuration: DependenciesConfiguration = None,
             verbose=True,
             configuration_file=None,
-            affinity_threshold=AFFINITY_THRESHOLD_DEFAULT,
+            rank_mhci_threshold=neofox.RANK_MHCI_THRESHOLD_DEFAULT,
+            rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
             with_all_neoepitopes=False):
 
         initialise_logs(logfile=log_file_name, verbose=verbose)
         logger.info("Loading reference data...")
 
-        self.affinity_threshold = affinity_threshold
+        self.rank_mhci_threshold = rank_mhci_threshold
+        self.rank_mhcii_threshold = rank_mhcii_threshold
 
         if configuration_file:
             dotenv.load_dotenv(configuration_file, override=True)
@@ -83,7 +78,8 @@ class NeoFox:
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction(affinity_threshold=self.affinity_threshold)
+        self.tcell_predictor = TcellPrediction()
+        self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -242,7 +238,8 @@ class NeoFox:
                     future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
-                    self.affinity_threshold,
+                    self.rank_mhci_threshold,
+                    self.rank_mhcii_threshold,
                     self.with_all_neoepitopes
                 )
             )
@@ -264,7 +261,8 @@ class NeoFox:
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
-        affinity_threshold = AFFINITY_THRESHOLD_DEFAULT,
+        rank_mhci_threshold = neofox.RANK_MHCI_THRESHOLD_DEFAULT,
+        rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
         with_all_neoepitopes=False
     ):
         # the logs need to be initialised inside every dask job
@@ -277,7 +275,8 @@ class NeoFox:
                 configuration,
                 tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
-                affinity_threshold=affinity_threshold
+                rank_mhci_threshold=rank_mhci_threshold,
+                rank_mhcii_threshold=rank_mhcii_threshold
             ).get_annotation(neoantigen, patient, with_all_neoepitopes=with_all_neoepitopes)
         except Exception as e:
             logger.error("Error processing neoantigen {}".format(neoantigen.to_dict()))
