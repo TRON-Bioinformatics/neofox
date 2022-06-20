@@ -51,4 +51,11 @@ class TestImmunogenicity(TestCase):
         )
         self.assertGreater(result, 0)
 
+    def test_none_mhc_allele(self):
+        iedb_immunogenicity = IEDBimmunogenicity()
+        result = iedb_immunogenicity.calculate_iedb_immunogenicity(
+            peptide="ENPVVHFF", mhc_allele=None, mhc_score=600
+        )
+        self.assertGreater(result, 0)
+
 

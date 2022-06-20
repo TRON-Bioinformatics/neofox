@@ -480,7 +480,7 @@ class NeoantigenAnnotator:
 
                 for e in neoantigen.neoepitopes_mhc_i_i:
                     iedb = self.iedb_immunogenicity.calculate_iedb_immunogenicity(
-                        peptide=e.mutated_peptide, mhc_allele=e.allele_mhc_i, mhc_score=e.affinity_mutated)
+                        peptide=e.mutated_peptide, mhc_allele=None, mhc_score=e.affinity_mutated)
                     e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
                         value=iedb,
                         name='IEDB_Immunogenicity_MHCII'))

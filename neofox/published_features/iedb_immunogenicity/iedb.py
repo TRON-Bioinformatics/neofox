@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List
+from typing import List, Union
 from logzero import logger
 from neofox.model.neoantigen import Annotation, MhcAllele, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
@@ -137,13 +137,13 @@ class IEDBimmunogenicity:
         return score
 
     def calculate_iedb_immunogenicity(
-        self, peptide, mhc_allele: MhcAllele, mhc_score
+        self, peptide, mhc_allele: Union[MhcAllele, None], mhc_score
     ):
         """This function determines the IEDB immunogenicity score"""
         score = None
         try:
             if peptide != "-" and float(mhc_score) < self.affinity_threshold:
-                score = self.predict_immunogenicity(peptide, mhc_allele.name)
+                score = self.predict_immunogenicity(peptide, mhc_allele.name if mhc_allele else None)
                 logger.info(score)
         except (ValueError, AttributeError):
             pass
@@ -165,7 +165,7 @@ class IEDBimmunogenicity:
         if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
             iedb_mhcii = self.calculate_iedb_immunogenicity(
                 peptide=mutated_peptide_mhcii.mutated_peptide,
-                mhc_allele=mutated_peptide_mhcii.allele_mhc_i,
+                mhc_allele=None,
                 mhc_score=mutated_peptide_mhcii.affinity_mutated,
             )
         annotations = [
