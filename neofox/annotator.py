@@ -116,7 +116,7 @@ class NeoantigenAnnotator:
 
         self.resources_versions = references.get_resources_versions()
 
-    def _annotate_epitopes_with_other_scores(
+    def  _annotate_epitopes_with_other_scores(
             self,
             epitopes: List[PredictedEpitope],
             annotated_epitopes: List[PredictedEpitope],
@@ -372,14 +372,21 @@ class NeoantigenAnnotator:
         )
         if with_all_neoepitopes:
             for e in neoantigen.neoepitopes_mhc_i:
+                is_improved_binder = self.self_similarity.is_improved_binder(score_mutation=e.rank_mutated,
+                                                                 score_wild_type=e.rank_wild_type)
                 e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.self_similarity.is_improved_binder(
-                        score_mutation=e.rank_mutated, score_wild_type=e.rank_wild_type),
-                    name='Improved_Binder_MHCI'))
+                    value=is_improved_binder, name='Improved_Binder_MHCI'))
+
+                self_similarity = self.self_similarity.get_self_similarity(mutated_peptide=e.mutated_peptide,
+                                                                           wt_peptide=e.wild_type_peptide)
                 e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
-                    value=self.self_similarity.get_self_similarity(
-                        mutated_peptide=e.mutated_peptide, wt_peptide=e.wild_type_peptide),
-                    name='Selfsimilarity'))
+                    value=self_similarity, name='Selfsimilarity'))
+
+                e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+                    value=self.self_similarity.self_similarity_of_conserved_binder_only(
+                        similarity=self_similarity,
+                        is_improved_binder=is_improved_binder),
+                    name='Selfsimilarity_conserved_binder'))
 
             for e in neoantigen.neoepitopes_mhc_i_i:
                 e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
