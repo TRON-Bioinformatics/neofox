@@ -379,13 +379,13 @@ class NeoantigenAnnotator:
                 e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
                     value=self.self_similarity.get_self_similarity(
                         mutated_peptide=e.mutated_peptide, wt_peptide=e.wild_type_peptide),
-                    name='Selfsimilarity_MHCI'))
+                    name='Selfsimilarity'))
 
             for e in neoantigen.neoepitopes_mhc_i_i:
                 e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
                     value=self.self_similarity.get_self_similarity(
                         mutated_peptide=e.mutated_peptide, wt_peptide=e.wild_type_peptide),
-                    name='Selfsimilarity_MHCII'))
+                    name='Selfsimilarity'))
 
         end = time.time()
         logger.info(
@@ -476,14 +476,14 @@ class NeoantigenAnnotator:
                         peptide=e.mutated_peptide, mhc_allele=e.allele_mhc_i, mhc_score=e.affinity_mutated)
                     e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
                         value=iedb,
-                        name='IEDB_Immunogenicity_MHCI'))
+                        name='IEDB_Immunogenicity'))
 
                 for e in neoantigen.neoepitopes_mhc_i_i:
                     iedb = self.iedb_immunogenicity.calculate_iedb_immunogenicity(
                         peptide=e.mutated_peptide, mhc_allele=None, mhc_score=e.affinity_mutated)
                     e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
                         value=iedb,
-                        name='IEDB_Immunogenicity_MHCII'))
+                        name='IEDB_Immunogenicity'))
 
             end = time.time()
             logger.info(
