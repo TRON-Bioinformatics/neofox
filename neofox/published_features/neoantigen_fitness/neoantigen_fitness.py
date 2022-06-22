@@ -135,14 +135,20 @@ class NeoantigenFitnessCalculator:
     def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
         # NOTE: this expects the annotations "amplitude" and "anchor_mutated" in the epitope annotations
         pathogen_similarity = self.get_pathogen_similarity(peptide=epitope.mutated_peptide)
-        amplitude = float(EpitopeHelper.get_annotation_by_name(
-            epitope.neofox_annotations.annotations, name='amplitude'))
-        mutation_in_anchor = bool(EpitopeHelper.get_annotation_by_name(
-            epitope.neofox_annotations.annotations, name='anchor_mutated'))
+        pathogen_similarity_annotation = AnnotationFactory.build_annotation(
+            value=pathogen_similarity,
+            name='pathogen_similarity')
+        try:
+            amplitude = float(EpitopeHelper.get_annotation_by_name(
+                epitope.neofox_annotations.annotations, name='amplitude'))
+            mutation_in_anchor = bool(EpitopeHelper.get_annotation_by_name(
+                epitope.neofox_annotations.annotations, name='anchor_mutated'))
+        except ValueError:
+            return [
+                pathogen_similarity_annotation
+            ]
         return [
-            AnnotationFactory.build_annotation(
-                value=pathogen_similarity,
-                name='pathogen_similarity'),
+            pathogen_similarity_annotation,
             AnnotationFactory.build_annotation(
                 value=self.calculate_recognition_potential(
                     amplitude=amplitude, pathogen_similarity=pathogen_similarity,

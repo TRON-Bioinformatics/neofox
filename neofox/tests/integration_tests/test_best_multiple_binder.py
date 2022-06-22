@@ -76,11 +76,6 @@ class TestBestMultipleBinder(TestCase):
         self.assertEqual(0.492, best_multiple.best_epitope_by_rank.rank_mutated)
         self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_rank.allele_mhc_i.name)
         self.assertEqual("ILVTDQTRL", best_multiple.best_epitope_by_rank.mutated_peptide)
-        self.assertEqual(
-            best_multiple.best_ninemer_epitope_by_rank.allele_mhc_i.name,
-            best_multiple.best_ninemer_wt_epitope_by_rank.allele_mhc_i.name,
-        )
-
 
     def test_phbr1(self):
         best_multiple = BestAndMultipleBinder(
@@ -301,29 +296,18 @@ class TestBestMultipleBinder(TestCase):
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
-        predictions = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
-        )
-
+        predictions = netmhcpan.mhc_prediction(self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer)
         predictions_wt = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer
-        )
+            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer)
 
-        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
-            predictions=predictions, uniprot=self.uniprot
-        )
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(predictions=predictions, uniprot=self.uniprot)
         filtered_predictions_wt = EpitopeHelper.filter_peptides_covering_snv(
-            position_of_mutation=mutation.position, predictions=predictions_wt
-        )
+            position_of_mutation=mutation.position, predictions=predictions_wt)
+        paired_predictions = EpitopeHelper.pair_predictions(
+            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt)
 
-        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(
-            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt
-        )
-        generator_rate_CDN = best_multiple.determine_number_of_binders(
-            predictions=predicted_neoepitopes, threshold=50
-        )
-        logger.info(generator_rate_ADN)
-        logger.info(generator_rate_CDN)
+        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(predictions=paired_predictions)
+        generator_rate_CDN = best_multiple.determine_number_of_binders(predictions=paired_predictions, threshold=50)
         self.assertEqual(generator_rate_ADN, 0)
         self.assertEqual(generator_rate_CDN, 0)
 
@@ -361,11 +345,10 @@ class TestBestMultipleBinder(TestCase):
             position_of_mutation=mutation.position, predictions=predictions_wt
         )
 
-        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(
-            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt
-        )
-        generator_rate_CDN = best_multiple.determine_number_of_binders(
-            predictions=predicted_neoepitopes
-        )
-        self.assertEqual(generator_rate_ADN, 0)
+        paired_predictions = EpitopeHelper.pair_predictions(
+            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt)
+
+        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(predictions=paired_predictions)
+        generator_rate_CDN = best_multiple.determine_number_of_binders(predictions=paired_predictions)
+        self.assertEqual(generator_rate_ADN, 6)
         self.assertEqual(generator_rate_CDN, 0)

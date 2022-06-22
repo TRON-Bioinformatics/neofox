@@ -52,19 +52,20 @@ class BestAndMultipleBinderMhcII:
         self.generator_rate_adn = None
         self.generator_rate_cdn = None
         self.best_predicted_epitope_rank = PredictedEpitope(
-            peptide=None,
+            mutated_peptide=None,
             position=None,
-            isoform=Mhc2Isoform(name=None),
-            affinity_score=None,
-            rank=None,
+            isoform_mhc_i_i=Mhc2Isoform(name=None),
+            affinity_mutated=None,
+            rank_mutated=None,
         )
         self.best_predicted_epitope_affinity = PredictedEpitope(
-            peptide=None,
+            mutated_peptide=None,
             position=None,
-            isoform=Mhc2Isoform(name=None),
-            affinity_score=None,
-            rank=None,
+            isoform_mhc_i_i=Mhc2Isoform(name=None),
+            affinity_mutated=None,
+            rank_mutated=None,
         )
+        self.predictions = []
 
     def calculate_phbr_ii(self, best_epitope_per_allele_mhc2: List[PredictedEpitope]):
         """

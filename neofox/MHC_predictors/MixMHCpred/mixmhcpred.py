@@ -79,10 +79,10 @@ class MixMHCpred:
         for _, row in results.iterrows():
             parsed_results.append(
                 PredictedEpitope(
-                    hla=self.mhc_parser.parse_mhc_allele(row[ALLELE]),
-                    peptide=row[PEPTIDE],
-                    affinity_score=float(row[SCORE]),
-                    rank=float(row[RANK]),
+                    allele_mhc_i=self.mhc_parser.parse_mhc_allele(row[ALLELE]),
+                    mutated_peptide=row[PEPTIDE],
+                    affinity_mutated=float(row[SCORE]),
+                    rank_mutated=float(row[RANK]),
                 ))
         return parsed_results
 

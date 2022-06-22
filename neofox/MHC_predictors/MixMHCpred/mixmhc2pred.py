@@ -128,10 +128,10 @@ class MixMhc2Pred:
         for _, row in results.iterrows():
             parsed_results.append(
                 PredictedEpitope(
-                    isoform=self.mhc_parser.parse_mhc2_isoform(row[ALLELE]),
-                    peptide=row[PEPTIDE],
-                    rank=float(row[RANK]),
-                    affinity_score=None
+                    isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(row[ALLELE]),
+                    mutated_peptide=row[PEPTIDE],
+                    rank_mutated=float(row[RANK]),
+                    affinity_mutated=None
                 ))
         return parsed_results
 

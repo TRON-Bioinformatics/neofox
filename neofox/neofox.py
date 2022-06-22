@@ -217,12 +217,8 @@ class NeoFox:
         future_tcell_predictor = dask_client.scatter(
             self.tcell_predictor, broadcast=True
         )
-        future_self_similarity = dask_client.scatter(
-            self.self_similarity, broadcast=True
-        )
-        future_reference_folder = dask_client.scatter(
-            self.reference_folder, broadcast=True
-        )
+        future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
+        future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
         for neoantigen in self.neoantigens:
             patient = self.patients.get(neoantigen.patient_identifier)
