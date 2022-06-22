@@ -47,7 +47,6 @@ class BestAndMultipleBinder:
 
     def _initialise(self):
         self.phbr_i = None
-        self.predictions = None
         self.generator_rate = None
         self.mutation_in_anchor_9mer = None
         self.generator_rate = None
@@ -57,6 +56,7 @@ class BestAndMultipleBinder:
         self.best_epitope_by_affinity = EpitopeHelper.get_empty_epitope()
         self.best_ninemer_epitope_by_affinity = EpitopeHelper.get_empty_epitope()
         self.best_ninemer_epitope_by_rank = EpitopeHelper.get_empty_epitope()
+        self.predictions = []
 
     def calculate_phbr_i(
         self, predictions: List[PredictedEpitope], mhc1_alleles: List[Mhc1]):

@@ -12,6 +12,6 @@ pysam==0.16.0.1
 dask[complete]>=2021.10.0
 distributed>=2021.10.0
 python-dotenv==0.12.0
-faker==6.6.2
+faker==13.13.0
 orjson==3.5.2
 xmltodict==0.12.0

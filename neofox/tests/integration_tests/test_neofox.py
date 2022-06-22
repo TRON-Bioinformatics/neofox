@@ -75,7 +75,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
@@ -214,11 +214,11 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=2,
+            num_cpus=4,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 86)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 80)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -231,7 +231,7 @@ class TestNeofox(TestCase):
             neoantigens=self.neoantigens,
             patient_id=self.patient_id,
             patients=self.patients,
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
         # check it does not contain any of the MixMHCpred annotations
@@ -286,7 +286,7 @@ class TestNeofox(TestCase):
                 neoantigens=neoantigens,
                 patient_id=patient_id,
                 patients=patients,
-                num_cpus=1,
+                num_cpus=4,
                 configuration_file=config_file,
             )
         except NeofoxConfigurationException as e:
@@ -303,11 +303,11 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=self.patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 65)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 61)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients, patient_id = self._get_test_data()
@@ -317,11 +317,11 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 39)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 37)
 
     def test_gene_expression_imputation(self):
         neoantigens, patients, patient_id = self._get_test_data()
@@ -329,7 +329,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         )
         for n in neofox.neoantigens:
             self.assertIsNotNone(n.imputed_gene_expression)
@@ -344,7 +344,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         )
         for n in neofox.neoantigens:
             self.assertIsNone(n.imputed_gene_expression)
@@ -358,7 +358,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         )
         for n in neofox.neoantigens:
             self.assertIsNone(n.imputed_gene_expression)
@@ -372,7 +372,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         )
         for p in neofox.patients.values():
             if p.identifier == patient_id:
@@ -387,7 +387,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         )
         for p in neofox.patients.values():
             if p.identifier == patient_id:
@@ -403,7 +403,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         )
         neofox.get_annotations()
 
@@ -418,7 +418,7 @@ class TestNeofox(TestCase):
             neoantigens=neoantigens,
             patient_id=patient_id,
             patients=patients,
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
@@ -448,7 +448,7 @@ class TestNeofox(TestCase):
         annotations = NeoFox(
             neoantigens=[neoantigen],
             patients=[patient],
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         # it does not crash even though there are no best 9mers
         self.assertIsNotNone(annotations)
@@ -472,7 +472,7 @@ class TestNeofox(TestCase):
         annotations = NeoFox(
             neoantigens=[neoantigen],
             patients=[patient],
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         # it does not crash even though there are no best 9mers
         self.assertIsNotNone(annotations)
@@ -496,7 +496,7 @@ class TestNeofox(TestCase):
         annotations = NeoFox(
             neoantigens=[neoantigen],
             patients=[patient],
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         # it does not crash even though there are no best 9mers
         self.assertIsNotNone(annotations)
@@ -519,7 +519,7 @@ class TestNeofox(TestCase):
         annotations = NeoFox(
             neoantigens=[neoantigen],
             patients=[patient],
-            num_cpus=1,
+            num_cpus=4,
         ).get_annotations()
         # it does not crash even though there are no best 9mers
         self.assertIsNotNone(annotations)
@@ -562,6 +562,44 @@ class TestNeofox(TestCase):
                 num_cpus=4,
             ).get_annotations()
             self.assertIsNotNone(annotations)
+
+    def test_with_all_neoepitopes(self):
+        """
+        This test aims at testing neofox when MixMHCpred and MixMHC2pred are not configured. As these are optional it
+        shoudl just run, but without these annotations in the output
+        """
+        annotations = NeoFox(
+            neoantigens=self.neoantigens[0:2],  # only two as this is quite slow
+            patient_id=self.patient_id,
+            patients=self.patients,
+            num_cpus=4,
+            with_all_neoepitopes=True
+        ).get_annotations()
+
+        self.assertIsNotNone(annotations)
+        for n in annotations:
+            self.assertIsNotNone(n.neoepitopes_mhc_i)
+            self.assertIsNotNone(n.neoepitopes_mhc_i_i)
+            for e in n.neoepitopes_mhc_i:
+                self.assertIsNotNone(e.mutated_peptide)
+                self.assertIsNotNone(e.wild_type_peptide)
+                self.assertGreater(e.affinity_mutated, 0)
+                self.assertGreater(e.affinity_wild_type, 0)
+                self.assertGreater(e.rank_mutated, 0)
+                self.assertLess(e.rank_mutated, neofox.RANK_MHCI_THRESHOLD_DEFAULT)
+                self.assertGreater(e.rank_wild_type, 0)
+                self.assertIsNotNone(e.allele_mhc_i)
+                self.assertIsNone(e.isoform_mhc_i_i)
+            for e in n.neoepitopes_mhc_i_i:
+                self.assertIsNotNone(e.mutated_peptide)
+                self.assertIsNotNone(e.wild_type_peptide)
+                self.assertGreater(e.affinity_mutated, 0)
+                self.assertGreater(e.affinity_wild_type, 0)
+                self.assertGreater(e.rank_mutated, 0)
+                self.assertLess(e.rank_mutated, neofox.RANK_MHCII_THRESHOLD_DEFAULT)
+                self.assertGreater(e.rank_wild_type, 0)
+                self.assertIsNone(e.allele_mhc_i)
+                self.assertIsNotNone(e.isoform_mhc_i_i)
 
     def _regression_test_on_output_file(self, new_file, previous_filename="resources/output_previous.txt"):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, previous_filename)

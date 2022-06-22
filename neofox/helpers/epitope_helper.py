@@ -164,12 +164,12 @@ class EpitopeHelper(object):
     @staticmethod
     def get_empty_epitope():
         return PredictedEpitope(
-            peptide=None,
+            mutated_peptide=None,
             position=None,
-            hla=MhcAllele(name=None),
-            isoform=Mhc2Isoform(name=None),
-            affinity_score=None,
-            rank=None,
+            allele_mhc_i=MhcAllele(name=None),
+            isoform_mhc_i_i=Mhc2Isoform(name=None),
+            affinity_mutated=None,
+            rank_mutated=None,
         )
 
     @staticmethod
@@ -253,7 +253,7 @@ class EpitopeHelper(object):
         for a in annotations:
             if a.name == name:
                 result = a.value
-                found = False
+                found = True
                 break
         if not found:
             raise ValueError("Expected annotation '{}' not found".format(name))

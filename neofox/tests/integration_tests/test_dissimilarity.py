@@ -39,44 +39,41 @@ class TestDissimilarity(TestCase):
 
     def test_dissimilar_sequences(self):
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
-            PredictedEpitope(peptide="tocino", affinity_score=600))
+            PredictedEpitope(mutated_peptide="tocino", affinity_mutated=600))
         self.assertEqual(1, result)
 
     def test_similar_sequences(self):
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
-            PredictedEpitope(peptide="DDDDDD", affinity_score=600))
+            PredictedEpitope(mutated_peptide="DDDDDD", affinity_mutated=600))
         self.assertTrue(result < 0.000001)
 
     def test_missing_aminoacid_change(self):
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
-            PredictedEpitope(peptide="DDUDDD", affinity_score=600))
+            PredictedEpitope(mutated_peptide="DDUDDD", affinity_mutated=600))
         self.assertIsNone(result)
 
     def test_dissimilarity_mhcii(self):
         # peptide with point mutation
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
-            PredictedEpitope(peptide="LGLSDSQFLQTFLFM", affinity_score=430))
+            PredictedEpitope(mutated_peptide="LGLSDSQFLQTFLFM", affinity_mutated=430))
         self.assertEqual(result, 0)
         # unsimmilar peptide
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
-            PredictedEpitope(peptide="LELERVLVQY", affinity_score=430))
+            PredictedEpitope(mutated_peptide="LELERVLVQY", affinity_mutated=430))
         self.assertAlmostEqual(0.0038214427855995936, result)
 
     def test_dissimilar_sequences(self):
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
-            PredictedEpitope(peptide="tocino", affinity_score=600))
+            PredictedEpitope(mutated_peptide="tocino", affinity_mutated=600))
         self.assertEqual(1, result)
 
     def test_affinity_threshold(self):
         # peptide with point mutation
-        dissimilariyty_calculator = DissimilarityCalculator(
-            proteome_blastp_runner=self.proteome_blastp_runner,
-            affinity_threshold=1000
-        )
+        dissimilariyty_calculator = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner)
         result = dissimilariyty_calculator.calculate_dissimilarity(
-            PredictedEpitope(peptide="LGLSDSQFLQTFLFM", affinity_score=1030))
-        self.assertIsNone(result)
+            PredictedEpitope(mutated_peptide="LGLSDSQFLQTFLFM", affinity_mutated=1030))
+        self.assertIsNotNone(result)
         result = dissimilariyty_calculator.calculate_dissimilarity(
-            PredictedEpitope(peptide="LGLSDSQFLQTFLFM", affinity_score=530))
+            PredictedEpitope(mutated_peptide="LGLSDSQFLQTFLFM", affinity_mutated=530))
         self.assertIsNotNone(result)
 

@@ -19,7 +19,7 @@
 from unittest import TestCase
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import PredictedEpitope
+from neofox.model.neoantigen import PredictedEpitope, Annotation
 
 
 class EpitopeHelperTest(TestCase):
@@ -50,5 +50,15 @@ class EpitopeHelperTest(TestCase):
         position = EpitopeHelper().position_of_mutation_epitope(
             PredictedEpitope(wild_type_peptide="AAAAAA", mutated_peptide="AANNNN"))
         self.assertEqual(position, 6)
+
+    def test_get_annotation_by_name(self):
+        annotations = [Annotation(name='this', value='5'), Annotation(name='that', value='0')]
+        self.assertEqual(EpitopeHelper.get_annotation_by_name(annotations=annotations, name='this'), '5')
+        self.assertEqual(EpitopeHelper.get_annotation_by_name(annotations=annotations, name='that'), '0')
+        try:
+            EpitopeHelper.get_annotation_by_name(annotations=annotations, name='nothing')
+            self.assertTrue(False)
+        except ValueError:
+            self.assertTrue(True)
 
     # TODO: test ther methods in the EpitopeHelper

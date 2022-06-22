@@ -122,27 +122,31 @@ class NeoantigenAnnotator:
             annotation_name: str) -> List[PredictedEpitope]:
 
         merged_epitopes = []
-        annotated_epitopes_dict = {EpitopeHelper.get_epitope_id(e): e for e in annotated_epitopes}
-        for e in epitopes:
+        if annotated_epitopes is not None:
+            annotated_epitopes_dict = {EpitopeHelper.get_epitope_id(e): e for e in annotated_epitopes}
+            for e in epitopes:
 
-            # intialise annotations for the epitope if not done already
-            if e.neofox_annotations is None:
-                e.neofox_annotations = Annotations(annotations=[])
+                # intialise annotations for the epitope if not done already
+                if e.neofox_annotations is None:
+                    e.neofox_annotations = Annotations(annotations=[])
 
-            # adds new annotations if any
-            paired_epitope = annotated_epitopes_dict.get(EpitopeHelper.get_epitope_id(e))
-            if paired_epitope is not None:
-                if paired_epitope.affinity_score is not None:
-                    e.neofox_annotations.annotations.append(
-                        AnnotationFactory.build_annotation(
-                            name=annotation_name + '_affinity_score', value=paired_epitope.affinity_score))
-                if paired_epitope.rank is not None:
-                    e.neofox_annotations.annotations.append(
-                        AnnotationFactory.build_annotation(
-                            name=annotation_name + '_rank', value=paired_epitope.rank))
+                # adds new annotations if any
+                paired_epitope = annotated_epitopes_dict.get(EpitopeHelper.get_epitope_id(e))
+                if paired_epitope is not None:
+                    if paired_epitope.affinity_mutated is not None:
+                        e.neofox_annotations.annotations.append(
+                            AnnotationFactory.build_annotation(
+                                name=annotation_name + '_affinity_score', value=paired_epitope.affinity_mutated))
+                    if paired_epitope.rank_mutated is not None:
+                        e.neofox_annotations.annotations.append(
+                            AnnotationFactory.build_annotation(
+                                name=annotation_name + '_rank', value=paired_epitope.rank_mutated))
 
-            # updates epitope
-            merged_epitopes.append(e)
+                # updates epitope
+                merged_epitopes.append(e)
+        else:
+            # if there are no results to annotate with it returns the input list as is
+            merged_epitopes = epitopes
 
         return merged_epitopes
 
@@ -378,7 +382,7 @@ class NeoantigenAnnotator:
         # annotate neoepitopes
         if with_all_neoepitopes:
             neoantigen.neoepitopes_mhc_i = [
-                self.get_annotated_neoepitope_mhci(e=e, neoantigen=neoantigen, vaf_rna=vaf_rna)
+                self.get_annotated_neoepitope_mhci(e=e, neoantigen=neoantigen, vaf_rna=vaf_rna, netmhcpan=netmhcpan)
                 for e in neoantigen.neoepitopes_mhc_i]
             neoantigen.neoepitopes_mhc_i_i = [
                 self.get_annotated_neoepitope_mhcii(e=e) for e in neoantigen.neoepitopes_mhc_i_i]
