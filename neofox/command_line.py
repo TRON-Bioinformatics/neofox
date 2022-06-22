@@ -126,14 +126,14 @@ def neofox_cli():
         "--rank-mhci-threshold",
         dest="rank_mhci_threshold",
         help="MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be "
-             "filtered out",
+             "filtered out (default: {})".format(neofox.RANK_MHCI_THRESHOLD_DEFAULT),
         default=neofox.RANK_MHCI_THRESHOLD_DEFAULT
     )
     parser.add_argument(
         "--rank-mhcii-threshold",
         dest="rank_mhcii_threshold",
         help="MHC-II epitopes with a netMHCIIpan predicted rank greater than or equal than this threshold will be "
-             "filtered out",
+             "filtered out (default: {})".format(neofox.RANK_MHCII_THRESHOLD_DEFAULT),
         default=neofox.RANK_MHCII_THRESHOLD_DEFAULT
     )
     parser.add_argument(
