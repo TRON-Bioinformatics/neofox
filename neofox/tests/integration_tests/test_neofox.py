@@ -605,6 +605,12 @@ class TestNeofox(TestCase):
                 self.assertIsNotNone(e.isoform_mhc_i_i)
                 self.assertNotEqual(e.isoform_mhc_i_i.name, '')
 
+        df_epitopes_mhci = ModelConverter.annotations2epitopes_table(annotations, mhc=neofox.MHC_I)
+        self.assertFalse(any(c.startswith('isoformMhcII') for c in df_epitopes_mhci.columns))
+
+        df_epitopes_mhcii = ModelConverter.annotations2epitopes_table(annotations, mhc=neofox.MHC_II)
+        self.assertFalse(any(c.startswith('alleleMhcI') for c in df_epitopes_mhcii.columns))
+
     def _regression_test_on_output_file(self, new_file, previous_filename="resources/output_previous.txt"):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, previous_filename)
         if os.path.exists(previous_file):

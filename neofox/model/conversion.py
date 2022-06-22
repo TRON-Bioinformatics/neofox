@@ -190,9 +190,9 @@ class ModelConverter(object):
 
             # adapts output table depending on MHC type
             if mhc == MHC_I:
-                epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='isoform.*')), axis=1, inplace=True)
+                epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='isoformMhcII.*')), axis=1, inplace=True)
             else:
-                epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='hla.*')), axis=1, inplace=True)
+                epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='alleleMhcI.*')), axis=1, inplace=True)
 
             # annotations need a custom parsing, thus we remove these columns
             epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='neofoxAnnotations.*')), axis=1, inplace=True)
