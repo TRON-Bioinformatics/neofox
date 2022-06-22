@@ -85,7 +85,6 @@ class NetMhcPanPredictor:
                     PredictedEpitope(
                         position=int(line[0]),
                         allele_mhc_i=self.mhc_parser.parse_mhc_allele(line[1]),
-                        isoform_mhc_i_i=None,
                         mutated_peptide=line[2],
                         affinity_mutated=float(line[15]),
                         rank_mutated=float(line[12]),

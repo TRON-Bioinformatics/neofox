@@ -130,7 +130,6 @@ class NetMhcIIPanPredictor:
                 results.append(
                     PredictedEpitope(
                         position=int(line[0]),
-                        allele_mhc_i=None,
                         isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(line[1]),
                         mutated_peptide=line[2],
                         affinity_mutated=float(line[11]),

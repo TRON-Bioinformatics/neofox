@@ -589,7 +589,9 @@ class TestNeofox(TestCase):
                 self.assertLess(e.rank_mutated, neofox.RANK_MHCI_THRESHOLD_DEFAULT)
                 self.assertGreater(e.rank_wild_type, 0)
                 self.assertIsNotNone(e.allele_mhc_i)
-                self.assertIsNone(e.isoform_mhc_i_i)
+                self.assertNotEqual(e.allele_mhc_i.name, '')
+                self.assertIsNotNone(e.isoform_mhc_i_i)
+                self.assertEqual(e.isoform_mhc_i_i.name, '')
             for e in n.neoepitopes_mhc_i_i:
                 self.assertIsNotNone(e.mutated_peptide)
                 self.assertIsNotNone(e.wild_type_peptide)
@@ -598,8 +600,10 @@ class TestNeofox(TestCase):
                 self.assertGreater(e.rank_mutated, 0)
                 self.assertLess(e.rank_mutated, neofox.RANK_MHCII_THRESHOLD_DEFAULT)
                 self.assertGreater(e.rank_wild_type, 0)
-                self.assertIsNone(e.allele_mhc_i)
+                self.assertIsNotNone(e.allele_mhc_i)
+                self.assertEqual(e.allele_mhc_i.name, '')
                 self.assertIsNotNone(e.isoform_mhc_i_i)
+                self.assertNotEqual(e.isoform_mhc_i_i.name, '')
 
     def _regression_test_on_output_file(self, new_file, previous_filename="resources/output_previous.txt"):
         previous_file = pkg_resources.resource_filename(neofox.tests.__name__, previous_filename)
