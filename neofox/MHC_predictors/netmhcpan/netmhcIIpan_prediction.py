@@ -69,9 +69,7 @@ class NetMhcIIPanPredictor:
     def represent_mhc2_isoforms(self, isoforms: List[Mhc2Isoform]) -> List[str]:
         return [self.mhc_parser.get_netmhc2pan_representation(i) for i in isoforms]
 
-    def mhc2_prediction(
-        self, mhc_alleles: List[str], sequence
-    ) -> List[PredictedEpitope]:
+    def mhc2_prediction(self, mhc_alleles: List[str], sequence) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
         # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
         tmp_fasta = intermediate_files.create_temp_fasta(
@@ -96,9 +94,7 @@ class NetMhcIIPanPredictor:
     def mhc2_prediction_peptide(
         self, mhc2_isoform: Mhc2Isoform, sequence ) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
-        tmp_peptide = intermediate_files.create_temp_peptide(
-            [sequence], prefix="tmp_singleseq_"
-        )
+        tmp_peptide = intermediate_files.create_temp_peptide([sequence], prefix="tmp_singleseq_")
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command(
             cmd=[
