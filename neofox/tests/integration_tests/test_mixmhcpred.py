@@ -81,7 +81,7 @@ class TestMixMHCPred(TestCase):
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
         self.assertEqual('SIYGGLVLI', best_result.mutated_peptide)
-        self.assertEqual(0.15829400000000002, best_result.affinity_mutated)
+        self.assertEqual(0.158294, best_result.affinity_mutated)
         self.assertEqual(1, best_result.rank_mutated)
         self.assertEqual('HLA-A*02:01', best_result.allele_mhc_i.name)
 

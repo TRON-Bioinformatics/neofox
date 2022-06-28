@@ -110,11 +110,6 @@ class TestBestMultipleBinder(TestCase):
         self.assertEqual(0.081, best_multiple.best_epitope_by_rank.rank_mutated)
         self.assertEqual("HLA-A*02:01", best_multiple.best_epitope_by_rank.allele_mhc_i.name)
         self.assertEqual("TLPEPPLWSV", best_multiple.best_epitope_by_rank.mutated_peptide)
-        self.assertEqual("SLPQPPITEV", best_multiple.best_wt_epitope_by_rank.mutated_peptide)
-        self.assertEqual(
-            best_multiple.best_ninemer_epitope_by_rank.allele_mhc_i.name,
-            best_multiple.best_ninemer_wt_epitope_by_rank.allele_mhc_i.name,
-        )
         self.assertEqual(3, best_multiple.generator_rate_cdn)
         self.assertAlmostEqual(0.23085258129451622, best_multiple.phbr_i)
 

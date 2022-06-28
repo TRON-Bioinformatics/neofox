@@ -46,12 +46,13 @@ class NetMhcPanPredictor:
 
     def mhc_prediction(
             self, mhc_alleles: List[Mhc1], set_available_mhc: Set, sequence, peptide_mode=False
-
     ) -> List[PredictedEpitope]:
         """Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file."""
-        input_fasta = intermediate_files.create_temp_fasta(
-            sequences=[sequence], prefix="tmp_singleseq_"
-        )
+
+        if peptide_mode:
+            input_file = intermediate_files.create_temp_peptide(sequences=[sequence], prefix="tmp_singleseq_")
+        else:
+            input_file = intermediate_files.create_temp_fasta(sequences=[sequence], prefix="tmp_singleseq_")
         available_alleles = self._get_only_available_alleles(mhc_alleles, set_available_mhc)
         if available_alleles is None or available_alleles == "":
             raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(mhc_alleles))
@@ -60,7 +61,7 @@ class NetMhcPanPredictor:
             "-a",
             available_alleles,
             "-p" if peptide_mode else "-f",
-            input_fasta,
+            input_file,
             "-BA",
             "-l {}".format(",".join(PEPTIDE_LENGTHS)) if not peptide_mode else ""
         ]
