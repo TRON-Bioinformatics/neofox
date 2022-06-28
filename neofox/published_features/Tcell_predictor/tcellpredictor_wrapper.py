@@ -21,12 +21,9 @@ import os
 import pickle
 import warnings
 from typing import List
-from neofox.helpers import intermediate_files
-from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.validation import ModelValidator
 from neofox.model.neoantigen import Annotation, Neoantigen, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import RANK_MHCI_THRESHOLD_DEFAULT
 from neofox.published_features.Tcell_predictor.preprocess import Preprocessor
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
