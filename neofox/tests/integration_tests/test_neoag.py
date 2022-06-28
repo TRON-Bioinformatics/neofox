@@ -18,11 +18,10 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
 
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope, MhcAllele
 from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.helpers.runner import Runner
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.tests.tools import get_mutation
 
 
@@ -35,14 +34,15 @@ class TestNeoantigenFitness(TestCase):
     def test_neoag(self):
 
         mutation = get_mutation(
-                mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+                mutated_xmer=  "DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET"
         )
         result = NeoagCalculator(
             runner=self.runner, configuration=self.configuration
         ).get_annotation(
             epitope_mhci=PredictedEpitope(
-                peptide="DDDDDV", affinity_score=0, position=0, hla="hla", rank=0
+                mutated_peptide="ILVTDQTRL", wild_type_peptide="ILVIDQTRL",
+                affinity_mutated=0, position=0, allele_mhc_i=MhcAllele(name="hla"), rank_mutated=0
             ),
             mutation=mutation,
         )
@@ -55,10 +55,11 @@ class TestNeoantigenFitness(TestCase):
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         result = NeoagCalculator(
-            runner=self.runner, configuration=self.configuration, affinity_threshold=1
+            runner=self.runner, configuration=self.configuration
         ).get_annotation(
             epitope_mhci=PredictedEpitope(
-                peptide="DDDDDV", affinity_score=10, position=0, hla="hla", rank=0
+                mutated_peptide="DDDDDV", affinity_mutated=10, position=0, allele_mhc_i=MhcAllele(name="hla"),
+                rank_mutated=0
             ),
             mutation=mutation
         )
