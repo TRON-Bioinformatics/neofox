@@ -20,7 +20,6 @@ from typing import List, Union
 from logzero import logger
 from neofox.model.neoantigen import Annotation, MhcAllele, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import RANK_MHCI_THRESHOLD_DEFAULT
 
 immunoweight = [0.00, 0.00, 0.10, 0.31, 0.30, 0.29, 0.26, 0.18, 0.00]
 
