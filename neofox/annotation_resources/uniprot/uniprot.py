@@ -19,7 +19,7 @@
 import pickle
 from typing import List
 from logzero import logger
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 
 
@@ -49,4 +49,11 @@ class Uniprot(object):
             AnnotationFactory.build_annotation(
                 name="mutation_not_found_in_proteome", value=sequence_not_in_uniprot
             )
+        ]
+
+    def get_annotations_epitope(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.is_sequence_not_in_uniprot(epitope.mutated_peptide),
+                name='mutation_not_found_in_proteome')
         ]

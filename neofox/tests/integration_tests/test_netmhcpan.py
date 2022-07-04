@@ -90,11 +90,11 @@ class TestNetMhcPanPredictor(TestCase):
         predictions = netmhc2pan_predictor.mhc2_prediction(sequence=mutated, mhc_alleles=combinations)
         self.assertEqual(10, len(predictions))
         for p in predictions:
-            self.assertIsNotNone(p.peptide)
-            self.assertIsNotNone(p.hla)
-            self.assertIsNotNone(p.affinity_score)
-            self.assertIsNotNone(p.pos)
-            self.assertIsNotNone(p.rank)
+            self.assertIsNotNone(p.mutated_peptide)
+            self.assertIsNotNone(p.allele_mhc_i)
+            self.assertIsNotNone(p.affinity_mutated)
+            self.assertIsNotNone(p.position)
+            self.assertIsNotNone(p.rank_mutated)
 
     def test_netmhc2pan_too_small_epitope(self):
         netmhc2pan_predictor = NetMhcIIPanPredictor(
