@@ -20,29 +20,20 @@
 
 from typing import List
 
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
 from neofox.published_features.differential_binding.amplitude import Amplitude
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 
 
 class DifferentialBinding:
 
-    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        self.affinity_threshold = affinity_threshold
-
-    def dai(self, score_mutation, score_wild_type, affin_filtering=False):
+    def dai(self, score_mutation, score_wild_type):
         """
         Calculates DAI: Returns difference between wt and mut MHC binding score.
         """
         score = None
         try:
-            if affin_filtering:
-                if score_mutation < self.affinity_threshold:
-                    score = score_wild_type - score_mutation
-            else:
-                score = score_wild_type - score_mutation
+            score = score_wild_type - score_mutation
         except TypeError:
             pass
         return score
@@ -74,13 +65,12 @@ class DifferentialBinding:
             pass
         return group
 
-    def get_annotations_dai(self, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
+    def get_annotations_dai(self, epitope: PredictedEpitope) -> List[Annotation]:
         dai = None
-        if mutated_peptide_mhci.peptide and wt_peptide_mhcii.peptide:
+        if epitope.mutated_peptide and epitope.wild_type_peptide:
             dai = self.dai(
-                        score_mutation=mutated_peptide_mhci.affinity_score,
-                        score_wild_type=wt_peptide_mhcii.affinity_score,
-                        affin_filtering=True,
+                        score_mutation=epitope.affinity_mutated,
+                        score_wild_type=epitope.affinity_wild_type
                     )
         annotations = [
             AnnotationFactory.build_annotation(
@@ -100,9 +90,9 @@ class DifferentialBinding:
 
         cdn = None
         adn = None
-        if mutated_peptide_mhci.peptide:
+        if mutated_peptide_mhci.mutated_peptide:
             cdn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhci.affinity_score,
+                        score_mutation=mutated_peptide_mhci.affinity_mutated,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
@@ -110,7 +100,7 @@ class DifferentialBinding:
                         category="CDN",
                     )
             adn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhci.affinity_score,
+                        score_mutation=mutated_peptide_mhci.affinity_mutated,
                         amplitude=amplitude.amplitude_mhci_affinity,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhci,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhci,
@@ -138,9 +128,9 @@ class DifferentialBinding:
         amplitude_cutoff_mhcii = 4
         cdn = None
         adn = None
-        if mutated_peptide_mhcii.peptide:
+        if mutated_peptide_mhcii.mutated_peptide:
             cdn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhcii.rank,
+                        score_mutation=mutated_peptide_mhcii.rank_mutated,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
@@ -148,7 +138,7 @@ class DifferentialBinding:
                         category="CDN",
                     )
             adn = self.classify_adn_cdn(
-                        score_mutation=mutated_peptide_mhcii.rank,
+                        score_mutation=mutated_peptide_mhcii.rank_mutated,
                         amplitude=amplitude.amplitude_mhcii_rank,
                         bdg_cutoff_classical=bdg_cutoff_classical_mhcii,
                         bdg_cutoff_alternative=bdg_cutoff_alternative_mhcii,
@@ -166,3 +156,10 @@ class DifferentialBinding:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.dai(score_mutation=epitope.affinity_mutated, score_wild_type=epitope.affinity_wild_type),
+                name='DAI')
+            ]

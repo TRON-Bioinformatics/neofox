@@ -108,7 +108,7 @@ class Resource(betterproto.Message):
 
 
 @dataclass
-class NeoantigenAnnotations(betterproto.Message):
+class Annotations(betterproto.Message):
     """*A set of annotations for a neoantigen"""
 
     # *List of annotations
@@ -121,30 +121,6 @@ class NeoantigenAnnotations(betterproto.Message):
     timestamp: str = betterproto.string_field(4)
     # *List of resources
     resources: List["Resource"] = betterproto.message_field(5)
-
-
-@dataclass
-class Neoantigen(betterproto.Message):
-    """*A neoantigen minimal definition"""
-
-    # *Patient identifier
-    patient_identifier: str = betterproto.string_field(1)
-    # *The HGNC gene symbol or gene identifier
-    gene: str = betterproto.string_field(2)
-    # *The mutation
-    mutation: "Mutation" = betterproto.message_field(3)
-    # *Expression value of the transcript from RNA data. Range [0, +inf].
-    rna_expression: float = betterproto.float_field(4)
-    # *Expression value of the transcript from TCGA data. Range [0, +inf].
-    imputed_gene_expression: float = betterproto.float_field(5)
-    # *Variant allele frequency from the DNA. Range [0.0, 1.0]
-    dna_variant_allele_frequency: float = betterproto.float_field(6)
-    # *Variant allele frequency from the RNA. Range [0.0, 1.0]
-    rna_variant_allele_frequency: float = betterproto.float_field(7)
-    # *The NeoFox neoantigen annotations
-    neofox_annotations: "NeoantigenAnnotations" = betterproto.message_field(8)
-    # *List of external annotations
-    external_annotations: List["Annotation"] = betterproto.message_field(9)
 
 
 @dataclass
@@ -253,3 +229,55 @@ class MhcAllele(betterproto.Message):
     group: str = betterproto.string_field(4)
     # *A specific protein (e.g.: 02 from HLA-DRB1*13:02)
     protein: str = betterproto.string_field(5)
+
+
+@dataclass
+class PredictedEpitope(betterproto.Message):
+    # *Not sure that we need this... this is in the old PredictedEpitope model
+    position: int = betterproto.int32_field(1)
+    # *The mutated peptide
+    mutated_peptide: str = betterproto.string_field(2)
+    # *Closest wild type peptide
+    wild_type_peptide: str = betterproto.string_field(3)
+    # *MHC I allele
+    allele_mhc_i: "MhcAllele" = betterproto.message_field(4)
+    # *MHC II isoform
+    isoform_mhc_i_i: "Mhc2Isoform" = betterproto.message_field(5)
+    # *NetMHCpan affinity for the mutated peptide
+    affinity_mutated: float = betterproto.float_field(6)
+    # *NetMHCpan rank for the mutated peptide
+    rank_mutated: float = betterproto.float_field(7)
+    # *NetMHCpan affinity for the wild type peptide
+    affinity_wild_type: float = betterproto.float_field(8)
+    # *NetMHCpan rank for the wild type peptide
+    rank_wild_type: float = betterproto.float_field(9)
+    # *The NeoFox neoantigen annotations
+    neofox_annotations: "Annotations" = betterproto.message_field(10)
+
+
+@dataclass
+class Neoantigen(betterproto.Message):
+    """*A neoantigen minimal definition"""
+
+    # *Patient identifier
+    patient_identifier: str = betterproto.string_field(1)
+    # *The HGNC gene symbol or gene identifier
+    gene: str = betterproto.string_field(2)
+    # *The mutation
+    mutation: "Mutation" = betterproto.message_field(3)
+    # *Expression value of the transcript from RNA data. Range [0, +inf].
+    rna_expression: float = betterproto.float_field(4)
+    # *Expression value of the transcript from TCGA data. Range [0, +inf].
+    imputed_gene_expression: float = betterproto.float_field(5)
+    # *Variant allele frequency from the DNA. Range [0.0, 1.0]
+    dna_variant_allele_frequency: float = betterproto.float_field(6)
+    # *Variant allele frequency from the RNA. Range [0.0, 1.0]
+    rna_variant_allele_frequency: float = betterproto.float_field(7)
+    # *The NeoFox neoantigen annotations
+    neofox_annotations: "Annotations" = betterproto.message_field(8)
+    # *List of external annotations
+    external_annotations: List["Annotation"] = betterproto.message_field(9)
+    # *List of annotated neoepitopes for MHC-I (optional)
+    neoepitopes_mhc_i: List["PredictedEpitope"] = betterproto.message_field(10)
+    # *List of annotated neoepitopes for MHC-II (optional)
+    neoepitopes_mhc_i_i: List["PredictedEpitope"] = betterproto.message_field(11)

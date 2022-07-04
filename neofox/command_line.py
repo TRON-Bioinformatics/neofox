@@ -22,9 +22,10 @@ import dotenv
 from logzero import logger
 import orjson as json
 import neofox
+import neofox.neofox
 from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
+from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
@@ -110,18 +111,30 @@ def neofox_cli():
         help="output results in JSON format",
     )
     parser.add_argument(
+        "--with-all-neoepitopes",
+        dest="with_all_neoepitopes",
+        action="store_true",
+        help="output annotations for all MHC-I and MHC-II neoepitopes on all HLA alleles",
+    )
+    parser.add_argument(
         "--patient-id",
         dest="patient_id",
         help="the patient id for the input file. This parameter is only required, "
         'if the column "patient" has not been added to the candidate file',
     )
     parser.add_argument(
-        "--affinity-threshold",
-        dest="affinity_threshold",
-        help="neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be "
-             "not annotated with features that specifically model neoepitope recognition. A threshold that is commonly "
-             "used is 500 nM",
-        default=AFFINITY_THRESHOLD_DEFAULT
+        "--rank-mhci-threshold",
+        dest="rank_mhci_threshold",
+        help="MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be "
+             "filtered out (default: {})".format(neofox.RANK_MHCI_THRESHOLD_DEFAULT),
+        default=neofox.RANK_MHCI_THRESHOLD_DEFAULT
+    )
+    parser.add_argument(
+        "--rank-mhcii-threshold",
+        dest="rank_mhcii_threshold",
+        help="MHC-II epitopes with a netMHCIIpan predicted rank greater than or equal than this threshold will be "
+             "filtered out (default: {})".format(neofox.RANK_MHCII_THRESHOLD_DEFAULT),
+        default=neofox.RANK_MHCII_THRESHOLD_DEFAULT
     )
     parser.add_argument(
         "--num-cpus", dest="num_cpus", default=1, help="number of CPUs for computation"
@@ -138,6 +151,12 @@ def neofox_cli():
         help="the organism to which the data corresponds",
         default="human"
     )
+    parser.add_argument(
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="verbose logs",
+    )
     args = parser.parse_args()
 
     candidate_file = args.candidate_file
@@ -148,12 +167,12 @@ def neofox_cli():
     output_prefix = args.output_prefix
     with_table = args.with_table
     with_json = args.with_json
-    affinity_threshold = int(args.affinity_threshold)
+    with_all_neoepitopes = args.with_all_neoepitopes
+    rank_mhci_threshold = float(args.rank_mhci_threshold)
+    rank_mhcii_threshold = float(args.rank_mhcii_threshold)
     num_cpus = int(args.num_cpus)
     config = args.config
     organism = args.organism
-
-    logger.info("NeoFox v{}".format(neofox.VERSION))
 
     try:
         # check parameters
@@ -170,6 +189,12 @@ def neofox_cli():
 
         # makes sure that the output folder exists
         os.makedirs(output_folder, exist_ok=True)
+
+        # initialise logs
+        log_file_name = NeoFox.get_log_file_name(work_folder=output_folder, output_prefix=output_prefix)
+        neofox.neofox.initialise_logs(log_file_name, verbose=args.verbose)
+
+        logger.info("NeoFox v{}".format(neofox.VERSION))
 
         # loads configuration
         if config:
@@ -189,19 +214,21 @@ def neofox_cli():
             neoantigens=neoantigens,
             patients=patients,
             patient_id=patient_id,
-            work_folder=output_folder,
-            output_prefix=output_prefix,
+            log_file_name=log_file_name,
             num_cpus=num_cpus,
             reference_folder=reference_folder,
-            affinity_threshold=affinity_threshold
+            rank_mhci_threshold=rank_mhci_threshold,
+            rank_mhcii_threshold=rank_mhcii_threshold,
+            with_all_neoepitopes=with_all_neoepitopes
         ).get_annotations()
 
         _write_results(
-            annotated_neoantigens,
-            output_folder,
-            output_prefix,
-            with_json,
-            with_table,
+            neoantigens=annotated_neoantigens,
+            output_folder=output_folder,
+            output_prefix=output_prefix,
+            with_json=with_json,
+            with_table=with_table,
+            with_all_neoepitopes=with_all_neoepitopes
         )
     except Exception as e:
         logger.exception(e)  # logs every exception in the file
@@ -214,24 +241,29 @@ def _read_data(
     candidate_file, json_file, patients_data, patient_id, mhc_database: MhcDatabase
 ) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
+    logger.info("Parsing patients data from: {}".format(patients_data))
     patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
+    logger.info("Loaded {} patients".format(len(patients)))
+
     # parse the neoantigen candidate data
     if candidate_file is not None:
-        neoantigens = ModelConverter.parse_candidate_file(
-            candidate_file, patient_id
-        )
+        logger.info("Parsing candidate neoantigens from: {}".format(candidate_file))
+        neoantigens = ModelConverter.parse_candidate_file(candidate_file, patient_id)
+        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     else:
+        logger.info("Parsing candidate neoantigens from: {}".format(json_file))
         neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
+        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
 
     return neoantigens, patients
 
 
-def _write_results(neoantigens, output_folder, output_prefix, with_json, with_table):
+def _write_results(neoantigens, output_folder, output_prefix, with_json, with_table, with_all_neoepitopes):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
     # writes the output
     if with_table:
-        ModelConverter.annotations2table(neoantigens).to_csv(
+        ModelConverter.annotations2neoantigens_table(neoantigens).to_csv(
             os.path.join(
                 output_folder,
                 "{}_neoantigen_candidates_annotated.tsv".format(output_prefix),
@@ -239,6 +271,25 @@ def _write_results(neoantigens, output_folder, output_prefix, with_json, with_ta
             sep="\t",
             index=False,
         )
+
+    if with_all_neoepitopes and with_table:
+        ModelConverter.annotations2epitopes_table(neoantigens, mhc=neofox.MHC_I).to_csv(
+            os.path.join(
+                output_folder,
+                "{}_mhcI_epitope_candidates_annotated.tsv".format(output_prefix),
+            ),
+            sep="\t",
+            index=False,
+        )
+        ModelConverter.annotations2epitopes_table(neoantigens, mhc=neofox.MHC_II).to_csv(
+            os.path.join(
+                output_folder,
+                "{}_mhcII_epitope_candidates_annotated.tsv".format(output_prefix),
+            ),
+            sep="\t",
+            index=False,
+        )
+
     if with_json:
         output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
         with open(output_features, "wb") as f:

@@ -16,12 +16,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-from typing import List
+from typing import List, Union
 from logzero import logger
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
-from neofox.model.neoantigen import Annotation, MhcAllele
+from neofox.model.neoantigen import Annotation, MhcAllele, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 immunoweight = [0.00, 0.00, 0.10, 0.31, 0.30, 0.29, 0.26, 0.18, 0.00]
 
@@ -99,9 +97,6 @@ allele_dict = {
 
 class IEDBimmunogenicity:
 
-    def __init__(self, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        self.affinity_threshold = affinity_threshold
-
     def predict_immunogenicity(self, pep, allele):
 
         custom_mask = allele_dict.get(allele, False)
@@ -138,13 +133,13 @@ class IEDBimmunogenicity:
         return score
 
     def calculate_iedb_immunogenicity(
-        self, peptide, mhc_allele: MhcAllele, mhc_score
+        self, peptide, mhc_allele: Union[MhcAllele, None], mhc_score
     ):
         """This function determines the IEDB immunogenicity score"""
         score = None
         try:
-            if peptide != "-" and float(mhc_score) < self.affinity_threshold:
-                score = self.predict_immunogenicity(peptide, mhc_allele.name)
+            if peptide != "-":
+                score = self.predict_immunogenicity(peptide, mhc_allele.name if mhc_allele else None)
                 logger.info(score)
         except (ValueError, AttributeError):
             pass
@@ -157,17 +152,17 @@ class IEDBimmunogenicity:
         """
         iedb = None
         iedb_mhcii = None
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
             iedb = self.calculate_iedb_immunogenicity(
-                        peptide=mutated_peptide_mhci.peptide,
-                        mhc_allele=mutated_peptide_mhci.hla,
-                        mhc_score=mutated_peptide_mhci.affinity_score,
+                        peptide=mutated_peptide_mhci.mutated_peptide,
+                        mhc_allele=mutated_peptide_mhci.allele_mhc_i,
+                        mhc_score=mutated_peptide_mhci.affinity_mutated,
                     )
-        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
             iedb_mhcii = self.calculate_iedb_immunogenicity(
-                peptide=mutated_peptide_mhcii.peptide,
-                mhc_allele=mutated_peptide_mhcii.hla,
-                mhc_score=mutated_peptide_mhcii.affinity_score,
+                peptide=mutated_peptide_mhcii.mutated_peptide,
+                mhc_allele=None,
+                mhc_score=mutated_peptide_mhcii.affinity_mutated,
             )
         annotations = [
             AnnotationFactory.build_annotation(
@@ -180,3 +175,20 @@ class IEDBimmunogenicity:
             )
         ]
         return annotations
+
+    def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_iedb_immunogenicity(
+                    peptide=epitope.mutated_peptide, mhc_allele=None, mhc_score=epitope.affinity_mutated),
+                name='IEDB_Immunogenicity')
+        ]
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_iedb_immunogenicity(
+                    peptide=epitope.mutated_peptide, mhc_allele=epitope.allele_mhc_i,
+                    mhc_score=epitope.affinity_mutated),
+                name='IEDB_Immunogenicity')
+        ]

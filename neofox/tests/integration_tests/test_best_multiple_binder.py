@@ -19,6 +19,7 @@
 from logzero import logger
 from unittest import TestCase
 from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.factories import MhcFactory
 from neofox.model.mhc_parser import MhcParser
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
@@ -70,16 +71,11 @@ class TestBestMultipleBinder(TestCase):
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
         )
-        self.assertEqual(602.12, best_multiple.best_epitope_by_affinity.affinity_score)
-        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)
-        self.assertEqual(0.492, best_multiple.best_epitope_by_rank.rank)
-        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_rank.hla.name)
-        self.assertEqual("ILVTDQTRL", best_multiple.best_epitope_by_rank.peptide)
-        self.assertEqual(
-            best_multiple.best_ninemer_epitope_by_rank.hla.name,
-            best_multiple.best_ninemer_wt_epitope_by_rank.hla.name,
-        )
-
+        self.assertEqual(602.12, best_multiple.best_epitope_by_affinity.affinity_mutated)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.allele_mhc_i.name)
+        self.assertEqual(0.492, best_multiple.best_epitope_by_rank.rank_mutated)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_rank.allele_mhc_i.name)
+        self.assertEqual("ILVTDQTRL", best_multiple.best_epitope_by_rank.mutated_peptide)
 
     def test_phbr1(self):
         best_multiple = BestAndMultipleBinder(
@@ -99,7 +95,7 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -125,7 +121,7 @@ class TestBestMultipleBinder(TestCase):
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
 
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions,uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -144,7 +140,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhcpan.mhc_prediction(
             self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
         )
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_epitopes_per_allele = (
@@ -174,12 +170,12 @@ class TestBestMultipleBinder(TestCase):
         logger.info(best_multiple.best_predicted_epitope_rank)
         logger.info(best_multiple.best_predicted_epitope_affinity)
         logger.info(best_multiple.phbr_ii)
-        self.assertEqual(3.26, best_multiple.best_predicted_epitope_rank.rank)
+        self.assertEqual(3.26, best_multiple.best_predicted_epitope_rank.rank_mutated)
         self.assertEqual(
-            1103.46, best_multiple.best_predicted_epitope_affinity.affinity_score
+            1103.46, best_multiple.best_predicted_epitope_affinity.affinity_mutated
         )
         self.assertEqual(
-            "SQDILVTDQTRLEAT", best_multiple.best_predicted_epitope_rank.peptide
+            "SQDILVTDQTRLEAT", best_multiple.best_predicted_epitope_rank.mutated_peptide
         )
 
     def test_phbr2(self):
@@ -203,7 +199,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         logger.info(filtered_predictions)
@@ -238,7 +234,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
@@ -273,7 +269,7 @@ class TestBestMultipleBinder(TestCase):
         predictions = netmhc2pan.mhc2_prediction(
             patient_mhc2_isoforms, mutation.mutated_xmer
         )
-        filtered_predictions = netmhc2pan.remove_peptides_in_proteome(
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
         best_predicted_epitopes_per_alelle = (
@@ -300,29 +296,18 @@ class TestBestMultipleBinder(TestCase):
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
-        predictions = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
-        )
-
+        predictions = netmhcpan.mhc_prediction(self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer)
         predictions_wt = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer
-        )
+            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer)
 
-        predicted_neoepitopes = netmhcpan.remove_peptides_in_proteome(
-            predictions=predictions, uniprot=self.uniprot
-        )
-        filtered_predictions_wt = netmhcpan.filter_peptides_covering_snv(
-            position_of_mutation=mutation.position, predictions=predictions_wt
-        )
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(predictions=predictions, uniprot=self.uniprot)
+        filtered_predictions_wt = EpitopeHelper.filter_peptides_covering_snv(
+            position_of_mutation=mutation.position, predictions=predictions_wt)
+        paired_predictions = EpitopeHelper.pair_predictions(
+            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt)
 
-        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(
-            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt
-        )
-        generator_rate_CDN = best_multiple.determine_number_of_binders(
-            predictions=predicted_neoepitopes, threshold=50
-        )
-        logger.info(generator_rate_ADN)
-        logger.info(generator_rate_CDN)
+        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(predictions=paired_predictions)
+        generator_rate_CDN = best_multiple.determine_number_of_binders(predictions=paired_predictions, threshold=50)
         self.assertEqual(generator_rate_ADN, 0)
         self.assertEqual(generator_rate_CDN, 0)
 
@@ -353,18 +338,17 @@ class TestBestMultipleBinder(TestCase):
             patient_mhc2_isoforms, mutation.wild_type_xmer
         )
 
-        predicted_neoepitopes = netmhc2pan.remove_peptides_in_proteome(
+        predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
-        filtered_predictions_wt = netmhc2pan.filter_peptides_covering_snv(
+        filtered_predictions_wt = EpitopeHelper.filter_peptides_covering_snv(
             position_of_mutation=mutation.position, predictions=predictions_wt
         )
 
-        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(
-            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt
-        )
-        generator_rate_CDN = best_multiple.determine_number_of_binders(
-            predictions=predicted_neoepitopes
-        )
-        self.assertEqual(generator_rate_ADN, 0)
+        paired_predictions = EpitopeHelper.pair_predictions(
+            predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt)
+
+        generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(predictions=paired_predictions)
+        generator_rate_CDN = best_multiple.determine_number_of_binders(predictions=paired_predictions)
+        self.assertEqual(generator_rate_ADN, 6)
         self.assertEqual(generator_rate_CDN, 0)

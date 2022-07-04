@@ -19,3 +19,5 @@ py36
 /netMHCIIpan-3.2.Linux.tar.gz
 /netMHCIIpan-4.0.Linux.tar.gz
 /netMHCpan-4.1b.Linux.tar.gz
+test*
+neofox.log
