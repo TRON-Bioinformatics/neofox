@@ -26,7 +26,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 
-from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation
+from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -48,6 +48,12 @@ class Prime:
         self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
 
+        self.best_peptide = None
+        self.best_rank = None
+        self.best_allele = None
+        self.best_score = None
+        self.results = None
+
     def _load_available_alleles(self):
         """
         loads file with available HLA II alllels for Prime prediction, returns set
@@ -68,9 +74,26 @@ class Prime:
             )
         )
 
-    def _prime(
-        self, mhc_alleles: List[str], potential_ligand_sequences
-    ) -> pd.DataFrame:
+    def _parse_prime_output(self, filename: str) -> List[PredictedEpitope]:
+
+        parsed_results = []
+        try:
+            results = pd.read_csv(filename, sep="\t", comment="#")
+        except EmptyDataError:
+            logger.error("Results from PRIME are empty, something went wrong")
+            results = pd.DataFrame()
+
+        for _, row in results.iterrows():
+            parsed_results.append(
+                PredictedEpitope(
+                    allele_mhc_i=self.mhc_parser.parse_mhc_allele(row[ALLELE]),
+                    mutated_peptide=row[PEPTIDE],
+                    affinity_mutated=float(row[SCORE]),
+                    rank_mutated=float(row[RANK]),
+                ))
+        return parsed_results
+
+    def _prime(self, mhc_alleles: List[str], potential_ligand_sequences) -> List[PredictedEpitope]:
         """
         Runs PRIME for desired hla allele and writes result to temporary file.
         """
@@ -92,23 +115,14 @@ class Prime:
         self.runner.run_command(
             cmd=command
         )
-        try:
-            results = pd.read_csv(outtmp, sep="\t", comment="#")
-        except EmptyDataError:
-            message = "Results from PRIME are empty, something went wrong [{}]. MHC I alleles {}, ligands {}".format(
-                " ".join(command), ",".join(mhc_alleles), potential_ligand_sequences
-            )
-            logger.error(message)
-            results = pd.DataFrame()
+        results = self._parse_prime_output(filename=outtmp)
         os.remove(outtmp)
         return results
 
     def run(self, mutation: Mutation, mhc: List[Mhc1], uniprot):
         """Wrapper PRIME prediction, extraction of best epitope per mutations"""
-        best_peptide = None
-        best_rank = None
-        best_allele = None
-        best_score = None
+        # TODO: get rid of this
+        self.results = None
 
         if not EpitopeHelper.contains_rare_amino_acid(mutation.mutated_xmer):
             potential_ligand_sequences = EpitopeHelper.generate_nmers(
@@ -117,37 +131,24 @@ class Prime:
             if len(potential_ligand_sequences) > 0:
                 mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])
                 if len(mhc1_alleles) > 0:
-                    results = self._prime(mhc1_alleles, potential_ligand_sequences)
-                    try:
-                        # get best result by maximum score
-                        best_result = results[results[SCORE] == results[SCORE].max()]
-                        best_peptide = best_result[PEPTIDE].iat[0]
-                        best_rank = best_result[RANK].iat[0]
-                        # normalize the HLA allele name
-                        best_allele = self.mhc_parser.parse_mhc_allele(best_result[ALLELE].iat[0]).name
-                        best_score = best_result[SCORE].iat[0]
-                    except (IndexError, KeyError):
-                        logger.info("PRIME returned no best result")
+                    self.results = self._prime(mhc1_alleles, potential_ligand_sequences)
                 else:
                     logger.warning("None of the MHC I alleles are supported by PRIME")
 
-        return best_peptide, best_rank, best_allele, best_score
+    def get_annotations(self) -> List[Annotation]:
 
-    def get_annotations(self, mutation: Mutation, mhc: List[Mhc1], uniprot) -> List[Annotation]:
-        best_peptide, best_rank, best_allele, best_score = self.run(
-            mhc=mhc, mutation=mutation, uniprot=uniprot
-        )
+        best_result = EpitopeHelper.select_best_by_affinity(predictions=self.results, maximum=True)
         return [
             AnnotationFactory.build_annotation(
-                value=best_peptide, name="PRIME_best_peptide"
+                value=best_result.mutated_peptide, name="PRIME_best_peptide"
             ),
             AnnotationFactory.build_annotation(
-                value=best_score, name="PRIME_best_score"
+                value=best_result.affinity_mutated, name="PRIME_best_score"
             ),
             AnnotationFactory.build_annotation(
-                value=best_rank, name="PRIME_best_rank"
+                value=best_result.rank_mutated, name="PRIME_best_rank"
             ),
             AnnotationFactory.build_annotation(
-                value=best_allele, name="PRIME_best_allele"
+                value=best_result.allele_mhc_i.name, name="PRIME_best_allele"
             ),
         ]

@@ -24,6 +24,11 @@ import os
 
 from Bio.Data import IUPACData
 
+from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.model.neoantigen import PredictedEpitope
+
+from functools import lru_cache
+
 MAT = "SIRdata.mat"
 GENES_EXPRESSION_PICKLE = "genes-expression.pickle"
 ACIDS_FEATURES_PICKLE = "amino-acids-features.pickle"
@@ -121,26 +126,26 @@ class Preprocessor(object):
             ]
         )
 
-    def main(self, f_name):
-        lst_data = []
-        with open(f_name, "r") as f:
-            for row in f:
-                gene_name, sequence, aa_subs = row.split()
-                seq_arr = self.seq2bin(sequence)
-                # tap score
-                tap_mat = self.load_data.get("tap")
-                tap_score = tap_mat.dot(seq_arr.T).ravel()
-                # cleavge score
-                clv_mat = self.load_data.get("clv")
-                clv_mat = clv_mat[0, 20:200]
-                clv_score = clv_mat.dot(seq_arr.T).ravel()
+    def main(self, gene: str, epitope: PredictedEpitope):
 
-                features_aa = self.get_properties(aa_subs)
-                # expresion
-                expression_value = self.get_gene_expression(gene_name)
+        seq_arr = self.seq2bin(epitope.mutated_peptide)
+        # tap score
+        tap_mat = self.load_data.get("tap")
+        tap_score = tap_mat.dot(seq_arr.T).ravel()
+        # cleavge score
+        clv_mat = self.load_data.get("clv")
+        clv_mat = clv_mat[0, 20:200]
+        clv_score = clv_mat.dot(seq_arr.T).ravel()
 
-                lst_data.append(
-                    np.hstack((expression_value, features_aa, clv_score, tap_score))
-                )
-                mat_features = np.asarray(lst_data)
+        position_of_mutation = EpitopeHelper.position_of_mutation_epitope(epitope=epitope)
+        wild_type_aminoacid = epitope.wild_type_peptide[position_of_mutation - 1]  # it is 1-based
+        mutated_aminoacid = epitope.mutated_peptide[position_of_mutation - 1]
+        features_aa = self.get_properties(wild_type_aminoacid + mutated_aminoacid)
+        # expresion
+        expression_value = self.get_gene_expression(gene)
+
+        result = np.hstack((expression_value, features_aa, clv_score, tap_score))
+
+        mat_features = np.asarray([result])
+
         return mat_features

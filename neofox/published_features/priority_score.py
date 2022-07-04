@@ -23,7 +23,7 @@ import math
 from typing import List
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
@@ -96,18 +96,18 @@ class PriorityScore:
         """
         num_mismatches_mhc1 = None
         priority_score = None
-        if netmhcpan.best_wt_epitope_by_rank.peptide and netmhcpan.best_epitope_by_rank.peptide:
+        if netmhcpan.best_epitope_by_rank.wild_type_peptide and netmhcpan.best_epitope_by_rank.mutated_peptide:
             num_mismatches_mhc1 = EpitopeHelper.number_of_mismatches(
-                epitope_wild_type=netmhcpan.best_wt_epitope_by_rank.peptide,
-                epitope_mutation=netmhcpan.best_epitope_by_rank.peptide,
+                epitope_wild_type=netmhcpan.best_epitope_by_rank.wild_type_peptide,
+                epitope_mutation=netmhcpan.best_epitope_by_rank.mutated_peptide,
             )
             priority_score = self.calc_priority_score(
                         vaf_tumor=vaf_tum,
                         vaf_rna=vaf_transcr,
                         transcript_expr=expr,
                         no_mismatch=num_mismatches_mhc1,
-                        score_mut=netmhcpan.best_epitope_by_rank.rank,
-                        score_wt=netmhcpan.best_wt_epitope_by_rank.rank,
+                        score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
+                        score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
                         mut_not_in_prot=mut_not_in_prot,
                     )
         annotations = [
@@ -121,3 +121,19 @@ class PriorityScore:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, neoantigen: Neoantigen, vaf_rna) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calc_priority_score(
+                    vaf_tumor=neoantigen.dna_variant_allele_frequency,
+                    vaf_rna=vaf_rna,
+                    transcript_expr=neoantigen.rna_expression,
+                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                name='Priority_score')
+            ]

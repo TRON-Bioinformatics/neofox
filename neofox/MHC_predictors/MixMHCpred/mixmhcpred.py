@@ -22,7 +22,7 @@ from pandas.errors import EmptyDataError
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation
+from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -38,11 +38,14 @@ SCORE = "Score_bestAllele"
 
 
 class MixMHCpred:
+
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
         self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
+
+        self.results = None
 
     def _load_available_alleles(self):
         """
@@ -64,9 +67,26 @@ class MixMHCpred:
             )
         )
 
-    def _mixmhcprediction(
-        self, mhc_alleles: List[str], potential_ligand_sequences
-    ) -> pd.DataFrame:
+    def _parse_mixmhcpred_output(self, filename: str) -> List[PredictedEpitope]:
+
+        parsed_results = []
+        try:
+            results = pd.read_csv(filename, sep="\t", comment="#")
+        except EmptyDataError:
+            logger.error("Results from MixMHCpred are empty, something went wrong")
+            results = pd.DataFrame()
+
+        for _, row in results.iterrows():
+            parsed_results.append(
+                PredictedEpitope(
+                    allele_mhc_i=self.mhc_parser.parse_mhc_allele(row[ALLELE]),
+                    mutated_peptide=row[PEPTIDE],
+                    affinity_mutated=float(row[SCORE]),
+                    rank_mutated=float(row[RANK]),
+                ))
+        return parsed_results
+
+    def _mixmhcprediction(self, mhc_alleles: List[str], potential_ligand_sequences) -> List[PredictedEpitope]:
         """
         Performs MixMHCpred prediction for desired hla allele and writes result to temporary file.
         """
@@ -86,59 +106,41 @@ class MixMHCpred:
         self.runner.run_command(
             cmd=command
         )
-        try:
-            results = pd.read_csv(outtmp, sep="\t", comment="#")
-        except EmptyDataError:
-            message = "Results from MixMHCpred are empty, something went wrong [{}]. MHC I alleles {}, ligands {}".format(
-                " ".join(command), ",".join(mhc_alleles), potential_ligand_sequences
-            )
-            logger.error(message)
-            results = pd.DataFrame()
+        results = self._parse_mixmhcpred_output(filename=outtmp)
         os.remove(outtmp)
         return results
 
     def run(self, mutation: Mutation, mhc: List[Mhc1], uniprot):
         """Wrapper for MHC binding prediction, extraction of best epitope and check if mutation is directed to TCR"""
-        best_peptide = None
-        best_rank = None
-        best_allele = None
-        best_score = None
+
+        # TODO: get rid of this
+        self.results = None
+
+        # TODO: we may want to extend this to 8 to 14 bp (coordinate this with netMHCpan)
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
             mutation=mutation, lengths=[8, 9, 10, 11], uniprot=uniprot
         )
         if len(potential_ligand_sequences) > 0:
             mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])
             if len(mhc1_alleles) > 0:
-                results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
-                try:
-                    # get best result by maximum score
-                    best_result = results[results[SCORE] == results[SCORE].max()]
-                    best_peptide = best_result[PEPTIDE].iat[0]
-                    best_rank = best_result[RANK].iat[0]
-                    # normalize the HLA allele name
-                    best_allele = self.mhc_parser.parse_mhc_allele(best_result[ALLELE].iat[0]).name
-                    best_score = best_result[SCORE].iat[0]
-                except (IndexError, KeyError):
-                    logger.info("MixMHCpred returned no best result")
+                self.results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
             else:
                 logger.warning("None of the MHC I alleles are supported by MixMHCpred")
-        return best_peptide, best_rank, best_allele, best_score
 
-    def get_annotations(self, mutation: Mutation, mhc: List[Mhc1], uniprot) -> List[Annotation]:
-        best_peptide, best_rank, best_allele, best_score = self.run(
-            mhc=mhc, mutation=mutation, uniprot=uniprot
-        )
+    def get_annotations(self) -> List[Annotation]:
+
+        best_result = EpitopeHelper.select_best_by_affinity(predictions=self.results, maximum=True)
         return [
             AnnotationFactory.build_annotation(
-                value=best_peptide, name="MixMHCpred_best_peptide"
+                value=best_result.mutated_peptide, name="MixMHCpred_best_peptide"
             ),
             AnnotationFactory.build_annotation(
-                value=best_score, name="MixMHCpred_best_score"
+                value=best_result.affinity_mutated, name="MixMHCpred_best_score"
             ),
             AnnotationFactory.build_annotation(
-                value=best_rank, name="MixMHCpred_best_rank"
+                value=best_result.rank_mutated, name="MixMHCpred_best_rank"
             ),
             AnnotationFactory.build_annotation(
-                value=best_allele, name="MixMHCpred_best_allele"
+                value=best_result.allele_mhc_i.name, name="MixMHCpred_best_allele"
             ),
         ]

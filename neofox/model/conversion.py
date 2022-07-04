@@ -20,7 +20,7 @@ from typing import List
 import pandas as pd
 import betterproto
 from betterproto import Casing
-from neofox import NOT_AVAILABLE_VALUE
+from neofox import NOT_AVAILABLE_VALUE, MHC_II, MHC_I
 from collections import defaultdict
 import orjson as json
 import numpy as np
@@ -143,7 +143,7 @@ class ModelConverter(object):
         return [o.to_dict(casing=Casing.SNAKE) for o in model_objects]
 
     @staticmethod
-    def annotations2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
+    def annotations2neoantigens_table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
         dfs = []
         neoantigens_df = ModelConverter._neoantigens2table(neoantigens)
         neoantigens_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
@@ -174,6 +174,49 @@ class ModelConverter(object):
         df = pd.concat([neoantigens_df, neofox_annotations_df], axis=1)
         df.replace('None', NOT_AVAILABLE_VALUE, inplace=True)
         return df
+
+    @staticmethod
+    def annotations2epitopes_table(neoantigens: List[Neoantigen], mhc: str) -> pd.DataFrame:
+
+        assert(mhc in [MHC_I, MHC_II], 'Bad MHC value')
+
+        epitopes_dfs = []
+        for n in neoantigens:
+            # parses epitopes from a neoantigen into a data frame
+            patient_identifier = n.patient_identifier
+            epitopes = n.neoepitopes_mhc_i if mhc == MHC_I else n.neoepitopes_mhc_i_i
+            epitopes_temp_df = ModelConverter._objects2dataframe(epitopes)
+            epitopes_temp_df['patient_identifier'] = patient_identifier
+
+            # adapts output table depending on MHC type
+            if mhc == MHC_I:
+                epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='isoformMhcII.*')), axis=1, inplace=True)
+            else:
+                epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='alleleMhcI.*')), axis=1, inplace=True)
+
+            # annotations need a custom parsing, thus we remove these columns
+            epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='neofoxAnnotations.*')), axis=1, inplace=True)
+
+            # parses the annotations from each of the epitopes into a data frame
+            annotations_dfs = []
+            for e in epitopes:
+                annotations = [a.to_dict() for a in e.neofox_annotations.annotations]
+                annotations_temp_df = (pd.DataFrame(annotations).set_index("name").transpose())
+                annotations_dfs.append(annotations_temp_df)
+            if len(annotations_dfs) > 0:
+                annotations_df = pd.concat(annotations_dfs, sort=True).reset_index()
+                del annotations_df["index"]
+
+                # puts together both data frames
+                epitopes_temp_df = pd.concat([epitopes_temp_df, annotations_df], axis=1)
+
+            epitopes_temp_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
+            epitopes_dfs.append(epitopes_temp_df)
+
+        # concatenates all together
+        epitopes_df = pd.concat(epitopes_dfs)
+
+        return epitopes_df
 
     @staticmethod
     def patients2table(patients: List[Patient]) -> pd.DataFrame:
