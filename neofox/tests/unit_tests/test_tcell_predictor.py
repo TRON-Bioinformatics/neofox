@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from unittest import TestCase
+
+from neofox.model.neoantigen import PredictedEpitope
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
     TcellPrediction,
 )
@@ -26,75 +28,56 @@ class TestTCellPredictor(TestCase):
     def setUp(self) -> None:
         self.tcell_predictor = TcellPrediction()
 
-    # TODO: Franzis maybe you can add some more sensible tests here?
+    # TODO: Franzi maybe you can add some more sensible tests here?
 
     def test_non_existing_gene(self):
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+        result = TcellPrediction().calculate_tcell_predictor_score(
             gene="BLAH",
-            substitution="blaaaah",
-            epitope="BLAHBLAH",
-            score=5
+            epitope=PredictedEpitope(wild_type_peptide="BLAHBLAH", mutated_peptide="blaaaah", affinity_mutated=5)
         )
         self.assertEqual(None, result)
 
     def test_empty_gene(self):
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+        result = TcellPrediction().calculate_tcell_predictor_score(
             gene=None,
-            substitution="blaaaah",
-            epitope="BLAHBLAH",
-            score=5
+            epitope=PredictedEpitope(wild_type_peptide="BLAHBLAH", mutated_peptide="blaaaah", affinity_mutated=5)
         )
         self.assertEqual(None, result)
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+        result = TcellPrediction().calculate_tcell_predictor_score(
             gene="",
-            substitution="blaaaah",
-            epitope="BLAHBLAH",
-            score=5
+            epitope=PredictedEpitope(wild_type_peptide="BLAHBLAH", mutated_peptide="blaaaah", affinity_mutated=5)
         )
         self.assertEqual(None, result)
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+        result = TcellPrediction().calculate_tcell_predictor_score(
             gene="   ",
-            substitution="blaaaah",
-            epitope="BLAHBLAH",
-            score=5
+            epitope=PredictedEpitope(wild_type_peptide="BLAHBLAH", mutated_peptide="blaaaah", affinity_mutated=5)
         )
         self.assertEqual(None, result)
 
     def test_existing_gene_with_too_short_epitope(self):
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
-            gene="BRCA2", substitution="C", epitope="CCCCCC", score=5
+        result = TcellPrediction().calculate_tcell_predictor_score(
+            gene="BRCA2",
+            epitope=PredictedEpitope(wild_type_peptide="CCCCCC", mutated_peptide="CCVCCC", affinity_mutated=5)
         )
         self.assertEqual(None, result)
 
     def test_existing_gene_with_too_long_epitope(self):
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
-            gene="BRCA2", substitution="C", epitope="CCCCCCCCCC", score=5
+        result = TcellPrediction().calculate_tcell_predictor_score(
+            gene="BRCA2",
+            epitope=PredictedEpitope(wild_type_peptide="CCCCCCCCCC", mutated_peptide="CCCCCVCCCC", affinity_mutated=5)
         )
         self.assertEqual(None, result)
 
     def test_existing_gene(self):
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+        result = TcellPrediction().calculate_tcell_predictor_score(
             gene="BRCA2",
-            substitution="CCCCVCCCC",
-            epitope="CCCCCCCCC",
-            score=5
+            epitope=PredictedEpitope(wild_type_peptide="CCCCCCCCC", mutated_peptide="CCCCVCCCC", affinity_mutated=5)
         )
-        self.assertAlmostEqual(0.2453409331088489, float(result))
+        self.assertAlmostEqual(0.30162944008956233, float(result))
 
     def test_rare_aminoacid(self):
-        result = TcellPrediction(affinity_threshold=10)._calculate_tcell_predictor_score(
+        result = TcellPrediction().calculate_tcell_predictor_score(
             gene="BRCA2",
-            substitution="CU",
-            epitope="CCCCUCCCC",
-            score=5
-        )
-        self.assertIsNone(result)
-
-    def test_affinity_threshold(self):
-        result = TcellPrediction(affinity_threshold=1)._calculate_tcell_predictor_score(
-            gene="BRCA2",
-            substitution="CCCCVCCCC",
-            epitope="CCCCCCCCC",
-            score=5
+            epitope=PredictedEpitope(wild_type_peptide="CCCCCCCCC", mutated_peptide="CCCCUCCCC", affinity_mutated=5)
         )
         self.assertIsNone(result)

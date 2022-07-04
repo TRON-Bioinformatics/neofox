@@ -22,10 +22,7 @@ import neofox.tests
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    PredictedEpitope,
-)
-from neofox.model.neoantigen import Resource
+from neofox.model.neoantigen import Resource, PredictedEpitope
 from neofox.references.references import (
     ReferenceFolder,
     AvailableAlleles,

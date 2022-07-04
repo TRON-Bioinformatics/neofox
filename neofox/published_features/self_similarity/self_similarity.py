@@ -20,9 +20,8 @@
 from typing import List
 import math
 import os
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.model.validation import ModelValidator
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 
 
@@ -137,27 +136,24 @@ class SelfSimilarityCalculator:
         return result
 
     def get_annnotations(
-            self, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhci: PredictedEpitope,
-            mutated_peptide_mhcii: PredictedEpitope, wt_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
+            self, epitope_mhci: PredictedEpitope, epitope_mhcii: PredictedEpitope) -> List[Annotation]:
 
         improved_binding_mhci = None
         self_similarity_mhci = None
         self_similarity_mhcii = None
-        if mutated_peptide_mhci and wt_peptide_mhci and \
-                mutated_peptide_mhci.peptide and wt_peptide_mhci.peptide:
+        if epitope_mhci and epitope_mhci.mutated_peptide and epitope_mhci.wild_type_peptide:
             improved_binding_mhci = self.is_improved_binder(
-                score_mutation=mutated_peptide_mhci.rank,
-                score_wild_type=wt_peptide_mhci.rank,
+                score_mutation=epitope_mhci.rank_mutated,
+                score_wild_type=epitope_mhci.rank_wild_type,
             )
             self_similarity_mhci = self.get_self_similarity(
-                mutated_peptide=mutated_peptide_mhci.peptide,
-                wt_peptide=wt_peptide_mhci.peptide,
+                mutated_peptide=epitope_mhci.mutated_peptide,
+                wt_peptide=epitope_mhci.wild_type_peptide,
             )
-        if mutated_peptide_mhcii and wt_peptide_mhcii and \
-                mutated_peptide_mhcii.peptide and wt_peptide_mhcii.peptide:
+        if epitope_mhcii and epitope_mhcii.mutated_peptide and epitope_mhcii.wild_type_peptide:
             self_similarity_mhcii = self.get_self_similarity(
-                mutated_peptide=mutated_peptide_mhcii.peptide,
-                wt_peptide=wt_peptide_mhcii.peptide,
+                mutated_peptide=epitope_mhcii.mutated_peptide,
+                wt_peptide=epitope_mhcii.wild_type_peptide,
             )
         annotations = [
             AnnotationFactory.build_annotation(
@@ -178,3 +174,26 @@ class SelfSimilarityCalculator:
             ),
         ]
         return annotations
+
+    def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.get_self_similarity(
+                    mutated_peptide=epitope.mutated_peptide, wt_peptide=epitope.wild_type_peptide),
+                name='Selfsimilarity')
+            ]
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        is_improved_binder = self.is_improved_binder(
+            score_mutation=epitope.rank_mutated, score_wild_type=epitope.rank_wild_type)
+        self_similarity = self.get_self_similarity(
+            mutated_peptide=epitope.mutated_peptide, wt_peptide=epitope.wild_type_peptide)
+
+        return [
+            AnnotationFactory.build_annotation(value=is_improved_binder, name='Improved_Binder_MHCI'),
+            AnnotationFactory.build_annotation(value=self_similarity, name='Selfsimilarity'),
+            AnnotationFactory.build_annotation(
+                value=self.self_similarity_of_conserved_binder_only(
+                    similarity=self_similarity, is_improved_binder=is_improved_binder),
+                name='Selfsimilarity_conserved_binder')
+        ]

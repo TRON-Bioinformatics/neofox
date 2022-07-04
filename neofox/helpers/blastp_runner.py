@@ -33,6 +33,7 @@ class BlastpRunner(object):
         self.runner = runner
         self.configuration = configuration
         self.database = database
+        self.cache_homologous_epitopes = {}
 
     def calculate_similarity_database(self, peptide, a=26) -> float:
         """
@@ -71,26 +72,30 @@ class BlastpRunner(object):
         return similarity_score
 
     def get_most_similar_wt_epitope(self, peptide):
-        cmd = [
-            self.configuration.blastp,
-            "-outfmt",
-            "15",
-            "-db",
-            self.database,
-            "-evalue",
-            "100000000",
-            "-qcov_hsp_perc",
-            "100",
-            "-comp_based_stats F",
-            "-num_alignments 1",
-            "-ungapped"
-        ]
+        if peptide not in self.cache_homologous_epitopes:
+            cmd = [
+                self.configuration.blastp,
+                "-outfmt",
+                "15",
+                "-db",
+                self.database,
+                "-evalue",
+                "100000000",
+                "-qcov_hsp_perc",
+                "100",
+                "-comp_based_stats F",
+                "-num_alignments 1",
+                "-ungapped"
+            ]
 
-        hits = self._run_blastp(cmd=cmd, peptide=peptide, print_log=True)
-        wt_peptide = None
-        if hits is not None and len(hits) > 0:
-            best_hit = hits[0]
-            wt_peptide = best_hit.get("hsps")[0].get("hseq")
+            hits = self._run_blastp(cmd=cmd, peptide=peptide, print_log=True)
+            wt_peptide = None
+            if hits is not None and len(hits) > 0:
+                best_hit = hits[0]
+                wt_peptide = best_hit.get("hsps")[0].get("hseq")
+            self.cache_homologous_epitopes[peptide] = wt_peptide
+        else:
+            wt_peptide = self.cache_homologous_epitopes.get(peptide)
         return wt_peptide
 
     def _run_blastp(self, cmd, peptide, print_log=True):
