@@ -74,6 +74,7 @@ class EpitopeHelper(object):
     def position_of_mutation_epitope(epitope: PredictedEpitope) -> int:
         """
         This function determines the position of the mutation within the epitope sequence.
+        When multiple mutations are present it returns the last position
         """
         # TODO: is this efficient? No, a solution with zip is around 25% faster, maybe something else is even faster
         position = -1

@@ -26,6 +26,7 @@ from neofox.exceptions import NeofoxConfigurationException
 from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV, NEOFOX_PRIME_ENV
 
 import neofox.tests
+from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import Neoantigen, Mutation, Patient
 from neofox.model.factories import NOT_AVAILABLE_VALUE, PatientFactory, MhcFactory
@@ -569,13 +570,14 @@ class TestNeofox(TestCase):
         shoudl just run, but without these annotations in the output
         """
         annotations = NeoFox(
-            neoantigens=self.neoantigens[0:2],  # only two as this is quite slow
+            neoantigens=self.neoantigens[2:3],  # only one as this is quite slow, the first one is an indel!
             patient_id=self.patient_id,
             patients=self.patients,
             num_cpus=4,
             with_all_neoepitopes=True
         ).get_annotations()
 
+        found_recognition_potential = False
         self.assertIsNotNone(annotations)
         for n in annotations:
             self.assertIsNotNone(n.neoepitopes_mhc_i)
@@ -592,6 +594,9 @@ class TestNeofox(TestCase):
                 self.assertNotEqual(e.allele_mhc_i.name, '')
                 self.assertIsNotNone(e.isoform_mhc_i_i)
                 self.assertEqual(e.isoform_mhc_i_i.name, '')
+                recognition_potential = EpitopeHelper.get_annotation_by_name(
+                    e.neofox_annotations.annotations, name='recognition_potential')
+                found_recognition_potential = found_recognition_potential or recognition_potential != 'NA'
             for e in n.neoepitopes_mhc_i_i:
                 self.assertIsNotNone(e.mutated_peptide)
                 self.assertIsNotNone(e.wild_type_peptide)
@@ -604,6 +609,8 @@ class TestNeofox(TestCase):
                 self.assertEqual(e.allele_mhc_i.name, '')
                 self.assertIsNotNone(e.isoform_mhc_i_i)
                 self.assertNotEqual(e.isoform_mhc_i_i.name, '')
+
+        self.assertTrue(found_recognition_potential)
 
         df_epitopes_mhci = ModelConverter.annotations2epitopes_table(annotations, mhc=neofox.MHC_I)
         self.assertFalse(any(c.startswith('isoformMhcII') for c in df_epitopes_mhci.columns))

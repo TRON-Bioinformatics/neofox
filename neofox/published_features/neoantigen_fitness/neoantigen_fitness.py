@@ -132,8 +132,8 @@ class NeoantigenFitnessCalculator:
         try:
             amplitude = float(EpitopeHelper.get_annotation_by_name(
                 epitope.neofox_annotations.annotations, name='amplitude'))
-            mutation_in_anchor = bool(EpitopeHelper.get_annotation_by_name(
-                epitope.neofox_annotations.annotations, name='anchor_mutated'))
+            mutation_in_anchor = bool(int(EpitopeHelper.get_annotation_by_name(
+                epitope.neofox_annotations.annotations, name='anchor_mutated')))
         except ValueError:
             return [
                 pathogen_similarity_annotation
