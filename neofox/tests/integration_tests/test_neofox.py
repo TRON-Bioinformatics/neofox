@@ -98,9 +98,7 @@ class TestNeofox(TestCase):
 
     def test_neofox(self):
         """
-        This test is equivalent to the command line call:
-        neofox --candidate-file /projects/SUMMIT/WP1.2/neofox/development/Pt29.sequences4testing.txt --patient-id Pt29
-        --patients-data ../resources/patient.pt29.csv
+        This test is equivalent to the command line call of neofox
 
         NOTE: we will need to check the output when the calculation of resuls and printing to stdout have been decoupled
         """
@@ -109,10 +107,6 @@ class TestNeofox(TestCase):
             "resources/output_{:%Y%m%d%H%M%S}_neoantigen_candidates_annotated.tsv".format(
                 datetime.now()
             ),
-        )
-        output_file_neoantigens = pkg_resources.resource_filename(
-            neofox.tests.__name__,
-            "resources/output_{:%Y%m%d%H%M%S}.neoantigens.tsv".format(datetime.now()),
         )
         output_json_neoantigens = pkg_resources.resource_filename(
             neofox.tests.__name__,
@@ -143,7 +137,7 @@ class TestNeofox(TestCase):
         # writes output
         ModelConverter.annotations2neoantigens_table(neoantigens=annotations).to_csv(
             output_file, sep="\t", index=False)
-        ModelConverter._objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
+
         with open(output_json_neoantigens, "wb") as f:
             f.write(json.dumps(ModelConverter.objects2json(annotations)))
 
@@ -157,10 +151,7 @@ class TestNeofox(TestCase):
                 datetime.now()
             ),
         )
-        output_file_neoantigens = pkg_resources.resource_filename(
-            neofox.tests.__name__,
-            "resources/output_mouse_{:%Y%m%d%H%M%S}.neoantigens.tsv".format(datetime.now()),
-        )
+
         output_json_neoantigens = pkg_resources.resource_filename(
             neofox.tests.__name__,
             "resources/output_mouse_{:%Y%m%d%H%M%S}.neoantigen_candidates.json".format(
@@ -183,7 +174,7 @@ class TestNeofox(TestCase):
         # writes output
         ModelConverter.annotations2neoantigens_table(neoantigens=annotations).to_csv(
             output_file, sep="\t", index=False)
-        ModelConverter._objects2dataframe(annotations).to_csv(output_file_neoantigens, sep="\t", index=False)
+
         with open(output_json_neoantigens, "wb") as f:
             f.write(json.dumps(ModelConverter.objects2json(annotations)))
 
