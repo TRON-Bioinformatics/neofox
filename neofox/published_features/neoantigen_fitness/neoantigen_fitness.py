@@ -61,12 +61,7 @@ class NeoantigenFitnessCalculator:
     def _calculate_correction(self, score_wild_type):
         return 1 / (1 + 0.0003 * float(score_wild_type))
 
-    def calculate_recognition_potential(
-        self,
-        amplitude: float,
-        pathogen_similarity: float,
-        mutation_in_anchor: bool
-    ):
+    def calculate_recognition_potential(self, amplitude: float, pathogen_similarity: float):
         """
         This function calculates the recognition potential, defined by the product of amplitude and pathogensimiliarity
         of an epitope according to Balachandran et al.
@@ -76,15 +71,13 @@ class NeoantigenFitnessCalculator:
         """
         recognition_potential = None
         try:
-            if not mutation_in_anchor:
-                recognition_potential = amplitude * pathogen_similarity
+            recognition_potential = amplitude * pathogen_similarity
         except (ValueError, TypeError):
             pass
         return recognition_potential
 
     def get_annotations(
-            self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope,
-            amplitude, mutation_in_anchor
+            self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope, amplitude
     ) -> List[Annotation]:
         pathogen_similarity_9mer = None
         pathogen_similarity_mhcii = None
@@ -94,8 +87,7 @@ class NeoantigenFitnessCalculator:
             if pathogen_similarity_9mer is not None:
                 recognition_potential = self.calculate_recognition_potential(
                             amplitude=amplitude,
-                            pathogen_similarity=pathogen_similarity_9mer,
-                            mutation_in_anchor=mutation_in_anchor
+                            pathogen_similarity=pathogen_similarity_9mer
                         )
         if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
             pathogen_similarity_mhcii = self.get_pathogen_similarity(peptide=mutated_peptide_mhcii.mutated_peptide)
@@ -132,8 +124,6 @@ class NeoantigenFitnessCalculator:
         try:
             amplitude = float(EpitopeHelper.get_annotation_by_name(
                 epitope.neofox_annotations.annotations, name='amplitude'))
-            mutation_in_anchor = bool(int(EpitopeHelper.get_annotation_by_name(
-                epitope.neofox_annotations.annotations, name='anchor_mutated')))
         except ValueError:
             return [
                 pathogen_similarity_annotation
@@ -143,7 +133,6 @@ class NeoantigenFitnessCalculator:
             AnnotationFactory.build_annotation(
                 value=self.calculate_recognition_potential(
                     amplitude=amplitude, pathogen_similarity=pathogen_similarity,
-                    mutation_in_anchor=mutation_in_anchor
                 ),
                 name='recognition_potential')
             ]
