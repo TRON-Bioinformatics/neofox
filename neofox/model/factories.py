@@ -59,8 +59,8 @@ class NeoantigenFactory(object):
         neoantigen.imputed_gene_expression = imputed_gene_expression
 
         mutation = Mutation()
-        mutation.wild_type_xmer = wild_type_xmer
-        mutation.mutated_xmer = mutated_xmer
+        mutation.wild_type_xmer = wild_type_xmer.strip().upper() if wild_type_xmer else wild_type_xmer
+        mutation.mutated_xmer = mutated_xmer.strip().upper() if mutated_xmer else mutated_xmer
         mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
         neoantigen.mutation = mutation
 
