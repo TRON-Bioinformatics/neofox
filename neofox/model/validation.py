@@ -197,17 +197,15 @@ class ModelValidator(object):
     def _validate_mutation(mutation: Mutation):
         assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
             "Missing mutated peptide sequence in input (mutation.mutatedXmer) "
-        mutation.mutated_xmer = "".join(
-            [ModelValidator._validate_aminoacid(aa) for aa in mutation.mutated_xmer]
-        )
+
+        for aa in mutation.mutated_xmer:
+            ModelValidator._validate_aminoacid(aa)
+
         # avoids this validation when there is no wild type
         if mutation.wild_type_xmer:
-            mutation.wild_type_xmer = "".join(
-                [
-                    ModelValidator._validate_aminoacid(aa)
-                    for aa in mutation.wild_type_xmer
-                ]
-            )
+            for aa in mutation.wild_type_xmer:
+                ModelValidator._validate_aminoacid(aa)
+
         assert mutation.position is not None and mutation.position != "", \
             "The position of the mutation is empty, please use EpitopeHelper.mut_position_xmer_seq() to fill it"
 
@@ -221,7 +219,6 @@ class ModelValidator(object):
     @staticmethod
     def _validate_aminoacid(aminoacid):
         assert aminoacid is not None, "Amino acid field cannot be empty"
-        aminoacid = aminoacid.strip()
         assert isinstance(aminoacid, str), "Amino acid has to be a string"
         # this chunk is unused but let's leave in case it is handy in the future
         if len(aminoacid) == 3:
@@ -231,13 +228,11 @@ class ModelValidator(object):
             assert aminoacid != "X", "Unknown amino acid X is not supported. Please, remove neoantigens containing an X."
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
-            aminoacid = aminoacid.upper()
             assert (
                 aminoacid in ExtendedIUPACProtein.letters
             ), "Non existing aminoacid {}".format(aminoacid)
         else:
             assert False, "Invalid aminoacid {}".format(aminoacid)
-        return aminoacid
 
 
     @staticmethod
