@@ -1,11 +1,8 @@
 from unittest import TestCase
 
 from neofox.model.factories import NeoantigenFactory, PatientFactory
-from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Neoantigen, Patient
-from neofox.neofox import NeoFox
 from neofox.tests.fake_classes import FakeHlaDatabase
-from neofox.tests.integration_tests import integration_test_tools
 
 
 class TestApi(TestCase):
@@ -62,3 +59,35 @@ class TestApi(TestCase):
             mhc2_alleles=["HLA-DRB1*01:01"],
             mhc_database=self.hla_database)
         self.assertIsInstance(patient, Patient)
+
+    def test_normalisation_and_position(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            mutated_xmer="aaaaaaaaaaaaaaa",
+            wild_type_xmer="AAAAAAGAAAAAAAA",
+            patient_identifier="123")
+        self.assertIsInstance(neoantigen, Neoantigen)
+        self.assertEqual(neoantigen.mutation.position, [7])
+
+    def test_multiple_positions(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            mutated_xmer="aaaaaaaaaaaaaaa",
+            wild_type_xmer="AAAAAAGAAAAgAAA",
+            patient_identifier="123")
+        self.assertIsInstance(neoantigen, Neoantigen)
+        self.assertEqual(neoantigen.mutation.position, [7, 12])
+
+    def test_insertion(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            mutated_xmer="aaaaaaaaaaaaaaa",
+            wild_type_xmer="AAAAAAGAAAAgA",
+            patient_identifier="123")
+        self.assertIsInstance(neoantigen, Neoantigen)
+        self.assertEqual(neoantigen.mutation.position, [7, 12])
+
+    def test_deletion(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            mutated_xmer="aaaaaaaaaaaaa",
+            wild_type_xmer="AAAAAAGAAAAgAAA",
+            patient_identifier="123")
+        self.assertIsInstance(neoantigen, Neoantigen)
+        self.assertEqual(neoantigen.mutation.position, [7, 12])
