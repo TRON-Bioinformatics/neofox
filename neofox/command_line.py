@@ -72,14 +72,11 @@ def neofox_cli():
         epilog=epilog
     )
     parser.add_argument(
-        "--candidate-file",
-        dest="candidate_file",
-        help="input file with neoantigens candidates represented by long mutated peptide sequences",
-    )
-    parser.add_argument(
-        "--json-file",
-        dest="json_file",
-        help="input JSON file with neoantigens candidates represented by long mutated peptide sequences",
+        "--input-file",
+        dest="input_file",
+        help="Input file with neoantigens candidates represented by long mutated peptide sequences. "
+             "Supported formats: tab-separated columns (extensions: .txt or .tsv) or JSON (extension: .json)",
+        required=True,
     )
     parser.add_argument(
         "--patient-data",
@@ -96,19 +93,6 @@ def neofox_cli():
         dest="output_prefix",
         help="prefix to name output files in the output folder",
         default="neofox",
-    )
-    parser.add_argument(
-        "--with-table",
-        dest="with_table",
-        action="store_true",
-        help="output results in a short wide tab-separated table "
-        "(if no format is specified this is the default)",
-    )
-    parser.add_argument(
-        "--with-json",
-        dest="with_json",
-        action="store_true",
-        help="output results in JSON format",
     )
     parser.add_argument(
         "--with-all-neoepitopes",
@@ -159,14 +143,11 @@ def neofox_cli():
     )
     args = parser.parse_args()
 
-    candidate_file = args.candidate_file
-    json_file = args.json_file
+    input_file = args.input_file
     patient_id = args.patient_id
     patients_data = args.patients_data
     output_folder = args.output_folder
     output_prefix = args.output_prefix
-    with_table = args.with_table
-    with_json = args.with_json
     with_all_neoepitopes = args.with_all_neoepitopes
     rank_mhci_threshold = float(args.rank_mhci_threshold)
     rank_mhcii_threshold = float(args.rank_mhcii_threshold)
@@ -175,18 +156,6 @@ def neofox_cli():
     organism = args.organism
 
     try:
-        # check parameters
-        if bool(candidate_file) + bool(json_file) > 1:
-            raise NeofoxInputParametersException(
-                "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them"
-            )
-        if not candidate_file and not json_file:
-            raise NeofoxInputParametersException(
-                "Please, define one input file, either a candidate file, a standard input file or a JSON file"
-            )
-        if not with_table and not with_json:
-            with_table = True  # if none specified short wide is the default
-
         # makes sure that the output folder exists
         os.makedirs(output_folder, exist_ok=True)
 
@@ -203,8 +172,7 @@ def neofox_cli():
 
         # reads the input data
         neoantigens, patients = _read_data(
-            candidate_file,
-            json_file,
+            input_file,
             patients_data,
             patient_id,
             reference_folder.get_mhc_database())
@@ -226,8 +194,6 @@ def neofox_cli():
             neoantigens=annotated_neoantigens,
             output_folder=output_folder,
             output_prefix=output_prefix,
-            with_json=with_json,
-            with_table=with_table,
             with_all_neoepitopes=with_all_neoepitopes
         )
     except Exception as e:
@@ -238,7 +204,7 @@ def neofox_cli():
 
 
 def _read_data(
-    candidate_file, json_file, patients_data, patient_id, mhc_database: MhcDatabase
+    input_file, patients_data, patient_id, mhc_database: MhcDatabase
 ) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
     logger.info("Parsing patients data from: {}".format(patients_data))
@@ -246,33 +212,34 @@ def _read_data(
     logger.info("Loaded {} patients".format(len(patients)))
 
     # parse the neoantigen candidate data
-    if candidate_file is not None:
-        logger.info("Parsing candidate neoantigens from: {}".format(candidate_file))
-        neoantigens = ModelConverter.parse_candidate_file(candidate_file, patient_id)
+    if input_file.endswith('.txt') or input_file.endswith('.tsv'):
+        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
+        neoantigens = ModelConverter.parse_candidate_file(input_file, patient_id)
+        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
+    elif input_file.endswith('.json')  :
+        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
+        neoantigens = ModelConverter.parse_neoantigens_json_file(input_file)
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     else:
-        logger.info("Parsing candidate neoantigens from: {}".format(json_file))
-        neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
-        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
+        raise ValueError('Not supported input file extension: {}'.format(input_file))
 
     return neoantigens, patients
 
 
-def _write_results(neoantigens, output_folder, output_prefix, with_json, with_table, with_all_neoepitopes):
+def _write_results(neoantigens, output_folder, output_prefix, with_all_neoepitopes):
     # NOTE: this import here is a compromise solution so the help of the command line responds faster
     from neofox.model.conversion import ModelConverter
     # writes the output
-    if with_table:
-        ModelConverter.annotations2neoantigens_table(neoantigens).to_csv(
-            os.path.join(
-                output_folder,
-                "{}_neoantigen_candidates_annotated.tsv".format(output_prefix),
-            ),
-            sep="\t",
-            index=False,
-        )
+    ModelConverter.annotations2neoantigens_table(neoantigens).to_csv(
+        os.path.join(
+            output_folder,
+            "{}_neoantigen_candidates_annotated.tsv".format(output_prefix),
+        ),
+        sep="\t",
+        index=False,
+    )
 
-    if with_all_neoepitopes and with_table:
+    if with_all_neoepitopes:
         ModelConverter.annotations2epitopes_table(neoantigens, mhc=neofox.MHC_I).to_csv(
             os.path.join(
                 output_folder,
@@ -290,7 +257,6 @@ def _write_results(neoantigens, output_folder, output_prefix, with_json, with_ta
             index=False,
         )
 
-    if with_json:
-        output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
-        with open(output_features, "wb") as f:
-            f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
+    output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
+    with open(output_features, "wb") as f:
+        f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
