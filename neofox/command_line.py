@@ -72,14 +72,11 @@ def neofox_cli():
         epilog=epilog
     )
     parser.add_argument(
-        "--candidate-file",
-        dest="candidate_file",
-        help="input file with neoantigens candidates represented by long mutated peptide sequences",
-    )
-    parser.add_argument(
-        "--json-file",
-        dest="json_file",
-        help="input JSON file with neoantigens candidates represented by long mutated peptide sequences",
+        "--input-file",
+        dest="input_file",
+        help="Input file with neoantigens candidates represented by long mutated peptide sequences. "
+             "Supported formats: tab-separated columns (extensions: .txt or .tsv) or JSON (extension: .json)",
+        required=True,
     )
     parser.add_argument(
         "--patient-data",
@@ -146,8 +143,7 @@ def neofox_cli():
     )
     args = parser.parse_args()
 
-    candidate_file = args.candidate_file
-    json_file = args.json_file
+    input_file = args.input_file
     patient_id = args.patient_id
     patients_data = args.patients_data
     output_folder = args.output_folder
@@ -160,16 +156,6 @@ def neofox_cli():
     organism = args.organism
 
     try:
-        # check parameters
-        if bool(candidate_file) + bool(json_file) > 1:
-            raise NeofoxInputParametersException(
-                "Please, define either a candidate file, a standard input file or a JSON file as input. Not many of them"
-            )
-        if not candidate_file and not json_file:
-            raise NeofoxInputParametersException(
-                "Please, define one input file, either a candidate file, a standard input file or a JSON file"
-            )
-
         # makes sure that the output folder exists
         os.makedirs(output_folder, exist_ok=True)
 
@@ -186,8 +172,7 @@ def neofox_cli():
 
         # reads the input data
         neoantigens, patients = _read_data(
-            candidate_file,
-            json_file,
+            input_file,
             patients_data,
             patient_id,
             reference_folder.get_mhc_database())
@@ -219,7 +204,7 @@ def neofox_cli():
 
 
 def _read_data(
-    candidate_file, json_file, patients_data, patient_id, mhc_database: MhcDatabase
+    input_file, patients_data, patient_id, mhc_database: MhcDatabase
 ) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
     logger.info("Parsing patients data from: {}".format(patients_data))
@@ -227,14 +212,16 @@ def _read_data(
     logger.info("Loaded {} patients".format(len(patients)))
 
     # parse the neoantigen candidate data
-    if candidate_file is not None:
-        logger.info("Parsing candidate neoantigens from: {}".format(candidate_file))
-        neoantigens = ModelConverter.parse_candidate_file(candidate_file, patient_id)
+    if input_file.endswith('.txt') or input_file.endswith('.tsv'):
+        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
+        neoantigens = ModelConverter.parse_candidate_file(input_file, patient_id)
+        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
+    elif input_file.endswith('.json')  :
+        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
+        neoantigens = ModelConverter.parse_neoantigens_json_file(input_file)
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     else:
-        logger.info("Parsing candidate neoantigens from: {}".format(json_file))
-        neoantigens = ModelConverter.parse_neoantigens_json_file(json_file)
-        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
+        raise ValueError('Not supported input file extension: {}'.format(input_file))
 
     return neoantigens, patients
 
