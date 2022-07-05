@@ -149,12 +149,13 @@ class BestAndMultipleBinder:
         self._initialise()
 
         # gets all predictions overlapping the mutation and not present in the WT proteome
-        predictions = self.netmhcpan.get_predictions(mhc1_alleles_available, mhc1_alleles_patient, mutation, uniprot)
+        available_alleles = self.netmhcpan.get_only_available_alleles(mhc1_alleles_patient, mhc1_alleles_available)
+        predictions = self.netmhcpan.get_predictions(available_alleles, mutation, uniprot)
         if mutation.wild_type_xmer:
             # SNVs with available WT
             # runs the netMHCpan WT predictions and then pair them with previous predictions
             # based on length, position within neoepitope and HLA allele
-            predictions_wt = self.netmhcpan.get_wt_predictions(mhc1_alleles_available, mhc1_alleles_patient, mutation)
+            predictions_wt = self.netmhcpan.get_wt_predictions(available_alleles, mutation)
             predictions = EpitopeHelper.pair_predictions(predictions=predictions, predictions_wt=predictions_wt)
         else:
             # alternative mutation classes or missing WT
