@@ -205,7 +205,8 @@ class NeoFox:
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
         dask_client = Client(n_workers=self.num_cpus, threads_per_worker=1)
         annotations = self.send_to_client(dask_client)
-        dask_client.close()
+        dask_client.shutdown()          # terminates schedulers and workers
+        dask_client.close(timeout=10)   # waits 10 seconds for the client to close before killing
 
         return annotations
 
