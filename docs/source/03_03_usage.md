@@ -7,38 +7,42 @@ There are two ways to use NeoFox for annotation of neoantigen candidates with ne
 To call NeoFox from the command line, use the following command. Make sure that the requirements have been added to PATH as described [here](02_installation.md) or add a config file as described below:  
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json \
+neofox --input-file neoantigens_candidates.tsv \
     --patient-data patient_data.txt \
     --output-folder /path/to/out \
-    --output-prefix out_prefix  \
-    [--with-table] [--with-json] [--num_cpus] [--affinity-threshold] [--config] [--patient-id]
+    [--output-prefix out_prefix]  \
+    [--organism human|mouse]  \
+    [--rank-mhci-threshold 2.0] \
+    [--rank-mhcii-threshold 4.0] \
+    [--num_cpus] \
+    [--config] \
+    [--patient-id] \
+    [--with-all-neoepitopes]
 ````
 
 where:
-- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](03_01_input_data.md#tabular-file-format)
-- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](03_01_input_data.md#json-file-format)
+- `--input-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences 
+ as described [here](03_01_input_data.md#tabular-file-format) (extensions .txt and .tsv) or JSON file neoantigens in 
+ NeoFox model format as  described [here](03_01_input_data.md#json-file-format) (extension .json)
 - `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-table`: output file in [tabular](03_02_output_data.md#tabular-format)  format (*default*, *optional*)
-- `--with-json`: output file in [JSON](03_02_output_data.md#json-format) format (*optional*)
+- `--with-all-neoepitopes`: output annotations for all MHC-I and MHC-II neoepitopes on all HLA alleles (*optional*)
+- `--rank-mhci-threshold`: MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
+- `--rank-mhcii-threshold`: MHC-II epitopes with a netMHCIIpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num_cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
-- `--affinity-threshold`: an affinity value (*optional*) neoantigen candidates with a best predicted affinity greater
- than or equal than this threshold will be not annotated with features that specifically model neoepitope recognition. A threshold that is commonly used is 500 nM. 
 - `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
 
-**PLEASE NOTE THE FOLLOWING HINTS**:   
-- provide the neoantigen candidate file either as `--candidate-file` or `--json-file` 
-- if no specific output format is selected, the output will be written in [tabular](03_02_output_data.md#tabular-format) format
+**PLEASE NOTE THE FOLLOWING HINTS**:
 - if all expression values related to a patient are NA or `rnaExpression` is not given in the input file but the tumor type has been provided in the patient file, imputated expression will be used for the relevant features
 
 **EXAMPLE**  
 This is an example to call NeoFox with a candidate-file and obtaining the annotated neoantigen candidates in [tabular](03_02_output_data.md#tabular-format) format:  
 
 ````commandline
-neofox --candidate-file neoantigens_candidates.tab \
+neofox --input-file neoantigens_candidates.tsv \
     --patient-data patient_data.tab \
     --output-folder /path/to/out \
     --output-prefix test
@@ -95,7 +99,7 @@ Now, NeoFox can be run as following by mounting the volume as indicated.
 Note that the output folder needs to be specified within the volume, if the output from NeoFox should be recovered.
 ```
 docker run -v neofox-volume:/app/data neofox-docker \
-neofox --candidate-file /app/data/test_model_file.txt \
+neofox --input-file /app/data/test_model_file.txt \
 --patient-data /app/data/test_patient_info.txt \
 --output-folder /app/data/output
 ```
