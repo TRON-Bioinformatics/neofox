@@ -162,7 +162,7 @@ class BestAndMultipleBinder:
             # do BLAST search for all predicted epitopes to identify the closest WT peptide and
             # predict MHC binding for the identified peptide sequence
             predictions = EpitopeHelper.set_wt_epitope_by_homology(predictions, self.blastp_runner)
-            predictions = self.netmhcpan.set_wt_netmhcpan_scores(mhc1_alleles_available, predictions)
+            predictions = self.netmhcpan.set_wt_netmhcpan_scores(predictions)
 
         self.predictions = predictions
 
