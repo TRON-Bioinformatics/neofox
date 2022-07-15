@@ -117,12 +117,11 @@ class NetMhcPanPredictor:
             )
         return patients_available_alleles
 
-    def set_wt_netmhcpan_scores(self, mhc1_alleles_available, predictions) -> List[PredictedEpitope]:
+    def set_wt_netmhcpan_scores(self, predictions) -> List[PredictedEpitope]:
         for p in predictions:
             if p.wild_type_peptide is not None:
                 wt_predictions = self.mhc_prediction(
-                    mhc_alleles=[Mhc1(zygosity=Zygosity.HOMOZYGOUS, alleles=[p.allele_mhc_i])],
-                    set_available_mhc=mhc1_alleles_available,
+                    available_alleles=[Mhc1(zygosity=Zygosity.HOMOZYGOUS, alleles=[p.allele_mhc_i])],
                     sequence=p.wild_type_peptide, peptide_mode=True)
                 if len(wt_predictions) >= 1:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
