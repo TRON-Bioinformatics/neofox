@@ -388,7 +388,7 @@ class NeoantigenAnnotator:
 
         return neoantigen
 
-    def _compute_long_running_tasks(self, neoantigen, patient, sequential=True):
+    def _compute_long_running_tasks(self, neoantigen, patient):
 
         has_mhc1 = patient.mhc1 is not None and len(patient.mhc1) > 0
         has_mhc2 = patient.mhc2 is not None and len(patient.mhc2) > 0
@@ -399,124 +399,49 @@ class NeoantigenAnnotator:
         mixmhc2pred = None
         prime = None
 
-        if sequential:
-            if has_mhc1:
-                netmhcpan = self.run_netmhcpan(
+        if has_mhc1:
+            netmhcpan = self.run_netmhcpan(
+                self.runner,
+                self.configuration,
+                self.available_alleles,
+                self.mhc_parser,
+                neoantigen,
+                patient)
+        if has_mhc2:
+            netmhc2pan = self.run_netmhc2pan(
+                self.runner,
+                self.configuration,
+                self.available_alleles,
+                self.mhc_parser,
+                neoantigen,
+                patient
+            )
+        # avoids running MixMHCpred and PRIME for non human organisms
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            if self.configuration.mix_mhc2_pred is not None and has_mhc2:
+                mixmhc2pred = self.run_mixmhc2pred(
                     self.runner,
                     self.configuration,
-                    self.available_alleles,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient)
-            if has_mhc2:
-                netmhc2pan = self.run_netmhc2pan(
-                    self.runner,
-                    self.configuration,
-                    self.available_alleles,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient
-                )
-            # avoids running MixMHCpred and PRIME for non human organisms
-            if self.organism == ORGANISM_HOMO_SAPIENS:
-                if self.configuration.mix_mhc2_pred is not None and has_mhc2:
-                    mixmhc2pred = self.run_mixmhc2pred(
-                        self.runner,
-                        self.configuration,
-                        self.mhc_parser,
-                        neoantigen,
-                        patient,
-                    )
-                if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                    mixmhcpred = self.run_mixmhcpred(
-                        self.runner,
-                        self.configuration,
-                        self.mhc_parser,
-                        neoantigen,
-                        patient,
-                    )
-                if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                    prime = self.run_prime(
-                        self.runner,
-                        self.configuration,
-                        self.mhc_parser,
-                        neoantigen,
-                        patient,
-                    )
-        else:
-            dask_client = get_client()
-
-            netmhcpan_future = None
-            if has_mhc1:
-                netmhcpan_future = dask_client.submit(
-                    self.run_netmhcpan,
-                    self.runner,
-                    self.references,
-                    self.configuration,
-                    self.available_alleles,
                     self.mhc_parser,
                     neoantigen,
                     patient,
                 )
-            netmhc2pan_future = None
-            if has_mhc2:
-                netmhc2pan_future = dask_client.submit(
-                    self.run_netmhc2pan,
+            if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                mixmhcpred = self.run_mixmhcpred(
                     self.runner,
                     self.configuration,
-                    self.available_alleles,
                     self.mhc_parser,
                     neoantigen,
                     patient,
                 )
-            # avoids running MixMHCpred and PRIME for non human organisms
-            mixmhc2pred_future = None
-            mixmhcpred_future = None
-            prime_future = None
-            if self.organism == ORGANISM_HOMO_SAPIENS:
-                if self.configuration.mix_mhc2_pred is not None and has_mhc2:
-                    mixmhc2pred_future = dask_client.submit(
-                        self.run_mixmhc2pred,
-                        self.runner,
-                        self.configuration,
-                        self.mhc_parser,
-                        neoantigen,
-                        patient,
-                    )
-                if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                    mixmhcpred_future = dask_client.submit(
-                        self.run_mixmhcpred,
-                        self.runner,
-                        self.configuration,
-                        self.mhc_parser,
-                        neoantigen,
-                        patient,
-                    )
-                if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                    prime_future = dask_client.submit(
-                        self.run_prime,
-                        self.runner,
-                        self.configuration,
-                        self.mhc_parser,
-                        neoantigen,
-                        patient,
-                    )
-
-            secede()
-
-            if netmhcpan_future:
-                netmhcpan = dask_client.gather([netmhcpan_future])[0]
-            if netmhc2pan_future:
-                netmhc2pan = dask_client.gather([netmhc2pan_future])[0]
-
-            if self.organism == ORGANISM_HOMO_SAPIENS:
-                if mixmhcpred_future:
-                    mixmhcpred = dask_client.gather([mixmhcpred_future])[0]
-                if mixmhc2pred_future:
-                    mixmhc2pred = dask_client.gather([mixmhc2pred_future])[0]
-                if prime_future:
-                    prime = dask_client.gather([prime_future])[0]
-            rejoin()
+            if self.configuration.mix_mhc_pred is not None and has_mhc1:
+                prime = self.run_prime(
+                    self.runner,
+                    self.configuration,
+                    self.mhc_parser,
+                    neoantigen,
+                    patient,
+                )
 
         return mixmhc2pred, mixmhcpred, netmhc2pan, netmhcpan, prime
 
