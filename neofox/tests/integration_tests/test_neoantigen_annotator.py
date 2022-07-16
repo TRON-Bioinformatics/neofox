@@ -1,11 +1,12 @@
 from unittest import TestCase
 
-from neofox.annotator import NeoantigenAnnotator
-from neofox.model.factories import MhcFactory
-from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Neoantigen, Mhc2Isoform
+from neofox.annotator.annotator import NeoantigenAnnotator
+from neofox.model.factories import MhcFactory, NeoantigenFactory
+from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Neoantigen, Mhc2Isoform, Patient
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.tests.integration_tests import integration_test_tools
+from neofox.tests.integration_tests.integration_test_tools import get_hla_one_test, get_hla_two_test
 
 
 class NeoantigenAnnotatorTest(TestCase):
@@ -18,6 +19,59 @@ class NeoantigenAnnotatorTest(TestCase):
             tcell_predictor=TcellPrediction(),
             self_similarity=SelfSimilarityCalculator()
         )
+        self.patient = Patient(
+            identifier="123",
+            mhc1=get_hla_one_test(self.references.get_mhc_database()),
+            mhc2=get_hla_two_test(self.references.get_mhc_database())
+        )
+
+    def test_neoantigen_annotation(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            patient_identifier="123",
+            gene="BRCA2"
+        )
+        annotated_neoantigen = self.annotator.get_annotated_neoantigen(neoantigen=neoantigen, patient=self.patient)
+        self._assert_neoantigen(annotated_neoantigen, neoantigen)
+        self._assert_epitopes(annotated_neoantigen=annotated_neoantigen)
+
+    def test_neoantigen_annotation_with_all_epitopes(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            patient_identifier="123",
+            gene="BRCA2"
+        )
+        annotated_neoantigen = self.annotator.get_annotated_neoantigen(
+            neoantigen=neoantigen, patient=self.patient, with_all_neoepitopes=True)
+        self._assert_neoantigen(annotated_neoantigen, neoantigen)
+        self._assert_epitopes(annotated_neoantigen=annotated_neoantigen, with_all_epitopes=True)
+
+    def test_neoantigen_annotation_without_wild_type(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            patient_identifier="123",
+            gene="BRCA2"
+        )
+        annotated_neoantigen = self.annotator.get_annotated_neoantigen(neoantigen=neoantigen, patient=self.patient)
+        self._assert_neoantigen(annotated_neoantigen, neoantigen)
+        # wild type xmer is still empty!
+        self.assertIsNone(annotated_neoantigen.mutation.wild_type_xmer)
+        self._assert_epitopes(annotated_neoantigen=annotated_neoantigen)
+
+    def test_neoantigen_annotation_without_wild_type_and_with_all_epitopes(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            patient_identifier="123",
+            gene="BRCA2"
+        )
+        annotated_neoantigen = self.annotator.get_annotated_neoantigen(
+            neoantigen=neoantigen, patient=self.patient, with_all_neoepitopes=True)
+        self._assert_neoantigen(annotated_neoantigen, neoantigen)
+        # wild type xmer is still empty!
+        self.assertIsNone(annotated_neoantigen.mutation.wild_type_xmer)
+        self._assert_epitopes(annotated_neoantigen, with_all_epitopes=True)
 
     def test_neoepitope_annotation_mhci(self):
         epitope = PredictedEpitope(
@@ -78,3 +132,41 @@ class NeoantigenAnnotatorTest(TestCase):
     def _get_test_mhcii_isoform(self, isoform) -> Mhc2Isoform:
         mhcii = MhcFactory.build_mhc2_alleles([isoform], mhc_database=self.references.get_mhc_database())
         return mhcii[0].isoforms[0]
+
+    def _assert_neoantigen(self, annotated_neoantigen, neoantigen):
+        self.assertIsNotNone(annotated_neoantigen)
+        self.assertEqual(annotated_neoantigen.mutation.mutated_xmer, neoantigen.mutation.mutated_xmer)
+        self.assertEqual(annotated_neoantigen.mutation.wild_type_xmer, neoantigen.mutation.wild_type_xmer)
+        self.assertEqual(annotated_neoantigen.mutation.position, neoantigen.mutation.position)
+        self.assertGreater(len(annotated_neoantigen.neofox_annotations.annotations), 0)
+        annotation_names = [a.name for a in annotated_neoantigen.neofox_annotations.annotations]
+        self.assertTrue("Best_rank_MHCI_score_epitope" in annotation_names)
+        self.assertTrue("Best_rank_MHCI_score_allele" in annotation_names)
+
+    def _assert_epitopes(self, annotated_neoantigen, with_all_epitopes=False):
+        # neoepitopes for both MHC I and MHC II are not empty
+        self.assertGreater(len(annotated_neoantigen.neoepitopes_mhc_i), 0)
+        self.assertGreater(len(annotated_neoantigen.neoepitopes_mhc_i_i), 0)
+        observed_mixmhcpred_annotations = False
+        for e in annotated_neoantigen.neoepitopes_mhc_i + annotated_neoantigen.neoepitopes_mhc_i_i:
+            # WT peptides are not empty!
+            self.assertIsNotNone(e.wild_type_peptide)
+            self.assertIsNotNone(e.mutated_peptide)
+            annotation_names = [a.name for a in e.neofox_annotations.annotations]
+            observed_mixmhcpred_annotations = \
+                observed_mixmhcpred_annotations or \
+                "MixMHCpred_affinity_score" in annotation_names or "MixMHC2pred_affinity_score" in annotation_names
+            if with_all_epitopes:
+                # they do have extra annotations
+                self.assertTrue(
+                    "dissimilarity_score" in annotation_names, msg="Annotations: {}".format(annotation_names))
+                self.assertTrue(
+                    "IEDB_Immunogenicity" in annotation_names, msg="Annotations: {}".format(annotation_names))
+            else:
+                # they do not have extra annotations
+                self.assertFalse(
+                    "dissimilarity_score" in annotation_names, msg="Annotations: {}".format(annotation_names))
+                self.assertFalse(
+                    "IEDB_Immunogenicity" in annotation_names, msg="Annotations: {}".format(annotation_names))
+        # not all epitopes may have results for MixMHCpred
+        self.assertTrue(observed_mixmhcpred_annotations)
