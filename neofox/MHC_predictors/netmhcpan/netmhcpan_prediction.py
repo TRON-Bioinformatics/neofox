@@ -121,7 +121,7 @@ class NetMhcPanPredictor:
         for p in predictions:
             if p.wild_type_peptide is not None:
                 wt_predictions = self.mhc_prediction(
-                    available_alleles=[Mhc1(zygosity=Zygosity.HOMOZYGOUS, alleles=[p.allele_mhc_i])],
+                    available_alleles=p.allele_mhc_i.name,
                     sequence=p.wild_type_peptide, peptide_mode=True)
                 if len(wt_predictions) >= 1:
                     # NOTE: netmhcpan in peptide mode should return only one epitope

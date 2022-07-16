@@ -32,9 +32,9 @@ from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import Tce
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 from neofox import NEOFOX_LOG_FILE_ENV
-from neofox.annotator import NeoantigenAnnotator
+from neofox.annotator.annotator import NeoantigenAnnotator
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Patient
+from neofox.model.neoantigen import Neoantigen, Patient, PredictedEpitope
 from neofox.model.validation import ModelValidator
 import dotenv
 
