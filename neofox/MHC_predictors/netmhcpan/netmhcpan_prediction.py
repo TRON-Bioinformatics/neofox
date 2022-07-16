@@ -55,7 +55,7 @@ class NetMhcPanPredictor:
             input_file = intermediate_files.create_temp_fasta(sequences=[sequence], prefix="tmp_singleseq_")
 
         if available_alleles is None or available_alleles == "":
-            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(mhc_alleles))
+            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(available_alleles))
         cmd = [
             self.configuration.net_mhc_pan,
             "-a",
