@@ -150,44 +150,44 @@ class NeoantigenAnnotator:
 
         return merged_epitopes
 
-    def get_annotated_neoepitope_mhci(self, e: PredictedEpitope, neoantigen: Neoantigen, vaf_rna,
-                                      netmhcpan: BestAndMultipleBinder) -> PredictedEpitope:
+    def get_annotated_neoepitope_mhci(
+            self, epitope: PredictedEpitope, neoantigen: Neoantigen, vaf_rna) -> PredictedEpitope:
 
-        e.neofox_annotations.annotations.extend(
-            netmhcpan.get_annotations_epitope_mhci(epitope=e) +
-            self.amplitude.get_annotations_epitope_mhci(epitope=e)
+        epitope.neofox_annotations.annotations.extend(
+            BestAndMultipleBinder.get_annotations_epitope_mhci(epitope=epitope) +
+            self.amplitude.get_annotations_epitope_mhci(epitope=epitope)
         )
 
         # NOTE: this extend() call cannot be joined with the previous as some of the previous annotations are expected
-        e.neofox_annotations.annotations.extend(
-            self.neoantigen_fitness_calculator.get_annotations_epitope_mhci(epitope=e) +
-            self.differential_binding.get_annotations_epitope_mhci(epitope=e) +
-            self.self_similarity.get_annotations_epitope_mhci(epitope=e) +
-            self.uniprot.get_annotations_epitope(epitope=e) +
-            self.dissimilarity_calculator.get_annotations_epitope(epitope=e)
+        epitope.neofox_annotations.annotations.extend(
+            self.neoantigen_fitness_calculator.get_annotations_epitope_mhci(epitope=epitope) +
+            self.differential_binding.get_annotations_epitope_mhci(epitope=epitope) +
+            self.self_similarity.get_annotations_epitope_mhci(epitope=epitope) +
+            self.uniprot.get_annotations_epitope(epitope=epitope) +
+            self.dissimilarity_calculator.get_annotations_epitope(epitope=epitope)
         )
 
         # restricted to 9-mers
-        if len(e.mutated_peptide) == 9:
-            e.neofox_annotations.annotations.extend(self.tcell_predictor.get_annotations_epitope_mhci(
-                epitope=e, neoantigen=neoantigen))
+        if len(epitope.mutated_peptide) == 9:
+            epitope.neofox_annotations.annotations.extend(self.tcell_predictor.get_annotations_epitope_mhci(
+                epitope=epitope, neoantigen=neoantigen))
 
         num_mismatches = EpitopeHelper.number_of_mismatches(
-            epitope_wild_type=e.wild_type_peptide, epitope_mutation=e.mutated_peptide, )
-        e.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
+            epitope_wild_type=epitope.wild_type_peptide, epitope_mutation=epitope.mutated_peptide, )
+        epitope.neofox_annotations.annotations.append(AnnotationFactory.build_annotation(
             value=num_mismatches,
             name='number_of_mismatches'))
 
-        e.neofox_annotations.annotations.extend(
+        epitope.neofox_annotations.annotations.extend(
             self.priority_score_calculator.get_annotations_epitope_mhci(
-                epitope=e, neoantigen=neoantigen, vaf_rna=vaf_rna))
+                epitope=epitope, neoantigen=neoantigen, vaf_rna=vaf_rna))
 
         if self.organism == ORGANISM_HOMO_SAPIENS:
-            e.neofox_annotations.annotations.extend(
-                self.iedb_immunogenicity.get_annotations_epitope_mhci(epitope=e) +
-                self.hex.get_annotations_epitope(epitope=e))
+            epitope.neofox_annotations.annotations.extend(
+                self.iedb_immunogenicity.get_annotations_epitope_mhci(epitope=epitope) +
+                self.hex.get_annotations_epitope(epitope=epitope))
 
-        return e
+        return epitope
 
     def get_annotated_neoepitope_mhcii(self, e: PredictedEpitope) -> PredictedEpitope:
 
@@ -265,7 +265,7 @@ class NeoantigenAnnotator:
             logger.warning(
                 "Using the DNA VAF to estimate the RNA VAF as the patient does not have RNA available"
             )
-            # TODO: overwrite value in the neoantigen object
+            # NOTE: does not overwrite value in the neoantigen object
             vaf_rna = neoantigen.dna_variant_allele_frequency
 
         # MHC binding independent features
@@ -381,7 +381,7 @@ class NeoantigenAnnotator:
         # annotate neoepitopes
         if with_all_neoepitopes:
             neoantigen.neoepitopes_mhc_i = [
-                self.get_annotated_neoepitope_mhci(e=e, neoantigen=neoantigen, vaf_rna=vaf_rna, netmhcpan=netmhcpan)
+                self.get_annotated_neoepitope_mhci(epitope=e, neoantigen=neoantigen, vaf_rna=vaf_rna)
                 for e in neoantigen.neoepitopes_mhc_i]
             neoantigen.neoepitopes_mhc_i_i = [
                 self.get_annotated_neoepitope_mhcii(e=e) for e in neoantigen.neoepitopes_mhc_i_i]
