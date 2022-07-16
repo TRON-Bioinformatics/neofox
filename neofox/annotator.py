@@ -150,7 +150,7 @@ class NeoantigenAnnotator:
 
         return merged_epitopes
 
-    def get_annotated_neoepitope_mhci(
+    def get_additional_annotations_neoepitope_mhci(
             self, epitope: PredictedEpitope, neoantigen: Neoantigen, vaf_rna) -> PredictedEpitope:
 
         epitope.neofox_annotations.annotations.extend(
@@ -189,22 +189,22 @@ class NeoantigenAnnotator:
 
         return epitope
 
-    def get_annotated_neoepitope_mhcii(self, e: PredictedEpitope) -> PredictedEpitope:
+    def get_additional_annotations_neoepitope_mhcii(self, epitope: PredictedEpitope) -> PredictedEpitope:
 
-        e.neofox_annotations.annotations.extend(
-            self.amplitude.get_annotations_epitope_mhcii(epitope=e) +
-            self.neoantigen_fitness_calculator.get_annotations_epitope_mhcii(epitope=e) +
-            self.self_similarity.get_annotations_epitope_mhcii(epitope=e) +
-            self.uniprot.get_annotations_epitope(epitope=e) +
-            self.dissimilarity_calculator.get_annotations_epitope(epitope=e))
+        epitope.neofox_annotations.annotations.extend(
+            self.amplitude.get_annotations_epitope_mhcii(epitope=epitope) +
+            self.neoantigen_fitness_calculator.get_annotations_epitope_mhcii(epitope=epitope) +
+            self.self_similarity.get_annotations_epitope_mhcii(epitope=epitope) +
+            self.uniprot.get_annotations_epitope(epitope=epitope) +
+            self.dissimilarity_calculator.get_annotations_epitope(epitope=epitope))
 
         if self.organism == ORGANISM_HOMO_SAPIENS:
 
-            e.neofox_annotations.annotations.extend(
-                self.iedb_immunogenicity.get_annotations_epitope_mhcii(epitope=e) +
-                self.hex.get_annotations_epitope(epitope=e))
+            epitope.neofox_annotations.annotations.extend(
+                self.iedb_immunogenicity.get_annotations_epitope_mhcii(epitope=epitope) +
+                self.hex.get_annotations_epitope(epitope=epitope))
 
-        return e
+        return epitope
 
     def get_annotated_neoantigen(self, neoantigen: Neoantigen, patient: Patient, with_all_neoepitopes=False) -> Neoantigen:
         """Calculate new epitope features and add to dictionary that stores all properties"""
@@ -381,10 +381,10 @@ class NeoantigenAnnotator:
         # annotate neoepitopes
         if with_all_neoepitopes:
             neoantigen.neoepitopes_mhc_i = [
-                self.get_annotated_neoepitope_mhci(epitope=e, neoantigen=neoantigen, vaf_rna=vaf_rna)
+                self.get_additional_annotations_neoepitope_mhci(epitope=e, neoantigen=neoantigen, vaf_rna=vaf_rna)
                 for e in neoantigen.neoepitopes_mhc_i]
             neoantigen.neoepitopes_mhc_i_i = [
-                self.get_annotated_neoepitope_mhcii(e=e) for e in neoantigen.neoepitopes_mhc_i_i]
+                self.get_additional_annotations_neoepitope_mhcii(epitope=e) for e in neoantigen.neoepitopes_mhc_i_i]
 
         return neoantigen
 
