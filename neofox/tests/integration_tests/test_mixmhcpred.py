@@ -24,7 +24,7 @@ from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc2Name
 from neofox.helpers.epitope_helper import EpitopeHelper
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
@@ -39,7 +39,7 @@ class TestMixMHCPred(TestCase):
         self.mixmhcpred = MixMHCpred(
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
         )
-        self.mixmhc2pred = MixMhc2Pred(
+        self.mixmhc2pred = MixMHC2pred(
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
         )
         self.hla_database = self.references.get_mhc_database()

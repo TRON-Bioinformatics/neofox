@@ -42,6 +42,9 @@ SCORE = "Score_bestAllele"
 
 
 class Prime:
+
+    ANNOTATION_PREFIX = 'PRIME'
+
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
@@ -134,6 +137,18 @@ class Prime:
                     self.results = self._prime(mhc1_alleles, potential_ligand_sequences)
                 else:
                     logger.warning("None of the MHC I alleles are supported by PRIME")
+
+    def run_peptide(self, peptide: str, allele: MhcAllele) -> PredictedEpitope:
+        result = None
+        if not EpitopeHelper.contains_rare_amino_acid(peptide=peptide):
+            mhc1_alleles = self._get_mixmhc_allele_representation([allele])
+            if len(mhc1_alleles) > 0:
+                results = self._prime(mhc1_alleles, [peptide])
+                if results:
+                    result = results[0]
+            else:
+                logger.warning("None of the MHC I alleles are supported by PRIME")
+        return result
 
     def get_annotations(self) -> List[Annotation]:
 
