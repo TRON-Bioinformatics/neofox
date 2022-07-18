@@ -64,7 +64,7 @@ class NetMhcPanPredictor:
         lines, _ = self.runner.run_command(cmd)
         return self._parse_netmhcpan_output(lines)
 
-    def mhc_prediction_peptide(self, available_alleles, sequence) -> PredictedEpitope:
+    def mhc_prediction_peptide(self, alleles, sequence) -> PredictedEpitope:
         """
         Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
         peptide mode cannot use FASTA format and does not provide peptide lengths
@@ -73,12 +73,12 @@ class NetMhcPanPredictor:
         result = None
         input_file = intermediate_files.create_temp_peptide(sequences=[sequence], prefix="tmp_singleseq_")
 
-        if available_alleles is None or available_alleles == "":
-            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(available_alleles))
+        if alleles is None or alleles == "":
+            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(alleles))
         cmd = [
             self.configuration.net_mhc_pan,
             "-a",
-            available_alleles,
+            alleles,
             "-p",
             input_file,
             "-BA"
@@ -142,7 +142,7 @@ class NetMhcPanPredictor:
         for p in predictions:
             if p.wild_type_peptide is not None:
                 wt_prediction = self.mhc_prediction_peptide(
-                    available_alleles=p.allele_mhc_i.name, sequence=p.wild_type_peptide)
+                    alleles=p.allele_mhc_i.name, sequence=p.wild_type_peptide)
                 if wt_prediction is not None:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
                     p.rank_wild_type = wt_prediction.rank_mutated

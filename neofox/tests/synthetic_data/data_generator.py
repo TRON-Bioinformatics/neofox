@@ -1,7 +1,7 @@
 import os
 from typing import List, Tuple
 from faker import Faker
-from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Neoantigen
@@ -23,7 +23,7 @@ class DataGenerator:
         mhc1_alleles = mixmhcpred_alleles.union(netmhcpan_alleles)
 
         mixmhc2pred_alleles = set(self.load_mhc2_alleles(
-            MixMhc2Pred(runner=None, configuration=configuration, mhc_parser=None).available_alleles))
+            MixMHC2pred(runner=None, configuration=configuration, mhc_parser=None).available_alleles))
         netmhc2pan_alleles = set(self.load_mhc2_alleles(
             reference_folder.get_available_alleles().get_available_mhc_ii()))
         mhc2_isoforms = mixmhc2pred_alleles.union(netmhc2pan_alleles)

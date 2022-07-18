@@ -1,4 +1,4 @@
-from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
@@ -156,6 +156,6 @@ class NeoantigenMhcBindingAnnotator:
             neoantigen: Neoantigen,
             patient: Patient,
     ):
-        mixmhc2 = MixMhc2Pred(runner, configuration, mhc_parser)
+        mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser)
         mixmhc2.run(mhc=patient.mhc2, mutation=neoantigen.mutation, uniprot=self.uniprot)
         return mixmhc2

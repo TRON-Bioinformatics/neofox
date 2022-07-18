@@ -39,6 +39,8 @@ SCORE = "Score_bestAllele"
 
 class MixMHCpred:
 
+    ANNOTATION_PREFIX = 'MixMHCpred'
+
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
@@ -126,6 +128,18 @@ class MixMHCpred:
                 self.results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
             else:
                 logger.warning("None of the MHC I alleles are supported by MixMHCpred")
+
+    def run_peptide(self, peptide: str, allele: MhcAllele) -> PredictedEpitope:
+        """Runs MixMHCpred on a single peptide"""
+        result = None
+        mhc1_alleles = self._get_mixmhc_allele_representation([allele])
+        if len(mhc1_alleles) > 0 and 8 <= len(peptide) <= 14:
+            results = self._mixmhcprediction(mhc1_alleles, [peptide])
+            if results:
+                result = results[0]
+        else:
+            logger.warning("None of the MHC I alleles are supported by MixMHCpred")
+        return result
 
     def get_annotations(self) -> List[Annotation]:
 

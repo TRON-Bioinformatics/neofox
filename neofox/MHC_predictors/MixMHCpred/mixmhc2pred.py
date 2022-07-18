@@ -28,7 +28,7 @@ from neofox.references.references import DependenciesConfiguration
 
 from neofox.helpers.runner import Runner
 
-from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation, PredictedEpitope
+from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation, PredictedEpitope, Mhc2Isoform
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -40,7 +40,9 @@ PEPTIDE = "Peptide"
 RANK = "%Rank_best"
 
 
-class MixMhc2Pred:
+class MixMHC2pred:
+
+    ANNOTATION_PREFIX = 'MixMHC2pred'
 
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
@@ -91,6 +93,16 @@ class MixMhc2Pred:
             )
         )
 
+    @staticmethod
+    def _get_mixmhc2_isoform_representation(isoform: Mhc2Isoform):
+
+        beta_chain = MixMHC2pred._get_mixmhc2_allele_representation([isoform.beta_chain])[0]
+        if isoform.alpha_chain is not None and isoform.alpha_chain.name:
+            # for DR only beta chain is provided
+            alpha_chain = MixMHC2pred._get_mixmhc2_allele_representation([isoform.alpha_chain])[0]
+            return "{alpha}__{beta}".format(alpha=alpha_chain, beta=beta_chain)
+        return beta_chain
+
     def transform_hla_ii_alleles_for_prediction(self, mhc: List[Mhc2]) -> List[str]:
         """
         prepares list of HLA II alleles for prediction in required format
@@ -135,20 +147,14 @@ class MixMhc2Pred:
                 ))
         return parsed_results
 
-    def _mixmhc2prediction(self, mhc2: List[str], potential_ligand_sequences) -> List[PredictedEpitope]:
-        """
-        Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
-        """
-        tmpfasta = intermediate_files.create_temp_fasta(
-            potential_ligand_sequences, prefix="tmp_sequence_"
-        )
-        outtmp = intermediate_files.create_temp_file(
-            prefix="mixmhc2pred", suffix=".txt"
-        )
+    def _mixmhc2prediction(self, isoforms: List[str], potential_ligand_sequences: List[str]) -> List[PredictedEpitope]:
+
+        tmpfasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
+        outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
-            " ".join(mhc2),
+            " ".join(isoforms),
             "-i",
             tmpfasta,
             "-o",
@@ -165,14 +171,11 @@ class MixMhc2Pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
         Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
         """
-
         # TODO: get rid of this
         self.results = None
 
-        # TODO: we may want to adapt these lengths to 15 to ...
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot
-        )
+            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot)
         # filter mps shorter < 13aa
         filtered_sequences = list(
             filter(lambda x: len(x) >= 13, potential_ligand_sequences)
@@ -180,9 +183,24 @@ class MixMhc2Pred:
         if len(filtered_sequences) > 0:
             mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
             if len(mhc2_alleles) > 0:
-                self.results = self._mixmhc2prediction(mhc2_alleles, filtered_sequences)
+                self.results = self._mixmhc2prediction(
+                    isoforms=mhc2_alleles, potential_ligand_sequences=filtered_sequences)
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
+
+    def run_peptide(self, peptide: str, isoform: Mhc2Isoform) -> PredictedEpitope:
+        """
+        Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
+        """
+        result = None
+        isoform_representation = self._get_mixmhc2_isoform_representation(isoform)
+        if isoform_representation in self.available_alleles:
+            results = self._mixmhc2prediction(
+                isoforms=[isoform_representation],
+                potential_ligand_sequences=[peptide])
+            if results:
+                result = results[0]
+        return result
 
     def get_annotations(self) -> List[Annotation]:
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.results)

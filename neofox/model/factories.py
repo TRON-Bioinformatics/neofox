@@ -23,7 +23,7 @@ from neofox.exceptions import NeofoxDataValidationException
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser, get_mhc2_isoform_name
 from neofox.model.neoantigen import Annotation, Patient, Mhc1, Zygosity, Mhc2, Mhc2Gene, Mhc2Name, Mhc2Isoform, \
-    MhcAllele, Mhc2GeneName, Mhc1Name, Mutation, Neoantigen
+    MhcAllele, Mhc2GeneName, Mutation, Neoantigen, PredictedEpitope, Annotations
 from neofox.model.validation import ModelValidator, GENES_BY_MOLECULE
 from neofox.references.references import MhcDatabase
 
@@ -43,6 +43,41 @@ class AnnotationFactory(object):
             value = NOT_AVAILABLE_VALUE
         return Annotation(name=name, value=value)
 
+    @staticmethod
+    def annotate_epitopes_with_other_scores(
+            epitopes: List[PredictedEpitope],
+            annotated_epitopes: List[PredictedEpitope],
+            annotation_name: str) -> List[PredictedEpitope]:
+
+        merged_epitopes = []
+        if annotated_epitopes is not None:
+            annotated_epitopes_dict = {EpitopeHelper.get_epitope_id(e): e for e in annotated_epitopes}
+            for e in epitopes:
+
+                # intialise annotations for the epitope if not done already
+                if e.neofox_annotations is None:
+                    e.neofox_annotations = Annotations(annotations=[])
+
+                # adds new annotations if any
+                paired_epitope = annotated_epitopes_dict.get(EpitopeHelper.get_epitope_id(e))
+                if paired_epitope is not None:
+                    if paired_epitope.affinity_mutated is not None:
+                        e.neofox_annotations.annotations.append(
+                            AnnotationFactory.build_annotation(
+                                name=annotation_name + '_affinity_score', value=paired_epitope.affinity_mutated))
+                    if paired_epitope.rank_mutated is not None:
+                        e.neofox_annotations.annotations.append(
+                            AnnotationFactory.build_annotation(
+                                name=annotation_name + '_rank', value=paired_epitope.rank_mutated))
+
+                # updates epitope
+                merged_epitopes.append(e)
+        else:
+            # if there are no results to annotate with it returns the input list as is
+            merged_epitopes = epitopes
+
+        return merged_epitopes
+
 
 class NeoantigenFactory(object):
     @staticmethod
@@ -61,7 +96,7 @@ class NeoantigenFactory(object):
         mutation = Mutation()
         mutation.wild_type_xmer = wild_type_xmer.strip().upper() if wild_type_xmer else wild_type_xmer
         mutation.mutated_xmer = mutated_xmer.strip().upper() if mutated_xmer else mutated_xmer
-        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
+        mutation.position = NeoantigenFactory.mut_position_xmer_seq(mutation)
         neoantigen.mutation = mutation
 
         external_annotation_names = dict.fromkeys(
@@ -72,6 +107,31 @@ class NeoantigenFactory(object):
         ModelValidator.validate_neoantigen(neoantigen)
 
         return neoantigen
+
+    @staticmethod
+    def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
+        """
+        returns position (1-based) of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
+        """
+        # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
+        pos_mut = []
+        if mutation.wild_type_xmer is not None and mutation.mutated_xmer is not None:
+            if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
+                p1 = -1
+                for i, aa in enumerate(mutation.mutated_xmer):
+                    if aa != mutation.wild_type_xmer[i]:
+                        p1 = i + 1
+                        pos_mut.append(p1)
+            else:
+                p1 = 0
+                # in case sequences do not have same length
+                for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
+                    if a1 == a2:
+                        p1 += 1
+                    elif a1 != a2:
+                        p1 += 1
+                        pos_mut.append(p1)
+        return pos_mut
 
 
 class PatientFactory(object):

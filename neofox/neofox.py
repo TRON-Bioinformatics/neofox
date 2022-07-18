@@ -28,6 +28,7 @@ from dask.distributed import Client
 import neofox
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.model.factories import NeoantigenFactory
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
@@ -97,7 +98,7 @@ class NeoFox:
             if n.patient_identifier is None:
                 n.patient_identifier = patient_id
             # NOTE: the position of the mutations is not expected from the user and if provide the value is ignored
-            n.mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=n.mutation)
+            n.mutation.position = NeoantigenFactory.mut_position_xmer_seq(mutation=n.mutation)
             ModelValidator.validate_neoantigen(n)
 
         # validates patients
