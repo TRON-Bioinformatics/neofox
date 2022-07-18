@@ -92,8 +92,9 @@ class NetMhcIIPanPredictor:
         return self._parse_netmhcpan_output(lines)
     
     def mhc2_prediction_peptide(
-        self, mhc2_isoform: Mhc2Isoform, sequence ) -> List[PredictedEpitope]:
+        self, mhc2_isoform: Mhc2Isoform, sequence ) -> PredictedEpitope:
         """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
+        result = None
         tmp_peptide = intermediate_files.create_temp_peptide([sequence], prefix="tmp_singleseq_")
         tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command(
@@ -112,7 +113,10 @@ class NetMhcIIPanPredictor:
             ],
             print_log=False
         )
-        return self._parse_netmhcpan_output(lines)
+        predicted_epitopes = self._parse_netmhcpan_output(lines)
+        if predicted_epitopes:
+            result = predicted_epitopes[0]
+        return result
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
@@ -137,13 +141,13 @@ class NetMhcIIPanPredictor:
     def set_wt_netmhcpan_scores(self, predictions) -> List[PredictedEpitope]:
         for p in predictions:
             if p.wild_type_peptide is not None:
-                wt_predictions = self.mhc2_prediction_peptide(
+                wt_prediction = self.mhc2_prediction_peptide(
                     mhc2_isoform=p.isoform_mhc_i_i,
                     sequence=p.wild_type_peptide)
-                if len(wt_predictions) >= 1:
+                if wt_prediction is not None:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
-                    p.rank_wild_type = wt_predictions[0].rank_mutated
-                    p.affinity_wild_type = wt_predictions[0].affinity_mutated
+                    p.rank_wild_type = wt_prediction.rank_mutated
+                    p.affinity_wild_type = wt_prediction.affinity_mutated
         return predictions
 
     def get_wt_predictions(self, mutation, patient_mhc2_isoforms):
