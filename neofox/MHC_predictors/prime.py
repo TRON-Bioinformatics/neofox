@@ -44,6 +44,7 @@ SCORE = "Score_bestAllele"
 class Prime:
 
     ANNOTATION_PREFIX = 'PRIME'
+    ANNOTATION_PREFIX_WT = 'PRIME_WT'
 
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner

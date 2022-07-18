@@ -43,6 +43,7 @@ RANK = "%Rank_best"
 class MixMHC2pred:
 
     ANNOTATION_PREFIX = 'MixMHC2pred'
+    ANNOTATION_PREFIX_WT = 'MixMHC2pred_WT'
 
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner

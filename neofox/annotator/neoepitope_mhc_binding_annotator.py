@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import BestAndMultipleBinderMhcII
@@ -51,30 +53,42 @@ class NeoepitopeMhcBindingAnnotator:
             annotated_neoepitope = self._run_netmhcpan(neoepitope=neoepitope)
             if annotated_neoepitope:
                 if self.configuration.mix_mhc_pred and self.organism == ORGANISM_HOMO_SAPIENS:
-                    mixmhcpred_neoepitope = self._run_mixmhcpred(neoepitope=neoepitope)
+                    mixmhcpred_neoepitope, mixmhcpred_neoepitope_wt = self._run_mixmhcpred(neoepitope=neoepitope)
                     if mixmhcpred_neoepitope:
-                        annotated_neoepitope = AnnotationFactory.annotate_epitopes_with_other_scores(
-                            epitopes=[annotated_neoepitope],
-                            annotated_epitopes=[mixmhcpred_neoepitope],
-                            annotation_name=MixMHCpred.ANNOTATION_PREFIX)[0]
+                        annotated_neoepitope = AnnotationFactory.annotate_epitope(
+                            epitope=annotated_neoepitope,
+                            paired_epitope=mixmhcpred_neoepitope,
+                            annotation_name=MixMHCpred.ANNOTATION_PREFIX)
+                        annotated_neoepitope = AnnotationFactory.annotate_epitope(
+                            epitope=annotated_neoepitope,
+                            paired_epitope=mixmhcpred_neoepitope_wt,
+                            annotation_name=MixMHCpred.ANNOTATION_PREFIX_WT)
                     if self.configuration.prime:
-                        prime_neoepitope = self._run_prime(neoepitope=neoepitope)
+                        prime_neoepitope, prime_neoepitope_wt = self._run_prime(neoepitope=neoepitope)
                         if prime_neoepitope:
-                            annotated_neoepitope = AnnotationFactory.annotate_epitopes_with_other_scores(
-                                epitopes=[annotated_neoepitope],
-                                annotated_epitopes=[prime_neoepitope],
-                                annotation_name=Prime.ANNOTATION_PREFIX)[0]
+                            annotated_neoepitope = AnnotationFactory.annotate_epitope(
+                                epitope=annotated_neoepitope,
+                                paired_epitope=prime_neoepitope,
+                                annotation_name=Prime.ANNOTATION_PREFIX)
+                            annotated_neoepitope = AnnotationFactory.annotate_epitope(
+                                epitope=annotated_neoepitope,
+                                paired_epitope=prime_neoepitope_wt,
+                                annotation_name=Prime.ANNOTATION_PREFIX_WT)
         elif has_mhc2:
             # MHC II epitope
             annotated_neoepitope = self._run_netmhc2pan(neoepitope=neoepitope)
             if annotated_neoepitope:
                 if self.configuration.mix_mhc2_pred and self.organism == ORGANISM_HOMO_SAPIENS:
-                    mixmhc2pred_neoepitope = self._run_mixmhc2pred(neoepitope=neoepitope)
+                    mixmhc2pred_neoepitope, mixmhc2pred_neoepitope_wt = self._run_mixmhc2pred(neoepitope=neoepitope)
                     if mixmhc2pred_neoepitope:
-                        annotated_neoepitope = AnnotationFactory.annotate_epitopes_with_other_scores(
-                            epitopes=[annotated_neoepitope],
-                            annotated_epitopes=[mixmhc2pred_neoepitope],
-                            annotation_name=MixMHC2pred.ANNOTATION_PREFIX)[0]
+                        annotated_neoepitope = AnnotationFactory.annotate_epitope(
+                            epitope=annotated_neoepitope,
+                            paired_epitope=mixmhc2pred_neoepitope,
+                            annotation_name=MixMHC2pred.ANNOTATION_PREFIX)
+                        annotated_neoepitope = AnnotationFactory.annotate_epitope(
+                            epitope=annotated_neoepitope,
+                            paired_epitope=mixmhc2pred_neoepitope_wt,
+                            annotation_name=MixMHC2pred.ANNOTATION_PREFIX_WT)
         else:
             raise ValueError("Neoepitope without neither MHC I allele or MHC II isoform")
 
@@ -114,34 +128,22 @@ class NeoepitopeMhcBindingAnnotator:
                 mutated_epitope.rank_wild_type = wt_epitope.rank_mutated
         return mutated_epitope
 
-    def _run_mixmhcpred(self, neoepitope: PredictedEpitope):
+    def _run_mixmhcpred(self, neoepitope: PredictedEpitope) -> Tuple[PredictedEpitope, PredictedEpitope]:
         mutated_epitope = self.mixmhcpred.run_peptide(
             peptide=neoepitope.mutated_peptide, allele=neoepitope.allele_mhc_i)
         wt_epitope = self.mixmhcpred.run_peptide(
             peptide=neoepitope.wild_type_peptide, allele=neoepitope.allele_mhc_i)
-        if mutated_epitope and wt_epitope:
-            mutated_epitope.wild_type_peptide = neoepitope.wild_type_peptide
-            mutated_epitope.affinity_wild_type = wt_epitope.affinity_mutated
-            mutated_epitope.rank_wild_type = wt_epitope.rank_mutated
-        return mutated_epitope
+        return mutated_epitope, wt_epitope
 
-    def _run_prime(self, neoepitope: PredictedEpitope):
+    def _run_prime(self, neoepitope: PredictedEpitope) -> Tuple[PredictedEpitope, PredictedEpitope]:
         mutated_epitope = self.prime.run_peptide(peptide=neoepitope.mutated_peptide, allele=neoepitope.allele_mhc_i)
         wt_epitope = self.prime.run_peptide(
             peptide=neoepitope.wild_type_peptide, allele=neoepitope.allele_mhc_i)
-        if mutated_epitope and wt_epitope:
-            mutated_epitope.wild_type_peptide = neoepitope.wild_type_peptide
-            mutated_epitope.affinity_wild_type = wt_epitope.affinity_mutated
-            mutated_epitope.rank_wild_type = wt_epitope.rank_mutated
-        return mutated_epitope
+        return mutated_epitope, wt_epitope
 
-    def _run_mixmhc2pred(self, neoepitope: PredictedEpitope) -> PredictedEpitope:
+    def _run_mixmhc2pred(self, neoepitope: PredictedEpitope) -> Tuple[PredictedEpitope, PredictedEpitope]:
         mutated_epitope = self.mixmhc2pred.run_peptide(
             isoform=neoepitope.isoform_mhc_i_i, peptide=neoepitope.mutated_peptide)
         wt_epitope = self.mixmhc2pred.run_peptide(
             peptide=neoepitope.wild_type_peptide, isoform=neoepitope.isoform_mhc_i_i)
-        if mutated_epitope and wt_epitope:
-            mutated_epitope.wild_type_peptide = neoepitope.wild_type_peptide
-            mutated_epitope.affinity_wild_type = wt_epitope.affinity_mutated
-            mutated_epitope.rank_wild_type = wt_epitope.rank_mutated
-        return mutated_epitope
+        return mutated_epitope, wt_epitope

@@ -60,15 +60,8 @@ class AnnotationFactory(object):
 
                 # adds new annotations if any
                 paired_epitope = annotated_epitopes_dict.get(EpitopeHelper.get_epitope_id(e))
-                if paired_epitope is not None:
-                    if paired_epitope.affinity_mutated is not None:
-                        e.neofox_annotations.annotations.append(
-                            AnnotationFactory.build_annotation(
-                                name=annotation_name + '_affinity_score', value=paired_epitope.affinity_mutated))
-                    if paired_epitope.rank_mutated is not None:
-                        e.neofox_annotations.annotations.append(
-                            AnnotationFactory.build_annotation(
-                                name=annotation_name + '_rank', value=paired_epitope.rank_mutated))
+                AnnotationFactory.annotate_epitope(
+                    annotation_name=annotation_name, epitope=e, paired_epitope=paired_epitope)
 
                 # updates epitope
                 merged_epitopes.append(e)
@@ -78,6 +71,19 @@ class AnnotationFactory(object):
 
         return merged_epitopes
 
+    @staticmethod
+    def annotate_epitope(annotation_name: str, epitope: PredictedEpitope, paired_epitope: PredictedEpitope) -> \
+            PredictedEpitope:
+        if paired_epitope is not None:
+            if paired_epitope.affinity_mutated is not None:
+                epitope.neofox_annotations.annotations.append(
+                    AnnotationFactory.build_annotation(
+                        name=annotation_name + '_affinity_score', value=paired_epitope.affinity_mutated))
+            if paired_epitope.rank_mutated is not None:
+                epitope.neofox_annotations.annotations.append(
+                    AnnotationFactory.build_annotation(
+                        name=annotation_name + '_rank', value=paired_epitope.rank_mutated))
+        return epitope
 
 class NeoantigenFactory(object):
     @staticmethod
