@@ -238,6 +238,48 @@ class TestNeofox(TestCase):
         self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
         self.assertIn("Best_rank_MHCII_score", annotation_names)
 
+    def test_neofox_without_prime(self):
+        """
+        This test aims at testing neofox when Prime is not configured. As these are optional it
+        shoudl just run, but without these annotations in the output
+        """
+        del os.environ[NEOFOX_PRIME_ENV]
+        annotations = NeoFox(
+            neoantigens=self.neoantigens[0:1],
+            patient_id=self.patient_id,
+            patients=self.patients,
+            num_cpus=4,
+        ).get_annotations()
+        annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
+        # check it does not contain any of the MixMHCpred annotations
+        self.assertNotIn("PRIME_best_peptide", annotation_names)
+        self.assertNotIn("PRIME_best_rank", annotation_names)
+        self.assertNotIn("PRIME_best_allele", annotation_names)
+        # checks it does have some of the NetMHCpan annotations
+        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
+        self.assertIn("Best_rank_MHCII_score", annotation_names)
+
+    def test_neofox_with_prime_and_without_mixmhcpred(self):
+        """
+        This test aims at testing neofox when Prime is configured, but not MixMHCpred. As PRIME depends on
+        MixMHCpred no PRIME annotations should be provided
+        """
+        del os.environ[NEOFOX_MIXMHCPRED_ENV]
+        annotations = NeoFox(
+            neoantigens=self.neoantigens[0:1],
+            patient_id=self.patient_id,
+            patients=self.patients,
+            num_cpus=4,
+        ).get_annotations()
+        annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
+        # check it does not contain any of the MixMHCpred annotations
+        self.assertNotIn("PRIME_best_peptide", annotation_names)
+        self.assertNotIn("PRIME_best_rank", annotation_names)
+        self.assertNotIn("PRIME_best_allele", annotation_names)
+        # checks it does have some of the NetMHCpan annotations
+        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
+        self.assertIn("Best_rank_MHCII_score", annotation_names)
+
     @unittest.skip
     def test_neofox_performance(self):
         def compute_annotations():
