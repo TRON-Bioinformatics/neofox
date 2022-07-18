@@ -74,7 +74,7 @@ class NeoantigenMhcBindingAnnotator:
                     neoantigen,
                     patient,
                 )
-            if self.configuration.mix_mhc_pred is not None and has_mhc1:
+            if self.configuration.mix_mhc_pred is not None and self.configuration.prime is not None and has_mhc1:
                 prime = self._run_prime(
                     self.runner,
                     self.configuration,
