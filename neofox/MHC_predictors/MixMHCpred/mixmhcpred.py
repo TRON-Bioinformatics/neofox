@@ -40,6 +40,7 @@ SCORE = "Score_bestAllele"
 class MixMHCpred:
 
     ANNOTATION_PREFIX = 'MixMHCpred'
+    ANNOTATION_PREFIX_WT = 'MixMHCpred_WT'
 
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
