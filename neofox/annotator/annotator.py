@@ -21,51 +21,32 @@ from typing import List
 
 from logzero import logger
 from datetime import datetime
-from distributed import get_client, secede, rejoin
 import neofox
-import time
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
+from neofox.annotator.neoantigen_mhc_binding_annotator import NeoantigenMhcBindingAnnotator
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
-from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
-from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
-from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
-    BestAndMultipleBinderMhcII,
-)
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
-    BestAndMultipleBinder,
-)
+from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from neofox.model.factories import AnnotationFactory
 from neofox.model.mhc_parser import MhcParser
 from neofox.published_features.differential_binding.amplitude import Amplitude
-from neofox.published_features.differential_binding.differential_binding import (
-    DifferentialBinding,
-)
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
-    TcellPrediction,
-)
-from neofox.published_features.dissimilarity_garnish.dissimilaritycalculator import (
-    DissimilarityCalculator,
-)
+from neofox.published_features.differential_binding.differential_binding import DifferentialBinding
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
 from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
-from neofox.published_features.neoantigen_fitness.neoantigen_fitness import (
-    NeoantigenFitnessCalculator,
-)
-from neofox.published_features.self_similarity.self_similarity import (
-    SelfSimilarityCalculator,
-)
+from neofox.published_features.neoantigen_fitness.neoantigen_fitness import NeoantigenFitnessCalculator
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.iedb_immunogenicity.iedb import IEDBimmunogenicity
 from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
-from neofox.MHC_predictors.prime import Prime
 from neofox.published_features.hex.hex import Hex
 from neofox.model.neoantigen import Patient, Neoantigen, Annotations, PredictedEpitope
 from neofox.published_features.vaxrank.vaxrank import VaxRank
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
-    AvailableAlleles, ORGANISM_HOMO_SAPIENS
+    ORGANISM_HOMO_SAPIENS
 )
 
 
@@ -112,6 +93,10 @@ class NeoantigenAnnotator:
         self.hex = Hex(runner=self.runner, configuration=configuration, references=references)
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
+
+        self.neoantigen_mhc_binding_annotator = NeoantigenMhcBindingAnnotator(
+            references=references, configuration=configuration, proteome_blastp_runner=self.proteome_blastp_runner,
+            uniprot=self.uniprot)
 
         self.resources_versions = references.get_resources_versions()
 
@@ -223,7 +208,7 @@ class NeoantigenAnnotator:
             netmhc2pan,
             netmhcpan,
             prime
-        ) = self._compute_long_running_tasks(neoantigen, patient)
+        ) = self.neoantigen_mhc_binding_annotator.get_mhc_binding_annotations(neoantigen=neoantigen, patient=patient)
 
         # HLA I predictions: NetMHCpan
         if netmhcpan:
@@ -387,135 +372,3 @@ class NeoantigenAnnotator:
                 self.get_additional_annotations_neoepitope_mhcii(epitope=e) for e in neoantigen.neoepitopes_mhc_i_i]
 
         return neoantigen
-
-    def _compute_long_running_tasks(self, neoantigen, patient):
-
-        has_mhc1 = patient.mhc1 is not None and len(patient.mhc1) > 0
-        has_mhc2 = patient.mhc2 is not None and len(patient.mhc2) > 0
-
-        netmhcpan = None
-        netmhc2pan = None
-        mixmhcpred = None
-        mixmhc2pred = None
-        prime = None
-
-        if has_mhc1:
-            netmhcpan = self.run_netmhcpan(
-                self.runner,
-                self.configuration,
-                self.available_alleles,
-                self.mhc_parser,
-                neoantigen,
-                patient)
-        if has_mhc2:
-            netmhc2pan = self.run_netmhc2pan(
-                self.runner,
-                self.configuration,
-                self.available_alleles,
-                self.mhc_parser,
-                neoantigen,
-                patient
-            )
-        # avoids running MixMHCpred and PRIME for non human organisms
-        if self.organism == ORGANISM_HOMO_SAPIENS:
-            if self.configuration.mix_mhc2_pred is not None and has_mhc2:
-                mixmhc2pred = self.run_mixmhc2pred(
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
-            if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                mixmhcpred = self.run_mixmhcpred(
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
-            if self.configuration.mix_mhc_pred is not None and has_mhc1:
-                prime = self.run_prime(
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
-
-        return mixmhc2pred, mixmhcpred, netmhc2pan, netmhcpan, prime
-
-    def run_netmhcpan(
-            self,
-            runner: Runner,
-            configuration: DependenciesConfiguration,
-            available_alleles: AvailableAlleles,
-            mhc_parser: MhcParser,
-            neoantigen: Neoantigen,
-            patient: Patient,
-    ):
-        netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser,
-                                          blastp_runner=self.proteome_blastp_runner)
-        netmhcpan.run(
-            mutation=neoantigen.mutation,
-            mhc1_alleles_patient=patient.mhc1,
-            mhc1_alleles_available=available_alleles.get_available_mhc_i(),
-            uniprot=self.uniprot,
-        )
-        return netmhcpan
-
-    def run_netmhc2pan(
-            self,
-            runner: Runner,
-            configuration: DependenciesConfiguration,
-            available_alleles: AvailableAlleles,
-            mhc_parser: MhcParser,
-            neoantigen: Neoantigen,
-            patient: Patient,
-    ):
-        netmhc2pan = BestAndMultipleBinderMhcII(
-            runner=runner, configuration=configuration, mhc_parser=mhc_parser,
-            blastp_runner=self.proteome_blastp_runner)
-        netmhc2pan.run(
-            mutation=neoantigen.mutation,
-            mhc2_alleles_patient=patient.mhc2,
-            mhc2_alleles_available=available_alleles.get_available_mhc_ii(),
-            uniprot=self.uniprot
-        )
-        return netmhc2pan
-
-    def run_mixmhcpred(
-            self,
-            runner: Runner,
-            configuration: DependenciesConfiguration,
-            mhc_parser: MhcParser,
-            neoantigen: Neoantigen,
-            patient: Patient,
-    ):
-        mixmhc = MixMHCpred(runner, configuration, mhc_parser)
-        mixmhc.run(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
-        return mixmhc
-
-    def run_prime(
-            self,
-            runner: Runner,
-            configuration: DependenciesConfiguration,
-            mhc_parser: MhcParser,
-            neoantigen: Neoantigen,
-            patient: Patient,
-    ):
-        prime = Prime(runner, configuration, mhc_parser)
-        prime.run(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
-        return prime
-
-    def run_mixmhc2pred(
-            self,
-            runner: Runner,
-            configuration: DependenciesConfiguration,
-            mhc_parser: MhcParser,
-            neoantigen: Neoantigen,
-            patient: Patient,
-    ):
-        mixmhc2 = MixMhc2Pred(runner, configuration, mhc_parser)
-        mixmhc2.run(mhc=patient.mhc2, mutation=neoantigen.mutation, uniprot=self.uniprot)
-        return mixmhc2
