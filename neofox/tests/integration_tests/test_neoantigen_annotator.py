@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from neofox.annotator.annotator import NeoantigenAnnotator
+from neofox.annotator.neoantigen_annotator import NeoantigenAnnotator
 from neofox.model.factories import MhcFactory, NeoantigenFactory
 from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Neoantigen, Mhc2Isoform, Patient
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
@@ -113,16 +113,15 @@ class NeoantigenAnnotatorTest(TestCase):
 
     def test_neoepitope_annotation_mhcii(self):
         epitope = PredictedEpitope(
-            mutated_peptide="AAAAAADAAAAA",
-            wild_type_peptide="AAAAAAAAAAAA",
-            allele_mhc_i=MhcAllele(name='HLA-A*01:01'),
+            mutated_peptide="AAAAAADAAAAAAA",
+            wild_type_peptide="AAAAAAAAAAAAAA",
             isoform_mhc_i_i=self._get_test_mhcii_isoform('HLA-DRB1*04:02')
         )
         annotated_epitope = self.annotator.get_additional_annotations_neoepitope_mhcii(epitope=epitope)
         self.assertIsNotNone(annotated_epitope)
         self.assertEqual(annotated_epitope.mutated_peptide, epitope.mutated_peptide)
         self.assertEqual(annotated_epitope.wild_type_peptide, epitope.wild_type_peptide)
-        self.assertEqual(annotated_epitope.allele_mhc_i.name, epitope.allele_mhc_i.name)
+        self.assertEqual(annotated_epitope.isoform_mhc_i_i.name, epitope.isoform_mhc_i_i.name)
         self.assertGreater(len(annotated_epitope.neofox_annotations.annotations), 0)
 
     def _get_test_mhci_allele(self, allele) -> MhcAllele:

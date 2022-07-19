@@ -1,17 +1,13 @@
 from unittest import TestCase
 
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.annotator.annotator import NeoantigenAnnotator
 from neofox.annotator.neoepitope_mhc_binding_annotator import NeoepitopeMhcBindingAnnotator
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
-from neofox.model.factories import MhcFactory, NeoantigenFactory
-from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Neoantigen, Mhc2Isoform, Patient
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
+from neofox.model.factories import MhcFactory
+from neofox.model.neoantigen import PredictedEpitope
 from neofox.tests.integration_tests import integration_test_tools
-from neofox.tests.integration_tests.integration_test_tools import get_hla_one_test, get_hla_two_test
 
 
 class NeoepitopeMhcBindingAnnotatorTest(TestCase):
