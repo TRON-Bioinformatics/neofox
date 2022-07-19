@@ -10,7 +10,7 @@ from neofox.tests.integration_tests import integration_test_tools
 from neofox.tests.integration_tests.integration_test_tools import get_hla_one_test, get_hla_two_test
 
 
-class NeoapitopeAnnotatorTest(TestCase):
+class NeoepitopeAnnotatorTest(TestCase):
 
     def setUp(self) -> None:
         self.references, self.configuration = integration_test_tools.load_references()
