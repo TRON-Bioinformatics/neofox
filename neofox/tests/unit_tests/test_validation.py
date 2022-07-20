@@ -12,7 +12,7 @@ from neofox.model.neoantigen import (
     Mhc2Name,
     Mhc2GeneName,
     Mhc2Gene,
-    Mhc2Isoform,
+    Mhc2Isoform, PredictedEpitope, MhcAllele,
 )
 from neofox.model.validation import ModelValidator
 from neofox.references.references import ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS
@@ -708,3 +708,162 @@ class TestModelValidator(TestCase):
             Patient(identifier="123", is_rna_available="False"),
             ORGANISM_HOMO_SAPIENS
         )
+
+    def test_validate_neoepitope_mhci(self):
+        neoepitope = PredictedEpitope(
+            mutated_peptide="DILVTDQTR",
+            wild_type_peptide="DILVIDQTR",
+            allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+        )
+        ModelValidator.validate_neoepitope(neoepitope)
+
+    def test_validate_neoepitope_mhci_without_wt(self):
+        neoepitope = PredictedEpitope(
+            mutated_peptide="DILVTDQTR",
+            allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+        )
+        ModelValidator.validate_neoepitope(neoepitope)
+
+    def test_validate_neoepitope_mhci_bad_length(self):
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                mutated_peptide="DILVT",  # 5 aa < min 8 aa
+                wild_type_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                mutated_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 14 aa
+                wild_type_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                wild_type_peptide="DILVT",  # 5 aa < min 8 aa
+                mutated_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                wild_type_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 14 aa
+                mutated_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            )
+        )
+
+    def test_validate_neoepitope_mhcii(self):
+        neoepitope = PredictedEpitope(
+            mutated_peptide="DILVTDQTR",
+            wild_type_peptide="DILVIDQTR",
+            isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
+        )
+        ModelValidator.validate_neoepitope(neoepitope)
+
+    def test_validate_neoepitope_mhcii_without_wt(self):
+        neoepitope = PredictedEpitope(
+            mutated_peptide="DILVTDQTR",
+            isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
+
+        )
+        ModelValidator.validate_neoepitope(neoepitope)
+
+    def test_validate_neoepitope_mhcii_bad_length(self):
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                mutated_peptide="DILVT",  # 5 aa < min 8 aa
+                wild_type_peptide="DILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                mutated_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 20 aa
+                wild_type_peptide="DILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                wild_type_peptide="DILVT",  # 5 aa < min 8 aa
+                mutated_peptide="DILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                wild_type_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 14 aa
+                mutated_peptide="DILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
+            )
+        )
+
+    def test_validate_neoepitope_with_patient_id(self):
+        neoepitope = PredictedEpitope(
+            mutated_peptide="DILVTDQTR",
+            wild_type_peptide="DILVIDQTR",
+            patient_identifier="123",
+        )
+        ModelValidator.validate_neoepitope(neoepitope)
+
+    def test_validate_neoepitope_with_patient_id_bad_length(self):
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                mutated_peptide="DILVT",  # 5 aa < min 8 aa
+                wild_type_peptide="DILVIDQTR",
+                patient_identifier="123",
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                mutated_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 20 aa
+                wild_type_peptide="DILVIDQTR",
+                patient_identifier="123",
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                wild_type_peptide="DILVT",  # 5 aa < min 8 aa
+                mutated_peptide="DILVIDQTR",
+                patient_identifier="123",
+            )
+        )
+        self.assertRaises(
+            NeofoxDataValidationException,
+            ModelValidator.validate_neoepitope,
+            PredictedEpitope(
+                wild_type_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 14 aa
+                mutated_peptide="DILVIDQTR",
+                patient_identifier="123",
+            )
+        )
+
+    def _get_test_mhci_allele(self, allele) -> MhcAllele:
+        return MhcAllele(name=allele)
+
+    def _get_test_mhcii_isoform(self, isoform) -> Mhc2Isoform:
+        return Mhc2Isoform(name=isoform)
