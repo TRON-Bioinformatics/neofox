@@ -93,8 +93,8 @@ class ModelValidator(object):
 
         try:
             has_patient_id = neoepitope.patient_identifier is not None and len(neoepitope.patient_identifier) > 0
-            has_mhc_i = neoepitope.allele_mhc_i is not None and neoepitope.allele_mhc_i.name != ''
-            has_mhc_ii = neoepitope.isoform_mhc_i_i is not None and neoepitope.isoform_mhc_i_i.name != ''
+            has_mhc_i = ModelValidator.is_mhci_epitope(neoepitope)
+            has_mhc_ii = ModelValidator.is_mhcii_epitope(neoepitope)
 
             assert has_patient_id or has_mhc_i or has_mhc_ii, \
                 "A patient identifier is missing for a neoepitope without MHC-I allele or MHC-II isoform."
@@ -113,25 +113,27 @@ class ModelValidator(object):
             # check lengths according to MHC I or II
             length_mutated_peptide = len(neoepitope.mutated_peptide)
             if has_mhc_i:
-                assert 8 <= length_mutated_peptide <= 14, \
+                assert ModelValidator.is_mhci_peptide_length_valid(length_mutated_peptide), \
                     "Mutated MHC-I peptide has a non supported length of {}".format(length_mutated_peptide)
             elif has_mhc_ii:
-                assert 8 <= length_mutated_peptide <= 20, \
+                assert ModelValidator.is_mhcii_peptide_length_valid(length_mutated_peptide), \
                     "Mutated MHC-II peptide has a non supported length of {}".format(length_mutated_peptide)
             else:
-                assert 8 <= length_mutated_peptide <= 20, \
+                assert ModelValidator.is_mhci_peptide_length_valid(length_mutated_peptide) or \
+                       ModelValidator.is_mhcii_peptide_length_valid(length_mutated_peptide), \
                     "Mutated peptide has a non supported length of {}".format(length_mutated_peptide)
 
             if has_wt_peptide:
                 length_wt_peptide = len(neoepitope.wild_type_peptide)
                 if has_mhc_i:
-                    assert 8 <= length_wt_peptide <= 14, \
+                    assert ModelValidator.is_mhci_peptide_length_valid(length_wt_peptide), \
                         "Mutated MHC-I peptide has a non supported length of {}".format(length_wt_peptide)
                 elif has_mhc_ii:
-                    assert 8 <= length_wt_peptide <= 20, \
+                    assert ModelValidator.is_mhcii_peptide_length_valid(length_wt_peptide), \
                         "Mutated MHC-II peptide has a non supported length of {}".format(length_wt_peptide)
                 else:
-                    assert 8 <= length_wt_peptide <= 20, \
+                    assert ModelValidator.is_mhci_peptide_length_valid(length_wt_peptide) or \
+                           ModelValidator.is_mhcii_peptide_length_valid(length_wt_peptide), \
                         "Mutated peptide has a non supported length of {}".format(length_wt_peptide)
 
             # check the expression values
@@ -139,6 +141,22 @@ class ModelValidator(object):
         except AssertionError as e:
             logger.error(neoepitope.to_json(indent=3))
             raise NeofoxDataValidationException(e)
+
+    @staticmethod
+    def is_mhcii_peptide_length_valid(length_mutated_peptide):
+        return 8 <= length_mutated_peptide <= 20
+
+    @staticmethod
+    def is_mhci_peptide_length_valid(length_mutated_peptide):
+        return 8 <= length_mutated_peptide <= 14
+
+    @staticmethod
+    def is_mhcii_epitope(neoepitope):
+        return neoepitope.isoform_mhc_i_i is not None and neoepitope.isoform_mhc_i_i.name != ''
+
+    @staticmethod
+    def is_mhci_epitope(neoepitope):
+        return neoepitope.allele_mhc_i is not None and neoepitope.allele_mhc_i.name != ''
 
     @staticmethod
     def validate_patient(patient: Patient, organism=ORGANISM_HOMO_SAPIENS):
