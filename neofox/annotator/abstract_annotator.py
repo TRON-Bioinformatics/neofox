@@ -6,7 +6,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.factories import AnnotationFactory
-from neofox.model.neoantigen import PredictedEpitope, Neoantigen
+from neofox.model.neoantigen import PredictedEpitope, Neoantigen, Patient
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.published_features.differential_binding.differential_binding import DifferentialBinding
@@ -56,7 +56,18 @@ class AbstractAnnotator(ABC):
         self.hex = Hex(runner=self.runner, configuration=configuration, references=references)
 
     def get_additional_annotations_neoepitope_mhci(
-            self, epitope: PredictedEpitope, neoantigen: Neoantigen = None, vaf_rna=None) -> PredictedEpitope:
+            self, epitope: PredictedEpitope, neoantigen: Neoantigen = None) -> PredictedEpitope:
+
+        if neoantigen is not None:
+            gene = neoantigen.gene
+            vaf_tumor_dna = neoantigen.dna_variant_allele_frequency
+            vaf_tumor_rna = neoantigen.rna_variant_allele_frequency
+            transcript_exp = neoantigen.rna_expression
+        else:
+            gene = epitope.gene
+            vaf_tumor_dna = epitope.dna_variant_allele_frequency
+            vaf_tumor_rna = epitope.rna_variant_allele_frequency
+            transcript_exp = epitope.rna_expression
 
         epitope.neofox_annotations.annotations.extend(
             BestAndMultipleBinder.get_annotations_epitope_mhci(epitope=epitope) +
@@ -72,10 +83,8 @@ class AbstractAnnotator(ABC):
             self.dissimilarity_calculator.get_annotations_epitope(epitope=epitope)
         )
 
-        # restricted to 9-mers
-        if len(epitope.mutated_peptide) == 9 and neoantigen is not None:
-            epitope.neofox_annotations.annotations.extend(self.tcell_predictor.get_annotations_epitope_mhci(
-                epitope=epitope, neoantigen=neoantigen))
+        epitope.neofox_annotations.annotations.extend(self.tcell_predictor.get_annotations_epitope_mhci(
+            epitope=epitope, gene=gene))
 
         num_mismatches = EpitopeHelper.number_of_mismatches(
             epitope_wild_type=epitope.wild_type_peptide, epitope_mutation=epitope.mutated_peptide, )
@@ -83,10 +92,9 @@ class AbstractAnnotator(ABC):
             value=num_mismatches,
             name='number_of_mismatches'))
 
-        if neoantigen is not None and vaf_rna is not None:
-            epitope.neofox_annotations.annotations.extend(
-                self.priority_score_calculator.get_annotations_epitope_mhci(
-                    epitope=epitope, neoantigen=neoantigen, vaf_rna=vaf_rna))
+        epitope.neofox_annotations.annotations.extend(
+            self.priority_score_calculator.get_annotations_epitope_mhci(
+                epitope=epitope, vaf_rna=vaf_tumor_rna, vaf_tumor=vaf_tumor_dna, transcript_exp=transcript_exp))
 
         if self.organism == ORGANISM_HOMO_SAPIENS:
             epitope.neofox_annotations.annotations.extend(

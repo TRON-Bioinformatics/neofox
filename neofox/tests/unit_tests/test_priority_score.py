@@ -26,7 +26,7 @@ class TestPriorityScore(TestCase):
 
     def test_priority(self):
         result = self.priority_calculator.calc_priority_score(
-            vaf_tumor=0.35,
+            vaf_dna=0.35,
             vaf_rna=0.33,
             transcript_expr=12,
             no_mismatch=1,
@@ -36,7 +36,7 @@ class TestPriorityScore(TestCase):
         )
         self.assertGreater(result, 0)
         result = self.priority_calculator.calc_priority_score(
-            vaf_tumor=None,
+            vaf_dna=None,
             vaf_rna=0.33,
             transcript_expr=12,
             no_mismatch=1,
@@ -46,7 +46,7 @@ class TestPriorityScore(TestCase):
         )
         self.assertGreater(result, 0)
         result = self.priority_calculator.calc_priority_score(
-            vaf_tumor=0.35,
+            vaf_dna=0.35,
             vaf_rna=None,
             transcript_expr=12,
             no_mismatch=1,
@@ -56,7 +56,7 @@ class TestPriorityScore(TestCase):
         )
         self.assertGreater(result, 0)
         result = self.priority_calculator.calc_priority_score(
-            vaf_tumor=None,
+            vaf_dna=None,
             vaf_rna=-1,
             transcript_expr=12,
             no_mismatch=1,
@@ -66,7 +66,7 @@ class TestPriorityScore(TestCase):
         )
         self.assertEqual(result, None)
         result = self.priority_calculator.calc_priority_score(
-            vaf_tumor=0.35,
+            vaf_dna=0.35,
             vaf_rna=0.33,
             transcript_expr=None,
             no_mismatch=1,
@@ -76,7 +76,7 @@ class TestPriorityScore(TestCase):
         )
         self.assertEqual(result, None)
         result = self.priority_calculator.calc_priority_score(
-            vaf_tumor=0.35,
+            vaf_dna=0.35,
             vaf_rna=0.33,
             transcript_expr=None,
             no_mismatch=1,

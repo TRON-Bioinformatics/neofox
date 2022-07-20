@@ -73,6 +73,18 @@ class NeoantigenAnnotatorTest(TestCase):
         self.assertIsNone(annotated_neoantigen.mutation.wild_type_xmer)
         self._assert_epitopes(annotated_neoantigen, with_all_epitopes=True)
 
+    def test_neoantigen_annotation_with_vaf_and_without_tx_expression(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
+            mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
+            patient_identifier="123",
+            gene="BRCA2",
+            dna_variant_allele_frequency=0.5
+        )
+        annotated_neoantigen = self.annotator.get_annotated_neoantigen(
+            neoantigen=neoantigen, patient=self.patient, with_all_neoepitopes=True)
+        self._assert_neoantigen(annotated_neoantigen, neoantigen)
+
     def test_neoepitope_annotation_mhci(self):
         epitope = PredictedEpitope(
             mutated_peptide="AAAAAADAAAAA",
@@ -83,8 +95,7 @@ class NeoantigenAnnotatorTest(TestCase):
                                 rna_expression=0.5)
         annotated_epitope = self.annotator.get_additional_annotations_neoepitope_mhci(
             epitope=epitope,
-            neoantigen=neoantigen,
-            vaf_rna=0.5
+            neoantigen=neoantigen
         )
         self.assertIsNotNone(annotated_epitope)
         self.assertEqual(annotated_epitope.mutated_peptide, epitope.mutated_peptide)
@@ -102,8 +113,7 @@ class NeoantigenAnnotatorTest(TestCase):
                                 rna_expression=0.5)
         annotated_epitope = self.annotator.get_additional_annotations_neoepitope_mhci(
             epitope=epitope,
-            neoantigen=neoantigen,
-            vaf_rna=0.5
+            neoantigen=neoantigen
         )
         self.assertIsNotNone(annotated_epitope)
         self.assertEqual(annotated_epitope.mutated_peptide, epitope.mutated_peptide)

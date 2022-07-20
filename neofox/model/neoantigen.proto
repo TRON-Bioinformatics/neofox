@@ -330,6 +330,30 @@ message PredictedEpitope {
 	The NeoFox neoantigen annotations
 	 */
 	Annotations neofoxAnnotations = 10;
+	/**
+	Patient identifier
+	*/
+	string patientIdentifier = 11;
+	/**
+	The HGNC gene symbol or gene identifier
+	*/
+	string gene = 12;
+	/**
+	Expression value of the transcript from RNA data. Range [0, +inf].
+	*/
+	float rnaExpression = 13;
+	/**
+	Expression value of the transcript from TCGA data. Range [0, +inf].
+	*/
+	float imputedGeneExpression = 14;
+	/**
+	Variant allele frequency from the DNA. Range [0.0, 1.0]
+	*/
+	float dnaVariantAlleleFrequency = 15;
+	/**
+	Variant allele frequency from the RNA. Range [0.0, 1.0]
+	*/
+	float rnaVariantAlleleFrequency = 16;
 }
 
 /**
