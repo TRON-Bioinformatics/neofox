@@ -64,22 +64,22 @@ class MixMHC2pred:
         return list(alleles["AlleleName"])
 
     @staticmethod
-    def _combine_dq_dp_alleles(list_alleles: List[str]):
+    def _combine_dq_dp_alleles(alpha_alleles: List[str], beta_alleles: List[str]):
         """returns patient HLA-DQ/HLA-DP allele combination that are relevant for MixMHC2pred"""
-        # TODO: we need to clarify the formation of pairs here AA, BB, AB
-        # TODO: what are these triplets?
+        # NOTE: there are some pairs of alleles which positive/negative binding could not be deconvoluted
+        # hence the triplets. In MixMHC2pred the triplets are only of the form of two alpha chains and one beta chain.
+        # NOTE2: this may be gone after upgrading to MixMHC2pred
         alleles_pairs = [
             "__".join([allele_1, allele_2])
-            for allele_1 in list_alleles
-            for allele_2 in list_alleles
-            if allele_1 != allele_2
+            for allele_1 in alpha_alleles
+            for allele_2 in beta_alleles
         ]
         alleles_triplets = [
             "__".join([allele_1, allele_2, allele_3])
-            for allele_1 in list_alleles
-            for allele_2 in list_alleles
-            for allele_3 in list_alleles
-            if allele_1 != allele_2 and allele_1 != allele_3 and allele_2 != allele_3
+            for allele_1 in alpha_alleles
+            for allele_2 in alpha_alleles
+            for allele_3 in beta_alleles
+            if allele_1 != allele_2
         ]
         return alleles_pairs + alleles_triplets
 
@@ -115,10 +115,12 @@ class MixMHC2pred:
         dqb1_alleles = get_alleles_by_gene(mhc, Mhc2GeneName.DQB1)
 
         dp_allele_combinations = self._combine_dq_dp_alleles(
-            self._get_mixmhc2_allele_representation(dpa1_alleles + dpb1_alleles)
+            alpha_alleles=self._get_mixmhc2_allele_representation(dpa1_alleles),
+            beta_alleles=self._get_mixmhc2_allele_representation(dpb1_alleles)
         )
         dq_allele_combinations = self._combine_dq_dp_alleles(
-            self._get_mixmhc2_allele_representation(dqa1_alleles + dqb1_alleles)
+            alpha_alleles=self._get_mixmhc2_allele_representation(dqa1_alleles),
+            beta_alleles=self._get_mixmhc2_allele_representation(dqb1_alleles)
         )
 
         return [
