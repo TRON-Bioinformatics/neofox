@@ -58,6 +58,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
 
         # NOTE: these resources do not read any file thus can be initialised fast
         self.neoag_calculator = NeoagCalculator(runner=self.runner, configuration=configuration)
+        self.expression_calculator = Expression()
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
 
@@ -120,20 +121,9 @@ class NeoantigenAnnotator(AbstractAnnotator):
                 annotated_epitopes=mixmhc2pred.results,
                 annotation_name=MixMHC2pred.ANNOTATION_PREFIX)
 
-        # decides which VAF to use
-        vaf_rna = neoantigen.rna_variant_allele_frequency
-        if not patient.is_rna_available and neoantigen.dna_variant_allele_frequency is not None:
-            logger.warning(
-                "Using the DNA VAF to estimate the RNA VAF as the patient does not have RNA available"
-            )
-            # NOTE: does not overwrite value in the neoantigen object
-            vaf_rna = neoantigen.dna_variant_allele_frequency
-
         # MHC binding independent features
-        expression_calculator = Expression(
-            transcript_expression=neoantigen.rna_expression, vaf_rna=vaf_rna
-        )
-        neoantigen.neofox_annotations.annotations.extend(expression_calculator.get_annotations())
+        expression_annotation = self.expression_calculator.get_annotations(neoantigen=neoantigen)
+        neoantigen.neofox_annotations.annotations.extend(expression_annotation)
 
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(
             neoantigen.mutation.mutated_xmer
@@ -192,9 +182,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
             neoantigen.neofox_annotations.annotations.extend(
                 self.priority_score_calculator.get_annotations(
                     netmhcpan=netmhcpan,
-                    vaf_transcr=vaf_rna,
-                    vaf_tum=neoantigen.dna_variant_allele_frequency,
-                    expr=neoantigen.rna_expression,
+                    neoantigen=neoantigen,
                     mut_not_in_prot=sequence_not_in_uniprot,
                 )
             )
@@ -227,7 +215,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
         if netmhcpan and netmhcpan.predictions:
             neoantigen.neofox_annotations.annotations.extend(VaxRank().get_annotations(
                 epitope_predictions=netmhcpan.predictions,
-                expression_score=expression_calculator.expression,
+                expression_score=expression_annotation[0].value,
             ))
 
         # hex
@@ -242,7 +230,8 @@ class NeoantigenAnnotator(AbstractAnnotator):
         # annotate neoepitopes
         if with_all_neoepitopes:
             neoantigen.neoepitopes_mhc_i = [
-                self.get_additional_annotations_neoepitope_mhci(epitope=e, neoantigen=neoantigen, vaf_rna=vaf_rna)
+                self.get_additional_annotations_neoepitope_mhci(
+                    epitope=e, neoantigen=neoantigen)
                 for e in neoantigen.neoepitopes_mhc_i]
             neoantigen.neoepitopes_mhc_i_i = [
                 self.get_additional_annotations_neoepitope_mhcii(epitope=e) for e in neoantigen.neoepitopes_mhc_i_i]

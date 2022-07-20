@@ -103,15 +103,12 @@ class NeoepitopeMhcBindingAnnotator:
         if netmhcpan_allele in self.available_alleles.get_available_mhc_i():
             mutated_epitope = self.netmhcpan.mhc_prediction_peptide(
                 sequence=neoepitope.mutated_peptide, alleles=netmhcpan_allele)
+            annotated_neoepitope.affinity_mutated = mutated_epitope.affinity_mutated
+            annotated_neoepitope.rank_mutated = mutated_epitope.rank_mutated
             wt_epitope = self.netmhcpan.mhc_prediction_peptide(
                 sequence=neoepitope.wild_type_peptide, alleles=netmhcpan_allele)
-            if mutated_epitope:
-                mutated_epitope.wild_type_peptide = neoepitope.wild_type_peptide
-                mutated_epitope.affinity_wild_type = wt_epitope.affinity_mutated
-                mutated_epitope.rank_wild_type = wt_epitope.rank_mutated
-                # makes sure to pass over the "annotated" (versions, timestamp, etc) annotations
-                mutated_epitope.neofox_annotations = neoepitope.neofox_annotations
-                annotated_neoepitope = mutated_epitope
+            annotated_neoepitope.affinity_wild_type = wt_epitope.affinity_mutated
+            annotated_neoepitope.rank_wild_type = wt_epitope.rank_mutated
         return annotated_neoepitope
 
     def _run_netmhc2pan(self, neoepitope: PredictedEpitope) -> PredictedEpitope:
@@ -122,16 +119,13 @@ class NeoepitopeMhcBindingAnnotator:
             mutated_epitope = self.netmhc2pan.mhc2_prediction_peptide(
                 sequence=neoepitope.mutated_peptide,
                 mhc2_isoform=neoepitope.isoform_mhc_i_i)
+            annotated_neoepitope.affinity_mutated = mutated_epitope.affinity_mutated
+            annotated_neoepitope.rank_mutated = mutated_epitope.rank_mutated
             wt_epitope = self.netmhc2pan.mhc2_prediction_peptide(
                 sequence=neoepitope.wild_type_peptide,
                 mhc2_isoform=neoepitope.isoform_mhc_i_i)
-            if mutated_epitope and wt_epitope:
-                mutated_epitope.wild_type_peptide = neoepitope.wild_type_peptide
-                mutated_epitope.affinity_wild_type = wt_epitope.affinity_mutated
-                mutated_epitope.rank_wild_type = wt_epitope.rank_mutated
-                # makes sure to pass over the "annotated" (versions, timestamp, etc) annotations
-                mutated_epitope.neofox_annotations = neoepitope.neofox_annotations
-                annotated_neoepitope = mutated_epitope
+            annotated_neoepitope.affinity_wild_type = wt_epitope.affinity_mutated
+            annotated_neoepitope.rank_wild_type = wt_epitope.rank_mutated
         return annotated_neoepitope
 
     def _run_mixmhcpred(self, neoepitope: PredictedEpitope) -> Tuple[PredictedEpitope, PredictedEpitope]:
