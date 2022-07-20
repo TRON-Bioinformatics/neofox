@@ -79,7 +79,6 @@ class NeoFox:
             configuration if configuration else DependenciesConfiguration()
         )
         self.tcell_predictor = TcellPrediction()
-        self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -146,16 +145,6 @@ class NeoFox:
             neoantigen.imputed_gene_expression = gene_expression
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed
-
-    @staticmethod
-    def initialise_logs(logfile, verbose=False):
-        if logfile is not None:
-            logzero.logfile(logfile)
-        # TODO: this does not work
-        if verbose:
-            logzero.loglevel(logging.INFO)
-        else:
-            logzero.loglevel(logging.WARN)
 
     @staticmethod
     def get_log_file_name(output_prefix, work_folder):
