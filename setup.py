@@ -36,6 +36,7 @@ setup(
     entry_points={
         "console_scripts": [
             "neofox=neofox.command_line:neofox_cli",
+            "neofox-epitope=neofox.command_line:neofox_epitope_cli",
             "neofox-configure=neofox.command_line:neofox_configure",
         ],
     },

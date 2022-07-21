@@ -24,12 +24,14 @@ from neofox import NOT_AVAILABLE_VALUE, MHC_II, MHC_I
 from collections import defaultdict
 import orjson as json
 import numpy as np
+
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import (
     Neoantigen,
     Patient,
-    Annotation,
+    Annotation, PredictedEpitope,
 )
-from neofox.model.factories import PatientFactory, NeoantigenFactory
+from neofox.model.factories import PatientFactory, NeoantigenFactory, MhcFactory
 from neofox.references.references import MhcDatabase
 
 FIELD_VAF_DNA = "VAF_in_tumor"
@@ -86,6 +88,30 @@ class ModelConverter(object):
             data = data.replace({np.nan: None})
             neoantigens = ModelConverter._neoantigens_csv2objects(data)
         return neoantigens
+
+    @staticmethod
+    def parse_candidate_neoepitopes_file(candidate_file: str, mhc_database: MhcDatabase) -> List[PredictedEpitope]:
+        data = pd.read_csv(
+            candidate_file, sep="\t",
+            # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
+            dtype={
+                "gene": str,
+                "mutatedPeptide": str,
+                "wildTypePeptide": str,
+                "dnaVariantAlleleFrequency": float,
+                "rnaExpression": float,
+                "rnaVariantAlleleFrequency": float,
+                "patientIdentifier": str,
+                "alleleMhcI": str,
+                "isoformMhcII": str,
+            }
+        )
+
+        # NOTE: this is the support for the NeoFox format
+        data = data.replace({np.nan: None})
+        neoepitopes = ModelConverter._neoepitopes_csv2objects(data, mhc_database)
+        return neoepitopes
+
 
     @staticmethod
     def parse_patients_file(patients_file: str, mhc_database: MhcDatabase) -> List[Patient]:
@@ -219,6 +245,42 @@ class ModelConverter(object):
         return epitopes_df
 
     @staticmethod
+    def annotated_neoepitopes2epitopes_table(neoepitopes: List[PredictedEpitope], mhc: str) -> pd.DataFrame:
+
+        assert (mhc in [MHC_I, MHC_II], 'Bad MHC value')
+
+        epitopes_df = ModelConverter._objects2dataframe(neoepitopes)
+
+        # adapts output table depending on MHC type
+        if mhc == MHC_I:
+            epitopes_df.drop(list(epitopes_df.filter(regex='isoformMhcII.*')), axis=1, inplace=True)
+        else:
+            epitopes_df.drop(list(epitopes_df.filter(regex='alleleMhcI.*')), axis=1, inplace=True)
+
+        # formats annotation columns
+        epitopes_df.drop(list(epitopes_df.filter(regex='neofoxAnnotations.*')), axis=1, inplace=True)
+        # the position is used to pair neoepitopes coming out of netMHCpan in neoantigen mode, not of any use here
+        epitopes_df.drop(["position"], axis=1, inplace=True)
+
+        # parses the annotations from each of the epitopes into a data frame
+        annotations_dfs = []
+        for e in neoepitopes:
+            annotations = [a.to_dict() for a in e.neofox_annotations.annotations]
+            annotations_temp_df = (pd.DataFrame(annotations).set_index("name").transpose())
+            annotations_dfs.append(annotations_temp_df)
+        if len(annotations_dfs) > 0:
+            annotations_df = pd.concat(annotations_dfs, sort=True).reset_index()
+            del annotations_df["index"]
+
+            # puts together both data frames
+            epitopes_df = pd.concat([epitopes_df, annotations_df], axis=1)
+
+        # replace None by NA
+        epitopes_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
+
+        return epitopes_df
+
+    @staticmethod
     def patients2table(patients: List[Patient]) -> pd.DataFrame:
 
         patients_dict = []
@@ -286,6 +348,77 @@ class ModelConverter(object):
             neoantigens.append(neoantigen)
 
         return neoantigens
+
+    @staticmethod
+    def _neoepitopes_csv2objects(dataframe: pd.DataFrame, mhc_database: MhcDatabase) -> List[PredictedEpitope]:
+        """transforms an patients CSV into a list of objects"""
+        neoepitopes = []
+        mhc_parser = MhcParser.get_mhc_parser(mhc_database)
+        for _, row in dataframe.iterrows():
+            nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
+
+            # build the external annotations from anything not from the model
+            external_annotations = nested_dict.copy()
+            external_annotations.pop("mutatedPeptide", None)
+            external_annotations.pop("wildTypePeptide", None)
+            external_annotations.pop("affinityMutated", None)
+            external_annotations.pop("rankMutated", None)
+            external_annotations.pop("affinityWildType", None)
+            external_annotations.pop("rankWildType", None)
+            external_annotations.pop("alleleMhcI", None)
+            external_annotations.pop("alleleMhcII", None)
+            external_annotations.pop("position", None)
+            external_annotations.pop("patientIdentifier", None)
+            external_annotations.pop("gene", None)
+            external_annotations.pop("rnaExpression", None)
+            external_annotations.pop("rnaVariantAlleleFrequency", None)
+            external_annotations.pop("dnaVariantAlleleFrequency", None)
+
+            mhci_allele = nested_dict.get("alleleMhcI")
+            mhcii_isoform = nested_dict.get("isoformMhcII")
+            patient_id = nested_dict.get("patientIdentifier")
+            if mhci_allele is not None and mhci_allele != '':
+                neoepitope = PredictedEpitope(
+                    mutated_peptide=nested_dict.get("mutatedPeptide"),
+                    wild_type_peptide=nested_dict.get("wildTypePeptide"),
+                    patient_identifier=patient_id,
+                    allele_mhc_i=mhc_parser.parse_mhc_allele(mhci_allele),
+                    gene=nested_dict.get("gene"),
+                    rna_expression=nested_dict.get("rnaExpression"),
+                    rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
+                    dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
+                    imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                )
+            elif mhcii_isoform is not None and mhcii_isoform != '':
+                neoepitope = PredictedEpitope(
+                    mutated_peptide=nested_dict.get("mutatedPeptide"),
+                    wild_type_peptide=nested_dict.get("wildTypePeptide"),
+                    patient_identifier=patient_id,
+                    isoform_mhc_i_i=mhc_parser.parse_mhc2_isoform(mhcii_isoform),
+                    gene=nested_dict.get("gene"),
+                    rna_expression=nested_dict.get("rnaExpression"),
+                    rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
+                    dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
+                    imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                )
+            elif patient_id is not None and patient_id != '':
+                neoepitope = PredictedEpitope(
+                    mutated_peptide=nested_dict.get("mutatedPeptide"),
+                    wild_type_peptide=nested_dict.get("wildTypePeptide"),
+                    patient_identifier=patient_id,
+                    gene=nested_dict.get("gene"),
+                    rna_expression=nested_dict.get("rnaExpression"),
+                    rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
+                    dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
+                    imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                )
+            else:
+                raise ValueError(
+                    "Found an epitope without MHC-I allele, MHC-II isoform or patiend identifier: {}".format(
+                        nested_dict))
+            neoepitopes.append(neoepitope)
+
+        return neoepitopes
 
     @staticmethod
     def _neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
