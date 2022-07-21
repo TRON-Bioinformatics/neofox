@@ -117,7 +117,6 @@ class NeoFoxEpitope:
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
         dask_client = Client(n_workers=self.num_cpus, threads_per_worker=1)
         annotations = self.send_to_client(dask_client)
-        dask_client.shutdown()          # terminates schedulers and workers
         dask_client.close(timeout=10)   # waits 10 seconds for the client to close before killing
 
         return annotations
@@ -126,13 +125,14 @@ class NeoFoxEpitope:
         # feature calculation for each epitope
         futures = []
         start = time.time()
-        # NOTE: sets those heavy resources to be used by all workers in the cluster
+        # NOTE: sets those heavy resources distributed to all workers in the cluster
         future_tcell_predictor = dask_client.scatter(
             self.tcell_predictor, broadcast=True
         )
         future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
         future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
+
         for neoepitope in self.neoepitopes:
             logger.debug("Neoantigen: {}".format(neoepitope.to_json(indent=3)))
             futures.append(
@@ -153,6 +153,13 @@ class NeoFoxEpitope:
                 len(self.neoepitopes), int(end - start)
             )
         )
+
+        # close distributed resources
+        del future_tcell_predictor
+        del future_self_similarity
+        del future_reference_folder
+        del future_configuration
+
         return annotated_neoantigens
 
     @staticmethod
