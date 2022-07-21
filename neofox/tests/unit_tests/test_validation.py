@@ -897,7 +897,8 @@ class TestModelValidator(TestCase):
         )
 
     def _get_test_mhci_allele(self, allele) -> MhcAllele:
-        return MhcAllele(name=allele)
+
+        return self.hla_parser.parse_mhc_allele(allele)
 
     def _get_test_mhcii_isoform(self, isoform) -> Mhc2Isoform:
-        return Mhc2Isoform(name=isoform)
+        return self.hla_parser.parse_mhc2_isoform(isoform)

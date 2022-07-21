@@ -16,9 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
+import os
 import unittest
 import pkg_resources
 import neofox.tests
+from neofox.command_line import _write_results_epitopes
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import PredictedEpitope, Patient
 from neofox.model.validation import ModelValidator
@@ -113,6 +115,80 @@ class TestNeofoxEpitope(BaseIntegrationTest):
 
         self.assertEqual(len(annotated_neoepitopes), 18)    # 16 from the patient neoepitope
 
+    def test_neofox_epitope_writing_output_table(self):
+
+        neoepitopes = [
+            PredictedEpitope(
+                mutated_peptide="DILVTDQTR",
+                wild_type_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            ),
+            PredictedEpitope(
+                mutated_peptide="DEVLGEPSQDILVTDQTR",
+                wild_type_peptide="DEVLGEPSQDILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform("HLA-DRB1*01:01")
+            )
+        ]
+
+        annotated_neoepitopes = NeoFoxEpitope(
+            neoepitopes=neoepitopes,
+            num_cpus=4,
+        ).get_annotations()
+
+        _write_results_epitopes(
+            annotated_neoepitopes,
+            output_folder=pkg_resources.resource_filename(neofox.tests.__name__, "resources"),
+            output_prefix="test_neoepitopes")
+
+        self.assertTrue(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_mhcI_epitope_candidates_annotated.tsv")))
+        self.assertTrue(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_mhcII_epitope_candidates_annotated.tsv")))
+
+    def test_neofox_epitope_writing_output_table_with_patients(self):
+
+        neoepitopes = [
+            PredictedEpitope(
+                mutated_peptide="DILVTDQTR",
+                wild_type_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            ),
+            PredictedEpitope(
+                mutated_peptide="DEVLGEPSQDILVTDQTR",
+                wild_type_peptide="DEVLGEPSQDILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform("HLA-DRB1*01:01")
+            ),
+            PredictedEpitope(
+                mutated_peptide="DILVTDQTR",
+                wild_type_peptide="DILVIDQTR",
+                patient_identifier="123"
+            )
+        ]
+
+        patients = [
+            Patient(
+                identifier="123",
+                mhc1=get_hla_one_test(self.references.get_mhc_database()),
+                mhc2=get_hla_two_test(self.references.get_mhc_database())
+            )
+        ]
+
+        annotated_neoepitopes = NeoFoxEpitope(
+            neoepitopes=neoepitopes,
+            patients=patients,
+            num_cpus=4,
+        ).get_annotations()
+
+        _write_results_epitopes(
+            annotated_neoepitopes,
+            output_folder=pkg_resources.resource_filename(neofox.tests.__name__, "resources"),
+            output_prefix="test_neoepitopes_with_patients")
+
+        self.assertTrue(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_with_patients_mhcI_epitope_candidates_annotated.tsv")))
+        self.assertTrue(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_with_patients_mhcII_epitope_candidates_annotated.tsv")))
+
     def _assert_neeoepitope(self, neoepitope: PredictedEpitope):
         # netMHCpan or netMHC2pan annotations
         self.assertIsInstance(neoepitope.rank_mutated, float)
@@ -121,33 +197,33 @@ class TestNeofoxEpitope(BaseIntegrationTest):
         self.assertIsInstance(neoepitope.affinity_wild_type, float)
 
         # MixMHCpred annotations
-        self._assert_float_annotation(neoepitope, annotation_name="MixMHCpred_affinity_score")
-        self._assert_float_annotation(neoepitope, annotation_name="MixMHCpred_rank")
-        self._assert_float_annotation(neoepitope, annotation_name="MixMHCpred_WT_affinity_score")
-        self._assert_float_annotation(neoepitope, annotation_name="MixMHCpred_WT_rank")
+        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_rank")
+        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_WT_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_WT_rank")
 
         # PRIME annotations
-        self._assert_float_annotation(neoepitope, annotation_name="PRIME_affinity_score")
-        self._assert_float_annotation(neoepitope, annotation_name="PRIME_rank")
-        self._assert_float_annotation(neoepitope, annotation_name="PRIME_WT_affinity_score")
-        self._assert_float_annotation(neoepitope, annotation_name="PRIME_WT_rank")
+        self.assert_float_annotation(neoepitope, annotation_name="PRIME_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="PRIME_rank")
+        self.assert_float_annotation(neoepitope, annotation_name="PRIME_WT_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="PRIME_WT_rank")
 
         # additional annotations
-        self._assert_annotation(neoepitope, annotation_name="position_mutation")
-        self._assert_annotation(neoepitope, annotation_name="anchor_mutated")
-        self._assert_annotation(neoepitope, annotation_name="amplitude")
-        self._assert_annotation(neoepitope, annotation_name="pathogen_similarity")
-        self._assert_annotation(neoepitope, annotation_name="recognition_potential")
-        self._assert_annotation(neoepitope, annotation_name="DAI")
-        self._assert_annotation(neoepitope, annotation_name="Improved_Binder_MHCI")
-        self._assert_annotation(neoepitope, annotation_name="Selfsimilarity")
-        self._assert_annotation(neoepitope, annotation_name="Selfsimilarity_conserved_binder")
-        self._assert_annotation(neoepitope, annotation_name="mutation_not_found_in_proteome")
-        self._assert_annotation(neoepitope, annotation_name="dissimilarity_score")
-        self._assert_annotation(neoepitope, annotation_name="number_of_mismatches")
-        self._assert_annotation(neoepitope, annotation_name="IEDB_Immunogenicity")
-        self._assert_annotation(neoepitope, annotation_name="hex_alignment_score")
+        self.assert_annotation(neoepitope, annotation_name="position_mutation")
+        self.assert_annotation(neoepitope, annotation_name="anchor_mutated")
+        self.assert_annotation(neoepitope, annotation_name="amplitude")
+        self.assert_annotation(neoepitope, annotation_name="pathogen_similarity")
+        self.assert_annotation(neoepitope, annotation_name="recognition_potential")
+        self.assert_annotation(neoepitope, annotation_name="DAI")
+        self.assert_annotation(neoepitope, annotation_name="Improved_Binder_MHCI")
+        self.assert_annotation(neoepitope, annotation_name="Selfsimilarity")
+        self.assert_annotation(neoepitope, annotation_name="Selfsimilarity_conserved_binder")
+        self.assert_annotation(neoepitope, annotation_name="mutation_not_found_in_proteome")
+        self.assert_annotation(neoepitope, annotation_name="dissimilarity_score")
+        self.assert_annotation(neoepitope, annotation_name="number_of_mismatches")
+        self.assert_annotation(neoepitope, annotation_name="IEDB_Immunogenicity")
+        self.assert_annotation(neoepitope, annotation_name="hex_alignment_score")
 
         # others to comes
-        self._assert_annotation(neoepitope, annotation_name="Priority_score")
-        self._assert_annotation(neoepitope, annotation_name="Tcell_predictor_score")
+        self.assert_annotation(neoepitope, annotation_name="Priority_score")
+        self.assert_annotation(neoepitope, annotation_name="Tcell_predictor_score")

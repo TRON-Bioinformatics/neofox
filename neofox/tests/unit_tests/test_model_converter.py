@@ -33,6 +33,8 @@ from neofox.model.neoantigen import (
     Mhc2Name,
 )
 from neofox.model.factories import MhcFactory, NeoantigenFactory
+from neofox.model.validation import ModelValidator
+from neofox.references.references import ORGANISM_HOMO_SAPIENS
 from neofox.tests.fake_classes import FakeHlaDatabase, FakeH2Database
 from neofox.tests.tools import get_random_neoantigen
 
@@ -910,6 +912,32 @@ class ModelConverterTest(TestCase):
             self.h2_database
         )
         self.assertEqual(2, len(mhc2s))
+
+    def test_candidate_neoepitopes2model(self):
+        candidate_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_data_neoepitopes.txt"
+        )
+        with open(candidate_file) as f:
+            self.count_lines = len(f.readlines())
+        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database)
+        self.assertIsNotNone(neoepitopes)
+        self.assertEqual(self.count_lines -1, len(neoepitopes))
+        for n in neoepitopes:
+            ModelValidator.validate_neoepitope(n, ORGANISM_HOMO_SAPIENS)
+
+    def test_candidate_neoepitopes2model_with_patients(self):
+        candidate_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_data_neoepitopes_with_patients.txt"
+        )
+
+        with open(candidate_file) as f:
+            self.count_lines = len(f.readlines())
+
+        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database)
+        self.assertIsNotNone(neoepitopes)
+        self.assertEqual(self.count_lines -1, len(neoepitopes))
+        for n in neoepitopes:
+            ModelValidator.validate_neoepitope(n, ORGANISM_HOMO_SAPIENS)
 
     def _assert_isoforms(self, mhc2):
         for isoform in mhc2.isoforms:
