@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from neofox.exceptions import NeofoxCommandException
+import numpy as np
 from pandas.errors import EmptyDataError
 
 from neofox.helpers.epitope_helper import EpitopeHelper
@@ -141,13 +141,16 @@ class MixMHC2pred:
             results = pd.DataFrame()
 
         for _, row in results.iterrows():
-            parsed_results.append(
-                PredictedEpitope(
-                    isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(row[ALLELE]),
-                    mutated_peptide=row[PEPTIDE],
-                    rank_mutated=float(row[RANK]),
-                    affinity_mutated=None
-                ))
+            # when MixMHC2pred returns no results it provides a row with the peptide and NAs for other fields
+            # pandas reads NAs as float nan. Skip these
+            if isinstance(row[ALLELE], str):
+                parsed_results.append(
+                    PredictedEpitope(
+                        isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(row[ALLELE]),
+                        mutated_peptide=row[PEPTIDE],
+                        rank_mutated=float(row[RANK]),
+                        affinity_mutated=None
+                    ))
         return parsed_results
 
     def _mixmhc2prediction(self, isoforms: List[str], potential_ligand_sequences: List[str]) -> List[PredictedEpitope]:

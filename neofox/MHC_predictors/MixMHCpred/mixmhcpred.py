@@ -80,13 +80,16 @@ class MixMHCpred:
             results = pd.DataFrame()
 
         for _, row in results.iterrows():
-            parsed_results.append(
-                PredictedEpitope(
-                    allele_mhc_i=self.mhc_parser.parse_mhc_allele(row[ALLELE]),
-                    mutated_peptide=row[PEPTIDE],
-                    affinity_mutated=float(row[SCORE]),
-                    rank_mutated=float(row[RANK]),
-                ))
+            # when MixMHCpred returns no results it provides a row with the peptide and NAs for other fields
+            # pandas reads NAs as float nan. Skip these
+            if isinstance(row[ALLELE], str):
+                parsed_results.append(
+                    PredictedEpitope(
+                        allele_mhc_i=self.mhc_parser.parse_mhc_allele(row[ALLELE]),
+                        mutated_peptide=row[PEPTIDE],
+                        affinity_mutated=float(row[SCORE]),
+                        rank_mutated=float(row[RANK]),
+                    ))
         return parsed_results
 
     def _mixmhcprediction(self, mhc_alleles: List[str], potential_ligand_sequences) -> List[PredictedEpitope]:

@@ -83,7 +83,7 @@ class NeoFoxEpitope:
         # validates neoepitopes and combines neoepitopes according to patient alleles
         self.neoepitopes = []
         for n in neoepitopes:
-            ModelValidator.validate_neoepitope(n)
+            ModelValidator.validate_neoepitope(n, organism=self.reference_folder.organism)
             if ModelValidator.is_mhci_epitope(n) or ModelValidator.is_mhcii_epitope(n):
                 self.neoepitopes.append(n)
             else:

@@ -86,7 +86,7 @@ class ModelValidator(object):
             raise NeofoxDataValidationException(e)
 
     @staticmethod
-    def validate_neoepitope(neoepitope: PredictedEpitope):
+    def validate_neoepitope(neoepitope: PredictedEpitope, organism: str):
 
         # checks format consistency first
         ModelValidator.validate(neoepitope)
@@ -113,9 +113,11 @@ class ModelValidator(object):
             # check lengths according to MHC I or II
             length_mutated_peptide = len(neoepitope.mutated_peptide)
             if has_mhc_i:
+                ModelValidator.validate_mhc_allele_representation(neoepitope.allele_mhc_i, organism=organism)
                 assert ModelValidator.is_mhci_peptide_length_valid(length_mutated_peptide), \
                     "Mutated MHC-I peptide has a non supported length of {}".format(length_mutated_peptide)
             elif has_mhc_ii:
+                ModelValidator.validate_mhc2_isoform_representation(neoepitope.isoform_mhc_i_i, organism=organism)
                 assert ModelValidator.is_mhcii_peptide_length_valid(length_mutated_peptide), \
                     "Mutated MHC-II peptide has a non supported length of {}".format(length_mutated_peptide)
             else:
