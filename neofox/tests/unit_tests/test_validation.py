@@ -797,27 +797,7 @@ class TestModelValidator(TestCase):
             NeofoxDataValidationException,
             ModelValidator.validate_neoepitope,
             PredictedEpitope(
-                mutated_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 20 aa
-                wild_type_peptide="DILVIDQTR",
-                isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
-            ),
-            ORGANISM_HOMO_SAPIENS
-        )
-        self.assertRaises(
-            NeofoxDataValidationException,
-            ModelValidator.validate_neoepitope,
-            PredictedEpitope(
                 wild_type_peptide="DILVT",  # 5 aa < min 8 aa
-                mutated_peptide="DILVIDQTR",
-                isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
-            ),
-            ORGANISM_HOMO_SAPIENS
-        )
-        self.assertRaises(
-            NeofoxDataValidationException,
-            ModelValidator.validate_neoepitope,
-            PredictedEpitope(
-                wild_type_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 14 aa
                 mutated_peptide="DILVIDQTR",
                 isoform_mhc_i_i=self._get_test_mhcii_isoform('DRB1*01:01'),
             ),
@@ -847,27 +827,7 @@ class TestModelValidator(TestCase):
             NeofoxDataValidationException,
             ModelValidator.validate_neoepitope,
             PredictedEpitope(
-                mutated_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 20 aa
-                wild_type_peptide="DILVIDQTR",
-                patient_identifier="123",
-            ),
-            ORGANISM_HOMO_SAPIENS
-        )
-        self.assertRaises(
-            NeofoxDataValidationException,
-            ModelValidator.validate_neoepitope,
-            PredictedEpitope(
                 wild_type_peptide="DILVT",  # 5 aa < min 8 aa
-                mutated_peptide="DILVIDQTR",
-                patient_identifier="123",
-            ),
-            ORGANISM_HOMO_SAPIENS
-        )
-        self.assertRaises(
-            NeofoxDataValidationException,
-            ModelValidator.validate_neoepitope,
-            PredictedEpitope(
-                wild_type_peptide="DILVTAAAAAAAAAAAAAAAAA",  # 22 aa > max 14 aa
                 mutated_peptide="DILVIDQTR",
                 patient_identifier="123",
             ),
