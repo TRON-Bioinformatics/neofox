@@ -146,7 +146,7 @@ class ModelValidator(object):
 
     @staticmethod
     def is_mhcii_peptide_length_valid(length_mutated_peptide):
-        return 8 <= length_mutated_peptide <= 20
+        return 8 <= length_mutated_peptide
 
     @staticmethod
     def is_mhci_peptide_length_valid(length_mutated_peptide):
