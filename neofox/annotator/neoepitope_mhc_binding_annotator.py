@@ -45,8 +45,8 @@ class NeoepitopeMhcBindingAnnotator:
 
     def get_mhc_binding_annotations(self, neoepitope: PredictedEpitope) -> PredictedEpitope:
 
-        has_mhc1 = neoepitope.allele_mhc_i is not None and neoepitope.allele_mhc_i.name
-        has_mhc2 = neoepitope.isoform_mhc_i_i is not None and neoepitope.isoform_mhc_i_i.name
+        has_mhc1 = neoepitope.allele_mhc_i is not None and neoepitope.allele_mhc_i.name != ''
+        has_mhc2 = neoepitope.isoform_mhc_i_i is not None and neoepitope.isoform_mhc_i_i.name != ''
 
         if has_mhc1:
             # MHC I epitope
