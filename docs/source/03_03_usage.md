@@ -191,6 +191,32 @@ patient = PatientFactory.build_patient(
  **WARNING**: alleles in homozygous state need to be provided twice, otherwise they are considered as hemizygous. 
  For instance `["HLA-A*01:01"]` would be interpreted as hemizygous and `["HLA-A*01:01", "HLA-A*01:01"]` as homozygous.
 
+### Create a neoepitope object
+
+Create a neoepitope candidate as indicated below.
+The data will be internally validated.
+Additional annotations with custom names are supported.
+
+```python
+from neofox.model.factories import NeoepitopeFactory
+from neofox.references.references import ReferenceFolder
+
+
+hla_database = ReferenceFolder(organism='human').get_mhc_database()
+
+# create a neoantigen candidate using the factory
+neoepitope = NeoepitopeFactory.build_neoepitope(
+    mutated_peptide="AAAARAAAA",
+    wild_type_peptide="AAAAMAAAA",
+    allele_mhc_i="HLA-A*01:01", 
+    rna_expression=0.52, 
+    rna_variant_allele_frequency=0.88, 
+    dna_variant_allele_frequency=0.29,
+    my_custom_annotation="add any custom annotation as additional fields with any name",
+    organism='human',
+    mhc_database=hla_database
+)
+```
    
 ### Run NeoFox  
 
@@ -210,6 +236,25 @@ where:
 
 
 **HINT**: process multiple neoantigens by passing a list of neoantigens and a list of patients to `NeoFox().get_annotations()`.
+
+### Run NeoFox for neoepitopes
+
+Run NeoFox by passing the neoepitope and patients object to get the neoantigen features.
+The output is a list of type `PredictedEpitope`:
+
+```python
+from neofox.neofox_epitope import NeoFoxEpitope
+
+annotated_neoepitopes = NeoFoxEpitope(neoepitopes=[neoepitope], patients=[patient], num_cpus=2).get_annotations()
+```
+
+where:
+       - `neoepitopes`: a list of neoepitope objects  
+       - `patients`: a list of patient objects  
+       - `num_cpus`: number of CPUs to use (*optional*)
+
+
+**HINT**: process multiple neoepitopes by passing a list of neoepitopes and a list of patients to `NeoFoxEpitope().get_annotations()`.
 
 
 ### Data transformation   
