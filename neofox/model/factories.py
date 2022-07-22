@@ -85,6 +85,7 @@ class AnnotationFactory(object):
                         name=annotation_name + '_rank', value=paired_epitope.rank_mutated))
         return epitope
 
+
 class NeoantigenFactory(object):
     @staticmethod
     def build_neoantigen(wild_type_xmer=None, mutated_xmer=None, patient_identifier=None, gene=None,
@@ -138,6 +139,39 @@ class NeoantigenFactory(object):
                         p1 += 1
                         pos_mut.append(p1)
         return pos_mut
+
+
+class NeoepitopeFactory(object):
+
+    @staticmethod
+    def build_neoepitope(mutated_peptide=None, wild_type_peptide=None, patient_identifier=None, gene=None,
+                         rna_expression=None, rna_variant_allele_frequency=None, dna_variant_allele_frequency=None,
+                         imputed_gene_expression=None, allele_mhc_i=None, isoform_mhc_i_i=None, organism=None,
+                         mhc_database: MhcDatabase = None, **kw):
+
+        neoepitope = PredictedEpitope()
+        neoepitope.patient_identifier = patient_identifier
+        neoepitope.gene = gene
+        neoepitope.rna_expression = rna_expression
+        neoepitope.rna_variant_allele_frequency = rna_variant_allele_frequency
+        neoepitope.dna_variant_allele_frequency = dna_variant_allele_frequency
+        neoepitope.imputed_gene_expression = imputed_gene_expression
+        neoepitope.mutated_peptide = mutated_peptide.strip().upper() if mutated_peptide else mutated_peptide
+        neoepitope.wild_type_peptide = wild_type_peptide.strip().upper() if wild_type_peptide else wild_type_peptide
+
+        # parse MHC alleles and isoforms
+        mhc_parser = MhcParser.get_mhc_parser(mhc_database)
+        neoepitope.allele_mhc_i = mhc_parser.parse_mhc_allele(allele_mhc_i) if allele_mhc_i else None
+        neoepitope.isoform_mhc_i_i = mhc_parser.parse_mhc2_isoform(isoform_mhc_i_i) if isoform_mhc_i_i else None
+
+        external_annotation_names = dict.fromkeys(
+            nam for nam in kw.keys() if stringcase.snakecase(nam) not in set(Neoantigen.__annotations__.keys()))
+        neoepitope.external_annotations = [
+            Annotation(name=name, value=str(kw.get(name))) for name in external_annotation_names]
+
+        ModelValidator.validate_neoepitope(neoepitope, organism=organism)
+
+        return neoepitope
 
 
 class PatientFactory(object):
