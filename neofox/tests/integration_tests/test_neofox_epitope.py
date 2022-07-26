@@ -189,6 +189,46 @@ class TestNeofoxEpitope(BaseIntegrationTest):
         self.assertTrue(os.path.exists(pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_neoepitopes_with_patients_mhcII_epitope_candidates_annotated.tsv")))
 
+    def test_with_expression_imputation(self):
+
+        neoepitopes = [
+            PredictedEpitope(
+                patient_identifier='123',
+                mutated_peptide="DILVTDQTR",
+                wild_type_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+                rna_expression=12345,
+                gene='PTEN'
+            ),
+            PredictedEpitope(
+                patient_identifier='123',
+                mutated_peptide="DEVLGEPSQDILVTDQTR",
+                wild_type_peptide="DEVLGEPSQDILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform("HLA-DRB1*01:01"),
+                rna_expression=12345,
+                gene='PTEN'
+            )
+        ]
+
+        patients = [
+            Patient(
+                identifier="123",
+                mhc1=get_hla_one_test(self.references.get_mhc_database()),
+                mhc2=get_hla_two_test(self.references.get_mhc_database()),
+                tumor_type='BRCA'
+            )
+        ]
+
+        neofox_runner = NeoFoxEpitope(
+            neoepitopes=neoepitopes,
+            patients=patients,
+            num_cpus=4
+        )
+        for n, n2 in zip(neoepitopes, neofox_runner.neoepitopes):
+            self.assertIsNotNone(n2.imputed_gene_expression)
+            self.assertNotEqual(n2.imputed_gene_expression, 0)
+            self.assertEqual(n2.imputed_gene_expression, n2.rna_expression)
+
     def _assert_neeoepitope(self, neoepitope: PredictedEpitope):
         # netMHCpan or netMHC2pan annotations
         self.assertIsInstance(neoepitope.rank_mutated, float)
