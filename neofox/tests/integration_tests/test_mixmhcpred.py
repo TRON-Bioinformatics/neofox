@@ -50,7 +50,7 @@ class TestMixMHCPred(TestCase):
     def test_mixmhcpred_epitope_iedb(self):
         # this is an epitope from IEDB of length 9
         mutation = get_mutation(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
-        self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
         self.assertEquals("NLVPMVATV", best_result.mutated_peptide)
@@ -60,7 +60,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred_too_small_epitope(self):
         mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
-        self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
         self.assertIsNone(best_result.mutated_peptide)
@@ -74,7 +74,7 @@ class TestMixMHCPred(TestCase):
         """
         mutation = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         self.mixmhcpred.run(
-            mutation=mutation,
+            neoantigen=mutation,
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
@@ -88,7 +88,7 @@ class TestMixMHCPred(TestCase):
     def test_mixmhcpred_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
             mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
-            self.mixmhcpred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+            self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
             best_result = EpitopeHelper.select_best_by_affinity(
                 predictions=self.mixmhcpred.results, maximum=True)
             # rare aminoacids only return empty results when in the mutated sequence
@@ -184,8 +184,8 @@ class TestMixMHCPred(TestCase):
         self.assertIsNone(best_result.isoform_mhc_i_i.name)
 
     def test_generate_nmers(self):
-        mutation = get_mutation(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")
-        result = EpitopeHelper.generate_nmers(mutation=mutation, lengths=[8, 9, 10, 11], uniprot=self.uniprot)
+        neoantigen = get_mutation(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")
+        result = EpitopeHelper.generate_nmers(neoantigen=neoantigen, lengths=[8, 9, 10, 11], uniprot=self.uniprot)
         logger.info(result)
         self.assertIsNotNone(result)
         self.assertEqual(3, len(result))

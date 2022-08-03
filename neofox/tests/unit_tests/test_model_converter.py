@@ -25,7 +25,6 @@ import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import (
     Neoantigen,
-    Mutation,
     Patient,
     Annotation,
     Annotations,
@@ -102,18 +101,10 @@ class ModelConverterTest(TestCase):
         self.assertEqual(self.count_lines -1, len(neoantigens))
         for n in neoantigens:
             self.assertIsInstance(n, Neoantigen)
-            self.assertIsInstance(n.mutation, Mutation)
             self.assertTrue(n.gene is not None and len(n.gene) > 0)
-            self.assertTrue(
-                n.mutation.mutated_xmer is not None and len(n.mutation.mutated_xmer) > 1
-            )
-            self.assertTrue(
-                n.mutation.wild_type_xmer is not None
-                and len(n.mutation.wild_type_xmer) > 1
-            )
-            self.assertTrue(
-                n.mutation.position is not None and len(n.mutation.position) >= 1
-            )
+            self.assertTrue(n.mutated_xmer is not None and len(n.mutated_xmer) > 1)
+            self.assertTrue(n.wild_type_xmer is not None and len(n.wild_type_xmer) > 1)
+            self.assertTrue(n.position is not None and len(n.position) >= 1)
             self.assertTrue(
                 n.rna_variant_allele_frequency is None
                 or n.rna_variant_allele_frequency == -1
@@ -234,13 +225,11 @@ class ModelConverterTest(TestCase):
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
-            self.assertNotEmpty(n.mutation)
             self.assertNotEmpty(n.patient_identifier)
             self.assertNotEmpty(n.gene)
-            self.assertTrue(isinstance(n.mutation, Mutation))
-            self.assertNotEmpty(n.mutation.mutated_xmer)
-            self.assertNotEmpty(n.mutation.wild_type_xmer)
-            self.assertIsNotNone(n.mutation.position)
+            self.assertNotEmpty(n.mutated_xmer)
+            self.assertNotEmpty(n.wild_type_xmer)
+            self.assertIsNotNone(n.position)
 
             # test external annotations
             self._assert_external_annotations(
@@ -262,13 +251,11 @@ class ModelConverterTest(TestCase):
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
-            self.assertNotEmpty(n.mutation)
             self.assertNotEmpty(n.patient_identifier)
             self.assertNotEmpty(n.rna_expression)
             self.assertNotEmpty(n.rna_variant_allele_frequency)
             self.assertNotEmpty(n.dna_variant_allele_frequency)
-            self.assertTrue(isinstance(n.mutation, Mutation))
-            self.assertNotEmpty(n.mutation.position)
+            self.assertNotEmpty(n.position)
 
     def assertNotEmpty(self, value):
         self.assertIsNotNone(value)
@@ -412,7 +399,9 @@ class ModelConverterTest(TestCase):
 
         neoantigens = [
             Neoantigen(
-                mutation=Mutation(wild_type_xmer="AAAAAAA", mutated_xmer="AAACAAA", position=[]),
+                wild_type_xmer="AAAAAAA",
+                mutated_xmer="AAACAAA",
+                position=[],
                 neofox_annotations=Annotations(
                     annotations=[
                         Annotation(name="this_name", value="this_value"),
@@ -423,7 +412,9 @@ class ModelConverterTest(TestCase):
                 )
             ),
             Neoantigen(
-                mutation=Mutation(wild_type_xmer="AAAGAAA", mutated_xmer="AAAZAAA", position=[1, 2, 3]),
+                wild_type_xmer="AAAGAAA",
+                mutated_xmer="AAAZAAA",
+                position=[1, 2, 3],
                 neofox_annotations=Annotations(
                     annotations=[
                         Annotation(name="this_name", value="0"),
@@ -437,7 +428,7 @@ class ModelConverterTest(TestCase):
         df = ModelConverter.annotations2neoantigens_table(neoantigens=neoantigens)
         self.assertEqual(df.shape[0], 2)
         self.assertEqual(df.shape[1], 13)
-        self.assertEqual(0, df[df["mutation.position"].transform(lambda x: isinstance(x, list))].shape[0])
+        self.assertEqual(0, df[df["position"].transform(lambda x: isinstance(x, list))].shape[0])
 
     def test_parse_mhc1_heterozygous_alleles(self):
         mhc1s = MhcFactory.build_mhc1_alleles(

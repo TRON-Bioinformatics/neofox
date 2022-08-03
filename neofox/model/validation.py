@@ -25,7 +25,6 @@ from neofox.model.mhc_parser import HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTER
     ALLELE_PATTERN_BY_ORGANISM, H2_MOLECULE_PATTERN
 from neofox.model.neoantigen import (
     Neoantigen,
-    Mutation,
     Patient,
     Mhc2Name,
     Mhc2GeneName,
@@ -77,7 +76,19 @@ class ModelValidator(object):
                 "A patient identifier is missing. Please provide patientIdentifier in the input file"
 
             # checks mutation
-            ModelValidator._validate_mutation(neoantigen.mutation)
+            assert neoantigen.mutated_xmer is not None and len(neoantigen.mutated_xmer) > 0, \
+                "Missing mutated peptide sequence in input (mutatedXmer) "
+
+            for aa in neoantigen.mutated_xmer:
+                ModelValidator._validate_aminoacid(aa)
+
+            # avoids this validation when there is no wild type
+            if neoantigen.wild_type_xmer:
+                for aa in neoantigen.wild_type_xmer:
+                    ModelValidator._validate_aminoacid(aa)
+
+            assert neoantigen.position is not None and neoantigen.position != "", \
+                "The position of the mutation is empty, please use EpitopeHelper.mut_position_xmer_seq() to fill it"
 
             # check the expression values
             ModelValidator._validate_expression_values(neoantigen)
@@ -266,22 +277,6 @@ class ModelValidator(object):
         )
         ModelValidator._validate_vaf(object.dna_variant_allele_frequency)
         ModelValidator._validate_vaf(object.rna_variant_allele_frequency)
-
-    @staticmethod
-    def _validate_mutation(mutation: Mutation):
-        assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
-            "Missing mutated peptide sequence in input (mutation.mutatedXmer) "
-
-        for aa in mutation.mutated_xmer:
-            ModelValidator._validate_aminoacid(aa)
-
-        # avoids this validation when there is no wild type
-        if mutation.wild_type_xmer:
-            for aa in mutation.wild_type_xmer:
-                ModelValidator._validate_aminoacid(aa)
-
-        assert mutation.position is not None and mutation.position != "", \
-            "The position of the mutation is empty, please use EpitopeHelper.mut_position_xmer_seq() to fill it"
 
     @staticmethod
     def _validate_vaf(vaf):

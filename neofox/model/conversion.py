@@ -57,8 +57,8 @@ class ModelConverter(object):
             # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
             dtype={
                 "gene": str,
-                "mutation.wildTypeXmer": str,
-                "mutation.mutatedXmer": str,
+                "wildTypeXmer": str,
+                "mutatedXmer": str,
                 "patientIdentifier": str,
                 "dnaVariantAlleleFrequency": float,
                 "rnaExpression": float,
@@ -177,9 +177,9 @@ class ModelConverter(object):
         neoantigens_df = neoantigens_df.loc[:,
                          ["patientIdentifier",
                           "gene",
-                          "mutation.mutatedXmer",
-                          "mutation.wildTypeXmer",
-                          "mutation.position",
+                          "mutatedXmer",
+                          "wildTypeXmer",
+                          "position",
                           "dnaVariantAlleleFrequency",
                           "rnaVariantAlleleFrequency",
                           "rnaExpression",
@@ -327,7 +327,8 @@ class ModelConverter(object):
 
             # build the external annotations from anything not from the model
             external_annotations = nested_dict.copy()
-            external_annotations.pop("mutation", None)
+            external_annotations.pop("wildTypeXmer", None)
+            external_annotations.pop("mutatedXmer", None)
             external_annotations.pop("patientIdentifier", None)
             external_annotations.pop("gene", None)
             external_annotations.pop("rnaExpression", None)
@@ -335,8 +336,8 @@ class ModelConverter(object):
             external_annotations.pop("dnaVariantAlleleFrequency", None)
 
             neoantigen = NeoantigenFactory.build_neoantigen(
-                wild_type_xmer=nested_dict.get("mutation", {}).get("wildTypeXmer"),
-                mutated_xmer=nested_dict.get("mutation", {}).get("mutatedXmer"),
+                wild_type_xmer=nested_dict.get("wildTypeXmer"),
+                mutated_xmer=nested_dict.get("mutatedXmer"),
                 patient_identifier=nested_dict.get("patientIdentifier"),
                 gene=nested_dict.get("gene"),
                 rna_expression=nested_dict.get("rnaExpression"),
@@ -423,8 +424,7 @@ class ModelConverter(object):
     @staticmethod
     def _neoantigens2table(neoantigens: List[Neoantigen]) -> pd.DataFrame:
         df = ModelConverter._objects2dataframe(neoantigens)
-        df["mutation.position"] = df["mutation.position"].transform(
-            lambda x: ",".join([str(y) for y in x]) if x is not None else x)
+        df["position"] = df["position"].transform(lambda x: ",".join([str(y) for y in x]) if x is not None else x)
         return df
 
     @staticmethod

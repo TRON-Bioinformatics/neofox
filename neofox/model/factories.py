@@ -23,7 +23,7 @@ from neofox.exceptions import NeofoxDataValidationException
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser, get_mhc2_isoform_name
 from neofox.model.neoantigen import Annotation, Patient, Mhc1, Zygosity, Mhc2, Mhc2Gene, Mhc2Name, Mhc2Isoform, \
-    MhcAllele, Mhc2GeneName, Mutation, Neoantigen, PredictedEpitope, Annotations
+    MhcAllele, Mhc2GeneName, Neoantigen, PredictedEpitope, Annotations
 from neofox.model.validation import ModelValidator, GENES_BY_MOLECULE
 from neofox.references.references import MhcDatabase
 
@@ -99,12 +99,9 @@ class NeoantigenFactory(object):
         neoantigen.rna_variant_allele_frequency = rna_variant_allele_frequency
         neoantigen.dna_variant_allele_frequency = dna_variant_allele_frequency
         neoantigen.imputed_gene_expression = imputed_gene_expression
-
-        mutation = Mutation()
-        mutation.wild_type_xmer = wild_type_xmer.strip().upper() if wild_type_xmer else wild_type_xmer
-        mutation.mutated_xmer = mutated_xmer.strip().upper() if mutated_xmer else mutated_xmer
-        mutation.position = NeoantigenFactory.mut_position_xmer_seq(mutation)
-        neoantigen.mutation = mutation
+        neoantigen.wild_type_xmer = wild_type_xmer.strip().upper() if wild_type_xmer else wild_type_xmer
+        neoantigen.mutated_xmer = mutated_xmer.strip().upper() if mutated_xmer else mutated_xmer
+        neoantigen.position = NeoantigenFactory.mut_position_xmer_seq(neoantigen)
 
         external_annotation_names = dict.fromkeys(
             nam for nam in kw.keys() if stringcase.snakecase(nam) not in set(Neoantigen.__annotations__.keys()))
@@ -116,23 +113,23 @@ class NeoantigenFactory(object):
         return neoantigen
 
     @staticmethod
-    def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
+    def mut_position_xmer_seq(neoantigen: Neoantigen) -> List[int]:
         """
         returns position (1-based) of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
         """
         # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
         pos_mut = []
-        if mutation.wild_type_xmer is not None and mutation.mutated_xmer is not None:
-            if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
+        if neoantigen.wild_type_xmer is not None and neoantigen.mutated_xmer is not None:
+            if len(neoantigen.wild_type_xmer) == len(neoantigen.mutated_xmer):
                 p1 = -1
-                for i, aa in enumerate(mutation.mutated_xmer):
-                    if aa != mutation.wild_type_xmer[i]:
+                for i, aa in enumerate(neoantigen.mutated_xmer):
+                    if aa != neoantigen.wild_type_xmer[i]:
                         p1 = i + 1
                         pos_mut.append(p1)
             else:
                 p1 = 0
                 # in case sequences do not have same length
-                for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
+                for a1, a2 in zip(neoantigen.wild_type_xmer, neoantigen.mutated_xmer):
                     if a1 == a2:
                         p1 += 1
                     elif a1 != a2:

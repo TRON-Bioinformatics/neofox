@@ -28,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV, NEOFOX_PRIME_E
 import neofox.tests
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import Neoantigen, Mutation, Patient
+from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.model.factories import NOT_AVAILABLE_VALUE, PatientFactory, MhcFactory
 from neofox.neofox import NeoFox
 from neofox.references.references import ORGANISM_MUS_MUSCULUS
@@ -465,10 +465,8 @@ class TestNeofox(TestCase):
     def test_neoantigen_without_9mer_netmhcpan_results(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                wild_type_xmer="HLAQHQRVHTGEKPYKCNECGKTFRQT",
-                mutated_xmer="HLAQHQRVHTGEKAYKCNECGKTFRQT"
-            ),
+            wild_type_xmer="HLAQHQRVHTGEKPYKCNECGKTFRQT",
+            mutated_xmer="HLAQHQRVHTGEKAYKCNECGKTFRQT",
             patient_identifier=patient_identifier
         )
         patient = PatientFactory.build_patient(
@@ -490,9 +488,7 @@ class TestNeofox(TestCase):
     def test_neoantigen_in_proteome(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                mutated_xmer="PKLLENLLSKGETISFLECF"
-            ),
+            mutated_xmer="PKLLENLLSKGETISFLECF",
             patient_identifier=patient_identifier
         )
         patient = PatientFactory.build_patient(
@@ -514,10 +510,8 @@ class TestNeofox(TestCase):
     def test_neoantigen_failing(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                wild_type_xmer="ARPDMFCLFHGKRYFPGESWHPYLEPQ",
-                mutated_xmer="ARPDMFCLFHGKRHFPGESWHPYLEPQ"
-            ),
+            wild_type_xmer="ARPDMFCLFHGKRYFPGESWHPYLEPQ",
+            mutated_xmer="ARPDMFCLFHGKRHFPGESWHPYLEPQ",
             patient_identifier=patient_identifier
         )
         patient = Patient(
@@ -538,9 +532,7 @@ class TestNeofox(TestCase):
     def test_neoantigen_no_wt_failing(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                mutated_xmer="SPSFPLEPDDEVFTAIAKAMEEMVEDS"
-            ),
+            mutated_xmer="SPSFPLEPDDEVFTAIAKAMEEMVEDS",
             patient_identifier=patient_identifier
         )
         patient = Patient(

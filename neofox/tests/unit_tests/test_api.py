@@ -66,7 +66,7 @@ class TestApi(TestCase):
             wild_type_xmer="AAAAAAGAAAAAAAA",
             patient_identifier="123")
         self.assertIsInstance(neoantigen, Neoantigen)
-        self.assertEqual(neoantigen.mutation.position, [7])
+        self.assertEqual(neoantigen.position, [7])
 
     def test_multiple_positions(self):
         neoantigen = NeoantigenFactory.build_neoantigen(
@@ -74,7 +74,7 @@ class TestApi(TestCase):
             wild_type_xmer="AAAAAAGAAAAgAAA",
             patient_identifier="123")
         self.assertIsInstance(neoantigen, Neoantigen)
-        self.assertEqual(neoantigen.mutation.position, [7, 12])
+        self.assertEqual(neoantigen.position, [7, 12])
 
     def test_insertion(self):
         neoantigen = NeoantigenFactory.build_neoantigen(
@@ -82,7 +82,7 @@ class TestApi(TestCase):
             wild_type_xmer="AAAAAAGAAAAgA",
             patient_identifier="123")
         self.assertIsInstance(neoantigen, Neoantigen)
-        self.assertEqual(neoantigen.mutation.position, [7, 12])
+        self.assertEqual(neoantigen.position, [7, 12])
 
     def test_deletion(self):
         neoantigen = NeoantigenFactory.build_neoantigen(
@@ -90,4 +90,4 @@ class TestApi(TestCase):
             wild_type_xmer="AAAAAAGAAAAgAAA",
             patient_identifier="123")
         self.assertIsInstance(neoantigen, Neoantigen)
-        self.assertEqual(neoantigen.mutation.position, [7, 12])
+        self.assertEqual(neoantigen.position, [7, 12])

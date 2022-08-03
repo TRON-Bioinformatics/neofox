@@ -25,7 +25,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mutation, Mhc2GeneName, PredictedEpitope
+from neofox.model.neoantigen import Annotation, Mhc2, Zygosity, Mhc2Isoform, Mhc2GeneName, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 
@@ -120,7 +120,7 @@ class BestAndMultipleBinderMhcII:
                         number_binders += 1
         return number_binders if not len(values) == 0 else None
 
-    def run(self, mutation: Mutation, mhc2_alleles_patient: List[Mhc2], mhc2_alleles_available: Set, uniprot):
+    def run(self, neoantigen: Neoantigen, mhc2_alleles_patient: List[Mhc2], mhc2_alleles_available: Set, uniprot):
         """predicts MHC II epitopes; returns on one hand best binder and on the other hand multiple binder analysis is performed"""
         # mutation
         self._initialise()
@@ -130,16 +130,16 @@ class BestAndMultipleBinderMhcII:
         patient_mhc2_isoforms = self._get_only_available_combinations(allele_combinations, mhc2_alleles_available)
 
         # only process neoepitopes with a minimum length
-        if len(mutation.mutated_xmer) >= MIN_LENGTH_MHC2_EPITOPE:
+        if len(neoantigen.mutated_xmer) >= MIN_LENGTH_MHC2_EPITOPE:
 
-            predictions = self.netmhc2pan.get_predictions(mutation, patient_mhc2_isoforms, uniprot)
+            predictions = self.netmhc2pan.get_predictions(neoantigen, patient_mhc2_isoforms, uniprot)
 
-            if mutation.wild_type_xmer and len(mutation.wild_type_xmer) >= MIN_LENGTH_MHC2_EPITOPE:
+            if neoantigen.wild_type_xmer and len(neoantigen.wild_type_xmer) >= MIN_LENGTH_MHC2_EPITOPE:
 
                 # SNVs with available WT
                 # runs the netMHCIIpan WT predictions and then pair them with previous predictions
                 # based on length, position within neoepitope and HLA allele
-                predictions_wt = self.netmhc2pan.get_wt_predictions(mutation, patient_mhc2_isoforms)
+                predictions_wt = self.netmhc2pan.get_wt_predictions(neoantigen, patient_mhc2_isoforms)
                 predictions = EpitopeHelper.pair_mhcii_predictions(predictions=predictions, predictions_wt=predictions_wt)
             else:
 
