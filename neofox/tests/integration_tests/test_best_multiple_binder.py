@@ -91,9 +91,8 @@ class TestBestMultipleBinder(TestCase):
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
-        predictions = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
-        )
+        available_alleles = netmhcpan.get_only_available_alleles(self.test_mhc_one, self.available_alleles_mhc1)
+        predictions = netmhcpan.mhc_prediction(available_alleles, mutation.mutated_xmer)
 
         predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
@@ -117,9 +116,8 @@ class TestBestMultipleBinder(TestCase):
                 "HLA-C*05:01",
             ], self.hla_database
         )
-        predictions = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
-        )
+
+        predictions = netmhcpan.mhc_prediction(available_alleles, mutation.mutated_xmer)
 
         predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions,uniprot=self.uniprot
@@ -137,9 +135,7 @@ class TestBestMultipleBinder(TestCase):
             ["HLA-A*24:02", "HLA-A*02:01", "HLA-B*15:01", "HLA-B*44:02", "HLA-C*05:01"], self.hla_database
         )
 
-        predictions = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer
-        )
+        predictions = netmhcpan.mhc_prediction(available_alleles, mutation.mutated_xmer)
         predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(
             predictions=predictions, uniprot=self.uniprot
         )
@@ -296,9 +292,9 @@ class TestBestMultipleBinder(TestCase):
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
         # all alleles = heterozygous
-        predictions = netmhcpan.mhc_prediction(self.test_mhc_one, self.available_alleles_mhc1, mutation.mutated_xmer)
-        predictions_wt = netmhcpan.mhc_prediction(
-            self.test_mhc_one, self.available_alleles_mhc1, mutation.wild_type_xmer)
+        available_alleles = netmhcpan.get_only_available_alleles(self.test_mhc_one, self.available_alleles_mhc1)
+        predictions = netmhcpan.mhc_prediction(available_alleles, mutation.mutated_xmer)
+        predictions_wt = netmhcpan.mhc_prediction(available_alleles, mutation.wild_type_xmer)
 
         predicted_neoepitopes = EpitopeHelper.remove_peptides_in_proteome(predictions=predictions, uniprot=self.uniprot)
         filtered_predictions_wt = EpitopeHelper.filter_peptides_covering_snv(
