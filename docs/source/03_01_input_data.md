@@ -15,8 +15,8 @@ candidates and optionally a file with patient data. Both files are required in t
 
 This is an dummy example of a table with neoantigen candidates in tabular format:  
 
-| gene  | mutation.wildTypeXmer       | mutation.mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
-|-------|-----------------------------|-----------------------------|-------------------|---------------|---------------------------|---------------------------|-----------------------|-----------------------|
+| gene  | wildTypeXmer                | mutatedXmer                | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
+|-------|-----------------------------|----------------------------|-------------------|---------------|---------------------------|---------------------------|-----------------------|-----------------------|
 | BRCA2 | AAAAAAAAAAAAALAAAAAAAAAAAAA | AAAAAAAAAAAAAFAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 | BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 | BRCA2 | AAAAAAAAAAAAAGAAAAAAAAAAAAA | AAAAAAAAAAAAAKAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
@@ -25,8 +25,8 @@ This is an dummy example of a table with neoantigen candidates in tabular format
 
 where:
 - `gene`: the HGNC gene symbol. (This field is not required for neoantigen candidates derived from other sources than SNVs)      
-- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neopeptides
-- `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs.  
+- `mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neopeptides
+- `wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs.  
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
 - `rnaVariantAlleleFrequency`: the variant allele frequency (VAF) calculated from the RNA (**optional**)
@@ -46,10 +46,8 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
 [{
     "patientIdentifier": "Ptx",
     "gene": "BRCA2",
-    "mutation": {
-        "wildTypeXmer": "AAAAAAAAAAAAALAAAAAAAAAAAAA",
-        "mutatedXmer": "AAAAAAAAAAAAAFAAAAAAAAAAAAA"
-    }
+    "wildTypeXmer": "AAAAAAAAAAAAALAAAAAAAAAAAAA",
+    "mutatedXmer": "AAAAAAAAAAAAAFAAAAAAAAAAAAA"
 }]
 ``` 
 
