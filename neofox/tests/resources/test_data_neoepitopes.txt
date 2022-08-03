@@ -1,0 +1,3 @@
+mutatedPeptide	wildTypePeptide	alleleMhcI	isoformMhcII	patientIdentifier
+DILVTDQTR	DILVIDQTR	HLA-A*01:01		
+DEVLGEPSQDILVTDQTR	DEVLGEPSQDILVIDQTR		HLA-DRB1*01:01

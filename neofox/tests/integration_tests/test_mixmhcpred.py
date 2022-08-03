@@ -24,7 +24,7 @@ from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc2Name
 from neofox.helpers.epitope_helper import EpitopeHelper
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
@@ -39,7 +39,7 @@ class TestMixMHCPred(TestCase):
         self.mixmhcpred = MixMHCpred(
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
         )
-        self.mixmhc2pred = MixMhc2Pred(
+        self.mixmhc2pred = MixMHC2pred(
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
         )
         self.hla_database = self.references.get_mhc_database()
@@ -81,7 +81,7 @@ class TestMixMHCPred(TestCase):
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
         self.assertEqual('SIYGGLVLI', best_result.mutated_peptide)
-        self.assertEqual(0.158294, best_result.affinity_mutated)
+        self.assertAlmostEqual(0.158294, best_result.affinity_mutated, places=5)
         self.assertEqual(1, best_result.rank_mutated)
         self.assertEqual('HLA-A*02:01', best_result.allele_mhc_i.name)
 

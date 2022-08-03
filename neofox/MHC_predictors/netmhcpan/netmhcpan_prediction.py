@@ -44,30 +44,51 @@ class NetMhcPanPredictor:
         self.mhc_parser = mhc_parser
         self.blastp_runner = blastp_runner
 
-    def mhc_prediction(
-            self, available_alleles, sequence, peptide_mode=False
-    ) -> List[PredictedEpitope]:
+    def mhc_prediction(self, available_alleles, sequence) -> List[PredictedEpitope]:
         """Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file."""
 
-        if peptide_mode:
-            input_file = intermediate_files.create_temp_peptide(sequences=[sequence], prefix="tmp_singleseq_")
-        else:
-            input_file = intermediate_files.create_temp_fasta(sequences=[sequence], prefix="tmp_singleseq_")
+        input_file = intermediate_files.create_temp_fasta(sequences=[sequence], prefix="tmp_singleseq_")
 
         if available_alleles is None or available_alleles == "":
-            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(mhc_alleles))
+            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(available_alleles))
         cmd = [
             self.configuration.net_mhc_pan,
             "-a",
             available_alleles,
-            "-p" if peptide_mode else "-f",
+            "-f",
             input_file,
             "-BA",
-            "-l {}".format(",".join(PEPTIDE_LENGTHS)) if not peptide_mode else ""
+            "-l {}".format(",".join(PEPTIDE_LENGTHS))
         ]
 
         lines, _ = self.runner.run_command(cmd)
         return self._parse_netmhcpan_output(lines)
+
+    def mhc_prediction_peptide(self, alleles, sequence) -> PredictedEpitope:
+        """
+        Performs netmhcpan4 prediction for desired hla allele and writes result to temporary file.
+        peptide mode cannot use FASTA format and does not provide peptide lengths
+        """
+
+        result = None
+        input_file = intermediate_files.create_temp_peptide(sequences=[sequence], prefix="tmp_singleseq_")
+
+        if alleles is None or alleles == "":
+            raise NeofoxCommandException("None of the provided MHC I alleles are supported: {}".format(alleles))
+        cmd = [
+            self.configuration.net_mhc_pan,
+            "-a",
+            alleles,
+            "-p",
+            input_file,
+            "-BA"
+        ]
+
+        lines, _ = self.runner.run_command(cmd)
+        predicted_epitopes = self._parse_netmhcpan_output(lines)
+        if predicted_epitopes:
+            result = predicted_epitopes[0]
+        return result
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
@@ -93,17 +114,15 @@ class NetMhcPanPredictor:
                 )
         return results
 
-    def get_alleles_netmhcpan_representation(self, mhc_isoforms: List[Mhc1]) -> List[str]:
+    def get_alleles_netmhcpan_representation(self, mhc: List[Mhc1]) -> List[str]:
         return list(
             map(
-                self.mhc_parser.get_netmhcpan_representation, [a for m in mhc_isoforms for a in m.alleles],
+                self.mhc_parser.get_netmhcpan_representation, [a for m in mhc for a in m.alleles],
             )
         )
 
     def get_only_available_alleles(self, mhc_alleles: List[Mhc1], set_available_mhc: Set[str]) -> str:
-        hla_alleles_names = self.get_alleles_netmhcpan_representation(
-            mhc_alleles
-        )
+        hla_alleles_names = self.get_alleles_netmhcpan_representation(mhc_alleles)
         patients_available_alleles = ",".join(
             list(filter(lambda x: x in set_available_mhc, hla_alleles_names))
         )
@@ -120,17 +139,15 @@ class NetMhcPanPredictor:
     def set_wt_netmhcpan_scores(self, predictions) -> List[PredictedEpitope]:
         for p in predictions:
             if p.wild_type_peptide is not None:
-                wt_predictions = self.mhc_prediction(
-                    available_alleles=[Mhc1(zygosity=Zygosity.HOMOZYGOUS, alleles=[p.allele_mhc_i])],
-                    sequence=p.wild_type_peptide, peptide_mode=True)
-                if len(wt_predictions) >= 1:
+                wt_prediction = self.mhc_prediction_peptide(
+                    alleles=self.mhc_parser.get_netmhcpan_representation(p.allele_mhc_i), sequence=p.wild_type_peptide)
+                if wt_prediction is not None:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
-                    p.rank_wild_type = wt_predictions[0].rank_mutated
-                    p.affinity_wild_type = wt_predictions[0].affinity_mutated
+                    p.rank_wild_type = wt_prediction.rank_mutated
+                    p.affinity_wild_type = wt_prediction.affinity_mutated
         return predictions
 
     def get_predictions(self, available_alleles, mutation, uniprot) -> List[PredictedEpitope]:
-
         predictions = self.mhc_prediction(available_alleles, mutation.mutated_xmer)
         if mutation.wild_type_xmer:
             # make sure that predicted epitopes cover mutation in case of SNVs

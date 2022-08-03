@@ -23,7 +23,7 @@ import math
 from typing import List
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen
+from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen, Patient
 from neofox.model.factories import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
@@ -43,7 +43,7 @@ class PriorityScore:
 
     def calc_priority_score(
         self,
-        vaf_tumor,
+        vaf_dna,
         vaf_rna,
         transcript_expr,
         no_mismatch,
@@ -54,22 +54,23 @@ class PriorityScore:
         """
         This function calculates the Priority Score using parameters for mhc I.
         """
-        l_mut = self.calc_logistic_function(score_mut)
-        l_wt = self.calc_logistic_function(score_wt)
         priority_score = None
+        vaf = None
         try:
-            if vaf_tumor is not None and vaf_tumor != -1:
-                priority_score = self.mupexi(
-                    l_mut,
-                    l_wt,
-                    mut_not_in_prot,
-                    no_mismatch,
-                    transcript_expr,
-                    vaf_tumor,
-                )
+            if vaf_dna is not None and vaf_dna != -1:
+                vaf = vaf_dna
             elif vaf_rna is not None and vaf_rna != -1:
+                vaf = vaf_rna
+            if vaf:
+                l_mut = self.calc_logistic_function(score_mut)
+                l_wt = self.calc_logistic_function(score_wt)
                 priority_score = self.mupexi(
-                    l_mut, l_wt, mut_not_in_prot, no_mismatch, transcript_expr, vaf_rna
+                    l_mut=l_mut,
+                    l_wt=l_wt,
+                    mut_not_in_prot=mut_not_in_prot,
+                    no_mismatch=no_mismatch,
+                    transcript_expr=transcript_expr,
+                    vaf_tumor=vaf
                 )
         except (TypeError, ValueError):
             pass
@@ -87,9 +88,7 @@ class PriorityScore:
         self,
         netmhcpan: BestAndMultipleBinder,
         mut_not_in_prot,
-        expr,
-        vaf_tum,
-        vaf_transcr,
+        neoantigen: Neoantigen
     ) -> List[Annotation]:
         """
         returns number of mismatches between best MHCI / MHC II epitopes (rank) and their corresponding WTs
@@ -101,10 +100,14 @@ class PriorityScore:
                 epitope_wild_type=netmhcpan.best_epitope_by_rank.wild_type_peptide,
                 epitope_mutation=netmhcpan.best_epitope_by_rank.mutated_peptide,
             )
+            vaf_rna = neoantigen.dna_variant_allele_frequency
+            if vaf_rna is None:
+                vaf_rna = neoantigen.rna_variant_allele_frequency
+
             priority_score = self.calc_priority_score(
-                        vaf_tumor=vaf_tum,
-                        vaf_rna=vaf_transcr,
-                        transcript_expr=expr,
+                        vaf_dna=neoantigen.dna_variant_allele_frequency,
+                        vaf_rna=vaf_rna,
+                        transcript_expr=neoantigen.rna_expression,
                         no_mismatch=num_mismatches_mhc1,
                         score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
                         score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
@@ -122,13 +125,14 @@ class PriorityScore:
         ]
         return annotations
 
-    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, neoantigen: Neoantigen, vaf_rna) -> List[Annotation]:
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, vaf_tumor, transcript_exp, vaf_rna) -> \
+            List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
                 value=self.calc_priority_score(
-                    vaf_tumor=neoantigen.dna_variant_allele_frequency,
+                    vaf_dna=vaf_tumor,
                     vaf_rna=vaf_rna,
-                    transcript_expr=neoantigen.rna_expression,
+                    transcript_expr=transcript_exp,
                     no_mismatch=int(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='number_of_mismatches')),
                     score_mut=epitope.rank_mutated,

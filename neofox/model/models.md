@@ -239,6 +239,12 @@ The metadata required for analysis for a given patient + its patient identifier
 | affinityWildType | [float](#float) |  | MHC binding affinity for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
 | rankWildType | [float](#float) |  | MHC binding rank for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
 | neofoxAnnotations | [Annotations](#neoantigen.Annotations) |  | The NeoFox neoantigen annotations |
+| patientIdentifier | [string](#string) |  | Patient identifier |
+| gene | [string](#string) |  | The HGNC gene symbol or gene identifier |
+| rnaExpression | [float](#float) |  | Expression value of the transcript from RNA data. Range [0, +inf]. |
+| imputedGeneExpression | [float](#float) |  | Expression value of the transcript from TCGA data. Range [0, +inf]. |
+| dnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the DNA. Range [0.0, 1.0] |
+| rnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the RNA. Range [0.0, 1.0] |
 
 
 

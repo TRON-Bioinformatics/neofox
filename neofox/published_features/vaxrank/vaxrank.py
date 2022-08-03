@@ -77,7 +77,7 @@ class VaxRank:
         """
         combined_score = None
         try:
-            combined_score = expression_score * total_binding_score
+            combined_score = float(expression_score) * total_binding_score
         except (ValueError, TypeError):
             pass
         return combined_score
