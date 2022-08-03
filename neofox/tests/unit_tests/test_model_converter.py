@@ -74,6 +74,10 @@ class ModelConverterTest(TestCase):
         neoantigen = get_random_neoantigen()
         csv_data = ModelConverter._objects2dataframe([neoantigen])
         neoantigen2 = ModelConverter._neoantigens_csv2objects(csv_data)[0]
+        neoantigen.external_annotations = None
+        neoantigen2.external_annotations = None
+        neoantigen.neofox_annotations = None
+        neoantigen2.neofox_annotations = None
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_neoantigen_annotations(self):
