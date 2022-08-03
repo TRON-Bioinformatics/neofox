@@ -75,6 +75,7 @@ class TestApi(TestCase):
         neoepitope = NeoepitopeFactory.build_neoepitope(
             mutated_peptide="AAAAFAAAA",
             wild_type_peptide="AAAALAAAA",
-            patient_identifier='123'
+            patient_identifier='123',
+            mhc_database=self.hla_database
         )
         self.assertIsNotNone(neoepitope)
