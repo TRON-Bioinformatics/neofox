@@ -3,21 +3,6 @@ syntax = "proto3";
 package neoantigen;
 
 
-message Mutation {
-	/**
-	The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
-	*/
-	repeated int32 position = 1;
-	/**
-	Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes)
-	*/
-	string wildTypeXmer = 2;
-	/**
-	Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
-	*/
-	string mutatedXmer = 3;
-}
-
 /**
 This is a generic class to hold annotations from Neofox
 */
@@ -369,39 +354,47 @@ message Neoantigen {
 	*/
 	string gene = 2;
 	/**
-	The mutation
+	The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
 	*/
-	Mutation mutation = 3;
+	repeated int32 position = 3;
+	/**
+	Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes)
+	*/
+	string wildTypeXmer = 4;
+	/**
+	Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
+	*/
+	string mutatedXmer = 5;
 	/**
 	Expression value of the transcript from RNA data. Range [0, +inf].
 	*/
-	float rnaExpression = 4;
+	float rnaExpression = 6;
 	/**
 	Expression value of the transcript from TCGA data. Range [0, +inf].
 	*/
-	float imputedGeneExpression = 5;
+	float imputedGeneExpression = 7;
 	/**
 	Variant allele frequency from the DNA. Range [0.0, 1.0]
 	*/
-	float dnaVariantAlleleFrequency = 6;
+	float dnaVariantAlleleFrequency = 8;
 	/**
 	Variant allele frequency from the RNA. Range [0.0, 1.0]
 	*/
-	float rnaVariantAlleleFrequency = 7;
+	float rnaVariantAlleleFrequency = 9;
 	/**
 	The NeoFox neoantigen annotations
 	 */
-	Annotations neofoxAnnotations = 8;
+	Annotations neofoxAnnotations = 10;
 	/**
 	List of external annotations
 	*/
-	repeated Annotation externalAnnotations = 9;
+	repeated Annotation externalAnnotations = 11;
 	/**
 	List of predicted neoepitopes for MHC-I with feature annotation (optional)
 	 */
-	repeated PredictedEpitope neoepitopesMhcI = 10;
+	repeated PredictedEpitope neoepitopesMhcI = 12;
 	/**
 	List of predicted neoepitopes for MHC-II with feature annotation (optional)
 	 */
-	repeated PredictedEpitope neoepitopesMhcII = 11;
+	repeated PredictedEpitope neoepitopesMhcII = 13;
 }
