@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-import numpy as np
 from pandas.errors import EmptyDataError
 
 from neofox.helpers.epitope_helper import EpitopeHelper
@@ -28,7 +27,8 @@ from neofox.references.references import DependenciesConfiguration
 
 from neofox.helpers.runner import Runner
 
-from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, Mutation, PredictedEpitope, Mhc2Isoform
+from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, PredictedEpitope, Mhc2Isoform, \
+    Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -171,7 +171,7 @@ class MixMHC2pred:
         os.remove(outtmp)
         return results
 
-    def run(self, mhc: List[Mhc2], mutation: Mutation, uniprot):
+    def run(self, mhc: List[Mhc2], neoantigen: Neoantigen, uniprot):
         """
         Runs MixMHC2pred:
         prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
@@ -181,7 +181,7 @@ class MixMHC2pred:
         self.results = None
 
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            mutation=mutation, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot)
+            neoantigen=neoantigen, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot)
         # filter mps shorter < 13aa
         filtered_sequences = list(
             filter(lambda x: len(x) >= 13, potential_ligand_sequences)

@@ -23,7 +23,7 @@ from unittest import TestCase
 import pkg_resources
 
 from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import Neoantigen, Mutation, Patient
+from neofox.model.neoantigen import Neoantigen, Patient
 
 import neofox
 from neofox.exceptions import (
@@ -80,7 +80,7 @@ class TestNeofox(TestCase):
 
     def test_validation_captures_bad_wild_type_xmer(self):
         neoantigen = self._get_test_neoantigen()
-        neoantigen.mutation.wild_type_xmer = "123"  # should be a valid aminoacid
+        neoantigen.wild_type_xmer = "123"  # should be a valid aminoacid
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
@@ -93,7 +93,7 @@ class TestNeofox(TestCase):
 
     def test_validation_captures_bad_mutated_xmer(self):
         neoantigen = self._get_test_neoantigen()
-        neoantigen.mutation.mutated_xmer = "123"  # should be a valid aminoacid
+        neoantigen.mutated_xmer = "123"  # should be a valid aminoacid
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
@@ -179,7 +179,7 @@ class TestNeofox(TestCase):
         )
         for neoantigen in neoantigens:
             for neoantigen_imputed in neofox_runner.neoantigens:
-                if neoantigen.mutation.mutated_xmer == neoantigen_imputed.mutation.mutated_xmer:
+                if neoantigen.mutated_xmer == neoantigen_imputed.mutated_xmer:
                     self.assertEqual(
                         neoantigen.rna_expression, neoantigen_imputed.rna_expression
                     )
@@ -211,9 +211,8 @@ class TestNeofox(TestCase):
     def _get_test_neoantigen(self):
         return Neoantigen(
             gene="GENE",
-            mutation=Mutation(
-                mutated_xmer="AAAAAAAIAAAAAAAA", wild_type_xmer="AAAAAAALAAAAAAAA"
-            ),
+            mutated_xmer="AAAAAAAIAAAAAAAA",
+            wild_type_xmer="AAAAAAALAAAAAAAA",
             patient_identifier="12345",
             rna_expression=0.12345,
         )

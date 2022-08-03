@@ -26,7 +26,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope
+from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope, Neoantigen
 from neofox.references.references import DependenciesConfiguration
 
 
@@ -150,18 +150,18 @@ class NetMhcIIPanPredictor:
                     p.affinity_wild_type = wt_prediction.affinity_mutated
         return predictions
 
-    def get_wt_predictions(self, mutation, patient_mhc2_isoforms):
-        predictions = self.mhc2_prediction(patient_mhc2_isoforms, mutation.wild_type_xmer)
-        predictions = EpitopeHelper.filter_peptides_covering_snv(mutation.position, predictions)
+    def get_wt_predictions(self, neoantigen: Neoantigen, patient_mhc2_isoforms):
+        predictions = self.mhc2_prediction(patient_mhc2_isoforms, neoantigen.wild_type_xmer)
+        predictions = EpitopeHelper.filter_peptides_covering_snv(neoantigen.position, predictions)
         return predictions
 
-    def get_predictions(self, mutation, patient_mhc2_isoforms, uniprot):
+    def get_predictions(self, neoantigen: Neoantigen, patient_mhc2_isoforms, uniprot):
 
-        predictions = self.mhc2_prediction(patient_mhc2_isoforms, mutation.mutated_xmer)
-        if mutation.wild_type_xmer:
+        predictions = self.mhc2_prediction(patient_mhc2_isoforms, neoantigen.mutated_xmer)
+        if neoantigen.wild_type_xmer:
             # make sure that predicted epitopes cover mutation in case of SNVs
             predictions = EpitopeHelper.filter_peptides_covering_snv(
-                position_of_mutation=mutation.position, predictions=predictions
+                position_of_mutation=neoantigen.position, predictions=predictions
             )
         # make sure that predicted neoepitopes are not part of the WT proteome
         filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(predictions, uniprot)

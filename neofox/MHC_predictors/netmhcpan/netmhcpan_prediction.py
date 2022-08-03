@@ -26,7 +26,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Mhc1, PredictedEpitope, Zygosity
+from neofox.model.neoantigen import Mhc1, PredictedEpitope, Zygosity, Neoantigen
 from neofox.references.references import DependenciesConfiguration
 
 
@@ -147,12 +147,12 @@ class NetMhcPanPredictor:
                     p.affinity_wild_type = wt_prediction.affinity_mutated
         return predictions
 
-    def get_predictions(self, available_alleles, mutation, uniprot) -> List[PredictedEpitope]:
-        predictions = self.mhc_prediction(available_alleles, mutation.mutated_xmer)
-        if mutation.wild_type_xmer:
+    def get_predictions(self, available_alleles, neoantigen: Neoantigen, uniprot) -> List[PredictedEpitope]:
+        predictions = self.mhc_prediction(available_alleles, neoantigen.mutated_xmer)
+        if neoantigen.wild_type_xmer:
             # make sure that predicted epitopes cover mutation in case of SNVs
             predictions = EpitopeHelper.filter_peptides_covering_snv(
-                position_of_mutation=mutation.position, predictions=predictions
+                position_of_mutation=neoantigen.position, predictions=predictions
             )
         # make sure that predicted neoepitopes are not part of the WT proteome
         filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(
@@ -160,10 +160,10 @@ class NetMhcPanPredictor:
         )
         return filtered_predictions
 
-    def get_wt_predictions(self, available_alleles, mutation) -> List[PredictedEpitope]:
-        predictions = self.mhc_prediction(available_alleles, mutation.wild_type_xmer)
+    def get_wt_predictions(self, available_alleles, neoantigen) -> List[PredictedEpitope]:
+        predictions = self.mhc_prediction(available_alleles, neoantigen.wild_type_xmer)
         # make sure that predicted epitopes cover mutation in case of SNVs
         predictions = EpitopeHelper.filter_peptides_covering_snv(
-            position_of_mutation=mutation.position, predictions=predictions
+            position_of_mutation=neoantigen.position, predictions=predictions
         )
         return predictions

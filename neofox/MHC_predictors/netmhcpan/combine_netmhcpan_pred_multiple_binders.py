@@ -25,7 +25,7 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.mhc_helper import MhcHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Annotation, Mhc1, Zygosity, Mutation, MhcAllele, PredictedEpitope
+from neofox.model.neoantigen import Annotation, Mhc1, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.references.references import DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 
@@ -138,7 +138,7 @@ class BestAndMultipleBinder:
 
     def run(
         self,
-        mutation: Mutation,
+        neoantigen: Neoantigen,
         mhc1_alleles_patient: List[Mhc1],
         mhc1_alleles_available: Set,
         uniprot,
@@ -150,12 +150,12 @@ class BestAndMultipleBinder:
 
         # gets all predictions overlapping the mutation and not present in the WT proteome
         available_alleles = self.netmhcpan.get_only_available_alleles(mhc1_alleles_patient, mhc1_alleles_available)
-        predictions = self.netmhcpan.get_predictions(available_alleles, mutation, uniprot)
-        if mutation.wild_type_xmer:
+        predictions = self.netmhcpan.get_predictions(available_alleles, neoantigen, uniprot)
+        if neoantigen.wild_type_xmer:
             # SNVs with available WT
             # runs the netMHCpan WT predictions and then pair them with previous predictions
             # based on length, position within neoepitope and HLA allele
-            predictions_wt = self.netmhcpan.get_wt_predictions(available_alleles, mutation)
+            predictions_wt = self.netmhcpan.get_wt_predictions(available_alleles, neoantigen)
             predictions = EpitopeHelper.pair_predictions(predictions=predictions, predictions_wt=predictions_wt)
         else:
             # alternative mutation classes or missing WT
