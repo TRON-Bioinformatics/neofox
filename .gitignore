@@ -21,4 +21,4 @@ py36
 /netMHCpan-4.1b.Linux.tar.gz
 neofox.log
 *.swp
-test_*
+./test_*
