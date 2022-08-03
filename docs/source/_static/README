@@ -1,0 +1,2 @@
+This is the output of running:
+neofox --input-file docs/source/_static/test_data.tsv --patient-data docs/source/_static/test_patients.tsv --output-folder docs/source/_static/ --output-prefix test --with-all-neoepitopes --organism human
