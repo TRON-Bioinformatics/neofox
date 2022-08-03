@@ -21,7 +21,7 @@
 import os
 from neofox.helpers import intermediate_files
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation, PredictedEpitope
+from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 
 
@@ -86,11 +86,11 @@ class NeoagCalculator(object):
         neoag_score = self._apply_gbm(tmp_file_name)
         return neoag_score
 
-    def get_annotation(self, epitope_mhci: PredictedEpitope, mutation) -> Annotation:
+    def get_annotation(self, epitope_mhci: PredictedEpitope, neoantigen: Neoantigen) -> Annotation:
         """wrapper function to determine neoag immunogenicity score for a mutated peptide sequence"""
 
         neoag_score = None
-        if mutation.wild_type_xmer and epitope_mhci.mutated_peptide and epitope_mhci.wild_type_peptide:
+        if neoantigen.wild_type_xmer and epitope_mhci.mutated_peptide and epitope_mhci.wild_type_peptide:
             neoag_score = self.calculate_neoag_score(epitope=epitope_mhci)
 
         annotation = AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogenicity")

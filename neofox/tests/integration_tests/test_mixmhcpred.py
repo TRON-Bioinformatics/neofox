@@ -105,11 +105,11 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15
-        mutation = get_mutation(
+        neoantigen = get_mutation(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET")
         self.mixmhc2pred.run(
-            mutation=mutation, mhc=self.test_mhc_two,
+            neoantigen=neoantigen, mhc=self.test_mhc_two,
             uniprot=self.uniprot
         )
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
@@ -119,12 +119,12 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred2_epitope_iedb_forcing_no_drb1(self):
         # this is an epitope from IEDB of length 15
-        mutation = get_mutation(
+        neoantigen = get_mutation(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET")
         self.mixmhc2pred.run(
             # forces no DRB1 allele to get as a result one of the composite isoforms
-            mutation=mutation, mhc=[m for m in self.test_mhc_two if m.name != Mhc2Name.DR],
+            neoantigen=neoantigen, mhc=[m for m in self.test_mhc_two if m.name != Mhc2Name.DR],
             uniprot=self.uniprot
         )
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
@@ -133,8 +133,8 @@ class TestMixMHCPred(TestCase):
         self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform_mhc_i_i.name)
 
     def test_mixmhcpred2_too_small_epitope(self):
-        mutation = get_mutation(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
-        self.mixmhc2pred.run(mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot)
+        neoantigen = get_mutation(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
+        self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_two, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.mutated_peptide)
         self.assertIsNone(best_result.rank_mutated)
@@ -142,8 +142,8 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred2_no_mutation(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
-            mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
-            self.mixmhc2pred.run(mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot)
+            neoantigen = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_two, uniprot=self.uniprot)
             best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
             self.assertIsNone(best_result.mutated_peptide)
             self.assertIsNone(best_result.rank_mutated)
@@ -151,8 +151,8 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhc2pred_rare_aminoacid(self):
         # this is an epitope from IEDB of length 9
-        mutation = get_mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
-        self.mixmhc2pred.run(mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        neoantigen = get_mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
+        self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.mutated_peptide)
         self.assertIsNone(best_result.rank_mutated)
@@ -160,7 +160,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhc2pred_allele(self):
 
-        mutation = get_mutation(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
+        neoantigen = get_mutation(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
         # this is a MHC II genotype which results in no available alleles for MixMHC2pred
         MHC_TWO_NEW = MhcFactory.build_mhc2_alleles(
             [
@@ -177,7 +177,7 @@ class TestMixMHCPred(TestCase):
         )
         alleles = self.mixmhc2pred.transform_hla_ii_alleles_for_prediction(MHC_TWO_NEW)
         logger.info(alleles)
-        self.mixmhc2pred.run(mutation=mutation, mhc=MHC_TWO_NEW, uniprot=self.uniprot)
+        self.mixmhc2pred.run(neoantigen=neoantigen, mhc=MHC_TWO_NEW, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.mutated_peptide)
         self.assertIsNone(best_result.rank_mutated)
