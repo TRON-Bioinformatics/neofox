@@ -164,7 +164,7 @@ class TestNeofox(TestCase):
 
     def test_no_expression_imputation(self):
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_candidate_file.txt"
+            neofox.tests.__name__, "resources/test_data_model_realistic.txt"
         )
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
@@ -186,7 +186,7 @@ class TestNeofox(TestCase):
 
     def test_with_expression_imputation(self):
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_candidate_file_Pty.txt"
+            neofox.tests.__name__, "resources/test_data_model_realistic_Pty.txt"
         )
         neoantigens= ModelConverter.parse_candidate_file(input_file)
         import copy
