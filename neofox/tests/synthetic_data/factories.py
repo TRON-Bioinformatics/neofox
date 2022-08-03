@@ -11,7 +11,7 @@ from neofox.model.validation import ModelValidator
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mutation, Mhc2Name, Mhc2Isoform, \
     MhcAllele
-from neofox.model.factories import get_mhc2_isoform_name, MhcFactory
+from neofox.model.factories import get_mhc2_isoform_name, MhcFactory, NeoantigenFactory
 from neofox.references.references import HlaDatabase
 
 
@@ -157,7 +157,7 @@ class NeoantigenProvider(Provider):
             mutation = Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wildtype_xmer)
         else:
             mutation = Mutation(mutated_xmer=mutated_xmer)
-        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
+        mutation.position = NeoantigenFactory.mut_position_xmer_seq(mutation)
 
         return mutation
 

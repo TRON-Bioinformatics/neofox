@@ -1,10 +1,10 @@
 # Output data
 
-## General information
+## Neoantigens
 
 NeoFox returns the neoantigen candidates and their annotated features as output. 
-Two output formats are supported: [tabular](#tabular-format ) tabular format or [json](#json-format) format. 
-The user can choose one preferred format or get the neoantigen annotations in all formats. 
+Two output formats are supported: tabular format or JSON format.
+The user gets the neoantigen annotations in all formats.
 Despite different structures, both formats provide the same content with the exception of the metadata on 
 the annotations which is only present in the JSON format.
 
@@ -14,10 +14,9 @@ The following table describes each of the annotations in the output:
 
 |  Column   Name                              |  Description                                                                                                                                                                                                                                                                                                    |  Feature group/ Paper             |
 |---------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
-|  identifier                                 |  unique neoantigen id given by NeoFox                                                                                                                                                                                                                                                                           |  -                                |
 |  dnaVariantAlleleFrequency                  |  the variant allele frequency calculated from the DNA                                                                                                                                                                                                                                                           |  -                                |
 |  mutation.mutatedXmer                       |  the long mutated amino acid sequence                                                                                                                                                                                                                                                                           |  -                                |
-|  mutation.wildTypeXmer                      |  the long non-mutated amino acid sequence. This field shal be empty for alternative neoantigen classes                                                                                                                                                                                                          |  -                                |
+|  mutation.wildTypeXmer                      |  the long non-mutated amino acid sequence (when not provided in the input this will contain the Blastp closest sequence in the proteome)                                                                                                                                                                                                          |  -                                |
 |  patientIdentifier                          |  the patient identifier                                                                                                                                                                                                                                                                                         |  -                                |
 |  rnaExpression                              |  the RNA expression. If expression was imputed, this will will be `imputedGeneExpression`                                                                                                                                                                                                                       |  expression                       |
 |  imputedGeneExpression                      |  median gene expression in the TCGA cohort of the tumor entity provided in the patient file.                                                                                                                                                                                                                    |  expression                       |
@@ -110,9 +109,11 @@ The following table describes each of the annotations in the output:
 | Hex_alignment_score_MHCI                    | the alignment score by HEX for ` Best_affinity_MHCI_epitope `                                                                                                                                                                                                                                                   | HEX                               |
 | Hex_alignment_score_MHCII                   | the alignment score by HEX for ` Best_affinity_MHCII_epitope`                                                                                                                                                                                                                                                   | HEX                               |
 
-## Tabular format
+### Tabular format
 
-If the `--with-table` flag is enabled an output table with the suffix "*_neoantigen_candidates_annotated.tsv*" is created. This table contains the neoantigen candidates information, the neoantigen annotations and if some user-specific additional columns were provided in the input table, these external annotations.  
+An output table with the suffix "*_neoantigen_candidates_annotated.tsv*" is created.  
+This table contains the neoantigen candidates information, the neoantigen annotations and if some user-specific additional columns  
+were provided in the input table, these external annotations.
 
 This is a dummy example:  
 
@@ -122,11 +123,17 @@ This is a dummy example:
 | 0.173                     | BRCA2 | 0.5| AAAAAAAAAAAAAMAAAAAAAAAAAAA | 14                | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 0.71575659    | 0.556                     | AAAAAAAAAAAAAMAAAAAAAAAAAAA            | 1        | 1         | 10                   | 90.685                  | 90.685                       | HLA-DQA10401-DQB10402      | HLA-DQA10401-DQB10402         | AAAAAAAAAMAAAAA             | AAAAAAAAARAAAAA                | 421.53                    | 554.92                       | HLA-C*16:01                    | HLA-C*16:01                       | 1                                      | AAAAAAAAM                       | AAAAAAAAR                          | 9                                         | 24.1                          | 6346.9                           | HLA-C*16:01               | HLA-C*16:01                  | AAAAAAAAM                  | AAAAAAAAR                     | 24.1                     | 6346.9                      | 0.25                  | 2.5                      | HLA-DQA10401-DQB10302        | HLA-DQA10401-DQB10302           | AAAAAAAAAAMAAAA               | AAAAAAAAAARAAAA                  | HLA-C*16:01                | HLA-C*16:01                   | AAAAAAAAM                   | AAAAAAAAR                      | 0.0587                    | 8.9317                       | 0.0587               | 8.9317                  | HLA-C*16:01                 | HLA-C*16:01                    | AAAAAAAAM                    | AAAAAAAAR                       | 1        | 1         | 6322.8                        | 1                              | 0.39796                       | 1              | 0.18288                              | 1                    | DPA1_01_03__DPB1_04_01  | AAAAMAAAAAAAAAAA         | 2.44                  | B0702                  | AAAAAAAAM               | 0.07                 | 0.5444                | 39.51379             | 1                         | 0.29303 | 1.5594  | 0                                      | 0.10626        | 0                                        | NA                                   | 0.46452844                        | 0.556      | 0.173        | AAAAAAAAAAAAARAAAAAAAAAAAAA                 | 1                              | Ptx     | E135S        | 0.71575659            | 3.8741                | 1.5417              |
 
 
-## JSON format
+### JSON format
 
-If the `--with-json` flag is enabled an output file with the suffix "*_neoantigen_candidates_annotated.json*" is created. This file contains neoantigen candidates information in JSON format. Furthermore, a second file with the suffix *"_neoantigen_features.json"* is created. This file contains the annotated neoantigen features in JSON format. The names within the models are described in **TABLE 1**.   
-\
-This is a dummy example of a "*_neoantigen_candidates.json*" file. This file contains a list of neoantigen candidate models (for further information, please see [here](05_models.md). To simplify, only one full neoantigen candidate model is shown:
+An output file with the suffix "*_neoantigen_candidates_annotated.json*" is created.  
+This file contains neoantigen candidates information in JSON format.  
+Furthermore, a second file with the suffix *"_neoantigen_features.json"* is created.  
+This file contains the annotated neoantigen features in JSON format.  
+The names within the models are described in **TABLE 1**.
+
+This is a dummy example of a "*_neoantigen_candidates.json*" file.  
+This file contains a list of neoantigen candidate models (for further information, please see [here](05_models.md).  
+To simplify, only one full neoantigen candidate model is shown:
 ```json
 [{
     "patient_identifier": "Ptx",
@@ -473,3 +480,118 @@ The metadata on the annotations will look as follows:
  ]
 }
 ```
+
+
+## Neoepitopes
+
+NeoFox returns the neoepitopes candidates and their annotated features as output when using  
+the flag `--with-all-neoepitopes` or when explicitly annotating neoepitopes with the command `neofox-epitope`.
+Two output formats are supported: tabular format or JSON format.
+The user gets the neoepitope annotations in all formats.
+Despite different structures, both formats provide the same content with the exception of the metadata on
+the annotations which is only present in the JSON format.
+The tabular format is split into two tables:  
+a first one for the MHC-I neoepitope candidates and a second one for  
+the MHC-II neoepitope candidates.
+
+### Tabular format
+
+Two output files with the suffix "*_mhcI_epitope_candidates_annotated.tsv" and ""*_mhcII_epitope_candidates_annotated.tsv"" are created.
+
+The following table describes each of the annotations in the output:
+
+**TABLE 2**
+
+| Column   Name                   | Description                                                                                                                        | Feature group/ Paper                                    |
+|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| dnaVariantAlleleFrequency       | the variant allele frequency calculated from the DNA                                                                               | -                                                       |
+| mutatedSequence                 | the mutated amino acid sequence                                                                                                    | -                                                       |
+| wildTypeSequence                | the non-mutated amino acid sequence (when not provided in the input this will contain the Blastp closest sequence in the proteome) | -                                                       |
+| alleleMhcI / isoformMhcII       | either the MHC-I allele for MHC-I neoepitopes or the MHC-II isoform for MHC-II neoepitopes                                         | -                                                       |
+| patientIdentifier               | the patient identifier (optional)                                                                                                  | -                                                       |
+| rnaExpression                   | the RNA expression. If expression was imputed, this will will be `imputedGeneExpression`                                           | expression                                              |
+| imputedGeneExpression           | median gene expression in the TCGA cohort of the tumor entity provided in the patient file.                                        | expression                                              |
+| rnaVariantAlleleFrequency       | the variant allele frequency calculated from the RNA                                                                               | -                                                       |
+| gene                            | the HGNC gene symbol                                                                                                               | -                                                       |
+| affinityMutated                 | NetMHCpan / NetMHCIIpan affinity score of the mutated peptide for MHC-I or MHC-II neoepitopes respectively                         | MHC-I / MHC-II binding with netMHCpan / netMHCIIpan     |
+| affinityWildType                | NetMHCpan / NetMHCIIpan affinity score of the wild type peptide for MHC-I or MHC-II neoepitopes respectively                       | MHC-I / MHC-II binding with netMHCpan / netMHCIIpan     |
+| rankMutated                     | NetMHCpan / NetMHCIIpan rank of the mutated peptide for MHC-I or MHC-II neoepitopes respectively                                   | MHC-I / MHC-II binding with netMHCpan / netMHCIIpan     |
+| rankWildType                    | NetMHCpan / NetMHCIIpan rank of the wild type peptide for MHC-I or MHC-II neoepitopes respectively                                 | MHC-I / MHC-II binding with netMHCpan / netMHCIIpan     |
+| MixMHCpred_affinity_score       | MixMHCpred score of the mutated peptide for MHC-I neoepitopes                                                                      | MHC-I binding with mixMHCpred                           |
+| MixMHCpred_rank                 | MixMHCpred rank of the mutated peptide for MHC-I neoepitopes                                                                       | MHC-I binding with mixMHCpred                           |
+| MixMHCpred_WT_affinity_score    | MixMHCpred score of the wild type peptide for MHC-I neoepitopes                                                                    | MHC-I binding with mixMHCpred                           |
+| MixMHCpred_WT_rank              | MixMHCpred rank of the wild type peptide for MHC-I neoepitopes                                                                     | MHC-I binding with mixMHCpred                           |
+| MixMHC2pred_affinity_score      | MixMHC2pred score of the mutated peptide for MHC-II neoepitopes                                                                    | MHC-II binding with mixMHC2pred                         |
+| MixMHC2pred_rank                | MixMHC2pred rank of the mutated peptide for MHC-II neoepitopes                                                                     | MHC-II binding with mixMHC2pred                         |
+| MixMHC2pred_WT_affinity_score   | MixMHC2pred score of the wild type peptide for MHC-II neoepitopes                                                                  | MHC-II binding with mixMHC2pred                         |
+| MixMHC2pred_WT_rank             | MixMHC2pred rank of the wild type peptide for MHC-II neoepitopes                                                                   | MHC-II binding with mixMHC2pred                         |
+| PRIME_affinity_score            | PRIME score of the mutated peptide for MHC-I neoepitopes                                                                           | MHC-I binding with PRIME                                |
+| PRIME_rank                      | PRIME rank of the mutated peptide for MHC-I neoepitopes                                                                            | MHC-I binding with PRIME                                |
+| PRIME_WT_affinity_score         | PRIME score of the wild type peptide for MHC-I neoepitopes                                                                         | MHC-I binding with PRIME                                |
+| PRIME_WT_rank                   | PRIME rank of the wild type peptide for MHC-I neoepitopes                                                                          | MHC-I binding with PRIME                                |
+| DAI                             | difference of `affinityWildType` and `affinityMutated`                                                                             | DAI (only availble for MHC-I)                           |
+| IEDB_Immunogenicity             | IEDB Immunogenicity score for `affinityMutated`                                                                                    | IEDB immunogenicity                                     |
+| Improved_Binder_MHCI            | ratio of `affinityWildType` and `affinityMutated` > 1.2                                                                            | self-similarity (only available for MHC-I)              |
+| Priority_score                  | combinatorial score of several features such as MHC binding, expression and VAF                                                    | Priority score                                          |
+| mutation_not_found_in_proteome  | indicates if mutated amino acid sequence was not found in the WT proteome by exact search                                          | Priority score                                          |
+| Selfsimilarity                  | score representing the similarity between `rankMutated` and `rankWildType`                                                         | self-similarity                                         |
+| Selfsimilarity_conserved_binder | score representing the similarity between `rankMutated` and `rankWildType` for conserved binder only                               | self-similarity (only available for MHC-I)              |
+| dissimilarity_score             | score reflecting the dissimilarity of `affinityMutated` to the self-proteome                                                       | dissimilarity                                           |
+| Tcell_predictor_score           | output score of T cell predictor model                                                                                             | Tcell predictor (only available for MHC-I)              |
+| amplitude                       | ratio of `affinityWildType` and `affinityMutated` for MHC-I and `rankWildType` and `rankMutated` for MHC-II                        | Generator rate                                          |
+| anchor_mutated                  | flag indicating if a mutation lies in an anchor position (i.e. position 2 or 9)                                                    | anchor/non-anchor (only available for MHC-I)            |
+| hex_alignment_score             | the alignment score by HEX for `mutatedSequence`                                                                                   | HEX                                                     |
+| number_of_mismatches            | number of amino acids that do no match between `mutatedSequence` and `wildTypeSequence`                                            | Priority score (only available for MHC-I)               |
+| pathogen_similarity             | score representing the similarity of `mutatedSequence` to pathogen sequences in IEDB database                                      | Recognition potential                                   |
+| recognition_potential           | product of `amplitude` and `pathogenSimilarity`                                                                                    | Recognition potential (only available for MHC-I)        |
+| position_mutation               | indicates position of the mutation in `mutatedSequence`                                                                            | MHC I binding with netMHCpan (only available for MHC-I) |
+
+
+## JSON format
+
+Only when using the command `neofox-epitope` an output file with the suffix "*_neoepitope_candidates_annotated.json*" is created.  
+This file contains neoepitope candidates information in JSON format.  
+The names within the models are described in **TABLE 2**.
+
+This is a dummy example of a "*_neoantigen_candidates.json*" file.  
+This file contains a list of neoantigen candidate models (for further information, please see [here](05_models.md).  
+To simplify, only one full neoantigen candidate model is shown:
+```json
+[{
+    "patient_identifier": "Ptx",
+    "gene": "BRCA2",
+    "mutated_peptide": "AAAALAAAA",
+    "wild_type_peptide": "AAAAFAAAA",
+    "allele_mhc_i": "HLA-A*01:01",
+    "rna_expression": 0.519,
+    "imputed_gene_expression": 0.5,
+    "dna_variant_allele_frequency": 0.294,
+    "rna_variant_allele_frequency": 0.857,
+    "affinity_mutated": 2.567,
+    "rank_mutated": 0.898,
+    "affinity_wild_type": 1.023,
+    "rank_wild_type": 2.398,
+    "neofox_annotations": [...],
+    "external_annotations": [...]
+}, {
+    "patient_identifier": "Ptx",
+    "gene": "BRCA2",
+    "mutated_peptide": "AAAAAAAAAAAAARAAAAAAAAAAAAA",
+    "wild_type_peptide": "AAAAAAAAAAAAAMAAAAAAAAAAAAA",
+    "isoform_mhc_i_i": "DRB1*01:01",
+    "rna_expression": 0.715,
+    "imputed_gene_expression": 0.5,
+    "dna_variant_allele_frequency": 0.173,
+    "rna_variant_allele_frequency": 0.556,
+    "affinity_mutated": 2.567,
+    "rank_mutated": 0.898,
+    "affinity_wild_type": 1.023,
+    "rank_wild_type": 2.398,
+    "neofox_annotations": [ ... ],
+    "external_annotations": [ ... ]
+}]
+```
+
+Notice that for simplicity purposes both fields `neofox_annotations` and `external_annotations` are not shown above.
+For further information, please see [here](05_models.md).  
+For an example of the NeoFox annotations section, see the previous section.

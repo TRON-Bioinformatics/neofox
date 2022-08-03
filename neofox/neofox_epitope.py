@@ -18,49 +18,39 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import logging
-import os
 import time
+from copy import copy
 from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
 
-import neofox
+from neofox.annotator.neoepitope_annotator import NeoepitopeAnnotator
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
-from neofox.model.factories import NeoantigenFactory
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
-from neofox import NEOFOX_LOG_FILE_ENV
-from neofox.annotator.neoantigen_annotator import NeoantigenAnnotator
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
-from neofox.model.neoantigen import Neoantigen, Patient
+from neofox.model.neoantigen import Patient, PredictedEpitope
 from neofox.model.validation import ModelValidator
 import dotenv
 
 
-class NeoFox:
+class NeoFoxEpitope:
 
     def __init__(
             self,
-            neoantigens: List[Neoantigen],
-            patients: List[Patient],
+            neoepitopes: List[PredictedEpitope],
+            patients: List[Patient] = [],
             num_cpus: int = 1,
-            patient_id: str = None,
             log_file_name=None,
             reference_folder: ReferenceFolder = None,
             configuration: DependenciesConfiguration = None,
             verbose=True,
-            configuration_file=None,
-            rank_mhci_threshold=neofox.RANK_MHCI_THRESHOLD_DEFAULT,
-            rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
-            with_all_neoepitopes=False):
+            configuration_file=None):
 
         initialise_logs(logfile=log_file_name, verbose=verbose)
         logger.info("Loading reference data...")
-
-        self.rank_mhci_threshold = rank_mhci_threshold
-        self.rank_mhcii_threshold = rank_mhcii_threshold
 
         if configuration_file:
             dotenv.load_dotenv(configuration_file, override=True)
@@ -82,39 +72,38 @@ class NeoFox:
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
-        if (
-            neoantigens is None
-            or len(neoantigens) == 0
-            or patients is None
-            or len(patients) == 0
-        ):
-            raise NeofoxConfigurationException("Missing input data to run Neofox")
-
-        # validates neoantigens
-        self.neoantigens = neoantigens
-        for n in self.neoantigens:
-            if n.patient_identifier is None:
-                n.patient_identifier = patient_id
-            # NOTE: the position of the mutations is not expected from the user and if provide the value is ignored
-            n.mutation.position = NeoantigenFactory.mut_position_xmer_seq(mutation=n.mutation)
-            ModelValidator.validate_neoantigen(n)
-
         # validates patients
         self.patients = {}
         for patient in patients:
             ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
             self.patients[patient.identifier] = patient
 
-        self._validate_input_data()
+        if neoepitopes is None or len(neoepitopes) == 0:
+            raise NeofoxConfigurationException("Missing input data to run Neofox")
 
-        # retrieve from the data, if RNA-seq was available
-        # add this information to patient model
-        expression_per_patient = {self.patients[patient].identifier: [] for patient in self.patients}
-        for neoantigen in self.neoantigens:
-            expression_per_patient[neoantigen.patient_identifier].append(neoantigen.rna_expression)
-
-        for patient in self.patients:
-            self.patients[patient].is_rna_available = all(e is not None for e in expression_per_patient[self.patients[patient].identifier])
+        # validates neoepitopes and combines neoepitopes according to patient alleles
+        self.neoepitopes = []
+        for n in neoepitopes:
+            ModelValidator.validate_neoepitope(n, organism=self.reference_folder.organism)
+            if ModelValidator.is_mhci_epitope(n) or ModelValidator.is_mhcii_epitope(n):
+                self.neoepitopes.append(n)
+            else:
+                if n.patient_identifier in self.patients:
+                    patient = self.patients.get(n.patient_identifier)
+                    if ModelValidator.is_mhci_peptide_length_valid(len(n.mutated_peptide)):
+                         for m in patient.mhc1:
+                             for a in m.alleles:
+                                mhci_neoepitope = copy(n)
+                                mhci_neoepitope.allele_mhc_i = a
+                                self.neoepitopes.append(mhci_neoepitope)
+                    for m in patient.mhc2:
+                        for i in m.isoforms:
+                            mhcii_neoepitope = copy(n)
+                            mhcii_neoepitope.isoform_mhc_i_i = i
+                            self.neoepitopes.append(mhcii_neoepitope)
+                else:
+                    raise NeofoxDataValidationException(
+                        'A neoepitope is linked to patient {} for which there is no data'.format(n.patient_identifier))
 
         # only performs the expression imputation for humans
         if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:
@@ -122,68 +111,11 @@ class NeoFox:
             # otherwise original values is reported
             # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
             # NOTE: add gene expression to neoantigen candidate model
-            self.neoantigens = self._conditional_expression_imputation()
-
-        self.with_all_neoepitopes = with_all_neoepitopes
+            self.neoepitopes = self._conditional_expression_imputation()
 
         logger.info("Reference data loaded")
 
-    def _conditional_expression_imputation(self) -> List[Neoantigen]:
-        expression_annotator = ExpressionAnnotator()
-        neoantigens_transformed = []
-
-        for neoantigen in self.neoantigens:
-            expression_value = neoantigen.rna_expression
-            patient = self.patients[neoantigen.patient_identifier]
-            neoantigen_transformed = neoantigen
-            gene_expression = expression_annotator.get_gene_expression_annotation(
-                gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
-            )
-            if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
-                expression_value = gene_expression
-            neoantigen_transformed.rna_expression = expression_value
-            neoantigen.imputed_gene_expression = gene_expression
-            neoantigens_transformed.append(neoantigen_transformed)
-        return neoantigens_transformed
-
-    @staticmethod
-    def get_log_file_name(output_prefix, work_folder):
-        if work_folder and os.path.exists(work_folder):
-            logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
-        else:
-            logfile = os.environ.get(NEOFOX_LOG_FILE_ENV)
-        return logfile
-
-    def _validate_input_data(self):
-
-        patient_identifiers_from_neoantigens = set(
-            [n.patient_identifier for n in self.neoantigens]
-        )
-        patient_identifiers_from_patients = set(
-            [p.identifier for p in self.patients.values()]
-        )
-
-        # checks that no neoantigen is referring to an empty patient
-        if (
-            "" in patient_identifiers_from_neoantigens
-            or None in patient_identifiers_from_neoantigens
-        ):
-            raise NeofoxDataValidationException(
-                "There are neoantigens missing a reference to a patient"
-            )
-
-        # checks that there is no neoantigen referring to a non existing patient
-        missing_patient_identifiers = patient_identifiers_from_neoantigens.difference(
-            patient_identifiers_from_patients
-        )
-        if len(missing_patient_identifiers) > 0:
-            raise NeofoxDataValidationException(
-                "There are neoantigens referring to missing patients: {}".format(
-                    missing_patient_identifiers
-                )
-            )
-
-    def get_annotations(self) -> List[Neoantigen]:
+    def get_annotations(self) -> List[PredictedEpitope]:
         """
         Loads epitope data (if file has been not imported to R; colnames need to be changed), adds data to class that are needed to calculate,
         calls epitope class --> determination of epitope properties,
@@ -194,7 +126,6 @@ class NeoFox:
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
         dask_client = Client(n_workers=self.num_cpus, threads_per_worker=1)
         annotations = self.send_to_client(dask_client)
-        dask_client.shutdown()          # terminates schedulers and workers
         dask_client.close(timeout=10)   # waits 10 seconds for the client to close before killing
 
         return annotations
@@ -203,77 +134,90 @@ class NeoFox:
         # feature calculation for each epitope
         futures = []
         start = time.time()
-        # NOTE: sets those heavy resources to be used by all workers in the cluster
+        # NOTE: sets those heavy resources distributed to all workers in the cluster
         future_tcell_predictor = dask_client.scatter(
             self.tcell_predictor, broadcast=True
         )
         future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
         future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
-        for neoantigen in self.neoantigens:
-            patient = self.patients.get(neoantigen.patient_identifier)
-            logger.debug("Neoantigen: {}".format(neoantigen.to_json(indent=3)))
-            logger.debug("Patient: {}".format(patient.to_json(indent=3)))
+
+        for neoepitope in self.neoepitopes:
+            logger.debug("Neoantigen: {}".format(neoepitope.to_json(indent=3)))
             futures.append(
                 dask_client.submit(
-                    NeoFox.annotate_neoantigen,
-                    neoantigen,
-                    patient,
+                    NeoFoxEpitope.annotate_neoepitope,
+                    neoepitope,
                     future_reference_folder,
                     future_configuration,
                     future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
-                    self.rank_mhci_threshold,
-                    self.rank_mhcii_threshold,
-                    self.with_all_neoepitopes
                 )
             )
         annotated_neoantigens = dask_client.gather(futures)
         end = time.time()
         logger.info(
-            "Elapsed time for annotating {} neoantigens {} seconds".format(
-                len(self.neoantigens), int(end - start)
+            "Elapsed time for annotating {} neoepitopes {} seconds".format(
+                len(self.neoepitopes), int(end - start)
             )
         )
+
+        # close distributed resources
+        del future_tcell_predictor
+        del future_self_similarity
+        del future_reference_folder
+        del future_configuration
+
         return annotated_neoantigens
 
     @staticmethod
-    def annotate_neoantigen(
-        neoantigen: Neoantigen,
-        patient: Patient,
+    def annotate_neoepitope(
+        neoepitope: PredictedEpitope,
         reference_folder: ReferenceFolder,
         configuration: DependenciesConfiguration,
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
-        rank_mhci_threshold = neofox.RANK_MHCI_THRESHOLD_DEFAULT,
-        rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
-        with_all_neoepitopes=False
     ):
         # the logs need to be initialised inside every dask job
         initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutation.mutated_xmer))
+        logger.info("Starting neoepitope annotation with peptide={}".format(neoepitope.mutated_peptide))
         start = time.time()
         try:
-            annotated_neoantigen = NeoantigenAnnotator(
+            annotated_neoantigen = NeoepitopeAnnotator(
                 reference_folder,
                 configuration,
                 tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
-                rank_mhci_threshold=rank_mhci_threshold,
-                rank_mhcii_threshold=rank_mhcii_threshold
-            ).get_annotated_neoantigen(neoantigen, patient, with_all_neoepitopes=with_all_neoepitopes)
+            ).get_annotated_neoepitope(neoepitope)
         except Exception as e:
-            logger.error("Error processing neoantigen {}".format(neoantigen.to_dict()))
-            logger.error("Error processing patient {}".format(patient.to_dict()))
+            logger.error("Error processing neoantigen {}".format(neoepitope.to_dict()))
             raise e
         end = time.time()
         logger.info(
             "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
-                neoantigen.mutation.mutated_xmer, int(end - start))
+                neoepitope.mutated_peptide, int(end - start))
         )
         return annotated_neoantigen
+
+    def _conditional_expression_imputation(self) -> List[PredictedEpitope]:
+
+        expression_annotator = ExpressionAnnotator()
+        neoepitopes_transformed = []
+        for neoepitope in self.neoepitopes:
+            if neoepitope.patient_identifier is not None and neoepitope.patient_identifier != '':
+                patient = self.patients[neoepitope.patient_identifier]
+                neoepitope_transformed = neoepitope
+                gene_expression = expression_annotator.get_gene_expression_annotation(
+                    gene_name=neoepitope.gene, tcga_cohort=patient.tumor_type)
+                if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
+                    neoepitope_transformed.rna_expression = gene_expression
+                neoepitope.imputed_gene_expression = gene_expression
+                neoepitopes_transformed.append(neoepitope_transformed)
+            else:
+                neoepitopes_transformed.append(neoepitope)
+        return neoepitopes_transformed
 
 
 def initialise_logs(logfile, verbose=False):

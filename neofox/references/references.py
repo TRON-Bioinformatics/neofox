@@ -127,10 +127,11 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
         self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
-        self.prime = self._check_and_load_binary(neofox.NEOFOX_PRIME_ENV)
-        self.prime_alleles_list = os.path.join(
-            os.path.dirname(self.prime), "lib", PRIME_AVAILABLE_ALLELES_FILE
-        )
+        self.prime = self._check_and_load_binary(neofox.NEOFOX_PRIME_ENV, optional=True)
+        if self.prime:
+            self.prime_alleles_list = os.path.join(
+                os.path.dirname(self.prime), "lib", PRIME_AVAILABLE_ALLELES_FILE
+            )
 
 
 class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):

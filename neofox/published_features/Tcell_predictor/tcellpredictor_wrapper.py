@@ -71,7 +71,7 @@ class TcellPrediction:
         return result
 
     def calculate_tcell_predictor_score(
-        self, gene, epitope: PredictedEpitope
+        self, gene: str, epitope: PredictedEpitope
     ):
         """returns Tcell_predictor score given mps in dictionary format"""
         tcell_predictor_score = None
@@ -97,9 +97,9 @@ class TcellPrediction:
         ]
         return annotations
 
-    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, neoantigen: Neoantigen) -> List[Annotation]:
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, gene: str) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
-                value=self.calculate_tcell_predictor_score(gene=neoantigen.gene, epitope=epitope),
+                value=self.calculate_tcell_predictor_score(epitope=epitope, gene=gene),
                 name='Tcell_predictor_score')
             ]

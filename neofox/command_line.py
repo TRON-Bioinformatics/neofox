@@ -17,17 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from argparse import ArgumentParser
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 import dotenv
 from logzero import logger
 import orjson as json
 import neofox
 import neofox.neofox
-from neofox.model.neoantigen import Neoantigen, Patient
-from neofox.exceptions import NeofoxInputParametersException
+from neofox.model.neoantigen import Neoantigen, Patient, PredictedEpitope
+from neofox.model.validation import ModelValidator
 from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
+from neofox.neofox_epitope import NeoFoxEpitope
 from neofox.references.installer import NeofoxReferenceInstaller
 from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS, MhcDatabase
 
@@ -202,10 +203,8 @@ def neofox_cli():
 
     logger.info("Finished NeoFox")
 
-
 def _read_data(
-    input_file, patients_data, patient_id, mhc_database: MhcDatabase
-) -> Tuple[List[Neoantigen], List[Patient]]:
+    input_file, patients_data, patient_id, mhc_database: MhcDatabase) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
     logger.info("Parsing patients data from: {}".format(patients_data))
     patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
@@ -222,6 +221,16 @@ def _read_data(
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     else:
         raise ValueError('Not supported input file extension: {}'.format(input_file))
+
+    patients_dict : Dict[str, Patient]
+    patients_dict = {p.identifier: p for p in patients}
+
+    for n in neoantigens:
+        patient = patients_dict.get(n.patient_identifier)
+        if not patient.is_rna_available:
+            # removes RNA vaf if indicated in patient that this information is no good
+            # iCam legacy
+            n.rna_variant_allele_frequency = None
 
     return neoantigens, patients
 
@@ -260,3 +269,169 @@ def _write_results(neoantigens, output_folder, output_prefix, with_all_neoepitop
     output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
     with open(output_features, "wb") as f:
         f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
+
+
+def neofox_epitope_cli():
+    parser = ArgumentParser(
+        description="NeoFox {} epitope annotates a given set of neoepitope candidates "
+                    "derived from point mutation with relevant immunogenic features".format(neofox.VERSION),
+        epilog=epilog
+    )
+    parser.add_argument(
+        "--input-file",
+        dest="input_file",
+        help="Input file with neoepitope candidates. "
+             "Supported formats: tab-separated columns (extensions: .txt or .tsv) or JSON (extension: .json)",
+        required=True,
+    )
+    parser.add_argument(
+        "--patient-data",
+        dest="patients_data",
+        help="file with data for patients with columns: identifier, estimated_tumor_content, "
+        "mhc_i_alleles, mhc_ii_alleles, tissue",
+    )
+    parser.add_argument(
+        "--output-folder", dest="output_folder", help="output folder", required=True,
+    )
+    parser.add_argument(
+        "--output-prefix",
+        dest="output_prefix",
+        help="prefix to name output files in the output folder",
+        default="neofox",
+    )
+    parser.add_argument(
+        "--num-cpus", dest="num_cpus", default=1, help="number of CPUs for computation"
+    )
+    parser.add_argument(
+        "--config",
+        dest="config",
+        help="an optional configuration file with all the environment variables",
+    )
+    parser.add_argument(
+        "--organism",
+        dest="organism",
+        choices=[ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS],
+        help="the organism to which the data corresponds",
+        default="human"
+    )
+    parser.add_argument(
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="verbose logs",
+    )
+    args = parser.parse_args()
+
+    input_file = args.input_file
+    patients_data = args.patients_data
+    output_folder = args.output_folder
+    output_prefix = args.output_prefix
+    num_cpus = int(args.num_cpus)
+    config = args.config
+    organism = args.organism
+
+    try:
+        # makes sure that the output folder exists
+        os.makedirs(output_folder, exist_ok=True)
+
+        # initialise logs
+        log_file_name = NeoFox.get_log_file_name(work_folder=output_folder, output_prefix=output_prefix)
+        neofox.neofox.initialise_logs(log_file_name, verbose=args.verbose)
+
+        logger.info("NeoFox v{}".format(neofox.VERSION))
+
+        # loads configuration
+        if config:
+            dotenv.load_dotenv(config, override=True)
+        reference_folder = ReferenceFolder(organism=organism)
+
+        # reads the input data
+        neoepitopes, patients = _read_data_epitopes(
+            input_file,
+            patients_data,
+            reference_folder.get_mhc_database())
+
+        # run annotations
+        annotated_neoepitopes = NeoFoxEpitope(
+            neoepitopes=neoepitopes,
+            patients=patients,
+            log_file_name=log_file_name,
+            num_cpus=num_cpus,
+            reference_folder=reference_folder
+        ).get_annotations()
+
+        _write_results_epitopes(
+            neoepitopes=annotated_neoepitopes,
+            output_folder=output_folder,
+            output_prefix=output_prefix
+        )
+    except Exception as e:
+        logger.exception(e)  # logs every exception in the file
+        raise e
+
+    logger.info("Finished NeoFox epitopes")
+
+
+def _read_data_epitopes(
+    input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[PredictedEpitope], List[Patient]]:
+
+    # parse patient data
+    patients = []
+    if patients_data is not None:
+        logger.info("Parsing patients data from: {}".format(patients_data))
+        patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
+        logger.info("Loaded {} patients".format(len(patients)))
+
+    # parse the neoantigen candidate data
+    if input_file.endswith('.txt') or input_file.endswith('.tsv'):
+        logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
+        neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database)
+        logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
+    # TODO: add support for input in JSON format
+    #elif input_file.endswith('.json')  :
+    #    logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
+    #    neoepitopes = ModelConverter.parse_neoepitopes_json_file(input_file)
+    #    logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
+    else:
+        raise ValueError('Not supported input file extension: {}'.format(input_file))
+
+    patients_dict : Dict[str, Patient]
+    patients_dict = {p.identifier: p for p in patients}
+
+    for n in neoepitopes:
+        patient = patients_dict.get(n.patient_identifier)
+        if patient is not None and not patient.is_rna_available:
+            # removes RNA vaf if indicated in patient that this information is no good
+            # iCam legacy
+            n.rna_variant_allele_frequency = None
+
+    return neoepitopes, patients
+
+
+def _write_results_epitopes(neoepitopes: List[PredictedEpitope], output_folder, output_prefix):
+    # NOTE: this import here is a compromise solution so the help of the command line responds faster
+    from neofox.model.conversion import ModelConverter
+
+    mhci_neoepitopes = [n for n in neoepitopes if ModelValidator.is_mhci_epitope(n)]
+    mhcii_neoepitopes = [n for n in neoepitopes if ModelValidator.is_mhcii_epitope(n)]
+
+    ModelConverter.annotated_neoepitopes2epitopes_table(mhci_neoepitopes, mhc=neofox.MHC_I).to_csv(
+        os.path.join(
+            output_folder,
+            "{}_mhcI_epitope_candidates_annotated.tsv".format(output_prefix),
+        ),
+        sep="\t",
+        index=False,
+    )
+    ModelConverter.annotated_neoepitopes2epitopes_table(mhcii_neoepitopes, mhc=neofox.MHC_II).to_csv(
+        os.path.join(
+            output_folder,
+            "{}_mhcII_epitope_candidates_annotated.tsv".format(output_prefix),
+        ),
+        sep="\t",
+        index=False,
+    )
+
+    output_features = os.path.join(output_folder, "{}_neoepitope_candidates_annotated.json".format(output_prefix))
+    with open(output_features, "wb") as f:
+        f.write(json.dumps(ModelConverter.objects2json(neoepitopes)))
