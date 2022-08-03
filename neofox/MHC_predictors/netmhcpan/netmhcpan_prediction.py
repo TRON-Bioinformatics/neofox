@@ -114,17 +114,15 @@ class NetMhcPanPredictor:
                 )
         return results
 
-    def get_alleles_netmhcpan_representation(self, mhc_isoforms: List[Mhc1]) -> List[str]:
+    def get_alleles_netmhcpan_representation(self, mhc: List[Mhc1]) -> List[str]:
         return list(
             map(
-                self.mhc_parser.get_netmhcpan_representation, [a for m in mhc_isoforms for a in m.alleles],
+                self.mhc_parser.get_netmhcpan_representation, [a for m in mhc for a in m.alleles],
             )
         )
 
     def get_only_available_alleles(self, mhc_alleles: List[Mhc1], set_available_mhc: Set[str]) -> str:
-        hla_alleles_names = self.get_alleles_netmhcpan_representation(
-            mhc_alleles
-        )
+        hla_alleles_names = self.get_alleles_netmhcpan_representation(mhc_alleles)
         patients_available_alleles = ",".join(
             list(filter(lambda x: x in set_available_mhc, hla_alleles_names))
         )
@@ -142,7 +140,7 @@ class NetMhcPanPredictor:
         for p in predictions:
             if p.wild_type_peptide is not None:
                 wt_prediction = self.mhc_prediction_peptide(
-                    alleles=p.allele_mhc_i.name, sequence=p.wild_type_peptide)
+                    alleles=self.mhc_parser.get_netmhcpan_representation(p.allele_mhc_i), sequence=p.wild_type_peptide)
                 if wt_prediction is not None:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
                     p.rank_wild_type = wt_prediction.rank_mutated
