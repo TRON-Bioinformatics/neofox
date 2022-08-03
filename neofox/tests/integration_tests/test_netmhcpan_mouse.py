@@ -45,11 +45,9 @@ class TestNetMhcPanPredictorOnMouse(TestCase):
         )
         # this is an epitope from IEDB of length 9
         mutated = "NLVPMVATV"
-        predictions = netmhcpan_predictor.mhc_prediction(
-            sequence=mutated,
-            mhc_alleles=self.test_mhc_one,
-            set_available_mhc=self.available_alleles.get_available_mhc_i(),
-        )
+        available_alleles = netmhcpan_predictor.get_only_available_alleles(
+            mhc_alleles=self.test_mhc_one, set_available_mhc=self.available_alleles.get_available_mhc_i())
+        predictions = netmhcpan_predictor.mhc_prediction(sequence=mutated, available_alleles=available_alleles)
         self.assertEqual(9, len(predictions))
 
     def test_netmhcpan_too_small_epitope(self):
@@ -58,11 +56,9 @@ class TestNetMhcPanPredictorOnMouse(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         mutated = "NLVP"
-        predictions = netmhcpan_predictor.mhc_prediction(
-            sequence=mutated,
-            mhc_alleles=self.test_mhc_one,
-            set_available_mhc=self.available_alleles.get_available_mhc_i(),
-        )
+        available_alleles = netmhcpan_predictor.get_only_available_alleles(
+            mhc_alleles=self.test_mhc_one, set_available_mhc=self.available_alleles.get_available_mhc_i())
+        predictions = netmhcpan_predictor.mhc_prediction(sequence=mutated, available_alleles=available_alleles)
         self.assertEqual(0, len(predictions))
 
     def test_netmhcpan_rare_aminoacid(self):
@@ -72,11 +68,9 @@ class TestNetMhcPanPredictorOnMouse(TestCase):
         )
         # this is an epitope from IEDB of length 9
         mutated = "XTTDSWGKF"
-        predictions = netmhcpan_predictor.mhc_prediction(
-            sequence=mutated,
-            mhc_alleles=self.test_mhc_one,
-            set_available_mhc=self.available_alleles.get_available_mhc_i(),
-        )
+        available_alleles = netmhcpan_predictor.get_only_available_alleles(
+            mhc_alleles=self.test_mhc_one, set_available_mhc=self.available_alleles.get_available_mhc_i())
+        predictions = netmhcpan_predictor.mhc_prediction(sequence=mutated, available_alleles=available_alleles)
         self.assertEqual(9, len(predictions))
 
     def test_netmhc2pan_epitope_iedb(self):
