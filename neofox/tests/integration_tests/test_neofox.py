@@ -445,9 +445,9 @@ class TestNeofox(TestCase):
         """"""
         neoantigens, patients, patient_id = self._get_test_data()
         for n in neoantigens:
-            position_to_replace = int(len(n.mutation.mutated_xmer)/2)
-            n.mutation.mutated_xmer = n.mutation.mutated_xmer[:position_to_replace] + "U" + \
-                                      n.mutation.mutated_xmer[position_to_replace+1:]
+            position_to_replace = int(len(n.mutated_xmer)/2)
+            n.mutated_xmer = n.mutated_xmer[:position_to_replace] + "U" + \
+                                      n.mutated_xmer[position_to_replace+1:]
         annotations = NeoFox(
             neoantigens=neoantigens,
             patient_id=patient_id,

@@ -44,7 +44,7 @@ class TestNeoantigenFitness(TestCase):
                 mutated_peptide="ILVTDQTRL", wild_type_peptide="ILVIDQTRL",
                 affinity_mutated=0, position=0, allele_mhc_i=MhcAllele(name="hla"), rank_mutated=0
             ),
-            mutation=mutation,
+            neoantigen=mutation,
         )
         self.assertTrue(isinstance(result, Annotation))
         self.assertTrue(float(result.value) > 0)
@@ -61,6 +61,6 @@ class TestNeoantigenFitness(TestCase):
                 mutated_peptide="DDDDDV", affinity_mutated=10, position=0, allele_mhc_i=MhcAllele(name="hla"),
                 rank_mutated=0
             ),
-            mutation=mutation
+            neoantigen=mutation
         )
         self.assertEqual(result.value, "NA")

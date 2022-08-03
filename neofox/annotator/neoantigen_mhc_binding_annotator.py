@@ -133,7 +133,7 @@ class NeoantigenMhcBindingAnnotator:
             patient: Patient,
     ):
         mixmhc = MixMHCpred(runner, configuration, mhc_parser)
-        mixmhc.run(neoantigen=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
+        mixmhc.run(neoantigen=neoantigen, mhc=patient.mhc1, uniprot=self.uniprot)
         return mixmhc
 
     def _run_prime(
@@ -145,7 +145,7 @@ class NeoantigenMhcBindingAnnotator:
             patient: Patient,
     ):
         prime = Prime(runner, configuration, mhc_parser)
-        prime.run(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
+        prime.run(neoantigen=neoantigen, mhc=patient.mhc1, uniprot=self.uniprot)
         return prime
 
     def _run_mixmhc2pred(
@@ -157,5 +157,5 @@ class NeoantigenMhcBindingAnnotator:
             patient: Patient,
     ):
         mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser)
-        mixmhc2.run(mhc=patient.mhc2, mutation=neoantigen.mutation, uniprot=self.uniprot)
+        mixmhc2.run(mhc=patient.mhc2, neoantigen=neoantigen, uniprot=self.uniprot)
         return mixmhc2

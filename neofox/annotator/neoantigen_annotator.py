@@ -126,7 +126,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
         neoantigen.neofox_annotations.annotations.extend(expression_annotation)
 
         sequence_not_in_uniprot = self.uniprot.is_sequence_not_in_uniprot(
-            neoantigen.mutation.mutated_xmer
+            neoantigen.mutated_xmer
         )
         neoantigen.neofox_annotations.annotations.extend(
             self.uniprot.get_annotations(sequence_not_in_uniprot)
@@ -192,7 +192,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
             neoantigen.neofox_annotations.annotations.append(
                 self.neoag_calculator.get_annotation(
                     epitope_mhci=netmhcpan.best_epitope_by_affinity,
-                    mutation=neoantigen.mutation)
+                    neoantigen=neoantigen)
             )
 
         # IEDB immunogenicity
