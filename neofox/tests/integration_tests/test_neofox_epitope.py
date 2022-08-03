@@ -35,7 +35,7 @@ class TestNeofoxEpitope(BaseIntegrationTest):
         super().setUp()
 
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_candidate_file.txt"
+            neofox.tests.__name__, "resources/test_data_model_realistic.txt"
         )
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"

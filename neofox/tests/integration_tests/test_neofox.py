@@ -52,7 +52,7 @@ class TestNeofox(TestCase):
         # self.runner = Runner()
         self.patient_id = "Pt29"
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_candidate_file.txt"
+            neofox.tests.__name__, "resources/test_data_model_realistic.txt"
         )
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"

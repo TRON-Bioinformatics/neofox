@@ -29,27 +29,18 @@ from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import (
     Neoantigen,
     Patient,
-    Annotation, PredictedEpitope,
+    PredictedEpitope,
 )
-from neofox.model.factories import PatientFactory, NeoantigenFactory, MhcFactory
+from neofox.model.factories import PatientFactory, NeoantigenFactory
 from neofox.references.references import MhcDatabase
-
-FIELD_VAF_DNA = "VAF_in_tumor"
-FIELD_VAF_RNA = "VAF_in_RNA"
-FIELD_TRANSCRIPT_EXPRESSION = "transcript_expression"
-FIELD_GENE = "gene"
-FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
-FIELD_MUTATED_XMER = "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 
 
 class ModelConverter(object):
 
     @staticmethod
-    def parse_candidate_file(candidate_file: str, patient_id: str = None) -> List[Neoantigen]:
+    def parse_candidate_file(candidate_file: str) -> List[Neoantigen]:
         """
         :param candidate_file: the path to an neoantigen candidate input file
-        :param patient_id: the patient identifier for all neoantigens in the input file, if not provided it is
-        expected as column named `patient.id` or `patient`
         :return neoantigens in model objects
         """
         data = pd.read_csv(
@@ -66,27 +57,10 @@ class ModelConverter(object):
             }
         )
 
-        # check format of input file
-        if FIELD_MUTATED_XMER in data.columns.values.tolist():
-            # NOTE: this is the support for the iCaM format
-            data = data.replace({np.nan: None})
-            neoantigens = []
-            for _, candidate_entry in data.iterrows():
-                neoantigen = ModelConverter._candidate_entry2model(
-                    candidate_entry, patient_id=patient_id
-                )
-                neoantigen.external_annotations = [
-                    # NOTE: we need to exclude the field gene from the external annotations as it matches a field
-                    # in the model and thus it causes a conflict when both are renamed to gene_x and gene_y when
-                    # joining
-                    Annotation(name=name, value=str(value)) for name, value
-                    in candidate_entry.iteritems() if name != FIELD_GENE
-                ]
-                neoantigens.append(neoantigen)
-        else:
-            # NOTE: this is the support for the NeoFox format
-            data = data.replace({np.nan: None})
-            neoantigens = ModelConverter._neoantigens_csv2objects(data)
+        # NOTE: this is the support for the NeoFox format
+        data = data.replace({np.nan: None})
+        neoantigens = ModelConverter._neoantigens_csv2objects(data)
+
         return neoantigens
 
     @staticmethod
@@ -304,29 +278,14 @@ class ModelConverter(object):
         )
 
     @staticmethod
-    def _candidate_entry2model(candidate_entry: dict, patient_id: str) -> Neoantigen:
-        """parses an row from a candidate file into a model object"""
-
-        vaf_rna_raw = candidate_entry.get(FIELD_TRANSCRIPT_EXPRESSION)
-        return NeoantigenFactory.build_neoantigen(
-            wild_type_xmer=candidate_entry.get(FIELD_WILD_TYPE_XMER),
-            mutated_xmer=candidate_entry.get(FIELD_MUTATED_XMER),
-            patient_identifier=patient_id if patient_id else candidate_entry.get("patient"),
-            gene=candidate_entry.get(FIELD_GENE),
-            rna_expression=vaf_rna_raw if vaf_rna_raw is not None and vaf_rna_raw >= 0 else None,
-            rna_variant_allele_frequency=candidate_entry.get(FIELD_VAF_RNA),
-            dna_variant_allele_frequency=candidate_entry.get(FIELD_VAF_DNA)
-        )
-
-    @staticmethod
     def _neoantigens_csv2objects(dataframe: pd.DataFrame) -> List[Neoantigen]:
         """transforms an patients CSV into a list of objects"""
         neoantigens = []
         for _, row in dataframe.iterrows():
-            nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
+            neoantigen_dict = row.to_dict()
 
             # build the external annotations from anything not from the model
-            external_annotations = nested_dict.copy()
+            external_annotations = neoantigen_dict.copy()
             external_annotations.pop("wildTypeXmer", None)
             external_annotations.pop("mutatedXmer", None)
             external_annotations.pop("patientIdentifier", None)
@@ -336,14 +295,14 @@ class ModelConverter(object):
             external_annotations.pop("dnaVariantAlleleFrequency", None)
 
             neoantigen = NeoantigenFactory.build_neoantigen(
-                wild_type_xmer=nested_dict.get("wildTypeXmer"),
-                mutated_xmer=nested_dict.get("mutatedXmer"),
-                patient_identifier=nested_dict.get("patientIdentifier"),
-                gene=nested_dict.get("gene"),
-                rna_expression=nested_dict.get("rnaExpression"),
-                rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
-                dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
-                imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                wild_type_xmer=neoantigen_dict.get("wildTypeXmer"),
+                mutated_xmer=neoantigen_dict.get("mutatedXmer"),
+                patient_identifier=neoantigen_dict.get("patientIdentifier"),
+                gene=neoantigen_dict.get("gene"),
+                rna_expression=neoantigen_dict.get("rnaExpression"),
+                rna_variant_allele_frequency=neoantigen_dict.get("rnaVariantAlleleFrequency"),
+                dna_variant_allele_frequency=neoantigen_dict.get("dnaVariantAlleleFrequency"),
+                imputed_gene_expression=neoantigen_dict.get("imputedGeneExpression"),
                 **external_annotations
             )
             neoantigens.append(neoantigen)
@@ -356,10 +315,10 @@ class ModelConverter(object):
         neoepitopes = []
         mhc_parser = MhcParser.get_mhc_parser(mhc_database)
         for _, row in dataframe.iterrows():
-            nested_dict = ModelConverter._flat_dict2nested_dict(flat_dict=row.to_dict())
+            neoepitope_dict = row.to_dict()
 
             # build the external annotations from anything not from the model
-            external_annotations = nested_dict.copy()
+            external_annotations = neoepitope_dict.copy()
             external_annotations.pop("mutatedPeptide", None)
             external_annotations.pop("wildTypePeptide", None)
             external_annotations.pop("affinityMutated", None)
@@ -375,48 +334,48 @@ class ModelConverter(object):
             external_annotations.pop("rnaVariantAlleleFrequency", None)
             external_annotations.pop("dnaVariantAlleleFrequency", None)
 
-            mhci_allele = nested_dict.get("alleleMhcI")
-            mhcii_isoform = nested_dict.get("isoformMhcII")
-            patient_id = nested_dict.get("patientIdentifier")
+            mhci_allele = neoepitope_dict.get("alleleMhcI")
+            mhcii_isoform = neoepitope_dict.get("isoformMhcII")
+            patient_id = neoepitope_dict.get("patientIdentifier")
             if mhci_allele is not None and mhci_allele != '':
                 neoepitope = PredictedEpitope(
-                    mutated_peptide=nested_dict.get("mutatedPeptide"),
-                    wild_type_peptide=nested_dict.get("wildTypePeptide"),
+                    mutated_peptide=neoepitope_dict.get("mutatedPeptide"),
+                    wild_type_peptide=neoepitope_dict.get("wildTypePeptide"),
                     patient_identifier=patient_id,
                     allele_mhc_i=mhc_parser.parse_mhc_allele(mhci_allele),
-                    gene=nested_dict.get("gene"),
-                    rna_expression=nested_dict.get("rnaExpression"),
-                    rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
-                    dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
-                    imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                    gene=neoepitope_dict.get("gene"),
+                    rna_expression=neoepitope_dict.get("rnaExpression"),
+                    rna_variant_allele_frequency=neoepitope_dict.get("rnaVariantAlleleFrequency"),
+                    dna_variant_allele_frequency=neoepitope_dict.get("dnaVariantAlleleFrequency"),
+                    imputed_gene_expression=neoepitope_dict.get("imputedGeneExpression"),
                 )
             elif mhcii_isoform is not None and mhcii_isoform != '':
                 neoepitope = PredictedEpitope(
-                    mutated_peptide=nested_dict.get("mutatedPeptide"),
-                    wild_type_peptide=nested_dict.get("wildTypePeptide"),
+                    mutated_peptide=neoepitope_dict.get("mutatedPeptide"),
+                    wild_type_peptide=neoepitope_dict.get("wildTypePeptide"),
                     patient_identifier=patient_id,
                     isoform_mhc_i_i=mhc_parser.parse_mhc2_isoform(mhcii_isoform),
-                    gene=nested_dict.get("gene"),
-                    rna_expression=nested_dict.get("rnaExpression"),
-                    rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
-                    dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
-                    imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                    gene=neoepitope_dict.get("gene"),
+                    rna_expression=neoepitope_dict.get("rnaExpression"),
+                    rna_variant_allele_frequency=neoepitope_dict.get("rnaVariantAlleleFrequency"),
+                    dna_variant_allele_frequency=neoepitope_dict.get("dnaVariantAlleleFrequency"),
+                    imputed_gene_expression=neoepitope_dict.get("imputedGeneExpression"),
                 )
             elif patient_id is not None and patient_id != '':
                 neoepitope = PredictedEpitope(
-                    mutated_peptide=nested_dict.get("mutatedPeptide"),
-                    wild_type_peptide=nested_dict.get("wildTypePeptide"),
+                    mutated_peptide=neoepitope_dict.get("mutatedPeptide"),
+                    wild_type_peptide=neoepitope_dict.get("wildTypePeptide"),
                     patient_identifier=patient_id,
-                    gene=nested_dict.get("gene"),
-                    rna_expression=nested_dict.get("rnaExpression"),
-                    rna_variant_allele_frequency=nested_dict.get("rnaVariantAlleleFrequency"),
-                    dna_variant_allele_frequency=nested_dict.get("dnaVariantAlleleFrequency"),
-                    imputed_gene_expression=nested_dict.get("imputedGeneExpression"),
+                    gene=neoepitope_dict.get("gene"),
+                    rna_expression=neoepitope_dict.get("rnaExpression"),
+                    rna_variant_allele_frequency=neoepitope_dict.get("rnaVariantAlleleFrequency"),
+                    dna_variant_allele_frequency=neoepitope_dict.get("dnaVariantAlleleFrequency"),
+                    imputed_gene_expression=neoepitope_dict.get("imputedGeneExpression"),
                 )
             else:
                 raise ValueError(
                     "Found an epitope without MHC-I allele, MHC-II isoform or patiend identifier: {}".format(
-                        nested_dict))
+                        neoepitope_dict))
             neoepitopes.append(neoepitope)
 
         return neoepitopes
@@ -426,20 +385,3 @@ class ModelConverter(object):
         df = ModelConverter._objects2dataframe(neoantigens)
         df["position"] = df["position"].transform(lambda x: ",".join([str(y) for y in x]) if x is not None else x)
         return df
-
-    @staticmethod
-    def _flat_dict2nested_dict(flat_dict: dict) -> dict:
-        """transforms a flattened dict into a nested dict, assuming that the dot indicates a nested level"""
-        nested_dict = defaultdict(lambda: {})
-        for k, v in flat_dict.items():
-            splitted_k = k.split(".")
-            if len(splitted_k) > 2:
-                raise NotImplementedError(
-                    "Support for dictionaries nested more than one level is not implemented"
-                )
-            if len(splitted_k) == 2:
-                nested_dict[splitted_k[0]][splitted_k[1]] = v
-            else:
-                nested_dict[k] = v
-        return dict(nested_dict)
-
