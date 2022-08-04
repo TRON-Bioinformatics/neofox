@@ -37,6 +37,7 @@ def mock_file_existence(existing_files=[], non_existing_files=[]):
             return original_os_path_exists(filename)
 
     os.path.exists = Mock(side_effect=side_effect)
+    os.path.isfile = Mock(side_effect=side_effect)
 
 
 def mock_file_is_executable(executable_files=[], non_executable_files=[]):
