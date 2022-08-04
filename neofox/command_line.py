@@ -24,7 +24,8 @@ import orjson as json
 import neofox
 from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.exceptions import NeofoxInputParametersException
-from neofox.neofox import NeoFox, AFFINITY_THRESHOLD_DEFAULT
+from neofox.neofox import NeoFox
+from neofox import AFFINITY_THRESHOLD_DEFAULT
 import os
 from neofox.model.conversion import ModelConverter
 from neofox.references.installer import NeofoxReferenceInstaller
