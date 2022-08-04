@@ -15,7 +15,6 @@ Protocol Buffers is employed to model Neofox's input and output data: neoantigen
     - [Mhc2Gene](#neoantigen.Mhc2Gene)
     - [Mhc2Isoform](#neoantigen.Mhc2Isoform)
     - [MhcAllele](#neoantigen.MhcAllele)
-    - [Mutation](#neoantigen.Mutation)
     - [Neoantigen](#neoantigen.Neoantigen)
     - [Patient](#neoantigen.Patient)
     - [PredictedEpitope](#neoantigen.PredictedEpitope)
@@ -160,23 +159,6 @@ or changes in expression. See http://hla.alleles.org/nomenclature/naming.html fo
 
 
 
-<a name="neoantigen.Mutation"></a>
-
-### Mutation
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| position | [int32](#int32) | repeated | The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus |
-| wildTypeXmer | [string](#string) |  | Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes) |
-| mutatedXmer | [string](#string) |  | Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes) |
-
-
-
-
-
-
 <a name="neoantigen.Neoantigen"></a>
 
 ### Neoantigen
@@ -187,7 +169,9 @@ A neoantigen minimal definition
 | ----- | ---- | ----- | ----------- |
 | patientIdentifier | [string](#string) |  | Patient identifier |
 | gene | [string](#string) |  | The HGNC gene symbol or gene identifier |
-| mutation | [Mutation](#neoantigen.Mutation) |  | The mutation |
+| position | [int32](#int32) | repeated | The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus |
+| wildTypeXmer | [string](#string) |  | Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes) |
+| mutatedXmer | [string](#string) |  | Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes) |
 | rnaExpression | [float](#float) |  | Expression value of the transcript from RNA data. Range [0, +inf]. |
 | imputedGeneExpression | [float](#float) |  | Expression value of the transcript from TCGA data. Range [0, +inf]. |
 | dnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the DNA. Range [0.0, 1.0] |

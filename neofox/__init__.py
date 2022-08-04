@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 
-VERSION = "0.7.0dev12"
+VERSION = "0.7.0dev13"
 
 
 REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"

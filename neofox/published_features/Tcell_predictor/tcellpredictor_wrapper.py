@@ -85,7 +85,7 @@ class TcellPrediction:
         # TODO: this is difficult to extend to more complex mutations (eg: MNVs, indels) as only considers first mutated
         #  position
         tcell_predictor_score = None
-        if neoantigen.mutation.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity.mutated_peptide:
+        if neoantigen.wild_type_xmer and netmhcpan.best_ninemer_epitope_by_affinity.mutated_peptide:
             tcell_predictor_score = self.calculate_tcell_predictor_score(
                 gene=neoantigen.gene,
                 epitope=netmhcpan.best_ninemer_epitope_by_affinity)
