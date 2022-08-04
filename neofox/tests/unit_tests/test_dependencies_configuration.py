@@ -55,11 +55,13 @@ class TestDependenciesConfiguration(TestCase):
     def test_not_provided_variable(self):
         self._load_env_variables()
         # removes the path to avoid binaries to be loaded from the path
+        backup_path = os.environ['PATH']
         del os.environ['PATH']
         for v in self.variables.keys():
             del os.environ[v]
             with self.assertRaises(NeofoxConfigurationException):
                 DependenciesConfiguration()
+        os.environ['PATH'] = backup_path
 
     def test_empty_string_variable(self):
         self._load_env_variables()
