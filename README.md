@@ -2,6 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/neofox/badges/version.svg)](https://anaconda.org/bioconda/neofox)
 [![Documentation Status](https://readthedocs.org/projects/neofox/badge/?version=latest)](https://neofox.readthedocs.io/en/latest/?badge=latest)
 
 
@@ -51,7 +52,7 @@ NeoFox covers the following neoantigen features and prediction algorithms:
  
 NeoFox depends on the following tools:  
 
-- Python >=3.6, <=3.8
+- Python >=3.7, <=3.8
 - R 3.6.0
 - BLAST 2.10.1
 - netMHCpan 4.1
@@ -59,6 +60,16 @@ NeoFox depends on the following tools:
 - MixMHCpred 2.1
 - MixMHC2pred 1.2
 - PRIME 1.0
+
+Install from PyPI:
+```
+pip install neofox
+```
+
+Or install from bioconda:
+```
+conda install bioconda::neofox
+```
 
 
 ## 3 Usage from the command line
