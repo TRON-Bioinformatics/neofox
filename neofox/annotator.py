@@ -23,7 +23,6 @@ from distributed import get_client, secede, rejoin
 import neofox
 import time
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.exceptions import NeofoxInputParametersException
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
@@ -59,11 +58,11 @@ from neofox.published_features.expression import Expression
 from neofox.published_features.priority_score import PriorityScore
 from neofox.published_features.prime import Prime
 from neofox.published_features.hex.hex import Hex
-from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations, Zygosity
+from neofox.model.neoantigen import Patient, Neoantigen, NeoantigenAnnotations
 from neofox.references.references import (
     ReferenceFolder,
     DependenciesConfiguration,
-    AvailableAlleles, ORGANISM_MUS_MUSCULUS, ORGANISM_HOMO_SAPIENS
+    AvailableAlleles, ORGANISM_HOMO_SAPIENS
 )
 
 
@@ -74,7 +73,7 @@ class NeoantigenAnnotator:
         configuration: DependenciesConfiguration,
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
-        affinity_threshold =neofox.AFFINITY_THRESHOLD_DEFAULT
+        affinity_threshold=neofox.AFFINITY_THRESHOLD_DEFAULT
     ):
         """class to annotate neoantigens"""
         self.runner = Runner()

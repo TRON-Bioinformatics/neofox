@@ -24,8 +24,6 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
-from dask.distributed import performance_report
-
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
