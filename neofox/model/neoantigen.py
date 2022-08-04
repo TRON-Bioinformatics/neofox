@@ -69,18 +69,6 @@ class Mhc2Name(betterproto.Enum):
 
 
 @dataclass
-class Mutation(betterproto.Message):
-    # *The amino acid position within the neoantigen candidate sequence. 1-based,
-    # starting in the N-terminus
-    position: List[int] = betterproto.int32_field(1)
-    # *Amino acid sequence of the WT corresponding to the neoantigen candidate
-    # sequence (IUPAC 1 letter codes)
-    wild_type_xmer: str = betterproto.string_field(2)
-    # *Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
-    mutated_xmer: str = betterproto.string_field(3)
-
-
-@dataclass
 class Annotation(betterproto.Message):
     """*This is a generic class to hold annotations from Neofox"""
 
@@ -283,22 +271,28 @@ class Neoantigen(betterproto.Message):
     patient_identifier: str = betterproto.string_field(1)
     # *The HGNC gene symbol or gene identifier
     gene: str = betterproto.string_field(2)
-    # *The mutation
-    mutation: "Mutation" = betterproto.message_field(3)
+    # *The amino acid position within the neoantigen candidate sequence. 1-based,
+    # starting in the N-terminus
+    position: List[int] = betterproto.int32_field(3)
+    # *Amino acid sequence of the WT corresponding to the neoantigen candidate
+    # sequence (IUPAC 1 letter codes)
+    wild_type_xmer: str = betterproto.string_field(4)
+    # *Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
+    mutated_xmer: str = betterproto.string_field(5)
     # *Expression value of the transcript from RNA data. Range [0, +inf].
-    rna_expression: float = betterproto.float_field(4)
+    rna_expression: float = betterproto.float_field(6)
     # *Expression value of the transcript from TCGA data. Range [0, +inf].
-    imputed_gene_expression: float = betterproto.float_field(5)
+    imputed_gene_expression: float = betterproto.float_field(7)
     # *Variant allele frequency from the DNA. Range [0.0, 1.0]
-    dna_variant_allele_frequency: float = betterproto.float_field(6)
+    dna_variant_allele_frequency: float = betterproto.float_field(8)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
-    rna_variant_allele_frequency: float = betterproto.float_field(7)
+    rna_variant_allele_frequency: float = betterproto.float_field(9)
     # *The NeoFox neoantigen annotations
-    neofox_annotations: "Annotations" = betterproto.message_field(8)
+    neofox_annotations: "Annotations" = betterproto.message_field(10)
     # *List of external annotations
-    external_annotations: List["Annotation"] = betterproto.message_field(9)
+    external_annotations: List["Annotation"] = betterproto.message_field(11)
     # *List of predicted neoepitopes for MHC-I with feature annotation (optional)
-    neoepitopes_mhc_i: List["PredictedEpitope"] = betterproto.message_field(10)
+    neoepitopes_mhc_i: List["PredictedEpitope"] = betterproto.message_field(12)
     # *List of predicted neoepitopes for MHC-II with feature annotation
     # (optional)
-    neoepitopes_mhc_i_i: List["PredictedEpitope"] = betterproto.message_field(11)
+    neoepitopes_mhc_i_i: List["PredictedEpitope"] = betterproto.message_field(13)

@@ -1,4 +1,4 @@
-dnaVariantAlleleFrequency	gene	identifier	mutation.mutatedXmer	mutation.wildTypeXmer	patientIdentifier	rnaExpression	rnaVariantAlleleFrequency
+dnaVariantAlleleFrequency	gene	identifier	mutatedXmer	wildTypeXmer	patientIdentifier	rnaExpression	rnaVariantAlleleFrequency
 0.0		bPR1hUExGJn3+aOKrqy3gw==	HIQDLYTVL	RIQDLYTVL	1.0	0.0	0.0
 0.0		AtzsufB7B3Yok9IwZ+lSRQ==	GYYTLLNVF	GNYTLLNVF	1.0	0.0	0.0
 0.0		BIwwmAU1FPHZ4LkYHGzECQ==	LTLFGYYTL	LTLFGNYTL	1.0	0.0	0.0

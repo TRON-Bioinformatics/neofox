@@ -96,7 +96,7 @@ class NeoFox:
             if n.patient_identifier is None:
                 n.patient_identifier = patient_id
             # NOTE: the position of the mutations is not expected from the user and if provide the value is ignored
-            n.mutation.position = NeoantigenFactory.mut_position_xmer_seq(mutation=n.mutation)
+            n.position = NeoantigenFactory.mut_position_xmer_seq(neoantigen=n)
             ModelValidator.validate_neoantigen(n)
 
         # validates patients
@@ -253,7 +253,7 @@ class NeoFox:
     ):
         # the logs need to be initialised inside every dask job
         initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutation.mutated_xmer))
+        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutated_xmer))
         start = time.time()
         try:
             annotated_neoantigen = NeoantigenAnnotator(
@@ -271,7 +271,7 @@ class NeoFox:
         end = time.time()
         logger.info(
             "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
-                neoantigen.mutation.mutated_xmer, int(end - start))
+                neoantigen.mutated_xmer, int(end - start))
         )
         return annotated_neoantigen
 

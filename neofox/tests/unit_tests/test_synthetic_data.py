@@ -4,7 +4,7 @@ import pkg_resources
 from faker import Faker
 
 import neofox
-from neofox.model.neoantigen import Zygosity
+from neofox.model.neoantigen import Zygosity, Neoantigen
 from neofox.tests.fake_classes import FakeHlaDatabase
 from neofox.tests.synthetic_data.factories import PatientProvider, NeoantigenProvider
 
@@ -46,13 +46,13 @@ class TestFactories(TestCase):
         neoantigen = self.neoantigen_provider.neoantigen()
         self._assert_neoantigen(neoantigen)
 
-    def _assert_neoantigen(self, neoantigen):
+    def _assert_neoantigen(self, neoantigen: Neoantigen):
         self.assertIsNotNone(neoantigen.patient_identifier)
-        self.assertTrue(len(neoantigen.mutation.mutated_xmer) == 27)
-        self.assertTrue(len(neoantigen.mutation.wild_type_xmer) == 27)
-        self.assertNotEqual(neoantigen.mutation.wild_type_xmer, neoantigen.mutation.mutated_xmer)
-        self.assertEqual(neoantigen.mutation.wild_type_xmer[0:13], neoantigen.mutation.mutated_xmer[0:13])
-        self.assertEqual(neoantigen.mutation.wild_type_xmer[14:], neoantigen.mutation.mutated_xmer[14:])
+        self.assertTrue(len(neoantigen.mutated_xmer) == 27)
+        self.assertTrue(len(neoantigen.wild_type_xmer) == 27)
+        self.assertNotEqual(neoantigen.wild_type_xmer, neoantigen.mutated_xmer)
+        self.assertEqual(neoantigen.wild_type_xmer[0:13], neoantigen.mutated_xmer[0:13])
+        self.assertEqual(neoantigen.wild_type_xmer[14:], neoantigen.mutated_xmer[14:])
 
     def test_neoantigen_and_patient(self):
         patient = self.patient_provider.patient()

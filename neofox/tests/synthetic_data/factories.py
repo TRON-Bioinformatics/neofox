@@ -9,7 +9,7 @@ from neofox.expression_imputation.expression_imputation import ExpressionAnnotat
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.validation import ModelValidator
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mutation, Mhc2Name, Mhc2Isoform, \
+from neofox.model.neoantigen import Patient, Mhc1Name, Neoantigen, Mhc2Name, Mhc2Isoform, \
     MhcAllele
 from neofox.model.factories import get_mhc2_isoform_name, MhcFactory, NeoantigenFactory
 from neofox.references.references import HlaDatabase
@@ -133,33 +133,27 @@ class NeoantigenProvider(Provider):
         found = False
         while not found:
             try:
+                wildtype_xmer = self._get_wild_type_xmer()
+                mutation_position = int(self.length_xmer / 2)
+                mutated_xmer = wildtype_xmer[0:mutation_position] + self._mutate_aminoacid(
+                    wildtype_xmer[mutation_position]) + \
+                               wildtype_xmer[mutation_position + 1:]
                 neoantigen = Neoantigen(
                     patient_identifier=self.generator.unique.uuid4() if patient_identifier is None else patient_identifier,
                     gene="BRCA2" if wildtype else None, # no gene if no wildtype provided
-                    mutation=self.mutation(wildtype=wildtype),
+                    wild_type_xmer=wildtype_xmer if wildtype else None,
+                    mutated_xmer=mutated_xmer,
                     rna_expression=float(self.random_number(digits=4, fix_len=True))/100,
                     dna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000,
                     rna_variant_allele_frequency=float(self.random_number(digits=3, fix_len=True))/1000
                 )
+                neoantigen.position = NeoantigenFactory.mut_position_xmer_seq(neoantigen)
                 ModelValidator.validate_neoantigen(neoantigen)
             except NeofoxDataValidationException:
                 continue
             found = True
 
         return neoantigen
-
-    def mutation(self, wildtype) -> Mutation:
-        wildtype_xmer = self._get_wild_type_xmer()
-        mutation_position = int(self.length_xmer / 2)
-        mutated_xmer = wildtype_xmer[0:mutation_position] + self._mutate_aminoacid(wildtype_xmer[mutation_position]) + \
-                       wildtype_xmer[mutation_position + 1:]
-        if wildtype:
-            mutation = Mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wildtype_xmer)
-        else:
-            mutation = Mutation(mutated_xmer=mutated_xmer)
-        mutation.position = NeoantigenFactory.mut_position_xmer_seq(mutation)
-
-        return mutation
 
     def _get_wild_type_xmer(self):
         random_protein = self.random_elements(self.protein_list, length=1)[0]

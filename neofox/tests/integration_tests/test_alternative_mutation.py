@@ -66,7 +66,7 @@ class TestBestMultipleBinder(TestCase):
             wild_type_xmer=None,
         )
         best_multiple.run(
-            mutation=mutation,
+            neoantigen=mutation,
             mhc2_alleles_patient=self.test_mhc_two,
             mhc2_alleles_available=self.available_alleles_mhc2,
             uniprot=self.uniprot
@@ -100,7 +100,7 @@ class TestBestMultipleBinder(TestCase):
             wild_type_xmer=None,
         )
         best_multiple.run(
-            mutation=mutation,
+            neoantigen=mutation,
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,

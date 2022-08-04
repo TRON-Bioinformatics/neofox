@@ -21,25 +21,26 @@ from typing import List
 from Bio.Data import IUPACData
 
 from neofox.helpers.blastp_runner import BlastpRunner
-from neofox.model.neoantigen import Mutation, PredictedEpitope, MhcAllele, Mhc2Isoform, Annotation, Annotations
+from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Mhc2Isoform, Annotation, Annotations, \
+    Neoantigen
 
 
 class EpitopeHelper(object):
     @staticmethod
-    def generate_nmers(mutation: Mutation, lengths, uniprot):
+    def generate_nmers(neoantigen: Neoantigen, lengths, uniprot):
         """
         Generates peptides covering mutation of all lengths that are provided. Returns peptides as list
         No peptide is shorter than the minimun length provided
         There are no repetitions in the results
         """
-        length_mut = len(mutation.mutated_xmer)
+        length_mut = len(neoantigen.mutated_xmer)
         list_peptides = set()
         for length in lengths:
             if length <= length_mut:
                 starts = range(length_mut - length + 1)
                 ends = [s + length for s in starts]
                 for s, e in zip(starts, ends):
-                    peptide = mutation.mutated_xmer[s:e]
+                    peptide = neoantigen.mutated_xmer[s:e]
                     if len(peptide) == length and uniprot.is_sequence_not_in_uniprot(peptide):
                         list_peptides.add(peptide)
 

@@ -97,7 +97,7 @@ class NeoantigenMhcBindingAnnotator:
         netmhcpan = BestAndMultipleBinder(runner=runner, configuration=configuration, mhc_parser=mhc_parser,
                                           blastp_runner=self.proteome_blastp_runner)
         netmhcpan.run(
-            mutation=neoantigen.mutation,
+            neoantigen=neoantigen,
             mhc1_alleles_patient=patient.mhc1,
             mhc1_alleles_available=available_alleles.get_available_mhc_i(),
             uniprot=self.uniprot,
@@ -117,7 +117,7 @@ class NeoantigenMhcBindingAnnotator:
             runner=runner, configuration=configuration, mhc_parser=mhc_parser,
             blastp_runner=self.proteome_blastp_runner)
         netmhc2pan.run(
-            mutation=neoantigen.mutation,
+            neoantigen=neoantigen,
             mhc2_alleles_patient=patient.mhc2,
             mhc2_alleles_available=available_alleles.get_available_mhc_ii(),
             uniprot=self.uniprot
@@ -133,7 +133,7 @@ class NeoantigenMhcBindingAnnotator:
             patient: Patient,
     ):
         mixmhc = MixMHCpred(runner, configuration, mhc_parser)
-        mixmhc.run(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
+        mixmhc.run(neoantigen=neoantigen, mhc=patient.mhc1, uniprot=self.uniprot)
         return mixmhc
 
     def _run_prime(
@@ -145,7 +145,7 @@ class NeoantigenMhcBindingAnnotator:
             patient: Patient,
     ):
         prime = Prime(runner, configuration, mhc_parser)
-        prime.run(mutation=neoantigen.mutation, mhc=patient.mhc1, uniprot=self.uniprot)
+        prime.run(neoantigen=neoantigen, mhc=patient.mhc1, uniprot=self.uniprot)
         return prime
 
     def _run_mixmhc2pred(
@@ -157,5 +157,5 @@ class NeoantigenMhcBindingAnnotator:
             patient: Patient,
     ):
         mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser)
-        mixmhc2.run(mhc=patient.mhc2, mutation=neoantigen.mutation, uniprot=self.uniprot)
+        mixmhc2.run(mhc=patient.mhc2, neoantigen=neoantigen, uniprot=self.uniprot)
         return mixmhc2

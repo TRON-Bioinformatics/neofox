@@ -1,4 +1,4 @@
-gene	mutation.wildTypeXmer	mutation.mutatedXmer	patientIdentifier	external_annotation_1	external_annotation_2
+gene	wildTypeXmer	mutatedXmer	patientIdentifier	external_annotation_1	external_annotation_2
 BRCA2	AAAAAALAAAAA	AAAAAAFAAAAA	Pt29	blah1	blah2
 BRCA2	AAAAAAMAAAAA	AAAAAARAAAAA	Pt29	blah1	blah2
 BRCA2	AAAAAAGAAAAA	AAAAAAKAAAAA	Pt29	blah1	blah2

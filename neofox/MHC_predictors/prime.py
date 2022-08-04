@@ -21,12 +21,11 @@ from typing import List
 
 from pandas.errors import EmptyDataError
 
-from neofox.exceptions import NeofoxCommandException
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 
-from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, Mutation, PredictedEpitope
+from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -123,14 +122,14 @@ class Prime:
         os.remove(outtmp)
         return results
 
-    def run(self, mutation: Mutation, mhc: List[Mhc1], uniprot):
+    def run(self, neoantigen: Neoantigen, mhc: List[Mhc1], uniprot):
         """Wrapper PRIME prediction, extraction of best epitope per mutations"""
         # TODO: get rid of this
         self.results = None
 
-        if not EpitopeHelper.contains_rare_amino_acid(mutation.mutated_xmer):
+        if not EpitopeHelper.contains_rare_amino_acid(neoantigen.mutated_xmer):
             potential_ligand_sequences = EpitopeHelper.generate_nmers(
-                mutation=mutation, lengths=[8, 9, 10, 11, 12, 13, 14], uniprot=uniprot
+                neoantigen=neoantigen, lengths=[8, 9, 10, 11, 12, 13, 14], uniprot=uniprot
             )
             if len(potential_ligand_sequences) > 0:
                 mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])

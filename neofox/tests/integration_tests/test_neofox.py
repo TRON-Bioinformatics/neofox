@@ -28,7 +28,7 @@ from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV, NEOFOX_PRIME_E
 import neofox.tests
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import Neoantigen, Mutation, Patient
+from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.model.factories import NOT_AVAILABLE_VALUE, PatientFactory, MhcFactory
 from neofox.neofox import NeoFox
 from neofox.references.references import ORGANISM_MUS_MUSCULUS
@@ -52,7 +52,7 @@ class TestNeofox(TestCase):
         # self.runner = Runner()
         self.patient_id = "Pt29"
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_candidate_file.txt"
+            neofox.tests.__name__, "resources/test_data_model_realistic.txt"
         )
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
@@ -445,9 +445,9 @@ class TestNeofox(TestCase):
         """"""
         neoantigens, patients, patient_id = self._get_test_data()
         for n in neoantigens:
-            position_to_replace = int(len(n.mutation.mutated_xmer)/2)
-            n.mutation.mutated_xmer = n.mutation.mutated_xmer[:position_to_replace] + "U" + \
-                                      n.mutation.mutated_xmer[position_to_replace+1:]
+            position_to_replace = int(len(n.mutated_xmer)/2)
+            n.mutated_xmer = n.mutated_xmer[:position_to_replace] + "U" + \
+                                      n.mutated_xmer[position_to_replace+1:]
         annotations = NeoFox(
             neoantigens=neoantigens,
             patient_id=patient_id,
@@ -465,10 +465,8 @@ class TestNeofox(TestCase):
     def test_neoantigen_without_9mer_netmhcpan_results(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                wild_type_xmer="HLAQHQRVHTGEKPYKCNECGKTFRQT",
-                mutated_xmer="HLAQHQRVHTGEKAYKCNECGKTFRQT"
-            ),
+            wild_type_xmer="HLAQHQRVHTGEKPYKCNECGKTFRQT",
+            mutated_xmer="HLAQHQRVHTGEKAYKCNECGKTFRQT",
             patient_identifier=patient_identifier
         )
         patient = PatientFactory.build_patient(
@@ -490,9 +488,7 @@ class TestNeofox(TestCase):
     def test_neoantigen_in_proteome(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                mutated_xmer="PKLLENLLSKGETISFLECF"
-            ),
+            mutated_xmer="PKLLENLLSKGETISFLECF",
             patient_identifier=patient_identifier
         )
         patient = PatientFactory.build_patient(
@@ -514,10 +510,8 @@ class TestNeofox(TestCase):
     def test_neoantigen_failing(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                wild_type_xmer="ARPDMFCLFHGKRYFPGESWHPYLEPQ",
-                mutated_xmer="ARPDMFCLFHGKRHFPGESWHPYLEPQ"
-            ),
+            wild_type_xmer="ARPDMFCLFHGKRYFPGESWHPYLEPQ",
+            mutated_xmer="ARPDMFCLFHGKRHFPGESWHPYLEPQ",
             patient_identifier=patient_identifier
         )
         patient = Patient(
@@ -538,9 +532,7 @@ class TestNeofox(TestCase):
     def test_neoantigen_no_wt_failing(self):
         patient_identifier = "12345"
         neoantigen = Neoantigen(
-            mutation=Mutation(
-                mutated_xmer="SPSFPLEPDDEVFTAIAKAMEEMVEDS"
-            ),
+            mutated_xmer="SPSFPLEPDDEVFTAIAKAMEEMVEDS",
             patient_identifier=patient_identifier
         )
         patient = Patient(

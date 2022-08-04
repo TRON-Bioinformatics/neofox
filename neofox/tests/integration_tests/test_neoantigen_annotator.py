@@ -57,7 +57,7 @@ class NeoantigenAnnotatorTest(TestCase):
         annotated_neoantigen = self.annotator.get_annotated_neoantigen(neoantigen=neoantigen, patient=self.patient)
         self._assert_neoantigen(annotated_neoantigen, neoantigen)
         # wild type xmer is still empty!
-        self.assertIsNone(annotated_neoantigen.mutation.wild_type_xmer)
+        self.assertIsNone(annotated_neoantigen.wild_type_xmer)
         self._assert_epitopes(annotated_neoantigen=annotated_neoantigen)
 
     def test_neoantigen_annotation_without_wild_type_and_with_all_epitopes(self):
@@ -70,7 +70,7 @@ class NeoantigenAnnotatorTest(TestCase):
             neoantigen=neoantigen, patient=self.patient, with_all_neoepitopes=True)
         self._assert_neoantigen(annotated_neoantigen, neoantigen)
         # wild type xmer is still empty!
-        self.assertIsNone(annotated_neoantigen.mutation.wild_type_xmer)
+        self.assertIsNone(annotated_neoantigen.wild_type_xmer)
         self._assert_epitopes(annotated_neoantigen, with_all_epitopes=True)
 
     def test_neoantigen_annotation_with_vaf_and_without_tx_expression(self):
@@ -142,11 +142,11 @@ class NeoantigenAnnotatorTest(TestCase):
         mhcii = MhcFactory.build_mhc2_alleles([isoform], mhc_database=self.references.get_mhc_database())
         return mhcii[0].isoforms[0]
 
-    def _assert_neoantigen(self, annotated_neoantigen, neoantigen):
+    def _assert_neoantigen(self, annotated_neoantigen: Neoantigen, neoantigen: Neoantigen):
         self.assertIsNotNone(annotated_neoantigen)
-        self.assertEqual(annotated_neoantigen.mutation.mutated_xmer, neoantigen.mutation.mutated_xmer)
-        self.assertEqual(annotated_neoantigen.mutation.wild_type_xmer, neoantigen.mutation.wild_type_xmer)
-        self.assertEqual(annotated_neoantigen.mutation.position, neoantigen.mutation.position)
+        self.assertEqual(annotated_neoantigen.mutated_xmer, neoantigen.mutated_xmer)
+        self.assertEqual(annotated_neoantigen.wild_type_xmer, neoantigen.wild_type_xmer)
+        self.assertEqual(annotated_neoantigen.position, neoantigen.position)
         self.assertGreater(len(annotated_neoantigen.neofox_annotations.annotations), 0)
         annotation_names = [a.name for a in annotated_neoantigen.neofox_annotations.annotations]
         self.assertTrue("Best_rank_MHCI_score_epitope" in annotation_names)
