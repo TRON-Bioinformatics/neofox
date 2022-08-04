@@ -1,4 +1,4 @@
-biopython~=1.76
+biopython==1.76
 mock~=4.0.3
 pandas>=1.1.5
 numpy>=1.21
