@@ -33,20 +33,33 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 These installation instructions were tested on Ubuntu 18.04.
 
-Python >=3.7, <=3.8 and R 3.6.0 should be preinstalled.
-
-Set the environment variable pointing to `Rscript`.
-```
-export NEOFOX_RSCRIPT=`which Rscript`
-```
+Python 3.7 or 3.8 should be preinstalled.
 
 ### Install NeoFox
 
+Install from PyPI:
 ```
 pip install neofox
 ```
 
+or install from bioconda:
+```
+conda install bioconda::neofox
+```
+
 ### Install third-party dependencies
+
+
+#### Install R
+
+R 3.6.0 is required.
+
+Optionally set the environment variable pointing to `Rscript`, otherwise neofox will look for it in the path.
+```
+export NEOFOX_RSCRIPT=`which Rscript`
+```
+
+**NOTE**: when installing from conda this dependency is already installed.
 
 #### Install BLASTP
 
@@ -54,8 +67,14 @@ The version of BLASTP that was tested is 2.10.1, other versions may work but tha
 ```
 wget https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.10.1/ncbi-blast-2.10.1+-x64-linux.tar.gz
 tar -xvf ncbi-blast-2.10.1+-x64-linux.tar.gz
-export NEOFOX_BLASTP=`pwd`/ncbi-blast-2.10.1+/bin/blastp
 ```
+
+Optionally set the environment variable pointing to `blastp`, otherwise neofox will look for it in the path.
+```
+export NEOFOX_BLASTP=/path/to/ncbi-blast-2.10.1+/bin/blastp
+```
+
+**NOTE**: when installing from conda this dependency is already installed.
 
 #### Install NetMHCpan-4.1
 
@@ -66,8 +85,11 @@ tar -xvf netMHCpan-4.1b.Linux.tar.gz
 cd netMHCpan-4.1
 wget https://services.healthtech.dtu.dk/services/NetMHCpan-4.1/data.tar.gz
 tar -xvf data.tar.gz
-cd ..
-export NEOFOX_NETMHCPAN=`pwd`/netMHCpan-4.1/netMHCpan
+```
+
+Optionally set the environment variable pointing to `netMHCpan`, otherwise neofox will look for it in the path.
+```
+export NEOFOX_NETMHCPAN=/path/to/netMHCpan-4.1/netMHCpan
 ```
 
 Configure NetMHCpan as explained in the file `netMHCpan-4.1/netMHCpan-4.1.readme`
@@ -83,10 +105,13 @@ cd netMHCIIpan-4.0
 # download the data
 wget http://www.cbs.dtu.dk/services/NetMHCIIpan-4.0/data.Linux.tar.gz
 tar -xvf data.Linux.tar.gz
-cd ..
-export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 # install tcsh shell interpreter if not available yet
 sudo apt-get install tcsh
+```
+
+Optionally set the environment variable pointing to `netMHCIIpan`, otherwise neofox will look for it in the path.
+```
+export NEOFOX_NETMHC2PAN=/path/to/netMHCIIpan-4.0/netMHCIIpan
 ```
 
 Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-4.0/netMHCIIpan-4.0.readme`
@@ -97,7 +122,11 @@ Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-4.0/netMHCIIpan-
 ```
 wget https://github.com/GfellerLab/MixMHCpred/archive/v2.1.tar.gz
 tar -xvf v2.1.tar.gz
-export NEOFOX_MIXMHCPRED=`pwd`/MixMHCpred-2.1/MixMHCpred
+```
+
+Optionally set the environment variable pointing to `MixMHCpred`, otherwise neofox will look for it in the path.
+```
+export NEOFOX_MIXMHCPRED=/path/to/MixMHCpred-2.1/MixMHCpred
 ```
 
 Configure MixMHCpred-2.1 as explained in the file `MixMHCpred-2.1/README`
@@ -107,6 +136,10 @@ Configure MixMHCpred-2.1 as explained in the file `MixMHCpred-2.1/README`
 ```
 wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
 tar -xvf v1.2.tar.gz
+```
+
+Optionally set the environment variable pointing to `MixMHC2pred_unix`, otherwise neofox will look for it in the path.
+```
 export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 
@@ -115,6 +148,10 @@ export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
 wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
 tar -xvf master.tar.gz
+```
+
+Optionally set the environment variable pointing to `PRIME`, otherwise neofox will look for it in the path.
+```
 export NEOFOX_PRIME==`pwd`/PRIME-master/PRIME
 ```
 
@@ -122,7 +159,8 @@ Configure PRIME as explained in the file `PRIME-master/README`
 
 ### Configuration of the reference folder 
 
-To configure the reference folder, set the environment variable for `makeblastdb`, NetMHCpan, NetMHCIIpan and Rscript:
+To configure the reference folder, set the environment variables for `makeblastdb`, NetMHCpan, NetMHCIIpan and Rscript,
+ or alternatively rely on these being fetched from the path:
 
 ```
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.10.1+/bin/makeblastdb
@@ -142,6 +180,8 @@ Run the following to configure the NeoFox reference folder:
 ```
 neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencies]
 ```
+
+**NOTE**: when installing from conda `--install-r-dependencies` is not needed. 
 
 The above command will install several resources and store in the annotations metadata their version, MD5 checksum and 
 download timestamp.
