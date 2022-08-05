@@ -43,7 +43,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=None,
-                patient_id=None,
                 patients=None,
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -51,7 +50,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=[],
-                patient_id=None,
                 patients=[],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -61,7 +59,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=[self._get_test_neoantigen()],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -72,7 +69,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=[self._get_test_neoantigen()],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -84,7 +80,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -97,7 +92,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -110,7 +104,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[self._get_test_neoantigen()],
-                patient_id=None,
                 patients=[patient],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -120,7 +113,6 @@ class TestNeofox(TestCase):
     def test_valid_data_does_not_raise_exceptions(self):
         NeoFox(
             neoantigens=[self._get_test_neoantigen()],
-            patient_id=None,
             patients=[self._get_test_patient()],
             num_cpus=1,
             reference_folder=FakeReferenceFolder(),
@@ -135,7 +127,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -145,7 +136,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -155,7 +145,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
