@@ -102,12 +102,6 @@ def neofox_cli():
         help="output annotations for all MHC-I and MHC-II neoepitopes on all HLA alleles",
     )
     parser.add_argument(
-        "--patient-id",
-        dest="patient_id",
-        help="the patient id for the input file. This parameter is only required, "
-        'if the column "patient" has not been added to the candidate file',
-    )
-    parser.add_argument(
         "--rank-mhci-threshold",
         dest="rank_mhci_threshold",
         help="MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be "
@@ -145,7 +139,6 @@ def neofox_cli():
     args = parser.parse_args()
 
     input_file = args.input_file
-    patient_id = args.patient_id
     patients_data = args.patients_data
     output_folder = args.output_folder
     output_prefix = args.output_prefix
@@ -175,14 +168,12 @@ def neofox_cli():
         neoantigens, patients = _read_data(
             input_file,
             patients_data,
-            patient_id,
             reference_folder.get_mhc_database())
 
         # run annotations
         annotated_neoantigens = NeoFox(
             neoantigens=neoantigens,
             patients=patients,
-            patient_id=patient_id,
             log_file_name=log_file_name,
             num_cpus=num_cpus,
             reference_folder=reference_folder,
@@ -203,8 +194,8 @@ def neofox_cli():
 
     logger.info("Finished NeoFox")
 
-def _read_data(
-    input_file, patients_data, patient_id, mhc_database: MhcDatabase) -> Tuple[List[Neoantigen], List[Patient]]:
+
+def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
     logger.info("Parsing patients data from: {}".format(patients_data))
     patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
@@ -213,7 +204,7 @@ def _read_data(
     # parse the neoantigen candidate data
     if input_file.endswith('.txt') or input_file.endswith('.tsv'):
         logger.info("Parsing candidate neoantigens from: {}".format(input_file))
-        neoantigens = ModelConverter.parse_candidate_file(input_file, patient_id)
+        neoantigens = ModelConverter.parse_candidate_file(input_file)
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     elif input_file.endswith('.json')  :
         logger.info("Parsing candidate neoantigens from: {}".format(input_file))
