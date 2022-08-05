@@ -46,7 +46,6 @@ class NeoFox:
             neoantigens: List[Neoantigen],
             patients: List[Patient],
             num_cpus: int = 1,
-            patient_id: str = None,
             log_file_name=None,
             reference_folder: ReferenceFolder = None,
             configuration: DependenciesConfiguration = None,
@@ -93,8 +92,6 @@ class NeoFox:
         # validates neoantigens
         self.neoantigens = neoantigens
         for n in self.neoantigens:
-            if n.patient_identifier is None:
-                n.patient_identifier = patient_id
             # NOTE: the position of the mutations is not expected from the user and if provide the value is ignored
             n.position = NeoantigenFactory.mut_position_xmer_seq(neoantigen=n)
             ModelValidator.validate_neoantigen(n)
@@ -114,7 +111,8 @@ class NeoFox:
             expression_per_patient[neoantigen.patient_identifier].append(neoantigen.rna_expression)
 
         for patient in self.patients:
-            self.patients[patient].is_rna_available = all(e is not None for e in expression_per_patient[self.patients[patient].identifier])
+            self.patients[patient].is_rna_available = all(e is not None for e in
+                                                          expression_per_patient[self.patients[patient].identifier])
 
         # only performs the expression imputation for humans
         if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:

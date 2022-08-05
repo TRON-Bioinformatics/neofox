@@ -69,12 +69,11 @@ class TestNeofox(TestCase):
 
     def test_neoantigens_without_gene(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for n in neoantigens:
             n.gene = ""
         annotations = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         ).get_annotations()
@@ -84,7 +83,7 @@ class TestNeofox(TestCase):
 
     def _get_test_data(self):
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_model_file.txt"
+            neofox.tests.__name__, "resources/test_data_model.txt"
         )
         data = pd.read_csv(input_file, sep="\t")
         data = data.replace({np.nan: None})
@@ -93,8 +92,7 @@ class TestNeofox(TestCase):
             neofox.tests.__name__, "resources/test_patient_file.txt"
         )
         patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
-        patient_id = "Pt29"
-        return neoantigens, patients, patient_id
+        return neoantigens, patients
 
     def test_neofox(self):
         """
@@ -116,7 +114,6 @@ class TestNeofox(TestCase):
         )
         annotations = NeoFox(
             neoantigens=self.neoantigens,
-            patient_id=self.patient_id,
             patients=self.patients,
             num_cpus=4,
         ).get_annotations()
@@ -160,7 +157,6 @@ class TestNeofox(TestCase):
         )
         annotations = NeoFox(
             neoantigens=self.neoantigens_mouse,
-            patient_id=self.patient_id,
             patients=self.patients_mouse,
             num_cpus=4,
             reference_folder=self.references_mouse
@@ -184,14 +180,13 @@ class TestNeofox(TestCase):
     def test_neofox_only_one_neoantigen(self):
         """"""
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_data_only_one.txt"
+            neofox.tests.__name__, "resources/test_data_model_only_one.txt"
         )
         neoantigens = ModelConverter.parse_candidate_file(
             input_file
         )
         annotations = NeoFox(
             neoantigens=neoantigens,
-            patient_id=self.patient_id,
             patients=self.patients,
             num_cpus=4,
         ).get_annotations()
@@ -201,10 +196,9 @@ class TestNeofox(TestCase):
 
     def test_neofox_model_input(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         annotations = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         ).get_annotations()
@@ -221,7 +215,6 @@ class TestNeofox(TestCase):
         del os.environ[NEOFOX_MIXMHC2PRED_ENV]
         annotations = NeoFox(
             neoantigens=self.neoantigens,
-            patient_id=self.patient_id,
             patients=self.patients,
             num_cpus=4,
         ).get_annotations()
@@ -246,7 +239,6 @@ class TestNeofox(TestCase):
         del os.environ[NEOFOX_PRIME_ENV]
         annotations = NeoFox(
             neoantigens=self.neoantigens[0:1],
-            patient_id=self.patient_id,
             patients=self.patients,
             num_cpus=4,
         ).get_annotations()
@@ -267,7 +259,6 @@ class TestNeofox(TestCase):
         del os.environ[NEOFOX_MIXMHCPRED_ENV]
         annotations = NeoFox(
             neoantigens=self.neoantigens[0:1],
-            patient_id=self.patient_id,
             patients=self.patients,
             num_cpus=4,
         ).get_annotations()
@@ -285,7 +276,6 @@ class TestNeofox(TestCase):
         def compute_annotations():
             return NeoFox(
                 neoantigens=self.neoantigens,
-                patient_id=self.patient_id,
                 patients=self.patients,
                 num_cpus=4,
             ).get_annotations()
@@ -303,7 +293,6 @@ class TestNeofox(TestCase):
         def compute_annotations():
             return NeoFox(
                 neoantigens=neoantigens,
-                patient_id=self.patient_id,
                 patients=self.patients,
                 num_cpus=4,
             ).get_annotations()
@@ -311,14 +300,13 @@ class TestNeofox(TestCase):
         print("Average time: {}".format(timeit.timeit(compute_annotations, number=10)))
 
     def test_neofox_with_config(self):
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         config_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/neofox_config.txt"
         )
         try:
             NeoFox(
                 neoantigens=neoantigens,
-                patient_id=patient_id,
                 patients=patients,
                 num_cpus=4,
                 configuration_file=config_file,
@@ -330,12 +318,11 @@ class TestNeofox(TestCase):
 
     def test_neofox_without_mhc2(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for p in patients:
             p.mhc2 = []
         annotations = NeoFox(
             neoantigens=neoantigens,
-            patient_id=self.patient_id,
             patients=patients,
             num_cpus=4,
         ).get_annotations()
@@ -344,12 +331,11 @@ class TestNeofox(TestCase):
         self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 61)
 
     def test_neofox_without_mhc1(self):
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for p in patients:
             p.mhc1 = []
         annotations = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         ).get_annotations()
@@ -358,10 +344,11 @@ class TestNeofox(TestCase):
         self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 37)
 
     def test_gene_expression_imputation(self):
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
+        for p in patients:
+            p.is_rna_available = False
         neofox = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         )
@@ -371,12 +358,11 @@ class TestNeofox(TestCase):
 
     def test_neoantigens_with_non_existing_gene(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for n in neoantigens:
             n.gene = "IDONTEXIST"
         neofox = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         )
@@ -385,12 +371,11 @@ class TestNeofox(TestCase):
 
     def test_neoantigens_with_empty_gene(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for n in neoantigens:
             n.gene = ""
         neofox = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         )
@@ -399,43 +384,40 @@ class TestNeofox(TestCase):
 
     def test_neoantigens_with_empty_rna_expression(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for n in neoantigens:
             n.rna_expression = None
         neofox = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         )
-        for p in neofox.patients.values():
-            if p.identifier == patient_id:
-                self.assertFalse(p.is_rna_available)
+        for n in neofox.neoantigens:
+            self.assertIsNone(n.rna_expression)
 
     def test_neoantigens_with_rna_expression(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for n in neoantigens:
             n.rna_expression = 1.2
         neofox = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         )
-        for p in neofox.patients.values():
-            if p.identifier == patient_id:
-                self.assertTrue(p.is_rna_available)
+
+        for n in neofox.neoantigens:
+            self.assertEqual(n.rna_expression, 1.2)
+
 
     def test_patient_with_non_existing_allele_does_not_crash(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for p in patients:
             # sets one MHC I allele to a non existing allele
             p.mhc1[0].alleles[0] = MhcFactory.build_mhc1_alleles(["HLA-A*99:99"], mhc_database=self.hla_database)[0].alleles[0]
         neofox = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         )
@@ -443,14 +425,13 @@ class TestNeofox(TestCase):
 
     def test_neoantigens_with_rare_aminoacids(self):
         """"""
-        neoantigens, patients, patient_id = self._get_test_data()
+        neoantigens, patients = self._get_test_data()
         for n in neoantigens:
             position_to_replace = int(len(n.mutated_xmer)/2)
             n.mutated_xmer = n.mutated_xmer[:position_to_replace] + "U" + \
                                       n.mutated_xmer[position_to_replace+1:]
         annotations = NeoFox(
             neoantigens=neoantigens,
-            patient_id=patient_id,
             patients=patients,
             num_cpus=4,
         ).get_annotations()
@@ -596,7 +577,6 @@ class TestNeofox(TestCase):
         """
         annotations = NeoFox(
             neoantigens=self.neoantigens[2:3],  # only one as this is quite slow, the first one is an indel!
-            patient_id=self.patient_id,
             patients=self.patients,
             num_cpus=4,
             with_all_neoepitopes=True
