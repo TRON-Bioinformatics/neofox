@@ -54,7 +54,7 @@ class FakeReferenceFolder(ReferenceFolder):
 
 
 class FakeDependenciesConfiguration(DependenciesConfiguration):
-    def _check_and_load_binary(self, variable_name, default_value=None, optional=False):
+    def _check_and_load_binary(self, variable_name, default_value=None, optional=False, path_search=False):
         return os.environ.get(variable_name, "some_non_empty_fake_value")
 
 
