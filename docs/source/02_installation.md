@@ -124,7 +124,8 @@ wget https://github.com/GfellerLab/MixMHCpred/archive/v2.1.tar.gz
 tar -xvf v2.1.tar.gz
 ```
 
-Optionally set the environment variable pointing to `MixMHCpred`, otherwise neofox will look for it in the path.
+Set the environment variable pointing to `MixMHCpred`, there will be no search in the path as the installation folder
+is also needed to determine the supported alleles.
 ```
 export NEOFOX_MIXMHCPRED=/path/to/MixMHCpred-2.1/MixMHCpred
 ```
@@ -138,7 +139,8 @@ wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
 tar -xvf v1.2.tar.gz
 ```
 
-Optionally set the environment variable pointing to `MixMHC2pred_unix`, otherwise neofox will look for it in the path.
+Set the environment variable pointing to `MixMHC2pred_unix`, there will be no search in the path as the installation 
+folder is also needed to determine the supported alleles.
 ```
 export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
 ```
@@ -150,7 +152,8 @@ wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
 tar -xvf master.tar.gz
 ```
 
-Optionally set the environment variable pointing to `PRIME`, otherwise neofox will look for it in the path.
+Set the environment variable pointing to `PRIME`, there will be no search in the path as the installation folder
+is also needed to determine the supported alleles.
 ```
 export NEOFOX_PRIME==`pwd`/PRIME-master/PRIME
 ```
