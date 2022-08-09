@@ -387,6 +387,7 @@ class TestNeofox(TestCase):
         neoantigens, patients = self._get_test_data()
         for n in neoantigens:
             n.rna_expression = None
+            n.patient_identifier = "patient_without_tumor_type"
         neofox = NeoFox(
             neoantigens=neoantigens,
             patients=patients,
