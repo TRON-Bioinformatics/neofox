@@ -84,7 +84,7 @@ RESOURCES_VERSIONS = "resources_versions.json"
 
 
 class AbstractDependenciesConfiguration:
-    def _check_and_load_binary(self, variable_name, default_value=None, optional=False):
+    def _check_and_load_binary(self, variable_name, default_value=None, optional=False, path_search=True):
         """
         Fetches the binary from the provided environment variable, if not available uses the default.
         If the binary is not a path to an executable, it searches for it in the PATH
@@ -103,7 +103,7 @@ class AbstractDependenciesConfiguration:
                 # checks that it is executable
                 if os.path.isfile(variable_value) and os.access(variable_value, os.X_OK):
                     program = variable_value
-            else:
+            elif path_search:
                 # if no path searches for this command in the path
                 for path in os.environ.get("PATH", "").split(os.pathsep):
                     exe_file = os.path.join(path, variable_value)
@@ -126,14 +126,14 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
     def __init__(self):
         self.blastp = self._check_and_load_binary(neofox.NEOFOX_BLASTP_ENV, default_value=DEFAULT_BLASTP)
         self.mix_mhc2_pred = self._check_and_load_binary(
-            neofox.NEOFOX_MIXMHC2PRED_ENV, default_value=DEFAULT_MIXMHC2PRED, optional=True)
+            neofox.NEOFOX_MIXMHC2PRED_ENV, default_value=DEFAULT_MIXMHC2PRED, optional=True, path_search=False)
         if self.mix_mhc2_pred is not None:
             self.mix_mhc2_pred_alleles_list = os.path.join(
                 os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_ALLELES_FILE)
         else:
             self.mix_mhc2_pred_alleles_list = None
         self.mix_mhc_pred = self._check_and_load_binary(
-            neofox.NEOFOX_MIXMHCPRED_ENV, default_value=DEFAULT_MIXMHCPRED, optional=True)
+            neofox.NEOFOX_MIXMHCPRED_ENV, default_value=DEFAULT_MIXMHCPRED, optional=True, path_search=False)
         if self.mix_mhc_pred is not None:
             self.mix_mhc_pred_alleles_list = os.path.join(
                 os.path.dirname(self.mix_mhc_pred), "lib", MIXMHCPRED_AVAILABLE_ALLELES_FILE)
@@ -142,7 +142,8 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
         self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV, default_value=DEFAULT_RSCRIPT)
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV, default_value=DEFAULT_NETMHC2PAN)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV, default_value=DEFAULT_NETMHCPAN)
-        self.prime = self._check_and_load_binary(neofox.NEOFOX_PRIME_ENV, default_value=DEFAULT_PRIME, optional=True)
+        self.prime = self._check_and_load_binary(neofox.NEOFOX_PRIME_ENV, default_value=DEFAULT_PRIME, optional=True,
+                                                 path_search=False)
         if self.prime:
             self.prime_alleles_list = os.path.join(
                 os.path.dirname(self.prime), "lib", PRIME_AVAILABLE_ALLELES_FILE
