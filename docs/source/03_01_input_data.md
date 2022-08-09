@@ -135,10 +135,10 @@ This is an dummy example of a table with neoepitope candidates in tabular format
 | gene  | mutatedPeptide      | wildTypePeptide             | alleleMhcI  | isoformMhcII | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | 
 |-------|---------------------|-----------------------------|-------------|--------------|-------------------|---------------------------|---------------------------|---------------------------|
 | BRCA2 | AAAALAAAAA | AAAAFAAAAA                  | HLA-A*01:01 |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA |          | DRB1:01:01   | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAGAAAAA | AAAAKAAAAA                  |          |           | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAAAAAAAAAACAAAAAAAAAAAAA | AAAAAAAAAAAAAEAAAAAAAAAAAAA |          |           | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA |          |           | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA |          | DRB1*01:01   | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAGAAAAA | AAAAKAAAAA                  |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAAAAAAAAAACAAAAAAAAAAAAA | AAAAAAAAAAAAAEAAAAAAAAAAAAA |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
 
 where:
 - `mutatedPeptide`: the neoepitope candidate sequence, i.e. the mutated amino acid sequence. MHC-I neoepitopes should have a length between 8 and 14 amino acids, MHC-II neoepitopes should have a length between 9 and 20000 amino acids. 
