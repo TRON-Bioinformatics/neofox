@@ -127,8 +127,6 @@ This is a dummy example:
 
 An output file with the suffix "*_neoantigen_candidates_annotated.json*" is created.  
 This file contains neoantigen candidates information in JSON format.  
-Furthermore, a second file with the suffix *"_neoantigen_features.json"* is created.  
-This file contains the annotated neoantigen features in JSON format.  
 The names within the models are described in **TABLE 1**.
 
 This is a dummy example of a "*_neoantigen_candidates.json*" file.  
