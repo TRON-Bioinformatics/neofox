@@ -109,8 +109,8 @@ The following table describes each of the annotations in the output:
 | Hex_alignment_score_MHCI                  | the alignment score by HEX for ` Best_affinity_MHCI_epitope `                                                                                                                                                                                                                                                   | HEX                               |
 | Hex_alignment_score_MHCII                 | the alignment score by HEX for ` Best_affinity_MHCII_epitope`                                                                                                                                                                                                                                                   | HEX                               |
 
-In addition, a log file with the suffix "*_neoantigen_candidates_annotated.log*"
-is always created.
+In addition, all logging output is appended to a log file with the suffix
+"*_neoantigen_candidates_annotated.log*".
 
 ### Tabular format
 
