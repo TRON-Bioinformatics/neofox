@@ -14,7 +14,7 @@ neofox --input-file neoantigens_candidates.tsv \
     [--organism human|mouse]  \
     [--rank-mhci-threshold 2.0] \
     [--rank-mhcii-threshold 4.0] \
-    [--num_cpus] \
+    [--num-cpus] \
     [--config] \
     [--patient-id] \
     [--with-all-neoepitopes]
@@ -31,7 +31,7 @@ where:
 - `--rank-mhci-threshold`: MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
 - `--rank-mhcii-threshold`: MHC-II epitopes with a netMHCIIpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
-- `--num_cpus`: number of CPUs to use (*optional*)
+- `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 - `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
 
@@ -69,7 +69,7 @@ neofox-epitope --input-file neoepitope_candidates.tsv \
     [--patient-data patient_data.txt \]
     [--output-prefix out_prefix]  \
     [--organism human|mouse]  \
-    [--num_cpus] \
+    [--num-cpus] \
     [--config] \
 ````
 
@@ -80,7 +80,7 @@ where:
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
-- `--num_cpus`: number of CPUs to use (*optional*)
+- `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 
 ### Running from docker
