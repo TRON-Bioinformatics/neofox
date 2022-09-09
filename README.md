@@ -77,7 +77,7 @@ conda install bioconda::neofox
 NeoFox can be used from the command line as shown below or programmatically (see [https://neofox.readthedocs.io](https://neofox.readthedocs.io/) for more information).
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num_cpus] [--affinity-threshold]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num-cpus] [--affinity-threshold]
 ````
 - `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
 - `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
@@ -87,7 +87,7 @@ neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candi
 - `--output-prefix`: prefix for the output files (*optional*)
 - `--with-table`: output file in tab-separated format (*default*)
 - `--with-json`: output file in JSON format (*optional*)
-- `--num_cpus`: number of CPUs to use (*optional*)
+- `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
