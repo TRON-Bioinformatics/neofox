@@ -92,7 +92,7 @@ class TcellPrediction:
         annotations = [
             AnnotationFactory.build_annotation(
                 value=tcell_predictor_score,
-                name="Tcell_predictor_score",
+                name="Tcell_predictor",
             )
         ]
         return annotations
@@ -101,5 +101,5 @@ class TcellPrediction:
         return [
             AnnotationFactory.build_annotation(
                 value=self.calculate_tcell_predictor_score(epitope=epitope, gene=gene),
-                name='Tcell_predictor_score')
+                name='Tcell_predictor')
             ]

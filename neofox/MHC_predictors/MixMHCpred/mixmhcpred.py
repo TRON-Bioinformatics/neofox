@@ -150,15 +150,15 @@ class MixMHCpred:
         best_result = EpitopeHelper.select_best_by_affinity(predictions=self.results, maximum=True)
         return [
             AnnotationFactory.build_annotation(
-                value=best_result.mutated_peptide, name="MixMHCpred_best_peptide"
+                value=best_result.mutated_peptide, name="MixMHCpred_bestScore_peptide"
             ),
             AnnotationFactory.build_annotation(
-                value=best_result.affinity_mutated, name="MixMHCpred_best_score"
+                value=best_result.affinity_mutated, name="MixMHCpred_bestScore_score"
             ),
             AnnotationFactory.build_annotation(
-                value=best_result.rank_mutated, name="MixMHCpred_best_rank"
+                value=best_result.rank_mutated, name="MixMHCpred_bestScore_rank"
             ),
             AnnotationFactory.build_annotation(
-                value=best_result.allele_mhc_i.name, name="MixMHCpred_best_allele"
+                value=best_result.allele_mhc_i.name, name="MixMHCpred_bestScore_allele"
             ),
         ]

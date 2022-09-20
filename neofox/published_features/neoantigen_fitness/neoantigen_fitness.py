@@ -94,15 +94,15 @@ class NeoantigenFitnessCalculator:
 
         annotations = [
             AnnotationFactory.build_annotation(
-                name="Pathogensimiliarity_MHCI_9mer",
+                name="Pathogensimiliarity_MHCI_bestAffinity9mer",
                 value=pathogen_similarity_9mer,
             ),
             AnnotationFactory.build_annotation(
-                name="Recognition_Potential_MHCI_9mer",
+                name="Pathogensimiliarity_MHCI_bestAffinity9mer",
                 value=recognition_potential
             ),
             AnnotationFactory.build_annotation(
-                name="Pathogensimiliarity_MHCII",
+                name="Pathogensimiliarity_MHCII_bestAffinity",
                 value=pathogen_similarity_mhcii
             ),
         ]
