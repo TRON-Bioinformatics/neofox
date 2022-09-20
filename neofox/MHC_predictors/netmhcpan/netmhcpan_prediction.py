@@ -19,7 +19,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List, Set
 from logzero import logger
-
+import os
 from neofox.exceptions import NeofoxCommandException
 from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
@@ -62,6 +62,7 @@ class NetMhcPanPredictor:
         ]
 
         lines, _ = self.runner.run_command(cmd)
+        os.remove(input_file)
         return self._parse_netmhcpan_output(lines)
 
     def mhc_prediction_peptide(self, alleles, sequence) -> PredictedEpitope:
@@ -88,6 +89,7 @@ class NetMhcPanPredictor:
         predicted_epitopes = self._parse_netmhcpan_output(lines)
         if predicted_epitopes:
             result = predicted_epitopes[0]
+        os.remove(input_file)
         return result
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:

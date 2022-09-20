@@ -20,7 +20,7 @@
 
 import tempfile
 from typing import List
-
+import os
 from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
@@ -85,6 +85,7 @@ class NetMhcIIPanPredictor:
                 tmp_fasta
             ]
         )
+        os.remove(tmp_fasta)
         return self._parse_netmhcpan_output(lines)
     
     def mhc2_prediction_peptide(
@@ -108,6 +109,7 @@ class NetMhcIIPanPredictor:
         predicted_epitopes = self._parse_netmhcpan_output(lines)
         if predicted_epitopes:
             result = predicted_epitopes[0]
+        os.remove(tmp_peptide)
         return result
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
