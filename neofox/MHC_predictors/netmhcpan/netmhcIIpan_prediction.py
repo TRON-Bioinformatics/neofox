@@ -82,7 +82,7 @@ class NetMhcIIPanPredictor:
                 "-a",
                 ",".join(mhc_alleles),
                 "-f",
-                tmp_fasta,
+                tmp_fasta
             ]
         )
         return self._parse_netmhcpan_output(lines)
