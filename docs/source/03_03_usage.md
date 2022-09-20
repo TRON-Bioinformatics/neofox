@@ -1,8 +1,10 @@
 # Usage
 
-There are two ways to use NeoFox for annotation of neoantigen candidates with neoantigen features: directly from the [command line](#command-line) or [programmatically](#api). 
+There are two ways to use NeoFox for annotation of neoantigen candidates with neoantigen features: directly from the [command line](#command-line), [docker](#running-from-docker)  or [programmatically](#api). 
 
 ## Command line
+
+### Neoantigen-Mode
 
 To call NeoFox from the command line, use the following command. Make sure that the requirements have been added to PATH as described [here](02_installation.md) or add a config file as described below:  
 
@@ -61,7 +63,9 @@ NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
 NEOFOX_PRIME=/path/to/PRIME/PRIME
 ````
 
-To call NeoFox over a list neoepitopes from the command line, use the following command. The configuration process is similar as described before:  
+### Neoepitope-Mode
+
+To call NeoFox over a list neoepitope candidates from the command line, use the following command. The configuration process is similar as described before:  
 
 ````commandline
 neofox-epitope --input-file neoepitope_candidates.tsv \
@@ -83,7 +87,7 @@ where:
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 
-### Running from docker
+## Running from docker
 
 In order to run the command line in a docker image, all of the above applies but
 some additional steps are required.

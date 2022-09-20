@@ -169,6 +169,7 @@ class MixMHC2pred:
         self.runner.run_command(cmd)
         results = self._parse_mixmhc2pred_output(filename=outtmp)
         os.remove(outtmp)
+        os.remove(tmpfasta)
         return results
 
     def run(self, mhc: List[Mhc2], neoantigen: Neoantigen, uniprot):
