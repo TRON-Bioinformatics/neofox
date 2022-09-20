@@ -108,8 +108,7 @@ class NetMhcIIPanPredictor:
                 "-f",
                 tmp_peptide,
                 "-tdir",
-                tmp_folder,
-                "-dirty",
+                tmp_folder
             ],
             print_log=False
         )
