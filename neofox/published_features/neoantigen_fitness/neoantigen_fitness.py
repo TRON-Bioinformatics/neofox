@@ -114,8 +114,8 @@ class NeoantigenFitnessCalculator:
         pathogen_similarity = None
         recognition_potential = None
 
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
-            pathogen_similarity = self.get_pathogen_similarity(peptide=mutated_peptide_mhci.peptide)
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
+            pathogen_similarity = self.get_pathogen_similarity(peptide=mutated_peptide_mhci.mutated_peptide)
             if pathogen_similarity is not None:
                 recognition_potential = self.calculate_recognition_potential(
                     amplitude=amplitude,

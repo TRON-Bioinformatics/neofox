@@ -268,11 +268,11 @@ class BestAndMultipleBinder:
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_affinity.affinity_wild_type,
-                    name="NetMHCpan_bestAffinity_affinityWT",
+                    name="NetMHCpan_bestAffinity9mer_affinityWT",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_affinity.wild_type_peptide,
-                    name="NetMHCpan_bestAffinity_peptideWT",
+                    name="NetMHCpan_bestAffinity9mer_peptideWT",
                 )
             ])
 
