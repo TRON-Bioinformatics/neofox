@@ -190,89 +190,89 @@ class BestAndMultipleBinder:
         if self.best_epitope_by_rank:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_rank.rank_mutated, name="Best_rank_MHCI_score"
+                    value=self.best_epitope_by_rank.rank_mutated, name="NetMHCpan_MHCI_rank_bestRank"
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_rank.mutated_peptide,
-                    name="Best_rank_MHCI_score_epitope",
+                    name="NetMHCpan_bestRank_peptide",
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_rank.allele_mhc_i.name, name="Best_rank_MHCI_score_allele"
+                    value=self.best_epitope_by_rank.allele_mhc_i.name, name="NetMHCpan_bestRank_allele"
                 ),
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_rank.rank_wild_type, name="Best_rank_MHCI_score_WT"
+                    value=self.best_epitope_by_rank.rank_wild_type, name="NetMHCpan_bestRank_rankWT"
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_rank.wild_type_peptide,
-                    name="Best_rank_MHCI_score_epitope_WT",
+                    name="NetMHCpan_bestRank_peptideWT",
                 )
             ])
         if self.best_epitope_by_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_affinity.affinity_mutated,
-                    name="Best_affinity_MHCI_score",
+                    name="NetMHCpan_bestAffinity_affinity",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_affinity.mutated_peptide,
-                    name="Best_affinity_MHCI_epitope",
+                    name="NetMHCpan_bestAffinity_peptide",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_affinity.allele_mhc_i.name,
-                    name="Best_affinity_MHCI_allele",
+                    name="NetMHCpan_bestAffinity_allele",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_affinity.affinity_wild_type,
-                    name="Best_affinity_MHCI_score_WT",
+                    name="NetMHCpan_bestAffinity_affinityWT",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_affinity.wild_type_peptide,
-                    name="Best_affinity_MHCI_epitope_WT",
+                    name="NetMHCpan_bestAffinity_peptideWT",
                 )])
         if self.best_ninemer_epitope_by_rank:
             annotations.extend([
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_rank.rank_mutated,
-                    name="Best_rank_MHCI_9mer_score",
+                    name="NetMHCpan_bestRank9mer_rank",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_rank.mutated_peptide,
-                    name="Best_rank_MHCI_9mer_epitope",
+                    name="NetMHCpan_bestRank9mer_peptide",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_rank.allele_mhc_i.name,
-                    name="Best_rank_MHCI_9mer_allele",
+                    name="NetMHCpan_bestRank9mer_allele",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_rank.rank_wild_type,
-                    name="Best_rank_MHCI_9mer_score_WT",
+                    name="NetMHCpan_bestRank9mer_rankWT",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_rank.wild_type_peptide,
-                    name="Best_rank_MHCI_9mer_epitope_WT",
+                    name="NetMHCpan_bestRank9mer_peptideWT",
                 )
             ])
         if self.best_ninemer_epitope_by_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_affinity.affinity_mutated,
-                    name="Best_affinity_MHCI_9mer_score",
+                    name="NetMHCpan_bestAffinity9mer_affinity",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_affinity.allele_mhc_i.name,
-                    name="Best_affinity_MHCI_9mer_allele",
+                    name="NetMHCpan_bestAffinity9mer_allele",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_affinity.mutated_peptide,
-                    name="Best_affinity_MHCI_9mer_epitope",
+                    name="NetMHCpan_bestAffinity9mer_peptide",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_affinity.affinity_wild_type,
-                    name="Best_affinity_MHCI_9mer_score_WT",
+                    name="NetMHCpan_bestAffinity_affinityWT",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_ninemer_epitope_by_affinity.wild_type_peptide,
-                    name="Best_affinity_MHCI_9mer_epitope_WT",
+                    name="NetMHCpan_bestAffinity_peptideWT",
                 )
             ])
 
@@ -281,9 +281,9 @@ class BestAndMultipleBinder:
 
         annotations.extend([
             # generator rate
-            AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCI"),
-            AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCI"),
-            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCI")
+            AnnotationFactory.build_annotation(value=self.generator_rate, name="GeneratorRate_MHCI"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="GeneratorRate_CDN_MHCI"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="GeneratorRate_ADN_MHCI")
         ])
         annotations.extend(self._get_positions_and_mutation_in_anchor())
         return annotations
@@ -302,11 +302,11 @@ class BestAndMultipleBinder:
             )
         annotations = [
             AnnotationFactory.build_annotation(
-                value=position_9mer, name="Best_affinity_MHCI_9mer_position_mutation"
+                value=position_9mer, name="NetMHCpan_bestAffinity9mer_positionMutation"
             ),
             AnnotationFactory.build_annotation(
                 value=mutation_in_anchor_9mer,
-                name="Best_affinity_MHCI_9mer_anchor_mutated",
+                name="NetMHCpan_bestAffinity9mer_anchorMutated",
             ),
         ]
         return annotations
