@@ -22,7 +22,7 @@ the sites indicated below.
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
-Build the docker image: `docker build --tag neofox-docker .`
+Build the docker image: `docker build --platform linux/amd64 --tag neofox-docker .`
 
 Run NeoFox: `docker run neofox-docker neofox --help`
 
