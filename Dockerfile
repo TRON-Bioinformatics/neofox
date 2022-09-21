@@ -71,7 +71,7 @@ ENV NEOFOX_MIXMHC2PRED /app/MixMHC2pred-1.2/MixMHC2pred_unix
 # install prime
 RUN wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
 RUN tar -xvf master.tar.gz
-RUN sed -i 's/\/app\/PRIME/\/app\/PRIME-master/g' /app/PRIME-master/PRIME
+RUN sed -i 's/PATH_TO_PRIME/\/app\/PRIME-master/g' /app/PRIME-master/PRIME
 ENV NEOFOX_PRIME /app/PRIME-master/PRIME
 
 # configure references
