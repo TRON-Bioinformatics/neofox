@@ -88,17 +88,17 @@ class Amplitude:
         return [
             AnnotationFactory.build_annotation(
                 value=self.amplitude_mhci_affinity_9mer,
-                name="Amplitude_MHCI_affinity_9mer",
+                name="Amplitude_MHCI_bestAffinity9mer",
             ),
             AnnotationFactory.build_annotation(
-                value=self.amplitude_mhci_affinity, name="Amplitude_MHCI_affinity"
+                value=self.amplitude_mhci_affinity, name="Amplitude_MHCI_bestAffinity"
             ),
         ]
 
     def get_annotations_mhc2(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
-                value=self.amplitude_mhcii_rank, name="Amplitude_MHCII_rank"
+                value=self.amplitude_mhcii_rank, name="Amplitude_MHCII_bestRank"
             )
         ]
 

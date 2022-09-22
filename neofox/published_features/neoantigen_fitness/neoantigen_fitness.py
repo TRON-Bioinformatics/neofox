@@ -94,19 +94,47 @@ class NeoantigenFitnessCalculator:
 
         annotations = [
             AnnotationFactory.build_annotation(
-                name="Pathogensimiliarity_MHCI_9mer",
+                name="Pathogensimiliarity_MHCI_bestAffinity9mer",
                 value=pathogen_similarity_9mer,
             ),
             AnnotationFactory.build_annotation(
-                name="Recognition_Potential_MHCI_9mer",
+                name="RecognitionPotential_MHCI_bestAffinity9mer",
                 value=recognition_potential
             ),
             AnnotationFactory.build_annotation(
-                name="Pathogensimiliarity_MHCII",
+                name="Pathogensimiliarity_MHCII_bestAffinity",
                 value=pathogen_similarity_mhcii
             ),
         ]
         return annotations
+
+    def get_annotations_extended(
+            self, mutated_peptide_mhci: PredictedEpitope, amplitude
+    ) -> List[Annotation]:
+        pathogen_similarity = None
+        recognition_potential = None
+
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
+            pathogen_similarity = self.get_pathogen_similarity(peptide=mutated_peptide_mhci.mutated_peptide)
+            if pathogen_similarity is not None:
+                recognition_potential = self.calculate_recognition_potential(
+                    amplitude=amplitude,
+                    pathogen_similarity=pathogen_similarity
+                )
+
+        annotations = [
+            AnnotationFactory.build_annotation(
+                name="Pathogensimiliarity_MHCI_bestAffinity",
+                value=pathogen_similarity,
+            ),
+            AnnotationFactory.build_annotation(
+                name="RecognitionPotential_MHCI_bestAffinity",
+                value=recognition_potential
+            ),
+        ]
+        return annotations
+
+
 
     def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
         return [

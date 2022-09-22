@@ -33,7 +33,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
 )
 from neofox.MHC_predictors.netmhcpan.netmhcIIpan_prediction import NetMhcIIPanPredictor
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.tests.tools import get_mutation
+from neofox.tests.tools import get_neoantigen
 
 
 class TestBestMultipleBinder(TestCase):
@@ -61,7 +61,7 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = get_mutation(
+        mutation = get_neoantigen(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
@@ -86,7 +86,7 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = get_mutation(
+        mutation = get_neoantigen(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
@@ -153,7 +153,7 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = get_mutation(
+        mutation = get_neoantigen(
                 mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
                 wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
@@ -183,7 +183,7 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = get_mutation(
+        mutation = get_neoantigen(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
@@ -287,7 +287,7 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = get_mutation(
+        mutation = get_neoantigen(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET",
         )
@@ -317,7 +317,7 @@ class TestBestMultipleBinder(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner
         )
-        mutation = get_mutation(
+        mutation = get_neoantigen(
             mutated_xmer="RTNLLAALHRSVRWRAADQGHRSAFLV",
             wild_type_xmer="RTNLLAALHRSVRRRAADQGHRSAFLV",
         )

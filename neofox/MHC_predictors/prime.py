@@ -120,6 +120,7 @@ class Prime:
         )
         results = self._parse_prime_output(filename=outtmp)
         os.remove(outtmp)
+        os.remove(tmpfasta)
         return results
 
     def run(self, neoantigen: Neoantigen, mhc: List[Mhc1], uniprot):

@@ -145,6 +145,12 @@ class NeoantigenAnnotator(AbstractAnnotator):
                 mutated_peptide_mhcii=netmhc2pan.best_predicted_epitope_affinity if netmhc2pan else None
             )
         )
+        neoantigen.neofox_annotations.annotations.extend(
+            self.neoantigen_fitness_calculator.get_annotations_extended(
+                mutated_peptide_mhci=netmhcpan.best_epitope_by_affinity if netmhcpan else None,
+                amplitude=self.amplitude.amplitude_mhci_affinity
+            )
+        )
 
         # Differential Binding
         if netmhcpan:

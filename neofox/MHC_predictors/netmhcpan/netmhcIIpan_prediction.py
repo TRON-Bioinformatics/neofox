@@ -20,7 +20,7 @@
 
 import tempfile
 from typing import List
-
+import os
 from neofox.helpers import intermediate_files
 from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
@@ -75,7 +75,6 @@ class NetMhcIIPanPredictor:
         tmp_fasta = intermediate_files.create_temp_fasta(
             [sequence], prefix="tmp_singleseq_"
         )
-        tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command(
             [
                 self.configuration.net_mhc2_pan,
@@ -83,12 +82,10 @@ class NetMhcIIPanPredictor:
                 "-a",
                 ",".join(mhc_alleles),
                 "-f",
-                tmp_fasta,
-                "-tdir",
-                tmp_folder,
-                "-dirty",
+                tmp_fasta
             ]
         )
+        os.remove(tmp_fasta)
         return self._parse_netmhcpan_output(lines)
     
     def mhc2_prediction_peptide(
@@ -96,7 +93,6 @@ class NetMhcIIPanPredictor:
         """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
         result = None
         tmp_peptide = intermediate_files.create_temp_peptide([sequence], prefix="tmp_singleseq_")
-        tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command(
             cmd=[
                 self.configuration.net_mhc2_pan,
@@ -107,15 +103,13 @@ class NetMhcIIPanPredictor:
                 "1",
                 "-f",
                 tmp_peptide,
-                "-tdir",
-                tmp_folder,
-                "-dirty",
             ],
             print_log=False
         )
         predicted_epitopes = self._parse_netmhcpan_output(lines)
         if predicted_epitopes:
             result = predicted_epitopes[0]
+        os.remove(tmp_peptide)
         return result
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:

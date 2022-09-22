@@ -149,8 +149,8 @@ class NeoantigenAnnotatorTest(TestCase):
         self.assertEqual(annotated_neoantigen.position, neoantigen.position)
         self.assertGreater(len(annotated_neoantigen.neofox_annotations.annotations), 0)
         annotation_names = [a.name for a in annotated_neoantigen.neofox_annotations.annotations]
-        self.assertTrue("Best_rank_MHCI_score_epitope" in annotation_names)
-        self.assertTrue("Best_rank_MHCI_score_allele" in annotation_names)
+        self.assertTrue("NetMHCpan_bestRank_peptide" in annotation_names)
+        self.assertTrue("NetMHCpan_bestRank_allele" in annotation_names)
 
     def _assert_epitopes(self, annotated_neoantigen, with_all_epitopes=False):
         # neoepitopes for both MHC I and MHC II are not empty
@@ -164,7 +164,7 @@ class NeoantigenAnnotatorTest(TestCase):
             annotation_names = [a.name for a in e.neofox_annotations.annotations]
             observed_mixmhcpred_annotations = \
                 observed_mixmhcpred_annotations or \
-                "MixMHCpred_affinity_score" in annotation_names or "MixMHC2pred_affinity_score" in annotation_names
+                "MixMHCpred_score" in annotation_names or "MixMHC2pred_score" in annotation_names
             if with_all_epitopes:
                 # they do have extra annotations
                 self.assertTrue(

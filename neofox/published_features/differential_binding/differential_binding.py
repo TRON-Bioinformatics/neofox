@@ -74,7 +74,7 @@ class DifferentialBinding:
                     )
         annotations = [
             AnnotationFactory.build_annotation(
-                name="DAI_MHCI_affinity",
+                name="DAI_MHCI_bestAffinity",
                 value=dai
             ),
         ]
@@ -109,11 +109,11 @@ class DifferentialBinding:
                     )
         annotations = [
             AnnotationFactory.build_annotation(
-                name="CDN_MHCI",
+                name="Classically_defined_neopeptide_MHCI",
                 value=cdn
             ),
             AnnotationFactory.build_annotation(
-                name="ADN_MHCI",
+                name="Alternatively_defined_neopeptide_MHCI",
                 value=adn
             ),
         ]
@@ -148,11 +148,11 @@ class DifferentialBinding:
         annotations = [
             AnnotationFactory.build_annotation(
                 value=cdn,
-                name="CDN_MHCII",
+                name="Classically_defined_neopeptide_MHCII",
             ),
             AnnotationFactory.build_annotation(
                 value=adn,
-                name="ADN_MHCII",
+                name="Alternatively_defined_neopeptide_MHCII",
             ),
         ]
         return annotations
