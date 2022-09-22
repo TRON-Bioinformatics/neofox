@@ -175,7 +175,7 @@ This is a dummy example of the field `neofox_annotations`.
         "value": "AAAAAAAAF"
     }],
     "annotator": "Neofox",
-    "annotator_version": "0.7.0",
+    "annotator_version": "1.0.0",
     "timestamp": "20201211115212061465"
 }
 ```
