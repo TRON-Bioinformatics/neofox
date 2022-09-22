@@ -22,7 +22,7 @@ the sites indicated below.
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
-Build the docker image: `docker build --tag neofox-docker .`
+Build the docker image: `docker build --platform linux/amd64 --tag neofox-docker .`
 
 Run NeoFox: `docker run neofox-docker neofox --help`
 
@@ -34,6 +34,11 @@ See the usage guide [here](03_03_usage.md) for further details.
 These installation instructions were tested on Ubuntu 18.04.
 
 Python 3.7 or 3.8 should be preinstalled.
+
+The libz compression development library is required. This can be installed in Ubuntu as follows:
+```
+apt-get install libz-dev
+```
 
 ### Install NeoFox
 
