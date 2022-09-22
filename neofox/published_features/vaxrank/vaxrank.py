@@ -88,9 +88,9 @@ class VaxRank:
         ranking_score = self.combined_score(expression_score=expression_score, total_binding_score=total_binding_score)
         return [
             AnnotationFactory.build_annotation(
-                value=total_binding_score, name="vaxrank_binding_score"
+                value=total_binding_score, name="Vaxrank_bindingScore"
             ),
             AnnotationFactory.build_annotation(
-                value=ranking_score, name="vaxrank_total_score"
+                value=ranking_score, name="Vaxrank_totalScore"
             ),
         ]

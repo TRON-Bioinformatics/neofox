@@ -12,102 +12,98 @@ The following table describes each of the annotations in the output:
   
 **TABLE 1** 
 
-| Column   Name                             |  Description                                                                                                                                                                                                                                                                                                    |  Feature group/ Paper             |
-|-------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------|
-| dnaVariantAlleleFrequency                 |  the variant allele frequency calculated from the DNA                                                                                                                                                                                                                                                           |  -                                |
-| mutatedXmer                               |  the long mutated amino acid sequence                                                                                                                                                                                                                                                                           |  -                                |
-| wildTypeXmer                              |  the long non-mutated amino acid sequence (when not provided in the input this will contain the Blastp closest sequence in the proteome)                                                                                                                                                                                                          |  -                                |
-| patientIdentifier                         |  the patient identifier                                                                                                                                                                                                                                                                                         |  -                                |
-| rnaExpression                             |  the RNA expression. If expression was imputed, this will will be `imputedGeneExpression`                                                                                                                                                                                                                       |  expression                       |
-| imputedGeneExpression                     |  median gene expression in the TCGA cohort of the tumor entity provided in the patient file.                                                                                                                                                                                                                    |  expression                       |
-| rnaVariantAlleleFrequency                 |  the variant allele frequency calculated from the RNA                                                                                                                                                                                                                                                           |  -                                |
-| gene                                      |  the HGNC gene symbol                                                                                                                                                                                                                                                                                           |  -                                |
-| Expression_mutated_transcript             |  transcript expression normalized by the variant allele frequency of the mutation                                                                                                                                                                                                                               |  expression                       |
-| mutation_not_found_in_proteome            | indicates if mutated amino acid sequence was not found in the WT proteome by exact search                                                                                                                                                                                                                       |  Priority score                   |
-| Best_rank_MHCI_score                      |  minimal MHC I binding rank score over all neoepitope candidates (8-11mers) and MHC I alleles                                                                                                                                                                                                                   |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_score_epitope              |  neoepitope candidate sequence with minimal MHC I binding rank score                                                                                                                                                                                                                                            |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_score_allele               |  the MHC I allele related to ` Best_rank_MHCI_score_epitope`                                                                                                                                                                                                                                                    |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_score                  |  minimal MHC I binding affinity  over all neoepitope candidates (8-11mers) and MHC I alleles                                                                                                                                                                                                                    |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_epitope                |  neoepitope candidate sequence with minimal MHC I binding affinity                                                                                                                                                                                                                                              |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_allele                 |  the MHC I allele related to ` Best_affinity_MHCI_epitope`                                                                                                                                                                                                                                                      |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_9mer_score                 |  minimal MHC I binding rank score over all neoepitope candidates (9mers only) and MHC I alleles                                                                                                                                                                                                                 |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_9mer_epitope               |  neoepitope candidate sequence (9mer) with minimal MHC I binding rank score                                                                                                                                                                                                                                     |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_9mer_allele                |  the MHC I allele related to ` Best_rank_MHCI_9mer_epitope`                                                                                                                                                                                                                                                     |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_9mer_score             |  minimal MHC I binding affinity over all neoepitope candidates (9mers) and MHC I alleles                                                                                                                                                                                                                        |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_9mer_allele            |  the MHC I allele related to ` Best_affinity_MHCI_9mer_epitope           `                                                                                                                                                                                                                                      |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_9mer_epitope           |  neoepitope candidate sequence (9mer) with minimal MHC I binding affinity                                                                                                                                                                                                                                       |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_score_WT               |  MHC I binding affinity  of `Best_affinity_MHCI_epitope_WT`                                                                                                                                                                                                                                                     |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_epitope_WT             |  WT epitope that corresponds to ` Best_affinity_MHCI_epitope`                                                                                                                                                                                                                                                   |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_allele_WT              |  the MHC I allele related to `Best_affinity_MHCI_epitope_WT`                                                                                                                                                                                                                                                    |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_score_WT                   | MHC I binding rank score of `Best_rank_MHCI_score_epitope_WT`                                                                                                                                                                                                                                                   |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_score_epitope_WT           |  WT epitope that corresponds to `Best_rank_MHCI_score_epitope`                                                                                                                                                                                                                                                  |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_score_allele_WT            |  the MHC I allele related to `Best_rank_MHCI_score_epitope_WT`                                                                                                                                                                                                                                                  |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_9mer_score_WT              | MHC I binding rank score of `Best_rank_MHCI_9mer_epitope_WT `                                                                                                                                                                                                                                                   |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_9mer_epitope_WT            |  WT epitope that corresponds to `Best_rank_MHCI_9mer_epitope`                                                                                                                                                                                                                                                   |  MHC I binding with netMHCpan     |
-| Best_rank_MHCI_9mer_allele_WT             |  the MHC I allele related to `Best_rank_MHCI_9mer_epitope_WT `                                                                                                                                                                                                                                                  |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_9mer_score_WT          | MHC I binding affinity of ` Best_affinity_MHCI_9mer_allele_WT `                                                                                                                                                                                                                                                 |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_9mer_allele_WT         |  the MHC I allele related to ` Best_affinity_MHCI_9mer_epitope_WT`                                                                                                                                                                                                                                              |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_9mer_epitope_WT        |  WT epitope that corresponds to `Best_affinity_MHCI_9mer_epitope`                                                                                                                                                                                                                                               |  MHC I binding with netMHCpan     |
-| PHBR-I                                    |  harmonic mean of minimal MHC I binding rank scores of all MHC I alleles of a patient                                                                                                                                                                                                                           |  PHBR-I                           |
-| Best_affinity_MHCI_9mer_position_mutation |  indicates position of the mutation in ` Best_affinity_MHCI_9mer_epitope`                                                                                                                                                                                                                                       |  MHC I binding with netMHCpan     |
-| Best_affinity_MHCI_9mer_anchor_mutated    |  mutation in ` Best_affinity_MHCI_9mer_epitope` in an anchor position (i.e. position 2 or 9)                                                                                                                                                                                                                    |  anchor/non-anchor                |
-| Best_rank_MHCII_score                     |  minimal MHC II binding rank score over all neoepitope candidates (15mers) and all MHC II alleles                                                                                                                                                                                                               |  MHC II binding with netMHCIIpan  |
-| Best_rank_MHCII_score_epitope             |  neoepitope candidate sequence with minimal MHC II binding rank score                                                                                                                                                                                                                                           |  MHC II binding with netMHCIIpan  |
-| Best_rank_MHCII_score_allele              |  the MHC II isoform related to ` Best_rank_MHCII_score_epitope`                                                                                                                                                                                                                                                 |  MHC II binding with netMHCIIpan  |
-| Best_affinity_MHCII_score                 |  minimal MHC II binding affinity  over all neoepitope candidates (15mers) and all MHC II alleles                                                                                                                                                                                                                |  MHC II binding with netMHCIIpan  |
-| Best_affinity_MHCII_epitope               |  neoepitope candidate sequence with minimal MHC II binding affinity                                                                                                                                                                                                                                             |  MHC II binding with netMHCIIpan  |
-| Best_affinity_MHCII_allele                |  the MHC II isoform related to ` Best_affinity_MHCII_epitope `                                                                                                                                                                                                                                                  |  MHC II binding with netMHCIIpan  |
-| Best_rank_MHCII_score_WT                  |  minimal MHC II binding rank of  `Best_rank_MHCII_score_epitope_WT  `                                                                                                                                                                                                                                           |  MHC II binding with netMHCIIpan  |
-| Best_rank_MHCII_score_epitope_WT          |  WT epitope sequence (15mer) that corresponds to ` Best_rank_MHCII_score_epitope `                                                                                                                                                                                                                              |  MHC II binding with netMHCIIpan  |
-| Best_rank_MHCII_score_allele_WT           |  the MHC II isoform related to ` Best_rank_MHCII_score_epitope_WT`                                                                                                                                                                                                                                              |  MHC II binding with netMHCIIpan  |
-| Best_affinity_MHCII_score_WT              |  minimal MHC II binding rank of  `Best_affinity_MHCII_epitope_WT`                                                                                                                                                                                                                                               |  MHC II binding with netMHCIIpan  |
-| Best_affinity_MHCII_epitope_WT            |  WT epitope sequence (15mer) that corresponds to `  Best_affinity_MHCII_epitope`                                                                                                                                                                                                                                |  MHC II binding with netMHCIIpan  |
-| Best_affinity_MHCII_allele_WT             |  the MHC II isoform related to ` Best_affinity_MHCII_epitope_WT`                                                                                                                                                                                                                                                |  MHC II binding with netMHCIIpan  |
-| PHBR-II                                   |  harmonic mean of minimal MHC II binding rank scores of all MHC II alleles of a patient                                                                                                                                                                                                                         |  PHBR-II                          |
-| Amplitude_MHCI_affinity_9mer              |  ratio of  `Best_affinity_MHCI_9mer_score_WT` and   `Best_affinity_MHCI_9mer_score`                                                                                                                                                                                                                             |  Recognition Potential            |
-| Amplitude_MHCI_affinity                   |  ratio of   `Best_affinity_MHCI_score_WT` and `Best_affinity_MHCI_score`                                                                                                                                                                                                                                        |  Generator rate                   |
-| Amplitude_MHCII_rank                      |  ratio of   `Best_rank_MHCII_score_WT` and `Best_rank_MHCII_score` and                                                                                                                                                                                                                                          |  Generator rate                   |
-| Pathogensimiliarity_MHCI_9mer             |  score representing the   similarity of    `Best_affinity_MHCI_9mer_epitope` to pathogen sequences in IEDB   database                                                                                                                                                                                           |  Recognition Potential            |
-| Pathogensimiliarity_MHCII                 |  score representing the   similarity of    `Best_affinity_MHCII_epitope` to pathogen sequences in IEDB   database                                                                                                                                                                                               |  Recognition Potential            |
-| Recognition_Potential_MHCI_9mer           |  product of   `Amplitude_MHCI_affinity_9mer` and `Pathogensimiliarity_MHCI_affinity_9mer`                                                                                                                                                                                                                       |  Recognition Potential            |
-| DAI_MHCI_affinity                         |  difference of   `Best_affinity_MHCI_score_WT` and `Best_affinity_MHCI_score`                                                                                                                                                                                                                                   |  DAI                              |
-| CDN_MHCI                                  |  `Best_affinity_MHCI_score` <   50 nM                                                                                                                                                                                                                                                                           |  Generator rate                   |
-| ADN_MHCI                                  |  `Best_affinity_MHCI_score` <   5000 nM and `Amplitude_MHCI_affinity` > 10                                                                                                                                                                                                                                      |  Generator rate                   |
-| CDN_MHCII                                 |  `Best_rank_MHCII_score` < 1                                                                                                                                                                                                                                                                                    |  Generator rate                   |
-| ADN_MHCII                                 |  `Best_rank_MHCII_score` < 4   and `Amplitude_MHCII_rank` < 2                                                                                                                                                                                                                                                   |  Generator rate                   |
-| Generator_rate_CDN_MHCI                   |  number of neoepitope candidates   with MHC I binding affinity < 50 nM per neoantigen canidate                                                                                                                                                                                                                  |  Generator rate                   |
-| Generator_rate_ADN_MHCI                   |  number of neoepitope candidates  with MHC I binding affinity < 5000 nM per neoantigen canidate 10x better affinity in comparison to corresponding WT peptide                                                                                                                                                   |  Generator rate                   |
-| Generator_rate_MHCI                       | sum of `Generator_rate_CDN_MHCI` and `Generator_rate_ADN_MHCI`                                                                                                                                                                                                                                                  |  Generator rate                   |
-| Generator_rate_CDN_MHCII                  |  number of neoepitope candidates   with MHC II binding rank score < 1 per neoantigen canidate                                                                                                                                                                                                                   |  Generator rate                   |
-| Generator_rate_ADN_MHCII                  |  number of neoepitope candidates  with MHC II binding rank score < 4 per neoantigen candidate 4x better rank in comparison to corresponding WT peptide                                                                                                                                                          |  Generator rate                   |
-| Generator_rate_MHCII                      | sum of `Generator_rate_CDN_MHCII` and `Generator_rate_ADN_MHCII`                                                                                                                                                                                                                                                |  Generator rate                   |
-| Tcell_predictor_score                     |  output score of T cell predictor   model                                                                                                                                                                                                                                                                       |  Tcell predictor                  |
-| Improved_Binder_MHCI                      |  ratio of   `Best_rank_MHCI_score_WT` and `Best_rank_MHCI_score` > 1.2                                                                                                                                                                                                                                          |  self-similarity                  |
-| Selfsimilarity_MHCI_conserved_binder      |  score representing the   similarity between `Best_rank_MHCI_score_epitope` and   `Best_affinity_MHCI_epitope_WT`   For conservered binder only                                                                                                                                                                 |  self-similarity                  |
-| Selfsimilarity_MHCI                       |  score representing the   similarity between `Best_rank_MHCI_score_epitope` and   `Best_affinity_MHCI_epitope_WT`                                                                                                                                                                                               |  self-similarity                  |
-| Selfsimilarity_MHCII                      |  score representing the   similarity between `Best_affinity_MHCII_epitope` and    Best_affinity_MHCII_epitope_WT`                                                                                                                                                                                               |  self-similarity                  |
-| Number_of_mismatches_MCHI                 |  number of amino acids that do no   match between `Best_rank_MHCI_score_epitope` and   `Best_rank_MHCI_score_epitope_WT`                                                                                                                                                                                        |  Priority score                   |
-| Priority_score                            |  combinatorial score of several   features such as MHC binding, expression and VAF                                                                                                                                                                                                                              |  Priority score                   |
-| Neoag_immunogenicity                      |  output score of neoag model                                                                                                                                                                                                                                                                                    |  neoag                            |
-| IEDB_Immunogenicity_MHCI                  |  IEDB Immunogenicity score  for ` Best_affinity_MHCI_epitope `                                                                                                                                                                                                                                                  |  IEDB Immunogenicity              |
-| IEDB_Immunogenicity_MHCII                 |  IEDB Immunogenicity score   for ` Best_affinity_MHCII_epitope`                                                                                                                                                                                                                                                 |  IEDB Immunogenicity              |
-| MixMHCpred_best_peptide                   |  MHC class I neoepitope candidate   sequence with maximum MixMHCpred score over all neoepitope canidates   (8-11mers) and MHC I alleles                                                                                                                                                                         |  MixMHCpred                       |
-| MixMHCpred_best_score                     |  maximum MixMHCpred score over   all neoepitope canidates (8-11mers) and MHC I alleles                                                                                                                                                                                                                          |  MixMHCpred                       |
-| MixMHCpred_best_rank                      |  rank that corresponds to   `MixMHCpred_best_score`                                                                                                                                                                                                                                                             |  MixMHCpred                       |
-| MixMHCpred_best_allele                    |  the allele with maximum   MixMHCpred score                                                                                                                                                                                                                                                                     |  MixMHCpred                       |
-| MixMHC2pred_best_peptide                  |  MHC class II neoepitope   candidate sequence with minimal MixMHC2pred score over all neoepitope   canidates (13-18mers) and MHC II alleles                                                                                                                                                                     |  MixMHC2pred                      |
-| MixMHC2pred_best_rank                     |  minimal MixMHC2pred score over   all neoepitope canidates (13-18mers) and MHC II alleles                                                                                                                                                                                                                       |  MixMHC2pred                      |
-| MixMHC2pred_best_allele                   |  the MHC II isoform with minimum   MixMHC2pred rank score                                                                                                                                                                                                                                                       |  MixMHC2pred                      |
-| Dissimilarity_MHCI                        |  score reflecting the   dissimilarity of `Best_affinity_MHCI_epitope` to the self-proteome                                                                                                                                                                                                                      |  dissimilarity                    |
-| Dissimilarity_MHCII                       |  score reflecting the   dissimilarity of `Best_affinity_MHCII_epitope` to the self-proteome                                                                                                                                                                                                                     |  dissimilarity                    |
-| vaxrank_binding_score                     |  total binding score of vaxrank                                                                                                                                                                                                                                                                                 |  vaxrank                          |
-| vaxrank_total_score                       |  product of total binding score   and expression score. Originally, the root of the number of reads   supporting the mutation are used in the original implementation. To simplify,   the expression normalised to VAF is used.                                                                                 |  vaxrank                          |
-| PRIME_best_allele                         | best predicted MHC allele by PRIME model                                                                                                                                                                                                                                                                        | PRIME                             |
-| PRIME_best_peptide                        | best predicted neoepitope candidate by PRIME model                                                                                                                                                                                                                                                              | PRIME                             |
-| PRIME_best_rank                           | output rank score of PRIME model                                                                                                                                                                                                                                                                                | PRIME                             |
-| PRIME_best_score                          | output score of PRIME model                                                                                                                                                                                                                                                                                     | PRIME                             |
-| Hex_alignment_score_MHCI                  | the alignment score by HEX for ` Best_affinity_MHCI_epitope `                                                                                                                                                                                                                                                   | HEX                               |
-| Hex_alignment_score_MHCII                 | the alignment score by HEX for ` Best_affinity_MHCII_epitope`                                                                                                                                                                                                                                                   | HEX                               |
+|  Column    name                              |  Description                                                                                                                                                                                                                                                                                                          |  Feature group/ Paper               |
+|----------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+|  dnaVariantAlleleFrequency                   |  the variant allele frequency   calculated from the DNA                                                                                                                                                                                                                                                               |  -                                  |
+|  mutation.mutatedXmer                        |  the long mutated amino acid   sequence                                                                                                                                                                                                                                                                               |  -                                  |
+|  mutation.wildTypeXmer                       |  the long non-mutated amino acid   sequence. This field shal be empty for alternative neoantigen classes                                                                                                                                                                                                              |  -                                  |
+|  patientIdentifier                           |  the patient identifier                                                                                                                                                                                                                                                                                               |  -                                  |
+|  rnaExpression                               |  the RNA expression. If expression   was imputed, this will will be `imputedGeneExpression`                                                                                                                                                                                                                           |  expression                         |
+|  imputedGeneExpression                       |  median gene expression in the TCGA   cohort of the tumor entity provided in the patient file.                                                                                                                                                                                                                        |  expression                         |
+|  rnaVariantAlleleFrequency                   |  the variant allele frequency   calculated from the RNA                                                                                                                                                                                                                                                               |  -                                  |
+|  gene                                        |  the HGNC gene symbol                                                                                                                                                                                                                                                                                                 |  -                                  |
+|  Expression_mutated_transcript               |  transcript expression normalized   by the variant allele frequency of the mutation                                                                                                                                                                                                                                   |  expression                         |
+|  mutation_not_found_in_proteome              | indicates if mutated amino acid sequence was not found in the WT proteome   by exact search                                                                                                                                                                                                                           |  Priority score                     |
+| NetMHCpan_MHCI_rank_bestRank                 |  minimal MHC I binding rank score   over all neoepitope candidates (8-11mers) and MHC I alleles                                                                                                                                                                                                                       |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank_peptide                   |  neoepitope candidate sequence with   minimal MHC I binding rank score                                                                                                                                                                                                                                                |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank_allele                    |  the MHC I allele related to `   NetMHCpan_bestRank_peptide`                                                                                                                                                                                                                                                          |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity_affinity              |  minimal MHC I binding   affinity  over all neoepitope   candidates (8-11mers) and MHC I alleles                                                                                                                                                                                                                      |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity_peptide               |  neoepitope candidate sequence with   minimal MHC I binding affinity                                                                                                                                                                                                                                                  |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity_allele                |  the MHC I allele related to `   NetMHCpan_bestAffinity_peptide`                                                                                                                                                                                                                                                      |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank9mer_rank                  |  minimal MHC I binding rank score   over all neoepitope candidates (9mers only) and MHC I alleles                                                                                                                                                                                                                     |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank9mer_peptide               |  neoepitope candidate sequence   (9mer) with minimal MHC I binding rank score                                                                                                                                                                                                                                         |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank9mer_allele                |  the MHC I allele related to   `NetMHCpan_bestRank9mer_peptide`                                                                                                                                                                                                                                                       |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity9mer_affinity          |  minimal MHC I binding affinity   over all neoepitope candidates (9mers) and MHC I alleles                                                                                                                                                                                                                            |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity9mer_allele            |  the MHC I allele related to `   NetMHCpan_bestAffinity9mer_peptide             `                                                                                                                                                                                                                                     |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity9mer_peptide           |  neoepitope candidate sequence   (9mer) with minimal MHC I binding affinity                                                                                                                                                                                                                                           |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity_affinityWT            |  MHC I binding affinity  of `NetMHCpan_bestAffinity_peptideWT`                                                                                                                                                                                                                                                        |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity_peptideWT             |  WT epitope that corresponds to `   NetMHCpan_bestAffinity_peptide`                                                                                                                                                                                                                                                   |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank_rankWT                    | MHC I binding rank score of `NetMHCpan_bestRank_peptideWT`                                                                                                                                                                                                                                                            |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank_peptideWT                 |  WT epitope that corresponds to   `NetMHCpan_bestRank_peptide`                                                                                                                                                                                                                                                        |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank9mer_rankWT                | MHC I binding rank score of `NetMHCpan_bestRank9mer_peptideWT `                                                                                                                                                                                                                                                       |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestRank9mer_peptideWT             |  WT epitope that corresponds to   `NetMHCpan_bestRank9mer_peptide`                                                                                                                                                                                                                                                    |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity9mer_affinityWT        | MHC I binding affinity of ` NetMHCpan_bestAffinity9mer_peptideWT `                                                                                                                                                                                                                                                    |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity9mer_rankWT            |  MHC I binding rank score of  `NetMHCpan_bestAffinity9mer_peptideWT`                                                                                                                                                                                                                                                  |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity9mer_peptideWT         |  WT epitope that corresponds to   `NetMHCpan_bestAffinity9mer_peptide`                                                                                                                                                                                                                                                |                                     |
+| PHBR_I                                       |  harmonic mean of minimal MHC I   binding rank scores of all MHC I alleles of a patient                                                                                                                                                                                                                               |  PHBR-I                             |
+| NetMHCpan_bestAffinity9mer_positionMutation  |  indicates position of the mutation   in ` NetMHCpan_bestRank9mer_peptide`                                                                                                                                                                                                                                            |  MHC I binding with netMHCpan       |
+| NetMHCpan_bestAffinity9mer_anchorMutated     |  mutation in `   NetMHCpan_bestRank9mer_peptide` in an anchor position (i.e. position 2 or   9)                                                                                                                                                                                                                       |  anchor/non-anchor                  |
+| NetMHCIIpan_bestRank_rank                    |  minimal MHC II binding rank score   over all neoepitope candidates (15mers) and all MHC II alleles                                                                                                                                                                                                                   |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestRank_peptide                 |  neoepitope candidate sequence with   minimal MHC II binding rank score                                                                                                                                                                                                                                               |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestRank_allele                  |  the MHC II isoform related to   `NetMHCIIpan_bestRank_peptide`                                                                                                                                                                                                                                                       |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestAffinity_affinity            |  minimal MHC II binding   affinity  over all neoepitope   candidates (15mers) and all MHC II alleles                                                                                                                                                                                                                  |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestAffinity_peptide             |  neoepitope candidate sequence with   minimal MHC II binding affinity                                                                                                                                                                                                                                                 |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestAffinity_allele              |  the MHC II isoform related to `   NetMHCIIpan_bestAffinity_peptide`                                                                                                                                                                                                                                                  |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestRank_rankWT                  |  minimal MHC II binding rank   of  `NetMHCIIpan_bestRank_peptideWT`                                                                                                                                                                                                                                                   |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestRank_peptideWT               |  WT epitope sequence (15mer) that   corresponds to ` NetMHCIIpan_bestRank_peptide`                                                                                                                                                                                                                                    |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestAffinity_affinityWT          |  minimal MHC II binding rank   of    `NetMHCIIpan_bestAffinity_peptideWT`                                                                                                                                                                                                                                             |  MHC II binding with   netMHCIIpan  |
+| NetMHCIIpan_bestAffinity_peptideWT           |  WT epitope sequence (15mer) that   corresponds to `NetMHCIIpan_bestAffinity_peptide`                                                                                                                                                                                                                                 |  MHC II binding with   netMHCIIpan  |
+| PHBR_II                                      |  harmonic mean of minimal MHC II   binding rank scores of all MHC II alleles of a patient                                                                                                                                                                                                                             |  PHBR-II                            |
+| Amplitude_MHCI_bestAffinity9mer              |  ratio of  `NetMHCpan_bestAffinity9mer_affinity`   and     `NetMHCpan_bestAffinity9mer_affinityWT`                                                                                                                                                                                                                    |  Recognition Potential              |
+| Amplitude_MHCI_bestAffinity                  |  ratio of   `NetMHCpan_bestAffinity_affinityWT` and   `NetMHCpan_bestAffinity_affinity`                                                                                                                                                                                                                               |  Generator rate                     |
+| Amplitude_MHCII_bestRank                     |  ratio of   `NetMHCIIpan_bestRank_rank` and   `NetMHCIIpan_bestRank_rankWT`                                                                                                                                                                                                                                           |  Generator rate                     |
+|  Pathogensimiliarity_MHCI_bestAffinity9mer   |  score representing the   similarity of    `NetMHCpan_bestAffinity9mer_peptide` to   pathogen sequences in IEDB     database                                                                                                                                                                                          |  Recognition Potential              |
+|  Pathogensimiliarity_MHCII_bestAffinity      |  score representing the   similarity of    `NetMHCIIpan_bestRank_peptide` to   pathogen sequences in IEDB     database                                                                                                                                                                                                |  Recognition Potential              |
+| RecognitionPotential_MHCI_bestAffinity9mer   |  product of   `Amplitude_MHCI_affinity_9mer` and   `Pathogensimiliarity_MHCI_affinity_9mer`                                                                                                                                                                                                                           |  Recognition Potential              |
+| DAI_MHCI_bestAffinity                        |  difference of   `NetMHCpan_bestAffinity_affinityWT` and   `NetMHCpan_bestAffinity_affinity`                                                                                                                                                                                                                          |  DAI                                |
+| Classically_defined_neopeptide_MHCI          | `NetMHCpan_bestAffinity_peptide`<     50 nM                                                                                                                                                                                                                                                                           |  Generator rate                     |
+| Alternatively_defined_neopeptide_MHCI        | `NetMHCpan_bestAffinity_peptide` <     5000 nM and `Amplitude_MHCI_bestAffinity` > 10                                                                                                                                                                                                                                 |  Generator rate                     |
+| Classically_defined_neopeptide_MHCII         |  `NetMHCIIpan_bestRank_rank` <   1                                                                                                                                                                                                                                                                                    |  Generator rate                     |
+| Alternatively_defined_neopeptide_MHCII       |  `Best_rank_MHCII_score` <   4   and `Amplitude_MHCII_bestRank` <   2                                                                                                                                                                                                                                                 |  Generator rate                     |
+| GeneratorRate_CDN_MHCI                       |  number of neoepitope   candidates   with MHC I binding   affinity < 50 nM per neoantigen canidate                                                                                                                                                                                                                    |  Generator rate                     |
+| GeneratorRate_ADN_MHCI                       |  number of neoepitope   candidates  with MHC I binding affinity   < 5000 nM per neoantigen canidate 10x better affinity in comparison to   corresponding WT peptide                                                                                                                                                   |  Generator rate                     |
+| GeneratorRate_MHCI                           | sum of `GeneratorRate_CDN_MHCI` and `GeneratorRate_ADN_MHCI`                                                                                                                                                                                                                                                          |  Generator rate                     |
+| GeneratorRate_CDN_MHCII                      |  number of neoepitope   candidates   with MHC II binding rank   score < 1 per neoantigen canidate                                                                                                                                                                                                                     |  Generator rate                     |
+| GeneratorRate_ADN_MHCII                      |  number of neoepitope   candidates  with MHC II binding rank   score < 4 per neoantigen candidate 4x better rank in comparison to   corresponding WT peptide                                                                                                                                                          |  Generator rate                     |
+| GeneratorRate_MHCII                          | sum of `GeneratorRate_CDN_MHCII` and `GeneratorRate_ADN_MHCII`                                                                                                                                                                                                                                                        |  Generator rate                     |
+|  Tcell_predictor                             |  output score of T cell   predictor   model                                                                                                                                                                                                                                                                           |  Tcell predictor                    |
+|  ImprovedBinder_MHCI                         |  ratio of   `NetMHCpan_MHCI_rank_bestRankWT` and   `NetMHCpan_MHCI_rank_bestRank` > 1.2                                                                                                                                                                                                                               |  self-similarity                    |
+|  Selfsimilarity_MHCI_conserved_binder        |  score representing the   similarity between   `NetMHCpan_bestRank_peptide` and     `NetMHCpan_bestRank_peptideWT`     For conservered binder only                                                                                                                                                                    |  self-similarity                    |
+| Selfsimilarity_MHCI                          |  score representing the   similarity between   `NetMHCpan_bestRank_peptide` and     `NetMHCpan_bestRank_peptide`                                                                                                                                                                                                      |  self-similarity                    |
+| Selfsimilarity_MHCII                         |  score representing the   similarity between   `NetMHCIIpan_bestAffinity_peptide` and      `NetMHCIIpan_bestAffinity_peptide`                                                                                                                                                                                         |  self-similarity                    |
+|  Number_of_mismatches_MCHI                   |  number of amino acids that do   no   match between   `NetMHCpan_bestRank_peptide` and     `NetMHCpan_bestRank_peptideWT`                                                                                                                                                                                             |  Priority score                     |
+|  Priority_score                              |  combinatorial score of   several   features such as MHC binding,   expression and VAF                                                                                                                                                                                                                                |  Priority score                     |
+|  Neoag_immunogenicity                        |  output score of neoag model                                                                                                                                                                                                                                                                                          |  neoag                              |
+| IEDB_Immunogenicity_MHCI                     |  IEDB Immunogenicity score  for ` NetMHCpan_bestAffinity_peptide`                                                                                                                                                                                                                                                     |  IEDB Immunogenicity                |
+| IEDB_Immunogenicity_MHCII                    |  IEDB Immunogenicity score   for   `NetMHCIIpan_bestAffinity_peptide`                                                                                                                                                                                                                                                 |  IEDB Immunogenicity                |
+| MixMHCpred_bestScore_peptide                 |  MHC class I neoepitope   candidate   sequence with maximum   MixMHCpred score over all neoepitope canidates   (8-11mers) and MHC I alleles                                                                                                                                                                           |  MixMHCpred                         |
+| MixMHCpred_bestScore_score                   |  maximum MixMHCpred score over   all neoepitope canidates (8-11mers) and   MHC I alleles                                                                                                                                                                                                                              |  MixMHCpred                         |
+| MixMHCpred_bestScore_rank                    |  rank that corresponds to   `MixMHCpred_bestScore_score`                                                                                                                                                                                                                                                              |  MixMHCpred                         |
+| MixMHCpred_bestScore_allele                  |  the allele with maximum   MixMHCpred score                                                                                                                                                                                                                                                                           |  MixMHCpred                         |
+| MixMHC2pred_bestRank_peptide                 |  MHC class II neoepitope   candidate sequence with minimal   MixMHC2pred score over all neoepitope     canidates (13-18mers) and MHC II alleles                                                                                                                                                                       |  MixMHC2pred                        |
+| MixMHC2pred_bestRank_rank                    |  minimal MixMHC2pred score   over   all neoepitope canidates   (13-18mers) and MHC II alleles                                                                                                                                                                                                                         |  MixMHC2pred                        |
+| MixMHC2pred_bestRank_allele                  |  the MHC II isoform with   minimum   MixMHC2pred rank score                                                                                                                                                                                                                                                           |  MixMHC2pred                        |
+| Dissimilarity_MHCI                           |  score reflecting the   dissimilarity of   `NetMHCpan_bestAffinity_peptide` to the self-proteome                                                                                                                                                                                                                      |  dissimilarity                      |
+| Dissimilarity_MHCII                          |  score reflecting the   dissimilarity of   `NetMHCIIpan_bestAffinity_peptide` to the self-proteome                                                                                                                                                                                                                    |  dissimilarity                      |
+| Vaxrank_bindingScore                         |  total binding score of   vaxrank                                                                                                                                                                                                                                                                                     |  vaxrank                            |
+| Vaxrank_totalScore                           |  product of total binding   score   and expression score.   Originally, the root of the number of reads     supporting the mutation are used in the original implementation. To   simplify,   the expression normalised   to VAF is used.                                                                             |  vaxrank                            |
+| PRIME_bestScore_allele                       | best predicted MHC allele by PRIME model                                                                                                                                                                                                                                                                              | PRIME                               |
+| PRIME_bestScore_peptide                      | best predicted neoepitope candidate by PRIME model                                                                                                                                                                                                                                                                    | PRIME                               |
+| PRIME_bestScore_rank                         | output rank score of PRIME model                                                                                                                                                                                                                                                                                      | PRIME                               |
+| PRIME_bestScore_score                        | output score of PRIME model                                                                                                                                                                                                                                                                                           | PRIME                               |
+| HexAlignmentScore_MHCI                       | the alignment score by HEX for   `NetMHCpan_bestAffinity_peptide`                                                                                                                                                                                                                                                     | HEX                                 |
+| HexAlignmentScore_MHCII                      | the alignment score by HEX for `   NetMHCIIpan_bestAffinity_peptide`                                                                                                                                                                                                                                                  | HEX                                 |
+
 
 In addition, all logging output is appended to a log file with the suffix
 "*<folder>/<prefix>.log*", where the folder is set by `--output-folder` and the
@@ -174,242 +170,14 @@ This is a dummy example of the field `neofox_annotations`.
 ```json
 {
     "annotations": [{
-        "name": "Best_rank_MHCI_score",
+        "name": "NetMHCpan_MHCI_rank_bestRank",
         "value": "0.0592"
     }, {
-        "name": "Best_rank_MHCI_score_epitope",
+        "name": "NetMHCpan_MHCI_rank_peptide",
         "value": "AAAAAAAAF"
-    }, {
-        "name": "Best_rank_MHCI_score_allele",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_affinity_MHCI_score",
-        "value": "24.3"
-    }, {
-        "name": "Best_affinity_MHCI_epitope",
-        "value": "AAAAAAAAF"
-    }, {
-        "name": "Best_affinity_MHCI_allele",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_rank_MHCI_9mer_score",
-        "value": "0.0592"
-    }, {
-        "name": "Best_rank_MHCI_9mer_epitope",
-        "value": "AAAAAAAAF"
-    }, {
-        "name": "Best_rank_MHCI_9mer_allele",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_score",
-        "value": "24.3"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_allele",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_epitope",
-        "value": "AAAAAAAAF"
-    }, {
-        "name": "Best_affinity_MHCI_score_WT",
-        "value": "21.7"
-    }, {
-        "name": "Best_affinity_MHCI_epitope_WT",
-        "value": "AAAAAAAAL"
-    }, {
-        "name": "Best_affinity_MHCI_allele_WT",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_rank_MHCI_score_WT",
-        "value": "0.0493"
-    }, {
-        "name": "Best_rank_MHCI_score_epitope_WT",
-        "value": "AAAAAAAAL"
-    }, {
-        "name": "Best_rank_MHCI_score_allele_WT",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_rank_MHCI_9mer_score_WT",
-        "value": "0.0493"
-    }, {
-        "name": "Best_rank_MHCI_9mer_epitope_WT",
-        "value": "AAAAAAAAL"
-    }, {
-        "name": "Best_rank_MHCI_9mer_allele_WT",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_score_WT",
-        "value": "21.7"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_allele_WT",
-        "value": "HLA-C*16:01"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_epitope_WT",
-        "value": "AAAAAAAAL"
-    }, {
-        "name": "Generator_rate",
-        "value": "1"
-    }, {
-        "name": "PHBR-I",
-        "value": "0.31193"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_position_mutation",
-        "value": "9"
-    }, {
-        "name": "Best_affinity_MHCI_9mer_anchor_mutated",
-        "value": "1"
-    }, {
-        "name": "Best_rank_MHCII_score",
-        "value": "0.05"
-    }, {
-        "name": "Best_rank_MHCII_score_epitope",
-        "value": "AAAAFAAAAAAAAAA"
-    }, {
-        "name": "Best_rank_MHCII_score_allele",
-        "value": "HLA-DQA10301-DQB10402"
-    }, {
-        "name": "Best_affinity_MHCII_score",
-        "value": "251.77"
-    }, {
-        "name": "Best_affinity_MHCII_epitope",
-        "value": "AAAAFAAAAAAAAAA"
-    }, {
-        "name": "Best_affinity_MHCII_allele",
-        "value": "HLA-DQA10401-DQB10402"
-    }, {
-        "name": "Best_rank_MHCII_score_WT",
-        "value": "1.4"
-    }, {
-        "name": "Best_rank_MHCII_score_epitope_WT",
-        "value": "AAAALAAAAAAAAAA"
-    }, {
-        "name": "Best_rank_MHCII_score_allele_WT",
-        "value": "HLA-DQA10301-DQB10402"
-    }, {
-        "name": "Best_affinity_MHCII_score_WT",
-        "value": "513.02"
-    }, {
-        "name": "Best_affinity_MHCII_epitope_WT",
-        "value": "AAAALAAAAAAAAAA"
-    }, {
-        "name": "Best_affinity_MHCII_allele_WT",
-        "value": "HLA-DQA10401-DQB10402"
-    }, {
-        "name": "PHBR-II",
-        "value": "0.21892"
-    }, {
-        "name": "MixMHCpred_best_peptide",
-        "value": "AAAAAAAAF"
-    }, {
-        "name": "MixMHCpred_best_score",
-        "value": "0.50487"
-    }, {
-        "name": "MixMHCpred_best_rank",
-        "value": "0.1"
-    }, {
-        "name": "MixMHCpred_best_allele",
-        "value": "B0702"
-    }, {
-        "name": "MixMHC2pred_best_peptide",
-        "value": "AAAAFAAAAAAAAAAA"
-    }, {
-        "name": "MixMHC2pred_best_rank",
-        "value": "0.997"
-    }, {
-        "name": "MixMHC2pred_best_allele",
-        "value": "DPA1_01_03__DPB1_04_01"
-    }, {
-        "name": "Expression_mutated_transcript",
-        "value": "0.44522"
-    }, {
-        "name": "mutation_not_found_in_proteome",
-        "value": "1"
-    }, {
-        "name": "Amplitude_MHCI_affinity_9mer",
-        "value": "0.88723"
-    }, {
-        "name": "Amplitude_MHCI_affinity",
-        "value": "0.88723"
-    }, {
-        "name": "Amplitude_MHCII_rank",
-        "value": "28"
-    }, {
-        "name": "Pathogensimiliarity_MHCI_affinity_9mer",
-        "value": "0"
-    }, {
-        "name": "Recognition_Potential_MHCI_affinity_9mer",
-        "value": "0"
-    }, {
-        "name": "DAI_MHCI_affinity_cutoff500nM",
-        "value": "-2.6"
-    }, {
-        "name": "CDN_MHCI",
-        "value": "1"
-    }, {
-        "name": "ADN_MHCI",
-        "value": "0"
-    }, {
-        "name": "CDN_MHCII",
-        "value": "1"
-    }, {
-        "name": "ADN_MHCII",
-        "value": "1"
-    }, {
-        "name": "Tcell_predictor_score_cutoff500nM",
-        "value": "0.4032758100297953"
-    }, {
-        "name": "Improved_Binder_MHCI",
-        "value": "0"
-    }, {
-        "name": "Selfsimilarity_MHCI_conserved_binder",
-        "value": "0.9917827053614943"
-    }, {
-        "name": "Number_of_mismatches_MCHI",
-        "value": "1"
-    }, {
-        "name": "Priority_score",
-        "value": "0.07017"
-    }, {
-        "name": "Neoag_immunogenicity",
-        "value": "13.16998"
-    }, {
-        "name": "IEDB_Immunogenicity_MHCI_cutoff500nM",
-        "value": "0.18288"
-    }, {
-        "name": "Dissimilarity_MHCI_cutoff500nM",
-        "value": "1"
-    }, {
-        "name": "vaxrank_binding_score",
-        "value": "3.7689"
-    }, {
-        "name": "vaxrank_total_score",
-        "value": "1.678"
-    }, {
-        "name": "patient",
-        "value": "Ptx"
-    }, {
-        "name": "substitution",
-        "value": "I547T"
-    }, {
-        "name": "transcript_expression",
-        "value": "0.5195068939999999"
-    }, {
-        "name": "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)",
-        "value": "AAAAAAAAAAAAAFAAAAAAAAAAAAA"
-    }, {
-        "name": "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)",
-        "value": "AAAAAAAAAAAAALAAAAAAAAAAAAA"
-    }, {
-        "name": "VAF_in_tumor",
-        "value": "0.294"
-    }, {
-        "name": "VAF_in_RNA",
-        "value": "0.857"
-    }, {
-        "name": "Unnamed: 8",
-        "value": null
     }],
     "annotator": "Neofox",
-    "annotator_version": "0.4.0",
+    "annotator_version": "0.7.0",
     "timestamp": "20201211115212061465"
 }
 ```
@@ -517,17 +285,17 @@ The following table describes each of the annotations in the output:
 | affinityWildType                | NetMHCpan / NetMHCIIpan affinity score of the wild type peptide for MHC-I or MHC-II neoepitopes respectively                       | MHC-I / MHC-II binding with netMHCpan / netMHCIIpan     |
 | rankMutated                     | NetMHCpan / NetMHCIIpan rank of the mutated peptide for MHC-I or MHC-II neoepitopes respectively                                   | MHC-I / MHC-II binding with netMHCpan / netMHCIIpan     |
 | rankWildType                    | NetMHCpan / NetMHCIIpan rank of the wild type peptide for MHC-I or MHC-II neoepitopes respectively                                 | MHC-I / MHC-II binding with netMHCpan / netMHCIIpan     |
-| MixMHCpred_affinity_score       | MixMHCpred score of the mutated peptide for MHC-I neoepitopes                                                                      | MHC-I binding with mixMHCpred                           |
+| MixMHCpred_score       | MixMHCpred score of the mutated peptide for MHC-I neoepitopes                                                                      | MHC-I binding with mixMHCpred                           |
 | MixMHCpred_rank                 | MixMHCpred rank of the mutated peptide for MHC-I neoepitopes                                                                       | MHC-I binding with mixMHCpred                           |
-| MixMHCpred_WT_affinity_score    | MixMHCpred score of the wild type peptide for MHC-I neoepitopes                                                                    | MHC-I binding with mixMHCpred                           |
+| MixMHCpred_WT_score    | MixMHCpred score of the wild type peptide for MHC-I neoepitopes                                                                    | MHC-I binding with mixMHCpred                           |
 | MixMHCpred_WT_rank              | MixMHCpred rank of the wild type peptide for MHC-I neoepitopes                                                                     | MHC-I binding with mixMHCpred                           |
-| MixMHC2pred_affinity_score      | MixMHC2pred score of the mutated peptide for MHC-II neoepitopes                                                                    | MHC-II binding with mixMHC2pred                         |
+| MixMHC2pred_score      | MixMHC2pred score of the mutated peptide for MHC-II neoepitopes                                                                    | MHC-II binding with mixMHC2pred                         |
 | MixMHC2pred_rank                | MixMHC2pred rank of the mutated peptide for MHC-II neoepitopes                                                                     | MHC-II binding with mixMHC2pred                         |
-| MixMHC2pred_WT_affinity_score   | MixMHC2pred score of the wild type peptide for MHC-II neoepitopes                                                                  | MHC-II binding with mixMHC2pred                         |
+| MixMHC2pred_WT_score   | MixMHC2pred score of the wild type peptide for MHC-II neoepitopes                                                                  | MHC-II binding with mixMHC2pred                         |
 | MixMHC2pred_WT_rank             | MixMHC2pred rank of the wild type peptide for MHC-II neoepitopes                                                                   | MHC-II binding with mixMHC2pred                         |
-| PRIME_affinity_score            | PRIME score of the mutated peptide for MHC-I neoepitopes                                                                           | MHC-I binding with PRIME                                |
+| PRIME_score            | PRIME score of the mutated peptide for MHC-I neoepitopes                                                                           | MHC-I binding with PRIME                                |
 | PRIME_rank                      | PRIME rank of the mutated peptide for MHC-I neoepitopes                                                                            | MHC-I binding with PRIME                                |
-| PRIME_WT_affinity_score         | PRIME score of the wild type peptide for MHC-I neoepitopes                                                                         | MHC-I binding with PRIME                                |
+| PRIME_WT_score         | PRIME score of the wild type peptide for MHC-I neoepitopes                                                                         | MHC-I binding with PRIME                                |
 | PRIME_WT_rank                   | PRIME rank of the wild type peptide for MHC-I neoepitopes                                                                          | MHC-I binding with PRIME                                |
 | DAI                             | difference of `affinityWildType` and `affinityMutated`                                                                             | DAI (only availble for MHC-I)                           |
 | IEDB_Immunogenicity             | IEDB Immunogenicity score for `affinityMutated`                                                                                    | IEDB immunogenicity                                     |

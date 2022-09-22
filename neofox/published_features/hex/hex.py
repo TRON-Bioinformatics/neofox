@@ -62,9 +62,9 @@ class Hex(object):
             hex_aln_score_mhcii = self.apply_hex(mutated_peptide_mhcii.mutated_peptide)
         annotations = [
             AnnotationFactory.build_annotation(
-                value=hex_aln_score_mhci, name="Hex_alignment_score_MHCI"),
+                value=hex_aln_score_mhci, name="HexAlignmentScore_MHCI"),
             AnnotationFactory.build_annotation(
-                value=hex_aln_score_mhcii, name="Hex_alignment_score_MHCII")
+                value=hex_aln_score_mhcii, name="HexAlignmentScore_MHCII")
             # AnnotationFactory.build_annotation(
              #   value=hex_b_score, name="hex_B_score"
             #)
