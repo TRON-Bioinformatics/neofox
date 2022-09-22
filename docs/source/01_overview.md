@@ -18,7 +18,7 @@ candidate to be a true neoantigen are required.
 Several neoantigen features that describe the ability of a neoantigen candidate to induce a T-cell response have been published 
 in the last years.   
 
-**NeoFox** (**NEO**antigen **F**eature toolb**OX**) is a python package that annotates a given set of neoantigen candidate sequences with relevant neoantigen features. The annotation of neoepitope candidates is supported from NeoFox version 0.7.0.
+**NeoFox** (**NEO**antigen **F**eature toolb**OX**) is a python package that annotates a given set of neoantigen candidate sequences with relevant neoantigen features. The annotation of neoepitope candidates is supported from NeoFox version 1.0.0.
 NeoFox supports annotation of neoantigen candidates derived from SNVs (single nucleotide variant) and alternative mutation classes such as INDELs or fusion genes. Furthermore, NeoFox supports both human and mouse derived neoantigen candidates.  
   
 NeoFox covers neoepitope prediction by MHC binding and ligand prediction, similarity/foreignness of a neoepitope candidate sequence, combinatorial features and machine learning approaches. 
