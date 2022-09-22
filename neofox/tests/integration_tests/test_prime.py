@@ -24,7 +24,7 @@ import neofox.tests.integration_tests.integration_test_tools as integration_test
 from neofox.MHC_predictors.prime import Prime
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.tests.tools import get_mutation
+from neofox.tests.tools import get_neoantigen
 
 
 class TestPrime(TestCase):
@@ -40,7 +40,7 @@ class TestPrime(TestCase):
         self.uniprot = Uniprot(self.references.uniprot_pickle)
 
     def test_prime_epitope(self):
-        neoantigen = get_mutation(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
+        neoantigen = get_neoantigen(mutated_xmer="LVTDQTRLE", wild_type_xmer="LVTDQTRNE")
         self.prime.run(neoantigen=neoantigen, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.prime.results, maximum=True)
@@ -50,7 +50,7 @@ class TestPrime(TestCase):
         self.assertEquals("HLA-C*05:01", best_result.allele_mhc_i.name)
 
     def test_prime_too_small_epitope(self):
-        neoantigen = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
+        neoantigen = get_neoantigen(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         self.prime.run(neoantigen=neoantigen, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.prime.results, maximum=True)
@@ -63,7 +63,7 @@ class TestPrime(TestCase):
         """
         this is a combination of neoepitope and HLA alleles from Balachandran
         """
-        neoantigen = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
+        neoantigen = get_neoantigen(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         self.prime.run(
             neoantigen=neoantigen,
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
@@ -78,7 +78,7 @@ class TestPrime(TestCase):
 
     def test_prime_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
-            neoantigen = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            neoantigen = get_neoantigen(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.prime.run(neoantigen=neoantigen, mhc=self.test_mhc_one, uniprot=self.uniprot)
             # rare aminoacids only return empty results when in the mutated sequence
             best_result = EpitopeHelper.select_best_by_affinity(

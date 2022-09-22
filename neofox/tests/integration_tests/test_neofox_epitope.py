@@ -237,15 +237,15 @@ class TestNeofoxEpitope(BaseIntegrationTest):
         self.assertIsInstance(neoepitope.affinity_wild_type, float)
 
         # MixMHCpred annotations
-        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_score")
         self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_rank")
-        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_WT_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_WT_score")
         self.assert_float_annotation(neoepitope, annotation_name="MixMHCpred_WT_rank")
 
         # PRIME annotations
-        self.assert_float_annotation(neoepitope, annotation_name="PRIME_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="PRIME_score")
         self.assert_float_annotation(neoepitope, annotation_name="PRIME_rank")
-        self.assert_float_annotation(neoepitope, annotation_name="PRIME_WT_affinity_score")
+        self.assert_float_annotation(neoepitope, annotation_name="PRIME_WT_score")
         self.assert_float_annotation(neoepitope, annotation_name="PRIME_WT_rank")
 
         # additional annotations
@@ -266,4 +266,4 @@ class TestNeofoxEpitope(BaseIntegrationTest):
 
         # others to comes
         self.assert_annotation(neoepitope, annotation_name="Priority_score")
-        self.assert_annotation(neoepitope, annotation_name="Tcell_predictor_score")
+        self.assert_annotation(neoepitope, annotation_name="Tcell_predictor")

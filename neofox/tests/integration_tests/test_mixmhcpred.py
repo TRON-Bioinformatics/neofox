@@ -28,7 +28,7 @@ from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.tests.tools import get_mutation
+from neofox.tests.tools import get_neoantigen
 
 
 class TestMixMHCPred(TestCase):
@@ -49,7 +49,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred_epitope_iedb(self):
         # this is an epitope from IEDB of length 9
-        mutation = get_mutation(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
+        mutation = get_neoantigen(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
         self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
@@ -59,7 +59,7 @@ class TestMixMHCPred(TestCase):
         self.assertEquals("HLA-A*02:01", best_result.allele_mhc_i.name)
 
     def test_mixmhcpred_too_small_epitope(self):
-        mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
+        mutation = get_neoantigen(mutated_xmer="NLVP", wild_type_xmer="NLNP")
         self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
@@ -72,7 +72,7 @@ class TestMixMHCPred(TestCase):
         """
         this is a combination of neoepitope and HLA alleles from Balachandran
         """
-        mutation = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
+        mutation = get_neoantigen(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
         self.mixmhcpred.run(
             neoantigen=mutation,
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
@@ -87,7 +87,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
-            mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            mutation = get_neoantigen(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
             best_result = EpitopeHelper.select_best_by_affinity(
                 predictions=self.mixmhcpred.results, maximum=True)
@@ -105,7 +105,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15
-        neoantigen = get_mutation(
+        neoantigen = get_neoantigen(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET")
         self.mixmhc2pred.run(
@@ -119,7 +119,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred2_epitope_iedb_forcing_no_drb1(self):
         # this is an epitope from IEDB of length 15
-        neoantigen = get_mutation(
+        neoantigen = get_neoantigen(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET")
         self.mixmhc2pred.run(
@@ -133,7 +133,7 @@ class TestMixMHCPred(TestCase):
         self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform_mhc_i_i.name)
 
     def test_mixmhcpred2_too_small_epitope(self):
-        neoantigen = get_mutation(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
+        neoantigen = get_neoantigen(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
         self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_two, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.mutated_peptide)
@@ -142,7 +142,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred2_no_mutation(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
-            neoantigen = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            neoantigen = get_neoantigen(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
             self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_two, uniprot=self.uniprot)
             best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
             self.assertIsNone(best_result.mutated_peptide)
@@ -151,7 +151,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhc2pred_rare_aminoacid(self):
         # this is an epitope from IEDB of length 9
-        neoantigen = get_mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
+        neoantigen = get_neoantigen(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
         self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
         self.assertIsNone(best_result.mutated_peptide)
@@ -160,7 +160,7 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhc2pred_allele(self):
 
-        neoantigen = get_mutation(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
+        neoantigen = get_neoantigen(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
         # this is a MHC II genotype which results in no available alleles for MixMHC2pred
         MHC_TWO_NEW = MhcFactory.build_mhc2_alleles(
             [
@@ -184,7 +184,7 @@ class TestMixMHCPred(TestCase):
         self.assertIsNone(best_result.isoform_mhc_i_i.name)
 
     def test_generate_nmers(self):
-        neoantigen = get_mutation(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")
+        neoantigen = get_neoantigen(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")
         result = EpitopeHelper.generate_nmers(neoantigen=neoantigen, lengths=[8, 9, 10, 11], uniprot=self.uniprot)
         logger.info(result)
         self.assertIsNotNone(result)

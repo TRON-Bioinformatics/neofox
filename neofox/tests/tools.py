@@ -74,7 +74,7 @@ def get_random_neoantigen() -> Neoantigen:
     return neoantigen
 
 
-def get_mutation(mutated_xmer, wild_type_xmer) -> Neoantigen:
+def get_neoantigen(mutated_xmer, wild_type_xmer) -> Neoantigen:
 
     return NeoantigenFactory.build_neoantigen(
         patient_identifier="123",
