@@ -18,29 +18,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 from neofox.helpers.blastp_runner import BlastpRunner
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
 
 
 class DissimilarityCalculator:
 
-    def __init__(self, proteome_blastp_runner: BlastpRunner, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
-        self.affinity_threshold = affinity_threshold
+    def __init__(self, proteome_blastp_runner: BlastpRunner):
         self.proteome_blastp_runner = proteome_blastp_runner
 
-    def calculate_dissimilarity(self, mutated_peptide, mhc_affinity):
+    def calculate_dissimilarity(self, epitope: PredictedEpitope):
         """
         wrapper for dissimilarity calculation
         """
         dissimilarity = None
-        if mutated_peptide != "-" and not mhc_affinity >= self.affinity_threshold:
+        if epitope.mutated_peptide != "-":
             similarity = self.proteome_blastp_runner.calculate_similarity_database(
-                peptide=mutated_peptide,
-                a=32,
-            )
+                peptide=epitope.mutated_peptide, a=32)
             if similarity is not None:
                 dissimilarity = 1 - similarity
         return dissimilarity
@@ -52,14 +47,10 @@ class DissimilarityCalculator:
         """
         dissimilarity_mhci = None
         dissimilarity_mhcii = None
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
-            dissimilarity_mhci = self.calculate_dissimilarity(
-                mutated_peptide=mutated_peptide_mhci.peptide,
-                mhc_affinity=mutated_peptide_mhci.affinity_score )
-        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
-            dissimilarity_mhcii = self.calculate_dissimilarity(
-                mutated_peptide=mutated_peptide_mhcii.peptide,
-                mhc_affinity=mutated_peptide_mhcii.affinity_score )
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
+            dissimilarity_mhci = self.calculate_dissimilarity(epitope=mutated_peptide_mhci)
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
+            dissimilarity_mhcii = self.calculate_dissimilarity(epitope=mutated_peptide_mhcii)
         annotations = [
             AnnotationFactory.build_annotation(
                 value=dissimilarity_mhci,
@@ -71,3 +62,10 @@ class DissimilarityCalculator:
             )
         ]
         return annotations
+
+    def get_annotations_epitope(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_dissimilarity(epitope=epitope),
+                name='dissimilarity_score')
+        ]

@@ -10,6 +10,7 @@ betterproto~=1.2.5
 pysam~=0.19.1
 dask[complete]>=2021.10.0
 distributed>=2021.10.0
-faker~=6.6.2
+python-dotenv==0.12.0
+faker~=13.13.0
 orjson~=3.5.2
 xmltodict~=0.12.0

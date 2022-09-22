@@ -20,7 +20,7 @@
 
 from typing import List
 
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders import (
     BestAndMultipleBinderMhcII,
@@ -64,40 +64,57 @@ class Amplitude:
     ):
         # MHC I
         if netmhcpan:
-            if netmhcpan.best_epitope_by_affinity.peptide and netmhcpan.best_wt_epitope_by_affinity.peptide:
+            if netmhcpan.best_epitope_by_affinity.mutated_peptide and netmhcpan.best_epitope_by_affinity.wild_type_peptide:
                 self.amplitude_mhci_affinity = self.calculate_amplitude_mhc(
-                    score_mutation=netmhcpan.best_epitope_by_affinity.affinity_score,
-                    score_wild_type=netmhcpan.best_wt_epitope_by_affinity.affinity_score,
+                    score_mutation=netmhcpan.best_epitope_by_affinity.affinity_mutated,
+                    score_wild_type=netmhcpan.best_epitope_by_affinity.affinity_wild_type,
                     apply_correction=True,
                 )
-            if netmhcpan.best_ninemer_epitope_by_affinity.peptide and netmhcpan.best_ninemer_wt_epitope_by_affinity.peptide:
+            if netmhcpan.best_ninemer_epitope_by_affinity.mutated_peptide and netmhcpan.best_ninemer_epitope_by_affinity.wild_type_peptide:
                 self.amplitude_mhci_affinity_9mer = self.calculate_amplitude_mhc(
-                    score_mutation=netmhcpan.best_ninemer_epitope_by_affinity.affinity_score,
-                    score_wild_type=netmhcpan.best_ninemer_wt_epitope_by_affinity.affinity_score,
+                    score_mutation=netmhcpan.best_ninemer_epitope_by_affinity.affinity_mutated,
+                    score_wild_type=netmhcpan.best_ninemer_epitope_by_affinity.affinity_wild_type,
                     apply_correction=True,
                 )
         # MHC II
         if netmhc2pan:
-            if netmhc2pan.best_predicted_epitope_rank.peptide and netmhc2pan.best_predicted_epitope_rank_wt.peptide:
+            if netmhc2pan.best_predicted_epitope_rank.mutated_peptide and netmhc2pan.best_predicted_epitope_rank.wild_type_peptide:
                 self.amplitude_mhcii_rank = self.calculate_amplitude_mhc(
-                    score_mutation=netmhc2pan.best_predicted_epitope_rank.rank,
-                    score_wild_type=netmhc2pan.best_predicted_epitope_rank_wt.rank,
+                    score_mutation=netmhc2pan.best_predicted_epitope_rank.rank_mutated,
+                    score_wild_type=netmhc2pan.best_predicted_epitope_rank.rank_wild_type,
                 )
 
     def get_annotations(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
                 value=self.amplitude_mhci_affinity_9mer,
-                name="Amplitude_MHCI_affinity_9mer",
+                name="Amplitude_MHCI_bestAffinity9mer",
             ),
             AnnotationFactory.build_annotation(
-                value=self.amplitude_mhci_affinity, name="Amplitude_MHCI_affinity"
+                value=self.amplitude_mhci_affinity, name="Amplitude_MHCI_bestAffinity"
             ),
         ]
 
     def get_annotations_mhc2(self) -> List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
-                value=self.amplitude_mhcii_rank, name="Amplitude_MHCII_rank"
+                value=self.amplitude_mhcii_rank, name="Amplitude_MHCII_bestRank"
             )
         ]
+
+    def get_annotations_epitope_mhcii(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_amplitude_mhc(
+                    score_mutation=epitope.rank_mutated, score_wild_type=epitope.rank_wild_type),
+                name='amplitude')
+        ]
+
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.calculate_amplitude_mhc(
+                    score_mutation=epitope.affinity_mutated, score_wild_type=epitope.affinity_wild_type,
+                    apply_correction=True),
+                name='amplitude')
+            ]

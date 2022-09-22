@@ -20,65 +20,43 @@ from typing import List
 
 from Bio.Data import IUPACData
 
-from neofox.model.neoantigen import Mutation
+from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Mhc2Isoform, Annotation, Annotations, \
+    Neoantigen
 
 
 class EpitopeHelper(object):
     @staticmethod
-    def generate_nmers(mutation: Mutation, lengths, uniprot):
+    def generate_nmers(neoantigen: Neoantigen, lengths, uniprot):
         """
         Generates peptides covering mutation of all lengths that are provided. Returns peptides as list
         No peptide is shorter than the minimun length provided
         There are no repetitions in the results
         """
-        length_mut = len(mutation.mutated_xmer)
+        length_mut = len(neoantigen.mutated_xmer)
         list_peptides = set()
         for length in lengths:
             if length <= length_mut:
                 starts = range(length_mut - length + 1)
                 ends = [s + length for s in starts]
                 for s, e in zip(starts, ends):
-                    peptide = mutation.mutated_xmer[s:e]
+                    peptide = neoantigen.mutated_xmer[s:e]
                     if len(peptide) == length and uniprot.is_sequence_not_in_uniprot(peptide):
                         list_peptides.add(peptide)
 
         return list(list_peptides)
 
     @staticmethod
-    def mut_position_xmer_seq(mutation: Mutation) -> List[int]:
-        """
-        returns position (1-based) of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
-        """
-        # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
-        pos_mut = []
-        if mutation.wild_type_xmer is not None and mutation.mutated_xmer is not None:
-            if len(mutation.wild_type_xmer) == len(mutation.mutated_xmer):
-                p1 = -1
-                for i, aa in enumerate(mutation.mutated_xmer):
-                    if aa != mutation.wild_type_xmer[i]:
-                        p1 = i + 1
-                        pos_mut.append(p1)
-            else:
-                p1 = 0
-                # in case sequences do not have same length
-                for a1, a2 in zip(mutation.wild_type_xmer, mutation.mutated_xmer):
-                    if a1 == a2:
-                        p1 += 1
-                    elif a1 != a2:
-                        p1 += 1
-                        pos_mut.append(p1)
-        return pos_mut
-
-    @staticmethod
-    def position_of_mutation_epitope(wild_type, mutation) -> int:
+    def position_of_mutation_epitope(epitope: PredictedEpitope) -> int:
         """
         This function determines the position of the mutation within the epitope sequence.
+        When multiple mutations are present it returns the last position
         """
         # TODO: is this efficient? No, a solution with zip is around 25% faster, maybe something else is even faster
         position = -1
         try:
-            for i, aa in enumerate(mutation):
-                if aa != wild_type[i]:
+            for i, aa in enumerate(epitope.mutated_peptide):
+                if aa != epitope.wild_type_peptide[i]:
                     position = i + 1
         except Exception:
             position = None
@@ -133,3 +111,127 @@ class EpitopeHelper(object):
                 found_rare_amino_acid = True
                 return found_rare_amino_acid
         return found_rare_amino_acid
+
+    @staticmethod
+    def pair_predictions(predictions, predictions_wt) -> List[PredictedEpitope]:
+        for prediction in predictions:
+            for prediction_wt in predictions_wt:
+                if len(prediction_wt.mutated_peptide) == len(prediction.mutated_peptide) and \
+                        prediction.position == prediction_wt.position and \
+                        prediction.allele_mhc_i.name == prediction_wt.allele_mhc_i.name:
+                    prediction.wild_type_peptide = prediction_wt.mutated_peptide
+                    prediction.rank_wild_type = prediction_wt.rank_mutated
+                    prediction.affinity_wild_type = prediction_wt.affinity_mutated
+                    break
+        return predictions
+
+    @staticmethod
+    def pair_mhcii_predictions(predictions, predictions_wt) -> List[PredictedEpitope]:
+        for prediction in predictions:
+            for prediction_wt in predictions_wt:
+                if len(prediction_wt.mutated_peptide) == len(prediction.mutated_peptide) and \
+                        prediction.position == prediction_wt.position and \
+                        prediction.isoform_mhc_i_i.name == prediction_wt.isoform_mhc_i_i.name:
+                    prediction.wild_type_peptide = prediction_wt.mutated_peptide
+                    prediction.rank_wild_type = prediction_wt.rank_mutated
+                    prediction.affinity_wild_type = prediction_wt.affinity_mutated
+                    break
+        return predictions
+
+    @staticmethod
+    def get_empty_epitope():
+        return PredictedEpitope(
+            mutated_peptide=None,
+            position=None,
+            allele_mhc_i=MhcAllele(name=None),
+            isoform_mhc_i_i=Mhc2Isoform(name=None),
+            affinity_mutated=None,
+            rank_mutated=None,
+        )
+
+    @staticmethod
+    def select_best_by_rank(predictions: List[PredictedEpitope]) -> PredictedEpitope:
+        """
+        Returns the peptide with the lowest (ie: meaning highest) rank and in case of tie first peptide on
+        alphabetical order to ensure determinism
+        """
+        return max(predictions, key=lambda p: (-p.rank_mutated, p.mutated_peptide)) \
+            if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
+
+    @staticmethod
+    def select_best_by_affinity(predictions: List[PredictedEpitope], maximum=False) -> PredictedEpitope:
+        """
+        Returns the peptide with the highest affinity score and in case of tie first peptide on
+        alphabetical order to ensure determinism
+        By default the highest affinity score is the lowest (ie: netmhc family) if maximum=True then the highest
+        score is the highest (ie: mixmhcpred and PRIME)
+        """
+        if maximum:
+            return max(predictions, key=lambda p: (p.affinity_mutated, p.mutated_peptide)) \
+                if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
+        else:
+            return max(predictions, key=lambda p: (-p.affinity_mutated, p.mutated_peptide)) \
+                if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
+
+    @staticmethod
+    def remove_peptides_in_proteome(predictions: List[PredictedEpitope], uniprot
+                                    ) -> List[PredictedEpitope]:
+        """filters prediction file for predicted epitopes that cover mutations by searching for epitope
+        in uniprot proteome database with an exact match search"""
+        return list(
+            filter(
+                lambda p: uniprot.is_sequence_not_in_uniprot(
+                    p.mutated_peptide
+                ),
+                predictions,
+            )
+        )
+
+    @staticmethod
+    def filter_for_9mers(predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
+        """returns only predicted 9mers"""
+        return list(filter(lambda p: len(p.mutated_peptide) == 9, predictions))
+
+    @staticmethod
+    def filter_peptides_covering_snv(
+            position_of_mutation, predictions: List[PredictedEpitope]) -> List[PredictedEpitope]:
+        """filters prediction file for predicted epitopes that cover mutations"""
+        return list(
+            filter(
+                lambda p: EpitopeHelper.epitope_covers_mutation(
+                    position_of_mutation, p.position, len(p.mutated_peptide)
+                ),
+                predictions,
+            )
+        )
+
+    @staticmethod
+    def set_wt_epitope_by_homology(predictions: List[PredictedEpitope], blastp_runner: BlastpRunner) -> List[PredictedEpitope]:
+        """returns wt epitope for each neoepitope candidate of a neoantigen candidate from an alternative mutation
+        class by a BLAST search."""
+
+        for p in predictions:
+            p.wild_type_peptide = blastp_runner.get_most_similar_wt_epitope(p.mutated_peptide)
+        return predictions
+
+    @staticmethod
+    def get_epitope_id(epitope):
+        if epitope.allele_mhc_i is not None:
+            return "{}-{}".format(epitope.allele_mhc_i.name, epitope.mutated_peptide)
+        elif epitope.isoform_mhc_i_i is not None:
+            return "{}-{}".format(epitope.isoform_mhc_i_i.name, epitope.mutated_peptide)
+        else:
+            raise ValueError('Cannot build id on an epitope without HLA allele or isoform')
+
+    @staticmethod
+    def get_annotation_by_name(annotations: List[Annotation], name: str) -> str:
+        result = None
+        found = False
+        for a in annotations:
+            if a.name == name:
+                result = a.value
+                found = True
+                break
+        if not found:
+            raise ValueError("Expected annotation '{}' not found".format(name))
+        return result

@@ -2,6 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/neofox/badges/version.svg)](https://anaconda.org/bioconda/neofox)
 [![Documentation Status](https://readthedocs.org/projects/neofox/badge/?version=latest)](https://neofox.readthedocs.io/en/latest/?badge=latest)
 
 
@@ -51,7 +52,7 @@ NeoFox covers the following neoantigen features and prediction algorithms:
  
 NeoFox depends on the following tools:  
 
-- Python >=3.6, <=3.8
+- Python >=3.7, <=3.8
 - R 3.6.0
 - BLAST 2.10.1
 - netMHCpan 4.1
@@ -60,13 +61,23 @@ NeoFox depends on the following tools:
 - MixMHC2pred 1.2
 - PRIME 1.0
 
+Install from PyPI:
+```
+pip install neofox
+```
+
+Or install from bioconda:
+```
+conda install bioconda::neofox
+```
+
 
 ## 3 Usage from the command line
 
 NeoFox can be used from the command line as shown below or programmatically (see [https://neofox.readthedocs.io](https://neofox.readthedocs.io/) for more information).
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num_cpus] [--affinity-threshold]
+neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num-cpus] [--affinity-threshold]
 ````
 - `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
 - `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
@@ -76,7 +87,7 @@ neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candi
 - `--output-prefix`: prefix for the output files (*optional*)
 - `--with-table`: output file in tab-separated format (*default*)
 - `--with-json`: output file in JSON format (*optional*)
-- `--num_cpus`: number of CPUs to use (*optional*)
+- `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model

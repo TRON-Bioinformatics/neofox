@@ -24,11 +24,11 @@ from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Mhc2Name
 from neofox.helpers.epitope_helper import EpitopeHelper
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMhc2Pred
+from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred
 from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.helpers.runner import Runner
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.tests.tools import get_mutation
+from neofox.tests.tools import get_neoantigen
 
 
 class TestMixMHCPred(TestCase):
@@ -39,7 +39,7 @@ class TestMixMHCPred(TestCase):
         self.mixmhcpred = MixMHCpred(
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
         )
-        self.mixmhc2pred = MixMhc2Pred(
+        self.mixmhc2pred = MixMHC2pred(
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
         )
         self.hla_database = self.references.get_mhc_database()
@@ -49,119 +49,118 @@ class TestMixMHCPred(TestCase):
 
     def test_mixmhcpred_epitope_iedb(self):
         # this is an epitope from IEDB of length 9
-        mutation = get_mutation(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
-        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
-        )
-        self.assertEquals("NLVPMVATV", best_peptide)
-        self.assertAlmostEqual(0.306957, best_score, delta=0.00001)
-        self.assertEquals(0.6, best_rank)
-        self.assertEquals("HLA-A*02:01", best_allele)
+        mutation = get_neoantigen(mutated_xmer="NLVPMVATV", wild_type_xmer="NLVPIVATV")
+        self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.mixmhcpred.results, maximum=True)
+        self.assertEquals("NLVPMVATV", best_result.mutated_peptide)
+        self.assertAlmostEqual(0.306957, best_result.affinity_mutated, delta=0.00001)
+        self.assertEquals(0.6, best_result.rank_mutated)
+        self.assertEquals("HLA-A*02:01", best_result.allele_mhc_i.name)
 
     def test_mixmhcpred_too_small_epitope(self):
-        mutation = get_mutation(mutated_xmer="NLVP", wild_type_xmer="NLNP")
-        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
-        )
-        self.assertIsNone(best_peptide)
-        self.assertIsNone(best_score)
-        self.assertIsNone(best_rank)
-        self.assertIsNone(best_allele)
+        mutation = get_neoantigen(mutated_xmer="NLVP", wild_type_xmer="NLNP")
+        self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.mixmhcpred.results, maximum=True)
+        self.assertIsNone(best_result.mutated_peptide)
+        self.assertIsNone(best_result.rank_mutated)
+        self.assertIsNone(best_result.allele_mhc_i.name)
+        self.assertIsNone(best_result.affinity_mutated)
 
     def test_mixmhcpred_not_supported_allele(self):
         """
         this is a combination of neoepitope and HLA alleles from Balachandran
         """
-        mutation = get_mutation(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
-        best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-            mutation=mutation,
+        mutation = get_neoantigen(mutated_xmer="SIYGGLVLI", wild_type_xmer="PIYGGLVLI")
+        self.mixmhcpred.run(
+            neoantigen=mutation,
             mhc=MhcFactory.build_mhc1_alleles(["A02:01", "B44:02", "C05:17", "C05:01"], self.hla_database),
             uniprot=self.uniprot
         )
-        self.assertEqual('SIYGGLVLI', best_peptide)
-        self.assertEqual(0.15829400000000002, best_score)
-        self.assertEqual(1, best_rank)
-        self.assertEqual('HLA-A*02:01', best_allele)
+        best_result = EpitopeHelper.select_best_by_affinity(
+            predictions=self.mixmhcpred.results, maximum=True)
+        self.assertEqual('SIYGGLVLI', best_result.mutated_peptide)
+        self.assertAlmostEqual(0.158294, best_result.affinity_mutated, places=5)
+        self.assertEqual(1, best_result.rank_mutated)
+        self.assertEqual('HLA-A*02:01', best_result.allele_mhc_i.name)
 
     def test_mixmhcpred_rare_aminoacid(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
-            mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
-            best_peptide, best_rank, best_allele, best_score = self.mixmhcpred.run(
-                mutation=mutation, mhc=self.test_mhc_one,
-                uniprot=self.uniprot
-            )
+            mutation = get_neoantigen(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            self.mixmhcpred.run(neoantigen=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot)
+            best_result = EpitopeHelper.select_best_by_affinity(
+                predictions=self.mixmhcpred.results, maximum=True)
             # rare aminoacids only return empty results when in the mutated sequence
             if EpitopeHelper.contains_rare_amino_acid(mutated_xmer):
-                self.assertIsNone(best_peptide)
-                self.assertIsNone(best_rank)
-                self.assertIsNone(best_allele)
-                self.assertIsNone(best_score)
+                self.assertIsNone(best_result.mutated_peptide)
+                self.assertIsNone(best_result.rank_mutated)
+                self.assertIsNone(best_result.allele_mhc_i.name)
+                self.assertIsNone(best_result.affinity_mutated)
             else:
-                self.assertIsNotNone(best_peptide)
-                self.assertIsNotNone(best_rank)
-                self.assertIsNotNone(best_allele)
-                self.assertIsNotNone(best_score)
-
+                self.assertIsNotNone(best_result.mutated_peptide)
+                self.assertIsNotNone(best_result.rank_mutated)
+                self.assertIsNotNone(best_result.allele_mhc_i)
+                self.assertIsNotNone(best_result.affinity_mutated)
 
     def test_mixmhcpred2_epitope_iedb(self):
         # this is an epitope from IEDB of length 15
-        mutation = get_mutation(
+        neoantigen = get_neoantigen(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET")
-        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=self.test_mhc_two,
+        self.mixmhc2pred.run(
+            neoantigen=neoantigen, mhc=self.test_mhc_two,
             uniprot=self.uniprot
         )
-        self.assertEquals("DEVLGEPSQDILVT", best_peptide)
-        self.assertEquals(3.06, best_rank)
-        self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_allele)
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
+        self.assertEquals("DEVLGEPSQDILVT", best_result.mutated_peptide)
+        self.assertEquals(3.06, best_result.rank_mutated)
+        self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform_mhc_i_i.name)
 
     def test_mixmhcpred2_epitope_iedb_forcing_no_drb1(self):
         # this is an epitope from IEDB of length 15
-        mutation = get_mutation(
+        neoantigen = get_neoantigen(
             mutated_xmer="DEVLGEPSQDILVTDQTRLEATISPET",
             wild_type_xmer="DEVLGEPSQDILVIDQTRLEATISPET")
-        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
+        self.mixmhc2pred.run(
             # forces no DRB1 allele to get as a result one of the composite isoforms
-            mutation=mutation, mhc=[m for m in self.test_mhc_two if m.name != Mhc2Name.DR],
+            neoantigen=neoantigen, mhc=[m for m in self.test_mhc_two if m.name != Mhc2Name.DR],
             uniprot=self.uniprot
         )
-        self.assertEquals("DEVLGEPSQDILVT", best_peptide)
-        self.assertEquals(3.06, best_rank)
-        self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_allele)
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
+        self.assertEquals("DEVLGEPSQDILVT", best_result.mutated_peptide)
+        self.assertEquals(3.06, best_result.rank_mutated)
+        self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform_mhc_i_i.name)
 
     def test_mixmhcpred2_too_small_epitope(self):
-        mutation = get_mutation(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
-        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot
-        )
-        self.assertIsNone(best_peptide)
-        self.assertIsNone(best_rank)
-        self.assertIsNone(best_allele)
+        neoantigen = get_neoantigen(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
+        self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_two, uniprot=self.uniprot)
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
+        self.assertIsNone(best_result.mutated_peptide)
+        self.assertIsNone(best_result.rank_mutated)
+        self.assertIsNone(best_result.isoform_mhc_i_i.name)
 
     def test_mixmhcpred2_no_mutation(self):
         for wild_type_xmer, mutated_xmer in integration_test_tools.mutations_with_rare_aminoacids:
-            mutation = get_mutation(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
-            best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-                mutation=mutation, mhc=self.test_mhc_two, uniprot=self.uniprot
-            )
-            self.assertIsNone(best_peptide)
-            self.assertIsNone(best_rank)
-            self.assertIsNone(best_allele)
+            neoantigen = get_neoantigen(mutated_xmer=mutated_xmer, wild_type_xmer=wild_type_xmer)
+            self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_two, uniprot=self.uniprot)
+            best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
+            self.assertIsNone(best_result.mutated_peptide)
+            self.assertIsNone(best_result.rank_mutated)
+            self.assertIsNone(best_result.isoform_mhc_i_i.name)
 
     def test_mixmhc2pred_rare_aminoacid(self):
         # this is an epitope from IEDB of length 9
-        mutation = get_mutation(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
-        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=self.test_mhc_one, uniprot=self.uniprot
-        )
-        self.assertIsNone(best_peptide)
-        self.assertIsNone(best_rank)
-        self.assertIsNone(best_allele)
+        neoantigen = get_neoantigen(mutated_xmer="XTTDSWGKF", wild_type_xmer="XTTDSDGKF")
+        self.mixmhc2pred.run(neoantigen=neoantigen, mhc=self.test_mhc_one, uniprot=self.uniprot)
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
+        self.assertIsNone(best_result.mutated_peptide)
+        self.assertIsNone(best_result.rank_mutated)
+        self.assertIsNone(best_result.isoform_mhc_i_i.name)
 
     def test_mixmhc2pred_allele(self):
 
-        mutation = get_mutation(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
+        neoantigen = get_neoantigen(mutated_xmer="TNENLDLQELVEKLEKN", wild_type_xmer="TNENLDLQNLVEKLEKN")
         # this is a MHC II genotype which results in no available alleles for MixMHC2pred
         MHC_TWO_NEW = MhcFactory.build_mhc2_alleles(
             [
@@ -178,17 +177,15 @@ class TestMixMHCPred(TestCase):
         )
         alleles = self.mixmhc2pred.transform_hla_ii_alleles_for_prediction(MHC_TWO_NEW)
         logger.info(alleles)
-        best_peptide, best_rank, best_allele = self.mixmhc2pred.run(
-            mutation=mutation, mhc=MHC_TWO_NEW, uniprot=self.uniprot
-        )
-        logger.info(best_peptide)
-        self.assertIsNone(best_peptide)
-        self.assertIsNone(best_rank)
-        self.assertIsNone(best_allele)
+        self.mixmhc2pred.run(neoantigen=neoantigen, mhc=MHC_TWO_NEW, uniprot=self.uniprot)
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
+        self.assertIsNone(best_result.mutated_peptide)
+        self.assertIsNone(best_result.rank_mutated)
+        self.assertIsNone(best_result.isoform_mhc_i_i.name)
 
     def test_generate_nmers(self):
-        mutation = get_mutation(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")
-        result = EpitopeHelper.generate_nmers(mutation=mutation, lengths=[8, 9, 10, 11], uniprot=self.uniprot)
+        neoantigen = get_neoantigen(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")
+        result = EpitopeHelper.generate_nmers(neoantigen=neoantigen, lengths=[8, 9, 10, 11], uniprot=self.uniprot)
         logger.info(result)
         self.assertIsNotNone(result)
         self.assertEqual(3, len(result))

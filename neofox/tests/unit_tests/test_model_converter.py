@@ -25,14 +25,15 @@ import neofox.tests
 from neofox.model.conversion import ModelConverter
 from neofox.model.neoantigen import (
     Neoantigen,
-    Mutation,
     Patient,
     Annotation,
-    NeoantigenAnnotations,
+    Annotations,
     Zygosity,
     Mhc2Name,
 )
 from neofox.model.factories import MhcFactory, NeoantigenFactory
+from neofox.model.validation import ModelValidator
+from neofox.references.references import ORGANISM_HOMO_SAPIENS
 from neofox.tests.fake_classes import FakeHlaDatabase, FakeH2Database
 from neofox.tests.tools import get_random_neoantigen
 
@@ -73,10 +74,14 @@ class ModelConverterTest(TestCase):
         neoantigen = get_random_neoantigen()
         csv_data = ModelConverter._objects2dataframe([neoantigen])
         neoantigen2 = ModelConverter._neoantigens_csv2objects(csv_data)[0]
+        neoantigen.external_annotations = None
+        neoantigen2.external_annotations = None
+        neoantigen.neofox_annotations = None
+        neoantigen2.neofox_annotations = None
         self.assertEqual(neoantigen, neoantigen2)
 
     def test_neoantigen_annotations(self):
-        annotations = NeoantigenAnnotations()
+        annotations = Annotations()
         annotations.annotations = [
             Annotation(name="string_annotation", value="blabla"),
             Annotation(name="integer_annotation", value=1),
@@ -88,102 +93,6 @@ class ModelConverterTest(TestCase):
         # this does not fail, but it will fail validation
         self.assertEqual(annotations_dict.get("annotations")[1].get("value"), 1)
         self.assertEqual(annotations_dict.get("annotations")[2].get("value"), 1.1)
-
-    def test_candidate_neoantigens2model(self):
-        candidate_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_data.txt"
-        )
-        with open(candidate_file) as f:
-            self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
-        self.assertIsNotNone(neoantigens)
-        self.assertEqual(self.count_lines -1, len(neoantigens))
-        for n in neoantigens:
-            self.assertIsInstance(n, Neoantigen)
-            self.assertIsInstance(n.mutation, Mutation)
-            self.assertTrue(n.gene is not None and len(n.gene) > 0)
-            self.assertTrue(
-                n.mutation.mutated_xmer is not None and len(n.mutation.mutated_xmer) > 1
-            )
-            self.assertTrue(
-                n.mutation.wild_type_xmer is not None
-                and len(n.mutation.wild_type_xmer) > 1
-            )
-            self.assertTrue(
-                n.mutation.position is not None and len(n.mutation.position) >= 1
-            )
-            self.assertTrue(
-                n.rna_variant_allele_frequency is None
-                or n.rna_variant_allele_frequency == -1
-                or (0 <= n.rna_variant_allele_frequency <= 1)
-            )
-            self.assertTrue(n.rna_expression is None or n.rna_expression >= 0)
-            self.assertTrue(0 <= n.dna_variant_allele_frequency <= 1)
-
-            # test external annotations
-            self._assert_external_annotations(
-                expected_external_annotations=[
-                    "patient",
-                    "key",
-                    "mutation",
-                    "RefSeq_transcript",
-                    "UCSC_transcript",
-                    "transcript_expression",
-                    "exon",
-                    "exon_expression",
-                    "transcript_position",
-                    "codon",
-                    "substitution",
-                    "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)",
-                    "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)",
-                    "mRNA_for_+13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)",
-                    "MHC_I_peptide_length_(best_prediction)",
-                    "MHC_I_allele_(best_prediction)",
-                    "MHC_I_score_(best_prediction)",
-                    "MHC_I_epitope_(best_prediction)",
-                    "MHC_I_epitope_(WT)",
-                    "MHC_I_score_(WT)",
-                    "MHC_II_peptide_length_(best_prediction)",
-                    "MHC_II_allele_(best_prediction)",
-                    "MHC_II_score_(best_prediction)",
-                    "MHC_II_epitope_(best_prediction)",
-                    "MHC_II_epitope_(WT)",
-                    "MHC_II_score_(WT)",
-                    "mutations_in_transcript",
-                    "distance_to_next_mutation(AA_residues)",
-                    "next_mutation(potential_to_change_27mer)",
-                    "next_mutation_source",
-                    "peptide_count_for_this_mutation_in_this_transcript",
-                    "phase_of_next_mutation",
-                    "other_transcripts_with_this_peptide",
-                    "peptide_resulting_from_this_mutation",
-                    "distinct_peptides_resulting_from_this_mutation",
-                    "keys_of_distinct_peptides_resulting_from_this_mutation",
-                    "coverage_tumor",
-                    "coverage_normal",
-                    "coverage_RNA",
-                    "VAF_in_tumor",
-                    "VAF_in_normal",
-                    "VAF_in_RNA",
-                    "VAF_RNA_raw",
-                    "VAF_RNA_limits"
-                ],
-                non_nullable_annotations=[
-                    "patient",
-                    "key",
-                    "mutation",
-                    "RefSeq_transcript",
-                    "UCSC_transcript",
-                    "transcript_expression",
-                    "exon",
-                    "exon_expression",
-                    "transcript_position",
-                    "codon",
-                    "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)",
-                    "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
-                ],
-                neoantigen_annotations=n.external_annotations,
-            )
 
     def test_candidate_neoantigens2model_with_dot_in_column_name(self):
         candidate_file = pkg_resources.resource_filename(
@@ -232,13 +141,11 @@ class ModelConverterTest(TestCase):
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
-            self.assertNotEmpty(n.mutation)
             self.assertNotEmpty(n.patient_identifier)
             self.assertNotEmpty(n.gene)
-            self.assertTrue(isinstance(n.mutation, Mutation))
-            self.assertNotEmpty(n.mutation.mutated_xmer)
-            self.assertNotEmpty(n.mutation.wild_type_xmer)
-            self.assertIsNotNone(n.mutation.position)
+            self.assertNotEmpty(n.mutated_xmer)
+            self.assertNotEmpty(n.wild_type_xmer)
+            self.assertIsNotNone(n.position)
 
             # test external annotations
             self._assert_external_annotations(
@@ -260,30 +167,15 @@ class ModelConverterTest(TestCase):
         self.assertEqual(5, len(neoantigens))
         for n in neoantigens:
             self.assertTrue(isinstance(n, Neoantigen))
-            self.assertNotEmpty(n.mutation)
             self.assertNotEmpty(n.patient_identifier)
             self.assertNotEmpty(n.rna_expression)
             self.assertNotEmpty(n.rna_variant_allele_frequency)
             self.assertNotEmpty(n.dna_variant_allele_frequency)
-            self.assertTrue(isinstance(n.mutation, Mutation))
-            self.assertNotEmpty(n.mutation.position)
+            self.assertNotEmpty(n.position)
 
     def assertNotEmpty(self, value):
         self.assertIsNotNone(value)
         self.assertNotEqual(value, "")
-
-    def test_overriding_patient_id(self):
-        candidate_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_data.txt"
-        )
-        with open(candidate_file) as f:
-            self.count_lines = len(f.readlines())
-        neoantigens = ModelConverter().parse_candidate_file(candidate_file, patient_id="patientX")
-        for n in neoantigens:
-            self.assertEqual(n.patient_identifier, "patientX")
-        neoantigens = ModelConverter().parse_candidate_file(candidate_file)
-        for n in neoantigens:
-            self.assertEqual(n.patient_identifier, "Ptx")
 
     def test_patients_csv_file2model(self):
         patients_file = pkg_resources.resource_filename(
@@ -301,6 +193,21 @@ class ModelConverterTest(TestCase):
         self.assertEqual(
             9, len([a for m in patients[0].mhc2 for g in m.genes for a in g.alleles])
         )
+        self.assertEqual(patients[0].is_rna_available, False)
+
+    def test_patients_without_mhc2(self):
+        patients_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/alleles.Pt29_without_mhc2.csv"
+        )
+        patients = ModelConverter.parse_patients_file(patients_file, self.hla_database)
+        self.assertIsNotNone(patients)
+        self.assertIsInstance(patients, list)
+        self.assertTrue(len(patients) == 2)
+        self.assertIsInstance(patients[0], Patient)
+        self.assertEqual(patients[0].identifier, "Pt29")
+        self.assertEqual(3, len(patients[0].mhc1))
+        self.assertEqual(6, len([a for m in patients[0].mhc1 for a in m.alleles]))
+        self.assertEqual(0, len(patients[0].mhc2))
         self.assertEqual(patients[0].is_rna_available, False)
 
     def test_patients_csv_file2model_mouse(self):
@@ -395,8 +302,10 @@ class ModelConverterTest(TestCase):
 
         neoantigens = [
             Neoantigen(
-                mutation=Mutation(wild_type_xmer="AAAAAAA", mutated_xmer="AAACAAA", position=[]),
-                neofox_annotations=NeoantigenAnnotations(
+                wild_type_xmer="AAAAAAA",
+                mutated_xmer="AAACAAA",
+                position=[],
+                neofox_annotations=Annotations(
                     annotations=[
                         Annotation(name="this_name", value="this_value"),
                         Annotation(name="that_name", value="that_value"),
@@ -406,8 +315,10 @@ class ModelConverterTest(TestCase):
                 )
             ),
             Neoantigen(
-                mutation=Mutation(wild_type_xmer="AAAGAAA", mutated_xmer="AAAZAAA", position=[1, 2, 3]),
-                neofox_annotations=NeoantigenAnnotations(
+                wild_type_xmer="AAAGAAA",
+                mutated_xmer="AAAZAAA",
+                position=[1, 2, 3],
+                neofox_annotations=Annotations(
                     annotations=[
                         Annotation(name="this_name", value="0"),
                         Annotation(name="that_name", value="1"),
@@ -417,10 +328,10 @@ class ModelConverterTest(TestCase):
                 )
             ),
         ]
-        df = ModelConverter.annotations2table(neoantigens=neoantigens)
+        df = ModelConverter.annotations2neoantigens_table(neoantigens=neoantigens)
         self.assertEqual(df.shape[0], 2)
         self.assertEqual(df.shape[1], 13)
-        self.assertEqual(0, df[df["mutation.position"].transform(lambda x: isinstance(x, list))].shape[0])
+        self.assertEqual(0, df[df["position"].transform(lambda x: isinstance(x, list))].shape[0])
 
     def test_parse_mhc1_heterozygous_alleles(self):
         mhc1s = MhcFactory.build_mhc1_alleles(
@@ -895,6 +806,32 @@ class ModelConverterTest(TestCase):
             self.h2_database
         )
         self.assertEqual(2, len(mhc2s))
+
+    def test_candidate_neoepitopes2model(self):
+        candidate_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_data_neoepitopes.txt"
+        )
+        with open(candidate_file) as f:
+            self.count_lines = len(f.readlines())
+        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database)
+        self.assertIsNotNone(neoepitopes)
+        self.assertEqual(self.count_lines -1, len(neoepitopes))
+        for n in neoepitopes:
+            ModelValidator.validate_neoepitope(n, ORGANISM_HOMO_SAPIENS)
+
+    def test_candidate_neoepitopes2model_with_patients(self):
+        candidate_file = pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_data_neoepitopes_with_patients.txt"
+        )
+
+        with open(candidate_file) as f:
+            self.count_lines = len(f.readlines())
+
+        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database)
+        self.assertIsNotNone(neoepitopes)
+        self.assertEqual(self.count_lines -1, len(neoepitopes))
+        for n in neoepitopes:
+            ModelValidator.validate_neoepitope(n, ORGANISM_HOMO_SAPIENS)
 
     def _assert_isoforms(self, mhc2):
         for isoform in mhc2.isoforms:

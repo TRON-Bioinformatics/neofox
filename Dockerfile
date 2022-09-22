@@ -50,7 +50,7 @@ RUN tar -xvf netMHCIIpan-4.0.Linux.tar.gz
 RUN sed -i 's/\/net\/sund-nas.win.dtu.dk\/storage\/services\/www\/packages\/netMHCIIpan\/4.0\/netMHCIIpan-4.0/\/app\/netMHCIIpan-4.0/g' /app/netMHCIIpan-4.0/netMHCIIpan
 RUN sed -i 's/ \/tmp\//\/app\/netMHCIIpan-4.0\/tmp/g' /app/netMHCIIpan-4.0/netMHCIIpan
 RUN mkdir /app/netMHCIIpan-4.0/tmp
-RUN wget http://www.cbs.dtu.dk/services/NetMHCIIpan-4.0/data.tar.gz -O /app/netMHCIIpan-4.0/data.tar.gz
+RUN wget https://services.healthtech.dtu.dk/services/NetMHCIIpan-4.0/data.tar.gz -O /app/netMHCIIpan-4.0/data.tar.gz
 RUN tar -xvf /app/netMHCIIpan-4.0/data.tar.gz -C /app/netMHCIIpan-4.0
 ENV NEOFOX_NETMHC2PAN /app/netMHCIIpan-4.0/netMHCIIpan
 RUN apt-get install tcsh
@@ -71,7 +71,7 @@ ENV NEOFOX_MIXMHC2PRED /app/MixMHC2pred-1.2/MixMHC2pred_unix
 # install prime
 RUN wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
 RUN tar -xvf master.tar.gz
-RUN sed -i 's/\/app\/PRIME/\/app\/PRIME-master/g' /app/PRIME-master/PRIME
+RUN sed -i 's/PATH_TO_PRIME/\/app\/PRIME-master/g' /app/PRIME-master/PRIME
 ENV NEOFOX_PRIME /app/PRIME-master/PRIME
 
 # configure references

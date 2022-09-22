@@ -24,21 +24,16 @@ from typing import List
 import logzero
 from logzero import logger
 from dask.distributed import Client
+
+import neofox
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
-from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import (
-    TcellPrediction,
-)
-from neofox.published_features.self_similarity.self_similarity import (
-    SelfSimilarityCalculator,
-)
+from neofox.model.factories import NeoantigenFactory
+from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
+from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
-from neofox import NEOFOX_LOG_FILE_ENV, AFFINITY_THRESHOLD_DEFAULT
-from neofox.annotator import NeoantigenAnnotator
-from neofox.exceptions import (
-    NeofoxConfigurationException,
-    NeofoxDataValidationException,
-)
+from neofox import NEOFOX_LOG_FILE_ENV
+from neofox.annotator.neoantigen_annotator import NeoantigenAnnotator
+from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
 from neofox.model.neoantigen import Neoantigen, Patient
 from neofox.model.validation import ModelValidator
 import dotenv
@@ -47,28 +42,29 @@ import dotenv
 class NeoFox:
 
     def __init__(
-        self,
-        neoantigens: List[Neoantigen],
-        patients: List[Patient],
-        num_cpus: int = 1,
-        patient_id: str = None,
-        work_folder=None,
-        output_prefix=None,
-        reference_folder: ReferenceFolder = None,
-        configuration: DependenciesConfiguration = None,
-        verbose=True,
-        configuration_file=None,
-        affinity_threshold=AFFINITY_THRESHOLD_DEFAULT
-    ):
+            self,
+            neoantigens: List[Neoantigen],
+            patients: List[Patient],
+            num_cpus: int = 1,
+            log_file_name=None,
+            reference_folder: ReferenceFolder = None,
+            configuration: DependenciesConfiguration = None,
+            verbose=True,
+            configuration_file=None,
+            rank_mhci_threshold=neofox.RANK_MHCI_THRESHOLD_DEFAULT,
+            rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
+            with_all_neoepitopes=False):
 
-        self.affinity_threshold = affinity_threshold
+        initialise_logs(logfile=log_file_name, verbose=verbose)
+        logger.info("Loading reference data...")
+
+        self.rank_mhci_threshold = rank_mhci_threshold
+        self.rank_mhcii_threshold = rank_mhcii_threshold
 
         if configuration_file:
             dotenv.load_dotenv(configuration_file, override=True)
 
-        # initialise logs
-        self.log_file_name = self._get_log_file_name(output_prefix, work_folder)
-        self._initialise_logs(self.log_file_name, verbose)
+        self.log_file_name = log_file_name
 
         # intialize references folder and configuration
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
@@ -81,7 +77,7 @@ class NeoFox:
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction(affinity_threshold=self.affinity_threshold)
+        self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -96,10 +92,8 @@ class NeoFox:
         # validates neoantigens
         self.neoantigens = neoantigens
         for n in self.neoantigens:
-            if n.patient_identifier is None:
-                n.patient_identifier = patient_id
             # NOTE: the position of the mutations is not expected from the user and if provide the value is ignored
-            n.mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation=n.mutation)
+            n.position = NeoantigenFactory.mut_position_xmer_seq(neoantigen=n)
             ModelValidator.validate_neoantigen(n)
 
         # validates patients
@@ -117,7 +111,8 @@ class NeoFox:
             expression_per_patient[neoantigen.patient_identifier].append(neoantigen.rna_expression)
 
         for patient in self.patients:
-            self.patients[patient].is_rna_available = all(e is not None for e in expression_per_patient[self.patients[patient].identifier])
+            self.patients[patient].is_rna_available = all(e is not None for e in
+                                                          expression_per_patient[self.patients[patient].identifier])
 
         # only performs the expression imputation for humans
         if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:
@@ -127,7 +122,9 @@ class NeoFox:
             # NOTE: add gene expression to neoantigen candidate model
             self.neoantigens = self._conditional_expression_imputation()
 
-        logger.info("Data loaded")
+        self.with_all_neoepitopes = with_all_neoepitopes
+
+        logger.info("Reference data loaded")
 
     def _conditional_expression_imputation(self) -> List[Neoantigen]:
         expression_annotator = ExpressionAnnotator()
@@ -148,16 +145,7 @@ class NeoFox:
         return neoantigens_transformed
 
     @staticmethod
-    def _initialise_logs(logfile, verbose=False):
-        if logfile is not None:
-            logzero.logfile(logfile)
-        # TODO: this does not work
-        if verbose:
-            logzero.loglevel(logging.INFO)
-        else:
-            logzero.loglevel(logging.WARN)
-
-    def _get_log_file_name(self, output_prefix, work_folder):
+    def get_log_file_name(output_prefix, work_folder):
         if work_folder and os.path.exists(work_folder):
             logfile = os.path.join(work_folder, "{}.log".format(output_prefix))
         else:
@@ -204,7 +192,8 @@ class NeoFox:
         # see reference on using threads versus CPUs here https://docs.dask.org/en/latest/setup/single-machine.html
         dask_client = Client(n_workers=self.num_cpus, threads_per_worker=1)
         annotations = self.send_to_client(dask_client)
-        dask_client.close()
+        dask_client.shutdown()          # terminates schedulers and workers
+        dask_client.close(timeout=10)   # waits 10 seconds for the client to close before killing
 
         return annotations
 
@@ -216,12 +205,8 @@ class NeoFox:
         future_tcell_predictor = dask_client.scatter(
             self.tcell_predictor, broadcast=True
         )
-        future_self_similarity = dask_client.scatter(
-            self.self_similarity, broadcast=True
-        )
-        future_reference_folder = dask_client.scatter(
-            self.reference_folder, broadcast=True
-        )
+        future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
+        future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
         for neoantigen in self.neoantigens:
             patient = self.patients.get(neoantigen.patient_identifier)
@@ -237,7 +222,9 @@ class NeoFox:
                     future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
-                    self.affinity_threshold
+                    self.rank_mhci_threshold,
+                    self.rank_mhcii_threshold,
+                    self.with_all_neoepitopes
                 )
             )
         annotated_neoantigens = dask_client.gather(futures)
@@ -258,11 +245,13 @@ class NeoFox:
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
-        affinity_threshold = AFFINITY_THRESHOLD_DEFAULT
+        rank_mhci_threshold = neofox.RANK_MHCI_THRESHOLD_DEFAULT,
+        rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
+        with_all_neoepitopes=False
     ):
         # the logs need to be initialised inside every dask job
-        NeoFox._initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutation.mutated_xmer))
+        initialise_logs(log_file_name)
+        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutated_xmer))
         start = time.time()
         try:
             annotated_neoantigen = NeoantigenAnnotator(
@@ -270,8 +259,9 @@ class NeoFox:
                 configuration,
                 tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
-                affinity_threshold=affinity_threshold
-            ).get_annotation(neoantigen, patient)
+                rank_mhci_threshold=rank_mhci_threshold,
+                rank_mhcii_threshold=rank_mhcii_threshold
+            ).get_annotated_neoantigen(neoantigen, patient, with_all_neoepitopes=with_all_neoepitopes)
         except Exception as e:
             logger.error("Error processing neoantigen {}".format(neoantigen.to_dict()))
             logger.error("Error processing patient {}".format(patient.to_dict()))
@@ -279,6 +269,16 @@ class NeoFox:
         end = time.time()
         logger.info(
             "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
-                neoantigen.mutation.mutated_xmer, int(end - start))
+                neoantigen.mutated_xmer, int(end - start))
         )
         return annotated_neoantigen
+
+
+def initialise_logs(logfile, verbose=False):
+    if logfile is not None:
+        logzero.logfile(logfile)
+    # TODO: this does not work
+    if verbose:
+        logzero.loglevel(logging.INFO)
+    else:
+        logzero.loglevel(logging.WARN)

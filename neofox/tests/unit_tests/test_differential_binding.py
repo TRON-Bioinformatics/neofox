@@ -25,19 +25,19 @@ from neofox.published_features.differential_binding.differential_binding import 
 
 class TestDifferentialBinding(TestCase):
     def setUp(self):
-        self.diffbdg_calculator = DifferentialBinding(affinity_threshold=500)
+        self.diffbdg_calculator = DifferentialBinding()
 
     def test_dai(self):
         result = self.diffbdg_calculator.dai(
-            score_mutation=50, score_wild_type=500, affin_filtering=False
+            score_mutation=50, score_wild_type=500
         )
         self.assertEqual(result, 450)
         result = self.diffbdg_calculator.dai(
-            score_mutation=550, score_wild_type=2000, affin_filtering=True
+            score_mutation=550, score_wild_type=2000
         )
-        self.assertEqual(result, None)
+        self.assertEqual(result, 1450)
         result = self.diffbdg_calculator.dai(
-            score_mutation=50, score_wild_type=10, affin_filtering=True
+            score_mutation=50, score_wild_type=10
         )
         self.assertLess(result, 0.0)
 
@@ -89,16 +89,16 @@ class TestDifferentialBinding(TestCase):
         self.assertEqual(result, None)
 
     def test_affinity_threshold(self):
-        diffbdg_calculator = DifferentialBinding(affinity_threshold=1000)
+        diffbdg_calculator = DifferentialBinding()
         result = diffbdg_calculator.dai(
-            score_mutation=50, score_wild_type=530, affin_filtering=False
+            score_mutation=50, score_wild_type=530
         )
         self.assertIsNotNone(result)
         result = diffbdg_calculator.dai(
-            score_mutation=550, score_wild_type=530, affin_filtering=True
+            score_mutation=550, score_wild_type=530
         )
         self.assertIsNotNone(result)
         result = diffbdg_calculator.dai(
-            score_mutation=1030, score_wild_type=1030, affin_filtering=True
+            score_mutation=1030, score_wild_type=1030
         )
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)

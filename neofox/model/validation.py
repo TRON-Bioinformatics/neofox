@@ -19,14 +19,12 @@
 import betterproto
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 from Bio.Data import IUPACData
-from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.exceptions import NeofoxDataValidationException
 from logzero import logger
 from neofox.model.mhc_parser import HLA_MOLECULE_PATTERN, HLA_DR_MOLECULE_PATTERN, \
     ALLELE_PATTERN_BY_ORGANISM, H2_MOLECULE_PATTERN
 from neofox.model.neoantigen import (
     Neoantigen,
-    Mutation,
     Patient,
     Mhc2Name,
     Mhc2GeneName,
@@ -34,7 +32,7 @@ from neofox.model.neoantigen import (
     Mhc2,
     Mhc2Isoform,
     MhcAllele,
-    Mhc1, Mhc1Name
+    Mhc1, Mhc1Name, PredictedEpitope
 )
 from neofox.references.references import ORGANISM_HOMO_SAPIENS, MHC_I_GENES_BY_ORGANISM, MHC_II_GENES_BY_ORGANISM, \
     ORGANISM_MUS_MUSCULUS
@@ -78,13 +76,100 @@ class ModelValidator(object):
                 "A patient identifier is missing. Please provide patientIdentifier in the input file"
 
             # checks mutation
-            ModelValidator._validate_mutation(neoantigen.mutation)
+            assert neoantigen.mutated_xmer is not None and len(neoantigen.mutated_xmer) > 0, \
+                "Missing mutated peptide sequence in input (mutatedXmer) "
+
+            for aa in neoantigen.mutated_xmer:
+                ModelValidator._validate_aminoacid(aa)
+
+            # avoids this validation when there is no wild type
+            if neoantigen.wild_type_xmer:
+                for aa in neoantigen.wild_type_xmer:
+                    ModelValidator._validate_aminoacid(aa)
+
+            assert neoantigen.position is not None and neoantigen.position != "", \
+                "The position of the mutation is empty, please use EpitopeHelper.mut_position_xmer_seq() to fill it"
 
             # check the expression values
             ModelValidator._validate_expression_values(neoantigen)
         except AssertionError as e:
             logger.error(neoantigen.to_json(indent=3))
             raise NeofoxDataValidationException(e)
+
+    @staticmethod
+    def validate_neoepitope(neoepitope: PredictedEpitope, organism: str):
+
+        # checks format consistency first
+        ModelValidator.validate(neoepitope)
+
+        try:
+            has_patient_id = neoepitope.patient_identifier is not None and len(neoepitope.patient_identifier) > 0
+            has_mhc_i = ModelValidator.is_mhci_epitope(neoepitope)
+            has_mhc_ii = ModelValidator.is_mhcii_epitope(neoepitope)
+
+            assert has_patient_id or has_mhc_i or has_mhc_ii, \
+                "A patient identifier is missing for a neoepitope without MHC-I allele or MHC-II isoform."
+
+            assert not (has_mhc_i and has_mhc_ii), \
+                "Neoepitopes can only be associated to either an MHC-I allele or MHC-II isoform"
+
+            # checks peptides
+            for aa in neoepitope.mutated_peptide:
+                ModelValidator._validate_aminoacid(aa)
+            has_wt_peptide = neoepitope.wild_type_peptide is not None and neoepitope.wild_type_peptide != ""
+            if has_wt_peptide:
+                for aa in neoepitope.wild_type_peptide:
+                    ModelValidator._validate_aminoacid(aa)
+
+            # check lengths according to MHC I or II
+            length_mutated_peptide = len(neoepitope.mutated_peptide)
+            if has_mhc_i:
+                ModelValidator.validate_mhc_allele_representation(neoepitope.allele_mhc_i, organism=organism)
+                assert ModelValidator.is_mhci_peptide_length_valid(length_mutated_peptide), \
+                    "Mutated MHC-I peptide has a non supported length of {}".format(length_mutated_peptide)
+            elif has_mhc_ii:
+                ModelValidator.validate_mhc2_isoform_representation(neoepitope.isoform_mhc_i_i, organism=organism)
+                assert ModelValidator.is_mhcii_peptide_length_valid(length_mutated_peptide), \
+                    "Mutated MHC-II peptide has a non supported length of {}".format(length_mutated_peptide)
+            else:
+                assert ModelValidator.is_mhci_peptide_length_valid(length_mutated_peptide) or \
+                       ModelValidator.is_mhcii_peptide_length_valid(length_mutated_peptide), \
+                    "Mutated peptide has a non supported length of {}".format(length_mutated_peptide)
+
+            if has_wt_peptide:
+                length_wt_peptide = len(neoepitope.wild_type_peptide)
+                if has_mhc_i:
+                    assert ModelValidator.is_mhci_peptide_length_valid(length_wt_peptide), \
+                        "Mutated MHC-I peptide has a non supported length of {}".format(length_wt_peptide)
+                elif has_mhc_ii:
+                    assert ModelValidator.is_mhcii_peptide_length_valid(length_wt_peptide), \
+                        "Mutated MHC-II peptide has a non supported length of {}".format(length_wt_peptide)
+                else:
+                    assert ModelValidator.is_mhci_peptide_length_valid(length_wt_peptide) or \
+                           ModelValidator.is_mhcii_peptide_length_valid(length_wt_peptide), \
+                        "Mutated peptide has a non supported length of {}".format(length_wt_peptide)
+
+            # check the expression values
+            ModelValidator._validate_expression_values(neoepitope)
+        except AssertionError as e:
+            logger.error(neoepitope.to_json(indent=3))
+            raise NeofoxDataValidationException(e)
+
+    @staticmethod
+    def is_mhcii_peptide_length_valid(length_mutated_peptide):
+        return 9 <= length_mutated_peptide <= 20000
+
+    @staticmethod
+    def is_mhci_peptide_length_valid(length_mutated_peptide):
+        return 8 <= length_mutated_peptide <= 14
+
+    @staticmethod
+    def is_mhcii_epitope(neoepitope):
+        return neoepitope.isoform_mhc_i_i is not None and neoepitope.isoform_mhc_i_i.name != ''
+
+    @staticmethod
+    def is_mhci_epitope(neoepitope):
+        return neoepitope.allele_mhc_i is not None and neoepitope.allele_mhc_i.name != ''
 
     @staticmethod
     def validate_patient(patient: Patient, organism=ORGANISM_HOMO_SAPIENS):
@@ -184,32 +269,14 @@ class ModelValidator(object):
         return mhc2
 
     @staticmethod
-    def _validate_expression_values(neoantigen):
+    def _validate_expression_values(object: Neoantigen or PredictedEpitope):
         assert (
-            neoantigen.rna_expression is None or neoantigen.rna_expression >= 0
+                object.rna_expression is None or object.rna_expression >= 0
         ), "RNA expression should be a positive integer or zero {}".format(
-            neoantigen.rna_expression
+            object.rna_expression
         )
-        ModelValidator._validate_vaf(neoantigen.dna_variant_allele_frequency)
-        ModelValidator._validate_vaf(neoantigen.rna_variant_allele_frequency)
-
-    @staticmethod
-    def _validate_mutation(mutation: Mutation):
-        assert mutation.mutated_xmer is not None and len(mutation.mutated_xmer) > 0, \
-            "Missing mutated peptide sequence in input (mutation.mutatedXmer) "
-        mutation.mutated_xmer = "".join(
-            [ModelValidator._validate_aminoacid(aa) for aa in mutation.mutated_xmer]
-        )
-        # avoids this validation when there is no wild type
-        if mutation.wild_type_xmer:
-            mutation.wild_type_xmer = "".join(
-                [
-                    ModelValidator._validate_aminoacid(aa)
-                    for aa in mutation.wild_type_xmer
-                ]
-            )
-        assert mutation.position is not None and mutation.position != "", \
-            "The position of the mutation is empty, please use EpitopeHelper.mut_position_xmer_seq() to fill it"
+        ModelValidator._validate_vaf(object.dna_variant_allele_frequency)
+        ModelValidator._validate_vaf(object.rna_variant_allele_frequency)
 
     @staticmethod
     def _validate_vaf(vaf):
@@ -221,7 +288,6 @@ class ModelValidator(object):
     @staticmethod
     def _validate_aminoacid(aminoacid):
         assert aminoacid is not None, "Amino acid field cannot be empty"
-        aminoacid = aminoacid.strip()
         assert isinstance(aminoacid, str), "Amino acid has to be a string"
         # this chunk is unused but let's leave in case it is handy in the future
         if len(aminoacid) == 3:
@@ -231,13 +297,11 @@ class ModelValidator(object):
             assert aminoacid != "X", "Unknown amino acid X is not supported. Please, remove neoantigens containing an X."
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
-            aminoacid = aminoacid.upper()
             assert (
                 aminoacid in ExtendedIUPACProtein.letters
             ), "Non existing aminoacid {}".format(aminoacid)
         else:
             assert False, "Invalid aminoacid {}".format(aminoacid)
-        return aminoacid
 
 
     @staticmethod

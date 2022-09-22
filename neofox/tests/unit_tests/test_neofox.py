@@ -23,7 +23,7 @@ from unittest import TestCase
 import pkg_resources
 
 from neofox.model.conversion import ModelConverter
-from neofox.model.neoantigen import Neoantigen, Mutation, Patient
+from neofox.model.neoantigen import Neoantigen, Patient
 
 import neofox
 from neofox.exceptions import (
@@ -43,7 +43,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=None,
-                patient_id=None,
                 patients=None,
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -51,7 +50,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=[],
-                patient_id=None,
                 patients=[],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -61,7 +59,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=[self._get_test_neoantigen()],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -72,7 +69,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxConfigurationException):
             NeoFox(
                 neoantigens=[self._get_test_neoantigen()],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -80,11 +76,10 @@ class TestNeofox(TestCase):
 
     def test_validation_captures_bad_wild_type_xmer(self):
         neoantigen = self._get_test_neoantigen()
-        neoantigen.mutation.wild_type_xmer = "123"  # should be a valid aminoacid
+        neoantigen.wild_type_xmer = "123"  # should be a valid aminoacid
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -93,11 +88,10 @@ class TestNeofox(TestCase):
 
     def test_validation_captures_bad_mutated_xmer(self):
         neoantigen = self._get_test_neoantigen()
-        neoantigen.mutation.mutated_xmer = "123"  # should be a valid aminoacid
+        neoantigen.mutated_xmer = "123"  # should be a valid aminoacid
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -110,7 +104,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[self._get_test_neoantigen()],
-                patient_id=None,
                 patients=[patient],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -120,7 +113,6 @@ class TestNeofox(TestCase):
     def test_valid_data_does_not_raise_exceptions(self):
         NeoFox(
             neoantigens=[self._get_test_neoantigen()],
-            patient_id=None,
             patients=[self._get_test_patient()],
             num_cpus=1,
             reference_folder=FakeReferenceFolder(),
@@ -135,7 +127,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -145,7 +136,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -155,7 +145,6 @@ class TestNeofox(TestCase):
         with self.assertRaises(NeofoxDataValidationException):
             NeoFox(
                 neoantigens=[neoantigen],
-                patient_id=None,
                 patients=[self._get_test_patient()],
                 num_cpus=1,
                 reference_folder=FakeReferenceFolder(),
@@ -164,7 +153,7 @@ class TestNeofox(TestCase):
 
     def test_no_expression_imputation(self):
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_candidate_file.txt"
+            neofox.tests.__name__, "resources/test_data_model_realistic.txt"
         )
         patients_file = pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_patient_file.txt"
@@ -179,14 +168,14 @@ class TestNeofox(TestCase):
         )
         for neoantigen in neoantigens:
             for neoantigen_imputed in neofox_runner.neoantigens:
-                if neoantigen.mutation.mutated_xmer == neoantigen_imputed.mutation.mutated_xmer:
+                if neoantigen.mutated_xmer == neoantigen_imputed.mutated_xmer:
                     self.assertEqual(
                         neoantigen.rna_expression, neoantigen_imputed.rna_expression
                     )
 
     def test_with_expression_imputation(self):
         input_file = pkg_resources.resource_filename(
-            neofox.tests.__name__, "resources/test_candidate_file_Pty.txt"
+            neofox.tests.__name__, "resources/test_data_model_realistic_Pty.txt"
         )
         neoantigens= ModelConverter.parse_candidate_file(input_file)
         import copy
@@ -211,9 +200,8 @@ class TestNeofox(TestCase):
     def _get_test_neoantigen(self):
         return Neoantigen(
             gene="GENE",
-            mutation=Mutation(
-                mutated_xmer="AAAAAAAIAAAAAAAA", wild_type_xmer="AAAAAAALAAAAAAAA"
-            ),
+            mutated_xmer="AAAAAAAIAAAAAAAA",
+            wild_type_xmer="AAAAAAALAAAAAAAA",
             patient_identifier="12345",
             rna_expression=0.12345,
         )
