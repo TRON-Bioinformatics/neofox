@@ -2,16 +2,18 @@
 
 ## General information
 
-NeoFox requires two input files: a file with neoantigen candidates and a file with patient data. 
+NeoFox requires two input files: a candidate file with neoantigen or neoepitope candidates and a file with patient data. 
 The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain 
 additional user-specific input that will be kept during the annotation process. The patient file requires a tabular format.
 
 Alternatively, NeoFox may annotate a set of neoepitope candidates for which it will require a file with neoepitope
 candidates and optionally a file with patient data. Both files are required in tabular format.
 
-## File with neoantigen candidates
+## Candidate file 
 
-#### Tabular file format  
+### Tabular file format
+
+#### Neoantigen candidates  
 
 This is an dummy example of a table with neoantigen candidates in tabular format:  
 
@@ -38,7 +40,41 @@ where:
 - If `dnaVariantAlleleFrequency` is given while `rnaVariantAlleleFrequency` is not given, the VAF in RNA will be estimated by the VAF in DNA. 
 This means that feature scores that rely on the VAF in RNA will be calulated with the VAF in DNA.
 
+#### Neoepitope candidates 
+
+This is an dummy example of a table with neoepitope candidates in tabular format:  
+
+| gene  | mutatedPeptide      | wildTypePeptide             | alleleMhcI  | isoformMhcII | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | 
+|-------|---------------------|-----------------------------|-------------|--------------|-------------------|---------------------------|---------------------------|---------------------------|
+| BRCA2 | AAAALAAAAA | AAAAFAAAAA                  | HLA-A*01:01 |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA |          | DRB1*01:01   | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAGAAAAA | AAAAKAAAAA                  |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAAAAAAAAAACAAAAAAAAAAAAA | AAAAAAAAAAAAAEAAAAAAAAAAAAA |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
+| BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
+
+where:
+- `mutatedPeptide`: the neoepitope candidate sequence, i.e. the mutated amino acid sequence. MHC-I neoepitopes should have a length between 8 and 14 amino acids, MHC-II neoepitopes should have a length between 9 and 20000 amino acids. 
+- `wildTypePeptide`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoepitope candidates derived from other sources than SNVs.  
+- `alleleMhcI`: the MHC-I allele to which this neoepitope is linked (**optional**)
+- `isoformMhcII`: the MHC-II isoform to which this neoepitope is linked (**optional**)
+- `patientIdentifier`: the patient identifier (**only required if alleleMhcI and isoformMhcII are not provided**)
+- `gene`: the HGNC gene symbol. (This field is optional)      
+- `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
+- `rnaVariantAlleleFrequency`: the variant allele frequency (VAF) calculated from the RNA (**optional**)
+- `dnaVariantAlleleFrequency`: the VAF calculated from the DNA. (**optional**)
+
+**NOTE:** 
+
+- Neoepitopes with a value for `alleleMhcI` are considered MHC-I neoepitopes, likewise neoepitopes with a value for `isoformMhcII` are considered MHC-II neoepitopes. Both fields cannot be provided for the same neoepitope.
+- If none of `alleleMhcI` and `isoformMhcII` are provided then the `patientIdentifier` is required and one neoepitope sharing the same sequence will be annotated for each MHC-I allele and MHC-II isoform according to the patient HLA type.
+- If rnaExpression is not provided and the tumor type is given in the patient data, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). Please, not that this does not work for mouse data. Here, expression imputation is currently not supported.
+- If `dnaVariantAlleleFrequency` is given while `rnaVariantAlleleFrequency` is not given, the VAF in RNA will be estimated by the VAF in DNA. 
+This means that feature scores that rely on the VAF in RNA will be calulated with the VAF in DNA.
+
+
 ### JSON file format
+
+#### Neoantigen candidates  
 
 Besides tabular format, neoantigen candidates can be provided as a list of neoantigen models in JSON format as shown below. To simplify, only one full neoantigen model is shown. The terminology follows the descriptions for the [tabular file format](#tabular-file-format). For a more detailed description of the models, please refer to [here](05_models.md):  
 
@@ -50,6 +86,10 @@ Besides tabular format, neoantigen candidates can be provided as a list of neoan
     "mutatedXmer": "AAAAAAAAAAAAAFAAAAAAAAAAAAA"
 }]
 ``` 
+
+#### Neoepitope candidates 
+
+Not supported at the moment.
 
 ## File with patient data
 
@@ -126,39 +166,6 @@ A given allele is represented by a last small case single letter (eg: d, k, p) w
 
 These are examples of H-2 alleles: H2Kd, H2Dd, H2Lp 
 
-## File with neoepitope candidates
 
-#### Tabular file format  
 
-This is an dummy example of a table with neoepitope candidates in tabular format:  
 
-| gene  | mutatedPeptide      | wildTypePeptide             | alleleMhcI  | isoformMhcII | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | 
-|-------|---------------------|-----------------------------|-------------|--------------|-------------------|---------------------------|---------------------------|---------------------------|
-| BRCA2 | AAAALAAAAA | AAAAFAAAAA                  | HLA-A*01:01 |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA |          | DRB1*01:01   | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAGAAAAA | AAAAKAAAAA                  |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAAAAAAAAAACAAAAAAAAAAAAA | AAAAAAAAAAAAAEAAAAAAAAAAAAA |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
-| BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
-
-where:
-- `mutatedPeptide`: the neoepitope candidate sequence, i.e. the mutated amino acid sequence. MHC-I neoepitopes should have a length between 8 and 14 amino acids, MHC-II neoepitopes should have a length between 9 and 20000 amino acids. 
-- `wildTypePeptide`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoepitope candidates derived from other sources than SNVs.  
-- `alleleMhcI`: the MHC-I allele to which this neoepitope is linked (**optional**)
-- `isoformMhcII`: the MHC-II isoform to which this neoepitope is linked (**optional**)
-- `patientIdentifier`: the patient identifier (**only required if alleleMhcI and isoformMhcII are not provided**)
-- `gene`: the HGNC gene symbol. (This field is optional)      
-- `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
-- `rnaVariantAlleleFrequency`: the variant allele frequency (VAF) calculated from the RNA (**optional**)
-- `dnaVariantAlleleFrequency`: the VAF calculated from the DNA. (**optional**)
-
-**NOTE:** 
-
-- Neoepitopes with a value for `alleleMhcI` are considered MHC-I neoepitopes, likewise neoepitopes with a value for `isoformMhcII` are considered MHC-II neoepitopes. Both fields cannot be provided for the same neoepitope.
-- If none of `alleleMhcI` and `isoformMhcII` are provided then the `patientIdentifier` is required and one neoepitope sharing the same sequence will be annotated for each MHC-I allele and MHC-II isoform according to the patient HLA type.
-- If rnaExpression is not provided and the tumor type is given in the patient data, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). Please, not that this does not work for mouse data. Here, expression imputation is currently not supported.
-- If `dnaVariantAlleleFrequency` is given while `rnaVariantAlleleFrequency` is not given, the VAF in RNA will be estimated by the VAF in DNA. 
-This means that feature scores that rely on the VAF in RNA will be calulated with the VAF in DNA.
-
-### JSON file format
-
-Not supported at the moment

@@ -84,6 +84,7 @@ class NeoagCalculator(object):
             tmp_file_name,
         )
         neoag_score = self._apply_gbm(tmp_file_name)
+        os.remove(tmp_file_name)
         return neoag_score
 
     def get_annotation(self, epitope_mhci: PredictedEpitope, neoantigen: Neoantigen) -> Annotation:

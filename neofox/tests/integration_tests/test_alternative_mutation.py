@@ -31,7 +31,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
     BestAndMultipleBinderMhcII,
 )
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.tests.tools import get_mutation
+from neofox.tests.tools import get_neoantigen
 
 
 class TestBestMultipleBinder(TestCase):
@@ -60,7 +60,7 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = get_mutation(
+        mutation = get_neoantigen(
             # mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
             mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTA",
             wild_type_xmer=None,
@@ -95,7 +95,7 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = get_mutation(
+        mutation = get_neoantigen(
             mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
             wild_type_xmer=None,
         )

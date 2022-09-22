@@ -46,15 +46,15 @@ class NeoepitopeMhcBindingAnnotatorTest(TestCase):
         self.assertIsInstance(annotated_neoepitope.affinity_wild_type, float)
 
         # MixMHCpred annotations
-        self._assert_float_annotation(annotated_neoepitope, annotation_name="MixMHCpred_affinity_score")
+        self._assert_float_annotation(annotated_neoepitope, annotation_name="MixMHCpred_score")
         self._assert_float_annotation(annotated_neoepitope, annotation_name="MixMHCpred_rank")
-        self._assert_float_annotation(annotated_neoepitope, annotation_name="MixMHCpred_WT_affinity_score")
+        self._assert_float_annotation(annotated_neoepitope, annotation_name="MixMHCpred_WT_score")
         self._assert_float_annotation(annotated_neoepitope, annotation_name="MixMHCpred_WT_rank")
 
         # PRIME annotations
-        self._assert_float_annotation(annotated_neoepitope, annotation_name="PRIME_affinity_score")
+        self._assert_float_annotation(annotated_neoepitope, annotation_name="PRIME_score")
         self._assert_float_annotation(annotated_neoepitope, annotation_name="PRIME_rank")
-        self._assert_float_annotation(annotated_neoepitope, annotation_name="PRIME_WT_affinity_score")
+        self._assert_float_annotation(annotated_neoepitope, annotation_name="PRIME_WT_score")
         self._assert_float_annotation(annotated_neoepitope, annotation_name="PRIME_WT_rank")
 
     def _assert_float_annotation(self, annotated_neoepitope, annotation_name):

@@ -78,7 +78,7 @@ class AnnotationFactory(object):
             if paired_epitope.affinity_mutated is not None:
                 epitope.neofox_annotations.annotations.append(
                     AnnotationFactory.build_annotation(
-                        name=annotation_name + '_affinity_score', value=paired_epitope.affinity_mutated))
+                        name=annotation_name + '_score', value=paired_epitope.affinity_mutated))
             if paired_epitope.rank_mutated is not None:
                 epitope.neofox_annotations.annotations.append(
                     AnnotationFactory.build_annotation(
