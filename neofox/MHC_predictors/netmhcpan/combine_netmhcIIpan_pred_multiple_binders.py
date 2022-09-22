@@ -189,46 +189,46 @@ class BestAndMultipleBinderMhcII:
             annotations.extend([
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_rank.rank_mutated,
-                    name="Best_rank_MHCII_score",
+                    name="NetMHCIIpan_bestRank_rank",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_rank.mutated_peptide,
-                    name="Best_rank_MHCII_score_epitope",
+                    name="NetMHCIIpan_bestRank_peptide",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_rank.isoform_mhc_i_i.name,
-                    name="Best_rank_MHCII_score_allele",
+                    name="NetMHCIIpan_bestRank_allele",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_rank.rank_wild_type,
-                    name="Best_rank_MHCII_score_WT",
+                    name="NetMHCIIpan_bestRank_rankWT",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_rank.wild_type_peptide,
-                    name="Best_rank_MHCII_score_epitope_WT",
+                    name="NetMHCIIpan_bestRank_peptideWT",
                 ),
             ])
         if self.best_predicted_epitope_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.affinity_mutated,
-                    name="Best_affinity_MHCII_score",
+                    name="NetMHCIIpan_bestAffinity_affinity",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.mutated_peptide,
-                    name="Best_affinity_MHCII_epitope",
+                    name="NetMHCIIpan_bestAffinity_peptide",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.isoform_mhc_i_i.name,
-                    name="Best_affinity_MHCII_allele",
+                    name="NetMHCIIpan_bestAffinity_allele",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.affinity_wild_type,
-                    name="Best_affinity_MHCII_score_WT",
+                    name="NetMHCIIpan_bestAffinity_affinityWT",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.wild_type_peptide,
-                    name="Best_affinity_MHCII_epitope_WT",
+                    name="NetMHCIIpan_bestAffinity_peptideWT",
                 )
             ])
 
@@ -237,9 +237,9 @@ class BestAndMultipleBinderMhcII:
 
         annotations.extend([
             # generator rate
-            AnnotationFactory.build_annotation(value=self.generator_rate, name="Generator_rate_MHCII"),
-            AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="Generator_rate_CDN_MHCII"),
-            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="Generator_rate_ADN_MHCII"),
+            AnnotationFactory.build_annotation(value=self.generator_rate, name="GeneratorRate_MHCII"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_cdn, name="GeneratorRate_CDN_MHCII"),
+            AnnotationFactory.build_annotation(value=self.generator_rate_adn, name="GeneratorRate_ADN_MHCII"),
         ])
         return annotations
 
