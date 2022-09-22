@@ -3,21 +3,6 @@ syntax = "proto3";
 package neoantigen;
 
 
-message Mutation {
-	/**
-	The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
-	*/
-	repeated int32 position = 1;
-	/**
-	Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes)
-	*/
-	string wildTypeXmer = 2;
-	/**
-	Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
-	*/
-	string mutatedXmer = 3;
-}
-
 /**
 This is a generic class to hold annotations from Neofox
 */
@@ -59,9 +44,9 @@ message Resource {
 }
 
 /**
-A set of annotations for a neoantigen
+A set of annotations for a neoantigen candidate
 */
-message NeoantigenAnnotations {
+message Annotations {
 	/**
 	List of annotations
 	*/
@@ -82,48 +67,6 @@ message NeoantigenAnnotations {
 	List of resources
 	*/
 	repeated Resource resources = 5;
-}
-
-/**
-A neoantigen minimal definition
-*/
-message Neoantigen {
-	/**
-	Patient identifier
-	*/
-	string patientIdentifier = 1;
-	/**
-	The HGNC gene symbol or gene identifier
-	*/
-	string gene = 2;
-	/**
-	The mutation
-	*/
-	Mutation mutation = 3;
-	/**
-	Expression value of the transcript from RNA data. Range [0, +inf].
-	*/
-	float rnaExpression = 4;
-	/**
-	Expression value of the transcript from TCGA data. Range [0, +inf].
-	*/
-	float imputedGeneExpression = 5;
-	/**
-	Variant allele frequency from the DNA. Range [0.0, 1.0]
-	*/
-	float dnaVariantAlleleFrequency = 6;
-	/**
-	Variant allele frequency from the RNA. Range [0.0, 1.0]
-	*/
-	float rnaVariantAlleleFrequency = 7;
-	/**
-	The NeoFox neoantigen annotations
-	 */
-	NeoantigenAnnotations neofoxAnnotations = 8;
-	/**
-	List of external annotations
-	*/
-	repeated Annotation externalAnnotations = 9;
 }
 
 /**
@@ -325,4 +268,133 @@ message MhcAllele {
 	A specific protein (e.g.: 02 from HLA-DRB1*13:02)
 	 */
 	string protein = 5;
+}
+
+message PredictedEpitope {
+	/**
+	Not sure that we need this... this is in the old PredictedEpitope model
+	 */
+	int32 position = 1;
+	/**
+	The mutated peptide
+	*/
+	string mutatedPeptide = 2;
+	/**
+	Closest wild type peptide
+	*/
+	string wildTypePeptide = 3;
+	/**
+	MHC I allele
+	 */
+	MhcAllele alleleMhcI = 4;
+	/**
+	MHC II isoform
+	 */
+	Mhc2Isoform isoformMhcII = 5;
+	/**
+	MHC binding affinity for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
+	 */
+	float affinityMutated = 6;
+	/**
+	MHC binding rank for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
+	 */
+	float rankMutated = 7;
+	/**
+	MHC binding affinity for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
+	 */
+	float affinityWildType = 8;
+	/**
+	MHC binding rank for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
+	and NetMHCIIpan in cas of MHC-II peptides
+	 */
+	float rankWildType = 9;
+	/**
+	The NeoFox neoantigen annotations
+	 */
+	Annotations neofoxAnnotations = 10;
+	/**
+	Patient identifier
+	*/
+	string patientIdentifier = 11;
+	/**
+	The HGNC gene symbol or gene identifier
+	*/
+	string gene = 12;
+	/**
+	Expression value of the transcript from RNA data. Range [0, +inf].
+	*/
+	float rnaExpression = 13;
+	/**
+	Expression value of the transcript from TCGA data. Range [0, +inf].
+	*/
+	float imputedGeneExpression = 14;
+	/**
+	Variant allele frequency from the DNA. Range [0.0, 1.0]
+	*/
+	float dnaVariantAlleleFrequency = 15;
+	/**
+	Variant allele frequency from the RNA. Range [0.0, 1.0]
+	*/
+	float rnaVariantAlleleFrequency = 16;
+}
+
+/**
+A neoantigen minimal definition
+*/
+message Neoantigen {
+	/**
+	Patient identifier
+	*/
+	string patientIdentifier = 1;
+	/**
+	The HGNC gene symbol or gene identifier
+	*/
+	string gene = 2;
+	/**
+	The amino acid position within the neoantigen candidate sequence. 1-based, starting in the N-terminus
+	*/
+	repeated int32 position = 3;
+	/**
+	Amino acid sequence of the WT corresponding to the neoantigen candidate sequence (IUPAC 1 letter codes)
+	*/
+	string wildTypeXmer = 4;
+	/**
+	Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
+	*/
+	string mutatedXmer = 5;
+	/**
+	Expression value of the transcript from RNA data. Range [0, +inf].
+	*/
+	float rnaExpression = 6;
+	/**
+	Expression value of the transcript from TCGA data. Range [0, +inf].
+	*/
+	float imputedGeneExpression = 7;
+	/**
+	Variant allele frequency from the DNA. Range [0.0, 1.0]
+	*/
+	float dnaVariantAlleleFrequency = 8;
+	/**
+	Variant allele frequency from the RNA. Range [0.0, 1.0]
+	*/
+	float rnaVariantAlleleFrequency = 9;
+	/**
+	The NeoFox neoantigen annotations
+	 */
+	Annotations neofoxAnnotations = 10;
+	/**
+	List of external annotations
+	*/
+	repeated Annotation externalAnnotations = 11;
+	/**
+	List of predicted neoepitopes for MHC-I with feature annotation (optional)
+	 */
+	repeated PredictedEpitope neoepitopesMhcI = 12;
+	/**
+	List of predicted neoepitopes for MHC-II with feature annotation (optional)
+	 */
+	repeated PredictedEpitope neoepitopesMhcII = 13;
 }

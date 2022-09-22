@@ -18,16 +18,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-
-from neofox.model.neoantigen import Annotation
+from logzero import logger
+from neofox.model.neoantigen import Annotation, Neoantigen, Patient
 from neofox.model.factories import AnnotationFactory
 
 
 class Expression:
-    def __init__(self, transcript_expression, vaf_rna):
-        self.expression = self._get_expression_annotation(
-            transcript_expression, vaf_rna
-        )
 
     @staticmethod
     def _get_expression_annotation(
@@ -48,9 +44,13 @@ class Expression:
             pass
         return expression_mut
 
-    def get_annotations(self) -> List[Annotation]:
+    def get_annotations(self, neoantigen: Neoantigen) -> List[Annotation]:
+
+        vaf = neoantigen.dna_variant_allele_frequency
+        if vaf is None or vaf == -1:
+            vaf = neoantigen.rna_variant_allele_frequency
+
         return [
             AnnotationFactory.build_annotation(
-                name="Expression_mutated_transcript", value=self.expression
-            ),
-        ]
+                name="Expression_mutated_transcript", value=self._get_expression_annotation(
+                    transcript_expression=neoantigen.rna_expression, vaf_rna=vaf))]

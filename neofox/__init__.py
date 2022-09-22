@@ -16,7 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
-VERSION = "0.6.4"
+
+
+VERSION = "1.0.0"
 
 
 REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"
@@ -36,4 +38,5 @@ MHC_I = "mhcI"
 
 NOT_AVAILABLE_VALUE = "NA"
 
-AFFINITY_THRESHOLD_DEFAULT = 500000
+RANK_MHCI_THRESHOLD_DEFAULT = 2.0
+RANK_MHCII_THRESHOLD_DEFAULT = 5.0

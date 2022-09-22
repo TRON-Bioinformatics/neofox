@@ -19,9 +19,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 import os
-
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
-from neofox.model.neoantigen import Annotation
+from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
 from neofox.references.references import ReferenceFolder
 
@@ -57,18 +55,25 @@ class Hex(object):
         hex_aln_score_mhci = None
         hex_aln_score_mhcii = None
         # hex_b_score = None
-        if mutated_peptide_mhci and mutated_peptide_mhci.peptide:
+        if mutated_peptide_mhci and mutated_peptide_mhci.mutated_peptide:
             # hex_aln_score, hex_b_score = self.apply_hex(netmhcpan.best_epitope_by_affinity.peptide).split(" ")
-            hex_aln_score_mhci = self.apply_hex(mutated_peptide_mhci.peptide)
-        if mutated_peptide_mhcii and mutated_peptide_mhcii.peptide:
-            hex_aln_score_mhcii = self.apply_hex(mutated_peptide_mhcii.peptide)
+            hex_aln_score_mhci = self.apply_hex(mutated_peptide_mhci.mutated_peptide)
+        if mutated_peptide_mhcii and mutated_peptide_mhcii.mutated_peptide:
+            hex_aln_score_mhcii = self.apply_hex(mutated_peptide_mhcii.mutated_peptide)
         annotations = [
             AnnotationFactory.build_annotation(
-                value=hex_aln_score_mhci, name="Hex_alignment_score_MHCI"),
+                value=hex_aln_score_mhci, name="HexAlignmentScore_MHCI"),
             AnnotationFactory.build_annotation(
-                value=hex_aln_score_mhcii, name="Hex_alignment_score_MHCII")
+                value=hex_aln_score_mhcii, name="HexAlignmentScore_MHCII")
             # AnnotationFactory.build_annotation(
              #   value=hex_b_score, name="hex_B_score"
             #)
         ]
         return annotations
+
+    def get_annotations_epitope(self, epitope: PredictedEpitope) -> List[Annotation]:
+        return [
+            AnnotationFactory.build_annotation(
+                value=self.apply_hex(mut_peptide=epitope.mutated_peptide),
+                name='hex_alignment_score')
+        ]

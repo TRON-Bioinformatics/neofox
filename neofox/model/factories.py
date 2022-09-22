@@ -23,7 +23,7 @@ from neofox.exceptions import NeofoxDataValidationException
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser, get_mhc2_isoform_name
 from neofox.model.neoantigen import Annotation, Patient, Mhc1, Zygosity, Mhc2, Mhc2Gene, Mhc2Name, Mhc2Isoform, \
-    MhcAllele, Mhc2GeneName, Mhc1Name, Mutation, Neoantigen
+    MhcAllele, Mhc2GeneName, Neoantigen, PredictedEpitope, Annotations
 from neofox.model.validation import ModelValidator, GENES_BY_MOLECULE
 from neofox.references.references import MhcDatabase
 
@@ -43,6 +43,48 @@ class AnnotationFactory(object):
             value = NOT_AVAILABLE_VALUE
         return Annotation(name=name, value=value)
 
+    @staticmethod
+    def annotate_epitopes_with_other_scores(
+            epitopes: List[PredictedEpitope],
+            annotated_epitopes: List[PredictedEpitope],
+            annotation_name: str) -> List[PredictedEpitope]:
+
+        merged_epitopes = []
+        if annotated_epitopes is not None:
+            annotated_epitopes_dict = {EpitopeHelper.get_epitope_id(e): e for e in annotated_epitopes}
+            for e in epitopes:
+
+                # intialise annotations for the epitope if not done already
+                if e.neofox_annotations is None:
+                    e.neofox_annotations = Annotations(annotations=[])
+
+                # adds new annotations if any
+                paired_epitope = annotated_epitopes_dict.get(EpitopeHelper.get_epitope_id(e))
+                AnnotationFactory.annotate_epitope(
+                    annotation_name=annotation_name, epitope=e, paired_epitope=paired_epitope)
+
+                # updates epitope
+                merged_epitopes.append(e)
+        else:
+            # if there are no results to annotate with it returns the input list as is
+            merged_epitopes = epitopes
+
+        return merged_epitopes
+
+    @staticmethod
+    def annotate_epitope(annotation_name: str, epitope: PredictedEpitope, paired_epitope: PredictedEpitope) -> \
+            PredictedEpitope:
+        if paired_epitope is not None:
+            if paired_epitope.affinity_mutated is not None:
+                epitope.neofox_annotations.annotations.append(
+                    AnnotationFactory.build_annotation(
+                        name=annotation_name + '_score', value=paired_epitope.affinity_mutated))
+            if paired_epitope.rank_mutated is not None:
+                epitope.neofox_annotations.annotations.append(
+                    AnnotationFactory.build_annotation(
+                        name=annotation_name + '_rank', value=paired_epitope.rank_mutated))
+        return epitope
+
 
 class NeoantigenFactory(object):
     @staticmethod
@@ -57,12 +99,9 @@ class NeoantigenFactory(object):
         neoantigen.rna_variant_allele_frequency = rna_variant_allele_frequency
         neoantigen.dna_variant_allele_frequency = dna_variant_allele_frequency
         neoantigen.imputed_gene_expression = imputed_gene_expression
-
-        mutation = Mutation()
-        mutation.wild_type_xmer = wild_type_xmer
-        mutation.mutated_xmer = mutated_xmer
-        mutation.position = EpitopeHelper.mut_position_xmer_seq(mutation)
-        neoantigen.mutation = mutation
+        neoantigen.wild_type_xmer = wild_type_xmer.strip().upper() if wild_type_xmer else wild_type_xmer
+        neoantigen.mutated_xmer = mutated_xmer.strip().upper() if mutated_xmer else mutated_xmer
+        neoantigen.position = NeoantigenFactory.mut_position_xmer_seq(neoantigen)
 
         external_annotation_names = dict.fromkeys(
             nam for nam in kw.keys() if stringcase.snakecase(nam) not in set(Neoantigen.__annotations__.keys()))
@@ -73,11 +112,69 @@ class NeoantigenFactory(object):
 
         return neoantigen
 
+    @staticmethod
+    def mut_position_xmer_seq(neoantigen: Neoantigen) -> List[int]:
+        """
+        returns position (1-based) of mutation in xmer sequence. There can be more than one SNV within Xmer sequence.
+        """
+        # TODO: this is not efficient. A solution using zip is 25% faster. There may be other alternatives
+        pos_mut = []
+        if neoantigen.wild_type_xmer is not None and neoantigen.mutated_xmer is not None:
+            if len(neoantigen.wild_type_xmer) == len(neoantigen.mutated_xmer):
+                p1 = -1
+                for i, aa in enumerate(neoantigen.mutated_xmer):
+                    if aa != neoantigen.wild_type_xmer[i]:
+                        p1 = i + 1
+                        pos_mut.append(p1)
+            else:
+                p1 = 0
+                # in case sequences do not have same length
+                for a1, a2 in zip(neoantigen.wild_type_xmer, neoantigen.mutated_xmer):
+                    if a1 == a2:
+                        p1 += 1
+                    elif a1 != a2:
+                        p1 += 1
+                        pos_mut.append(p1)
+        return pos_mut
+
+
+class NeoepitopeFactory(object):
+
+    @staticmethod
+    def build_neoepitope(mutated_peptide=None, wild_type_peptide=None, patient_identifier=None, gene=None,
+                         rna_expression=None, rna_variant_allele_frequency=None, dna_variant_allele_frequency=None,
+                         imputed_gene_expression=None, allele_mhc_i=None, isoform_mhc_i_i=None, organism=None,
+                         mhc_database: MhcDatabase = None, **kw):
+
+        neoepitope = PredictedEpitope()
+        neoepitope.patient_identifier = patient_identifier
+        neoepitope.gene = gene
+        neoepitope.rna_expression = rna_expression
+        neoepitope.rna_variant_allele_frequency = rna_variant_allele_frequency
+        neoepitope.dna_variant_allele_frequency = dna_variant_allele_frequency
+        neoepitope.imputed_gene_expression = imputed_gene_expression
+        neoepitope.mutated_peptide = mutated_peptide.strip().upper() if mutated_peptide else mutated_peptide
+        neoepitope.wild_type_peptide = wild_type_peptide.strip().upper() if wild_type_peptide else wild_type_peptide
+
+        # parse MHC alleles and isoforms
+        mhc_parser = MhcParser.get_mhc_parser(mhc_database)
+        neoepitope.allele_mhc_i = mhc_parser.parse_mhc_allele(allele_mhc_i) if allele_mhc_i else None
+        neoepitope.isoform_mhc_i_i = mhc_parser.parse_mhc2_isoform(isoform_mhc_i_i) if isoform_mhc_i_i else None
+
+        external_annotation_names = dict.fromkeys(
+            nam for nam in kw.keys() if stringcase.snakecase(nam) not in set(Neoantigen.__annotations__.keys()))
+        neoepitope.external_annotations = [
+            Annotation(name=name, value=str(kw.get(name))) for name in external_annotation_names]
+
+        ModelValidator.validate_neoepitope(neoepitope, organism=organism)
+
+        return neoepitope
+
 
 class PatientFactory(object):
     @staticmethod
-    def build_patient(identifier, is_rna_available=False, tumor_type=None, mhc_alleles: List = [],
-                      mhc2_alleles: List = [], mhc_database: MhcDatabase =None):
+    def build_patient(identifier, is_rna_available=False, tumor_type=None, mhc_alleles: List[str] = [],
+                      mhc2_alleles: List[str] = [], mhc_database: MhcDatabase =None):
         patient = Patient(
             identifier=identifier,
             is_rna_available=is_rna_available,

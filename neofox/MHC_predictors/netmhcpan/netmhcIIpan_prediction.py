@@ -20,17 +20,26 @@
 
 import tempfile
 from typing import List
-
-from neofox.exceptions import NeofoxConfigurationException
+import os
 from neofox.helpers import intermediate_files
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    AbstractNetMhcPanPredictor,
-    PredictedEpitope,
-)
-from neofox.model.neoantigen import Mhc2, MhcAllele, Mhc2Name, Mhc2Isoform, Mhc2GeneName
+from neofox.helpers.blastp_runner import BlastpRunner
+from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.helpers.runner import Runner
+from neofox.model.mhc_parser import MhcParser
+from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope, Neoantigen
+from neofox.references.references import DependenciesConfiguration
 
 
-class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
+class NetMhcIIPanPredictor:
+
+    def __init__(
+            self, runner: Runner, configuration: DependenciesConfiguration,
+            blastp_runner: BlastpRunner, mhc_parser: MhcParser):
+
+        self.runner = runner
+        self.configuration = configuration
+        self.mhc_parser = mhc_parser
+        self.blastp_runner = blastp_runner
 
     @staticmethod
     def generate_mhc2_alelle_combinations(mhc_alleles: List[Mhc2]) -> List[Mhc2Isoform]:
@@ -60,15 +69,12 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
     def represent_mhc2_isoforms(self, isoforms: List[Mhc2Isoform]) -> List[str]:
         return [self.mhc_parser.get_netmhc2pan_representation(i) for i in isoforms]
 
-    def mhc2_prediction(
-        self, mhc_alleles: List[str], sequence
-    ) -> List[PredictedEpitope]:
+    def mhc2_prediction(self, mhc_alleles: List[str], sequence) -> List[PredictedEpitope]:
         """ Performs netmhcIIpan prediction for desired hla alleles and writes result to temporary file."""
         # TODO: integrate generate_mhc_ii_alelle_combinations() here to easu utilisation
         tmp_fasta = intermediate_files.create_temp_fasta(
             [sequence], prefix="tmp_singleseq_"
         )
-        tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
         lines, _ = self.runner.run_command(
             [
                 self.configuration.net_mhc2_pan,
@@ -76,21 +82,17 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 "-a",
                 ",".join(mhc_alleles),
                 "-f",
-                tmp_fasta,
-                "-tdir",
-                tmp_folder,
-                "-dirty",
+                tmp_fasta
             ]
         )
+        os.remove(tmp_fasta)
         return self._parse_netmhcpan_output(lines)
     
     def mhc2_prediction_peptide(
-        self, mhc2_isoform: Mhc2Isoform, sequence ) -> List[PredictedEpitope]:
+        self, mhc2_isoform: Mhc2Isoform, sequence ) -> PredictedEpitope:
         """ Performs netmhcIIpan prediction for desired hla allele and writes result to temporary file."""
-        tmp_peptide = intermediate_files.create_temp_peptide(
-            [sequence], prefix="tmp_singleseq_"
-        )
-        tmp_folder = tempfile.mkdtemp(prefix="tmp_netmhcIIpan_")
+        result = None
+        tmp_peptide = intermediate_files.create_temp_peptide([sequence], prefix="tmp_singleseq_")
         lines, _ = self.runner.run_command(
             cmd=[
                 self.configuration.net_mhc2_pan,
@@ -101,13 +103,14 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 "1",
                 "-f",
                 tmp_peptide,
-                "-tdir",
-                tmp_folder,
-                "-dirty",
             ],
             print_log=False
         )
-        return self._parse_netmhcpan_output(lines)
+        predicted_epitopes = self._parse_netmhcpan_output(lines)
+        if predicted_epitopes:
+            result = predicted_epitopes[0]
+        os.remove(tmp_peptide)
+        return result
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
@@ -120,11 +123,40 @@ class NetMhcIIPanPredictor(AbstractNetMhcPanPredictor):
                 line = line[0:-1] if len(line) > 12 else line
                 results.append(
                     PredictedEpitope(
-                        pos=int(line[0]),
-                        hla=self.mhc_parser.parse_mhc2_isoform(line[1]),
-                        peptide=line[2],
-                        affinity_score=float(line[11]),
-                        rank=float(line[8]),
+                        position=int(line[0]),
+                        isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(line[1]),
+                        mutated_peptide=line[2],
+                        affinity_mutated=float(line[11]),
+                        rank_mutated=float(line[8]),
                     )
                 )
         return results
+
+    def set_wt_netmhcpan_scores(self, predictions) -> List[PredictedEpitope]:
+        for p in predictions:
+            if p.wild_type_peptide is not None:
+                wt_prediction = self.mhc2_prediction_peptide(
+                    mhc2_isoform=p.isoform_mhc_i_i,
+                    sequence=p.wild_type_peptide)
+                if wt_prediction is not None:
+                    # NOTE: netmhcpan in peptide mode should return only one epitope
+                    p.rank_wild_type = wt_prediction.rank_mutated
+                    p.affinity_wild_type = wt_prediction.affinity_mutated
+        return predictions
+
+    def get_wt_predictions(self, neoantigen: Neoantigen, patient_mhc2_isoforms):
+        predictions = self.mhc2_prediction(patient_mhc2_isoforms, neoantigen.wild_type_xmer)
+        predictions = EpitopeHelper.filter_peptides_covering_snv(neoantigen.position, predictions)
+        return predictions
+
+    def get_predictions(self, neoantigen: Neoantigen, patient_mhc2_isoforms, uniprot):
+
+        predictions = self.mhc2_prediction(patient_mhc2_isoforms, neoantigen.mutated_xmer)
+        if neoantigen.wild_type_xmer:
+            # make sure that predicted epitopes cover mutation in case of SNVs
+            predictions = EpitopeHelper.filter_peptides_covering_snv(
+                position_of_mutation=neoantigen.position, predictions=predictions
+            )
+        # make sure that predicted neoepitopes are not part of the WT proteome
+        filtered_predictions = EpitopeHelper.remove_peptides_in_proteome(predictions, uniprot)
+        return filtered_predictions

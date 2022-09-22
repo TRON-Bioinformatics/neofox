@@ -22,10 +22,7 @@ import neofox.tests
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
 )
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import (
-    PredictedEpitope,
-)
-from neofox.model.neoantigen import Resource
+from neofox.model.neoantigen import Resource, PredictedEpitope
 from neofox.references.references import (
     ReferenceFolder,
     AvailableAlleles,
@@ -57,7 +54,7 @@ class FakeReferenceFolder(ReferenceFolder):
 
 
 class FakeDependenciesConfiguration(DependenciesConfiguration):
-    def _check_and_load_binary(self, variable_name, optional=False):
+    def _check_and_load_binary(self, variable_name, default_value=None, optional=False, path_search=False):
         return os.environ.get(variable_name, "some_non_empty_fake_value")
 
 

@@ -28,6 +28,15 @@ import pandas as pd
 
 from neofox.model.neoantigen import Mhc1Name, Mhc2GeneName, MhcAllele, Mhc2Name, Resource
 
+DEFAULT_MAKEBLASTDB = 'makeblastdb'
+DEFAULT_PRIME = 'PRIME'
+DEFAULT_NETMHCPAN = 'netMHCpan'
+DEFAULT_NETMHC2PAN = 'netMHCIIpan'
+DEFAULT_RSCRIPT = 'Rscript'
+DEFAULT_MIXMHCPRED = "MixMHCpred"
+DEFAULT_MIXMHC2PRED = "MixMHC2pred_unix"
+DEFAULT_BLASTP = "blastp"
+
 ORGANISM_HOMO_SAPIENS = 'human'
 HOMO_SAPIENS_MHC_I_GENES = [Mhc1Name.A, Mhc1Name.B, Mhc1Name.C]
 HOMO_SAPIENS_MHC_II_GENES = [Mhc2GeneName.DPA1, Mhc2GeneName.DPB1, Mhc2GeneName.DQA1, Mhc2GeneName.DQB1,
@@ -75,70 +84,78 @@ RESOURCES_VERSIONS = "resources_versions.json"
 
 
 class AbstractDependenciesConfiguration:
-    def _check_and_load_binary(self, variable_name, optional=False):
-        variable_value = os.environ.get(variable_name)
-        if not optional and variable_value is None:
+    def _check_and_load_binary(self, variable_name, default_value=None, optional=False, path_search=True):
+        """
+        Fetches the binary from the provided environment variable, if not available uses the default.
+        If the binary is not a path to an executable, it searches for it in the PATH
+        """
+
+        program = None
+        variable_value = os.environ.get(variable_name, default=default_value)
+
+        if variable_value != '':
+            fpath, _ = os.path.split(variable_value)
+            if fpath:
+                # makes sure that the provided path is absolute
+                if not os.path.isabs(variable_value):
+                    raise NeofoxConfigurationException(
+                        "Please, use an absolute path in the environment variable ${}!".format(variable_name))
+                # checks that it is executable
+                if os.path.isfile(variable_value) and os.access(variable_value, os.X_OK):
+                    program = variable_value
+            elif path_search:
+                # if no path searches for this command in the path
+                for path in os.environ.get("PATH", "").split(os.pathsep):
+                    exe_file = os.path.join(path, variable_value)
+                    if os.path.isfile(exe_file) and os.access(exe_file, os.X_OK):
+                        program = variable_value
+                        break
+
+        if not optional and program is None:
             raise NeofoxConfigurationException(
-                "Please, set the environment variable ${} pointing to the right binary!".format(
+                "Please, set the environment variable ${} pointing to the right binary and make sure to have "
+                "execution permissions!".format(
                     variable_name
                 )
             )
-        # checks that the file exists
-        if (
-            variable_value is not None
-        ):  # only optional variables can be None at this stage
-            if not os.path.exists(variable_value):
-                raise NeofoxConfigurationException(
-                    "The provided binary '{}' in ${} does not exist!".format(
-                        variable_value, variable_name
-                    )
-                )
-            # checks that it is executable
-            if not os.access(variable_value, os.X_OK):
-                raise NeofoxConfigurationException(
-                    "The provided binary '{}' in ${} is not executable!".format(
-                        variable_value, variable_name
-                    )
-                )
-        return variable_value
+
+        return program
 
 
 class DependenciesConfiguration(AbstractDependenciesConfiguration):
     def __init__(self):
-        self.blastp = self._check_and_load_binary(neofox.NEOFOX_BLASTP_ENV)
+        self.blastp = self._check_and_load_binary(neofox.NEOFOX_BLASTP_ENV, default_value=DEFAULT_BLASTP)
         self.mix_mhc2_pred = self._check_and_load_binary(
-            neofox.NEOFOX_MIXMHC2PRED_ENV, optional=True
-        )
+            neofox.NEOFOX_MIXMHC2PRED_ENV, default_value=DEFAULT_MIXMHC2PRED, optional=True, path_search=False)
         if self.mix_mhc2_pred is not None:
             self.mix_mhc2_pred_alleles_list = os.path.join(
-                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_ALLELES_FILE
-            )
+                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_ALLELES_FILE)
         else:
             self.mix_mhc2_pred_alleles_list = None
         self.mix_mhc_pred = self._check_and_load_binary(
-            neofox.NEOFOX_MIXMHCPRED_ENV, optional=True
-        )
+            neofox.NEOFOX_MIXMHCPRED_ENV, default_value=DEFAULT_MIXMHCPRED, optional=True, path_search=False)
         if self.mix_mhc_pred is not None:
             self.mix_mhc_pred_alleles_list = os.path.join(
-                os.path.dirname(self.mix_mhc_pred), "lib", MIXMHCPRED_AVAILABLE_ALLELES_FILE
-            )
+                os.path.dirname(self.mix_mhc_pred), "lib", MIXMHCPRED_AVAILABLE_ALLELES_FILE)
         else:
             self.mix_mhc_pred_alleles_list = None
-        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
-        self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
-        self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
-        self.prime = self._check_and_load_binary(neofox.NEOFOX_PRIME_ENV)
-        self.prime_alleles_list = os.path.join(
-            os.path.dirname(self.prime), "lib", PRIME_AVAILABLE_ALLELES_FILE
-        )
+        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV, default_value=DEFAULT_RSCRIPT)
+        self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV, default_value=DEFAULT_NETMHC2PAN)
+        self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV, default_value=DEFAULT_NETMHCPAN)
+        self.prime = self._check_and_load_binary(neofox.NEOFOX_PRIME_ENV, default_value=DEFAULT_PRIME, optional=True,
+                                                 path_search=False)
+        if self.prime:
+            self.prime_alleles_list = os.path.join(
+                os.path.dirname(self.prime), "lib", PRIME_AVAILABLE_ALLELES_FILE
+            )
 
 
 class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):
     def __init__(self):
-        self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV)
-        self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV)
-        self.make_blastdb = self._check_and_load_binary(neofox.NEOFOX_MAKEBLASTDB_ENV)
-        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV)
+        self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV, default_value=DEFAULT_NETMHC2PAN)
+        self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV, default_value=DEFAULT_NETMHCPAN)
+        self.make_blastdb = self._check_and_load_binary(neofox.NEOFOX_MAKEBLASTDB_ENV, default_value=DEFAULT_MAKEBLASTDB)
+        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV, default_value=DEFAULT_RSCRIPT)
 
 
 class MhcDatabase(ABC):

@@ -31,7 +31,7 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcIIpan_pred_multiple_binders i
     BestAndMultipleBinderMhcII,
 )
 from neofox.annotation_resources.uniprot.uniprot import Uniprot
-from neofox.tests.tools import get_mutation
+from neofox.tests.tools import get_neoantigen
 
 
 class TestBestMultipleBinder(TestCase):
@@ -60,38 +60,34 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = get_mutation(
+        mutation = get_neoantigen(
             # mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
             mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTA",
             wild_type_xmer=None,
         )
         best_multiple.run(
-            mutation=mutation,
+            neoantigen=mutation,
             mhc2_alleles_patient=self.test_mhc_two,
             mhc2_alleles_available=self.available_alleles_mhc2,
             uniprot=self.uniprot
         )
-        logger.info(best_multiple.best_predicted_epitope_rank.rank)
-        logger.info(best_multiple.best_predicted_epitope_affinity.affinity_score)
-        logger.info(best_multiple.best_predicted_epitope_rank.peptide)
-        logger.info(best_multiple.best_predicted_epitope_rank_wt.peptide)
+        logger.info(best_multiple.best_predicted_epitope_rank.rank_mutated)
+        logger.info(best_multiple.best_predicted_epitope_affinity.affinity_mutated)
+        logger.info(best_multiple.best_predicted_epitope_rank.mutated_peptide)
+        logger.info(best_multiple.best_predicted_epitope_rank.wild_type_peptide)
         logger.info(best_multiple.phbr_ii)
-        self.assertEqual(0.8, best_multiple.best_predicted_epitope_rank.rank)
+        self.assertEqual(0.8, best_multiple.best_predicted_epitope_rank.rank_mutated)
         self.assertEqual(
-            185.02, best_multiple.best_predicted_epitope_affinity.affinity_score
+            185.02, best_multiple.best_predicted_epitope_affinity.affinity_mutated
         )
         self.assertEqual(
-            "VVKWKFMVSTADPGS", best_multiple.best_predicted_epitope_rank.peptide
+            "VVKWKFMVSTADPGS", best_multiple.best_predicted_epitope_rank.mutated_peptide
         )
         self.assertEqual(
-            "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank_wt.peptide
+            "ITPWRFKLSCMPPNS", best_multiple.best_predicted_epitope_rank.wild_type_peptide
         )
         self.assertIsNotNone(best_multiple.phbr_ii)
         self.assertAlmostEqual(2.9386450524753664, best_multiple.phbr_ii)
-        self.assertEqual(
-            best_multiple.best_predicted_epitope_rank.hla,
-            best_multiple.best_predicted_epitope_rank_wt.hla,
-        )
 
     def test_best_multiple_run(self):
         best_multiple = BestAndMultipleBinder(
@@ -99,26 +95,21 @@ class TestBestMultipleBinder(TestCase):
             blastp_runner=self.proteome_blastp_runner
         )
         # this is some valid example neoantigen candidate sequence
-        mutation = get_mutation(
+        mutation = get_neoantigen(
             mutated_xmer="VVKWKFMVSTADPGSFTSRPACSSSAAPLGISQPRSSCTLPEPPLWSVPCPSCRKIYTACPSQEKNLKKPVPKSYLIHAGLEPLTFTNMFPSWEHRDDTAEITEMDMEVSNQITLVEDVLAKLCKTIYLLANLL",
             wild_type_xmer=None,
         )
         best_multiple.run(
-            mutation=mutation,
+            neoantigen=mutation,
             mhc1_alleles_patient=self.test_mhc_one,
             mhc1_alleles_available=self.available_alleles_mhc1,
             uniprot=self.uniprot,
         )
-        self.assertEqual(17.79, best_multiple.best_epitope_by_affinity.affinity_score)
-        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.hla.name)
-        self.assertEqual(0.081, best_multiple.best_epitope_by_rank.rank)
-        self.assertEqual("HLA-A*02:01", best_multiple.best_epitope_by_rank.hla.name)
-        self.assertEqual("TLPEPPLWSV", best_multiple.best_epitope_by_rank.peptide)
-        self.assertEqual("SLPQPPITEV", best_multiple.best_wt_epitope_by_rank.peptide)
-        self.assertEqual(
-            best_multiple.best_ninemer_epitope_by_rank.hla.name,
-            best_multiple.best_ninemer_wt_epitope_by_rank.hla.name,
-        )
+        self.assertEqual(17.79, best_multiple.best_epitope_by_affinity.affinity_mutated)
+        self.assertEqual('HLA-A*02:01', best_multiple.best_epitope_by_affinity.allele_mhc_i.name)
+        self.assertEqual(0.081, best_multiple.best_epitope_by_rank.rank_mutated)
+        self.assertEqual("HLA-A*02:01", best_multiple.best_epitope_by_rank.allele_mhc_i.name)
+        self.assertEqual("TLPEPPLWSV", best_multiple.best_epitope_by_rank.mutated_peptide)
         self.assertEqual(3, best_multiple.generator_rate_cdn)
-        self.assertAlmostEqual(0.23085258129451622, best_multiple.phbr_i)
+        self.assertAlmostEqual(0.22940380188017157, best_multiple.phbr_i)
 

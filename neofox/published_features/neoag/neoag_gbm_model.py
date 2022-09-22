@@ -20,20 +20,18 @@
 
 import os
 from neofox.helpers import intermediate_files
-from neofox.model.neoantigen import Annotation
+from neofox.helpers.epitope_helper import EpitopeHelper
+from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
-from neofox import AFFINITY_THRESHOLD_DEFAULT
-from neofox.MHC_predictors.netmhcpan.abstract_netmhcpan_predictor import PredictedEpitope
 
 
 class NeoagCalculator(object):
 
-    def __init__(self, runner, configuration, affinity_threshold=AFFINITY_THRESHOLD_DEFAULT):
+    def __init__(self, runner, configuration):
         """
         :type runner: neofox.helpers.runner.Runner
         :type configuration: neofox.references.DependenciesConfiguration
         """
-        self.affinity_threshold = affinity_threshold
         self.runner = runner
         self.configuration = configuration
 
@@ -64,39 +62,37 @@ class NeoagCalculator(object):
         """
         header = ["Sample_ID", "mut_peptide", "Reference", "peptide_variant_position"]
         try:
-            if score_mut < self.affinity_threshold:
-                epi_row = "\t".join(
-                    [sample_id, mut_peptide, ref_peptide, str(peptide_variant_position)]
-                )
-            else:
-                epi_row = "\t".join(["NA", "NA", "NA", "NA"])
+            epi_row = "\t".join(
+                [sample_id, mut_peptide, ref_peptide, str(peptide_variant_position)]
+            )
         except ValueError:
             epi_row = "\t".join(["NA", "NA", "NA", "NA"])
         with open(tmp_file_name, "w") as f:
             f.write("\t".join(header) + "\n")
             f.write(epi_row + "\n")
 
-    def get_annotation(
-        self, sample_id, mutated_peptide_mhci: PredictedEpitope, wt_peptide_mhci: PredictedEpitope, peptide_variant_position, mutation
-    ) -> Annotation:
+    def calculate_neoag_score(self, epitope: PredictedEpitope):
+        tmp_file_name = intermediate_files.create_temp_file(
+            prefix="tmp_neoag_", suffix=".txt"
+        )
+        self._prepare_tmp_for_neoag(
+            "*****",
+            epitope.mutated_peptide,
+            epitope.affinity_mutated,
+            epitope.wild_type_peptide,
+            EpitopeHelper.position_of_mutation_epitope(epitope=epitope),
+            tmp_file_name,
+        )
+        neoag_score = self._apply_gbm(tmp_file_name)
+        os.remove(tmp_file_name)
+        return neoag_score
+
+    def get_annotation(self, epitope_mhci: PredictedEpitope, neoantigen: Neoantigen) -> Annotation:
         """wrapper function to determine neoag immunogenicity score for a mutated peptide sequence"""
 
         neoag_score = None
-        if mutation.wild_type_xmer and mutated_peptide_mhci.peptide and wt_peptide_mhci.peptide:
-            # TODO: move this tmp file creation inside the method
-            tmp_file_name = intermediate_files.create_temp_file(
-                prefix="tmp_neoag_", suffix=".txt"
-            )
-            self._prepare_tmp_for_neoag(
-                sample_id,
-                mutated_peptide_mhci.peptide,
-                mutated_peptide_mhci.affinity_score,
-                wt_peptide_mhci.peptide,
-                peptide_variant_position,
-                tmp_file_name,
-            )
-            neoag_score = self._apply_gbm(tmp_file_name)
-        annotation = AnnotationFactory.build_annotation(
-            value=neoag_score, name="Neoag_immunogenicity"
-        )
+        if neoantigen.wild_type_xmer and epitope_mhci.mutated_peptide and epitope_mhci.wild_type_peptide:
+            neoag_score = self.calculate_neoag_score(epitope=epitope_mhci)
+
+        annotation = AnnotationFactory.build_annotation(value=neoag_score, name="Neoag_immunogenicity")
         return annotation
