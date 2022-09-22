@@ -120,16 +120,16 @@ class TestNeofox(TestCase):
         annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
 
         # check it does contain any of the MixMHCpred annotations
-        self.assertIn("MixMHC2pred_best_peptide", annotation_names)
-        self.assertIn("MixMHC2pred_best_rank", annotation_names)
-        self.assertIn("MixMHC2pred_best_allele", annotation_names)
-        self.assertIn("MixMHCpred_best_peptide", annotation_names)
-        self.assertIn("MixMHCpred_best_score", annotation_names)
-        self.assertIn("MixMHCpred_best_rank", annotation_names)
-        self.assertIn("MixMHCpred_best_allele", annotation_names)
+        self.assertIn("MixMHC2pred_bestRank_peptide", annotation_names)
+        self.assertIn("MixMHC2pred_bestRank_rank", annotation_names)
+        self.assertIn("MixMHC2pred_bestRank_allele", annotation_names)
+        self.assertIn("MixMHCpred_bestScore_peptide", annotation_names)
+        self.assertIn("MixMHCpred_bestScore_score", annotation_names)
+        self.assertIn("MixMHCpred_bestScore_rank", annotation_names)
+        self.assertIn("MixMHCpred_bestScore_allele", annotation_names)
         # checks it does have some of the NetMHCpan annotations
-        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
-        self.assertIn("Best_rank_MHCII_score", annotation_names)
+        self.assertIn("NetMHCpan_bestAffinity9mer_positionMutation", annotation_names)
+        self.assertIn("NetMHCIIpan_bestRank_rank", annotation_names)
 
         # writes output
         ModelConverter.annotations2neoantigens_table(neoantigens=annotations).to_csv(
@@ -164,8 +164,8 @@ class TestNeofox(TestCase):
         annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
 
         # checks it does have some of the NetMHCpan annotations
-        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
-        self.assertIn("Best_rank_MHCII_score", annotation_names)
+        self.assertIn("NetMHCpan_bestAffinity9mer_positionMutation", annotation_names)
+        self.assertIn("NetMHCIIpan_bestRank_rank", annotation_names)
 
         # writes output
         ModelConverter.annotations2neoantigens_table(neoantigens=annotations).to_csv(
@@ -204,7 +204,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 80)
+        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 82)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -220,16 +220,16 @@ class TestNeofox(TestCase):
         ).get_annotations()
         annotation_names = [a.name for n in annotations for a in n.neofox_annotations.annotations]
         # check it does not contain any of the MixMHCpred annotations
-        self.assertNotIn("MixMHC2pred_best_peptide", annotation_names)
-        self.assertNotIn("MixMHC2pred_best_rank", annotation_names)
-        self.assertNotIn("MixMHC2pred_best_allele", annotation_names)
-        self.assertNotIn("MixMHCpred_best_peptide", annotation_names)
-        self.assertNotIn("MixMHCpred_best_score", annotation_names)
-        self.assertNotIn("MixMHCpred_best_rank", annotation_names)
-        self.assertNotIn("MixMHCpred_best_allele", annotation_names)
+        self.assertNotIn("MixMHC2pred_bestRank_peptide", annotation_names)
+        self.assertNotIn("MixMHC2pred_bestRank_rank", annotation_names)
+        self.assertNotIn("MixMHC2pred_bestRank_allele", annotation_names)
+        self.assertNotIn("MixMHCpred_bestScore_peptide", annotation_names)
+        self.assertNotIn("MixMHCpred_bestScore_score", annotation_names)
+        self.assertNotIn("MixMHCpred_bestScore_rank", annotation_names)
+        self.assertNotIn("MixMHCpred_bestScore_allele", annotation_names)
         # checks it does have some of the NetMHCpan annotations
-        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
-        self.assertIn("Best_rank_MHCII_score", annotation_names)
+        self.assertIn("NetMHCpan_bestAffinity9mer_positionMutation", annotation_names)
+        self.assertIn("NetMHCIIpan_bestRank_rank", annotation_names)
 
     def test_neofox_without_prime(self):
         """
@@ -248,8 +248,8 @@ class TestNeofox(TestCase):
         self.assertNotIn("PRIME_best_rank", annotation_names)
         self.assertNotIn("PRIME_best_allele", annotation_names)
         # checks it does have some of the NetMHCpan annotations
-        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
-        self.assertIn("Best_rank_MHCII_score", annotation_names)
+        self.assertIn("NetMHCpan_bestAffinity9mer_positionMutation", annotation_names)
+        self.assertIn("NetMHCIIpan_bestRank_rank", annotation_names)
 
     def test_neofox_with_prime_and_without_mixmhcpred(self):
         """
@@ -268,8 +268,8 @@ class TestNeofox(TestCase):
         self.assertNotIn("PRIME_best_rank", annotation_names)
         self.assertNotIn("PRIME_best_allele", annotation_names)
         # checks it does have some of the NetMHCpan annotations
-        self.assertIn("Best_affinity_MHCI_9mer_position_mutation", annotation_names)
-        self.assertIn("Best_rank_MHCII_score", annotation_names)
+        self.assertIn("NetMHCpan_bestAffinity9mer_positionMutation", annotation_names)
+        self.assertIn("NetMHCIIpan_bestRank_rank", annotation_names)
 
     @unittest.skip
     def test_neofox_performance(self):
@@ -328,7 +328,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 61)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 63)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients = self._get_test_data()
@@ -341,7 +341,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 37)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 39)
 
     def test_gene_expression_imputation(self):
         neoantigens, patients = self._get_test_data()

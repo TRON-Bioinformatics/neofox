@@ -62,7 +62,7 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
         annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
         self.assert_float_annotation(annotated_neoepitope, annotation_name="Priority_score")
-        self.assert_float_annotation(annotated_neoepitope, annotation_name="Tcell_predictor_score")
+        self.assert_float_annotation(annotated_neoepitope, annotation_name="Tcell_predictor")
 
     def test_neoepitope_mhci_10mer_no_tcell_predictor(self):
         """
@@ -78,7 +78,7 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
         annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
         annotation_value = EpitopeHelper.get_annotation_by_name(
-            annotated_neoepitope.neofox_annotations.annotations, "Tcell_predictor_score")
+            annotated_neoepitope.neofox_annotations.annotations, "Tcell_predictor")
         self.assertEqual(annotation_value, "NA")
 
     def test_neoepitope_mhci_without_dna_vaf(self):
