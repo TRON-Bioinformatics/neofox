@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import os
-import unittest
 import pkg_resources
 import neofox.tests
 from neofox.command_line import _write_results_epitopes
@@ -144,6 +143,66 @@ class TestNeofoxEpitope(BaseIntegrationTest):
             neofox.tests.__name__, "resources/test_neoepitopes_mhcI_epitope_candidates_annotated.tsv")))
         self.assertTrue(os.path.exists(pkg_resources.resource_filename(
             neofox.tests.__name__, "resources/test_neoepitopes_mhcII_epitope_candidates_annotated.tsv")))
+
+    def test_neofox_epitope_writing_output_table_only_mhci(self):
+
+        neoepitopes = [
+            PredictedEpitope(
+                mutated_peptide="DEVLGEPSQDILVTDQTR",
+                wild_type_peptide="DEVLGEPSQDILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform("HLA-DRB1*01:01")
+            ),
+            PredictedEpitope(
+                mutated_peptide="DEVLGEPSQTILVTDQTR",
+                wild_type_peptide="DEVLGEPSQDILVIDQTR",
+                isoform_mhc_i_i=self._get_test_mhcii_isoform("HLA-DRB1*01:01")
+            ),
+        ]
+
+        annotated_neoepitopes = NeoFoxEpitope(
+            neoepitopes=neoepitopes,
+            num_cpus=4,
+        ).get_annotations()
+
+        _write_results_epitopes(
+            annotated_neoepitopes,
+            output_folder=pkg_resources.resource_filename(neofox.tests.__name__, "resources"),
+            output_prefix="test_neoepitopes_only_mhcii")
+
+        self.assertFalse(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_only_mhcii_mhcI_epitope_candidates_annotated.tsv")))
+        self.assertTrue(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_only_mhcii_mhcII_epitope_candidates_annotated.tsv")))
+
+    def test_neofox_epitope_writing_output_table_only_mhcii(self):
+
+        neoepitopes = [
+            PredictedEpitope(
+                mutated_peptide="DILVTDQTR",
+                wild_type_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            ),
+            PredictedEpitope(
+                mutated_peptide="DILVPDQTR",
+                wild_type_peptide="DILVIDQTR",
+                allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            ),
+        ]
+
+        annotated_neoepitopes = NeoFoxEpitope(
+            neoepitopes=neoepitopes,
+            num_cpus=4,
+        ).get_annotations()
+
+        _write_results_epitopes(
+            annotated_neoepitopes,
+            output_folder=pkg_resources.resource_filename(neofox.tests.__name__, "resources"),
+            output_prefix="test_neoepitopes_only_mhci")
+
+        self.assertTrue(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_only_mhci_mhcI_epitope_candidates_annotated.tsv")))
+        self.assertFalse(os.path.exists(pkg_resources.resource_filename(
+            neofox.tests.__name__, "resources/test_neoepitopes_only_mhci_mhcII_epitope_candidates_annotated.tsv")))
 
     def test_neofox_epitope_writing_output_table_with_patients(self):
 
