@@ -406,23 +406,26 @@ def _write_results_epitopes(neoepitopes: List[PredictedEpitope], output_folder, 
     mhci_neoepitopes = [n for n in neoepitopes if ModelValidator.is_mhci_epitope(n)]
     mhcii_neoepitopes = [n for n in neoepitopes if ModelValidator.is_mhcii_epitope(n)]
 
-    ModelConverter.annotated_neoepitopes2epitopes_table(mhci_neoepitopes, mhc=neofox.MHC_I).to_csv(
-        os.path.join(
-            output_folder,
-            "{}_mhcI_epitope_candidates_annotated.tsv".format(output_prefix),
-        ),
-        sep="\t",
-        index=False,
-    )
-    ModelConverter.annotated_neoepitopes2epitopes_table(mhcii_neoepitopes, mhc=neofox.MHC_II).to_csv(
-        os.path.join(
-            output_folder,
-            "{}_mhcII_epitope_candidates_annotated.tsv".format(output_prefix),
-        ),
-        sep="\t",
-        index=False,
-    )
+    if mhci_neoepitopes:
+        ModelConverter.annotated_neoepitopes2epitopes_table(mhci_neoepitopes, mhc=neofox.MHC_I).to_csv(
+            os.path.join(
+                output_folder,
+                "{}_mhcI_epitope_candidates_annotated.tsv".format(output_prefix),
+            ),
+            sep="\t",
+            index=False,
+        )
+    if mhcii_neoepitopes:
+        ModelConverter.annotated_neoepitopes2epitopes_table(mhcii_neoepitopes, mhc=neofox.MHC_II).to_csv(
+            os.path.join(
+                output_folder,
+                "{}_mhcII_epitope_candidates_annotated.tsv".format(output_prefix),
+            ),
+            sep="\t",
+            index=False,
+        )
 
-    output_features = os.path.join(output_folder, "{}_neoepitope_candidates_annotated.json".format(output_prefix))
-    with open(output_features, "wb") as f:
-        f.write(json.dumps(ModelConverter.objects2json(neoepitopes)))
+    if neoepitopes:
+        output_features = os.path.join(output_folder, "{}_neoepitope_candidates_annotated.json".format(output_prefix))
+        with open(output_features, "wb") as f:
+            f.write(json.dumps(ModelConverter.objects2json(neoepitopes)))
