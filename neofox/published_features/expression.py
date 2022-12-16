@@ -46,9 +46,9 @@ class Expression:
 
     def get_annotations(self, neoantigen: Neoantigen) -> List[Annotation]:
 
-        vaf = neoantigen.dna_variant_allele_frequency
+        vaf = neoantigen.rna_variant_allele_frequency
         if vaf is None or vaf == -1:
-            vaf = neoantigen.rna_variant_allele_frequency
+            vaf = neoantigen.dna_variant_allele_frequency
 
         return [
             AnnotationFactory.build_annotation(
