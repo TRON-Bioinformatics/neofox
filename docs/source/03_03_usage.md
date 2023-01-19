@@ -41,7 +41,7 @@ where:
 - if all expression values related to a patient are NA or `rnaExpression` is not given in the input file but the tumor type has been provided in the patient file, imputated expression will be used for the relevant features
 
 **EXAMPLE**  
-This is an example to call NeoFox with a candidate-file and obtaining the annotated neoantigen candidates in [tabular](03_02_output_data.md#tabular-format) format:  
+This is an example to call NeoFox with a candidate file and obtaining the annotated neoantigen candidates in [tabular](03_02_output_data.md#tabular-format) format:
 
 ````commandline
 neofox --input-file neoantigens_candidates.tsv \
@@ -287,7 +287,7 @@ patients_json = ModelConverter.objects2json(model_objects=patients)
 ```
 
 - instead of creating neoantigen or patient models, tabular or json files containing this information can be passed:  
-  The neoantigen candidates can be provided in [candidate-file format](03_01_input_data.md#tabular-file-format)
+  The neoantigen candidates can be provided in [candidate file format](03_01_input_data.md#tabular-file-format)
 
 ```python
 model_file = "/path/to/neoantigen_candidates.tab"
