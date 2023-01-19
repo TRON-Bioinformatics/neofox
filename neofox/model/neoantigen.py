@@ -120,16 +120,14 @@ class Patient(betterproto.Message):
 
     # *Patient identifier
     identifier: str = betterproto.string_field(1)
-    # *Is RNA expression available?
-    is_rna_available: bool = betterproto.bool_field(2)
     # *Tumor entity in TCGA study abbrevation style as described here:
     # https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-
     # abbreviations
-    tumor_type: str = betterproto.string_field(3)
+    tumor_type: str = betterproto.string_field(2)
     # *MHC I classic molecules
-    mhc1: List["Mhc1"] = betterproto.message_field(4)
+    mhc1: List["Mhc1"] = betterproto.message_field(3)
     # *MHC II classic molecules
-    mhc2: List["Mhc2"] = betterproto.message_field(5)
+    mhc2: List["Mhc2"] = betterproto.message_field(4)
 
 
 @dataclass

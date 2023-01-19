@@ -110,10 +110,6 @@ class NeoFox:
         for neoantigen in self.neoantigens:
             expression_per_patient[neoantigen.patient_identifier].append(neoantigen.rna_expression)
 
-        for patient in self.patients:
-            self.patients[patient].is_rna_available = all(e is not None for e in
-                                                          expression_per_patient[self.patients[patient].identifier])
-
         # only performs the expression imputation for humans
         if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:
             # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
@@ -137,8 +133,6 @@ class NeoFox:
             gene_expression = expression_annotator.get_gene_expression_annotation(
                 gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
             )
-            if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
-                expression_value = gene_expression
             neoantigen_transformed.rna_expression = expression_value
             neoantigen.imputed_gene_expression = gene_expression
             neoantigens_transformed.append(neoantigen_transformed)
