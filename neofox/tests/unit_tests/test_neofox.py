@@ -207,7 +207,7 @@ class TestNeofox(TestCase):
         )
 
     def _get_test_patient(self):
-        return Patient(identifier="12345", is_rna_available=True)
+        return Patient(identifier="12345")
 
 
 if __name__ == "__main__":
