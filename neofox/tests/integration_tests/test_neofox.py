@@ -345,8 +345,6 @@ class TestNeofox(TestCase):
 
     def test_gene_expression_imputation(self):
         neoantigens, patients = self._get_test_data()
-        for p in patients:
-            p.is_rna_available = False
         neofox = NeoFox(
             neoantigens=neoantigens,
             patients=patients,

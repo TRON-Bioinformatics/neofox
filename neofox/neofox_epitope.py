@@ -211,8 +211,6 @@ class NeoFoxEpitope:
                 neoepitope_transformed = neoepitope
                 gene_expression = expression_annotator.get_gene_expression_annotation(
                     gene_name=neoepitope.gene, tcga_cohort=patient.tumor_type)
-                if not patient.is_rna_available and patient.tumor_type is not None and patient.tumor_type != "":
-                    neoepitope_transformed.rna_expression = gene_expression
                 neoepitope.imputed_gene_expression = gene_expression
                 neoepitopes_transformed.append(neoepitope_transformed)
             else:
