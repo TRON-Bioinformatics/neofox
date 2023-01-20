@@ -191,11 +191,12 @@ class TestNeofox(TestCase):
             reference_folder=FakeReferenceFolder(),
             configuration=FakeDependenciesConfiguration(),
         )
-        for neoantigen in original_neoantigens:
-            for neoantigen_imputed in neofox_runner.neoantigens:
-                self.assertFalse(
-                    neoantigen.rna_expression == neoantigen_imputed.rna_expression
-                )
+        for neoantigen, neoantigen_imputed in zip(original_neoantigens, neofox_runner.neoantigens):
+            self.assertIsNotNone(neoantigen_imputed.imputed_gene_expression)
+            if neoantigen.rna_expression is None:
+                self.assertNotEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
+            else:
+                self.assertEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
 
     def _get_test_neoantigen(self):
         return Neoantigen(
