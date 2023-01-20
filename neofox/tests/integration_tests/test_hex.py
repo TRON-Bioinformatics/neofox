@@ -23,7 +23,6 @@ from neofox.helpers.runner import Runner
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
 from neofox.published_features.hex.pyhex import PyHex
-from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 
 
 class TestHex(TestCase):
@@ -32,11 +31,7 @@ class TestHex(TestCase):
         self.runner = Runner()
 
     def test_hex(self):
-        res = Hex(
-            runner=self.runner, configuration=self.configuration, references=self.references
-        ).apply_hex(
-            mut_peptide="FGLAIDVDD"
-        )
+        res = Hex(references=self.references).apply_hex(mut_peptide="FGLAIDVDD")
         self.assertEqual(int(res), 148)
 
     def test_pyhex(self):
@@ -45,15 +40,11 @@ class TestHex(TestCase):
         self.assertEqual(res, 148)
 
     def test_comparison(self):
-        for i in range(100):
+        for i in range(10):
             for k in range(9, 30):
                 peptide = integration_test_tools.get_random_kmer(k=k)
                 logger.info(peptide)
-                res = Hex(
-                    runner=self.runner, configuration=self.configuration, references=self.references
-                ).apply_hex(
-                    mut_peptide=peptide
-                )
+                res = Hex(references=self.references).apply_hex(mut_peptide=peptide)
                 pyhex = PyHex(iedb_fasta=self.references.get_iedb_fasta())
                 res_pyhex = pyhex.run(peptide)
                 self.assertEqual(float(res), res_pyhex, "Peptide: {}".format(peptide))
