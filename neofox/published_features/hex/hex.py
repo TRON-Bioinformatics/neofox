@@ -18,33 +18,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-import os
 from neofox.model.neoantigen import Annotation, PredictedEpitope
 from neofox.model.factories import AnnotationFactory
+from neofox.published_features.hex.pyhex import PyHex
 from neofox.references.references import ReferenceFolder
 
 
 class Hex(object):
 
-    def __init__(self, references: ReferenceFolder, runner, configuration):
-        """
-        :type runner: neofox.helpers.runner.Runner
-        :type configuration: neofox.references.DependenciesConfiguration
-        """
-        self.runner = runner
-        self.configuration = configuration
+    def __init__(self, references: ReferenceFolder):
         self.iedb_fasta = references.get_iedb_fasta()
+        self.pyhex = PyHex(self.iedb_fasta)
 
     def apply_hex(self, mut_peptide):
         """this function calls hex tool. this tool analyses the neoepitope candidate sequence for molecular mimicry to viral epitopes
         """
-        my_path = os.path.abspath(os.path.dirname(__file__))
-        tool_path = os.path.join(my_path, "hex.R")
-        cmd = [self.configuration.rscript, tool_path, mut_peptide, self.iedb_fasta, my_path]
-        output, _ = self.runner.run_command(cmd)
-        if output == "":
-            output = None
-        return output
+        return self.pyhex.run(mut_peptide)
 
     def get_annotation(
             self, mutated_peptide_mhci: PredictedEpitope, mutated_peptide_mhcii: PredictedEpitope) -> List[Annotation]:
