@@ -67,4 +67,5 @@ publish_package:
     - python3 setup.py sdist bdist_wheel
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://gitlab.rlp.net/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   only:
+    # deploys in private gitlab package repository only the develop branch, the master branch is published in PyPI
     - develop
