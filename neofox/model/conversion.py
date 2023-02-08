@@ -111,7 +111,6 @@ class ModelConverter(object):
             patient_dict = row.to_dict()
             patient = PatientFactory.build_patient(
                 identifier=patient_dict.get("identifier"),
-                is_rna_available=patient_dict.get("isRnaAvailable", False),
                 tumor_type=patient_dict.get("tumorType"),
                 mhc_alleles=patient_dict.get("mhcIAlleles", []),
                 mhc2_alleles=patient_dict.get("mhcIIAlleles", []),

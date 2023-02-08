@@ -173,11 +173,10 @@ class NeoepitopeFactory(object):
 
 class PatientFactory(object):
     @staticmethod
-    def build_patient(identifier, is_rna_available=False, tumor_type=None, mhc_alleles: List[str] = [],
+    def build_patient(identifier, tumor_type=None, mhc_alleles: List[str] = [],
                       mhc2_alleles: List[str] = [], mhc_database: MhcDatabase =None):
         patient = Patient(
             identifier=identifier,
-            is_rna_available=is_rna_available,
             tumor_type=tumor_type,
             mhc1=MhcFactory.build_mhc1_alleles(mhc_alleles, mhc_database),
             mhc2=MhcFactory.build_mhc2_alleles(mhc2_alleles, mhc_database)
