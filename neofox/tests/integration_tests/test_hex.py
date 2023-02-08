@@ -22,7 +22,7 @@ from neofox.published_features.hex.hex import Hex
 from neofox.helpers.runner import Runner
 
 import neofox.tests.integration_tests.integration_test_tools as integration_test_tools
-
+from neofox.published_features.hex.pyhex import PyHex
 
 
 class TestHex(TestCase):
@@ -30,15 +30,24 @@ class TestHex(TestCase):
         self.references, self.configuration = integration_test_tools.load_references()
         self.runner = Runner()
 
-
     def test_hex(self):
-        res = Hex(
-            runner=self.runner, configuration=self.configuration, references=self.references
-        ).apply_hex(
-            mut_peptide="FGLAIDVDD"
-        )
-        logger.info(res)
-        self.assertEqual(float(res), 148)
+        res = Hex(references=self.references).apply_hex(mut_peptide="FGLAIDVDD")
+        self.assertEqual(int(res), 148)
+
+    def test_pyhex(self):
+        pyhex = PyHex(iedb_fasta=self.references.get_iedb_fasta())
+        res = pyhex.run("FGLAIDVDD")
+        self.assertEqual(res, 148)
+
+    def test_comparison(self):
+        for i in range(10):
+            for k in range(9, 30):
+                peptide = integration_test_tools.get_random_kmer(k=k)
+                logger.info(peptide)
+                res = Hex(references=self.references).apply_hex(mut_peptide=peptide)
+                pyhex = PyHex(iedb_fasta=self.references.get_iedb_fasta())
+                res_pyhex = pyhex.run(peptide)
+                self.assertEqual(float(res), res_pyhex, "Peptide: {}".format(peptide))
 
 
 
