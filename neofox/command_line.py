@@ -217,7 +217,7 @@ def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[Li
     neoantigens_patient_ids = set(i['patientIdentifier'] for i in neoantigens)
     patient_ids = set(j['identifier'] for j in patients)
     if neoantigens_patient_ids.difference(patient_ids) > 0:
-        raise ValueError('%s patient candidate does not exist in the patient data file.' % patient)
+        raise ValueError('%s patient candidate does not exist in the patient data file.' % neoantigens_patient_ids)
 
     return neoantigens, patients
 
