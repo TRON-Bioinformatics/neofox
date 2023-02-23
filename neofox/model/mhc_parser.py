@@ -38,7 +38,7 @@ HLA_MOLECULE_PATTERN = re.compile(
 )
 HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]{2,})")
 
-H2_ALLELE_PATTERN = re.compile(r"(H2K|H2D|H2L|H2A|H2E)([a-z][0-9]?)")
+H2_ALLELE_PATTERN = re.compile(r"(H2-?[KDLAE])([a-z][0-9]?)")
 H2_NETMHCPAN_ALLELE_PATTERN = re.compile(r"H-2-I?(K|D|L|A|E)([a-z][0-9]?)")
 H2_MOLECULE_PATTERN = re.compile(r"(H2A|H2E)([a-z][0-9]?)")
 
