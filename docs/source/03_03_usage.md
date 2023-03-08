@@ -15,7 +15,7 @@ neofox --input-file neoantigens_candidates.tsv \
     [--output-prefix out_prefix]  \
     [--organism human|mouse]  \
     [--rank-mhci-threshold 2.0] \
-    [--rank-mhcii-threshold 4.0] \
+    [--rank-mhcii-threshold 5.0] \
     [--num-cpus] \
     [--config] \
     [--patient-id] \

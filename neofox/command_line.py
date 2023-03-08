@@ -213,15 +213,11 @@ def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[Li
     else:
         raise ValueError('Not supported input file extension: {}'.format(input_file))
 
-    patients_dict : Dict[str, Patient]
-    patients_dict = {p.identifier: p for p in patients}
-
-    for n in neoantigens:
-        patient = patients_dict.get(n.patient_identifier)
-        if not patient.is_rna_available:
-            # removes RNA vaf if indicated in patient that this information is no good
-            # iCam legacy
-            n.rna_variant_allele_frequency = None
+    ### Van -- check if patient candidates exist in the patient data file
+    neoantigens_patient_ids = set(i['patientIdentifier'] for i in neoantigens)
+    patient_ids = set(j['identifier'] for j in patients)
+    if neoantigens_patient_ids.difference(patient_ids) > 0:
+        raise ValueError('%s patient candidate does not exist in the patient data file.' % neoantigens_patient_ids)
 
     return neoantigens, patients
 
@@ -385,16 +381,6 @@ def _read_data_epitopes(
     #    logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
     else:
         raise ValueError('Not supported input file extension: {}'.format(input_file))
-
-    patients_dict : Dict[str, Patient]
-    patients_dict = {p.identifier: p for p in patients}
-
-    for n in neoepitopes:
-        patient = patients_dict.get(n.patient_identifier)
-        if patient is not None and not patient.is_rna_available:
-            # removes RNA vaf if indicated in patient that this information is no good
-            # iCam legacy
-            n.rna_variant_allele_frequency = None
 
     return neoepitopes, patients
 
