@@ -78,21 +78,17 @@ message Patient {
 	*/
 	string identifier = 1;
 	/**
-	Is RNA expression available?
-	*/
-	bool isRnaAvailable = 2;
-	/**
 	Tumor entity in TCGA study abbrevation style as described here: https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations
 	*/
-	string tumorType = 3;
+	string tumorType = 2;
 	/**
 	MHC I classic molecules
 	*/
-	repeated Mhc1 mhc1 = 4;
+	repeated Mhc1 mhc1 = 3;
 	/**
 	MHC II classic molecules
 	*/
-	repeated Mhc2 mhc2 = 5;
+	repeated Mhc2 mhc2 = 4;
 }
 
 /**

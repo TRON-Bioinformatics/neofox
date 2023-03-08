@@ -53,7 +53,7 @@ class AbstractAnnotator(ABC):
         self.priority_score_calculator = PriorityScore()
         self.iedb_immunogenicity = IEDBimmunogenicity()
         self.amplitude = Amplitude()
-        self.hex = Hex(runner=self.runner, configuration=configuration, references=references)
+        self.hex = Hex(references=references)
 
     def get_additional_annotations_neoepitope_mhci(
             self, epitope: PredictedEpitope, neoantigen: Neoantigen = None) -> PredictedEpitope:

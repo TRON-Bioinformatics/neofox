@@ -42,12 +42,6 @@ class TestModelValidator(TestCase):
             Neoantigen(patient_identifier="1234", rna_expression="0.45"),
         )  # this should be a float)
 
-        self.assertRaises(
-            NeofoxDataValidationException,
-            ModelValidator.validate,
-            Patient(identifier="1234", is_rna_available="Richtig"),
-        )  # this should be a boolean)
-
         # TODO: make validation capture this data types errors!
         ModelValidator.validate(
             Neoantigen(
@@ -63,7 +57,7 @@ class TestModelValidator(TestCase):
         neoantigen = Neoantigen(patient_identifier="1234", rna_expression=0.45)
         ModelValidator.validate(neoantigen)
 
-        patient = Patient(identifier="1234", is_rna_available=True)
+        patient = Patient(identifier="1234")
         ModelValidator.validate(patient)
 
     def test_enum_with_wrong_value(self):
@@ -693,20 +687,6 @@ class TestModelValidator(TestCase):
         patient = Patient(identifier="   ")
         self.assertRaises(
             NeofoxDataValidationException, ModelValidator.validate_patient, patient, ORGANISM_HOMO_SAPIENS
-        )
-
-    def test_bad_is_rna_available(self):
-        ModelValidator.validate_patient(
-            Patient(identifier="123", is_rna_available=True), ORGANISM_HOMO_SAPIENS
-        )
-        ModelValidator.validate_patient(
-            Patient(identifier="123", is_rna_available=False), ORGANISM_HOMO_SAPIENS
-        )
-        self.assertRaises(
-            NeofoxDataValidationException,
-            ModelValidator.validate_patient,
-            Patient(identifier="123", is_rna_available="False"),
-            ORGANISM_HOMO_SAPIENS
         )
 
     def test_validate_neoepitope_mhci(self):

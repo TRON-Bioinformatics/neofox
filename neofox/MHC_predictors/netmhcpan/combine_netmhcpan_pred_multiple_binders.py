@@ -190,7 +190,7 @@ class BestAndMultipleBinder:
         if self.best_epitope_by_rank:
             annotations.extend([
                 AnnotationFactory.build_annotation(
-                    value=self.best_epitope_by_rank.rank_mutated, name="NetMHCpan_MHCI_bestRank_rank"
+                    value=self.best_epitope_by_rank.rank_mutated, name="NetMHCpan_bestRank_rank"
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_rank.mutated_peptide,

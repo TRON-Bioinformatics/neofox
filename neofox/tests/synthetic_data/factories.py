@@ -78,7 +78,6 @@ class PatientProvider(Provider):
             try:
                 patient = Patient(
                     identifier=self.generator.unique.uuid4(),
-                    is_rna_available=True,
                     tumor_type=self.random_elements(self.available_tumor_types, length=1)[0],
                     # by setting unique=True we enforce that all patients are heterozygous
                     mhc1=MhcFactory.build_mhc1_alleles(
