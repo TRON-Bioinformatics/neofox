@@ -76,6 +76,41 @@ class PriorityScore:
             pass
         return priority_score
 
+    def calc_priority_score_imputed(
+        self,
+        vaf_dna,
+        vaf_rna,
+        imputed_geneExpr,
+        no_mismatch,
+        score_mut,
+        score_wt,
+        mut_not_in_prot,
+    ):
+        """
+        This function calculates the Priority Score using parameters for mhc I.
+        """
+        priority_score_imputed = None
+        vaf = None
+        try:
+            if vaf_dna is not None and vaf_dna != -1:
+                vaf = vaf_dna
+            elif vaf_rna is not None and vaf_rna != -1:
+                vaf = vaf_rna
+            if vaf:
+                l_mut = self.calc_logistic_function(score_mut)
+                l_wt = self.calc_logistic_function(score_wt)
+                priority_score = self.mupexi(
+                    l_mut=l_mut,
+                    l_wt=l_wt,
+                    mut_not_in_prot=mut_not_in_prot,
+                    no_mismatch=no_mismatch,
+                    imputed_geneExpr=imputed_geneExpr,
+                    vaf_tumor=vaf
+                )
+        except (TypeError, ValueError):
+            pass
+        return priority_score_imputed
+
     def mupexi(
         self, l_mut, l_wt, mut_not_in_prot, no_mismatch, transcript_expr, vaf_tumor
     ):
@@ -95,6 +130,7 @@ class PriorityScore:
         """
         num_mismatches_mhc1 = None
         priority_score = None
+        priority_score_imputed = None
         if netmhcpan.best_epitope_by_rank.wild_type_peptide and netmhcpan.best_epitope_by_rank.mutated_peptide:
             num_mismatches_mhc1 = EpitopeHelper.number_of_mismatches(
                 epitope_wild_type=netmhcpan.best_epitope_by_rank.wild_type_peptide,
@@ -113,6 +149,15 @@ class PriorityScore:
                         score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
                         mut_not_in_prot=mut_not_in_prot,
                     )
+            priority_score_imputed = self.calc_priority_score_imputed(
+                        vaf_dna=neoantigen.dna_variant_allele_frequency,
+                        vaf_rna=vaf_rna,
+                        imputed_geneExpr=neoantigen.imputed_gene_expression,
+                        no_mismatch=num_mismatches_mhc1,
+                        score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
+                        score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
+                        mut_not_in_prot=mut_not_in_prot,
+                    )
         annotations = [
             AnnotationFactory.build_annotation(
                 value=num_mismatches_mhc1, name="Number_of_mismatches_MCHI"
@@ -122,6 +167,11 @@ class PriorityScore:
                 value=priority_score,
                 name="Priority_score",
             ),
+            # imputed priority score with rank score
+            AnnotationFactory.build_annotation(
+                value=priority_score_imputed,
+                name="Priority_score_imputed"
+            )
         ]
         return annotations
 
@@ -139,5 +189,5 @@ class PriorityScore:
                     score_wt=epitope.rank_wild_type,
                     mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
-                name='Priority_score')
+                name='Priority_score'),
             ]
