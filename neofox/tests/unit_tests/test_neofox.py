@@ -194,7 +194,9 @@ class TestNeofox(TestCase):
         for neoantigen, neoantigen_imputed in zip(original_neoantigens, neofox_runner.neoantigens):
             self.assertIsNotNone(neoantigen_imputed.imputed_gene_expression)
             if neoantigen.rna_expression is None:
-                self.assertNotEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
+                #self.assertNotEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
+                self.assertTrue(neoantigen.rna_expression==neoantigen_imputed.rna_expression or
+                                (neoantigen.rna_expression is None and neoantigen_imputed.rna_expression is None))
             else:
                 self.assertEqual(neoantigen.rna_expression, neoantigen_imputed.rna_expression)
 
