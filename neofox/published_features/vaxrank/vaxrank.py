@@ -82,10 +82,24 @@ class VaxRank:
             pass
         return combined_score
 
-    def get_annotations(self, epitope_predictions: List[PredictedEpitope], expression_score) -> List[Annotation]:
+    def combined_score_imputed (self, imputed_score, total_binding_score):
+        """
+        adapted from: https://github.com/openvax/vaxrank/blob/master/vaxrank/epitope_prediction.py
+        final ranking score implemented in VaxRank
+        """
+        combined_score_imputed = None
+        try:
+            combined_score_imputed = float(imputed_score) * total_binding_score
+        except (ValueError, TypeError):
+            pass
+        return combined_score_imputed
+
+    def get_annotations(self, epitope_predictions: List[PredictedEpitope], expression_score, imputed_score) -> List[Annotation]:
         expression_score = expression_score
+        imputed_score = imputed_score
         total_binding_score = self.total_binding(epitope_predictions)
         ranking_score = self.combined_score(expression_score=expression_score, total_binding_score=total_binding_score)
+        ranking_score_imputed = self.combined_score_imputed(imputed_score=imputed_score, total_binding_score=total_binding_score)
         return [
             AnnotationFactory.build_annotation(
                 value=total_binding_score, name="Vaxrank_bindingScore"
@@ -93,4 +107,7 @@ class VaxRank:
             AnnotationFactory.build_annotation(
                 value=ranking_score, name="Vaxrank_totalScore"
             ),
+            AnnotationFactory.build_annotation(
+                value=ranking_score_imputed, name="Vaxrank_totalScore_imputed"
+            )
         ]
