@@ -44,6 +44,22 @@ class Expression:
             pass
         return expression_mut
 
+    @staticmethod
+    def _get_geneExpression_annotation(
+        imputed_geneExpression: float, vaf_rna: float
+    ) -> float:
+        imputed_geneExpression_mut = None
+        try:
+            imputed_geneExpression_mut = (
+                imputed_geneExpression * vaf_rna
+                if (vaf_rna is not None and vaf_rna >= 0.0)
+                   #and (Patient.tumor_type is not None and Patient.tumor_type != "")
+                else None
+            )
+        except(TypeError, ValueError):
+            pass
+        return imputed_geneExpression_mut
+
     def get_annotations(self, neoantigen: Neoantigen) -> List[Annotation]:
 
         vaf = neoantigen.rna_variant_allele_frequency
@@ -52,5 +68,9 @@ class Expression:
 
         return [
             AnnotationFactory.build_annotation(
-                name="Expression_mutated_transcript", value=self._get_expression_annotation(
-                    transcript_expression=neoantigen.rna_expression, vaf_rna=vaf))]
+                name="Mutated_rnaExpression", value=self._get_expression_annotation(
+                    transcript_expression=neoantigen.rna_expression, vaf_rna=vaf)),
+            AnnotationFactory.build_annotation(
+                name="Mutated_imputedGeneExpression", value=self._get_geneExpression_annotation(
+                    imputed_geneExpression=neoantigen.imputed_gene_expression, vaf_rna=vaf))
+        ]

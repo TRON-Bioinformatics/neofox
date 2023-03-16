@@ -222,6 +222,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
             neoantigen.neofox_annotations.annotations.extend(VaxRank().get_annotations(
                 epitope_predictions=netmhcpan.predictions,
                 expression_score=expression_annotation[0].value,
+                imputed_score=expression_annotation[1].value
             ))
 
         # hex

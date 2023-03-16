@@ -35,6 +35,7 @@ class TestPriorityScore(TestCase):
             mut_not_in_prot=True,
         )
         self.assertGreater(result, 0)
+
         result = self.priority_calculator.calc_priority_score(
             vaf_dna=None,
             vaf_rna=0.33,
