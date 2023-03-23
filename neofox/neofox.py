@@ -125,7 +125,6 @@ class NeoFox:
 
     def _conditional_expression_imputation(self) -> List[Neoantigen]:
         expression_annotator = ExpressionAnnotator()
-        expression = Expression()
         neoantigens_transformed = []
 
         for neoantigen in self.neoantigens:
@@ -135,8 +134,7 @@ class NeoFox:
             gene_expression = expression_annotator.get_gene_expression_annotation(
                 gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
             )
-            #if expression_value is None and patient.tumor_type is not None and patient.tumor_type != "":
-            #    expression_value = gene_expression
+
             neoantigen_transformed.rna_expression = expression_value
             neoantigen.imputed_gene_expression = gene_expression
 

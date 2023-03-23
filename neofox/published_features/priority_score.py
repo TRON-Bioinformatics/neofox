@@ -45,7 +45,7 @@ class PriorityScore:
         self,
         vaf_dna,
         vaf_rna,
-        transcript_expr,
+        transcript_gene_expr,
         no_mismatch,
         score_mut,
         score_wt,
@@ -69,52 +69,17 @@ class PriorityScore:
                     l_wt=l_wt,
                     mut_not_in_prot=mut_not_in_prot,
                     no_mismatch=no_mismatch,
-                    transcript_expr=transcript_expr,
+                    transcript_gene_expr=transcript_gene_expr,
                     vaf_tumor=vaf
                 )
         except (TypeError, ValueError):
             pass
         return priority_score
 
-    def calc_priority_score_imputed(
-        self,
-        vaf_dna,
-        vaf_rna,
-        imputed_geneExpr,
-        no_mismatch,
-        score_mut,
-        score_wt,
-        mut_not_in_prot,
-    ):
-        """
-        This function calculates the Priority Score using parameters for mhc I.
-        """
-        priority_score_imputed = None
-        vaf = None
-        try:
-            if vaf_dna is not None and vaf_dna != -1:
-                vaf = vaf_dna
-            elif vaf_rna is not None and vaf_rna != -1:
-                vaf = vaf_rna
-            if vaf:
-                l_mut = self.calc_logistic_function(score_mut)
-                l_wt = self.calc_logistic_function(score_wt)
-                priority_score = self.mupexi(
-                    l_mut=l_mut,
-                    l_wt=l_wt,
-                    mut_not_in_prot=mut_not_in_prot,
-                    no_mismatch=no_mismatch,
-                    imputed_geneExpr=imputed_geneExpr,
-                    vaf_tumor=vaf
-                )
-        except (TypeError, ValueError):
-            pass
-        return priority_score_imputed
-
     def mupexi(
-        self, l_mut, l_wt, mut_not_in_prot, no_mismatch, transcript_expr, vaf_tumor
+        self, l_mut, l_wt, mut_not_in_prot, no_mismatch, transcript_gene_expr, vaf_tumor
     ):
-        priority_score = (l_mut * vaf_tumor * math.tanh(transcript_expr)) * (
+        priority_score = (l_mut * vaf_tumor * math.tanh(transcript_gene_expr)) * (
             float(mut_not_in_prot) * (1 - 2 ** (-no_mismatch) * l_wt)
         )
         return priority_score
@@ -143,16 +108,16 @@ class PriorityScore:
             priority_score = self.calc_priority_score(
                         vaf_dna=neoantigen.dna_variant_allele_frequency,
                         vaf_rna=vaf_rna,
-                        transcript_expr=neoantigen.rna_expression,
+                        transcript_gene_expr=neoantigen.rna_expression,
                         no_mismatch=num_mismatches_mhc1,
                         score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
                         score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
                         mut_not_in_prot=mut_not_in_prot,
                     )
-            priority_score_imputed = self.calc_priority_score_imputed(
+            priority_score_imputed = self.calc_priority_score(
                         vaf_dna=neoantigen.dna_variant_allele_frequency,
                         vaf_rna=vaf_rna,
-                        imputed_geneExpr=neoantigen.imputed_gene_expression,
+                        transcript_gene_expr=neoantigen.imputed_gene_expression,
                         no_mismatch=num_mismatches_mhc1,
                         score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
                         score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
@@ -182,7 +147,7 @@ class PriorityScore:
                 value=self.calc_priority_score(
                     vaf_dna=vaf_tumor,
                     vaf_rna=vaf_rna,
-                    transcript_expr=transcript_exp,
+                    transcript_gene_expr=transcript_exp,
                     no_mismatch=int(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='number_of_mismatches')),
                     score_mut=epitope.rank_mutated,
