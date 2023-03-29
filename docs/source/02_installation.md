@@ -37,7 +37,7 @@ Python 3.7 or 3.8 should be preinstalled.
 
 The libz compression development library is required. This can be installed in Ubuntu as follows:
 ```
-apt-get install libz-dev
+apt-get install libbz2-dev
 ```
 
 ### Install NeoFox
