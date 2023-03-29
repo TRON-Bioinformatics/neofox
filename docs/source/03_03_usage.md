@@ -38,7 +38,7 @@ where:
 - `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
 
 **PLEASE NOTE THE FOLLOWING HINTS**:
-- if all expression values related to a patient are NA or `rnaExpression` is not given in the input file but the tumor type has been provided in the patient file, imputated expression will be used for the relevant features
+- If a tumor type has been provided in the patient file, imputated gene expression from TCGA will be annoated and expression-dependent features will be determined with imputated gene expression aswell.  
 
 **EXAMPLE**  
 This is an example to call NeoFox with a candidate file and obtaining the annotated neoantigen candidates in [tabular](03_02_output_data.md#tabular-format) format:
