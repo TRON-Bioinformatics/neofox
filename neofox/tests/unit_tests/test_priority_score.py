@@ -28,7 +28,7 @@ class TestPriorityScore(TestCase):
         result = self.priority_calculator.calc_priority_score(
             vaf_dna=0.35,
             vaf_rna=0.33,
-            transcript_expr=12,
+            transcript_gene_expr=12,
             no_mismatch=1,
             score_mut=1.1,
             score_wt=10,
@@ -39,7 +39,7 @@ class TestPriorityScore(TestCase):
         result = self.priority_calculator.calc_priority_score(
             vaf_dna=None,
             vaf_rna=0.33,
-            transcript_expr=12,
+            transcript_gene_expr=12,
             no_mismatch=1,
             score_mut=1.1,
             score_wt=10,
@@ -49,7 +49,7 @@ class TestPriorityScore(TestCase):
         result = self.priority_calculator.calc_priority_score(
             vaf_dna=0.35,
             vaf_rna=None,
-            transcript_expr=12,
+            transcript_gene_expr=12,
             no_mismatch=1,
             score_mut=1.1,
             score_wt=10,
@@ -59,7 +59,7 @@ class TestPriorityScore(TestCase):
         result = self.priority_calculator.calc_priority_score(
             vaf_dna=None,
             vaf_rna=-1,
-            transcript_expr=12,
+            transcript_gene_expr=12,
             no_mismatch=1,
             score_mut=1.1,
             score_wt=10,
@@ -69,7 +69,7 @@ class TestPriorityScore(TestCase):
         result = self.priority_calculator.calc_priority_score(
             vaf_dna=0.35,
             vaf_rna=0.33,
-            transcript_expr=None,
+            transcript_gene_expr=None,
             no_mismatch=1,
             score_mut=1.1,
             score_wt=10,
@@ -79,7 +79,7 @@ class TestPriorityScore(TestCase):
         result = self.priority_calculator.calc_priority_score(
             vaf_dna=0.35,
             vaf_rna=0.33,
-            transcript_expr=None,
+            transcript_gene_expr=None,
             no_mismatch=1,
             score_mut=1.1,
             score_wt=10,
