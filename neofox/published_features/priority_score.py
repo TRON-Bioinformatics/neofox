@@ -140,7 +140,7 @@ class PriorityScore:
         ]
         return annotations
 
-    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, vaf_tumor, transcript_exp, vaf_rna) -> \
+    def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, vaf_tumor, transcript_exp, vaf_rna, gene_exp) -> \
             List[Annotation]:
         return [
             AnnotationFactory.build_annotation(
@@ -155,4 +155,16 @@ class PriorityScore:
                     mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
                 name='Priority_score'),
+            AnnotationFactory.build_annotation(
+                value=self.calc_priority_score(
+                    vaf_dna=vaf_tumor,
+                    vaf_rna=vaf_rna,
+                    transcript_gene_expr=gene_exp,
+                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                name='Priority_score_imputed'),
             ]
