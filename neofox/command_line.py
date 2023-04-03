@@ -213,9 +213,8 @@ def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[Li
     else:
         raise ValueError('Not supported input file extension: {}'.format(input_file))
 
-    ### Van -- check if patient candidates exist in the patient data file
-    neoantigens_patient_ids = set(neoantigen['patientIdentifier'] for neoantigen in neoantigens)
-    patient_ids = set(patient['identifier'] for patient in patients)
+    neoantigens_patient_ids = set(neoantigen.patient_identifier for neoantigen in neoantigens)
+    patient_ids = set(patient.identifier for patient in patients)
     if len(neoantigens_patient_ids.difference(patient_ids)) > 0:
         raise ValueError('%s patient candidate does not exist in the patient data file.'
                          % neoantigens_patient_ids.difference(patient_ids))

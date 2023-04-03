@@ -67,7 +67,7 @@ where:
 
 - Neoepitopes with a value for `alleleMhcI` are considered MHC-I neoepitopes, likewise neoepitopes with a value for `isoformMhcII` are considered MHC-II neoepitopes. Both fields cannot be provided for the same neoepitope.
 - If none of `alleleMhcI` and `isoformMhcII` are provided then the `patientIdentifier` is required and one neoepitope sharing the same sequence will be annotated for each MHC-I allele and MHC-II isoform according to the patient HLA type.
-- If rnaExpression is not provided and the tumor type is given in the patient data, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). Please, not that this does not work for mouse data. Here, expression imputation is currently not supported.
+- If the tumor type is given in the patient data (see below), gene expression in the matching TCGA cohort is annotated and expression-related are calculated based on imputated gene expression additionally (see [description of output data](03_02_output_data.md)). Please, note that this does not work for mouse data. Here, expression imputation is currently not supported.
 - If `dnaVariantAlleleFrequency` is given while `rnaVariantAlleleFrequency` is not given, the VAF in RNA will be estimated by the VAF in DNA. 
 This means that feature scores that rely on the VAF in RNA will be calulated with the VAF in DNA.
 
