@@ -206,15 +206,16 @@ class ModelConverter(object):
             if len(annotations_dfs) > 0:
                 annotations_df = pd.concat(annotations_dfs, sort=True).reset_index()
                 del annotations_df["index"]
-
+                   
                 # puts together both data frames
                 epitopes_temp_df = pd.concat([epitopes_temp_df, annotations_df], axis=1)
-
+            
             epitopes_temp_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
             epitopes_dfs.append(epitopes_temp_df)
 
         # concatenates all together
         epitopes_df = pd.concat(epitopes_dfs)
+        epitopes_df.replace('None', NOT_AVAILABLE_VALUE, inplace=True)
 
         return epitopes_df
 
