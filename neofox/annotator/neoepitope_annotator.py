@@ -72,6 +72,8 @@ class NeoepitopeAnnotator(AbstractAnnotator):
             resources=self.resources_versions,
             annotations=[]
         )
+        self.expression_calculator = Expression()
+        expression_annotation = self.expression_calculator.get_annotations(neoantigen=neoepitope)
 
         # if the WT is not provided it searches for the closest match in the proteome
         if neoepitope.wild_type_peptide is None or neoepitope.wild_type_peptide == '':
@@ -80,7 +82,7 @@ class NeoepitopeAnnotator(AbstractAnnotator):
 
         # Runs netmhcpan, netmhc2pan, mixmhcpred and mixmhc2prd in parallel
         annotated_neoepitope = self.neoepitope_mhc_binding_annotator.get_mhc_binding_annotations(neoepitope=neoepitope)
-
+        annotated_neoepitope.neofox_annotations.annotations.extend(expression_annotation)
         has_mhc1 = annotated_neoepitope.allele_mhc_i is not None and annotated_neoepitope.allele_mhc_i.name
 
         if has_mhc1:
