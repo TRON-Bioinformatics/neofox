@@ -27,7 +27,7 @@ class Expression:
 
     @staticmethod
     def _get_expression_annotation(
-        transcript_expression: float, vaf_rna: float
+        transcript_gene_expression: float, vaf_rna: float
     ) -> float:
         """
         This function calculates the product of VAF in RNA and transcript expression
@@ -36,29 +36,13 @@ class Expression:
         expression_mut = None
         try:
             expression_mut = (
-                transcript_expression * vaf_rna
+                transcript_gene_expression * vaf_rna
                 if vaf_rna is not None and vaf_rna >= 0.0
                 else None
             )
         except (TypeError, ValueError):
             pass
         return expression_mut
-
-    @staticmethod
-    def _get_geneExpression_annotation(
-        imputed_geneExpression: float, vaf_rna: float
-    ) -> float:
-        imputed_geneExpression_mut = None
-        try:
-            imputed_geneExpression_mut = (
-                imputed_geneExpression * vaf_rna
-                if (vaf_rna is not None and vaf_rna >= 0.0)
-                   #and (Patient.tumor_type is not None and Patient.tumor_type != "")
-                else None
-            )
-        except(TypeError, ValueError):
-            pass
-        return imputed_geneExpression_mut
 
     def get_annotations(self, neoantigen: Neoantigen) -> List[Annotation]:
 
@@ -69,8 +53,8 @@ class Expression:
         return [
             AnnotationFactory.build_annotation(
                 name="Mutated_rnaExpression", value=self._get_expression_annotation(
-                    transcript_expression=neoantigen.rna_expression, vaf_rna=vaf)),
+                    transcript_gene_expression=neoantigen.rna_expression, vaf_rna=vaf)),
             AnnotationFactory.build_annotation(
-                name="Mutated_imputedGeneExpression", value=self._get_geneExpression_annotation(
-                    imputed_geneExpression=neoantigen.imputed_gene_expression, vaf_rna=vaf))
+                name="Mutated_imputedGeneExpression", value=self._get_expression_annotation(
+                    transcript_gene_expression=neoantigen.imputed_gene_expression, vaf_rna=vaf))
         ]
