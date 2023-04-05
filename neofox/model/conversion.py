@@ -184,7 +184,7 @@ class ModelConverter(object):
             patient_identifier = n.patient_identifier
             epitopes = n.neoepitopes_mhc_i if mhc == MHC_I else n.neoepitopes_mhc_i_i
             epitopes_temp_df = ModelConverter._objects2dataframe(epitopes)
-            epitopes_temp_df['patient_identifier'] = patient_identifier
+            epitopes_temp_df['patientIdentifier'] = patient_identifier
 
             # adapts output table depending on MHC type
             if mhc == MHC_I:
@@ -199,20 +199,23 @@ class ModelConverter(object):
             annotations_dfs = []
             for e in epitopes:
                 annotations = [a.to_dict() for a in e.neofox_annotations.annotations]
+                # add external annotations also to epitope table
+                annotations.extend([a.to_dict() for a in n.external_annotations])
                 annotations_temp_df = (pd.DataFrame(annotations).set_index("name").transpose())
                 annotations_dfs.append(annotations_temp_df)
             if len(annotations_dfs) > 0:
                 annotations_df = pd.concat(annotations_dfs, sort=True).reset_index()
                 del annotations_df["index"]
-
+                   
                 # puts together both data frames
                 epitopes_temp_df = pd.concat([epitopes_temp_df, annotations_df], axis=1)
-
+            
             epitopes_temp_df.replace({None: NOT_AVAILABLE_VALUE}, inplace=True)
             epitopes_dfs.append(epitopes_temp_df)
 
         # concatenates all together
         epitopes_df = pd.concat(epitopes_dfs)
+        epitopes_df.replace('None', NOT_AVAILABLE_VALUE, inplace=True)
 
         return epitopes_df
 
