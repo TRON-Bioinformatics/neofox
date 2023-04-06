@@ -237,8 +237,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
         # annotate neoepitopes
         if with_all_neoepitopes:
             neoantigen.neoepitopes_mhc_i = [
-                self.get_additional_annotations_neoepitope_mhci(
-                    epitope=e, neoantigen=neoantigen)
+                self.get_additional_annotations_neoepitope_mhci(epitope=e, neoantigen=neoantigen)
                 for e in neoantigen.neoepitopes_mhc_i]
             neoantigen.neoepitopes_mhc_i_i = [
                 self.get_additional_annotations_neoepitope_mhcii(epitope=e) for e in neoantigen.neoepitopes_mhc_i_i]
