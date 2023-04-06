@@ -259,7 +259,8 @@ class PredictedEpitope(betterproto.Message):
     dna_variant_allele_frequency: float = betterproto.float_field(15)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
     rna_variant_allele_frequency: float = betterproto.float_field(16)
-
+    # *Amino acid sequence of the neoantigen candidate (IUPAC 1 letter codes)
+    mutated_xmer: str = betterproto.string_field(17)
 
 @dataclass
 class Neoantigen(betterproto.Message):
