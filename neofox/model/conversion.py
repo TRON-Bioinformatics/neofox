@@ -181,14 +181,6 @@ class ModelConverter(object):
         epitopes_dfs = []
         for n in neoantigens:
             # parses epitopes from a neoantigen into a data frame
-            #patient_identifier = n.patient_identifier
-            #gene = n.gene
-            #rna_expression = n.rna_expression
-            #imputed_gene_expression = n.imputed_gene_expression
-            #dna_vaf = n.dna_variant_allele_frequency
-            #rna_vaf = n.rna_variant_allele_frequency
-            #mutated_xmer = n.mutated_xmer
-
             epitopes = n.neoepitopes_mhc_i if mhc == MHC_I else n.neoepitopes_mhc_i_i
             epitopes_temp_df = ModelConverter._objects2dataframe(epitopes)
             epitopes_temp_df['patientIdentifier'] = n.patient_identifier
