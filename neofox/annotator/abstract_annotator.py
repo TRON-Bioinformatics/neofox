@@ -57,7 +57,7 @@ class AbstractAnnotator(ABC):
 
     def get_additional_annotations_neoepitope_mhci(
             self, epitope: PredictedEpitope, neoantigen: Neoantigen = None) -> PredictedEpitope:
-        '''
+
         if neoantigen is not None:
             gene = neoantigen.gene
             vaf_tumor_dna = neoantigen.dna_variant_allele_frequency
@@ -70,21 +70,6 @@ class AbstractAnnotator(ABC):
             vaf_tumor_rna = epitope.rna_variant_allele_frequency
             transcript_exp = epitope.rna_expression
             gene_exp = epitope.imputed_gene_expression
-        '''
-        if neoantigen is not None:
-            epitope.gene = neoantigen.gene
-            epitope.patient_identifier = neoantigen.patient_identifier
-            epitope.rna_expression = neoantigen.rna_expression
-            epitope.imputed_gene_expression = neoantigen.imputed_gene_expression
-            epitope.dna_variant_allele_frequency = neoantigen.dna_variant_allele_frequency
-            epitope.rna_variant_allele_frequency = neoantigen.rna_variant_allele_frequency
-            epitope.mutated_xmer = neoantigen.mutated_xmer
-
-        gene = epitope.gene
-        vaf_tumor_dna = epitope.dna_variant_allele_frequency
-        vaf_tumor_rna = epitope.rna_variant_allele_frequency
-        transcript_exp = epitope.rna_expression
-        gene_exp = epitope.imputed_gene_expression
 
         epitope.neofox_annotations.annotations.extend(
             BestAndMultipleBinder.get_annotations_epitope_mhci(epitope=epitope) +
@@ -121,7 +106,8 @@ class AbstractAnnotator(ABC):
 
         return epitope
 
-    def get_additional_annotations_neoepitope_mhcii(self, epitope: PredictedEpitope) -> PredictedEpitope:
+    def get_additional_annotations_neoepitope_mhcii(
+            self, epitope: PredictedEpitope) -> PredictedEpitope:
 
         epitope.neofox_annotations.annotations.extend(
             self.amplitude.get_annotations_epitope_mhcii(epitope=epitope) +
