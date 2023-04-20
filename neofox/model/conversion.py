@@ -188,8 +188,8 @@ class ModelConverter(object):
             epitopes_temp_df['gene'] = n.gene
             epitopes_temp_df['rnaExpression'] = n.rna_expression
             epitopes_temp_df['imputedGeneExpression'] = n.imputed_gene_expression
-            epitopes_temp_df['dnaVariantAlleleFrequency'] = n.dna_vaf
-            epitopes_temp_df['rnaVariantAlleleFrequency'] = n.rna_vaf
+            epitopes_temp_df['dnaVariantAlleleFrequency'] = n.dna_variant_allele_frequency
+            epitopes_temp_df['rnaVariantAlleleFrequency'] = n.rna_variant_allele_frequency
             epitopes_temp_df['mutatedXmer'] = n.mutated_xmer
 
             # adapts output table depending on MHC type
