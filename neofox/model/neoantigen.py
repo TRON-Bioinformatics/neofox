@@ -260,7 +260,6 @@ class PredictedEpitope(betterproto.Message):
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
     rna_variant_allele_frequency: float = betterproto.float_field(16)
 
-
 @dataclass
 class Neoantigen(betterproto.Message):
     """*A neoantigen minimal definition"""
