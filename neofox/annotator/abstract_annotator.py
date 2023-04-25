@@ -106,7 +106,8 @@ class AbstractAnnotator(ABC):
 
         return epitope
 
-    def get_additional_annotations_neoepitope_mhcii(self, epitope: PredictedEpitope) -> PredictedEpitope:
+    def get_additional_annotations_neoepitope_mhcii(
+            self, epitope: PredictedEpitope) -> PredictedEpitope:
 
         epitope.neofox_annotations.annotations.extend(
             self.amplitude.get_annotations_epitope_mhcii(epitope=epitope) +
