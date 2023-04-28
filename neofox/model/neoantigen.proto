@@ -335,6 +335,10 @@ message PredictedEpitope {
 	Variant allele frequency from the RNA. Range [0.0, 1.0]
 	*/
 	float rnaVariantAlleleFrequency = 16;
+  /**
+  External annotations for neoepitope mode.
+  */
+  repeated Annotation externalAnnotations = 17;
 }
 
 /**

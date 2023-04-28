@@ -158,8 +158,10 @@ class NeoepitopeFactory(object):
 
         # parse MHC alleles and isoforms
         mhc_parser = MhcParser.get_mhc_parser(mhc_database)
-        neoepitope.allele_mhc_i = mhc_parser.parse_mhc_allele(allele_mhc_i) if allele_mhc_i else None
-        neoepitope.isoform_mhc_i_i = mhc_parser.parse_mhc2_isoform(isoform_mhc_i_i) if isoform_mhc_i_i else None
+        if allele_mhc_i:
+            neoepitope.allele_mhc_i = mhc_parser.parse_mhc_allele(allele_mhc_i)
+        if isoform_mhc_i_i:
+            neoepitope.isoform_mhc_i_i = mhc_parser.parse_mhc2_isoform(isoform_mhc_i_i)
 
         external_annotation_names = dict.fromkeys(
             nam for nam in kw.keys() if stringcase.snakecase(nam) not in set(Neoantigen.__annotations__.keys()))
