@@ -286,7 +286,9 @@ class TestNeofoxEpitope(BaseIntegrationTest):
         for n, n2 in zip(neoepitopes, neofox_runner.neoepitopes):
             self.assertIsNotNone(n2.imputed_gene_expression)
             self.assertNotEqual(n2.imputed_gene_expression, 0)
-            self.assertEqual(n2.imputed_gene_expression, n2.rna_expression)
+            self.assertNotEqual(n2.imputed_gene_expression, n2.rna_expression)
+            self.assertEqual(n.rna_expression, n2.rna_expression)
+            self.assertEqual(n.imputed_gene_expression, n2.imputed_gene_expression)
 
     def _assert_neeoepitope(self, neoepitope: PredictedEpitope):
         # netMHCpan or netMHC2pan annotations
