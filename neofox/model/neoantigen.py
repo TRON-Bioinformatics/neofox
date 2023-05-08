@@ -262,7 +262,6 @@ class PredictedEpitope(betterproto.Message):
     # *External annotations for neoepitope mode.
     external_annotations: List["Annotation"] = betterproto.message_field(17)
 
-
 @dataclass
 class Neoantigen(betterproto.Message):
     """*A neoantigen minimal definition"""
