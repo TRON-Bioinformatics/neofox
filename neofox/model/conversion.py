@@ -226,6 +226,8 @@ class ModelConverter(object):
 
         # concatenates all together
         epitopes_df = pd.concat(epitopes_dfs)
+        # has to be dropped otherwise a column containing all external annotations will exist
+        epitopes_df.drop(["externalAnnotations"], axis=1, inplace=True)
         epitopes_df.replace('None', NOT_AVAILABLE_VALUE, inplace=True)
 
         return epitopes_df
