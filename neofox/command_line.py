@@ -336,7 +336,8 @@ def neofox_epitope_cli():
         neoepitopes, patients = _read_data_epitopes(
             input_file,
             patients_data,
-            reference_folder.get_mhc_database())
+            reference_folder.get_mhc_database(),
+            organism)
 
         # run annotations
         annotated_neoepitopes = NeoFoxEpitope(
@@ -360,7 +361,7 @@ def neofox_epitope_cli():
 
 
 def _read_data_epitopes(
-    input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[PredictedEpitope], List[Patient]]:
+    input_file, patients_data, mhc_database: MhcDatabase, organism: str) -> Tuple[List[PredictedEpitope], List[Patient]]:
 
     # parse patient data
     patients = []
@@ -372,7 +373,7 @@ def _read_data_epitopes(
     # parse the neoantigen candidate data
     if input_file.endswith('.txt') or input_file.endswith('.tsv'):
         logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
-        neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database)
+        neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database, organism)
         logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
     # TODO: add support for input in JSON format
     #elif input_file.endswith('.json')  :

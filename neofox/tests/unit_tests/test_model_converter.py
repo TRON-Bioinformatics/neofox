@@ -807,7 +807,7 @@ class ModelConverterTest(TestCase):
         )
         with open(candidate_file) as f:
             self.count_lines = len(f.readlines())
-        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database)
+        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database, ORGANISM_HOMO_SAPIENS)
         self.assertIsNotNone(neoepitopes)
         self.assertEqual(self.count_lines -1, len(neoepitopes))
         for n in neoepitopes:
@@ -821,7 +821,7 @@ class ModelConverterTest(TestCase):
         with open(candidate_file) as f:
             self.count_lines = len(f.readlines())
 
-        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database)
+        neoepitopes = ModelConverter().parse_candidate_neoepitopes_file(candidate_file, self.hla_database, ORGANISM_HOMO_SAPIENS)
         self.assertIsNotNone(neoepitopes)
         self.assertEqual(self.count_lines -1, len(neoepitopes))
         for n in neoepitopes:

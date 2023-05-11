@@ -259,6 +259,8 @@ class PredictedEpitope(betterproto.Message):
     dna_variant_allele_frequency: float = betterproto.float_field(15)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
     rna_variant_allele_frequency: float = betterproto.float_field(16)
+    # *External annotations for neoepitope mode.
+    external_annotations: List["Annotation"] = betterproto.message_field(17)
 
 @dataclass
 class Neoantigen(betterproto.Message):
