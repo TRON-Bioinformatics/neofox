@@ -371,20 +371,25 @@ class IedbFastaBuilder:
         self.input_file = input_file
 
     def build_fasta(self, organism, process_type, output_file):
+        # read IEDB header
+        iedb_head = pd.read_csv(self.input_file, nrows=2, header=None)
+        # combine the two header rows (table name and value) to get the unique column names
+        # e.g.: "Epitope:Name", "MHC Restriction:Name", "MHC Restriction:Class", ...
+        iedb_cols = iedb_head.apply(lambda col: f'{col[0]}:{col[1]}')
         # read IEDB input file
-        iedb = pd.read_csv(self.input_file, skiprows=1)
+        iedb = pd.read_csv(self.input_file, skiprows=2, names=iedb_cols)
 
         # filter entries
         filtered_iedb = iedb[
-            (iedb["Name"].str.contains(organism))
-            & (iedb["Object Type"] == "Linear peptide")
-            & (iedb["Process Type"] == process_type)
-            & (iedb["Qualitative Measure"] == "Positive")
-            & (iedb["Class"] == "I")
+            (iedb["Host:Name"].str.contains(organism))
+            & (iedb["Epitope:Object Type"] == "Linear peptide")
+            & (iedb["1st in vivo Process:Process Type"] == process_type)
+            & (iedb["Assay:Qualitative Measurement"] == "Positive")
+            & (iedb["MHC Restriction:Class"] == "I")
         ]
 
         # parses peptides and validates them, non-valid peptides are filtered out
-        filtered_iedb.loc[:, "seq"] = filtered_iedb.loc[:, "Description"].transform(
+        filtered_iedb.loc[:, "seq"] = filtered_iedb.loc[:, "Epitope:Name"].transform(
             lambda x: x.strip())
         filtered_iedb.loc[:, "valid_peptide"] = filtered_iedb.loc[:, "seq"].transform(
             lambda x: _verify_alphabet(Seq(x, IUPAC.protein)))
@@ -393,17 +398,17 @@ class IedbFastaBuilder:
         # build fasta header: 449|FL-160-2 protein - Trypanosoma cruzi|JH0823|Trypanosoma cruzi|5693
         # epitope id|Antigen Name|antigen_id|Organism Name|organism_id
         filtered_iedb.loc[:, "epitope_id"] = filtered_iedb.loc[
-            :, "Epitope IRI"
+            :, "Epitope:IEDB IRI"
         ].transform(lambda x: x.replace("http://www.iedb.org/epitope/", "", regex=True))
         filtered_iedb.loc[:, "antigen_id"] = filtered_iedb.loc[
-            :, "Antigen IRI"
+            :, "Epitope:Source Molecule IRI"
         ].transform(
             lambda x: x.replace(
                 "http://www.ncbi.nlm.nih.gov/protein/", "", regex=True
             ).replace("https://ontology.iedb.org/ontology/", "", regex=True)
         )
         filtered_iedb.loc[:, "organism_id"] = filtered_iedb.loc[
-            :, "Organism IRI"
+            :, "Epitope:Source Organism IRI"
         ].transform(
             lambda x: x.replace(
                 "http://purl.obolibrary.org/obo/NCBITaxon_", "", regex=True
@@ -412,9 +417,9 @@ class IedbFastaBuilder:
         filtered_iedb.loc[:, "fasta_header"] = filtered_iedb.apply(
             lambda row: ">{epitope_id}|{antigen_name}|{antigen_id}|{organism_name}|{organism_id}".format(
                 epitope_id=str(row["epitope_id"]),
-                antigen_name=row["Antigen Name"],
+                antigen_name=row["Epitope:Source Molecule"],
                 antigen_id=str(row["antigen_id"]),
-                organism_name=row["Organism Name"],
+                organism_name=row["Epitope:Source Organism"],
                 organism_id=str(row["organism_id"]),
             ),
             axis=1,
