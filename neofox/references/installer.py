@@ -154,19 +154,12 @@ class NeofoxReferenceInstaller(object):
         os.makedirs(os.path.join(self.reference_folder, IEDB_FOLDER), exist_ok=True)
 
         # download IEDB
-        iedb_zip = os.path.join(self.reference_folder, IEDB_FOLDER, "Iedb.zip")
-        cmd = 'wget "{}" -O {}'.format(IEDB_URL, iedb_zip)
-        self._run_command(cmd)
-
-        # unzip IEDB
         path_to_iedb_folder = os.path.join(self.reference_folder, IEDB_FOLDER)
-        cmd = "unzip -o {iedb_zip} -d {iedb_folder}".format(
-            iedb_zip=iedb_zip, iedb_folder=path_to_iedb_folder
-        )
+        tcell_full_iedb_file = os.path.join(path_to_iedb_folder, "tcell_full_v3.zip")
+        cmd = 'wget "{}" -O {}'.format(IEDB_URL, tcell_full_iedb_file)
         self._run_command(cmd)
 
         # transforms IEDB into fasta
-        tcell_full_iedb_file = os.path.join(self.reference_folder, IEDB_FOLDER, "tcell_full_v3.csv")
         hash = self._get_md5_hash(tcell_full_iedb_file)
         iedb_builder = IedbFastaBuilder(tcell_full_iedb_file)
 
