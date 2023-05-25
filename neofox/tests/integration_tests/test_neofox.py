@@ -408,6 +408,19 @@ class TestNeofox(TestCase):
         for n in neofox.neoantigens:
             self.assertEqual(n.rna_expression, 1.2)
 
+    def test_neoantigens_with_many_rna_expressions(self):
+        """"""
+        neoantigens, patients = self._get_test_data()
+        values = [1.2, 2, 3.1, 0.9, 4]
+        for n, val in zip(neoantigens, values):
+            n.rna_expression = val
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patients=patients,
+            num_cpus=4
+        )
+        for n, val in zip(neofox.neoantigens, values):
+            self.assertEqual(n.rna_expression, val)
 
     def test_patient_with_non_existing_allele_does_not_crash(self):
         """"""

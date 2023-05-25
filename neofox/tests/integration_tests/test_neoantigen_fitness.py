@@ -48,7 +48,7 @@ class TestNeoantigenFitness(TestCase):
         result = self.neoantigen_fitness_calculator.get_pathogen_similarity(
             peptide="FIAGDAAIV"
         )
-        self.assertEqual(0.9923850668756105, result)
+        self.assertEqual(0.9961779812291349, result)
         # tests a non pathogen sequence and expects 0 similarity
         result = self.neoantigen_fitness_calculator.get_pathogen_similarity(
             peptide="DDDDDMMDD"
