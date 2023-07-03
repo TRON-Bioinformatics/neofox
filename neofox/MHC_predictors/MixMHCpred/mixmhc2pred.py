@@ -58,10 +58,12 @@ class MixMHC2pred:
         loads file with available HLA II alllels for MixMHC2pred prediction, returns set
         :return:
         """
+
         alleles = pd.read_csv(
-            self.configuration.mix_mhc2_pred_alleles_list, skiprows=1, sep="\t"
+            self.configuration.mix_mhc2_pred_alleles_list, skiprows=2, sep="\t"
         )
         return list(alleles["AlleleName"])
+
 
     @staticmethod
     def _combine_dq_dp_alleles(alpha_alleles: List[str], beta_alleles: List[str]):
@@ -155,37 +157,38 @@ class MixMHC2pred:
 
     def _mixmhc2prediction(self, isoforms: List[str], potential_ligand_sequences: List[str]) -> List[PredictedEpitope]:
 
-        tmpfasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
+        tmptxt = intermediate_files.create_temp_allele(potential_ligand_sequences, prefix="tmp_sequence_")
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
             " ".join(isoforms),
             "-i",
-            tmpfasta,
+            tmptxt,
             "-o",
             outtmp,
+            "--no_context"
         ]
         self.runner.run_command(cmd)
         results = self._parse_mixmhc2pred_output(filename=outtmp)
         os.remove(outtmp)
-        os.remove(tmpfasta)
+        os.remove(tmptxt)
         return results
 
     def run(self, mhc: List[Mhc2], neoantigen: Neoantigen, uniprot):
         """
         Runs MixMHC2pred:
-        prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
-        Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
+        prediction for peptides of length 12 to 21 based on Racle, J., et al., Nat. Biotech. (2023).
+        Machine learning predictions of MHC-II specificities reveal alternative binding mode of class II epitopes.
         """
         # TODO: get rid of this
         self.results = None
 
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            neoantigen=neoantigen, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot)
+            neoantigen=neoantigen, lengths=[12,13, 14, 15, 16, 17, 18,19,20,21], uniprot=uniprot)
         # filter mps shorter < 13aa
         filtered_sequences = list(
-            filter(lambda x: len(x) >= 13, potential_ligand_sequences)
+            filter(lambda x: len(x) >= 12, potential_ligand_sequences)
         )
         if len(filtered_sequences) > 0:
             mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
@@ -194,6 +197,7 @@ class MixMHC2pred:
                     isoforms=mhc2_alleles, potential_ligand_sequences=filtered_sequences)
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
+                print(mhc2_alleles)
 
     def run_peptide(self, peptide: str, isoform: Mhc2Isoform) -> PredictedEpitope:
         """
@@ -207,6 +211,8 @@ class MixMHC2pred:
                 potential_ligand_sequences=[peptide])
             if results:
                 result = results[0]
+        else:
+            print('%s is not available in the available alleles.' % isoform_representation)
         return result
 
     def get_annotations(self) -> List[Annotation]:
