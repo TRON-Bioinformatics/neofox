@@ -200,6 +200,10 @@ class BestAndMultipleBinderMhcII:
                     name="NetMHCIIpan_bestRank_allele",
                 ),
                 AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank.core_mhc_i_i,
+                    name="NetMHCIIpan_bestRank_core",
+                ),
+                AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_rank.rank_wild_type,
                     name="NetMHCIIpan_bestRank_rankWT",
                 ),
@@ -221,6 +225,10 @@ class BestAndMultipleBinderMhcII:
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.isoform_mhc_i_i.name,
                     name="NetMHCIIpan_bestAffinity_allele",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity.core_mhc_i_i,
+                    name="NetMHCIIpan_bestAffinity_core",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.affinity_wild_type,

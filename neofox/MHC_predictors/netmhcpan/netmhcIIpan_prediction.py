@@ -125,6 +125,7 @@ class NetMhcIIPanPredictor:
                     PredictedEpitope(
                         position=int(line[0]),
                         isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(line[1]),
+                        core_mhc_i_i=str(line[4]),
                         mutated_peptide=line[2],
                         affinity_mutated=float(line[11]),
                         rank_mutated=float(line[8]),

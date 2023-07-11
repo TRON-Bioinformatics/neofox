@@ -229,38 +229,42 @@ class PredictedEpitope(betterproto.Message):
     allele_mhc_i: "MhcAllele" = betterproto.message_field(4)
     # *MHC II isoform
     isoform_mhc_i_i: "Mhc2Isoform" = betterproto.message_field(5)
+    # *MHCII core part of the peptide ligand that primarily interacts with the
+    # MHC binding groove, predicted by NetMHCIIpan
+    core_mhc_i_i: str = betterproto.string_field(6)
     # *MHC binding affinity for the mutated peptide. This value is estimated with
     # NetMHCpan in case of MHC-I peptidesand NetMHCIIpan in cas of MHC-II
     # peptides
-    affinity_mutated: float = betterproto.float_field(6)
+    affinity_mutated: float = betterproto.float_field(7)
     # *MHC binding rank for the mutated peptide. This value is estimated with
     # NetMHCpan in case of MHC-I peptidesand NetMHCIIpan in cas of MHC-II
     # peptides
-    rank_mutated: float = betterproto.float_field(7)
+    rank_mutated: float = betterproto.float_field(8)
     # *MHC binding affinity for the wild type peptide. This value is estimated
     # with NetMHCpan in case of MHC-I peptidesand NetMHCIIpan in cas of MHC-II
     # peptides
-    affinity_wild_type: float = betterproto.float_field(8)
+    affinity_wild_type: float = betterproto.float_field(9)
     # *MHC binding rank for the wild type peptide. This value is estimated with
     # NetMHCpan in case of MHC-I peptidesand NetMHCIIpan in cas of MHC-II
     # peptides
-    rank_wild_type: float = betterproto.float_field(9)
+    rank_wild_type: float = betterproto.float_field(10)
     # *The NeoFox neoantigen annotations
-    neofox_annotations: "Annotations" = betterproto.message_field(10)
+    neofox_annotations: "Annotations" = betterproto.message_field(11)
     # *Patient identifier
-    patient_identifier: str = betterproto.string_field(11)
+    patient_identifier: str = betterproto.string_field(12)
     # *The HGNC gene symbol or gene identifier
-    gene: str = betterproto.string_field(12)
+    gene: str = betterproto.string_field(13)
     # *Expression value of the transcript from RNA data. Range [0, +inf].
-    rna_expression: float = betterproto.float_field(13)
+    rna_expression: float = betterproto.float_field(14)
     # *Expression value of the transcript from TCGA data. Range [0, +inf].
-    imputed_gene_expression: float = betterproto.float_field(14)
+    imputed_gene_expression: float = betterproto.float_field(15)
     # *Variant allele frequency from the DNA. Range [0.0, 1.0]
-    dna_variant_allele_frequency: float = betterproto.float_field(15)
+    dna_variant_allele_frequency: float = betterproto.float_field(16)
     # *Variant allele frequency from the RNA. Range [0.0, 1.0]
-    rna_variant_allele_frequency: float = betterproto.float_field(16)
+    rna_variant_allele_frequency: float = betterproto.float_field(17)
     # *External annotations for neoepitope mode.
-    external_annotations: List["Annotation"] = betterproto.message_field(17)
+    external_annotations: List["Annotation"] = betterproto.message_field(18)
+
 
 @dataclass
 class Neoantigen(betterproto.Message):
