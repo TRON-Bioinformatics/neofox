@@ -61,4 +61,4 @@ The models and the required scripts are in the folder `neofox/models`
 
 Build the models into Python code with `make models`.
 
-Build the HTML documentation with `make html`.
+Build the HTML documentation with `make html` (this requires membership of the docker group).
