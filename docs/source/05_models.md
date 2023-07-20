@@ -217,6 +217,7 @@ The metadata required for analysis for a given patient + its patient identifier
 | wildTypePeptide | [string](#string) |  | Closest wild type peptide |
 | alleleMhcI | [MhcAllele](#neoantigen.MhcAllele) |  | MHC I allele |
 | isoformMhcII | [Mhc2Isoform](#neoantigen.Mhc2Isoform) |  | MHC II isoform |
+| coreMhcII | [string](#string) |  | MHCII core part of the peptide ligand that primarily interacts with the MHC binding groove, predicted by NetMHCIIpan |
 | affinityMutated | [float](#float) |  | MHC binding affinity for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
 | rankMutated | [float](#float) |  | MHC binding rank for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
 | affinityWildType | [float](#float) |  | MHC binding affinity for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
@@ -228,6 +229,7 @@ The metadata required for analysis for a given patient + its patient identifier
 | imputedGeneExpression | [float](#float) |  | Expression value of the transcript from TCGA data. Range [0, +inf]. |
 | dnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the DNA. Range [0.0, 1.0] |
 | rnaVariantAlleleFrequency | [float](#float) |  | Variant allele frequency from the RNA. Range [0.0, 1.0] |
+| externalAnnotations | [Annotation](#neoantigen.Annotation) | repeated | External annotations for neoepitope mode. |
 
 
 
