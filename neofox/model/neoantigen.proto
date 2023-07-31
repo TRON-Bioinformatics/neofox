@@ -289,9 +289,9 @@ message PredictedEpitope {
 	Mhc2Isoform isoformMhcII = 5;
 	/**
 	MHCII core part of the peptide ligand that primarily interacts with the 
-	MHC binding groove, predicted by NetMHCIIpan
+	MHC binding groove, predicted by NetMHCpan/NetMHCIIpan
 	*/
-	string coreMhcII = 6;
+	string core = 6;
 	/**
 	MHC binding affinity for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides
 	and NetMHCIIpan in cas of MHC-II peptides

@@ -230,8 +230,8 @@ class PredictedEpitope(betterproto.Message):
     # *MHC II isoform
     isoform_mhc_i_i: "Mhc2Isoform" = betterproto.message_field(5)
     # *MHCII core part of the peptide ligand that primarily interacts with the
-    # MHC binding groove, predicted by NetMHCIIpan
-    core_mhc_i_i: str = betterproto.string_field(6)
+    # MHC binding groove, predicted by NetMHCpan/NetMHCIIpan
+    core: str = betterproto.string_field(6)
     # *MHC binding affinity for the mutated peptide. This value is estimated with
     # NetMHCpan in case of MHC-I peptidesand NetMHCIIpan in cas of MHC-II
     # peptides

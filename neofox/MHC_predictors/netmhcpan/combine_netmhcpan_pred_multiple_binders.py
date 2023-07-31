@@ -197,6 +197,10 @@ class BestAndMultipleBinder:
                     name="NetMHCpan_bestRank_peptide",
                 ),
                 AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_rank.core,
+                    name="NetMHCpan_bestRank_core",
+                ),
+                AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_rank.allele_mhc_i.name, name="NetMHCpan_bestRank_allele"
                 ),
                 AnnotationFactory.build_annotation(
@@ -207,6 +211,13 @@ class BestAndMultipleBinder:
                     name="NetMHCpan_bestRank_peptideWT",
                 )
             ])
+            # Additional annotations assigned to the epitopes are added to the output
+            for annotation in self.best_epitope_by_rank.neofox_annotations.annotations:
+                annotations.append(
+                    AnnotationFactory.build_annotation(
+                        value=annotation.value, name=f"NetMHCpan_bestRank_{annotation.name}"
+                    ),
+                )
         if self.best_epitope_by_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
@@ -216,6 +227,10 @@ class BestAndMultipleBinder:
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_affinity.mutated_peptide,
                     name="NetMHCpan_bestAffinity_peptide",
+                ),
+                AnnotationFactory.build_annotation(
+                    value=self.best_epitope_by_affinity.core,
+                    name="NetMHCpan_bestAffinity_core",
                 ),
                 AnnotationFactory.build_annotation(
                     value=self.best_epitope_by_affinity.allele_mhc_i.name,
@@ -229,6 +244,13 @@ class BestAndMultipleBinder:
                     value=self.best_epitope_by_affinity.wild_type_peptide,
                     name="NetMHCpan_bestAffinity_peptideWT",
                 )])
+            # Additional annotations assigned to the epitopes are added to the output
+            for annotation in self.best_epitope_by_affinity.neofox_annotations.annotations:
+                annotations.append(
+                    AnnotationFactory.build_annotation(
+                        value=annotation.value, name=f"NetMHCpan_bestAffinity_{annotation.name}"
+                    ),
+                )
         if self.best_ninemer_epitope_by_rank:
             annotations.extend([
                 AnnotationFactory.build_annotation(
