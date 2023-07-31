@@ -26,8 +26,9 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope, Neoantigen
+from neofox.model.neoantigen import Mhc2, Mhc2Name, Mhc2Isoform, PredictedEpitope, Neoantigen, Annotation
 from neofox.references.references import DependenciesConfiguration
+from neofox.model.factories import AnnotationFactory
 
 
 class NetMhcIIPanPredictor:
@@ -121,17 +122,26 @@ class NetMhcIIPanPredictor:
                     continue
                 line = line.split()
                 line = line[0:-1] if len(line) > 12 else line
-                results.append(
-                    PredictedEpitope(
+                
+                pred_epitope = PredictedEpitope(
                         position=int(line[0]),
                         isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(line[1]),
-                        core_mhc_i_i=str(line[4]),
+                        core=str(line[4]),
                         mutated_peptide=line[2],
                         affinity_mutated=float(line[11]),
                         rank_mutated=float(line[8]),
                     )
+                pred_epitope.neofox_annotations.annotations.extend(
+                    self.get_additional_netmhcpan_annotations(line)
                 )
+                results.append(pred_epitope)
         return results
+
+    def get_additional_netmhcpan_annotations(self, line) -> List[Annotation]:
+        # additional annotations from netmhcpan 
+        of = AnnotationFactory.build_annotation(name="Of", value=str(line[3]))
+        core_rel = AnnotationFactory.build_annotation(name="Core_Rel", value=str(line[5]))
+        return [of, core_rel]
 
     def set_wt_netmhcpan_scores(self, predictions) -> List[PredictedEpitope]:
         for p in predictions:
