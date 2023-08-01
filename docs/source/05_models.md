@@ -217,7 +217,7 @@ The metadata required for analysis for a given patient + its patient identifier
 | wildTypePeptide | [string](#string) |  | Closest wild type peptide |
 | alleleMhcI | [MhcAllele](#neoantigen.MhcAllele) |  | MHC I allele |
 | isoformMhcII | [Mhc2Isoform](#neoantigen.Mhc2Isoform) |  | MHC II isoform |
-| coreMhcII | [string](#string) |  | MHCII core part of the peptide ligand that primarily interacts with the MHC binding groove, predicted by NetMHCIIpan |
+| core | [string](#string) |  | MHCII core part of the peptide ligand that primarily interacts with the MHC binding groove, predicted by NetMHCpan/NetMHCIIpan |
 | affinityMutated | [float](#float) |  | MHC binding affinity for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
 | rankMutated | [float](#float) |  | MHC binding rank for the mutated peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
 | affinityWildType | [float](#float) |  | MHC binding affinity for the wild type peptide. This value is estimated with NetMHCpan in case of MHC-I peptides and NetMHCIIpan in cas of MHC-II peptides |
