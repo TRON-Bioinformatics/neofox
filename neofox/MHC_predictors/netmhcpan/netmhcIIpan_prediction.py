@@ -138,7 +138,6 @@ class NetMhcIIPanPredictor:
         return results
 
     def get_additional_netmhcpan_annotations(self, line) -> List[Annotation]:
-        # additional annotations from netmhcpan 
         of = AnnotationFactory.build_annotation(name="Of", value=str(line[3]))
         core_rel = AnnotationFactory.build_annotation(name="Core_Rel", value=str(line[5]))
         return [of, core_rel]
