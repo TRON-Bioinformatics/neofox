@@ -121,10 +121,11 @@ class NetMhcPanPredictor:
         return results
 
     def get_additional_netmhcpan_annotations(self, line) -> List[Annotation]:
-        # additional annotations from netmhcpan 
         icore = AnnotationFactory.build_annotation(name="Icore", value=str(line[9]))
-        gp = AnnotationFactory.build_annotation(name="Gp", value=str(line[5]))
-        gl = AnnotationFactory.build_annotation(name="Gl", value=str(line[6]))
+        # Position of the deletion, if any.
+        gp = AnnotationFactory.build_annotation(name="Gp", value=int(line[5]))
+        # Length of the deletion, if any. 
+        gl = AnnotationFactory.build_annotation(name="Gl", value=int(line[6]))
         return [icore, gp, gl]
 
     def get_alleles_netmhcpan_representation(self, mhc: List[Mhc1]) -> List[str]:
