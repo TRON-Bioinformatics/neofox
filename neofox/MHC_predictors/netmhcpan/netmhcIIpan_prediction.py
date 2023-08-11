@@ -113,6 +113,12 @@ class NetMhcIIPanPredictor:
         os.remove(tmp_peptide)
         return result
 
+    @staticmethod
+    def get_additional_netmhcpan_annotations(line) -> List[Annotation]:
+        of = AnnotationFactory.build_annotation(name="Of", value=str(line[3]))
+        core_rel = AnnotationFactory.build_annotation(name="Core_Rel", value=str(line[5]))
+        return [of, core_rel]
+
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
@@ -136,11 +142,6 @@ class NetMhcIIPanPredictor:
                 )
                 results.append(pred_epitope)
         return results
-
-    def get_additional_netmhcpan_annotations(self, line) -> List[Annotation]:
-        of = AnnotationFactory.build_annotation(name="Of", value=str(line[3]))
-        core_rel = AnnotationFactory.build_annotation(name="Core_Rel", value=str(line[5]))
-        return [of, core_rel]
 
     def set_wt_netmhcpan_scores(self, predictions) -> List[PredictedEpitope]:
         for p in predictions:

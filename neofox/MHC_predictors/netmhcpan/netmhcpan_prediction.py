@@ -93,6 +93,17 @@ class NetMhcPanPredictor:
         os.remove(input_file)
         return result
 
+    @staticmethod
+    def get_additional_netmhcpan_annotations(line) -> List[Annotation]:
+        icore = AnnotationFactory.build_annotation(name="Icore", value=str(line[9]))
+        # start position of core in the peptide.
+        of = AnnotationFactory.build_annotation(name="Of", value=int(line[4]))
+        # Position of the deletion, if any.
+        gp = AnnotationFactory.build_annotation(name="Gp", value=int(line[5]))
+        # Length of the deletion, if any. 
+        gl = AnnotationFactory.build_annotation(name="Gl", value=int(line[6]))
+        return [icore, of, gp, gl]
+
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
@@ -119,14 +130,6 @@ class NetMhcPanPredictor:
                 )
                 results.append(pred_epitope)
         return results
-
-    def get_additional_netmhcpan_annotations(self, line) -> List[Annotation]:
-        icore = AnnotationFactory.build_annotation(name="Icore", value=str(line[9]))
-        # Position of the deletion, if any.
-        gp = AnnotationFactory.build_annotation(name="Gp", value=int(line[5]))
-        # Length of the deletion, if any. 
-        gl = AnnotationFactory.build_annotation(name="Gl", value=int(line[6]))
-        return [icore, gp, gl]
 
     def get_alleles_netmhcpan_representation(self, mhc: List[Mhc1]) -> List[str]:
         return list(
