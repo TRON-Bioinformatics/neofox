@@ -200,6 +200,7 @@ class ModelConverter(object):
             # adapts output table depending on MHC type
             if mhc == MHC_I:
                 epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='isoformMhcII.*')), axis=1, inplace=True)
+                epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='coreMhcII.*')), axis=1, inplace=True)
             else:
                 epitopes_temp_df.drop(list(epitopes_temp_df.filter(regex='alleleMhcI.*')), axis=1, inplace=True)
 
@@ -227,7 +228,9 @@ class ModelConverter(object):
         # concatenates all together
         epitopes_df = pd.concat(epitopes_dfs)
         # has to be dropped otherwise a column containing all external annotations will exist
-        epitopes_df.drop(["externalAnnotations"], axis=1, inplace=True)
+        # if there are no epitopes below the rank threshold, this column does not exist
+        if 'externalAnnotations' in epitopes_df.columns: 
+            epitopes_df.drop(["externalAnnotations"], axis=1, inplace=True)
         epitopes_df.replace('None', NOT_AVAILABLE_VALUE, inplace=True)
 
         return epitopes_df
@@ -242,6 +245,7 @@ class ModelConverter(object):
         # adapts output table depending on MHC type
         if mhc == MHC_I:
             epitopes_df.drop(list(epitopes_df.filter(regex='isoformMhcII.*')), axis=1, inplace=True)
+            epitopes_df.drop(list(epitopes_df.filter(regex='coreMhcII.*')), axis=1, inplace=True)
         else:
             epitopes_df.drop(list(epitopes_df.filter(regex='alleleMhcI.*')), axis=1, inplace=True)
 
