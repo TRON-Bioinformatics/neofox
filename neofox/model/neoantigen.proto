@@ -288,7 +288,7 @@ message PredictedEpitope {
 	 */
 	Mhc2Isoform isoformMhcII = 5;
 	/**
-	MHCII core part of the peptide ligand that primarily interacts with the 
+	MHC core part of the peptide ligand that primarily interacts with the 
 	MHC binding groove, predicted by NetMHCpan/NetMHCIIpan
 	*/
 	string core = 6;
