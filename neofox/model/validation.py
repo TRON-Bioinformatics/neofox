@@ -85,7 +85,7 @@ class ModelValidator(object):
             # avoids this validation when there is no wild type
             if neoantigen.wild_type_xmer:
                 assert len(neoantigen.wild_type_xmer) == len(neoantigen.mutated_xmer), \
-                    "Neoantigen does not have the same length of wildtype and mutated sequence."
+                    "The length of the wildtype (wildTypeXmer) and mutated peptide sequence (mutatedXmer) are not the same. Both sequences should have the same length in case of point mutations. wildTypeXmer shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs."
                 for aa in neoantigen.wild_type_xmer:
                     ModelValidator._validate_aminoacid(aa)
 
@@ -141,7 +141,7 @@ class ModelValidator(object):
             if has_wt_peptide:
                 length_wt_peptide = len(neoepitope.wild_type_peptide)
                 assert length_wt_peptide == length_mutated_peptide, \
-                    "Neoepitope does not have the same length of wildtype and mutated sequence."
+                    "Neoepitope does not have the same length of wildtype and mutated sequence. Both sequences should have the same length in case of point mutations. wildTypePeptide shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs."
                 if has_mhc_i:
                     assert ModelValidator.is_mhci_peptide_length_valid(length_wt_peptide), \
                         "Mutated MHC-I peptide has a non supported length of {}".format(length_wt_peptide)

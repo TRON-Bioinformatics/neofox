@@ -26,8 +26,9 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
-from neofox.model.neoantigen import Mhc1, PredictedEpitope, Zygosity, Neoantigen
+from neofox.model.neoantigen import Mhc1, PredictedEpitope, Zygosity, Neoantigen, Annotation
 from neofox.references.references import DependenciesConfiguration
+from neofox.model.factories import AnnotationFactory
 
 
 PEPTIDE_LENGTHS = ["8", "9", "10", "11", "12", "13", "14"]
@@ -92,6 +93,17 @@ class NetMhcPanPredictor:
         os.remove(input_file)
         return result
 
+    @staticmethod
+    def get_additional_netmhcpan_annotations(line) -> List[Annotation]:
+        icore = AnnotationFactory.build_annotation(name="Icore", value=str(line[9]))
+        # start position of core in the peptide.
+        of = AnnotationFactory.build_annotation(name="Of", value=int(line[4]))
+        # Position of the deletion, if any.
+        gp = AnnotationFactory.build_annotation(name="Gp", value=int(line[5]))
+        # Length of the deletion, if any. 
+        gl = AnnotationFactory.build_annotation(name="Gl", value=int(line[6]))
+        return [icore, of, gp, gl]
+
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
         results = []
         for line in lines.splitlines():
@@ -105,15 +117,18 @@ class NetMhcPanPredictor:
                     raise NeofoxCommandException("netmhcpan threw an error: {}".format(line))
                 line = line.split()
                 line = line[0:-2] if len(line) > 16 else line
-                results.append(
-                    PredictedEpitope(
+                pred_epitope = PredictedEpitope(
                         position=int(line[0]),
                         allele_mhc_i=self.mhc_parser.parse_mhc_allele(line[1]),
+                        core=str(line[3]),
                         mutated_peptide=line[2],
                         affinity_mutated=float(line[15]),
                         rank_mutated=float(line[12]),
                     )
+                pred_epitope.neofox_annotations.annotations.extend(
+                    self.get_additional_netmhcpan_annotations(line)
                 )
+                results.append(pred_epitope)
         return results
 
     def get_alleles_netmhcpan_representation(self, mhc: List[Mhc1]) -> List[str]:
