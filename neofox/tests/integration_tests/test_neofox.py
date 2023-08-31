@@ -328,7 +328,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 66)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 76)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients = self._get_test_data()
@@ -341,7 +341,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 40)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 42)
 
     def test_gene_expression_imputation(self):
         neoantigens, patients = self._get_test_data()
