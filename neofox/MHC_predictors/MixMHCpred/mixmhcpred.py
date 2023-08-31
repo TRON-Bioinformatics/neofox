@@ -150,7 +150,7 @@ class MixMHCpred:
         """Runs MixMHCpred on a single peptide"""
         result = None
         mhc1_alleles = self._get_mixmhc_allele_representation([allele])
-        if len(mhc1_alleles) > 0:
+        if len(mhc1_alleles) > 0 and 8 <= len(peptide) <= 14:
             results = self._mixmhcprediction(mhc1_alleles, [peptide])
             if results:
                 result = results[0]

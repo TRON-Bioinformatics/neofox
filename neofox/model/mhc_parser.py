@@ -126,7 +126,6 @@ class H2Parser(MhcParser):
         return "H-2-I{gene}{protein}".format(
             gene=isoform.alpha_chain.gene.strip("H2"), protein=isoform.alpha_chain.protein)
 
-
 class HlaParser(MhcParser):
 
     def parse_mhc_allele(self, allele: str) -> MhcAllele:
