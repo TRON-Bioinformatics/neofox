@@ -80,7 +80,6 @@ class MhcParser(ABC):
             raise NeofoxInputParametersException("Organism not supported {}".format(mhc_database.organism))
         return mhc_parser
 
-
 class H2Parser(MhcParser):
 
     def parse_mhc_allele(self, allele: str, pattern=H2_ALLELE_PATTERN) -> MhcAllele:

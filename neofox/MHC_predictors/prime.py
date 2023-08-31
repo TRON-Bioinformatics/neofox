@@ -76,29 +76,32 @@ class Prime:
                     mhc_alleles)
             )
         )
-
-    def _parse_prime_output(self, filename: str) -> List[PredictedEpitope]:
-
-        parsed_results = []
-        try:
-            results = pd.read_csv(filename, sep="\t", comment="#")
-        except EmptyDataError:
-            logger.error("Results from PRIME are empty, something went wrong")
-            results = pd.DataFrame()
-
-        # all alleles
+    def _get_mhc_alleles(self, prime_result):
         mhc_alleles = set()
-        for col in results.columns:
+        for col in prime_result.columns:
             # take out alleles and eliminate the column Score_bestAllele out of the set
             if col.startswith(SCORE) and not col.endswith('e'):
                 allele = col.split('_')[-1]
                 mhc_alleles.add(allele)
+        return mhc_alleles
 
+    def _parse_prime_output(self, filename: str) -> List[PredictedEpitope]:
+        parsed_results = []
+        try:
+            results = pd.read_csv(filename, sep="\t", comment="#")
+        except EmptyDataError:
+            logger.error("Results from MixMHCpred are empty, something went wrong")
+            results = pd.DataFrame()
+
+        mhc_alleles = self._get_mhc_alleles(results)
         for _, row in results.iterrows():
+            # when MixMHCpred returns no results it provides a row with the peptide and NAs for other fields
+            # pandas reads NAs as float nan. Skip these
             for allele in mhc_alleles:
                 if isinstance(row[PEPTIDE], str):
                     score = str(SCORE + allele)
                     rank = str(RANK + allele)
+
                     parsed_results.append(
                         PredictedEpitope(
                             allele_mhc_i=self.mhc_parser.parse_mhc_allele(allele),
