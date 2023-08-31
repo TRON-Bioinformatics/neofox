@@ -113,11 +113,7 @@ class TestMixMHCPred(TestCase):
             uniprot=self.uniprot
         )
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
-<<<<<<< Updated upstream
         self.assertEquals("TDQTRLEATISPET", best_result.mutated_peptide)
-=======
-        self.assertEquals("DEVLGEPSQDILVT", best_result.mutated_peptide)
->>>>>>> Stashed changes
         self.assertEquals(0.913, best_result.rank_mutated)
         self.assertEquals("HLA-DPA1*01:03-DPB1*13:01", best_result.isoform_mhc_i_i.name)
 
