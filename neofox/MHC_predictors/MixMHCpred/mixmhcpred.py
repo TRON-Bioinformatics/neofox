@@ -70,8 +70,16 @@ class MixMHCpred:
             )
         )
 
-    def _parse_mixmhcpred_output(self, filename: str) -> List[PredictedEpitope]:
+    def _get_mhc_alleles(self, mixmhc_result):
+        mhc_alleles = set()
+        for col in mixmhc_result.columns:
+            # take out alleles and eliminate the column Score_bestAllele out of the set
+            if col.startswith(SCORE) and not col.endswith('e'):
+                allele = col.split('_')[-1]
+                mhc_alleles.add(allele)
+        return mhc_alleles
 
+    def _parse_mixmhcpred_output(self, filename: str) -> List[PredictedEpitope]:
         parsed_results = []
         try:
             results = pd.read_csv(filename, sep="\t", comment="#")
@@ -79,27 +87,21 @@ class MixMHCpred:
             logger.error("Results from MixMHCpred are empty, something went wrong")
             results = pd.DataFrame()
 
-        # all alleles
-        mhc_alleles = set()
-        for col in results.columns:
-            # take out alleles and eliminate the column Score_bestAllele out of the set
-            if col.startswith(SCORE) and not col.endswith('e'):
-                allele = col.split('_')[-1]
-                mhc_alleles.add(allele)
-
+        mhc_alleles = self._get_mhc_alleles(results)
         for _, row in results.iterrows():
             # when MixMHCpred returns no results it provides a row with the peptide and NAs for other fields
             # pandas reads NAs as float nan. Skip these
             for allele in mhc_alleles:
                 if isinstance(row[PEPTIDE], str):
-                    score_colname =str(SCORE + allele)
-                    rank_colname = str(RANK + allele)
+                    score = str(SCORE + allele)
+                    rank = str(RANK + allele)
+
                     parsed_results.append(
                         PredictedEpitope(
                             allele_mhc_i=self.mhc_parser.parse_mhc_allele(allele),
                             mutated_peptide=row[PEPTIDE],
-                            affinity_mutated=float(row[score_colname]),
-                            rank_mutated=float(row[rank_colname]),
+                            affinity_mutated=float(row[score]),
+                            rank_mutated=float(row[rank]),
                         ))
         return parsed_results
 
@@ -134,7 +136,6 @@ class MixMHCpred:
         # TODO: get rid of this
         self.results = None
 
-        # TODO: we may want to extend this to 8 to 14 bp (coordinate this with netMHCpan)
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
             neoantigen=neoantigen, lengths=[8, 9, 10, 11, 12, 13, 14], uniprot=uniprot
         )

@@ -186,7 +186,6 @@ class MhcDatabase(ABC):
     def is_mus_musculus(self):
         return self.organism == ORGANISM_MUS_MUSCULUS
 
-
 class HlaDatabase(MhcDatabase):
 
     organism = ORGANISM_HOMO_SAPIENS
