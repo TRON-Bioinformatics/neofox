@@ -116,7 +116,7 @@ class NetMhcIIPanPredictor:
     @staticmethod
     def get_additional_netmhcpan_annotations(line) -> List[Annotation]:
         of = AnnotationFactory.build_annotation(name="Of", value=str(line[3]))
-        core_rel = AnnotationFactory.build_annotation(name="CoreRel", value=str(line[5]))
+        core_rel = AnnotationFactory.build_annotation(name="coreRel", value=str(line[5]))
         return [of, core_rel]
 
     def _parse_netmhcpan_output(self, lines: str) -> List[PredictedEpitope]:
