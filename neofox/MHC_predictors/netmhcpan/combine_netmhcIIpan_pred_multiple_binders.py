@@ -46,6 +46,12 @@ class BestAndMultipleBinderMhcII:
         )
         self._initialise()
 
+    @staticmethod
+    def _init_additional_netmhciipan_annotations() -> List[Annotation]:
+        of = AnnotationFactory.build_annotation(name="Of", value=None)
+        core_rel = AnnotationFactory.build_annotation(name="coreRel", value=None)
+        return [of, core_rel]
+
     def _initialise(self):
         self.phbr_ii = None
         self.generator_rate = None
@@ -53,17 +59,32 @@ class BestAndMultipleBinderMhcII:
         self.generator_rate_cdn = None
         self.best_predicted_epitope_rank = PredictedEpitope(
             mutated_peptide=None,
+            wild_type_peptide=None,
+            core=None,
             position=None,
             isoform_mhc_i_i=Mhc2Isoform(name=None),
             affinity_mutated=None,
             rank_mutated=None,
         )
+        # additional netmhcIIpan annotations are initialized empty to always have
+        # all output columns in the result table
+        self.best_predicted_epitope_rank.neofox_annotations.annotations.extend(
+            self._init_additional_netmhciipan_annotations()
+        )
+
         self.best_predicted_epitope_affinity = PredictedEpitope(
             mutated_peptide=None,
+            wild_type_peptide=None,
+            core=None,
             position=None,
             isoform_mhc_i_i=Mhc2Isoform(name=None),
             affinity_mutated=None,
             rank_mutated=None,
+        )
+        # additional netmhcIIpan annotations are initialized empty to always have
+        # all output columns in the result table
+        self.best_predicted_epitope_affinity.neofox_annotations.annotations.extend(
+            self._init_additional_netmhciipan_annotations()
         )
         self.predictions = []
 
