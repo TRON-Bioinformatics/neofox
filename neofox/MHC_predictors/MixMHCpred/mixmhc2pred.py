@@ -29,6 +29,7 @@ from neofox.helpers.runner import Runner
 
 from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, PredictedEpitope, Mhc2Isoform, \
     Neoantigen
+
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -157,7 +158,8 @@ class MixMHC2pred:
 
     def _mixmhc2prediction(self, isoforms: List[str], potential_ligand_sequences: List[str]) -> List[PredictedEpitope]:
 
-        tmptxt = intermediate_files.create_temp_allele(potential_ligand_sequences, prefix="tmp_sequence_")
+
+        tmptxt = intermediate_files.create_temp_mixmhc2pred(potential_ligand_sequences, prefix="tmp_sequence_")
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
         cmd = [
             self.configuration.mix_mhc2_pred,
@@ -185,16 +187,13 @@ class MixMHC2pred:
         self.results = None
 
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            neoantigen=neoantigen, lengths=[12,13, 14, 15, 16, 17, 18,19,20,21], uniprot=uniprot)
-        # filter mps shorter < 13aa
-        filtered_sequences = list(
-            filter(lambda x: len(x) >= 12, potential_ligand_sequences)
-        )
-        if len(filtered_sequences) > 0:
+            neoantigen=neoantigen, lengths=[12,13, 14, 15, 16, 17, 18, 19, 20, 21], uniprot=uniprot)
+
+        if len(potential_ligand_sequences) > 0:
             mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
             if len(mhc2_alleles) > 0:
                 self.results = self._mixmhc2prediction(
-                    isoforms=mhc2_alleles, potential_ligand_sequences=filtered_sequences)
+                    isoforms=mhc2_alleles, potential_ligand_sequences=potential_ligand_sequences)
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
                 print(mhc2_alleles)
@@ -212,7 +211,7 @@ class MixMHC2pred:
             if results:
                 result = results[0]
         else:
-            print('%s is not available in the available alleles.' % isoform_representation)
+            logger.warning("%s is not available in the available alleles." % isoform_representation)
         return result
 
     def get_annotations(self) -> List[Annotation]:

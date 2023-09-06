@@ -42,6 +42,19 @@ def create_temp_fasta(sequences, prefix=None, comment_prefix="seq"):
             counter += 1
     return fasta_temp_file
 
+def create_temp_mixmhc2pred(sequences, prefix=None):
+    """
+       Write peptides into a table with two columns:
+       1- peptide
+       2- context
+       """
+
+    # TODO: update the context column soon.
+    table_temp_file = create_temp_file(prefix=prefix, suffix='.txt')
+    with open(table_temp_file, "w") as f:
+        for seq in sequences:
+            f.write(seq + '\n')
+    return table_temp_file
 
 def create_temp_peptide(sequences, prefix=None):
     """
@@ -52,17 +65,3 @@ def create_temp_peptide(sequences, prefix=None):
         for seq in sequences:
             f.write(seq + "\n")
     return pep_temp_file
-
-def create_temp_allele(sequences, prefix=None):
-    """
-    Write peptides into a table with two columns:
-    1- peptide
-    2- context
-    """
-
-    # TODO: update the context column soon.
-    table_temp_file = create_temp_file(prefix=prefix, suffix='.txt')
-    with open(table_temp_file, "w") as f:
-        for seq in sequences:
-            f.write(seq + '\n')
-    return table_temp_file

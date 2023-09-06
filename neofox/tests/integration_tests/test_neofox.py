@@ -196,20 +196,15 @@ class TestNeofox(TestCase):
 
     def test_neofox_model_input(self):
         """"""
-        print("model input")
         neoantigens, patients = self._get_test_data()
         annotations = NeoFox(
             neoantigens=neoantigens,
             patients=patients,
             num_cpus=4,
         ).get_annotations()
-        print("model input")
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        print("model input")
-        print(annotations[0].neofox_annotations.annotations)
-        print(len(annotations[0].neofox_annotations.annotations))
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) ==101)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations),101)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -333,9 +328,6 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        print("without mhcii")
-        print(annotations[0].neofox_annotations.annotations)
-        print(len(annotations[0].neofox_annotations.annotations))
         self.assertEqual(len(annotations[0].neofox_annotations.annotations), 76)
 
     def test_neofox_without_mhc1(self):
@@ -349,9 +341,6 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        print("without_mhci")
-        print(annotations[0].neofox_annotations.annotations)
-        print(len(annotations[0].neofox_annotations.annotations))
         self.assertEqual(len(annotations[0].neofox_annotations.annotations), 46)
 
     def test_gene_expression_imputation(self):
