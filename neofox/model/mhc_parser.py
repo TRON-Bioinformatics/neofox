@@ -80,7 +80,6 @@ class MhcParser(ABC):
             raise NeofoxInputParametersException("Organism not supported {}".format(mhc_database.organism))
         return mhc_parser
 
-
 class H2Parser(MhcParser):
 
     def parse_mhc_allele(self, allele: str, pattern=H2_ALLELE_PATTERN) -> MhcAllele:
@@ -126,7 +125,6 @@ class H2Parser(MhcParser):
     def get_netmhc2pan_representation(self, isoform: Mhc2Isoform):
         return "H-2-I{gene}{protein}".format(
             gene=isoform.alpha_chain.gene.strip("H2"), protein=isoform.alpha_chain.protein)
-
 
 class HlaParser(MhcParser):
 
