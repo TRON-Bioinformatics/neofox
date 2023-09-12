@@ -45,6 +45,14 @@ class BestAndMultipleBinder:
             blastp_runner=self.blastp_runner
         )
 
+    @staticmethod
+    def _init_additional_netmhcpan_annotations() -> List[Annotation]:
+        icore = AnnotationFactory.build_annotation(name="Icore", value=None)
+        of = AnnotationFactory.build_annotation(name="Of", value=None)
+        gp = AnnotationFactory.build_annotation(name="Gp", value=None)
+        gl = AnnotationFactory.build_annotation(name="Gl", value=None)
+        return [icore, of, gp, gl]
+
     def _initialise(self):
         self.phbr_i = None
         self.generator_rate = None
@@ -53,9 +61,21 @@ class BestAndMultipleBinder:
         self.generator_rate_adn = None
         self.generator_rate_cdn = None
         self.best_epitope_by_rank = EpitopeHelper.get_empty_epitope()
+        self.best_epitope_by_rank.neofox_annotations.annotations.extend(
+            self._init_additional_netmhcpan_annotations()
+        )
         self.best_epitope_by_affinity = EpitopeHelper.get_empty_epitope()
+        self.best_epitope_by_affinity.neofox_annotations.annotations.extend(
+            self._init_additional_netmhcpan_annotations()
+        )
         self.best_ninemer_epitope_by_affinity = EpitopeHelper.get_empty_epitope()
+        self.best_ninemer_epitope_by_affinity.neofox_annotations.annotations.extend(
+            self._init_additional_netmhcpan_annotations()
+        )
         self.best_ninemer_epitope_by_rank = EpitopeHelper.get_empty_epitope()
+        self.best_ninemer_epitope_by_rank.neofox_annotations.annotations.extend(
+            self._init_additional_netmhcpan_annotations()
+        )
         self.predictions = []
 
     def calculate_phbr_i(

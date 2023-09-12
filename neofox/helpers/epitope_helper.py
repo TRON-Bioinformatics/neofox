@@ -147,6 +147,7 @@ class EpitopeHelper(object):
             isoform_mhc_i_i=Mhc2Isoform(name=None),
             affinity_mutated=None,
             rank_mutated=None,
+            core=None,
         )
 
     @staticmethod
