@@ -148,7 +148,7 @@ class MixMHC2pred:
     def _get_mixmhc2_allele_mouse_representation(h2_alleles: List[MhcAllele]):
         return list(
             map(
-                lambda x: "{gene}_{protein}".format(
+                lambda x: "H2_{gene}a_{protein}__H2_{gene}b_{protein}".format(
                     gene=x.gene[-1], protein=x.protein
                 ),
                 h2_alleles,
@@ -157,9 +157,7 @@ class MixMHC2pred:
 
     def _get_mixmhc2_isoform_mouse_representation(isoform: Mhc2Isoform):
         if isoform is not None:
-            return "H2_{gene}a_{protein}__H2_{gene}b_{protein}".format(
-                gene=isoform[-3], protein=isoform[-1]
-            )
+            return "H2_{gene}a_{protein}__H2_{gene}b_{protein}".format(gene=isoform[-3], protein=isoform[-1])
 
     def transform_h2_alleles_for_prediction(self, mhc:List[Mhc2]) -> List[str]:
         """
@@ -196,14 +194,14 @@ class MixMHC2pred:
         return parsed_results
 
     def _mixmhc2prediction(self, isoforms: List[str], potential_ligand_sequences: List[str]) -> List[PredictedEpitope]:
-
+        # TODO: define the pwm_path again because the mouse path is only defined by the config
         tmptxt = intermediate_files.create_temp_mixmhc2pred(potential_ligand_sequences, prefix="tmp_sequence_")
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
 
         if self.mhc_database.is_homo_sapiens():
-            pwm_file = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Human/'
+            pwm_path = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Human/'
         else:
-            pwm_file = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Mouse/'
+            pwm_path = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Mouse/'
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
@@ -213,7 +211,7 @@ class MixMHC2pred:
             "-o",
             outtmp,
             "-f", #add the full path of the folder
-            pwm_file,
+            pwm_path,
             "--no_context"
         ]
         self.runner.run_command(cmd)
