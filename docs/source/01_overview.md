@@ -30,8 +30,8 @@ A list of implemented features and their references are given in Table 1. Please
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | MHC I binding affinity/rank score (netMHCpan-v4.1)      | Reynisson et al., 2020, Nucleic Acids Res.                             | https://doi.org/10.1093/nar/gkaa379                                                  |
 | MHC II binding affinity/rank score (netMHCIIpan-v4.0)   | Reynisson et al., 2020, Nucleic Acids Res.                                            | https://doi.org/10.1093/nar/gkaa379                                                         |
-| MixMHCpred score v2.1 §                                   | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
-| MixMHC2pred score v1.2 §                                 | Racle et al., 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
+| MixMHCpred score v2.2 §                                   | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
+| MixMHC2pred score v2.0.2 §                                 | Racle et al., 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
 | Differential Agretopicity Index (DAI)                   | Duan et al., 2014, JEM; Ghorani et al., 2018, Ann Oncol.                  | https://doi.org/10.1084/jem.20141308                                                      |
 | Self-Similarity                                         | Bjerregaard et al., 2017, Front Immunol.                                  | https://doi.org/10.3389/fimmu.2017.01566                                                  |
 | IEDB immunogenicity                                     | Calis et al., 2013, PLoS Comput Biol.                                     | https://doi.org/10.1371/journal.pcbi.1003266                                              |
@@ -44,7 +44,7 @@ A list of implemented features and their references are given in Table 1. Please
 | Priority score                                          | Bjerregaard et al., 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
 | Tcell predictor                                         | Besser et al., 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | neoag                                                   | Smith et al., 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
-| PRIME §                                                  | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
+| PRIME v2.0 §                                                  | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 | HEX §                                                  | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             | 
 
 
