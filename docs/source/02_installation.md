@@ -1,7 +1,7 @@
 # Installation
 
 This guide contains two alternatives to install NeoFox:
-- Building a docker image that automates the installation into a container
+- Building a docker image that automates the installation into a container (**NOTE**: the docker recipe is not supported in neofox-v1.1.0. Please use an older version (<v1.1.0) for building the docker image at the moment.)
 - A set of detailed step by step installation instructions without docker
 
 The first approach has the lowest entry barrier to use NeoFox as a command line tool.
@@ -19,6 +19,8 @@ the sites indicated below.
 
 - NetMHCpan-4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
 - NetMHCIIpan-4.0: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.0.Linux.tar.gz`)
+
+Please also check the licences of the other third party dependencies ( e.g. listed in the docker recipe `Dockerfile`). 
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
@@ -54,6 +56,7 @@ conda install bioconda::neofox
 
 ### Install third-party dependencies
 
+Please, check the licences of third-party dependencies. 
 
 #### Install R
 
@@ -122,39 +125,41 @@ export NEOFOX_NETMHC2PAN=/path/to/netMHCIIpan-4.0/netMHCIIpan
 Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-4.0/netMHCIIpan-4.0.readme`
          
 
-#### Install MixMHCpred-2.1 (recommended but optional)
+#### Install MixMHCpred-2.2 (recommended but optional)
 
 ```
-wget https://github.com/GfellerLab/MixMHCpred/archive/v2.1.tar.gz
-tar -xvf v2.1.tar.gz
+wget https://github.com/GfellerLab/MixMHCpred/archive/refs/tags/v2.2.tar.gz
+tar -xvf v2.2.tar.gz
 ```
 
 Set the environment variable pointing to `MixMHCpred`, there will be no search in the path as the installation folder
 is also needed to determine the supported alleles.
 ```
-export NEOFOX_MIXMHCPRED=/path/to/MixMHCpred-2.1/MixMHCpred
+export NEOFOX_MIXMHCPRED=/path/to/MixMHCpred-2.2/MixMHCpred
 ```
 
-Configure MixMHCpred-2.1 as explained in the file `MixMHCpred-2.1/README`
+Configure MixMHCpred-2.2 as explained in the file `MixMHCpred-2.2/README`
 
-#### Install MixMHC2pred-1.2 (recommended but optional)
+
+
+#### Install MixMHC2pred-2.0.2 (recommended but optional)
 
 ```
-wget https://github.com/GfellerLab/MixMHC2pred/archive/v1.2.tar.gz
-tar -xvf v1.2.tar.gz
+wget https://github.com/GfellerLab/MixMHC2pred/archive/refs/tags/v2.0.2.2.tar.gz
+tar -xvf v2.0.2.2.tar.gz
 ```
 
 Set the environment variable pointing to `MixMHC2pred_unix`, there will be no search in the path as the installation 
 folder is also needed to determine the supported alleles.
 ```
-export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-1.2/MixMHC2pred_unix
+export NEOFOX_MIXMHC2PRED=`pwd`/MixMHC2pred-2.0.2/MixMHC2pred_unix
 ```
 
 #### PRIME-1.0 (recommended but optional)
 
 ```
-wget https://github.com/GfellerLab/PRIME/archive/master.tar.gz
-tar -xvf master.tar.gz
+wget https://github.com/GfellerLab/PRIME/archive/refs/tags/v2.0.tar.gz
+tar -xvf v2.0.tar.gz
 ```
 
 Set the environment variable pointing to `PRIME`, there will be no search in the path as the installation folder
