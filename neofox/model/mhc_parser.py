@@ -41,7 +41,7 @@ HLA_DR_MOLECULE_PATTERN = re.compile(r"(?:HLA-)?(DRB1[\*|_]?[0-9]{2,}[:|_]?[0-9]
 H2_ALLELE_PATTERN = re.compile(r"(H2-?[KDLAE])([a-z][0-9]?)")
 H2_NETMHCPAN_ALLELE_PATTERN = re.compile(r"H-2-I?(K|D|L|A|E)([a-z][0-9]?)")
 H2_MOLECULE_PATTERN = re.compile(r"(H2A|H2E)([a-z][0-9]?)")
-
+H2_MIXMHC2PRED_ALLELE = re.compile(r"H2_(A|E)a_([a-z][0-9]?)__H2_(A|E)b_([a-z][0-9]?)")
 ALLELE_PATTERN_BY_ORGANISM = {
     ORGANISM_HOMO_SAPIENS: HLA_ALLELE_PATTERN,
     ORGANISM_MUS_MUSCULUS: H2_ALLELE_PATTERN,
@@ -112,7 +112,15 @@ class H2Parser(MhcParser):
     def parse_mhc2_isoform(self, allele: str) -> Mhc2Isoform:
         # MHC II molecules in H2 lab mouse are represented as single chain proteins
         # NOTE: by convention we represent this allele in both the alpha and beta chains
+        # format from current version of MixMHC2pred: H2_Aa_b__H2_Aa_b
+        # "H2_{gene}a_{protein}__H2_{gene}b_{protein}"
+
         match = H2_NETMHCPAN_ALLELE_PATTERN.match(allele)
+
+        # convert the allele format in MixMHC2pred to the normal format
+        # H2_Aa_b__H2_Aa_b to H2Ab
+        if len(allele) > 5:
+            match = H2_MIXMHC2PRED_ALLELE.match(allele)
         if match:
             # this ensures that netmhcpan output is normalized
             allele = "H2{gene}{protein}".format(gene=match.group(1), protein=match.group(2))

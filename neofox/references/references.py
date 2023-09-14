@@ -77,7 +77,10 @@ NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE = "netmhc2pan_available_alleles_mice.txt"
 HLA_DATABASE_AVAILABLE_ALLELES_FILE = "hla_database_allele_list.csv"
 H2_DATABASE_AVAILABLE_ALLELES_FILE = "h2_database_allele_list.csv"
 MIXMHCPRED_AVAILABLE_ALLELES_FILE = "allele_list.txt"
-MIXMHC2PRED_AVAILABLE_ALLELES_FILE = "PWMdef/Alleles_list_Human.txt"
+MIXMHC2PRED_AVAILABLE_HUMAN_ALLELES_FILE = "PWMdef/PWMdef_total/Alleles_list_Human.txt"
+MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE = "PWMdef/PWMdef_total/Alleles_list_Mouse.txt"
+
+
 PRIME_AVAILABLE_ALLELES_FILE = "alleles.txt"
 
 RESOURCES_VERSIONS = "resources_versions.json"
@@ -129,10 +132,14 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
             neofox.NEOFOX_MIXMHC2PRED_ENV, default_value=DEFAULT_MIXMHC2PRED, optional=True, path_search=False)
 
         if self.mix_mhc2_pred is not None:
-            self.mix_mhc2_pred_alleles_list = os.path.join(
-                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_ALLELES_FILE)
+            self.mix_mhc2_pred_human_alleles_list = os.path.join(
+                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_HUMAN_ALLELES_FILE)
+            self.mix_mhc2_pred_mouse_alleles_list = os.path.join(
+                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE
+            )
         else:
-            self.mix_mhc2_pred_alleles_list = None
+            self.mix_mhc2_pred_human_alleles_list = None
+            self.mix_mhc2_pred_mouse_alleles_list = None
 
         self.mix_mhc_pred = self._check_and_load_binary(
             neofox.NEOFOX_MIXMHCPRED_ENV, default_value=DEFAULT_MIXMHCPRED, optional=True, path_search=False)
