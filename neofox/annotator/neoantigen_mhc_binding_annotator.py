@@ -8,7 +8,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Neoantigen, Patient
-from neofox.references.references import DependenciesConfiguration, AvailableAlleles, ReferenceFolder, \
+from neofox.references.references import DependenciesConfiguration, AvailableAlleles, ReferenceFolder, MhcDatabase, \
     ORGANISM_HOMO_SAPIENS
 
 
@@ -56,16 +56,20 @@ class NeoantigenMhcBindingAnnotator:
                 neoantigen,
                 patient
             )
+
+        if self.configuration.mix_mhc2_pred is not None and has_mhc2:
+            mixmhc2pred = self._run_mixmhc2pred(
+                self.runner,
+                self.configuration,
+                self.mhc_parser,
+                neoantigen,
+                patient,
+                self.mhc_database
+            )
+
         # avoids running MixMHCpred and PRIME for non human organisms
         if self.organism == ORGANISM_HOMO_SAPIENS:
-            if self.configuration.mix_mhc2_pred is not None and has_mhc2:
-                mixmhc2pred = self._run_mixmhc2pred(
-                    self.runner,
-                    self.configuration,
-                    self.mhc_parser,
-                    neoantigen,
-                    patient,
-                )
+
             if self.configuration.mix_mhc_pred is not None and has_mhc1:
                 mixmhcpred = self._run_mixmhcpred(
                     self.runner,
@@ -155,7 +159,8 @@ class NeoantigenMhcBindingAnnotator:
             mhc_parser: MhcParser,
             neoantigen: Neoantigen,
             patient: Patient,
+            mhc_database: MhcDatabase
     ):
-        mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser)
+        mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser, mhc_database)
         mixmhc2.run(mhc=patient.mhc2, neoantigen=neoantigen, uniprot=self.uniprot)
         return mixmhc2
