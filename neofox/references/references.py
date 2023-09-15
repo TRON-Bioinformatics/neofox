@@ -77,8 +77,9 @@ NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE = "netmhc2pan_available_alleles_mice.txt"
 HLA_DATABASE_AVAILABLE_ALLELES_FILE = "hla_database_allele_list.csv"
 H2_DATABASE_AVAILABLE_ALLELES_FILE = "h2_database_allele_list.csv"
 MIXMHCPRED_AVAILABLE_ALLELES_FILE = "allele_list.txt"
-MIXMHC2PRED_AVAILABLE_HUMAN_ALLELES_FILE = "PWMdef/PWMdef_total/Alleles_list_Human.txt"
-MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE = "PWMdef/PWMdef_total/Alleles_list_Mouse.txt"
+MIXMHC2PRED_AVAILABLE_HUMAN_ALLELES_FILE = "Alleles_list_Human.txt"
+MIXMHC2PRED_PWM="MixMHC2pred"
+MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE = "PWMdef_Mouse/Alleles_list_Mouse.txt"
 
 
 PRIME_AVAILABLE_ALLELES_FILE = "alleles.txt"
@@ -134,8 +135,10 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
         if self.mix_mhc2_pred is not None:
             self.mix_mhc2_pred_human_alleles_list = os.path.join(
                 os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_HUMAN_ALLELES_FILE)
-            self.mix_mhc2_pred_mouse_alleles_list = os.path.join(
-                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE
+            # make sure that the PWMdef for Mouse was downloaded
+            if os.listdir(os.path.join(os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE)):
+                self.mix_mhc2_pred_mouse_alleles_list = os.path.join(
+                    os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE
             )
         else:
             self.mix_mhc2_pred_human_alleles_list = None
