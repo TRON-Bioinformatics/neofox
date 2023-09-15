@@ -23,8 +23,7 @@ from pandas.errors import EmptyDataError
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser, get_alleles_by_gene
 
-from neofox.references.references import DependenciesConfiguration, MhcDatabase, \
-                                        ReferenceFolder, ORGANISM_HOMO_SAPIENS
+from neofox.references.references import DependenciesConfiguration, MhcDatabase
 
 from neofox.helpers.runner import Runner
 
@@ -55,8 +54,6 @@ class MixMHC2pred:
         self.mhc_parser = mhc_parser
         self.available_alleles = self._load_available_alleles(mhc_database)
 
-        #self.organism = references.organism
-
         self.results = None
 
     def _load_available_alleles(self, mhc_database):
@@ -68,10 +65,15 @@ class MixMHC2pred:
             alleles = pd.read_csv(
                 self.configuration.mix_mhc2_pred_human_alleles_list, skiprows=2, sep="\t"
             )
+        # run only
         else:
-            alleles = pd.read_csv(
-                self.configuration.mix_mhc2_pred_mouse_alleles_list, skiprows=2, sep="\t"
-            )
+            # to test if the required PWMdef folder for mouse is downloaded
+            if self.configuration.mix_mhc2_pred_mouse_alleles_list is not None:
+                alleles = pd.read_csv(
+                    self.configuration.mix_mhc2_pred_mouse_alleles_list, skiprows=2, sep="\t"
+                )
+            else:
+                logger.warning("The PWMdef folder of mouse has not been downloaded.")
         return list(alleles["AlleleName"])
 
 
@@ -199,9 +201,10 @@ class MixMHC2pred:
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
 
         if self.mhc_database.is_homo_sapiens():
-            pwm_path = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Human/'
+            pwm_path = os.path.dirname(self.configuration.mix_mhc2_pred_human_alleles_list)
         else:
-            pwm_path = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Mouse/'
+            #pwm_path = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Mouse/' # reference folder
+            pwm_path = os.path.dirname(self.configuration.mix_mhc2_pred_mouse_alleles_list)
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
@@ -210,7 +213,7 @@ class MixMHC2pred:
             tmptxt,
             "-o",
             outtmp,
-            "-f", #add the full path of the folder
+            "-f",
             pwm_path,
             "--no_context"
         ]
