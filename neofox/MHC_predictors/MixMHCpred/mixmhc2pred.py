@@ -69,9 +69,12 @@ class MixMHC2pred:
                 self.configuration.mix_mhc2_pred_human_alleles_list, skiprows=2, sep="\t"
             )
         else:
-            alleles = pd.read_csv(
-                self.configuration.mix_mhc2_pred_mouse_alleles_list, skiprows=2, sep="\t"
-            )
+            if self.configuration.mix_mhc2_pred_mouse_alleles_list is not None:
+                alleles = pd.read_csv(
+                    self.configuration.mix_mhc2_pred_mouse_alleles_list, skiprows=2, sep="\t"
+                )
+            else:
+                logger.error("The PWMdef for Mouse was not downloaded.")
         return list(alleles["AlleleName"])
 
 
