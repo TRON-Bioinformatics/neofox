@@ -51,17 +51,25 @@ def neofox_configure():
         action="store_true",
         help="install the R dependencies automatically",
     )
+    parser.add_argument(
+        "--install-mouse-mixmhc2pred",
+        dest="install_mouse_mixmhc2pred",
+        action="store_true",
+        help="get the mouse allele PWMs required to run MixMHC2pred for mouse",
+    )
 
     args = parser.parse_args()
     reference_folder = args.reference_folder
     install_r_dependencies = args.install_r_dependencies
+    install_mouse_mixmhc2pred = args.install_mouse_mixmhc2pred
 
     # makes sure that the output folder exists
     os.makedirs(reference_folder, exist_ok=True)
 
     logger.info("Starting the installation of references")
     NeofoxReferenceInstaller(
-        reference_folder=reference_folder, install_r_dependencies=install_r_dependencies
+        reference_folder=reference_folder, install_r_dependencies=install_r_dependencies,
+        install_mouse_mixmhc2pred=install_mouse_mixmhc2pred
     ).install()
     logger.info("Finished the installation succesfully!")
 
