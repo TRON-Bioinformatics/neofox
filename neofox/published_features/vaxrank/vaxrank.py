@@ -43,6 +43,8 @@ class VaxRank:
            "The relationship between class I binding affinity
             and immunogenicity of potential cytotoxic T cell epitopes.
         adapted from: https://github.com/openvax/vaxrank/blob/master/vaxrank/epitope_prediction.py
+        Rubinsteyn, 2017, Front Immunol
+        https://doi.org/10.3389/fimmu.2017.01807
         """
         if ic50 >= ic50_cutoff:
             return 0.0
