@@ -24,7 +24,8 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser, get_alleles_by_gene
 
 from neofox.references.references import DependenciesConfiguration, MhcDatabase, \
-                                        ReferenceFolder, ORGANISM_HOMO_SAPIENS
+                                        ReferenceFolder, ORGANISM_HOMO_SAPIENS, \
+                                        ORGANISM_MUS_MUSCULUS
 
 from neofox.helpers.runner import Runner
 
@@ -48,33 +49,33 @@ class MixMHC2pred:
     ANNOTATION_PREFIX_WT = 'MixMHC2pred_WT'
 
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser,
-                 mhc_database: MhcDatabase):
+                 references: ReferenceFolder):
         self.runner = runner
         self.configuration = configuration
-        self.mhc_database = mhc_database
         self.mhc_parser = mhc_parser
-        self.available_alleles = self._load_available_alleles(mhc_database)
-
-        #self.organism = references.organism
+        self.references = references
+        self.organism = references.organism
+        self.available_alleles = self._load_available_alleles()
 
         self.results = None
 
-    def _load_available_alleles(self, mhc_database):
+    def _load_available_alleles(self):
         """
-        loads file with available HLA II alllels for MixMHC2pred prediction, returns set
+        loads file with available HLA II allels for MixMHC2pred prediction, returns set
         :return:
         """
-        if mhc_database.is_homo_sapiens():
+        if self.organism == ORGANISM_HOMO_SAPIENS:
             alleles = pd.read_csv(
                 self.configuration.mix_mhc2_pred_human_alleles_list, skiprows=2, sep="\t"
             )
-        else:
-            if self.configuration.mix_mhc2_pred_mouse_alleles_list is not None:
+        elif self.organism == ORGANISM_MUS_MUSCULUS:
+            if self.references.mixmhc2pred_alleles_list is not None:
                 alleles = pd.read_csv(
-                    self.configuration.mix_mhc2_pred_mouse_alleles_list, skiprows=2, sep="\t"
+                    self.references.mixmhc2pred_alleles_list, skiprows=2, sep="\t"
                 )
             else:
                 logger.error("The PWMdef for Mouse was not downloaded.")
+
         return list(alleles["AlleleName"])
 
 
@@ -201,10 +202,11 @@ class MixMHC2pred:
         tmptxt = intermediate_files.create_temp_mixmhc2pred(potential_ligand_sequences, prefix="tmp_sequence_")
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
 
-        if self.mhc_database.is_homo_sapiens():
-            pwm_path = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Human/'
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            pwm_argument = ""
         else:
-            pwm_path = '/home/nguyenhv/code/MixMHC2pred/2.0/PWMdef/PWMdef_Mouse/'
+            pwm_dir = self.references.mixmhc2pred_pwm_dir
+            pwm_argument = f"-f {pwm_dir}"
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
@@ -213,8 +215,7 @@ class MixMHC2pred:
             tmptxt,
             "-o",
             outtmp,
-            "-f", #add the full path of the folder
-            pwm_path,
+            pwm_argument,
             "--no_context"
         ]
         self.runner.run_command(cmd)
@@ -236,7 +237,7 @@ class MixMHC2pred:
             neoantigen=neoantigen, lengths=[12, 13, 14, 15, 16, 17, 18, 19, 20, 21], uniprot=uniprot)
 
         if len(potential_ligand_sequences) > 0:
-            if self.mhc_database.is_homo_sapiens():
+            if self.organism == ORGANISM_HOMO_SAPIENS:
                 mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
             else:
                 mhc2_alleles = self.transform_h2_alleles_for_prediction(mhc)
@@ -253,7 +254,7 @@ class MixMHC2pred:
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         """
         result = None
-        if self.mhc_database.is_homo_sapiens():
+        if self.organism == ORGANISM_HOMO_SAPIENS:
             isoform_representation = self._get_mixmhc2_isoform_human_representation(isoform)
         else:
             isoform_representation = self._get_mixmhc2_isoform_mouse_representation(isoform)
