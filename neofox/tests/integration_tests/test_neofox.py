@@ -630,6 +630,7 @@ class TestNeofox(TestCase):
 
         self.assertTrue(found_recognition_potential)
 
+
         df_epitopes_mhci = ModelConverter.annotations2epitopes_table(annotations, mhc=neofox.MHC_I)
         self.assertFalse(any(c.startswith('isoformMhcII') for c in df_epitopes_mhci.columns))
 

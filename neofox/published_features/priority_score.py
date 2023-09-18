@@ -204,6 +204,6 @@ class PriorityScore:
                     score_wt=epitope.rank_wild_type,
                     mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
-                name='Priority_score_imputed_fromDNA'),
+                name='Priority_score_imputed_fromRNA'),
 
             ]
