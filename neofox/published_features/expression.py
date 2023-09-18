@@ -18,8 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from logzero import logger
-from neofox.model.neoantigen import Annotation, Neoantigen, Patient
+from neofox.model.neoantigen import Annotation, Neoantigen
 from neofox.model.factories import AnnotationFactory
 
 
@@ -27,17 +26,17 @@ class Expression:
 
     @staticmethod
     def _get_expression_annotation(
-        transcript_gene_expression: float, vaf_rna: float
+        transcript_gene_expression: float, vaf: float
     ) -> float:
         """
-        This function calculates the product of VAF in RNA and transcript expression
+        This function calculates the product of VAF and transcript expression
         to reflect the expression of the mutated transcript
         """
         expression_mut = None
         try:
             expression_mut = (
-                transcript_gene_expression * vaf_rna
-                if vaf_rna is not None and vaf_rna >= 0.0
+                transcript_gene_expression * vaf
+                if vaf is not None and vaf >= 0.0
                 else None
             )
         except (TypeError, ValueError):
@@ -46,15 +45,17 @@ class Expression:
 
     def get_annotations(self, neoantigen: Neoantigen) -> List[Annotation]:
 
-        vaf = neoantigen.rna_variant_allele_frequency
-        if vaf is None or vaf == -1:
-            vaf = neoantigen.dna_variant_allele_frequency
-
         return [
             AnnotationFactory.build_annotation(
-                name="Mutated_rnaExpression", value=self._get_expression_annotation(
-                    transcript_gene_expression=neoantigen.rna_expression, vaf_rna=vaf)),
+                name="Mutated_rnaExpression_fromRNA", value=self._get_expression_annotation(
+                    transcript_gene_expression=neoantigen.rna_expression, vaf=neoantigen.rna_variant_allele_frequency)),
             AnnotationFactory.build_annotation(
-                name="Mutated_imputedGeneExpression", value=self._get_expression_annotation(
-                    transcript_gene_expression=neoantigen.imputed_gene_expression, vaf_rna=vaf))
+                name="Mutated_rnaExpression_fromDNA", value=self._get_expression_annotation(
+                    transcript_gene_expression=neoantigen.rna_expression, vaf=neoantigen.dna_variant_allele_frequency)),
+            AnnotationFactory.build_annotation(
+                name="Mutated_imputedGeneExpression_fromRNA", value=self._get_expression_annotation(
+                    transcript_gene_expression=neoantigen.imputed_gene_expression, vaf=neoantigen.rna_variant_allele_frequency)),
+            AnnotationFactory.build_annotation(
+                name="Mutated_imputedGeneExpression_fromDNA", value=self._get_expression_annotation(
+                    transcript_gene_expression=neoantigen.imputed_gene_expression, vaf=neoantigen.dna_variant_allele_frequency))
         ]

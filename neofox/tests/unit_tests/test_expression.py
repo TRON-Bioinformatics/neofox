@@ -20,7 +20,6 @@
 from unittest import TestCase
 
 from neofox.model.factories import NOT_AVAILABLE_VALUE, NeoantigenFactory
-from neofox.model.neoantigen import Neoantigen
 from neofox.published_features.expression import Expression
 
 
@@ -33,15 +32,22 @@ class TestExpression(TestCase):
         neoantigen = NeoantigenFactory.build_neoantigen(
             rna_expression=12.0, dna_variant_allele_frequency=0.2, patient_identifier="patient1",
             mutated_xmer="DDDDD")
-        result = self.expression.get_annotations(neoantigen=neoantigen)[0]
-        self.assertGreater(float(result.value), 0.0)
+        results = self.expression.get_annotations(neoantigen=neoantigen)
+        val = [e.value for e in results if e.name == "Mutated_rnaExpression_fromRNA"]
+        print(val[0])
+        result_rna = self.expression.get_annotations(neoantigen=neoantigen)[0]
+        result_dna = self.expression.get_annotations(neoantigen=neoantigen)[1]
+        self.assertEqual(result_rna.value, NOT_AVAILABLE_VALUE)
+        self.assertEqual(float(result_dna.value), 2.4)
 
         # no reads for mut
         neoantigen = NeoantigenFactory.build_neoantigen(
             rna_expression=12.0, dna_variant_allele_frequency=0.0, patient_identifier="patient1",
             mutated_xmer="DDDDD")
-        result = self.expression.get_annotations(neoantigen=neoantigen)[0]
-        self.assertEqual(result.value, "0")
+        result_rna = self.expression.get_annotations(neoantigen=neoantigen)[0]
+        result_dna = self.expression.get_annotations(neoantigen=neoantigen)[1]
+        self.assertEqual(float(result_dna.value), 0)
+        self.assertEqual(result_rna.value, NOT_AVAILABLE_VALUE)
 
         # no reads for mut/wt
         neoantigen = NeoantigenFactory.build_neoantigen(
@@ -49,9 +55,7 @@ class TestExpression(TestCase):
             mutated_xmer="DDDDD")
         result = self.expression.get_annotations(neoantigen=neoantigen)[0]
         self.assertEqual(result.value, NOT_AVAILABLE_VALUE)
-
-        neoantigen = NeoantigenFactory.build_neoantigen(
-            rna_expression=None, dna_variant_allele_frequency=-1, rna_variant_allele_frequency=-1,
-            patient_identifier="patient1", mutated_xmer="DDDDD")
-        result = self.expression.get_annotations(neoantigen=neoantigen)[0]
+        result = self.expression.get_annotations(neoantigen=neoantigen)[1]
         self.assertEqual(result.value, NOT_AVAILABLE_VALUE)
+
+
