@@ -33,8 +33,6 @@ class TestExpression(TestCase):
             rna_expression=12.0, dna_variant_allele_frequency=0.2, patient_identifier="patient1",
             mutated_xmer="DDDDD")
         results = self.expression.get_annotations(neoantigen=neoantigen)
-        val = [e.value for e in results if e.name == "Mutated_rnaExpression_fromRNA"]
-        print(val[0])
         result_rna = self.expression.get_annotations(neoantigen=neoantigen)[0]
         result_dna = self.expression.get_annotations(neoantigen=neoantigen)[1]
         self.assertEqual(result_rna.value, NOT_AVAILABLE_VALUE)
