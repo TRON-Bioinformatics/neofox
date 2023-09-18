@@ -21,9 +21,8 @@
 # import modules
 import math
 from typing import List
-
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen, Patient
+from neofox.model.neoantigen import Annotation, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import (
     BestAndMultipleBinder,
@@ -43,8 +42,7 @@ class PriorityScore:
 
     def calc_priority_score(
         self,
-        vaf_dna,
-        vaf_rna,
+        vaf,
         transcript_gene_expr,
         no_mismatch,
         score_mut,
@@ -53,15 +51,12 @@ class PriorityScore:
     ):
         """
         This function calculates the Priority Score using parameters for mhc I.
+        Bjerregard, 2017, Cancer Immunol Immunother
+        https://doi.org/10.1007/s00262-017-2001-3
         """
         priority_score = None
-        vaf = None
         try:
-            if vaf_dna is not None and vaf_dna != -1:
-                vaf = vaf_dna
-            elif vaf_rna is not None and vaf_rna != -1:
-                vaf = vaf_rna
-            if vaf:
+            if vaf is not None and vaf != -1:
                 l_mut = self.calc_logistic_function(score_mut)
                 l_wt = self.calc_logistic_function(score_wt)
                 priority_score = self.mupexi(
@@ -94,29 +89,42 @@ class PriorityScore:
         returns number of mismatches between best MHCI / MHC II epitopes (rank) and their corresponding WTs
         """
         num_mismatches_mhc1 = None
-        priority_score = None
-        priority_score_imputed = None
+        priority_score_dna = None
+        priority_score_rna = None
+        priority_score_imputed_dna = None
+        priority_score_imputed_rna = None
         if netmhcpan.best_epitope_by_rank.wild_type_peptide and netmhcpan.best_epitope_by_rank.mutated_peptide:
             num_mismatches_mhc1 = EpitopeHelper.number_of_mismatches(
                 epitope_wild_type=netmhcpan.best_epitope_by_rank.wild_type_peptide,
                 epitope_mutation=netmhcpan.best_epitope_by_rank.mutated_peptide,
             )
-            vaf_rna = neoantigen.dna_variant_allele_frequency
-            if vaf_rna is None:
-                vaf_rna = neoantigen.rna_variant_allele_frequency
 
-            priority_score = self.calc_priority_score(
-                        vaf_dna=neoantigen.dna_variant_allele_frequency,
-                        vaf_rna=vaf_rna,
+            priority_score_dna = self.calc_priority_score(
+                        vaf=neoantigen.dna_variant_allele_frequency,
                         transcript_gene_expr=neoantigen.rna_expression,
                         no_mismatch=num_mismatches_mhc1,
                         score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
                         score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
                         mut_not_in_prot=mut_not_in_prot,
                     )
-            priority_score_imputed = self.calc_priority_score(
-                        vaf_dna=neoantigen.dna_variant_allele_frequency,
-                        vaf_rna=vaf_rna,
+            priority_score_rna = self.calc_priority_score(
+                        vaf=neoantigen.rna_variant_allele_frequency,
+                        transcript_gene_expr=neoantigen.rna_expression,
+                        no_mismatch=num_mismatches_mhc1,
+                        score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
+                        score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
+                        mut_not_in_prot=mut_not_in_prot,
+                    )
+            priority_score_imputed_dna = self.calc_priority_score(
+                        vaf=neoantigen.dna_variant_allele_frequency,
+                        transcript_gene_expr=neoantigen.imputed_gene_expression,
+                        no_mismatch=num_mismatches_mhc1,
+                        score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
+                        score_wt=netmhcpan.best_epitope_by_rank.rank_wild_type,
+                        mut_not_in_prot=mut_not_in_prot,
+                    )
+            priority_score_imputed_rna = self.calc_priority_score(
+                        vaf=neoantigen.rna_variant_allele_frequency,
                         transcript_gene_expr=neoantigen.imputed_gene_expression,
                         no_mismatch=num_mismatches_mhc1,
                         score_mut=netmhcpan.best_epitope_by_rank.rank_mutated,
@@ -129,13 +137,23 @@ class PriorityScore:
             ),
             # priority score with rank score
             AnnotationFactory.build_annotation(
-                value=priority_score,
-                name="Priority_score",
+                value=priority_score_dna,
+                name="Priority_score_fromDNA",
             ),
             # imputed priority score with rank score
             AnnotationFactory.build_annotation(
-                value=priority_score_imputed,
-                name="Priority_score_imputed"
+                value=priority_score_imputed_rna,
+                name="Priority_score_imputed_fromRNA"
+            ),
+            # priority score with rank score f
+            AnnotationFactory.build_annotation(
+                value=priority_score_rna,
+                name="Priority_score_fromRNA",
+            ),
+            # imputed priority score with rank score
+            AnnotationFactory.build_annotation(
+                value=priority_score_imputed_dna,
+                name="Priority_score_imputed_fromDNA"
             )
         ]
         return annotations
@@ -145,8 +163,7 @@ class PriorityScore:
         return [
             AnnotationFactory.build_annotation(
                 value=self.calc_priority_score(
-                    vaf_dna=vaf_tumor,
-                    vaf_rna=vaf_rna,
+                    vaf=vaf_tumor,
                     transcript_gene_expr=transcript_exp,
                     no_mismatch=int(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='number_of_mismatches')),
@@ -154,11 +171,10 @@ class PriorityScore:
                     score_wt=epitope.rank_wild_type,
                     mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
-                name='Priority_score'),
+                name='Priority_score_fromDNA'),
             AnnotationFactory.build_annotation(
                 value=self.calc_priority_score(
-                    vaf_dna=vaf_tumor,
-                    vaf_rna=vaf_rna,
+                    vaf=vaf_tumor,
                     transcript_gene_expr=gene_exp,
                     no_mismatch=int(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='number_of_mismatches')),
@@ -166,5 +182,28 @@ class PriorityScore:
                     score_wt=epitope.rank_wild_type,
                     mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
                         epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
-                name='Priority_score_imputed'),
+                name='Priority_score_imputed_fromDNA'),
+            AnnotationFactory.build_annotation(
+                value=self.calc_priority_score(
+                    vaf=vaf_rna,
+                    transcript_gene_expr=transcript_exp,
+                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                name='Priority_score_fromRNA'),
+            AnnotationFactory.build_annotation(
+                value=self.calc_priority_score(
+                    vaf=vaf_rna,
+                    transcript_gene_expr=gene_exp,
+                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                name='Priority_score_imputed_fromDNA'),
+
             ]
