@@ -50,7 +50,7 @@ class TestMixMHCPredMouse(TestCase):
         self.test_mhc_two_b = integration_test_tools.get_h2_two_test_b(self.hla_database)
         self.uniprot = Uniprot(self.references.uniprot_pickle)
 
-    def test_mixmhcpred2_epitope_iedb_b_haplotype(self):
+    def test_mixmhcpred2_antigen_iedb_b_haplotype(self):
         # Test mixmhc2pred with H2Ab allele (C57BL/6 setting)
         # this is an antigen from IEDB of length 27
         neoantigen = get_neoantigen(
@@ -67,7 +67,7 @@ class TestMixMHCPredMouse(TestCase):
         self.assertEquals(9.43, best_result.rank_mutated)
         self.assertEquals("H2Ab", best_result.isoform_mhc_i_i.name)
 
-    def test_mixmhcpred2_epitope_iedb(self):
+    def test_mixmhcpred2_antigen_iedb(self):
         # Test mixmhc2pred with H2Ad and H2Ed allele (BALB/c setting)
         # this is an antigen from IEDB of length 27
         neoantigen = get_neoantigen(
@@ -100,7 +100,6 @@ class TestMixMHCPredMouse(TestCase):
         self.assertIsNone(best_result.isoform_mhc_i_i.name)
 
     def test_mixmhc2pred_allele(self):
-        
         neoantigen = get_neoantigen(mutated_xmer="RQHSIKEGLQFIQPPLSYPGTQEQYAV", wild_type_xmer="RQHSIKEGLQFIQSPLSYPGTQEQYAV")
         # this is a MHC II genotype which results in no available alleles for MixMHC2pred
         MHC_TWO_NEW = MhcFactory.build_mhc2_alleles(
@@ -108,6 +107,8 @@ class TestMixMHCPredMouse(TestCase):
                 "H2Ab",
                 "H2Ad",
                 "H2Ed"
+                # this mouse allele is supported by MixMHC2pred but does not exist in H2 database
+                #"H2Anb1"
             ],
             self.hla_database
         )
