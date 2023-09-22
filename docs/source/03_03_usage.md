@@ -54,12 +54,12 @@ The optional **config** file with the paths to the dependencies can look like th
 ````commandline
 NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 NEOFOX_RSCRIPT=`which Rscript`
-NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
-NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
-NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
-NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.1/MixMHCpred
-NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-1.2/MixMHC2pred_unix
-NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
+NEOFOX_BLASTP=path/to/blast/bin/blastp
+NEOFOX_NETMHCPAN=path/to/netMHCpan/netMHCpan
+NEOFOX_NETMHC2PAN=path/to/netMHCIIpan/netMHCIIpan
+NEOFOX_MIXMHCPRED=path/to/MixMHCpred/MixMHCpred
+NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred/MixMHC2pred_unix
+NEOFOX_MAKEBLASTDB=path/to/ncbi-blast/bin/makeblastdb
 NEOFOX_PRIME=/path/to/PRIME/PRIME
 ````
 
@@ -88,6 +88,9 @@ where:
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 
 ## Running from docker
+
+**NOTE: The provided docker recipe is not adapted to Neofox-v1.1.0. Please, use a previous version at the moment if running from docker is required.
+The docker recipe will be updated soon.**
 
 In order to run the command line in a docker image, all of the above applies but
 some additional steps are required.
