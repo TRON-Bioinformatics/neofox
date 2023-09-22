@@ -198,15 +198,9 @@ class MixMHC2pred:
         return parsed_results
 
     def _mixmhc2prediction(self, isoforms: List[str], potential_ligand_sequences: List[str]) -> List[PredictedEpitope]:
-        # TODO: define the pwm_path again because the mouse path is only defined by the config
         tmptxt = intermediate_files.create_temp_mixmhc2pred(potential_ligand_sequences, prefix="tmp_sequence_")
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
 
-        if self.organism == ORGANISM_HOMO_SAPIENS:
-            pwm_argument = ""
-        else:
-            pwm_dir = self.references.mixmhc2pred_pwm_dir
-            pwm_argument = f"-f {pwm_dir}"
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
@@ -215,9 +209,12 @@ class MixMHC2pred:
             tmptxt,
             "-o",
             outtmp,
-            pwm_argument,
             "--no_context"
         ]
+        if self.organism != ORGANISM_HOMO_SAPIENS:
+            pwm_dir = self.references.mixmhc2pred_pwm_dir
+            cmd.extend(["-f", pwm_dir])
+
         self.runner.run_command(cmd)
         results = self._parse_mixmhc2pred_output(filename=outtmp)
         os.remove(outtmp)
