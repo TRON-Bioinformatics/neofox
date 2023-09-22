@@ -42,7 +42,7 @@ HUMAN_PROTEOME_VERSION = "https://ftp.uniprot.org/pub/databases/uniprot/current_
 
 IEDB_URL = 'http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip'
 
-MIXMHC2PRED_PWM_MOUSE_URL = "ec2-18-188-210-66.us-east-2.compute.amazonaws.com:4000/data/PWMdef/PWMdef_Mouse.zip"
+MIXMHC2PRED_PWM_MOUSE_URL = "http://ec2-18-188-210-66.us-east-2.compute.amazonaws.com:4000/data/PWMdef/PWMdef_Mouse.zip"
 
 
 class NeofoxReferenceInstaller(object):
