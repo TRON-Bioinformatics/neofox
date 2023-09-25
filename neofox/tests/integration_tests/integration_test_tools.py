@@ -99,6 +99,13 @@ def get_h2_two_test(h2_database):
         ], h2_database
     )
 
+def get_h2_two_test_b(h2_database):
+    return MhcFactory.build_mhc2_alleles(
+        [
+            "H2Ab",
+            "H2Ab",
+        ], h2_database
+    )
 
 mutations_with_rare_aminoacids = [
             ("UTTDSDGKF", "UTTDSWGKF"),  # this is an epitope from IEDB of length 9
