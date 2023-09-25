@@ -69,6 +69,7 @@ class NeofoxReferenceInstaller(object):
             self._install_r_dependencies()
         else:
             logger.warning("R dependencies will need to be installed manually")
+        mixmhc2pred_resources = []
         if self.install_mouse_mixmhc2pred:
             mixmhc2pred_resources = self._set_mixmhc2pred_pwms()
         else:
@@ -96,8 +97,8 @@ class NeofoxReferenceInstaller(object):
         resources_version = [
             Resource(name="netMHCpan", version="4.1"),
             Resource(name="netMHCIIpan", version="4.0"),
-            Resource(name="mixMHCpred", version="2.1"),
-            Resource(name="mixMHC2pred", version="1.2"),
+            Resource(name="mixMHCpred", version="2.2"),
+            Resource(name="mixMHC2pred", version="2.0.2"),
             iedb_resource,
             hla_resource
         ] + proteome_resources + mixmhc2pred_resources
@@ -252,8 +253,6 @@ class NeofoxReferenceInstaller(object):
             Resource(name="Mouse Uniprot proteome isoforms", version=version_mouse,
                      url=MOUSE_PROTEOME_ISOFORMS, hash=hash_isoforms_mouse),
         ]
-
-        return hash_human, hash_isoforms_human, version_human, hash_mouse, hash_isoforms_mouse, version_mouse
 
     def _prepare_proteome(self, url, url_isoforms, version_url, proteome_file_name, proteome_prefix, proteome_pickle_file_name):
         # download proteome
