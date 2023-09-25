@@ -56,7 +56,7 @@ conda install bioconda::neofox
 
 ### Install third-party dependencies
 
-Please, check the licences of third-party dependencies. 
+**NOTE**: Please, check the licences of third-party dependencies. 
 
 #### Install R
 
@@ -191,13 +191,15 @@ export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Lates
 
 Run the following to configure the NeoFox reference folder:
 ```
-neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencies]
+neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencies --install_mouse_mixmhc2pred]
 ```
 
 **NOTE**: when installing from conda `--install-r-dependencies` is not needed. 
 
 The above command will install several resources and store in the annotations metadata their version, MD5 checksum and 
 download timestamp.
+
+To run NeoFox on data from mouse with MixMHC2pred, mouse-specific PMWs are required. For such use cases the reference folder needs to be configured with `--install_mouse_mixmhc2pred` (see also )
 
 Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R packages. These packages are the following:
 ```
