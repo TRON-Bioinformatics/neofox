@@ -244,7 +244,6 @@ class MixMHC2pred:
                     isoforms=mhc2_alleles, potential_ligand_sequences=potential_ligand_sequences)
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
-                print(mhc2_alleles)
 
     def run_peptide(self, peptide: str, isoform: Mhc2Isoform) -> PredictedEpitope:
         """
