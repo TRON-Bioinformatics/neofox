@@ -40,7 +40,7 @@ class NeoepitopeMhcBindingAnnotator:
             runner=self.runner, configuration=configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner)
         self.mixmhcpred = MixMHCpred(self.runner, self.configuration, self.mhc_parser)
-        self.mixmhc2pred = MixMHC2pred(self.runner, self.configuration, self.mhc_parser)
+        self.mixmhc2pred = MixMHC2pred(self.runner, self.configuration, self.mhc_parser, references)
         self.prime = Prime(self.runner, self.configuration, self.mhc_parser)
 
     def get_mhc_binding_annotations(self, neoepitope: PredictedEpitope) -> PredictedEpitope:
