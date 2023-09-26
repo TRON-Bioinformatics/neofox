@@ -341,10 +341,10 @@ class TestBestMultipleBinder(TestCase):
             position_of_mutation=mutation.position, predictions=predictions_wt
         )
 
-        paired_predictions = EpitopeHelper.pair_predictions(
+        paired_predictions = EpitopeHelper.pair_mhcii_predictions(
             predictions=predicted_neoepitopes, predictions_wt=filtered_predictions_wt)
 
         generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(predictions=paired_predictions)
         generator_rate_CDN = best_multiple.determine_number_of_binders(predictions=paired_predictions)
-        self.assertEqual(generator_rate_ADN, 6)
+        self.assertEqual(generator_rate_ADN, 0)
         self.assertEqual(generator_rate_CDN, 0)
