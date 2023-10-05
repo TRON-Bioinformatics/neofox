@@ -204,7 +204,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations),101)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 105)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -317,7 +317,7 @@ class TestNeofox(TestCase):
         assert False
 
     def test_neofox_without_mhc2(self):
-        """"""
+
         neoantigens, patients = self._get_test_data()
         for p in patients:
             p.mhc2 = []
@@ -328,7 +328,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 76)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 80)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients = self._get_test_data()
@@ -341,7 +341,8 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 46)
+        print(annotations[0].neofox_annotations.annotations)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 48)
 
     def test_gene_expression_imputation(self):
         neoantigens, patients = self._get_test_data()
@@ -628,6 +629,7 @@ class TestNeofox(TestCase):
                 self.assertNotEqual(e.isoform_mhc_i_i.name, '')
 
         self.assertTrue(found_recognition_potential)
+
 
         df_epitopes_mhci = ModelConverter.annotations2epitopes_table(annotations, mhc=neofox.MHC_I)
         self.assertFalse(any(c.startswith('isoformMhcII') for c in df_epitopes_mhci.columns))

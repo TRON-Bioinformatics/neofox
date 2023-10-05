@@ -19,15 +19,13 @@
 from unittest import TestCase
 from neofox.published_features.priority_score import PriorityScore
 
-
 class TestPriorityScore(TestCase):
     def setUp(self):
         self.priority_calculator = PriorityScore()
 
     def test_priority(self):
         result = self.priority_calculator.calc_priority_score(
-            vaf_dna=0.35,
-            vaf_rna=0.33,
+            vaf=0.35,
             transcript_gene_expr=12,
             no_mismatch=1,
             score_mut=1.1,
@@ -37,28 +35,7 @@ class TestPriorityScore(TestCase):
         self.assertGreater(result, 0)
 
         result = self.priority_calculator.calc_priority_score(
-            vaf_dna=None,
-            vaf_rna=0.33,
-            transcript_gene_expr=12,
-            no_mismatch=1,
-            score_mut=1.1,
-            score_wt=10,
-            mut_not_in_prot=True,
-        )
-        self.assertGreater(result, 0)
-        result = self.priority_calculator.calc_priority_score(
-            vaf_dna=0.35,
-            vaf_rna=None,
-            transcript_gene_expr=12,
-            no_mismatch=1,
-            score_mut=1.1,
-            score_wt=10,
-            mut_not_in_prot=True,
-        )
-        self.assertGreater(result, 0)
-        result = self.priority_calculator.calc_priority_score(
-            vaf_dna=None,
-            vaf_rna=-1,
+            vaf=None,
             transcript_gene_expr=12,
             no_mismatch=1,
             score_mut=1.1,
@@ -67,8 +44,16 @@ class TestPriorityScore(TestCase):
         )
         self.assertEqual(result, None)
         result = self.priority_calculator.calc_priority_score(
-            vaf_dna=0.35,
-            vaf_rna=0.33,
+            vaf=-1,
+            transcript_gene_expr=12,
+            no_mismatch=1,
+            score_mut=1.1,
+            score_wt=10,
+            mut_not_in_prot=True,
+        )
+        self.assertEqual(result, None)
+        result = self.priority_calculator.calc_priority_score(
+            vaf=0.35,
             transcript_gene_expr=None,
             no_mismatch=1,
             score_mut=1.1,
@@ -77,12 +62,11 @@ class TestPriorityScore(TestCase):
         )
         self.assertEqual(result, None)
         result = self.priority_calculator.calc_priority_score(
-            vaf_dna=0.35,
-            vaf_rna=0.33,
-            transcript_gene_expr=None,
+            vaf=0.35,
+            transcript_gene_expr=500,
             no_mismatch=1,
-            score_mut=1.1,
+            score_mut=0.5,
             score_wt=10,
             mut_not_in_prot=True,
         )
-        self.assertEqual(result, None)
+        self.assertEqual(result, 0.34980652747707675)
