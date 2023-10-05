@@ -105,16 +105,9 @@ class NeoFox:
 
         self._validate_input_data()
 
-        # retrieve from the data, if RNA-seq was available
-        # add this information to patient model
-        expression_per_patient = {self.patients[patient].identifier: [] for patient in self.patients}
-        for neoantigen in self.neoantigens:
-            expression_per_patient[neoantigen.patient_identifier].append(neoantigen.rna_expression)
 
-        # only performs the expression imputation for humans
+        # annotate TCGA gene expression
         if self.reference_folder.organism == ORGANISM_HOMO_SAPIENS:
-            # impute expresssion from TCGA, ONLY if isRNAavailable = False for given patient,
-            # otherwise original values is reported
             # NOTE: this must happen after validation to avoid uncaptured errors due to missing patients
             # NOTE: add gene expression to neoantigen candidate model
             self.neoantigens = self._conditional_expression_imputation()
@@ -128,15 +121,15 @@ class NeoFox:
         neoantigens_transformed = []
 
         for neoantigen in self.neoantigens:
-            expression_value = neoantigen.rna_expression
+
             patient = self.patients[neoantigen.patient_identifier]
             neoantigen_transformed = neoantigen
+
             gene_expression = expression_annotator.get_gene_expression_annotation(
                 gene_name=neoantigen.gene, tcga_cohort=patient.tumor_type
             )
 
-            neoantigen_transformed.rna_expression = expression_value
-            neoantigen.imputed_gene_expression = gene_expression
+            neoantigen_transformed.imputed_gene_expression = gene_expression
 
             neoantigens_transformed.append(neoantigen_transformed)
         return neoantigens_transformed

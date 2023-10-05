@@ -218,11 +218,12 @@ class NeoantigenAnnotator(AbstractAnnotator):
         )
 
         # vaxrank
+        # TODO: consider to calculate vaxrank with DNA VAF aswell
         if netmhcpan and netmhcpan.predictions:
             neoantigen.neofox_annotations.annotations.extend(VaxRank().get_annotations(
                 epitope_predictions=netmhcpan.predictions,
-                expression_score=expression_annotation[0].value,
-                imputed_score=expression_annotation[1].value
+                expression_score=[e.value for e in expression_annotation if e.name == "Mutated_rnaExpression_fromRNA"][0],
+                imputed_score=[e.value for e in expression_annotation if e.name == "Mutated_imputedGeneExpression_fromRNA"][0]
             ))
 
         # hex
