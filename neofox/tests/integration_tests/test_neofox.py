@@ -204,7 +204,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 105)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 104)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -328,7 +328,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 80)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 79)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients = self._get_test_data()
