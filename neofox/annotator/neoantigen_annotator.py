@@ -56,7 +56,6 @@ class NeoantigenAnnotator(AbstractAnnotator):
         self.rank_mhcii_threshold = rank_mhcii_threshold
 
         # NOTE: these resources do not read any file thus can be initialised fast
-        #self.neoag_calculator = NeoagCalculator(runner=self.runner, configuration=configuration)
         self.expression_calculator = Expression()
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
