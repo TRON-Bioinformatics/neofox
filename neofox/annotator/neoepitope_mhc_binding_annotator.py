@@ -40,7 +40,7 @@ class NeoepitopeMhcBindingAnnotator:
             runner=self.runner, configuration=configuration, mhc_parser=self.mhc_parser,
             blastp_runner=self.proteome_blastp_runner)
         self.mixmhcpred = MixMHCpred(self.runner, self.configuration, self.mhc_parser)
-        self.mixmhc2pred = MixMHC2pred(self.runner, self.configuration, self.mhc_parser)
+        self.mixmhc2pred = MixMHC2pred(self.runner, self.configuration, self.mhc_parser, self.mhc_database)
         self.prime = Prime(self.runner, self.configuration, self.mhc_parser)
 
     def get_mhc_binding_annotations(self, neoepitope: PredictedEpitope) -> PredictedEpitope:
@@ -105,8 +105,6 @@ class NeoepitopeMhcBindingAnnotator:
                 sequence=neoepitope.mutated_peptide, alleles=netmhcpan_allele)
             annotated_neoepitope.affinity_mutated = mutated_epitope.affinity_mutated
             annotated_neoepitope.rank_mutated = mutated_epitope.rank_mutated
-            annotated_neoepitope.core = mutated_epitope.core
-            annotated_neoepitope.neofox_annotations = mutated_epitope.neofox_annotations
             wt_epitope = self.netmhcpan.mhc_prediction_peptide(
                 sequence=neoepitope.wild_type_peptide, alleles=netmhcpan_allele)
             annotated_neoepitope.affinity_wild_type = wt_epitope.affinity_mutated
@@ -123,8 +121,6 @@ class NeoepitopeMhcBindingAnnotator:
                 mhc2_isoform=neoepitope.isoform_mhc_i_i)
             annotated_neoepitope.affinity_mutated = mutated_epitope.affinity_mutated
             annotated_neoepitope.rank_mutated = mutated_epitope.rank_mutated
-            annotated_neoepitope.core = mutated_epitope.core
-            annotated_neoepitope.neofox_annotations = mutated_epitope.neofox_annotations
             wt_epitope = self.netmhc2pan.mhc2_prediction_peptide(
                 sequence=neoepitope.wild_type_peptide,
                 mhc2_isoform=neoepitope.isoform_mhc_i_i)

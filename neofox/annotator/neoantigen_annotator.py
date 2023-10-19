@@ -31,7 +31,6 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 from neofox.model.factories import AnnotationFactory
 from neofox.model.mhc_parser import MhcParser
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.expression import Expression
 from neofox.model.neoantigen import Patient, Neoantigen, Annotations, PredictedEpitope
@@ -57,7 +56,6 @@ class NeoantigenAnnotator(AbstractAnnotator):
         self.rank_mhcii_threshold = rank_mhcii_threshold
 
         # NOTE: these resources do not read any file thus can be initialised fast
-        self.neoag_calculator = NeoagCalculator(runner=self.runner, configuration=configuration)
         self.expression_calculator = Expression()
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
@@ -191,14 +189,6 @@ class NeoantigenAnnotator(AbstractAnnotator):
                     neoantigen=neoantigen,
                     mut_not_in_prot=sequence_not_in_uniprot,
                 )
-            )
-
-        # neoag immunogenicity model
-        if netmhcpan and netmhcpan.best_epitope_by_affinity:
-            neoantigen.neofox_annotations.annotations.append(
-                self.neoag_calculator.get_annotation(
-                    epitope_mhci=netmhcpan.best_epitope_by_affinity,
-                    neoantigen=neoantigen)
             )
 
         # IEDB immunogenicity
