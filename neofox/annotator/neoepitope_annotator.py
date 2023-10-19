@@ -32,7 +32,6 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 from neofox.model.factories import AnnotationFactory
 from neofox.model.mhc_parser import MhcParser
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.expression import Expression
 from neofox.model.neoantigen import Patient, Neoantigen, Annotations, PredictedEpitope
@@ -54,7 +53,6 @@ class NeoepitopeAnnotator(AbstractAnnotator):
         self.available_alleles = references.get_available_alleles()
 
         # NOTE: these resources do not read any file thus can be initialised fast
-        self.neoag_calculator = NeoagCalculator(runner=self.runner, configuration=configuration)
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
 

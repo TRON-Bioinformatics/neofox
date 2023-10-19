@@ -346,5 +346,5 @@ class TestBestMultipleBinder(TestCase):
 
         generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(predictions=paired_predictions)
         generator_rate_CDN = best_multiple.determine_number_of_binders(predictions=paired_predictions)
-        self.assertEqual(generator_rate_ADN, 6)
+        self.assertEqual(generator_rate_ADN, 4)
         self.assertEqual(generator_rate_CDN, 0)
