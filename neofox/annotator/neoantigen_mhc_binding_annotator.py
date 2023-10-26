@@ -24,6 +24,7 @@ class NeoantigenMhcBindingAnnotator:
         self.organism = references.organism
         self.uniprot = uniprot
         self.proteome_blastp_runner = proteome_blastp_runner
+        self.references = references
 
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
@@ -64,7 +65,8 @@ class NeoantigenMhcBindingAnnotator:
                 self.mhc_parser,
                 neoantigen,
                 patient,
-                self.mhc_database
+                self.mhc_database,
+                self.references
             )
 
         # avoids running MixMHCpred and PRIME for non human organisms
@@ -159,8 +161,9 @@ class NeoantigenMhcBindingAnnotator:
             mhc_parser: MhcParser,
             neoantigen: Neoantigen,
             patient: Patient,
-            mhc_database: MhcDatabase
+            mhc_database: MhcDatabase,
+            references: ReferenceFolder
     ):
-        mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser, mhc_database)
+        mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser, references)
         mixmhc2.run(mhc=patient.mhc2, neoantigen=neoantigen, uniprot=self.uniprot)
         return mixmhc2

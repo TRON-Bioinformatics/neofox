@@ -55,7 +55,7 @@ model Neofox's input and output data: neoantigens, patients, MHC alleles and neo
 
 **Figure 1**
 
-![Neofox model](../figures/figure1_v3.png)
+![Neofox model](../figures/figure1_v3b.png)
 
 For detailed information about the required input data, output data and usage please refer to the [User guide](03_user_guide.rst).  
   
