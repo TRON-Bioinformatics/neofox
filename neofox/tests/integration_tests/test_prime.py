@@ -45,8 +45,8 @@ class TestPrime(TestCase):
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.prime.results, maximum=True)
         self.assertEquals("LVTDQTRL", best_result.mutated_peptide)
-        self.assertAlmostEqual(0.163810, best_result.affinity_mutated, delta=0.00001)
-        self.assertEquals(3.00, best_result.rank_mutated)
+        self.assertAlmostEqual(0.001858 , best_result.affinity_mutated, delta=0.00001)
+        self.assertEquals(18.992, best_result.rank_mutated)
         self.assertEquals("HLA-C*05:01", best_result.allele_mhc_i.name)
 
     def test_prime_too_small_epitope(self):
@@ -72,8 +72,8 @@ class TestPrime(TestCase):
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.prime.results, maximum=True)
         self.assertEqual('SIYGGLVLI', best_result.mutated_peptide)
-        self.assertEqual(0.186328, best_result.affinity_mutated)
-        self.assertEqual(0.2, best_result.rank_mutated)
+        self.assertEqual(0.13728, best_result.affinity_mutated)
+        self.assertEqual(0.127, best_result.rank_mutated)
         self.assertEqual('HLA-A*02:01', best_result.allele_mhc_i.name)
 
     def test_prime_rare_aminoacid(self):

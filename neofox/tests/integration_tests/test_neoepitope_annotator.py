@@ -61,7 +61,7 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
 
         annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
-        self.assert_float_annotation(annotated_neoepitope, annotation_name="Priority_score")
+        self.assert_float_annotation(annotated_neoepitope, annotation_name="Priority_score_fromDNA")
         self.assert_float_annotation(annotated_neoepitope, annotation_name="Tcell_predictor")
 
     def test_neoepitope_mhci_10mer_no_tcell_predictor(self):
@@ -98,6 +98,7 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
             mutated_peptide="DILVTDQTR",
             wild_type_peptide="DILVIDQTR",
             allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01'),
+            dna_variant_allele_frequency=None,
             rna_variant_allele_frequency=0.1,
             rna_expression=125,
             gene='BRCA2'
@@ -107,15 +108,19 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope_with_dna_vaf,
                                      annotated_neoepitope=annotated_neoepitope1)
 
+        print(neoepitope_with_dna_vaf)
+
         annotated_neoepitope2 = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope_without_dna_vaf)
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope_without_dna_vaf,
                                      annotated_neoepitope=annotated_neoepitope2)
 
+        print(annotated_neoepitope2)
+
         self.assertNotEqual(
             EpitopeHelper.get_annotation_by_name(
-                annotated_neoepitope1.neofox_annotations.annotations, "Priority_score"),
+                annotated_neoepitope1.neofox_annotations.annotations, "Priority_score_fromDNA"),
             EpitopeHelper.get_annotation_by_name(
-                annotated_neoepitope2.neofox_annotations.annotations, "Priority_score")
+                annotated_neoepitope2.neofox_annotations.annotations, "Priority_score_fromDNA")
         )
 
     def test_neoepitope_mhci_without_vaf(self):
@@ -137,7 +142,7 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
 
         self.assertEqual(
             EpitopeHelper.get_annotation_by_name(
-                annotated_neoepitope.neofox_annotations.annotations, "Priority_score"), "NA")
+                annotated_neoepitope.neofox_annotations.annotations, "Priority_score_fromDNA"), "NA")
 
     def test_neoepitope_mhcii_annotation(self):
 

@@ -23,7 +23,7 @@ class DataGenerator:
         mhc1_alleles = mixmhcpred_alleles.union(netmhcpan_alleles)
 
         mixmhc2pred_alleles = set(self.load_mhc2_alleles(
-            MixMHC2pred(runner=None, configuration=configuration, mhc_parser=None).available_alleles))
+            MixMHC2pred(runner=None, configuration=configuration, mhc_parser=None, mhc_database=self.hla_database).available_alleles))
         netmhc2pan_alleles = set(self.load_mhc2_alleles(
             reference_folder.get_available_alleles().get_available_mhc_ii()))
         mhc2_isoforms = mixmhc2pred_alleles.union(netmhc2pan_alleles)

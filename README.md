@@ -29,8 +29,8 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | MHC I binding affinity/rank score (netMHCpan-v4.1)      | Reynisson et al, 2020, Nucleic Acids Research                             | https://doi.org/10.4049/jimmunol.1700893                                                  |
 | MHC II binding affinity/rank score (netMHCIIpan-v4.0)   | Reynisson et al, 2020, Nucleic Acids Research                                           | https://doi.org/10.1111/imm.12889                                                         |
-| MixMHCpred score v2.1  §                              | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
-| MixMHC2pred score v1.2  §                              | Racle et al, 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
+| MixMHCpred score v2.2  §                              | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
+| MixMHC2pred score v2.0.2  §                              | Racle et al, 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
 | Differential Agretopicity Index (DAI)                   | Duan et al, 2014, JEM; Ghorani et al., 2018, Ann Oncol.                  | https://doi.org/10.1084/jem.20141308                                                      |
 | Self-Similarity                                         | Bjerregaard et al, 2017, Front Immunol.                                  | https://doi.org/10.3389/fimmu.2017.01566                                                  |
 | IEDB immunogenicity                                     | Calis et al, 2013, PLoS Comput Biol.                                     | https://doi.org/10.1371/journal.pcbi.1003266                                              |
@@ -42,7 +42,6 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 | Vaxrank                                                 | Rubinsteyn, 2017, Front Immunol                                          | https://doi.org/10.3389/fimmu.2017.01807                                                  |
 | Priority score                                          | Bjerregaard et al, 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
 | Tcell predictor                                         | Besser et al, 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
-| neoag                                                   | Smith et al, 2019, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-19-0155                                             |
 | PRIME  §                                                 | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 | HEX §                                                   | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             |
 
@@ -57,9 +56,9 @@ NeoFox depends on the following tools:
 - BLAST 2.10.1
 - netMHCpan 4.1
 - netMHCIIpan 4.0
-- MixMHCpred 2.1
-- MixMHC2pred 1.2
-- PRIME 1.0
+- MixMHCpred 2.2 (optional)
+- MixMHC2pred 2.0.2 (optional)
+- PRIME 2.0 (optional)
 
 Install from PyPI:
 ```
@@ -101,10 +100,10 @@ NEOFOX_RSCRIPT=`which Rscript`
 NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
 NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
 NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
-NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.1/MixMHCpred
-NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-1.2/MixMHC2pred_unix
+NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.2/MixMHCpred
+NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-2.0.1/MixMHC2pred_unix
 NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
-NEOFOX_PRIME=/path/to/PRIME/PRIME
+NEOFOX_PRIME=/path/to/PRIME-2.0/PRIME
 ````
 
 ## 4 Input data
@@ -112,7 +111,7 @@ NEOFOX_PRIME=/path/to/PRIME/PRIME
 ### 4.1 Neoantigen candidates in tabular format
 This is an dummy example of a table with neoantigen candidates:  
 
-| gene  | mutation.wildTypeXmer       | mutation.mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
+| gene  | wildTypeXmer       | mutatedXmer        | patientIdentifier | rnaExpression | rnaVariantAlleleFrequency | dnaVariantAlleleFrequency | external_annotation_1 | external_annotation_2 |
 |-------|-----------------------------|-----------------------------|-------------------|---------------|---------------------------|---------------------------|-----------------------|-----------------------|
 | BRCA2 | AAAAAAAAAAAAALAAAAAAAAAAAAA | AAAAAAAAAAAAAFAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 | BRCA2 | AAAAAAAAAAAAAMAAAAAAAAAAAAA | AAAAAAAAAAAAARAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
@@ -122,8 +121,8 @@ This is an dummy example of a table with neoantigen candidates:
 
 where:
 - `gene`: the HGNC gene symbol   
-- `mutation.mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
-- `mutation.wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
+- `mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. The mutation should be located in the middle, flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A)
+- `wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A)
 - `patientIdentifier`: the patient identifier
 - `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
 - `rnaVariantAlleleFrequency`: the variant allele frequency calculated from the RNA (**optional**, this will be estimated using the `dnaVariantAlleleFrequency` if not available)

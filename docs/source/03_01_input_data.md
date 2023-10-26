@@ -36,9 +36,8 @@ where:
 
 **NOTE:** 
 
-- If rnaExpression is not provided and the tumor type is given in the patient data, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). Please, not that this does not work for mouse data. Here, expression imputation is currently not supported.
-- If `dnaVariantAlleleFrequency` is given while `rnaVariantAlleleFrequency` is not given, the VAF in RNA will be estimated by the VAF in DNA. 
-This means that feature scores that rely on the VAF in RNA will be calulated with the VAF in DNA.
+- Neofox annotates gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below) which might be helpful if rnaExpression is unknown. Please, not that this does not work for mouse data. 
+
 
 #### Neoepitope candidates 
 
@@ -67,9 +66,7 @@ where:
 
 - Neoepitopes with a value for `alleleMhcI` are considered MHC-I neoepitopes, likewise neoepitopes with a value for `isoformMhcII` are considered MHC-II neoepitopes. Both fields cannot be provided for the same neoepitope.
 - If none of `alleleMhcI` and `isoformMhcII` are provided then the `patientIdentifier` is required and one neoepitope sharing the same sequence will be annotated for each MHC-I allele and MHC-II isoform according to the patient HLA type.
-- If rnaExpression is not provided and the tumor type is given in the patient data, expression will be estimated by gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below). Please, not that this does not work for mouse data. Here, expression imputation is currently not supported.
-- If `dnaVariantAlleleFrequency` is given while `rnaVariantAlleleFrequency` is not given, the VAF in RNA will be estimated by the VAF in DNA. 
-This means that feature scores that rely on the VAF in RNA will be calulated with the VAF in DNA.
+- Neofox annotates gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below) which might be helpful if rnaExpression is unknown. Please, not that this does not work for mouse data.
 
 
 ### JSON file format
@@ -106,7 +103,7 @@ where:
 - `identifier`: the patient identifier
 - `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
 - `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.  
-- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
+- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for imputation with gene expression and at the moment the following tumor types are supported:
 
 | Study Name                                                         | Abbreviation |
 |--------------------------------------------------------------------|-------------------|

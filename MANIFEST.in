@@ -1,4 +1,3 @@
-include neofox/published_features/neoag/neoag-master/*
 include neofox/published_features/self_similarity/BLOSUM62-2.matrix.txt
 include neofox/published_features/Tcell_predictor/amino-acids-features.pickle
 include neofox/published_features/Tcell_predictor/genes-expression.pickle
@@ -6,9 +5,6 @@ include neofox/published_features/Tcell_predictor/SIRdata.mat
 include neofox/published_features/Tcell_predictor/Classifier.pickle
 include neofox/references/install_r_dependencies.R
 include neofox/references/h2_database_allele_list.csv
-include neofox/published_features/hex/BLOSUM62.rda
-include neofox/published_features/hex/EPItOMe_modified.R
-include neofox/published_features/hex/hex.R
 include neofox/expression_imputation/tcga_cohort_code.tab
 include neofox/expression_imputation/tcga_exp_summary_modified.tab.gz.tbi
 include neofox/expression_imputation/tcga_exp_summary_modified.tab.gz

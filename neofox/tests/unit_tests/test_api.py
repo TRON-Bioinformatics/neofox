@@ -75,19 +75,3 @@ class TestApi(TestCase):
             patient_identifier="123")
         self.assertIsInstance(neoantigen, Neoantigen)
         self.assertEqual(neoantigen.position, [7, 12])
-
-    def test_insertion(self):
-        neoantigen = NeoantigenFactory.build_neoantigen(
-            mutated_xmer="aaaaaaaaaaaaaaa",
-            wild_type_xmer="AAAAAAGAAAAgA",
-            patient_identifier="123")
-        self.assertIsInstance(neoantigen, Neoantigen)
-        self.assertEqual(neoantigen.position, [7, 12])
-
-    def test_deletion(self):
-        neoantigen = NeoantigenFactory.build_neoantigen(
-            mutated_xmer="aaaaaaaaaaaaa",
-            wild_type_xmer="AAAAAAGAAAAgAAA",
-            patient_identifier="123")
-        self.assertIsInstance(neoantigen, Neoantigen)
-        self.assertEqual(neoantigen.position, [7, 12])

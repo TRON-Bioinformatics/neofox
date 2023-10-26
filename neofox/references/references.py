@@ -77,7 +77,12 @@ NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE = "netmhc2pan_available_alleles_mice.txt"
 HLA_DATABASE_AVAILABLE_ALLELES_FILE = "hla_database_allele_list.csv"
 H2_DATABASE_AVAILABLE_ALLELES_FILE = "h2_database_allele_list.csv"
 MIXMHCPRED_AVAILABLE_ALLELES_FILE = "allele_list.txt"
-MIXMHC2PRED_AVAILABLE_ALLELES_FILE = "Alleles_list.txt"
+MIXMHC2PRED_AVAILABLE_HUMAN_ALLELES_FILE = "PWMdef/Alleles_list_Human.txt"
+MIXMHC2PRED_PWM="MixMHC2pred"
+MIXMHC2PRED_AVAILABLE_MOUSE_PWM_DIR = "PWMdef_Mouse"
+MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE = "Alleles_list_Mouse.txt"
+
+
 PRIME_AVAILABLE_ALLELES_FILE = "alleles.txt"
 
 RESOURCES_VERSIONS = "resources_versions.json"
@@ -127,13 +132,15 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
         self.blastp = self._check_and_load_binary(neofox.NEOFOX_BLASTP_ENV, default_value=DEFAULT_BLASTP)
         self.mix_mhc2_pred = self._check_and_load_binary(
             neofox.NEOFOX_MIXMHC2PRED_ENV, default_value=DEFAULT_MIXMHC2PRED, optional=True, path_search=False)
+
+        # set the available alleles for MixMHCpred
         if self.mix_mhc2_pred is not None:
-            self.mix_mhc2_pred_alleles_list = os.path.join(
-                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_ALLELES_FILE)
-        else:
-            self.mix_mhc2_pred_alleles_list = None
+            self.mix_mhc2_pred_human_alleles_list = os.path.join(
+                os.path.dirname(self.mix_mhc2_pred), MIXMHC2PRED_AVAILABLE_HUMAN_ALLELES_FILE)
+
         self.mix_mhc_pred = self._check_and_load_binary(
             neofox.NEOFOX_MIXMHCPRED_ENV, default_value=DEFAULT_MIXMHCPRED, optional=True, path_search=False)
+
         if self.mix_mhc_pred is not None:
             self.mix_mhc_pred_alleles_list = os.path.join(
                 os.path.dirname(self.mix_mhc_pred), "lib", MIXMHCPRED_AVAILABLE_ALLELES_FILE)
@@ -182,7 +189,6 @@ class MhcDatabase(ABC):
 
     def is_mus_musculus(self):
         return self.organism == ORGANISM_MUS_MUSCULUS
-
 
 class HlaDatabase(MhcDatabase):
 
@@ -280,6 +286,16 @@ class ReferenceFolder(object):
             self.mhc_database_filename,
             self.resources_versions_file
         ]
+        # set MixMHC2pred specific paths for non human mode
+        if not organism == ORGANISM_HOMO_SAPIENS:
+            self.mixmhc2pred_pwm = self._get_reference_file_name(MIXMHC2PRED_PWM)
+            self.mixmhc2pred_alleles_list = self._get_mixmhc2pred_alleles_list()
+            self.mixmhc2pred_pwm_dir = self._get_mixmhc2pred_pwm_dir()
+            self.resources.extend([self.mixmhc2pred_alleles_list, self.mixmhc2pred_pwm_dir])
+        else:
+            self.mixmhc2pred_alleles_list = None
+            self.mixmhc2pred_pwm_dir = None
+
         self._check_resources()
         self.resources_versions = self.get_resources_versions()
         if verbose:
@@ -383,6 +399,17 @@ class ReferenceFolder(object):
 
     def _get_reference_file_name(self, file_name_suffix):
         return os.path.join(self.reference_genome_folder, file_name_suffix)
+
+    def _get_mixmhc2pred_alleles_list(self):
+        if self.organism == ORGANISM_MUS_MUSCULUS:
+            return os.path.join(self.mixmhc2pred_pwm,
+                MIXMHC2PRED_AVAILABLE_MOUSE_PWM_DIR,
+                MIXMHC2PRED_AVAILABLE_MOUSE_ALLELES_FILE)
+
+    def _get_mixmhc2pred_pwm_dir(self):
+         if self.organism == ORGANISM_MUS_MUSCULUS:
+            return os.path.join(self.mixmhc2pred_pwm,
+                MIXMHC2PRED_AVAILABLE_MOUSE_PWM_DIR)
 
 
 class AvailableAlleles(object):

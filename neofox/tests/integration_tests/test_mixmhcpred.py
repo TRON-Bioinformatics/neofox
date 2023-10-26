@@ -40,7 +40,8 @@ class TestMixMHCPred(TestCase):
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
         )
         self.mixmhc2pred = MixMHC2pred(
-            runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser
+            runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser,
+            references=self.references
         )
         self.hla_database = self.references.get_mhc_database()
         self.test_mhc_one = integration_test_tools.get_hla_one_test(self.hla_database)
@@ -54,8 +55,8 @@ class TestMixMHCPred(TestCase):
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
         self.assertEquals("NLVPMVATV", best_result.mutated_peptide)
-        self.assertAlmostEqual(0.306957, best_result.affinity_mutated, delta=0.00001)
-        self.assertEquals(0.6, best_result.rank_mutated)
+        self.assertAlmostEqual(0.107561, best_result.affinity_mutated, delta=0.00001)
+        self.assertEquals(0.0659342, best_result.rank_mutated)
         self.assertEquals("HLA-A*02:01", best_result.allele_mhc_i.name)
 
     def test_mixmhcpred_too_small_epitope(self):
@@ -81,8 +82,8 @@ class TestMixMHCPred(TestCase):
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.mixmhcpred.results, maximum=True)
         self.assertEqual('SIYGGLVLI', best_result.mutated_peptide)
-        self.assertAlmostEqual(0.158294, best_result.affinity_mutated, places=5)
-        self.assertEqual(1, best_result.rank_mutated)
+        self.assertAlmostEqual(-0.296735, best_result.affinity_mutated, places=5)
+        self.assertEqual(0.267446, best_result.rank_mutated)
         self.assertEqual('HLA-A*02:01', best_result.allele_mhc_i.name)
 
     def test_mixmhcpred_rare_aminoacid(self):
@@ -113,9 +114,9 @@ class TestMixMHCPred(TestCase):
             uniprot=self.uniprot
         )
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
-        self.assertEquals("DEVLGEPSQDILVT", best_result.mutated_peptide)
-        self.assertEquals(3.06, best_result.rank_mutated)
-        self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform_mhc_i_i.name)
+        self.assertEquals("TDQTRLEATISPET", best_result.mutated_peptide)
+        self.assertEquals(0.913, best_result.rank_mutated)
+        self.assertEquals("HLA-DPA1*01:03-DPB1*13:01", best_result.isoform_mhc_i_i.name)
 
     def test_mixmhcpred2_epitope_iedb_forcing_no_drb1(self):
         # this is an epitope from IEDB of length 15
@@ -128,9 +129,9 @@ class TestMixMHCPred(TestCase):
             uniprot=self.uniprot
         )
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
-        self.assertEquals("DEVLGEPSQDILVT", best_result.mutated_peptide)
-        self.assertEquals(3.06, best_result.rank_mutated)
-        self.assertEquals("HLA-DPA1*01:03-DPB1*04:01", best_result.isoform_mhc_i_i.name)
+        self.assertEquals("TDQTRLEATISPET", best_result.mutated_peptide)
+        self.assertEquals(0.913, best_result.rank_mutated)
+        self.assertEquals("HLA-DPA1*01:03-DPB1*13:01", best_result.isoform_mhc_i_i.name)
 
     def test_mixmhcpred2_too_small_epitope(self):
         neoantigen = get_neoantigen(mutated_xmer="ENPVVHFF", wild_type_xmer="ENPVVHFF")
@@ -179,9 +180,9 @@ class TestMixMHCPred(TestCase):
         logger.info(alleles)
         self.mixmhc2pred.run(neoantigen=neoantigen, mhc=MHC_TWO_NEW, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_rank(predictions=self.mixmhc2pred.results)
-        self.assertIsNone(best_result.mutated_peptide)
-        self.assertIsNone(best_result.rank_mutated)
-        self.assertIsNone(best_result.isoform_mhc_i_i.name)
+        self.assertIsNotNone(best_result.mutated_peptide)
+        self.assertIsNotNone(best_result.rank_mutated)
+        self.assertIsNotNone(best_result.isoform_mhc_i_i.name)
 
     def test_generate_nmers(self):
         neoantigen = get_neoantigen(mutated_xmer="DDDDDVDDD", wild_type_xmer="DDDDDDDDD")

@@ -51,17 +51,25 @@ def neofox_configure():
         action="store_true",
         help="install the R dependencies automatically",
     )
+    parser.add_argument(
+        "--install-mouse-mixmhc2pred",
+        dest="install_mouse_mixmhc2pred",
+        action="store_true",
+        help="get the mouse allele PWMs required to run MixMHC2pred for mouse",
+    )
 
     args = parser.parse_args()
     reference_folder = args.reference_folder
     install_r_dependencies = args.install_r_dependencies
+    install_mouse_mixmhc2pred = args.install_mouse_mixmhc2pred
 
     # makes sure that the output folder exists
     os.makedirs(reference_folder, exist_ok=True)
 
     logger.info("Starting the installation of references")
     NeofoxReferenceInstaller(
-        reference_folder=reference_folder, install_r_dependencies=install_r_dependencies
+        reference_folder=reference_folder, install_r_dependencies=install_r_dependencies,
+        install_mouse_mixmhc2pred=install_mouse_mixmhc2pred
     ).install()
     logger.info("Finished the installation succesfully!")
 
@@ -213,6 +221,12 @@ def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[Li
     else:
         raise ValueError('Not supported input file extension: {}'.format(input_file))
 
+    neoantigens_patient_ids = set(neoantigen.patient_identifier for neoantigen in neoantigens)
+    patient_ids = set(patient.identifier for patient in patients)
+    if len(neoantigens_patient_ids.difference(patient_ids)) > 0:
+        raise ValueError('%s patient candidate does not exist in the patient data file.'
+                         % neoantigens_patient_ids.difference(patient_ids))
+
     return neoantigens, patients
 
 
@@ -330,7 +344,8 @@ def neofox_epitope_cli():
         neoepitopes, patients = _read_data_epitopes(
             input_file,
             patients_data,
-            reference_folder.get_mhc_database())
+            reference_folder.get_mhc_database(),
+            organism)
 
         # run annotations
         annotated_neoepitopes = NeoFoxEpitope(
@@ -354,7 +369,7 @@ def neofox_epitope_cli():
 
 
 def _read_data_epitopes(
-    input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[PredictedEpitope], List[Patient]]:
+    input_file, patients_data, mhc_database: MhcDatabase, organism: str) -> Tuple[List[PredictedEpitope], List[Patient]]:
 
     # parse patient data
     patients = []
@@ -366,7 +381,7 @@ def _read_data_epitopes(
     # parse the neoantigen candidate data
     if input_file.endswith('.txt') or input_file.endswith('.tsv'):
         logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
-        neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database)
+        neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database, organism)
         logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
     # TODO: add support for input in JSON format
     #elif input_file.endswith('.json')  :

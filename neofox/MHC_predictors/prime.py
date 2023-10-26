@@ -35,9 +35,9 @@ from logzero import logger
 from neofox.references.references import DependenciesConfiguration
 
 ALLELE = "BestAllele"
-RANK = "%Rank_bestAllele"
+RANK = "%Rank_"
 PEPTIDE = "Peptide"
-SCORE = "Score_bestAllele"
+SCORE = "Score_"
 
 
 class Prime:
@@ -59,7 +59,7 @@ class Prime:
 
     def _load_available_alleles(self):
         """
-        loads file with available HLA II alllels for Prime prediction, returns set
+        loads file with available HLA II alleles for Prime prediction, returns set
         :return:
         """
         alleles = pd.read_csv(
@@ -76,24 +76,39 @@ class Prime:
                     mhc_alleles)
             )
         )
+    def _get_mhc_alleles(self, prime_result):
+        mhc_alleles = set()
+        for col in prime_result.columns:
+            # take out alleles and eliminate the column Score_bestAllele out of the set
+            if col.startswith(SCORE) and not col.endswith('e'):
+                allele = col.split('_')[-1]
+                mhc_alleles.add(allele)
+        return mhc_alleles
 
     def _parse_prime_output(self, filename: str) -> List[PredictedEpitope]:
-
         parsed_results = []
         try:
             results = pd.read_csv(filename, sep="\t", comment="#")
         except EmptyDataError:
-            logger.error("Results from PRIME are empty, something went wrong")
+            logger.error("Results from MixMHCpred are empty, something went wrong")
             results = pd.DataFrame()
 
+        mhc_alleles = self._get_mhc_alleles(results)
         for _, row in results.iterrows():
-            parsed_results.append(
-                PredictedEpitope(
-                    allele_mhc_i=self.mhc_parser.parse_mhc_allele(row[ALLELE]),
-                    mutated_peptide=row[PEPTIDE],
-                    affinity_mutated=float(row[SCORE]),
-                    rank_mutated=float(row[RANK]),
-                ))
+            # when MixMHCpred returns no results it provides a row with the peptide and NAs for other fields
+            # pandas reads NAs as float nan. Skip these
+            for allele in mhc_alleles:
+                if isinstance(row[PEPTIDE], str):
+                    score = str(SCORE + allele)
+                    rank = str(RANK + allele)
+
+                    parsed_results.append(
+                        PredictedEpitope(
+                            allele_mhc_i=self.mhc_parser.parse_mhc_allele(allele),
+                            mutated_peptide=row[PEPTIDE],
+                            affinity_mutated=float(row[score]),
+                            rank_mutated=float(row[rank]),
+                        ))
         return parsed_results
 
     def _prime(self, mhc_alleles: List[str], potential_ligand_sequences) -> List[PredictedEpitope]:
