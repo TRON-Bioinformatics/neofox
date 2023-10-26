@@ -196,10 +196,13 @@ neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencie
 
 **NOTE**: when installing from conda `--install-r-dependencies` is not needed. 
 
-The above command will install several resources and store in the annotations metadata their version, MD5 checksum and 
-download timestamp.
+The above command will download and transform several resources and store in the annotations metadata their version, MD5 checksum and 
+download timestamp. 
+
 
 To run NeoFox on data from mouse with MixMHC2pred, mouse-specific PMWs are required. For such use cases the reference folder needs to be configured with `--install_mouse_mixmhc2pred` (see also )
+
+Depending on your use case please check the licences of these third-party resources (see urls in neofox/references/installer.py). 
 
 Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R packages. These packages are the following:
 ```

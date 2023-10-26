@@ -56,9 +56,9 @@ NeoFox depends on the following tools:
 - BLAST 2.10.1
 - netMHCpan 4.1
 - netMHCIIpan 4.0
-- MixMHCpred 2.2
-- MixMHC2pred 2.0.2
-- PRIME 2.0
+- MixMHCpred 2.2 (optional)
+- MixMHC2pred 2.0.2 (optional)
+- PRIME 2.0 (optional)
 
 Install from PyPI:
 ```
