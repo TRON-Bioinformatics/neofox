@@ -204,7 +204,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertTrue(len(annotations[0].neofox_annotations.annotations) == 82)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 104)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -317,7 +317,7 @@ class TestNeofox(TestCase):
         assert False
 
     def test_neofox_without_mhc2(self):
-        """"""
+
         neoantigens, patients = self._get_test_data()
         for p in patients:
             p.mhc2 = []
@@ -328,7 +328,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 63)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 79)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients = self._get_test_data()
@@ -341,7 +341,8 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 39)
+        print(annotations[0].neofox_annotations.annotations)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 48)
 
     def test_gene_expression_imputation(self):
         neoantigens, patients = self._get_test_data()
@@ -408,6 +409,19 @@ class TestNeofox(TestCase):
         for n in neofox.neoantigens:
             self.assertEqual(n.rna_expression, 1.2)
 
+    def test_neoantigens_with_many_rna_expressions(self):
+        """"""
+        neoantigens, patients = self._get_test_data()
+        values = [1.2, 2, 3.1, 0.9, 4]
+        for n, val in zip(neoantigens, values):
+            n.rna_expression = val
+        neofox = NeoFox(
+            neoantigens=neoantigens,
+            patients=patients,
+            num_cpus=4
+        )
+        for n, val in zip(neofox.neoantigens, values):
+            self.assertEqual(n.rna_expression, val)
 
     def test_patient_with_non_existing_allele_does_not_crash(self):
         """"""
@@ -615,6 +629,7 @@ class TestNeofox(TestCase):
                 self.assertNotEqual(e.isoform_mhc_i_i.name, '')
 
         self.assertTrue(found_recognition_potential)
+
 
         df_epitopes_mhci = ModelConverter.annotations2epitopes_table(annotations, mhc=neofox.MHC_I)
         self.assertFalse(any(c.startswith('isoformMhcII') for c in df_epitopes_mhci.columns))

@@ -46,6 +46,12 @@ class BestAndMultipleBinderMhcII:
         )
         self._initialise()
 
+    @staticmethod
+    def _init_additional_netmhciipan_annotations() -> List[Annotation]:
+        of = AnnotationFactory.build_annotation(name="Of", value=None)
+        core_rel = AnnotationFactory.build_annotation(name="coreRel", value=None)
+        return [of, core_rel]
+
     def _initialise(self):
         self.phbr_ii = None
         self.generator_rate = None
@@ -53,17 +59,32 @@ class BestAndMultipleBinderMhcII:
         self.generator_rate_cdn = None
         self.best_predicted_epitope_rank = PredictedEpitope(
             mutated_peptide=None,
+            wild_type_peptide=None,
+            core=None,
             position=None,
             isoform_mhc_i_i=Mhc2Isoform(name=None),
             affinity_mutated=None,
             rank_mutated=None,
         )
+        # additional netmhcIIpan annotations are initialized empty to always have
+        # all output columns in the result table
+        self.best_predicted_epitope_rank.neofox_annotations.annotations.extend(
+            self._init_additional_netmhciipan_annotations()
+        )
+
         self.best_predicted_epitope_affinity = PredictedEpitope(
             mutated_peptide=None,
+            wild_type_peptide=None,
+            core=None,
             position=None,
             isoform_mhc_i_i=Mhc2Isoform(name=None),
             affinity_mutated=None,
             rank_mutated=None,
+        )
+        # additional netmhcIIpan annotations are initialized empty to always have
+        # all output columns in the result table
+        self.best_predicted_epitope_affinity.neofox_annotations.annotations.extend(
+            self._init_additional_netmhciipan_annotations()
         )
         self.predictions = []
 
@@ -200,6 +221,10 @@ class BestAndMultipleBinderMhcII:
                     name="NetMHCIIpan_bestRank_allele",
                 ),
                 AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_rank.core,
+                    name="NetMHCIIpan_bestRank_core",
+                ),
+                AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_rank.rank_wild_type,
                     name="NetMHCIIpan_bestRank_rankWT",
                 ),
@@ -208,6 +233,13 @@ class BestAndMultipleBinderMhcII:
                     name="NetMHCIIpan_bestRank_peptideWT",
                 ),
             ])
+            # Additional annotations assigned to the epitopes are added to the output
+            for annotation in self.best_predicted_epitope_rank.neofox_annotations.annotations:
+                annotations.append(
+                    AnnotationFactory.build_annotation(
+                        value=annotation.value, name=f"NetMHCIIpan_bestRank_{annotation.name}"
+                    ),
+                )
         if self.best_predicted_epitope_affinity:
             annotations.extend([
                 AnnotationFactory.build_annotation(
@@ -223,6 +255,10 @@ class BestAndMultipleBinderMhcII:
                     name="NetMHCIIpan_bestAffinity_allele",
                 ),
                 AnnotationFactory.build_annotation(
+                    value=self.best_predicted_epitope_affinity.core,
+                    name="NetMHCIIpan_bestAffinity_core",
+                ),
+                AnnotationFactory.build_annotation(
                     value=self.best_predicted_epitope_affinity.affinity_wild_type,
                     name="NetMHCIIpan_bestAffinity_affinityWT",
                 ),
@@ -231,6 +267,13 @@ class BestAndMultipleBinderMhcII:
                     name="NetMHCIIpan_bestAffinity_peptideWT",
                 )
             ])
+            # Additional annotations assigned to the epitopes are added to the output
+            for annotation in self.best_predicted_epitope_affinity.neofox_annotations.annotations:
+                annotations.append(
+                    AnnotationFactory.build_annotation(
+                        value=annotation.value, name=f"NetMHCIIpan_bestAffinity_{annotation.name}"
+                    ),
+                )
 
         if self.organism == ORGANISM_HOMO_SAPIENS:
             annotations.extend([AnnotationFactory.build_annotation(value=self.phbr_ii, name="PHBR_II")])

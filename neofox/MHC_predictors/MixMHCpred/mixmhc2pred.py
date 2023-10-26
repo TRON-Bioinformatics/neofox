@@ -23,12 +23,15 @@ from pandas.errors import EmptyDataError
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.mhc_parser import MhcParser, get_alleles_by_gene
 
-from neofox.references.references import DependenciesConfiguration
+from neofox.references.references import DependenciesConfiguration, MhcDatabase, \
+                                        ReferenceFolder, ORGANISM_HOMO_SAPIENS, \
+                                        ORGANISM_MUS_MUSCULUS
 
 from neofox.helpers.runner import Runner
 
 from neofox.model.neoantigen import Annotation, Mhc2, Mhc2GeneName, MhcAllele, PredictedEpitope, Mhc2Isoform, \
     Neoantigen
+
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
 import pandas as pd
@@ -45,23 +48,36 @@ class MixMHC2pred:
     ANNOTATION_PREFIX = 'MixMHC2pred'
     ANNOTATION_PREFIX_WT = 'MixMHC2pred_WT'
 
-    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
+    def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser,
+                 references: ReferenceFolder):
         self.runner = runner
         self.configuration = configuration
-        self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
+        self.references = references
+        self.organism = references.organism
+        self.available_alleles = self._load_available_alleles()
 
         self.results = None
 
     def _load_available_alleles(self):
         """
-        loads file with available HLA II alllels for MixMHC2pred prediction, returns set
+        loads file with available HLA II allels for MixMHC2pred prediction, returns set
         :return:
         """
-        alleles = pd.read_csv(
-            self.configuration.mix_mhc2_pred_alleles_list, skiprows=1, sep="\t"
-        )
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            alleles = pd.read_csv(
+                self.configuration.mix_mhc2_pred_human_alleles_list, skiprows=2, sep="\t"
+            )
+        elif self.organism == ORGANISM_MUS_MUSCULUS:
+            if self.references.mixmhc2pred_alleles_list is not None:
+                alleles = pd.read_csv(
+                    self.references.mixmhc2pred_alleles_list, skiprows=2, sep="\t"
+                )
+            else:
+                logger.error("The PWMdef for Mouse was not downloaded.")
+
         return list(alleles["AlleleName"])
+
 
     @staticmethod
     def _combine_dq_dp_alleles(alpha_alleles: List[str], beta_alleles: List[str]):
@@ -84,7 +100,8 @@ class MixMHC2pred:
         return alleles_pairs + alleles_triplets
 
     @staticmethod
-    def _get_mixmhc2_allele_representation(hla_alleles: List[MhcAllele]):
+    def _get_mixmhc2_allele_human_representation(hla_alleles: List[MhcAllele]):
+        # alleles: hla_alleles
         return list(
             map(
                 lambda x: "{gene}_{group}_{protein}".format(
@@ -95,12 +112,12 @@ class MixMHC2pred:
         )
 
     @staticmethod
-    def _get_mixmhc2_isoform_representation(isoform: Mhc2Isoform):
+    def _get_mixmhc2_isoform_human_representation(isoform: Mhc2Isoform):
 
-        beta_chain = MixMHC2pred._get_mixmhc2_allele_representation([isoform.beta_chain])[0]
+        beta_chain = MixMHC2pred._get_mixmhc2_allele_human_representation([isoform.beta_chain])[0]
         if isoform.alpha_chain is not None and isoform.alpha_chain.name:
             # for DR only beta chain is provided
-            alpha_chain = MixMHC2pred._get_mixmhc2_allele_representation([isoform.alpha_chain])[0]
+            alpha_chain = MixMHC2pred._get_mixmhc2_allele_human_representation([isoform.alpha_chain])[0]
             return "{alpha}__{beta}".format(alpha=alpha_chain, beta=beta_chain)
         return beta_chain
 
@@ -115,20 +132,47 @@ class MixMHC2pred:
         dqb1_alleles = get_alleles_by_gene(mhc, Mhc2GeneName.DQB1)
 
         dp_allele_combinations = self._combine_dq_dp_alleles(
-            alpha_alleles=self._get_mixmhc2_allele_representation(dpa1_alleles),
-            beta_alleles=self._get_mixmhc2_allele_representation(dpb1_alleles)
+            alpha_alleles=self._get_mixmhc2_allele_human_representation(dpa1_alleles),
+            beta_alleles=self._get_mixmhc2_allele_human_representation(dpb1_alleles)
         )
         dq_allele_combinations = self._combine_dq_dp_alleles(
-            alpha_alleles=self._get_mixmhc2_allele_representation(dqa1_alleles),
-            beta_alleles=self._get_mixmhc2_allele_representation(dqb1_alleles)
+            alpha_alleles=self._get_mixmhc2_allele_human_representation(dqa1_alleles),
+            beta_alleles=self._get_mixmhc2_allele_human_representation(dqb1_alleles)
         )
 
         return [
             a
-            for a in self._get_mixmhc2_allele_representation(drb1_alleles)
+            for a in self._get_mixmhc2_allele_human_representation(drb1_alleles)
             + dq_allele_combinations
             + dp_allele_combinations
             if a in self.available_alleles
+        ]
+
+    @staticmethod
+    def _get_mixmhc2_allele_mouse_representation(h2_alleles: List[MhcAllele]):
+        return list(
+            map(
+                lambda x: "H2_{gene}a_{protein}__H2_{gene}b_{protein}".format(
+                    gene=x.gene[-1], protein=x.protein
+                ),
+                h2_alleles,
+            )
+        )
+
+    def _get_mixmhc2_isoform_mouse_representation(isoform: Mhc2Isoform):
+        if isoform is not None:
+            return "H2_{gene}a_{protein}__H2_{gene}b_{protein}".format(gene=isoform[-3], protein=isoform[-1])
+
+    def transform_h2_alleles_for_prediction(self, mhc:List[Mhc2]) -> List[str]:
+        """
+        prepares list of H2 alleles for prediction in required format
+        """
+
+        h2a_alleles = get_alleles_by_gene(mhc, Mhc2GeneName.H2A)
+        h2e_alleles = get_alleles_by_gene(mhc, Mhc2GeneName.H2E)
+
+        return [
+            a for i in (h2a_alleles, h2e_alleles) for a in self._get_mixmhc2_allele_mouse_representation(i)  if a in self.available_alleles
         ]
 
     def _parse_mixmhc2pred_output(self, filename: str) -> List[PredictedEpitope]:
@@ -154,44 +198,50 @@ class MixMHC2pred:
         return parsed_results
 
     def _mixmhc2prediction(self, isoforms: List[str], potential_ligand_sequences: List[str]) -> List[PredictedEpitope]:
-
-        tmpfasta = intermediate_files.create_temp_fasta(potential_ligand_sequences, prefix="tmp_sequence_")
+        tmptxt = intermediate_files.create_temp_mixmhc2pred(potential_ligand_sequences, prefix="tmp_sequence_")
         outtmp = intermediate_files.create_temp_file(prefix="mixmhc2pred", suffix=".txt")
+
         cmd = [
             self.configuration.mix_mhc2_pred,
             "-a",
             " ".join(isoforms),
             "-i",
-            tmpfasta,
+            tmptxt,
             "-o",
             outtmp,
+            "--no_context"
         ]
+        if self.organism != ORGANISM_HOMO_SAPIENS:
+            pwm_dir = self.references.mixmhc2pred_pwm_dir
+            cmd.extend(["-f", pwm_dir])
+
         self.runner.run_command(cmd)
         results = self._parse_mixmhc2pred_output(filename=outtmp)
         os.remove(outtmp)
-        os.remove(tmpfasta)
+        os.remove(tmptxt)
         return results
 
     def run(self, mhc: List[Mhc2], neoantigen: Neoantigen, uniprot):
         """
         Runs MixMHC2pred:
-        prediction for peptides of length 13 to 18 based on Suppl Fig. 6 a in Racle, J., et al., Nat. Biotech. (2019).
-        Robust prediction of HLA class II epitopes by deep motif deconvolution of immunopeptidomes.
+        prediction for peptides of length 12 to 21 based on Racle, J., et al., Nat. Biotech. (2023).
+        Machine learning predictions of MHC-II specificities reveal alternative binding mode of class II epitopes.
         """
         # TODO: get rid of this
         self.results = None
 
         potential_ligand_sequences = EpitopeHelper.generate_nmers(
-            neoantigen=neoantigen, lengths=[13, 14, 15, 16, 17, 18], uniprot=uniprot)
-        # filter mps shorter < 13aa
-        filtered_sequences = list(
-            filter(lambda x: len(x) >= 13, potential_ligand_sequences)
-        )
-        if len(filtered_sequences) > 0:
-            mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
+            neoantigen=neoantigen, lengths=[12, 13, 14, 15, 16, 17, 18, 19, 20, 21], uniprot=uniprot)
+
+        if len(potential_ligand_sequences) > 0:
+            if self.organism == ORGANISM_HOMO_SAPIENS:
+                mhc2_alleles = self.transform_hla_ii_alleles_for_prediction(mhc)
+            else:
+                mhc2_alleles = self.transform_h2_alleles_for_prediction(mhc)
+
             if len(mhc2_alleles) > 0:
                 self.results = self._mixmhc2prediction(
-                    isoforms=mhc2_alleles, potential_ligand_sequences=filtered_sequences)
+                    isoforms=mhc2_alleles, potential_ligand_sequences=potential_ligand_sequences)
             else:
                 logger.warning("None of the MHC II alleles are supported by MixMHC2pred")
 
@@ -200,13 +250,18 @@ class MixMHC2pred:
         Performs MixMHC2pred prediction for desired hla allele and writes result to temporary file.
         """
         result = None
-        isoform_representation = self._get_mixmhc2_isoform_representation(isoform)
+        if self.organism == ORGANISM_HOMO_SAPIENS:
+            isoform_representation = self._get_mixmhc2_isoform_human_representation(isoform)
+        else:
+            isoform_representation = self._get_mixmhc2_isoform_mouse_representation(isoform)
         if isoform_representation in self.available_alleles:
             results = self._mixmhc2prediction(
                 isoforms=[isoform_representation],
                 potential_ligand_sequences=[peptide])
             if results:
                 result = results[0]
+        else:
+            logger.warning("%s is not available in the available alleles." % isoform_representation)
         return result
 
     def get_annotations(self) -> List[Annotation]:

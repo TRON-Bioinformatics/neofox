@@ -43,6 +43,8 @@ class VaxRank:
            "The relationship between class I binding affinity
             and immunogenicity of potential cytotoxic T cell epitopes.
         adapted from: https://github.com/openvax/vaxrank/blob/master/vaxrank/epitope_prediction.py
+        Rubinsteyn, 2017, Front Immunol
+        https://doi.org/10.3389/fimmu.2017.01807
         """
         if ic50 >= ic50_cutoff:
             return 0.0
@@ -70,22 +72,22 @@ class VaxRank:
 
         return mut_scores_logistic
 
-    def combined_score(self, expression_score, total_binding_score):
+    def combined_score(self, expression_imputed_score, total_binding_score):
         """
         adapted from: https://github.com/openvax/vaxrank/blob/master/vaxrank/epitope_prediction.py
         final ranking score implemented in VaxRank
         """
         combined_score = None
         try:
-            combined_score = float(expression_score) * total_binding_score
+            combined_score = float(expression_imputed_score) * total_binding_score
         except (ValueError, TypeError):
             pass
         return combined_score
 
-    def get_annotations(self, epitope_predictions: List[PredictedEpitope], expression_score) -> List[Annotation]:
-        expression_score = expression_score
+    def get_annotations(self, epitope_predictions: List[PredictedEpitope], expression_score, imputed_score) -> List[Annotation]:
         total_binding_score = self.total_binding(epitope_predictions)
-        ranking_score = self.combined_score(expression_score=expression_score, total_binding_score=total_binding_score)
+        ranking_score = self.combined_score(expression_imputed_score=expression_score, total_binding_score=total_binding_score)
+        ranking_score_imputed = self.combined_score(expression_imputed_score=imputed_score, total_binding_score=total_binding_score)
         return [
             AnnotationFactory.build_annotation(
                 value=total_binding_score, name="Vaxrank_bindingScore"
@@ -93,4 +95,7 @@ class VaxRank:
             AnnotationFactory.build_annotation(
                 value=ranking_score, name="Vaxrank_totalScore"
             ),
+            AnnotationFactory.build_annotation(
+                value=ranking_score_imputed, name="Vaxrank_totalScore_imputed"
+            )
         ]

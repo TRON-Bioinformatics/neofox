@@ -31,7 +31,6 @@ from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders imp
 from neofox.model.factories import AnnotationFactory
 from neofox.model.mhc_parser import MhcParser
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
-from neofox.published_features.neoag.neoag_gbm_model import NeoagCalculator
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.expression import Expression
 from neofox.model.neoantigen import Patient, Neoantigen, Annotations, PredictedEpitope
@@ -57,7 +56,6 @@ class NeoantigenAnnotator(AbstractAnnotator):
         self.rank_mhcii_threshold = rank_mhcii_threshold
 
         # NOTE: these resources do not read any file thus can be initialised fast
-        self.neoag_calculator = NeoagCalculator(runner=self.runner, configuration=configuration)
         self.expression_calculator = Expression()
         self.mhc_database = references.get_mhc_database()
         self.mhc_parser = MhcParser.get_mhc_parser(self.mhc_database)
@@ -193,14 +191,6 @@ class NeoantigenAnnotator(AbstractAnnotator):
                 )
             )
 
-        # neoag immunogenicity model
-        if netmhcpan and netmhcpan.best_epitope_by_affinity:
-            neoantigen.neofox_annotations.annotations.append(
-                self.neoag_calculator.get_annotation(
-                    epitope_mhci=netmhcpan.best_epitope_by_affinity,
-                    neoantigen=neoantigen)
-            )
-
         # IEDB immunogenicity
         if self.organism == ORGANISM_HOMO_SAPIENS:
             neoantigen.neofox_annotations.annotations.extend(
@@ -218,10 +208,12 @@ class NeoantigenAnnotator(AbstractAnnotator):
         )
 
         # vaxrank
+        # TODO: consider to calculate vaxrank with DNA VAF aswell
         if netmhcpan and netmhcpan.predictions:
             neoantigen.neofox_annotations.annotations.extend(VaxRank().get_annotations(
                 epitope_predictions=netmhcpan.predictions,
-                expression_score=expression_annotation[0].value,
+                expression_score=[e.value for e in expression_annotation if e.name == "Mutated_rnaExpression_fromRNA"][0],
+                imputed_score=[e.value for e in expression_annotation if e.name == "Mutated_imputedGeneExpression_fromRNA"][0]
             ))
 
         # hex
@@ -236,8 +228,7 @@ class NeoantigenAnnotator(AbstractAnnotator):
         # annotate neoepitopes
         if with_all_neoepitopes:
             neoantigen.neoepitopes_mhc_i = [
-                self.get_additional_annotations_neoepitope_mhci(
-                    epitope=e, neoantigen=neoantigen)
+                self.get_additional_annotations_neoepitope_mhci(epitope=e, neoantigen=neoantigen)
                 for e in neoantigen.neoepitopes_mhc_i]
             neoantigen.neoepitopes_mhc_i_i = [
                 self.get_additional_annotations_neoepitope_mhcii(epitope=e) for e in neoantigen.neoepitopes_mhc_i_i]
