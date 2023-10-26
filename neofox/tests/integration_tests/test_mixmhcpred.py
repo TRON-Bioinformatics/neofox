@@ -41,7 +41,8 @@ class TestMixMHCPred(TestCase):
         )
         self.mixmhc2pred = MixMHC2pred(
             runner=self.runner, configuration=self.configuration, mhc_parser=mhc_parser,
-            mhc_database=self.references.get_mhc_database())
+            references=self.references
+        )
         self.hla_database = self.references.get_mhc_database()
         self.test_mhc_one = integration_test_tools.get_hla_one_test(self.hla_database)
         self.test_mhc_two = integration_test_tools.get_hla_two_test(self.hla_database)

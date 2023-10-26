@@ -26,6 +26,7 @@ from neofox.references.references import (
     NETMHCPAN_AVAILABLE_ALLELES_MICE_FILE, NETMHC2PAN_AVAILABLE_ALLELES_MICE_FILE, MUS_MUSCULUS_FASTA,
     PREFIX_MUS_MUSCULUS, MUS_MUSCULUS_PICKLE, IEDB_FASTA_MUS_MUSCULUS, IEDB_BLAST_PREFIX_HOMO_SAPIENS,
     IEDB_BLAST_PREFIX_MUS_MUSCULUS, H2_DATABASE_AVAILABLE_ALLELES_FILE, RESOURCES_VERSIONS,
+    MIXMHC2PRED_PWM
 )
 from logzero import logger
 
@@ -41,13 +42,16 @@ HUMAN_PROTEOME_VERSION = "https://ftp.uniprot.org/pub/databases/uniprot/current_
 
 IEDB_URL = 'http://www.iedb.org/downloader.php?file_name=doc/tcell_full_v3.zip'
 
+MIXMHC2PRED_PWM_MOUSE_URL = "http://ec2-18-188-210-66.us-east-2.compute.amazonaws.com:4000/data/PWMdef/PWMdef_Mouse.zip"
+
 
 class NeofoxReferenceInstaller(object):
-    def __init__(self, reference_folder, install_r_dependencies=False):
+    def __init__(self, reference_folder, install_r_dependencies=False, install_mouse_mixmhc2pred=False):
         self.config = DependenciesConfigurationForInstaller()
         self.runner = Runner()
         self.reference_folder = reference_folder
         self.install_r_dependencies = install_r_dependencies
+        self.install_mouse_mixmhc2pred = install_mouse_mixmhc2pred
 
     def install(self):
         # ensures the reference folder exists
@@ -65,14 +69,20 @@ class NeofoxReferenceInstaller(object):
             self._install_r_dependencies()
         else:
             logger.warning("R dependencies will need to be installed manually")
+        mixmhc2pred_resources = []
+        if self.install_mouse_mixmhc2pred:
+            mixmhc2pred_resources = self._set_mixmhc2pred_pwms()
+        else:
+            logger.warning("MixMHC2pred mouse alleles have to be installed manually")
         self._save_resources_versions(
             iedb_resource=iedb_resource,
             hla_resource=hla_resource,
-            proteome_resources=proteome_resources
+            proteome_resources=proteome_resources,
+            mixmhc2pred_resources=mixmhc2pred_resources
         )
 
     def _save_resources_versions(
-            self, iedb_resource, hla_resource, proteome_resources):
+            self, iedb_resource, hla_resource, proteome_resources, mixmhc2pred_resources):
 
         download_timestamp = datetime.today().strftime('%Y%m%d%H%M%S')
         resources_version_file = os.path.join(self.reference_folder, RESOURCES_VERSIONS)
@@ -81,15 +91,17 @@ class NeofoxReferenceInstaller(object):
         hla_resource.download_timestamp = download_timestamp
         for r in proteome_resources:
             r.download_timestamp = download_timestamp
+        for r in mixmhc2pred_resources:
+            r.download_timestamp = download_timestamp
 
         resources_version = [
             Resource(name="netMHCpan", version="4.1"),
             Resource(name="netMHCIIpan", version="4.0"),
-            Resource(name="mixMHCpred", version="2.1"),
-            Resource(name="mixMHC2pred", version="1.2"),
+            Resource(name="mixMHCpred", version="2.2"),
+            Resource(name="mixMHC2pred", version="2.0.2"),
             iedb_resource,
             hla_resource
-        ] + proteome_resources
+        ] + proteome_resources + mixmhc2pred_resources
 
         json.dump([r.to_dict() for r in resources_version], open(resources_version_file, "w"), indent=4)
 
@@ -242,8 +254,6 @@ class NeofoxReferenceInstaller(object):
                      url=MOUSE_PROTEOME_ISOFORMS, hash=hash_isoforms_mouse),
         ]
 
-        return hash_human, hash_isoforms_human, version_human, hash_mouse, hash_isoforms_mouse, version_mouse
-
     def _prepare_proteome(self, url, url_isoforms, version_url, proteome_file_name, proteome_prefix, proteome_pickle_file_name):
         # download proteome
         hash = self._download_and_unzip(proteome_file_name, url)
@@ -346,6 +356,32 @@ class NeofoxReferenceInstaller(object):
             ),
         )
         self._run_command(cmd)
+
+    def _set_mixmhc2pred_pwms(self):
+        # Downloads PWMs of other species than human from http://mixmhc2pred.gfellerlab.org/PWMdef
+        # Currently only mouse is supported and downloaded
+        logger.info("Installing MixMHC2pred for mouse...")
+
+        # reference folder path where the MixMHC2pred PWM directories are downloaded into
+        mixmhc2pred_pwm_path = os.path.join(self.reference_folder, MIXMHC2PRED_PWM)
+        os.makedirs(mixmhc2pred_pwm_path, exist_ok=True)
+        # the name of the zip file that will be downloaded
+        zip_file = os.path.basename(MIXMHC2PRED_PWM_MOUSE_URL)
+        pwm_zip_file = os.path.join(mixmhc2pred_pwm_path, zip_file)
+
+        url = MIXMHC2PRED_PWM_MOUSE_URL
+
+        # download the allele PWMs
+        cmd = f"wget {url} -O {pwm_zip_file}"
+        self._run_command(cmd)
+        hash = self._get_md5_hash(pwm_zip_file)
+        # unzip the downloaded PWMs
+        cmd = f"unzip -o {pwm_zip_file} -d {mixmhc2pred_pwm_path}"
+        self._run_command(cmd)
+
+        return [
+            Resource(name="MixMHC2pred_PWM_Mouse", url=MIXMHC2PRED_PWM_MOUSE_URL, hash=hash),
+        ]
 
     def _run_command(self, cmd):
         logger.info(cmd)

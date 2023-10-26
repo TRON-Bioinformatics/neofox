@@ -99,6 +99,13 @@ def get_h2_two_test(h2_database):
         ], h2_database
     )
 
+def get_h2_two_test_b(h2_database):
+    return MhcFactory.build_mhc2_alleles(
+        [
+            "H2Ab",
+            "H2Ab",
+        ], h2_database
+    )
 
 mutations_with_rare_aminoacids = [
             ("UTTDSDGKF", "UTTDSWGKF"),  # this is an epitope from IEDB of length 9
@@ -196,7 +203,7 @@ class BaseIntegrationTest(TestCase):
         self.assert_annotation(annotated_neoepitope, annotation_name="hex_alignment_score")
 
         # others to comes
-        self.assert_annotation(annotated_neoepitope, annotation_name="Priority_score")
+        self.assert_annotation(annotated_neoepitope, annotation_name="Priority_score_fromDNA")
         self.assert_annotation(annotated_neoepitope, annotation_name="Tcell_predictor")
 
     def assert_neoepitope_mhcii(self, original_neoepitope: PredictedEpitope, annotated_neoepitope: PredictedEpitope):
