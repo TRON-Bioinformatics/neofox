@@ -65,7 +65,6 @@ class NeoantigenMhcBindingAnnotator:
                 self.mhc_parser,
                 neoantigen,
                 patient,
-                self.mhc_database,
                 self.references
             )
 
@@ -85,6 +84,7 @@ class NeoantigenMhcBindingAnnotator:
                     self.runner,
                     self.configuration,
                     self.mhc_parser,
+
                     neoantigen,
                     patient,
                 )
@@ -161,7 +161,6 @@ class NeoantigenMhcBindingAnnotator:
             mhc_parser: MhcParser,
             neoantigen: Neoantigen,
             patient: Patient,
-            mhc_database: MhcDatabase,
             references: ReferenceFolder
     ):
         mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser, references)
