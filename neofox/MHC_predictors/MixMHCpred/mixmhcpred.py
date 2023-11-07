@@ -21,20 +21,15 @@ from typing import List
 from pandas.errors import EmptyDataError
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
+from neofox.helpers.mhc_helper import ParsedMhcAlleles
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
-import pandas as pd
 import os
 from logzero import logger
 
 from neofox.references.references import DependenciesConfiguration
-
-ALLELE = "BestAllele"
-RANK = "%Rank_"
-PEPTIDE = "Peptide"
-SCORE = "Score_"
 
 
 class MixMHCpred:
@@ -45,65 +40,11 @@ class MixMHCpred:
     def __init__(self, runner: Runner, configuration: DependenciesConfiguration, mhc_parser: MhcParser):
         self.runner = runner
         self.configuration = configuration
-        self.available_alleles = self._load_available_alleles()
         self.mhc_parser = mhc_parser
 
+        self.parsed_mhc_alleles = ParsedMhcAlleles(mhc_parser)
+
         self.results = None
-
-    def _load_available_alleles(self):
-        """
-        loads file with available HLA II alllels for MixMHC2pred prediction, returns set
-        :return:
-        """
-        alleles = pd.read_csv(
-            self.configuration.mix_mhc_pred_alleles_list, sep="\t"
-        )
-        return set(alleles["Allele"])
-
-    def _get_mixmhc_allele_representation(self, mhc_alleles: List[MhcAllele]):
-        return list(
-            filter(
-                lambda y: y in self.available_alleles,
-                map(
-                    lambda x: "{gene}{group}{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
-                    mhc_alleles)
-            )
-        )
-
-    def _get_mhc_alleles(self, mixmhc_result):
-        mhc_alleles = set()
-        for col in mixmhc_result.columns:
-            # take out alleles and eliminate the column Score_bestAllele out of the set
-            if col.startswith(SCORE) and not col.endswith('e'):
-                allele = col.split('_')[-1]
-                mhc_alleles.add(allele)
-        return mhc_alleles
-
-    def _parse_mixmhcpred_output(self, filename: str) -> List[PredictedEpitope]:
-        parsed_results = []
-        try:
-            results = pd.read_csv(filename, sep="\t", comment="#")
-        except EmptyDataError:
-            logger.error("Results from MixMHCpred are empty, something went wrong")
-            results = pd.DataFrame()
-
-        mhc_alleles = self._get_mhc_alleles(results)
-        for _, row in results.iterrows():
-            # when MixMHCpred returns no results it provides a row with the peptide and NAs for other fields
-            # pandas reads NAs as float nan. Skip these
-            for allele in mhc_alleles:
-                if isinstance(row[PEPTIDE], str):
-                    score = str(SCORE + allele)
-                    rank = str(RANK + allele)
-
-                    parsed_results.append(
-                        PredictedEpitope(
-                            allele_mhc_i=self.mhc_parser.parse_mhc_allele(allele),
-                            mutated_peptide=row[PEPTIDE],
-                            affinity_mutated=float(row[score]),
-                            rank_mutated=float(row[rank]),
-                        ))
-        return parsed_results
 
     def _mixmhcprediction(self, mhc_alleles: List[str], potential_ligand_sequences) -> List[PredictedEpitope]:
         """
@@ -125,7 +66,7 @@ class MixMHCpred:
         self.runner.run_command(
             cmd=command
         )
-        results = self._parse_mixmhcpred_output(filename=outtmp)
+        results = self.parsed_mhc_alleles.parse_mixmhcpred_prime_output(mixmhc_prime_result=outtmp)
         os.remove(outtmp)
         os.remove(tmpfasta)
         return results
@@ -140,7 +81,8 @@ class MixMHCpred:
             neoantigen=neoantigen, lengths=[8, 9, 10, 11, 12, 13, 14], uniprot=uniprot
         )
         if len(potential_ligand_sequences) > 0:
-            mhc1_alleles = self._get_mixmhc_allele_representation([a for m in mhc for a in m.alleles])
+            mhc1_alleles = self.parsed_mhc_alleles.get_mixmhc_allele_representation(self.configuration.mix_mhc_pred_alleles_list,
+                                                                                    [a for m in mhc for a in m.alleles])
             if len(mhc1_alleles) > 0:
                 self.results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
             else:
@@ -149,7 +91,8 @@ class MixMHCpred:
     def run_peptide(self, peptide: str, allele: MhcAllele) -> PredictedEpitope:
         """Runs MixMHCpred on a single peptide"""
         result = None
-        mhc1_alleles = self._get_mixmhc_allele_representation([allele])
+        mhc1_alleles = self.parsed_mhc_alleles.get_mixmhc_allele_representation(self.configuration.mix_mhc_pred_alleles_list,
+                                                                                [allele])
         if len(mhc1_alleles) > 0 and 8 <= len(peptide) <= 14:
             results = self._mixmhcprediction(mhc1_alleles, [peptide])
             if results:
