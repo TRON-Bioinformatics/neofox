@@ -19,8 +19,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
 
-#from pandas.errors import EmptyDataError
-
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
