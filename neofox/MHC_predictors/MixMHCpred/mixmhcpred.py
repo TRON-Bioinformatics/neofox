@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from typing import List
-from pandas.errors import EmptyDataError
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.helpers.mhc_helper import ParsedMhcAlleles
@@ -41,7 +40,6 @@ class MixMHCpred:
         self.runner = runner
         self.configuration = configuration
         self.mhc_parser = mhc_parser
-
         self.parsed_mhc_alleles = ParsedMhcAlleles(mhc_parser)
 
         self.results = None
