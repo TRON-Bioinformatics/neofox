@@ -32,7 +32,6 @@ class TestDependenciesConfiguration(TestCase):
             neofox.NEOFOX_BLASTP_ENV: "/path/to/blastp",
             neofox.NEOFOX_NETMHC2PAN_ENV: "/path/to/netmhc2pan",
             neofox.NEOFOX_NETMHCPAN_ENV: "/path/to/netmhcpan",
-            neofox.NEOFOX_RSCRIPT_ENV: "/path/to/rscript",
             neofox.NEOFOX_MIXMHCPRED_ENV: "/path/to/mixmhcpred",
             neofox.NEOFOX_MIXMHC2PRED_ENV: "/path/to/mixmhc2pred",
             neofox.NEOFOX_PRIME_ENV: "/path/to/prime",
@@ -94,7 +93,6 @@ class TestDependenciesConfiguration(TestCase):
         self.assertTrue(
             config.mix_mhc_pred == self.variables[neofox.NEOFOX_MIXMHCPRED_ENV]
         )
-        self.assertTrue(config.rscript == self.variables[neofox.NEOFOX_RSCRIPT_ENV])
         self.assertTrue(
             config.net_mhc_pan == self.variables[neofox.NEOFOX_NETMHCPAN_ENV]
         )

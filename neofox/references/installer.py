@@ -46,11 +46,10 @@ MIXMHC2PRED_PWM_MOUSE_URL = "http://ec2-18-188-210-66.us-east-2.compute.amazonaw
 
 
 class NeofoxReferenceInstaller(object):
-    def __init__(self, reference_folder, install_r_dependencies=False, install_mouse_mixmhc2pred=False):
+    def __init__(self, reference_folder, install_mouse_mixmhc2pred=False):
         self.config = DependenciesConfigurationForInstaller()
         self.runner = Runner()
         self.reference_folder = reference_folder
-        self.install_r_dependencies = install_r_dependencies
         self.install_mouse_mixmhc2pred = install_mouse_mixmhc2pred
 
     def install(self):
@@ -65,10 +64,7 @@ class NeofoxReferenceInstaller(object):
         proteome_resources = self._set_proteome()
         hla_resource = self._set_ipd_imgt_hla_database()
         self._set_h2_resource()
-        if self.install_r_dependencies:
-            self._install_r_dependencies()
-        else:
-            logger.warning("R dependencies will need to be installed manually")
+
         mixmhc2pred_resources = []
         if self.install_mouse_mixmhc2pred:
             mixmhc2pred_resources = self._set_mixmhc2pred_pwms()
@@ -346,16 +342,6 @@ class NeofoxReferenceInstaller(object):
         source_file = os.path.join(os.path.abspath(os.path.dirname(__file__)), H2_DATABASE_AVAILABLE_ALLELES_FILE)
         target_file = os.path.join(self.reference_folder, H2_DATABASE_AVAILABLE_ALLELES_FILE)
         copyfile(source_file, target_file)
-
-    def _install_r_dependencies(self):
-        logger.info("Installing R dependencies...")
-        cmd = "{rscript} {dependencies_file}".format(
-            rscript=self.config.rscript,
-            dependencies_file=os.path.join(
-                os.path.abspath(os.path.dirname(__file__)), "install_r_dependencies.R"
-            ),
-        )
-        self._run_command(cmd)
 
     def _set_mixmhc2pred_pwms(self):
         # Downloads PWMs of other species than human from http://mixmhc2pred.gfellerlab.org/PWMdef
