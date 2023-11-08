@@ -210,3 +210,8 @@ The test data can be downloaded here:
 ````commandline
 neofox --input-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --output-prefix test
 ````
+
+The resulting output files can be compared to the following test output files:
+
+* [test_neoantigen_candidates_annotated.tsv](_static/test_neoantigen_candidates_annotated.tsv)
+* [test_neoantigen_candidates_annotated.json](_static/test_neoantigen_candidates_annotated.json)
