@@ -1,4 +1,3 @@
-NEOFOX_RSCRIPT=/neofox/testing/Rscript
 NEOFOX_BLASTP=/neofox/testing/ncbi-blast-2.10.1+/bin/blastp
 NEOFOX_NETMHCPAN=/neofox/testing/netMHCpan-4.0/netMHCpan
 NEOFOX_NETMHC2PAN=/neofox/testing/netMHCIIpan-3.2/netMHCIIpan

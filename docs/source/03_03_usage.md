@@ -53,7 +53,6 @@ neofox --input-file neoantigens_candidates.tsv \
 The optional **config** file with the paths to the dependencies can look like this:  
 ````commandline
 NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
-NEOFOX_RSCRIPT=`which Rscript`
 NEOFOX_BLASTP=path/to/blast/bin/blastp
 NEOFOX_NETMHCPAN=path/to/netMHCpan/netMHCpan
 NEOFOX_NETMHC2PAN=path/to/netMHCIIpan/netMHCIIpan

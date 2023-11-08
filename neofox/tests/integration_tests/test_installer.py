@@ -17,5 +17,5 @@ class TestInstaller(TestCase):
             neofox.tests.__name__,
             "resources/test_installation_{:%Y%m%d%H%M%S}".format(datetime.now()))
         NeofoxReferenceInstaller(
-            reference_folder=reference_folder, install_r_dependencies=False
+            reference_folder=reference_folder
         ).install()
