@@ -58,16 +58,6 @@ conda install bioconda::neofox
 
 **NOTE**: Please, check the licences of third-party dependencies. 
 
-#### Install R
-
-R 3.6.0 is required.
-
-Optionally set the environment variable pointing to `Rscript`, otherwise neofox will look for it in the path.
-```
-export NEOFOX_RSCRIPT=`which Rscript`
-```
-
-**NOTE**: when installing from conda this dependency is already installed.
 
 #### Install BLASTP
 
@@ -172,12 +162,11 @@ Configure PRIME as explained in the file `PRIME-master/README`
 
 ### Configuration of the reference folder 
 
-To configure the reference folder, set the environment variables for `makeblastdb`, NetMHCpan, NetMHCIIpan and Rscript,
+To configure the reference folder, set the environment variables for `makeblastdb`, NetMHCpan, and NetMHCIIpan,
  or alternatively rely on these being fetched from the path:
 
 ```
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.10.1+/bin/makeblastdb
-export NEOFOX_RSCRIPT=`which Rscript`
 export NEOFOX_NETMHCPAN=`pwd`/netMHCpan-4.1/netMHCpan
 export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 ```
@@ -191,10 +180,9 @@ export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Lates
 
 Run the following to configure the NeoFox reference folder:
 ```
-neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencies --install_mouse_mixmhc2pred]
+neofox-configure --reference-folder /your/neofox/folder [--install_mouse_mixmhc2pred]
 ```
 
-**NOTE**: when installing from conda `--install-r-dependencies` is not needed. 
 
 The above command will download and transform several resources and store in the annotations metadata their version, MD5 checksum and 
 download timestamp. 
@@ -204,16 +192,7 @@ To run NeoFox on data from mouse with MixMHC2pred, mouse-specific PMWs are requi
 
 Depending on your use case please check the licences of these third-party resources (see urls in neofox/references/installer.py). 
 
-Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R packages. These packages are the following:
-```
-lattice
-ggplot2
-caret
-Peptides
-doParallel
-gbm
-Biostrings
-```
+
 
 Add the reference folder to the Path
 ```
@@ -236,4 +215,3 @@ The resulting output files can be compared to the following test output files:
 
 * [test_neoantigen_candidates_annotated.tsv](_static/test_neoantigen_candidates_annotated.tsv)
 * [test_neoantigen_candidates_annotated.json](_static/test_neoantigen_candidates_annotated.json)
-
