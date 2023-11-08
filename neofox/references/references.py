@@ -32,7 +32,6 @@ DEFAULT_MAKEBLASTDB = 'makeblastdb'
 DEFAULT_PRIME = 'PRIME'
 DEFAULT_NETMHCPAN = 'netMHCpan'
 DEFAULT_NETMHC2PAN = 'netMHCIIpan'
-DEFAULT_RSCRIPT = 'Rscript'
 DEFAULT_MIXMHCPRED = "MixMHCpred"
 DEFAULT_MIXMHC2PRED = "MixMHC2pred_unix"
 DEFAULT_BLASTP = "blastp"
@@ -146,7 +145,6 @@ class DependenciesConfiguration(AbstractDependenciesConfiguration):
                 os.path.dirname(self.mix_mhc_pred), "lib", MIXMHCPRED_AVAILABLE_ALLELES_FILE)
         else:
             self.mix_mhc_pred_alleles_list = None
-        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV, default_value=DEFAULT_RSCRIPT)
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV, default_value=DEFAULT_NETMHC2PAN)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV, default_value=DEFAULT_NETMHCPAN)
         self.prime = self._check_and_load_binary(neofox.NEOFOX_PRIME_ENV, default_value=DEFAULT_PRIME, optional=True,
@@ -162,7 +160,6 @@ class DependenciesConfigurationForInstaller(AbstractDependenciesConfiguration):
         self.net_mhc2_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHC2PAN_ENV, default_value=DEFAULT_NETMHC2PAN)
         self.net_mhc_pan = self._check_and_load_binary(neofox.NEOFOX_NETMHCPAN_ENV, default_value=DEFAULT_NETMHCPAN)
         self.make_blastdb = self._check_and_load_binary(neofox.NEOFOX_MAKEBLASTDB_ENV, default_value=DEFAULT_MAKEBLASTDB)
-        self.rscript = self._check_and_load_binary(neofox.NEOFOX_RSCRIPT_ENV, default_value=DEFAULT_RSCRIPT)
 
 
 class MhcDatabase(ABC):
