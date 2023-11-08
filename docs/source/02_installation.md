@@ -208,4 +208,5 @@ The test data can be downloaded here:
 * [test_patients.tsv](_static/test_patients.tsv)
 
 ````commandline
-neofox --input-file /path/to/test_data.tx
+neofox --input-file /path/to/test_data.txt --patient-data /path/to/test_patients.txt --output-folder  /path/to/outputfolder --output-prefix test
+````
