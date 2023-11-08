@@ -110,7 +110,7 @@ class Prime:
 
     def get_annotations(self) -> List[Annotation]:
 
-        best_result = EpitopeHelper.select_best_by_affinity(predictions=self.results, maximum=True)
+        best_result = EpitopeHelper.select_best_by_rank(predictions=self.results)
         return [
             AnnotationFactory.build_annotation(
                 value=best_result.mutated_peptide, name="PRIME_best_peptide"
