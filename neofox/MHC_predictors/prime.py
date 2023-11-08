@@ -21,9 +21,9 @@ from typing import List
 
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
-from neofox.model.mhc_parser import MhcParser
-from neofox.helpers.mhc_helper import ParsedMhcAlleles
+from neofox.helpers.mhc_helper import MixMhcHelper
 
+from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Annotation, Mhc1, MhcAllele, PredictedEpitope, Neoantigen
 from neofox.model.factories import AnnotationFactory
 from neofox.helpers import intermediate_files
@@ -43,7 +43,7 @@ class Prime:
         self.configuration = configuration
         self.mhc_parser = mhc_parser
 
-        self.parsed_mhc_alleles = ParsedMhcAlleles(mhc_parser)
+        self.parsed_mhc_alleles = MixMhcHelper(mhc_parser)
 
         self.best_peptide = None
         self.best_rank = None
