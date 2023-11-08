@@ -52,7 +52,6 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 NeoFox depends on the following tools:  
 
 - Python >=3.7, <=3.8
-- R 3.6.0
 - BLAST 2.10.1
 - netMHCpan 4.1
 - netMHCIIpan 4.0
@@ -96,7 +95,6 @@ neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candi
 The optional config file with the paths to the dependencies can look like this:  
 ````commandline
 NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
-NEOFOX_RSCRIPT=`which Rscript`
 NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
 NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
 NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
@@ -163,4 +161,4 @@ where:
 
 ## 5 Output data
 
-The output data is returned by default in a short wide tab separated values file (`--with-table`). Optionally, it can be provided in JSON format (`--with-json`).  
+The output data is returned by default in a short wide tab separated values file (`--with-table`). Optionally, it can be provided in JSON format (`--with-json`).

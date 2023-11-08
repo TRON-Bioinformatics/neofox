@@ -180,7 +180,7 @@ export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Lates
 
 Run the following to configure the NeoFox reference folder:
 ```
-neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencies --install_mouse_mixmhc2pred]
+neofox-configure --reference-folder /your/neofox/folder [--install_mouse_mixmhc2pred]
 ```
 
 
