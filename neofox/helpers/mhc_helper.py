@@ -34,7 +34,7 @@ class MhcHelper:
             if m.zygosity in [Zygosity.HETEROZYGOUS, Zygosity.HEMIZYGOUS]
         ]
 
-class ParsedMhcAlleles:
+class MixMhcHelper:
 
     def __init__(self, mhc_parser: MhcParser):
         self.mhc_parser = mhc_parser
