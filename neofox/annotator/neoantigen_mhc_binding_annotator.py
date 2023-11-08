@@ -8,7 +8,7 @@ from neofox.helpers.blastp_runner import BlastpRunner
 from neofox.helpers.runner import Runner
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.neoantigen import Neoantigen, Patient
-from neofox.references.references import DependenciesConfiguration, AvailableAlleles, ReferenceFolder, MhcDatabase, \
+from neofox.references.references import DependenciesConfiguration, AvailableAlleles, ReferenceFolder, \
     ORGANISM_HOMO_SAPIENS
 
 
@@ -65,7 +65,6 @@ class NeoantigenMhcBindingAnnotator:
                 self.mhc_parser,
                 neoantigen,
                 patient,
-                self.mhc_database,
                 self.references
             )
 
@@ -161,7 +160,6 @@ class NeoantigenMhcBindingAnnotator:
             mhc_parser: MhcParser,
             neoantigen: Neoantigen,
             patient: Patient,
-            mhc_database: MhcDatabase,
             references: ReferenceFolder
     ):
         mixmhc2 = MixMHC2pred(runner, configuration, mhc_parser, references)
