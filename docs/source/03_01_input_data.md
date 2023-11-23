@@ -2,7 +2,8 @@
 
 ## General information
 
-NeoFox requires two input files: a candidate file with neoantigen or neoepitope candidates and a file with patient data. 
+NeoFox requires two input files: a candidate file with neoantigen or neoepitope candidates and a file with patient data.
+The values between columns in both input files must be tab-separated. 
 The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain 
 additional user-specific input that will be kept during the annotation process. The patient file requires a tabular format.
 
