@@ -26,14 +26,12 @@ from neofox.MHC_predictors.MixMHCpred.mixmhcpred import MixMHCpred
 from neofox.MHC_predictors.prime import Prime
 from neofox.annotator.abstract_annotator import AbstractAnnotator
 from neofox.annotator.neoantigen_mhc_binding_annotator import NeoantigenMhcBindingAnnotator
-from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from neofox.model.factories import AnnotationFactory
 from neofox.model.mhc_parser import MhcParser
 from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.expression import Expression
-from neofox.model.neoantigen import Patient, Neoantigen, Annotations, PredictedEpitope
+from neofox.model.neoantigen import Patient, Neoantigen, Annotations
 from neofox.published_features.vaxrank.vaxrank import VaxRank
 from neofox.references.references import (
     ReferenceFolder,
