@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
-from logzero import logger
 from datetime import datetime
 import neofox
 from neofox.MHC_predictors.MixMHCpred.mixmhc2pred import MixMHC2pred

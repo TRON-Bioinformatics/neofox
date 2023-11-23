@@ -166,6 +166,11 @@ def neofox_cli():
             dotenv.load_dotenv(config, override=True)
         reference_folder = ReferenceFolder(organism=organism)
 
+        if organism=='human':
+            logger.info('PRIME, MixMHCpred and MixMHC2pred were run.')
+        else:
+            logger.info('MixMHC2pred was run.')
+
         # reads the input data
         neoantigens, patients = _read_data(
             input_file,

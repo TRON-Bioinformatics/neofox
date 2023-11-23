@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
 
-VERSION = "1.1.1.dev4"
+VERSION = "1.1.1.dev5"
 
 REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"
 NEOFOX_BLASTP_ENV = "NEOFOX_BLASTP"
