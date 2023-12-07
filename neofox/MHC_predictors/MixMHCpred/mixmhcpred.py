@@ -80,7 +80,7 @@ class MixMHCpred:
         )
         if len(potential_ligand_sequences) > 0:
             mhc1_alleles = self.parsed_mhc_alleles.get_mixmhc_allele_representation(self.configuration.mix_mhc_pred_alleles_list,
-                                                                                    [a for m in mhc for a in m.alleles])
+                                                                                    [a for m in mhc for a in m.alleles], 'MixMHCpred')
             if len(mhc1_alleles) > 0:
                 self.results = self._mixmhcprediction(mhc1_alleles, potential_ligand_sequences)
             else:
