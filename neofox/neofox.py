@@ -113,7 +113,8 @@ class NeoFox:
             self.neoantigens = self._conditional_expression_imputation()
 
         self.with_all_neoepitopes = with_all_neoepitopes
-
+        if with_all_neoepitopes:
+            logger.info("Prediction of all neoepitopes will be performed")
         logger.info("Reference data loaded")
 
     def _conditional_expression_imputation(self) -> List[Neoantigen]:

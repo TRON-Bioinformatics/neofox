@@ -167,9 +167,13 @@ def neofox_cli():
         reference_folder = ReferenceFolder(organism=organism)
 
         if organism=='human':
+            logger.info('Organism is human.')
             logger.info('PRIME, MixMHCpred and MixMHC2pred will be run.')
         else:
+            logger.info('Organism is mouse.')
             logger.info('MixMHC2pred will be run.')
+
+        logger.info('Number of CPUs being used:  {}'.format(num_cpus))
 
         # reads the input data
         neoantigens, patients = _read_data(
