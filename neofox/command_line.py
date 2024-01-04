@@ -33,7 +33,7 @@ from neofox.references.installer import NeofoxReferenceInstaller
 from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS, MhcDatabase
 
 epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
-         "TRON – Translational Oncology at the University Medical Center of the " \
+         "TRON - Translational Oncology at the University Medical Center of the " \
          "Johannes Gutenberg University Mainz gGmbH, all rights reserved".format(neofox.VERSION)
 
 
@@ -190,7 +190,8 @@ def neofox_cli():
             reference_folder=reference_folder,
             rank_mhci_threshold=rank_mhci_threshold,
             rank_mhcii_threshold=rank_mhcii_threshold,
-            with_all_neoepitopes=with_all_neoepitopes
+            with_all_neoepitopes=with_all_neoepitopes,
+            verbose=args.verbose
         ).get_annotations()
 
         _write_results(
@@ -208,11 +209,19 @@ def neofox_cli():
 
 def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[Neoantigen], List[Patient]]:
     # parse patient data
-    logger.info("Parsing patients data from: {}".format(patients_data))
-    patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
-    logger.info("Loaded {} patients".format(len(patients)))
+    if os.path.isfile(patients_data):
+        logger.info("Parsing patients data from: {}".format(patients_data))
+        patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
+        logger.info("Loaded {} patients".format(len(patients)))
+    else:
+        logger.error(f"Patient data file {patients_data} does not exist. Is the spelling correct?")
+        raise FileNotFoundError("Patient data file does not exist.")
 
     # parse the neoantigen candidate data
+    if not os.path.isfile(input_file): # first check if the file exists
+        logger.error(f"Neoantigen candidate file {input_file} does not exist. Is the spelling correct?")
+        raise FileNotFoundError("Neoantigen candidate file does not exist.")
+
     if input_file.endswith('.txt') or input_file.endswith('.tsv'):
         logger.info("Parsing candidate neoantigens from: {}".format(input_file))
         neoantigens = ModelConverter.parse_candidate_file(input_file)
@@ -356,7 +365,8 @@ def neofox_epitope_cli():
             patients=patients,
             log_file_name=log_file_name,
             num_cpus=num_cpus,
-            reference_folder=reference_folder
+            reference_folder=reference_folder, 
+            verbose = args.verbose
         ).get_annotations()
 
         _write_results_epitopes(
@@ -376,12 +386,19 @@ def _read_data_epitopes(
 
     # parse patient data
     patients = []
-    if patients_data is not None:
+    if os.path.isfile(patients_data):
         logger.info("Parsing patients data from: {}".format(patients_data))
         patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
         logger.info("Loaded {} patients".format(len(patients)))
+    else:
+        logger.error(f"Patient data file {patients_data} does not exist. Is the spelling correct?")
+        raise FileNotFoundError("Patient data file does not exist.")
 
     # parse the neoantigen candidate data
+    if not os.path.isfile(input_file): # first check if the file exists
+        logger.error(f"Neoepitope candidate file {input_file} does not exist. Is the spelling correct?")
+        raise FileNotFoundError("Neoantigen candidate file does not exist.")
+
     if input_file.endswith('.txt') or input_file.endswith('.tsv'):
         logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
         neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database, organism)

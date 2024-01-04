@@ -19,7 +19,8 @@ neofox --input-file neoantigens_candidates.tsv \
     [--num-cpus] \
     [--config] \
     [--patient-id] \
-    [--with-all-neoepitopes]
+    [--with-all-neoepitopes] \
+    [--verbose]
 ````
 
 where:
@@ -36,6 +37,7 @@ where:
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 - `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
+- `--verbose`: get detailed logs
 
 **PLEASE NOTE THE FOLLOWING HINTS**:
 - If a tumor type has been provided in the patient file, imputated gene expression from TCGA will be annoated and expression-dependent features will be determined with imputated gene expression aswell.  
@@ -74,6 +76,7 @@ neofox-epitope --input-file neoepitope_candidates.tsv \
     [--organism human|mouse]  \
     [--num-cpus] \
     [--config] \
+    [--verbose]
 ````
 
 where:
@@ -85,6 +88,7 @@ where:
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
+- `--verbose`: get detailed logs
 
 ## Running from docker
 

@@ -90,6 +90,7 @@ neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candi
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
                         neoepitope recognition. A threshold that is commonly used is 500 nM. 
+- `--verbose`: get detailed logs
                         
                         
 The optional config file with the paths to the dependencies can look like this:  

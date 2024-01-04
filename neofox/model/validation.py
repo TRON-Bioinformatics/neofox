@@ -45,6 +45,11 @@ FIELD_GENE = "gene"
 FIELD_WILD_TYPE_XMER = "[WT]_+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 FIELD_MUTATED_XMER = "+-13_AA_(SNV)_/_-15_AA_to_STOP_(INDEL)"
 
+MIN_MHCI_EPITOPE_LENGTH = 8
+MAX_MHCI_EPITOPE_LENGTH = 14
+
+MIN_MHCII_EPITOPE_LENGTH = 9
+MAX_MHCII_EPITOPE_LENGTH = 20000
 
 GENES_BY_MOLECULE = {
     Mhc2Name.DR: [Mhc2GeneName.DRB1],
@@ -127,31 +132,31 @@ class ModelValidator(object):
             length_mutated_peptide = len(neoepitope.mutated_peptide)
             if has_mhc_i:
                 ModelValidator.validate_mhc_allele_representation(neoepitope.allele_mhc_i, organism=organism)
-                assert ModelValidator.is_mhci_peptide_length_valid(length_mutated_peptide), \
-                    "Mutated MHC-I peptide has a non supported length of {}".format(length_mutated_peptide)
+                assert ModelValidator.is_peptide_length_valid(length_mutated_peptide, MIN_MHCI_EPITOPE_LENGTH, MAX_MHCI_EPITOPE_LENGTH), \
+                    f"Mutated MHC-I peptide has a non supported length of {length_mutated_peptide}. MHC-I peptides with lengths between {MIN_MHCI_EPITOPE_LENGTH} and {MAX_MHCI_EPITOPE_LENGTH} are supported."
             elif has_mhc_ii:
                 ModelValidator.validate_mhc2_isoform_representation(neoepitope.isoform_mhc_i_i, organism=organism)
-                assert ModelValidator.is_mhcii_peptide_length_valid(length_mutated_peptide), \
-                    "Mutated MHC-II peptide has a non supported length of {}".format(length_mutated_peptide)
+                assert ModelValidator.is_peptide_length_valid(length_mutated_peptide, MIN_MHCII_EPITOPE_LENGTH, MAX_MHCII_EPITOPE_LENGTH), \
+                    f"Mutated MHC-II peptide has a non supported length of {length_mutated_peptide}. MHC-II peptides with lengths between {MIN_MHCII_EPITOPE_LENGTH} and {MAX_MHCII_EPITOPE_LENGTH} are supported"
             else:
-                assert ModelValidator.is_mhci_peptide_length_valid(length_mutated_peptide) or \
-                       ModelValidator.is_mhcii_peptide_length_valid(length_mutated_peptide), \
-                    "Mutated peptide has a non supported length of {}".format(length_mutated_peptide)
+                assert ModelValidator.is_peptide_length_valid(length_mutated_peptide, MIN_MHCI_EPITOPE_LENGTH, MAX_MHCI_EPITOPE_LENGTH) or \
+                       ModelValidator.is_peptide_length_valid(length_mutated_peptide, MIN_MHCII_EPITOPE_LENGTH, MAX_MHCII_EPITOPE_LENGTH), \
+                    f"Mutated peptide has a non supported length of {length_mutated_peptide}. MHC-I peptides with lengths between {MIN_MHCI_EPITOPE_LENGTH} and {MAX_MHCI_EPITOPE_LENGTH} and MHC-II peptides with lengths between {MIN_MHCII_EPITOPE_LENGTH} and {MAX_MHCII_EPITOPE_LENGTH} are supported."
 
             if has_wt_peptide:
                 length_wt_peptide = len(neoepitope.wild_type_peptide)
                 assert length_wt_peptide == length_mutated_peptide, \
                     "Neoepitope does not have the same length of wildtype and mutated sequence. Both sequences should have the same length in case of point mutations. wildTypePeptide shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs."
                 if has_mhc_i:
-                    assert ModelValidator.is_mhci_peptide_length_valid(length_wt_peptide), \
-                        "Mutated MHC-I peptide has a non supported length of {}".format(length_wt_peptide)
+                    assert ModelValidator.is_peptide_length_valid(length_wt_peptide, MIN_MHCI_EPITOPE_LENGTH, MAX_MHCI_EPITOPE_LENGTH), \
+                        f"Wildtype MHC-I peptide has a non supported length of {length_wt_peptide}. MHC-I peptides with lengths between {MIN_MHCI_EPITOPE_LENGTH} and {MAX_MHCI_EPITOPE_LENGTH} are supported."
                 elif has_mhc_ii:
-                    assert ModelValidator.is_mhcii_peptide_length_valid(length_wt_peptide), \
-                        "Mutated MHC-II peptide has a non supported length of {}".format(length_wt_peptide)
+                    assert ModelValidator.is_peptide_length_valid(length_wt_peptide, MIN_MHCII_EPITOPE_LENGTH, MAX_MHCII_EPITOPE_LENGTH), \
+                        f"Wildtype MHC-II peptide has a non supported length of {length_wt_peptide}. MHC-II peptides with lengths between {MIN_MHCII_EPITOPE_LENGTH} and {MAX_MHCII_EPITOPE_LENGTH} are supported."
                 else:
-                    assert ModelValidator.is_mhci_peptide_length_valid(length_wt_peptide) or \
-                           ModelValidator.is_mhcii_peptide_length_valid(length_wt_peptide), \
-                        "Mutated peptide has a non supported length of {}".format(length_wt_peptide)
+                    assert ModelValidator.is_peptide_length_valid(length_wt_peptide, MIN_MHCI_EPITOPE_LENGTH, MAX_MHCI_EPITOPE_LENGTH) or \
+                           ModelValidator.is_peptide_length_valid(length_wt_peptide, MIN_MHCII_EPITOPE_LENGTH, MAX_MHCII_EPITOPE_LENGTH), \
+                        f"Wildtype peptide has a non supported length of {length_wt_peptide}. MHC-I peptides with lengths between {MIN_MHCI_EPITOPE_LENGTH} and {MAX_MHCI_EPITOPE_LENGTH} and MHC-II peptides with lengths between {MIN_MHCII_EPITOPE_LENGTH} and {MAX_MHCII_EPITOPE_LENGTH} are supported."
 
             # check the expression values
             ModelValidator._validate_expression_values(neoepitope)
@@ -160,12 +165,13 @@ class ModelValidator(object):
             raise NeofoxDataValidationException(e)
 
     @staticmethod
-    def is_mhcii_peptide_length_valid(length_mutated_peptide):
-        return 9 <= length_mutated_peptide <= 20000
+    def is_peptide_length_valid(length_peptide, min_len, max_len):
+        return min_len <= length_peptide <= max_len
 
+    # NOTE: this method is needed as it is called in neofox_epitope.py
     @staticmethod
-    def is_mhci_peptide_length_valid(length_mutated_peptide):
-        return 8 <= length_mutated_peptide <= 14
+    def is_mhci_peptide_length_valid(length_peptide):
+        return MIN_MHCI_EPITOPE_LENGTH <= length_peptide <= MAX_MHCI_EPITOPE_LENGTH
 
     @staticmethod
     def is_mhcii_epitope(neoepitope):

@@ -31,9 +31,9 @@ class Uniprot(object):
     """
 
     def __init__(self, proteome):
-        logger.info("Loading Uniprot...")
+        logger.debug("Loading Uniprot...")
         self.uniprot = self._load_proteome(proteome)
-        logger.info("Loaded Uniprot.")
+        logger.debug("Loaded Uniprot.")
 
     @staticmethod
     def _load_proteome(proteome) -> str:

@@ -50,13 +50,14 @@ class NeoFox:
             log_file_name=None,
             reference_folder: ReferenceFolder = None,
             configuration: DependenciesConfiguration = None,
-            verbose=True,
+            verbose = False,
             configuration_file=None,
             rank_mhci_threshold=neofox.RANK_MHCI_THRESHOLD_DEFAULT,
             rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
             with_all_neoepitopes=False):
 
-        initialise_logs(logfile=log_file_name, verbose=verbose)
+        self.verbose = verbose
+        initialise_logs(logfile=log_file_name, verbose=self.verbose)
         logger.info("Loading reference data...")
 
         self.rank_mhci_threshold = rank_mhci_threshold
@@ -71,7 +72,7 @@ class NeoFox:
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
         # testable with fake objects
         self.reference_folder = (
-            reference_folder if reference_folder else ReferenceFolder(verbose=verbose)
+            reference_folder if reference_folder else ReferenceFolder(verbose=self.verbose)
         )
         # NOTE: makes this call to force the loading of the available alleles here
         self.reference_folder.get_available_alleles()
@@ -215,7 +216,8 @@ class NeoFox:
                     self.log_file_name,
                     self.rank_mhci_threshold,
                     self.rank_mhcii_threshold,
-                    self.with_all_neoepitopes
+                    self.with_all_neoepitopes,
+                    self.verbose
                 )
             )
         annotated_neoantigens = dask_client.gather(futures)
@@ -238,11 +240,12 @@ class NeoFox:
         log_file_name: str,
         rank_mhci_threshold = neofox.RANK_MHCI_THRESHOLD_DEFAULT,
         rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
-        with_all_neoepitopes=False
+        with_all_neoepitopes=False,
+        verbose = False
     ):
         # the logs need to be initialised inside every dask job
-        initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutated_xmer))
+        initialise_logs(log_file_name, verbose)
+        logger.debug("Starting neoantigen annotation with peptide={}".format(neoantigen.mutated_xmer))
         start = time.time()
         try:
             annotated_neoantigen = NeoantigenAnnotator(
@@ -258,7 +261,7 @@ class NeoFox:
             logger.error("Error processing patient {}".format(patient.to_dict()))
             raise e
         end = time.time()
-        logger.info(
+        logger.debug(
             "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
                 neoantigen.mutated_xmer, int(end - start))
         )
@@ -268,8 +271,7 @@ class NeoFox:
 def initialise_logs(logfile, verbose=False):
     if logfile is not None:
         logzero.logfile(logfile)
-    # TODO: this does not work
     if verbose:
-        logzero.loglevel(logging.INFO)
+        logzero.loglevel(logging.DEBUG)
     else:
-        logzero.loglevel(logging.WARN)
+        logzero.loglevel(logging.INFO)
