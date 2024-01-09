@@ -24,7 +24,7 @@ import dotenv
 from Bio.Alphabet.IUPAC import IUPACData
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.factories import MhcFactory
+from neofox.model.factories import MhcFactory, NeoepitopeFactory
 from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Mhc2Isoform
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS, \
     ORGANISM_MUS_MUSCULUS
@@ -106,6 +106,62 @@ def get_h2_two_test_b(h2_database):
             "H2Ab",
         ], h2_database
     )
+
+def get_test_epitopes(hla_database):
+    # Epitopes of the neoantigen DSVVIFSGEGSDEFTQGYIYFHKAPSP
+    # for testing VaxRank
+    affinity_values = [1.74, 7.67, 802.78, 2057.1, 770.35, 5002.44]
+    
+    neoepitopes = [
+        NeoepitopeFactory.build_neoepitope(
+            mutated_peptide = "VIFSGEGSDEF",
+            wild_type_peptide = "VIFSGEGSDEL",
+            allele_mhc_i = "HLA-A*24:02",
+            mhc_database = hla_database,
+            organism = "human"
+        ),
+        NeoepitopeFactory.build_neoepitope(
+            mutated_peptide = "VIFSGEGSDEF",
+            wild_type_peptide = "VIFSGEGSDEL",
+            allele_mhc_i = "HLA-A*02:01",
+            mhc_database = hla_database,
+            organism = "human"
+        ),
+        NeoepitopeFactory.build_neoepitope(
+            mutated_peptide = "VIFSGEGSDEF",
+            wild_type_peptide = "VIFSGEGSDEL",
+            allele_mhc_i = "HLA-B*15:01",
+            mhc_database = hla_database,
+            organism = "human"
+        ),
+        NeoepitopeFactory.build_neoepitope(
+            mutated_peptide = "IFSGEGSDEFT",
+            wild_type_peptide = "IFSGEGSDELT",
+            allele_mhc_i = "HLA-A*24:02",
+            mhc_database = hla_database,
+            organism = "human"
+        ),
+        NeoepitopeFactory.build_neoepitope(
+            mutated_peptide = "IFSGEGSDEFT",
+            wild_type_peptide = "IFSGEGSDELT",
+            allele_mhc_i = "HLA-A*02:01",
+            mhc_database = hla_database,
+            organism = "human"
+        ),
+        # this epitope will not be considered for vaxrank calculation
+        NeoepitopeFactory.build_neoepitope(
+            mutated_peptide = "IFSGEGSDEFT",
+            wild_type_peptide = "IFSGEGSDELT",
+            allele_mhc_i = "HLA-B*15:01",
+            mhc_database = hla_database,
+            organism = "human"
+        ),
+    ]
+    
+    for i, a in enumerate(affinity_values):
+        neoepitopes[i].affinity_mutated = affinity_values[i]
+
+    return neoepitopes
 
 mutations_with_rare_aminoacids = [
             ("UTTDSDGKF", "UTTDSWGKF"),  # this is an epitope from IEDB of length 9
