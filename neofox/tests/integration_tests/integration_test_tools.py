@@ -24,7 +24,7 @@ import dotenv
 from Bio.Alphabet.IUPAC import IUPACData
 
 from neofox.helpers.epitope_helper import EpitopeHelper
-from neofox.model.factories import MhcFactory, NeoepitopeFactory
+from neofox.model.factories import MhcFactory
 from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Mhc2Isoform
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS, \
     ORGANISM_MUS_MUSCULUS
@@ -106,7 +106,6 @@ def get_h2_two_test_b(h2_database):
             "H2Ab",
         ], h2_database
     )
-
 
 mutations_with_rare_aminoacids = [
             ("UTTDSDGKF", "UTTDSWGKF"),  # this is an epitope from IEDB of length 9
