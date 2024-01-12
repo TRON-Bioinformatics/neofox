@@ -59,9 +59,7 @@ class TestVaxRank(TestCase):
         Test if the VaxRank binding score is calculated correctly.
 
         The binding score of one list of neoepitopes is calculated and compared
-        with the manually calculated value. As floating point calculations can 
-        differ between architectures and the vaxrank annotations are rounded, we 
-        only compare on almost equal.
+        with the manually calculated value.
         """
 
         binding_score = self.vaxrank.total_binding(self.pred_epitopes)
@@ -72,7 +70,7 @@ class TestVaxRank(TestCase):
         """
         Test whether the VaxRank calculation works correct. 
 
-        It is checked if the total score and the total imputed score is correctly calculated.
+        Check if the total score and the total imputed score are calculated correctly.
         """
         EXPRESSION_SCORE = 10.4
         IMPUTED_SCORE = 7.6
