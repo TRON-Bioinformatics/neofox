@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 import betterproto
+import csv
+import os
+import pandas as pd
 from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 from Bio.Data import IUPACData
 from neofox.exceptions import NeofoxDataValidationException
@@ -383,3 +386,77 @@ class ModelValidator(object):
         assert allele.gene in Mhc2GeneName.__members__, \
             "MHC II allele is not valid {} at {}".format(
                 allele.gene, allele.full_name) if allele.full_name != "" else "Gene from MHC II allele is empty"
+
+
+class InputValidator(object):
+    """
+    Ensure that the input files are in the correct format.
+    """
+
+    input_antigen = [
+        "gene", "wildTypeXmer", "mutatedXmer", "patientIdentifier", "rnaExpression",
+        "rnaVariantAlleleFrequency", "dnaVariantAlleleFrequency"
+    ]
+
+    input_epitope = [
+        "gene", "wildTypePeptide", "mutatedPeptide", "patientIdentifier", "rnaExpression",
+        "alleleMhcI", "isoformMhcII", "rnaVariantAlleleFrequency", "dnaVariantAlleleFrequency"
+    ]
+
+    columns_patient_file = ["identifier", "mhcIAlleles", "mhcIIAlleles"]
+
+    @staticmethod
+    def validate_input_file(file_path: str, epitope_mode: bool = True):
+        required_columns = InputValidator.input_epitope if epitope_mode else InputValidator.input_antigen
+
+        try:
+            assert InputValidator._file_exists(file_path), \
+                f"File {file_path} does not exist. Is the spelling correct?"
+            assert InputValidator._is_tab_separated(file_path), \
+                f"File {file_path} is not tab separated."
+            assert InputValidator._required_columns_given(file_path, required_columns), \
+                f"File {file_path} does not contain all required columns. Required columns are: {required_columns}"
+
+        except AssertionError as e:
+            logger.error("Input file validation failed.")
+            raise NeofoxDataValidationException(e)
+
+    @staticmethod
+    def validate_patient_file(file_path: str):
+        try:
+            assert InputValidator._file_exists(file_path), \
+                f"File {file_path} does not exist. Is the spelling correct?"
+            assert InputValidator._is_tab_separated(file_path), \
+                f"File {file_path} is not tab separated."
+            assert InputValidator._required_columns_given(file_path, InputValidator.columns_patient_file), \
+                f"File {file_path} does not contain all required columns. Required columns are: {InputValidator.columns_patient_file}"
+
+        except AssertionError as e:
+            logger.error("Input file validation failed.")
+            raise NeofoxDataValidationException(e)
+
+    @staticmethod
+    def _file_exists(file_path: str):
+        if file_path is None:
+            return False
+        return os.path.isfile(file_path)
+
+    @staticmethod
+    def _is_tab_separated(file_path: str):
+        try:
+            # infers the delimiter from the first 100 rows
+            reader = pd.read_csv(file_path, sep = None, nrows = 100, iterator = True)
+            delimiter = reader._engine.data.dialect.delimiter
+
+            logger.debug(f"File {file_path} is '{delimiter}' separated.".encode("unicode_escape").decode("utf-8"))
+            assert delimiter == "\t"
+            return True
+
+        except Exception as e:
+            logger.error(f"File {file_path} is not tab separated.")
+            raise e
+
+    @staticmethod
+    def _required_columns_given(file_path: str, required_columns: list):
+        header = pd.read_csv(file_path, sep = "\t", nrows = 1)
+        return all(rq in header.columns for rq in required_columns)

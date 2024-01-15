@@ -24,7 +24,7 @@ import orjson as json
 import neofox
 import neofox.neofox
 from neofox.model.neoantigen import Neoantigen, Patient, PredictedEpitope
-from neofox.model.validation import ModelValidator
+from neofox.model.validation import ModelValidator, InputValidator
 from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
@@ -208,30 +208,23 @@ def neofox_cli():
 
 
 def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[Neoantigen], List[Patient]]:
-    # parse patient data
-    if os.path.isfile(patients_data):
-        logger.info("Parsing patients data from: {}".format(patients_data))
-        patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
-        logger.info("Loaded {} patients".format(len(patients)))
-    else:
-        logger.error(f"Patient data file {patients_data} does not exist. Is the spelling correct?")
-        raise FileNotFoundError("Patient data file does not exist.")
+    InputValidator.validate_patient_file(patients_data)
 
-    # parse the neoantigen candidate data
-    if not os.path.isfile(input_file): # first check if the file exists
-        logger.error(f"Neoantigen candidate file {input_file} does not exist. Is the spelling correct?")
-        raise FileNotFoundError("Neoantigen candidate file does not exist.")
+    logger.info("Parsing patients data from: {}".format(patients_data))
+    patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
+    logger.info("Loaded {} patients".format(len(patients)))
 
-    if input_file.endswith('.txt') or input_file.endswith('.tsv'):
-        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
-        neoantigens = ModelConverter.parse_candidate_file(input_file)
-        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
-    elif input_file.endswith('.json')  :
+
+    if input_file.endswith('.json')  :
         logger.info("Parsing candidate neoantigens from: {}".format(input_file))
         neoantigens = ModelConverter.parse_neoantigens_json_file(input_file)
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     else:
-        raise ValueError('Not supported input file extension: {}'.format(input_file))
+        InputValidator.validate_input_file(input_file)
+
+        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
+        neoantigens = ModelConverter.parse_candidate_file(input_file)
+        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
 
     neoantigens_patient_ids = set(neoantigen.patient_identifier for neoantigen in neoantigens)
     patient_ids = set(patient.identifier for patient in patients)
@@ -385,31 +378,29 @@ def _read_data_epitopes(
     input_file, patients_data, mhc_database: MhcDatabase, organism: str) -> Tuple[List[PredictedEpitope], List[Patient]]:
 
     # parse patient data
-    patients = []
-    if os.path.isfile(patients_data):
-        logger.info("Parsing patients data from: {}".format(patients_data))
-        patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
-        logger.info("Loaded {} patients".format(len(patients)))
-    else:
-        logger.error(f"Patient data file {patients_data} does not exist. Is the spelling correct?")
-        raise FileNotFoundError("Patient data file does not exist.")
+    InputValidator.validate_patient_file(patients_data)
+
+    logger.info("Parsing patients data from: {}".format(patients_data))
+    patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
+    logger.info("Loaded {} patients".format(len(patients)))
+
 
     # parse the neoantigen candidate data
-    if not os.path.isfile(input_file): # first check if the file exists
-        logger.error(f"Neoepitope candidate file {input_file} does not exist. Is the spelling correct?")
-        raise FileNotFoundError("Neoantigen candidate file does not exist.")
+    if input_file.endswith('.json'):
+        # TODO: add support for input in JSON format
+        #    logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
+        #    neoepitopes = ModelConverter.parse_neoepitopes_json_file(input_file)
+        #    logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
+        raise ValueError('Not supported input file extension: {}'.format(input_file))
+    
+    else:
+        InputValidator.validate_input_file(input_file, epitope_mode = True)
 
-    if input_file.endswith('.txt') or input_file.endswith('.tsv'):
         logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
         neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database, organism)
         logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
-    # TODO: add support for input in JSON format
-    #elif input_file.endswith('.json')  :
-    #    logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
-    #    neoepitopes = ModelConverter.parse_neoepitopes_json_file(input_file)
-    #    logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
-    else:
-        raise ValueError('Not supported input file extension: {}'.format(input_file))
+    
+
 
     return neoepitopes, patients
 
