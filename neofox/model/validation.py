@@ -406,7 +406,7 @@ class InputValidator(object):
     columns_patient_file = ["identifier", "mhcIAlleles", "mhcIIAlleles"]
 
     @staticmethod
-    def validate_input_file(file_path: str, epitope_mode: bool = True):
+    def validate_input_file(file_path: str, epitope_mode: bool = False):
         required_columns = InputValidator.input_epitope if epitope_mode else InputValidator.input_antigen
 
         try:
@@ -426,8 +426,7 @@ class InputValidator(object):
         try:
             assert InputValidator._file_exists(file_path), \
                 f"File {file_path} does not exist. Is the spelling correct?"
-            assert InputValidator._is_tab_separated(file_path), \
-                f"File {file_path} is not tab separated."
+            assert InputValidator._is_tab_separated(file_path)
             assert InputValidator._required_columns_given(file_path, InputValidator.columns_patient_file), \
                 f"File {file_path} does not contain all required columns. Required columns are: {InputValidator.columns_patient_file}"
 
@@ -445,16 +444,17 @@ class InputValidator(object):
     def _is_tab_separated(file_path: str):
         try:
             # infers the delimiter from the first 100 rows
-            reader = pd.read_csv(file_path, sep = None, nrows = 100, iterator = True)
-            delimiter = reader._engine.data.dialect.delimiter
-
-            logger.debug(f"File {file_path} is '{delimiter}' separated.".encode("unicode_escape").decode("utf-8"))
-            assert delimiter == "\t"
-            return True
+            reader = pd.read_csv(file_path, sep = None, nrows = 100, iterator = True, engine = 'python')
 
         except Exception as e:
             logger.error(f"File {file_path} is not tab separated.")
             raise e
+
+        delimiter = reader._engine.data.dialect.delimiter
+        logger.debug(f"File {file_path} is '{delimiter}' separated.".encode("unicode_escape").decode("utf-8"))
+        assert delimiter == "\t", \
+            f"File {file_path} is not tab separated."
+        return True
 
     @staticmethod
     def _required_columns_given(file_path: str, required_columns: list):
