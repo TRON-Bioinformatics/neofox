@@ -29,8 +29,6 @@ from neofox.published_features.vaxrank.vaxrank import (
 )
 from neofox.tests.fake_classes import FakePredictedEpitope
 
-# TODO: maybe create Fake Class Predicted Epitope to easier create test epitopes
-
 class TestVaxRank(TestCase):
     def setUp(self):
         self.references, self.configuration = integration_test_tools.load_references()
