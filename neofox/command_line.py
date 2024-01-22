@@ -208,8 +208,6 @@ def neofox_cli():
 
 
 def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[Neoantigen], List[Patient]]:
-    InputValidator.validate_patient_file(patients_data)
-
     logger.info("Parsing patients data from: {}".format(patients_data))
     patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
     logger.info("Loaded {} patients".format(len(patients)))
@@ -220,8 +218,6 @@ def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[Li
         neoantigens = ModelConverter.parse_neoantigens_json_file(input_file)
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     else:
-        InputValidator.validate_input_file(input_file)
-
         logger.info("Parsing candidate neoantigens from: {}".format(input_file))
         neoantigens = ModelConverter.parse_candidate_file(input_file)
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
@@ -378,8 +374,6 @@ def _read_data_epitopes(
     input_file, patients_data, mhc_database: MhcDatabase, organism: str) -> Tuple[List[PredictedEpitope], List[Patient]]:
 
     # parse patient data
-    InputValidator.validate_patient_file(patients_data)
-
     logger.info("Parsing patients data from: {}".format(patients_data))
     patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
     logger.info("Loaded {} patients".format(len(patients)))
@@ -392,10 +386,7 @@ def _read_data_epitopes(
         #    neoepitopes = ModelConverter.parse_neoepitopes_json_file(input_file)
         #    logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
         raise ValueError('Not supported input file extension: {}'.format(input_file))
-    
     else:
-        InputValidator.validate_input_file(input_file, epitope_mode = True)
-
         logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
         neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database, organism)
         logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))

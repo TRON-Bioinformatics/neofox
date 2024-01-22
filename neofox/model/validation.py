@@ -390,20 +390,20 @@ class ModelValidator(object):
 
 class InputValidator(object):
     """
-    Ensure that the input files are in the correct format.
+    Ensure that the input files are in correct format.
     """
 
     input_antigen = [
-        "gene", "wildTypeXmer", "mutatedXmer", "patientIdentifier", "rnaExpression",
-        "rnaVariantAlleleFrequency", "dnaVariantAlleleFrequency"
+        "wildTypeXmer", "mutatedXmer", "patientIdentifier",
     ]
 
     input_epitope = [
-        "gene", "wildTypePeptide", "mutatedPeptide", "patientIdentifier", "rnaExpression",
-        "alleleMhcI", "isoformMhcII", "rnaVariantAlleleFrequency", "dnaVariantAlleleFrequency"
+        "wildTypePeptide", "mutatedPeptide"
     ]
 
-    columns_patient_file = ["identifier", "mhcIAlleles", "mhcIIAlleles"]
+    columns_patient_file = [
+        "identifier"
+    ]
 
     @staticmethod
     def validate_input_file(file_path: str, epitope_mode: bool = False):
