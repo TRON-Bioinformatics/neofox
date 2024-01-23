@@ -18,7 +18,7 @@ distribute the software or provide a direct URL to download it. Please make sure
 the sites indicated below.
 
 - NetMHCpan-4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
-- NetMHCIIpan-4.0: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.0.Linux.tar.gz`)
+- NetMHCIIpan-4.3: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.3.Linux.tar.gz`)
 
 Please also check the licences of the other third party dependencies ( e.g. listed in the docker recipe `Dockerfile`). 
 
@@ -93,26 +93,23 @@ export NEOFOX_NETMHCPAN=/path/to/netMHCpan-4.1/netMHCpan
 Configure NetMHCpan as explained in the file `netMHCpan-4.1/netMHCpan-4.1.readme`
 
 
-#### Install NetMHCIIpan-4.0
+#### Install NetMHCIIpan-4.3
 
-NetMHCIIpan-4.0 can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
+NetMHCIIpan-4.3 can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
 
 ```
-tar -xvf netMHCIIpan-4.0.Linux.tar.gz
-cd netMHCIIpan-4.0
-# download the data
-wget http://www.cbs.dtu.dk/services/NetMHCIIpan-4.0/data.Linux.tar.gz
-tar -xvf data.Linux.tar.gz
+tar -xvf netMHCIIpan-4.3.Linux.tar.gz
+cd netMHCIIpan-4.3
 # install tcsh shell interpreter if not available yet
 sudo apt-get install tcsh
 ```
 
 Optionally set the environment variable pointing to `netMHCIIpan`, otherwise neofox will look for it in the path.
 ```
-export NEOFOX_NETMHC2PAN=/path/to/netMHCIIpan-4.0/netMHCIIpan
+export NEOFOX_NETMHC2PAN=/path/to/netMHCIIpan-4.3/netMHCIIpan
 ```
 
-Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-4.0/netMHCIIpan-4.0.readme`
+Configure NetMHCIIpan-4.3 as explained in the file `netMHCIIpan-4.3/netMHCIIpan-4.3.readme`
          
 
 #### Install MixMHCpred-2.2 (recommended but optional)
