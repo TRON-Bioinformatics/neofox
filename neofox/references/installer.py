@@ -92,7 +92,7 @@ class NeofoxReferenceInstaller(object):
 
         resources_version = [
             Resource(name="netMHCpan", version="4.1"),
-            Resource(name="netMHCIIpan", version="4.0"),
+            Resource(name="netMHCIIpan", version="4.3"),
             Resource(name="mixMHCpred", version="2.2"),
             Resource(name="mixMHC2pred", version="2.0.2"),
             iedb_resource,

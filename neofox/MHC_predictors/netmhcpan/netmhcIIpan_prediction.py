@@ -124,18 +124,17 @@ class NetMhcIIPanPredictor:
         for line in lines.splitlines():
             line = line.rstrip().lstrip()
             if line:
-                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR", "Pos")):
+                if line.startswith(("#", "-", "Number", "Temporary", "Seq", "ERROR", "Pos", "Error")):
                     continue
                 line = line.split()
-                line = line[0:-1] if len(line) > 12 else line
                 
                 pred_epitope = PredictedEpitope(
                         position=int(line[0]),
                         isoform_mhc_i_i=self.mhc_parser.parse_mhc2_isoform(line[1]),
                         core=str(line[4]),
                         mutated_peptide=line[2],
-                        affinity_mutated=float(line[11]),
-                        rank_mutated=float(line[8]),
+                        affinity_mutated=float(line[13]),
+                        rank_mutated=float(line[9]),
                     )
                 pred_epitope.neofox_annotations.annotations.extend(
                     self.get_additional_netmhcpan_annotations(line)
