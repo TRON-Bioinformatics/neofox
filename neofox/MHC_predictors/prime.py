@@ -89,7 +89,7 @@ class Prime:
             )
             if len(potential_ligand_sequences) > 0:
                 mhc1_alleles = self.parsed_mhc_alleles.get_mixmhc_allele_representation(self.configuration.prime_alleles_list,
-                                                                                 [a for m in mhc for a in m.alleles])
+                                                                                 [a for m in mhc for a in m.alleles], 'PRIME')
                 if len(mhc1_alleles) > 0:
                     self.results = self._prime(mhc1_alleles, potential_ligand_sequences)
                 else:

@@ -140,7 +140,6 @@ class IEDBimmunogenicity:
         try:
             if peptide != "-":
                 score = self.predict_immunogenicity(peptide, mhc_allele.name if mhc_allele else None)
-                logger.info(score)
         except (ValueError, AttributeError):
             pass
         return score

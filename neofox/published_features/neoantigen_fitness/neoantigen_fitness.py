@@ -33,7 +33,7 @@ class NeoantigenFitnessCalculator:
 
     def get_pathogen_similarity(self, peptide: str):
         pathsim = self.iedb_blastp_runner.calculate_similarity_database(peptide=peptide)
-        logger.info(
+        logger.debug(
             "Peptide {} has a pathogen similarity of {}".format(peptide, pathsim)
         )
         return pathsim
