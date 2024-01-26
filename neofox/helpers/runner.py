@@ -31,7 +31,7 @@ class Runner(object):
 
     def run_command(self,  cmd, print_log=True, **kwargs):
         if print_log and self.verbose:
-            logger.info("Starting command: {}".format(" ".join(cmd)))
+            logger.debug("Starting command: {}".format(" ".join(cmd)))
         start = time.time()
         process = subprocess.Popen(
             self._preprocess_command(cmd),
@@ -43,10 +43,10 @@ class Runner(object):
         return_code = process.returncode
         end = time.time()
         if print_log and self.verbose:
-            logger.info("Elapsed time {} seconds".format(round(end - start, 3)))
+            logger.debug("Elapsed time {} seconds".format(round(end - start, 3)))
         if return_code == 0:
             if print_log and self.verbose:
-                logger.info("Finished command correctly!")
+                logger.debug("Finished command correctly!")
         else:
             logger.error("Finished command with return code {}".format(return_code))
             logger.error(self._decode(output))

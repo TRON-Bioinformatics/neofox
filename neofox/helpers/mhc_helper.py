@@ -40,22 +40,28 @@ class MixMhcHelper:
         self.mhc_parser = mhc_parser
 
     @staticmethod
-    def get_mixmhc_allele_representation(file_alleles, mhc_alleles: List[MhcAllele]):
+    def get_mixmhc_allele_representation(file_alleles, mhc_alleles: List[MhcAllele], prime_mixmhcpred):
         """
-        loads file with available HLA II alllels for MixMHC2pred prediction, returns set
+        loads file with available HLA II alleles for MixMHCpred and PRIME prediction, returns set
         :return:
         """
         alleles = pd.read_csv(
             file_alleles, sep="\t"
         )
         available_alleles =  set(alleles["Allele"])
-        return list(
-            filter(
-                lambda y: y in available_alleles,
-                map(
+
+        converted_mhc_alleles = list(map(
                     lambda x: "{gene}{group}{protein}".format(gene=x.gene, group=x.group, protein=x.protein),
-                    mhc_alleles)
+                    mhc_alleles))
+
+        not_available_alleles = list(set(converted_mhc_alleles).difference(available_alleles))
+        if len(not_available_alleles) > 0:
+            logger.warning(
+                "MHC I alleles {} are not supported by {}.".format(",".join(not_available_alleles), prime_mixmhcpred)
             )
+
+        return list(
+            set(converted_mhc_alleles).intersection(available_alleles)
         )
 
     def parse_mixmhcpred_prime_output(self, mixmhc_prime_result) -> List[PredictedEpitope]:

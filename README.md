@@ -28,7 +28,7 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 | Name                                                    | Reference                                                                | DOI                                                                                       |
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | MHC I binding affinity/rank score (netMHCpan-v4.1)      | Reynisson et al, 2020, Nucleic Acids Research                             | https://doi.org/10.4049/jimmunol.1700893                                                  |
-| MHC II binding affinity/rank score (netMHCIIpan-v4.0)   | Reynisson et al, 2020, Nucleic Acids Research                                           | https://doi.org/10.1111/imm.12889                                                         |
+| MHC II binding affinity/rank score (netMHCIIpan-v4.3)   | Nilsson et al, 2023, Science Adv.                                           | https://doi.org/10.1126/sciadv.adj6367                                                         |
 | MixMHCpred score v2.2  §                              | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
 | MixMHC2pred score v2.0.2  §                              | Racle et al, 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
 | Differential Agretopicity Index (DAI)                   | Duan et al, 2014, JEM; Ghorani et al., 2018, Ann Oncol.                  | https://doi.org/10.1084/jem.20141308                                                      |
@@ -54,7 +54,7 @@ NeoFox depends on the following tools:
 - Python >=3.7, <=3.8
 - BLAST 2.10.1
 - netMHCpan 4.1
-- netMHCIIpan 4.0
+- netMHCIIpan 4.3
 - MixMHCpred 2.2 (optional)
 - MixMHC2pred 2.0.2 (optional)
 - PRIME 2.0 (optional)
@@ -90,6 +90,7 @@ neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candi
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
                         neoepitope recognition. A threshold that is commonly used is 500 nM. 
+- `--verbose`: get detailed logs
                         
                         
 The optional config file with the paths to the dependencies can look like this:  
@@ -97,7 +98,7 @@ The optional config file with the paths to the dependencies can look like this:
 NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
 NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
 NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
-NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
+NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.3/netMHCIIpan
 NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.2/MixMHCpred
 NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-2.0.1/MixMHC2pred_unix
 NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb

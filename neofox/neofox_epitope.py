@@ -46,9 +46,10 @@ class NeoFoxEpitope:
             log_file_name=None,
             reference_folder: ReferenceFolder = None,
             configuration: DependenciesConfiguration = None,
-            verbose=True,
+            verbose=False,
             configuration_file=None):
 
+        self.verbose = verbose
         initialise_logs(logfile=log_file_name, verbose=verbose)
         logger.info("Loading reference data...")
 
@@ -153,6 +154,7 @@ class NeoFoxEpitope:
                     future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
+                    self.verbose,
                 )
             )
         annotated_neoantigens = dask_client.gather(futures)
@@ -179,10 +181,11 @@ class NeoFoxEpitope:
         tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
+        verbose = False
     ):
         # the logs need to be initialised inside every dask job
-        initialise_logs(log_file_name)
-        logger.info("Starting neoepitope annotation with peptide={}".format(neoepitope.mutated_peptide))
+        initialise_logs(log_file_name, verbose=verbose)
+        logger.debug("Starting neoepitope annotation with peptide={}".format(neoepitope.mutated_peptide))
         start = time.time()
         try:
             annotated_neoantigen = NeoepitopeAnnotator(
@@ -195,7 +198,7 @@ class NeoFoxEpitope:
             logger.error("Error processing neoantigen {}".format(neoepitope.to_dict()))
             raise e
         end = time.time()
-        logger.info(
+        logger.debug(
             "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
                 neoepitope.mutated_peptide, int(end - start))
         )
@@ -221,8 +224,7 @@ class NeoFoxEpitope:
 def initialise_logs(logfile, verbose=False):
     if logfile is not None:
         logzero.logfile(logfile)
-    # TODO: this does not work
     if verbose:
-        logzero.loglevel(logging.INFO)
+        logzero.loglevel(logging.DEBUG)
     else:
-        logzero.loglevel(logging.WARN)
+        logzero.loglevel(logging.INFO)
