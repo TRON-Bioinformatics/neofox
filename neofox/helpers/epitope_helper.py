@@ -154,24 +154,26 @@ class EpitopeHelper(object):
     def select_best_by_rank(predictions: List[PredictedEpitope]) -> PredictedEpitope:
         """
         Returns the peptide with the lowest (ie: meaning highest) rank and in case of tie first peptide on
-        alphabetical order to ensure determinism
+        alphabetical order to ensure determinism. If there are two or more alleles with the best score, the 
+        first in alphabetical order is returned to ensure determinism.
         """
-        return max(predictions, key=lambda p: (-p.rank_mutated, p.mutated_peptide)) \
+        return max(predictions, key=lambda p: (-p.rank_mutated, p.mutated_peptide, p.allele_mhc_i, p.isoform_mhc_i_i.name)) \
             if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
 
     @staticmethod
     def select_best_by_affinity(predictions: List[PredictedEpitope], maximum=False) -> PredictedEpitope:
         """
         Returns the peptide with the highest affinity score and in case of tie first peptide on
-        alphabetical order to ensure determinism
+        alphabetical order to ensure determinism. If there are two or more alleles with the best score, the 
+        first in alphabetical order is returned to ensure determinism.
         By default the highest affinity score is the lowest (ie: netmhc family) if maximum=True then the highest
         score is the highest (ie: mixmhcpred and PRIME)
         """
         if maximum:
-            return max(predictions, key=lambda p: (p.affinity_mutated, p.mutated_peptide)) \
+            return max(predictions, key=lambda p: (p.affinity_mutated, p.mutated_peptide, p.allele_mhc_i.name, p.isoform_mhc_i_i)) \
                 if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
         else:
-            return max(predictions, key=lambda p: (-p.affinity_mutated, p.mutated_peptide)) \
+            return max(predictions, key=lambda p: (-p.affinity_mutated, p.mutated_peptide, p.allele_mhc_i.name, p.isoform_mhc_i_i)) \
                 if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
 
     @staticmethod

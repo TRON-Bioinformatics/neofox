@@ -130,6 +130,8 @@ In addition, all logging output is appended to a log file with the suffix
 "*<folder>/<prefix>.log*", where the folder is set by `--output-folder` and the
 prefix can be set with `--output-prefix`.
 
+> Note on best predicted epitope selection: If no unique selection of the best predicted epitope can be made due to ties, the lexicographically first epitope is returned. If there are nevertheless two or more alleles that have equally good predicted values for the peptide, the lexicographically first one is reported. These cases can be analysed using the `--with-all-epitopes` options. 
+
 ### Tabular format
 
 An output table with the suffix "*_neoantigen_candidates_annotated.tsv*" is created.  
