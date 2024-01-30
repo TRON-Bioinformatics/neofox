@@ -170,11 +170,25 @@ class EpitopeHelper(object):
         score is the highest (ie: mixmhcpred and PRIME)
         """
         if maximum:
-            return max(predictions, key=lambda p: (p.affinity_mutated, p.mutated_peptide, p.allele_mhc_i.name, p.isoform_mhc_i_i)) \
-                if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
+            return max(
+                predictions, 
+                key=lambda p: (
+                    p.affinity_mutated, p.mutated_peptide, 
+                    p.allele_mhc_i.name, p.isoform_mhc_i_i.name
+                    )
+                ) \
+                if predictions is not None and len(predictions) > 0 \
+                else EpitopeHelper.get_empty_epitope()
         else:
-            return max(predictions, key=lambda p: (-p.affinity_mutated, p.mutated_peptide, p.allele_mhc_i.name, p.isoform_mhc_i_i)) \
-                if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
+            return max(
+                predictions, 
+                key=lambda p: (
+                    -p.affinity_mutated, p.mutated_peptide, 
+                    p.allele_mhc_i.name, p.isoform_mhc_i_i.name
+                    )
+                ) \
+                if predictions is not None and len(predictions) > 0 \
+                else EpitopeHelper.get_empty_epitope()
 
     @staticmethod
     def remove_peptides_in_proteome(predictions: List[PredictedEpitope], uniprot
