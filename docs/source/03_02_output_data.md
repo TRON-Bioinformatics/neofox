@@ -8,6 +8,8 @@ The user gets the neoantigen annotations in all formats.
 Despite different structures, both formats provide the same content with the exception of the metadata on 
 the annotations which is only present in the JSON format.
 
+> For each neoantigen candidate (`mutatedXmer`), the best subsequences (epitopes) based on MHC prediction are annotated. Columns that refer to a predicted epitope consist of 3 components, each separated by "_". The first part contains the tool name, the second part contains the selection method of the best epitope and the third part contains the name of the value. Example: "ToolName_SelectionMethod_ValueName" -> NetMHCpan_bestRank_peptide (literally: the peptide with the best predicted NetMHCpan rank).
+
 The following table describes each of the annotations in the output:  
   
 **TABLE 1** 
