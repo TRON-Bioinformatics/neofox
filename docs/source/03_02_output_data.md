@@ -8,6 +8,8 @@ The user gets the neoantigen annotations in all formats.
 Despite different structures, both formats provide the same content with the exception of the metadata on 
 the annotations which is only present in the JSON format.
 
+> For each neoantigen candidate (`mutatedXmer`), the best subsequences (epitopes) based on MHC prediction are annotated. Columns that refer to a predicted epitope consist of 3 components, each separated by "_". The first part contains the tool name, the second part contains the selection method of the best epitope and the third part contains the name of the value. Example: "ToolName_SelectionMethod_ValueName" -> NetMHCpan_bestRank_peptide (literally: the peptide with the best predicted NetMHCpan rank).
+
 The following table describes each of the annotations in the output:  
   
 **TABLE 1** 
@@ -129,6 +131,8 @@ The following table describes each of the annotations in the output:
 In addition, all logging output is appended to a log file with the suffix
 "*<folder>/<prefix>.log*", where the folder is set by `--output-folder` and the
 prefix can be set with `--output-prefix`.
+
+> Note on best predicted epitope selection: If no unique selection of the best predicted epitope can be made due to ties, the lexicographically first epitope is returned. If there are nevertheless two or more alleles that have equally good predicted values for the peptide, the lexicographically first one is reported. These cases can be analysed using the `--with-all-epitopes` options. 
 
 ### Tabular format
 
