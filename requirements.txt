@@ -11,6 +11,5 @@ pysam~=0.19.1
 dask[complete]>=2022.2.0,<2023.0.0
 distributed>=2022.2.0,<2023.0.0
 faker~=13.13.0
-orjson~=3.5.2
 xmltodict~=0.12.0
 cython==0.29.33

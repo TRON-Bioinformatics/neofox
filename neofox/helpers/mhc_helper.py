@@ -40,7 +40,7 @@ class MixMhcHelper:
         self.mhc_parser = mhc_parser
 
     @staticmethod
-    def get_mixmhc_allele_representation(file_alleles, mhc_alleles: List[MhcAllele], prime_mixmhcpred):
+    def get_mixmhc_allele_representation(file_alleles, mhc_alleles: List[MhcAllele]):
         """
         loads file with available HLA II alleles for MixMHCpred and PRIME prediction, returns set
         :return:
@@ -57,7 +57,7 @@ class MixMhcHelper:
         not_available_alleles = list(set(converted_mhc_alleles).difference(available_alleles))
         if len(not_available_alleles) > 0:
             logger.warning(
-                "MHC I alleles {} are not supported by {}.".format(",".join(not_available_alleles), prime_mixmhcpred)
+                "MHC I alleles {} are not supported by MixMHCpred.".format(",".join(not_available_alleles))
             )
 
         return list(

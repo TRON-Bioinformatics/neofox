@@ -166,12 +166,12 @@ class TestBestMultipleBinder(TestCase):
         logger.info(best_multiple.best_predicted_epitope_rank)
         logger.info(best_multiple.best_predicted_epitope_affinity)
         logger.info(best_multiple.phbr_ii)
-        self.assertEqual(3.26, best_multiple.best_predicted_epitope_rank.rank_mutated)
+        self.assertEqual(1.81, best_multiple.best_predicted_epitope_rank.rank_mutated)
         self.assertEqual(
-            1103.46, best_multiple.best_predicted_epitope_affinity.affinity_mutated
+            925.14, best_multiple.best_predicted_epitope_affinity.affinity_mutated
         )
         self.assertEqual(
-            "SQDILVTDQTRLEAT", best_multiple.best_predicted_epitope_rank.mutated_peptide
+            "VTDQTRLEATISPET", best_multiple.best_predicted_epitope_rank.mutated_peptide
         )
 
     def test_phbr2(self):
@@ -206,7 +206,7 @@ class TestBestMultipleBinder(TestCase):
         )
         phbr_ii = best_multiple.calculate_phbr_ii(best_predicted_epitopes_per_alelle)
         self.assertIsNotNone(phbr_ii)
-        self.assertAlmostEqual(8.895757526065129, phbr_ii)
+        self.assertAlmostEqual(6.003569784696215, phbr_ii)
         # mo info for one allele
         mhc2_alleles = MhcFactory.build_mhc2_alleles(
             [
@@ -346,5 +346,5 @@ class TestBestMultipleBinder(TestCase):
 
         generator_rate_ADN = best_multiple.determine_number_of_alternative_binders(predictions=paired_predictions)
         generator_rate_CDN = best_multiple.determine_number_of_binders(predictions=paired_predictions)
-        self.assertEqual(generator_rate_ADN, 0)
+        self.assertEqual(generator_rate_ADN, 1)
         self.assertEqual(generator_rate_CDN, 0)

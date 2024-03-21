@@ -157,7 +157,7 @@ class EpitopeHelper(object):
         alphabetical order to ensure determinism. If there are two or more alleles with the best score, the 
         first in alphabetical order is returned to ensure determinism.
         """
-        return max(predictions, key=lambda p: (-p.rank_mutated, p.mutated_peptide, p.allele_mhc_i, p.isoform_mhc_i_i.name)) \
+        return max(predictions, key=lambda p: (-p.rank_mutated, p.mutated_peptide, p.allele_mhc_i.name, p.isoform_mhc_i_i.name)) \
             if predictions is not None and len(predictions) > 0 else EpitopeHelper.get_empty_epitope()
 
     @staticmethod
