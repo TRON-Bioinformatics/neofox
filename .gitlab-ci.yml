@@ -37,6 +37,8 @@ before_script:
   - apt-get update
   - apt-get --assume-yes install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
   - python -V
+  - pip install poetry=1.8.2
+  - poetry install --only main
 
 stages:
   - validation
@@ -63,7 +65,7 @@ publish_package:
   stage: deploy
   script:
     - pip install twine
-    - python3 setup.py sdist bdist_wheel
+    - poetry run python3 setup.py sdist bdist_wheel
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://gitlab.rlp.net/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
   only:
     # deploys in private gitlab package repository only the develop branch, the master branch is published in PyPI
