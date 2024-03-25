@@ -4,7 +4,7 @@
 
 ## Installation of neofox via poetry
 
-First setup poetry (see ![Setup poetry](setup-poetry)).
+First setup poetry (see [Setup poetry](#setup-poetry)).
 
 To install neofox into the virtual environment managed by poetry (if a `poetry.lock` file is given, the given versions are used. Otherwise the dependecies listed in pyproject.toml are used to generate the environment):
 
@@ -12,7 +12,7 @@ To install neofox into the virtual environment managed by poetry (if a `poetry.l
 poetry install
 ```
 
-If the **wheel** archives are needed, they can be generated using (generates them in the `dist` directory):
+If the **wheel** archive is needed, they can be generated using (generates them in the `dist` directory):
 
 ```
 poetry build
@@ -26,7 +26,7 @@ poetry run neofox --help
 
 ## Installation via pip
 
-The wheel file has to be generated as described in ![Installation of neofox via poetry](installation-of-neofox-via-poetry) (`poetry build`).
+The wheel file has to be generated as described in [Installation of neofox via poetry](#installation-of-neofox-via-poetry) (`poetry build`).
 
 ```
 pip install dist/neofox-x.y.z.whl
