@@ -37,7 +37,7 @@ before_script:
   - apt-get update
   - apt-get --assume-yes install gcc gfortran build-essential wget libfreetype6-dev libpng-dev libopenblas-dev
   - python -V
-  - pip install poetry=1.8.2
+  - pip install poetry==1.8.2
   #- poetry install
 
 stages:
