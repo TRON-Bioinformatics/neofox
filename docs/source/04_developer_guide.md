@@ -1,17 +1,33 @@
 # Developer guide
 
-## Build the package
+> Information: The build system changed in version 1.1.1 to poetry (https://python-poetry.org/).
 
-To build the package just run:
+## Installation of neofox via poetry
+
+First setup poetry (see ![Setup poetry](setup-poetry)).
+
+To install neofox into the virtual environment managed by poetry (if a `poetry.lock` file is given, the given versions are used. Otherwise the dependecies listed in pyproject.toml are used to generate the environment):
+
 ```
-python setup.py bdist_wheel
+poetry install
 ```
 
-This will create an installable wheel file under `dist/neofox-x.y.z.whl`.
+If the **wheel** archives are needed, they can be generated using (generates them in the `dist` directory):
 
-## Install the package
+```
+poetry build
+```
 
-Install the wheel file as follows:
+To use the installed package use `poetry run` e.g.:
+
+```
+poetry run neofox --help
+```
+
+## Installation via pip
+
+The wheel file has to be generated as described in ![Installation of neofox via poetry](installation-of-neofox-via-poetry) (`poetry build`).
+
 ```
 pip install dist/neofox-x.y.z.whl
 ```
@@ -62,3 +78,30 @@ The models and the required scripts are in the folder `neofox/models`
 Build the models into Python code with `make models`.
 
 Build the HTML documentation with `make html` (this requires docker).
+
+## Setup poetry
+
+Use mamba to install poetry
+
+```
+mamba create -n poetry conda-forge::poetry
+```
+
+Required python version for the neofox package also installed via mamba
+
+```
+# installs python v3.7.12
+mamba create -n python3.7 conda-forge::python=3.7
+```
+
+Set the python executable for poetry. This generates the python venv `~/.cache/pypoetry/virtualenvs/neofox...`.
+
+```
+poetry env use ~/.conda/envs/mamba/envs/python3.7/bin/python3.7
+```
+
+To get information on the currently used python environment variable run. This will also show the location of the virtual environment in which the package is or will be installed.
+
+```
+poetry env info
+```
