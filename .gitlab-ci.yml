@@ -50,9 +50,11 @@ check_version_changes:
     # if the version number does not change between this branch and develop it fails
     - git fetch origin develop
     - if git diff origin/develop -- pyproject.toml | grep version; then exit 0; else echo "Version needs to be increased!"; exit -1; fi
-  except:
-    - develop
-    - master
+  #except:
+  #  - develop
+  #  - master
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
 
 test:
   stage: test
