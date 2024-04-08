@@ -75,21 +75,32 @@ conda install bioconda::neofox
 NeoFox can be used from the command line as shown below or programmatically (see [https://neofox.readthedocs.io](https://neofox.readthedocs.io/) for more information).
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num-cpus] [--affinity-threshold]
+neofox --input-file neoantigens_candidates.tsv \
+    --patient-data patient_data.txt \
+    --output-folder /path/to/out \
+    [--output-prefix out_prefix]  \
+    [--organism human|mouse]  \
+    [--rank-mhci-threshold 2.0] \
+    [--rank-mhcii-threshold 5.0] \
+    [--num-cpus] \
+    [--config] \
+    [--patient-id] \
+    [--with-all-neoepitopes] \
+    [--verbose]
 ````
-- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
-- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
-- `--patient-id`: patient identifier (*optional*, this will be used if the column `patientIdentifier` is missing in the candidate input file)
-- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](#43-patient-data-format)
+- `--input-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences 
+ as described [here](03_01_input_data.md#tabular-file-format) (extensions .txt and .tsv) or JSON file neoantigens in 
+ NeoFox model format as  described [here](03_01_input_data.md#json-file-format) (extension .json)
+- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-table`: output file in tab-separated format (*default*)
-- `--with-json`: output file in JSON format (*optional*)
+- `--with-all-neoepitopes`: output annotations for all MHC-I and MHC-II neoepitopes on all HLA alleles (*optional*)
+- `--rank-mhci-threshold`: MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
+- `--rank-mhcii-threshold`: MHC-II epitopes with a netMHCIIpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
+- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
-- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
-- `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
-                        neoepitope recognition. A threshold that is commonly used is 500 nM. 
+- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
 - `--verbose`: get detailed logs
                         
                         
@@ -157,9 +168,9 @@ where:
 - `identifier`: the patient identifier
 - `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
 - `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.
-- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
+- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation. The supported tumor types are listed under "Input data" in the documentation.
 
 
 ## 5 Output data
 
-The output data is returned by default in a short wide tab separated values file (`--with-table`). Optionally, it can be provided in JSON format (`--with-json`).
+The output data is returned by default in tsv and json format. With the command line flag `--with-all-neoepitopes`, two additional files are generated containing the epitope candidates for MHCI and MHCII with NetMHCpan predictions below the given thresholds.

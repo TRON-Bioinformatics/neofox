@@ -19,13 +19,13 @@ poetry  install
 If a **wheel** archive is needed, it can be generated optionally using (generates them in the `dist` directory):
 
 ```
- ~/.conda/envs/poetry/bin/poetry  build
+poetry  build
 ```
 
 To use the installed neofox package, use `poetry run` e.g.:
 
 ```
- ~/.conda/envs/poetry/bin/poetry  run neofox --help
+poetry  run neofox --help
 ```
 
 ## Installation via pip
