@@ -113,6 +113,9 @@ export PATH="$PATH:/path/to/env/poetry/bin/"
 
 cd /path/to/neofox/addannot
 
+# environments are installed in the current project
+poetry config virtualenvs.in-project true
+
 poetry env use /path/to/env/python3.7/bin/python3.7
 ```
 
