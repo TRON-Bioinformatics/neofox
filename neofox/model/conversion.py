@@ -23,7 +23,7 @@ import os
 from betterproto import Casing
 from neofox import NOT_AVAILABLE_VALUE, MHC_II, MHC_I
 from collections import defaultdict
-import orjson as json
+import json
 import numpy as np
 from neofox.model.mhc_parser import MhcParser
 from neofox.model.validation import InputValidator

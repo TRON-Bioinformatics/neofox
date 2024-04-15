@@ -20,7 +20,7 @@ from argparse import ArgumentParser
 from typing import Tuple, List, Dict
 import dotenv
 from logzero import logger
-import orjson as json
+import json
 import neofox
 import neofox.neofox
 from neofox.model.neoantigen import Neoantigen, Patient, PredictedEpitope
@@ -263,7 +263,7 @@ def _write_results(neoantigens, output_folder, output_prefix, with_all_neoepitop
         )
 
     output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
-    with open(output_features, "wb") as f:
+    with open(output_features, "w") as f:
         f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
 
 
@@ -424,5 +424,5 @@ def _write_results_epitopes(neoepitopes: List[PredictedEpitope], output_folder, 
 
     if neoepitopes:
         output_features = os.path.join(output_folder, "{}_neoepitope_candidates_annotated.json".format(output_prefix))
-        with open(output_features, "wb") as f:
+        with open(output_features, "w") as f:
             f.write(json.dumps(ModelConverter.objects2json(neoepitopes)))

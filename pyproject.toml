@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "neofox"
+version = "1.1.1.dev8"
+description = "NEOantigen Feature tOolboX"
+authors = [
+    "TRON - Translational Oncology at the University Medical Center", 
+    "of the Johannes Gutenberg University Mainz - ",
+    "Computational Medicine group ",
+    "<franziska.lang@tron-mainz.de>"
+]
+license = "GPLv3"
+readme = "README.md"
+packages = [
+    {include = "neofox"}
+]
+
+# main dependency group
+[tool.poetry.dependencies]
+python = ">=3.7.1,<3.9"
+biopython = "1.76"
+mock = "~4.0.3"
+pandas = ">=1.3.5,<1.4"
+numpy = ">=1.21,<1.22"
+scipy = ">=1.7.3,<1.8"
+scikit-learn = "0.22.1"
+logzero = ">=1.5.0"
+python-dotenv = "~0.12.0"
+betterproto = "~1.2.5"
+pysam = "~0.19.1"
+dask = ">=2022.2.0,<2023.0.0"
+distributed = ">=2022.2.0,<2023.0.0"
+faker = "~13.13.0"
+xmltodict = "~0.12.0"
+cython = "0.29.33"
+
+#[tool.poetry.group.doc]
+#optional = true
+#
+#[tool.poetry.group.doc.dependencies]
+#Sphinx = "*"#">6.0.0,<=7.1.2"
+#docutils = "*"#"~0.20.1"
+#m2r2 = "0.3.3"#">0.3.0"
+#nbsphinx = "*"#">0.8.0"
+#pydata-sphinx-theme = "*"
+#pandoc = "*"
+
+[tool.poetry.scripts]
+neofox = "neofox.command_line:neofox_cli"
+neofox-epitope = "neofox.command_line:neofox_epitope_cli"
+neofox-configure = "neofox.command_line:neofox_configure"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
