@@ -8,7 +8,7 @@
 
 NeoFox annotates neoantigen candidate sequences with published neoantigen features. 
 
-For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
+**For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)**
 
 If you use NeoFox, please cite the following publication:  
 Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, **NeoFox: annotating neoantigen candidates with neoantigen features**, Bioinformatics, Volume 37, Issue 22, 15 November 2021, Pages 4246–4247, https://doi.org/10.1093/bioinformatics/btab344   
@@ -41,7 +41,6 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 | Recognition potential   §                                | Łuksza et al, 2017, Nature; Balachandran et al, 2017, Nature             | https://doi.org/10.1038/nature24473 , https://doi.org/10.1038/nature24462                 |
 | Vaxrank                                                 | Rubinsteyn, 2017, Front Immunol                                          | https://doi.org/10.3389/fimmu.2017.01807                                                  |
 | Priority score                                          | Bjerregaard et al, 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
-| Tcell predictor                                         | Besser et al, 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | PRIME  §                                                 | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 | HEX §                                                   | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             |
 

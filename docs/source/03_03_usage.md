@@ -82,18 +82,23 @@ neofox-epitope --input-file neoepitope_candidates.tsv \
 where:
 - `--input-file`: tab-separated values table with neoepitope candidates represented by mutated peptide sequences 
  as described [here](03_01_input_data.md#file-with-neoepitope-candidates) (extensions .txt and .tsv)
-- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
+- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information) (*only required if alleleMhcI and isoformMhcII are not provided*)
 - `--output-prefix`: prefix for the output files (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
 - `--verbose`: get detailed logs
 
+**NOTE**
+The neoepitope can be run in two ways: 
+  1.  Annotate neoepitope candidate with a given MHC allele. This requires MHC-I or MHC-II allele in in the input file but no patient-data file. 
+  2.  Annotate neoepitope candidate with all MHC alleles given in the patient data. This requires no MHC-I or MHC-II allele in in the input file but a patient-data file similar to the neoantigen mode. 
+
+
 ## Running from docker
 
-**NOTE: The provided docker recipe is not adapted to Neofox-v1.1.0. Please, use a previous version at the moment if running from docker is required.
-The docker recipe will be updated soon.**
+**NOTE: The provided docker recipe is not adapted in the current NeoFox version. Please, use a previous version (< Neofox-v1.1.0) at the moment if running from docker is required. The docker recipe will be updated soon.**
 
 In order to run the command line in a docker image, all of the above applies but
 some additional steps are required.
