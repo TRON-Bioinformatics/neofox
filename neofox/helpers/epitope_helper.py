@@ -75,7 +75,6 @@ class EpitopeHelper(object):
             for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
                 if aa_mut != aa_wt:
                     p1 += 1
-            p1 = int(p1)
         return p1
 
     @staticmethod
