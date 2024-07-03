@@ -373,10 +373,12 @@ def neofox_epitope_cli():
 def _read_data_epitopes(
     input_file, patients_data, mhc_database: MhcDatabase, organism: str) -> Tuple[List[PredictedEpitope], List[Patient]]:
 
-    # parse patient data
+     # parse optional patient data
+    patients = None 
     logger.info("Parsing patients data from: {}".format(patients_data))
-    patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
-    logger.info("Loaded {} patients".format(len(patients)))
+    if patients_data: 
+        patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
+        logger.info("Loaded {} patients".format(len(patients)))
 
 
     # parse the neoantigen candidate data
