@@ -85,7 +85,7 @@ class NeoantigenAnnotatorTest(TestCase):
         count_none = 0
         count_valid = 0
         for e in annotated_neoantigen.neoepitopes_mhc_i:
-            if e:
+            if e.wild_type_peptide:
                 count_valid = count_valid +1
             else:
                 count_none = count_none + 1 
