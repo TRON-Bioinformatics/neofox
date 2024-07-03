@@ -51,7 +51,8 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
         )
 
         annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
-        self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
+        self.assertIsNotNone(annotated_neoepitope.rank_mutated)
+        self.assertIsNone(annotated_neoepitope.rank_wild_type)
 
     def test_neoepitope_mhci_9mer_with_frequencies_and_gene(self):
         """
