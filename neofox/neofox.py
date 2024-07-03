@@ -28,7 +28,6 @@ from dask.distributed import Client
 import neofox
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.model.factories import NeoantigenFactory
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.expression import Expression
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
@@ -79,7 +78,6 @@ class NeoFox:
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -194,9 +192,6 @@ class NeoFox:
         futures = []
         start = time.time()
         # NOTE: sets those heavy resources to be used by all workers in the cluster
-        future_tcell_predictor = dask_client.scatter(
-            self.tcell_predictor, broadcast=True
-        )
         future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
         future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
@@ -211,7 +206,6 @@ class NeoFox:
                     patient,
                     future_reference_folder,
                     future_configuration,
-                    future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
                     self.rank_mhci_threshold,
@@ -235,7 +229,6 @@ class NeoFox:
         patient: Patient,
         reference_folder: ReferenceFolder,
         configuration: DependenciesConfiguration,
-        tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
         rank_mhci_threshold = neofox.RANK_MHCI_THRESHOLD_DEFAULT,
@@ -251,7 +244,6 @@ class NeoFox:
             annotated_neoantigen = NeoantigenAnnotator(
                 reference_folder,
                 configuration,
-                tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
                 rank_mhci_threshold=rank_mhci_threshold,
                 rank_mhcii_threshold=rank_mhcii_threshold

@@ -20,7 +20,6 @@ import betterproto
 import csv
 import os
 import pandas as pd
-from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
 from Bio.Data import IUPACData
 from neofox.exceptions import NeofoxDataValidationException
 from logzero import logger
@@ -311,7 +310,7 @@ class ModelValidator(object):
             aminoacid = IUPACData.protein_letters_3to1_extended.get(aminoacid)
         if len(aminoacid) == 1:
             assert (
-                aminoacid in ExtendedIUPACProtein.letters
+                aminoacid in IUPACData.extended_protein_letters 
             ), "Non existing aminoacid {}".format(aminoacid)
         else:
             assert False, "Invalid aminoacid {}".format(aminoacid)

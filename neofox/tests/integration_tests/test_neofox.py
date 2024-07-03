@@ -204,7 +204,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 104)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 103)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -328,7 +328,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 79)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 78)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients = self._get_test_data()
@@ -724,7 +724,7 @@ class NeofoxChecker:
         return is_equal
 
     def _is_float(self, s1):
-        return isinstance(s1, float) or isinstance(s1, np.float)
+        return isinstance(s1, float)
 
     def _check_columns(self, new_df, previous_df):
         shared_columns = set(previous_df.columns).intersection(set(new_df.columns))

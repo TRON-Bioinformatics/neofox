@@ -27,7 +27,6 @@ from dask.distributed import Client
 
 from neofox.annotator.neoepitope_annotator import NeoepitopeAnnotator
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
@@ -69,7 +68,6 @@ class NeoFoxEpitope:
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -136,9 +134,6 @@ class NeoFoxEpitope:
         futures = []
         start = time.time()
         # NOTE: sets those heavy resources distributed to all workers in the cluster
-        future_tcell_predictor = dask_client.scatter(
-            self.tcell_predictor, broadcast=True
-        )
         future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
         future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
@@ -151,7 +146,6 @@ class NeoFoxEpitope:
                     neoepitope,
                     future_reference_folder,
                     future_configuration,
-                    future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
                     self.verbose,
@@ -166,7 +160,6 @@ class NeoFoxEpitope:
         )
 
         # close distributed resources
-        del future_tcell_predictor
         del future_self_similarity
         del future_reference_folder
         del future_configuration
@@ -178,7 +171,6 @@ class NeoFoxEpitope:
         neoepitope: PredictedEpitope,
         reference_folder: ReferenceFolder,
         configuration: DependenciesConfiguration,
-        tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
         verbose = False
@@ -191,7 +183,6 @@ class NeoFoxEpitope:
             annotated_neoantigen = NeoepitopeAnnotator(
                 reference_folder,
                 configuration,
-                tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
             ).get_annotated_neoepitope(neoepitope)
         except Exception as e:

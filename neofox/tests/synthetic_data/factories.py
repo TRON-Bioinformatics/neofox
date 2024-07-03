@@ -1,7 +1,7 @@
 from typing import List
 
 from Bio import SeqIO
-from Bio.Alphabet.IUPAC import IUPACData
+from Bio.Data import IUPACData
 from faker.providers.address import Provider
 
 from neofox.exceptions import NeofoxDataValidationException

@@ -59,6 +59,7 @@ class NeoepitopeMhcBindingAnnotator:
                             epitope=annotated_neoepitope,
                             paired_epitope=mixmhcpred_neoepitope,
                             annotation_name=MixMHCpred.ANNOTATION_PREFIX)
+                    if mixmhcpred_neoepitope_wt:
                         annotated_neoepitope = AnnotationFactory.annotate_epitope(
                             epitope=annotated_neoepitope,
                             paired_epitope=mixmhcpred_neoepitope_wt,
@@ -70,6 +71,7 @@ class NeoepitopeMhcBindingAnnotator:
                                 epitope=annotated_neoepitope,
                                 paired_epitope=prime_neoepitope,
                                 annotation_name=Prime.ANNOTATION_PREFIX)
+                        if prime_neoepitope_wt:
                             annotated_neoepitope = AnnotationFactory.annotate_epitope(
                                 epitope=annotated_neoepitope,
                                 paired_epitope=prime_neoepitope_wt,
@@ -98,6 +100,8 @@ class NeoepitopeMhcBindingAnnotator:
         # runs NetMHCpan in peptide mode over the mutated and WT separately and merges it back in one
         # predicted epitope
         annotated_neoepitope = neoepitope
+        annotated_neoepitope.affinity_wild_type = None
+        annotated_neoepitope.rank_wild_type = None 
 
         netmhcpan_allele = self.mhc_parser.get_netmhcpan_representation(neoepitope.allele_mhc_i)
         if netmhcpan_allele in self.available_alleles.get_available_mhc_i():
@@ -105,14 +109,17 @@ class NeoepitopeMhcBindingAnnotator:
                 sequence=neoepitope.mutated_peptide, alleles=netmhcpan_allele)
             annotated_neoepitope.affinity_mutated = mutated_epitope.affinity_mutated
             annotated_neoepitope.rank_mutated = mutated_epitope.rank_mutated
-            wt_epitope = self.netmhcpan.mhc_prediction_peptide(
-                sequence=neoepitope.wild_type_peptide, alleles=netmhcpan_allele)
-            annotated_neoepitope.affinity_wild_type = wt_epitope.affinity_mutated
-            annotated_neoepitope.rank_wild_type = wt_epitope.rank_mutated
+            if neoepitope.wild_type_peptide:
+                wt_epitope = self.netmhcpan.mhc_prediction_peptide(
+                    sequence=neoepitope.wild_type_peptide, alleles=netmhcpan_allele)
+                annotated_neoepitope.affinity_wild_type = wt_epitope.affinity_mutated
+                annotated_neoepitope.rank_wild_type = wt_epitope.rank_mutated
         return annotated_neoepitope
 
     def _run_netmhc2pan(self, neoepitope: PredictedEpitope) -> PredictedEpitope:
         annotated_neoepitope = neoepitope
+        annotated_neoepitope.affinity_wild_type = None
+        annotated_neoepitope.rank_wild_type = None 
 
         netmhc2pan_allele = self.mhc_parser.get_netmhc2pan_representation(neoepitope.isoform_mhc_i_i)
         if netmhc2pan_allele in self.available_alleles.get_available_mhc_ii():
@@ -121,29 +128,40 @@ class NeoepitopeMhcBindingAnnotator:
                 mhc2_isoform=neoepitope.isoform_mhc_i_i)
             annotated_neoepitope.affinity_mutated = mutated_epitope.affinity_mutated
             annotated_neoepitope.rank_mutated = mutated_epitope.rank_mutated
-            wt_epitope = self.netmhc2pan.mhc2_prediction_peptide(
-                sequence=neoepitope.wild_type_peptide,
-                mhc2_isoform=neoepitope.isoform_mhc_i_i)
-            annotated_neoepitope.affinity_wild_type = wt_epitope.affinity_mutated
-            annotated_neoepitope.rank_wild_type = wt_epitope.rank_mutated
+            if neoepitope.wild_type_peptide:
+                wt_epitope = self.netmhc2pan.mhc2_prediction_peptide(
+                    sequence=neoepitope.wild_type_peptide,
+                    mhc2_isoform=neoepitope.isoform_mhc_i_i)
+                annotated_neoepitope.affinity_wild_type = wt_epitope.affinity_mutated
+                annotated_neoepitope.rank_wild_type = wt_epitope.rank_mutated
         return annotated_neoepitope
 
     def _run_mixmhcpred(self, neoepitope: PredictedEpitope) -> Tuple[PredictedEpitope, PredictedEpitope]:
+        
+        wt_epitope = None
+        
         mutated_epitope = self.mixmhcpred.run_peptide(
             peptide=neoepitope.mutated_peptide, allele=neoepitope.allele_mhc_i)
-        wt_epitope = self.mixmhcpred.run_peptide(
-            peptide=neoepitope.wild_type_peptide, allele=neoepitope.allele_mhc_i)
+        if neoepitope.wild_type_peptide:
+            wt_epitope = self.mixmhcpred.run_peptide(
+                peptide=neoepitope.wild_type_peptide, allele=neoepitope.allele_mhc_i)
         return mutated_epitope, wt_epitope
 
     def _run_prime(self, neoepitope: PredictedEpitope) -> Tuple[PredictedEpitope, PredictedEpitope]:
+
+        wt_epitope = None
         mutated_epitope = self.prime.run_peptide(peptide=neoepitope.mutated_peptide, allele=neoepitope.allele_mhc_i)
-        wt_epitope = self.prime.run_peptide(
-            peptide=neoepitope.wild_type_peptide, allele=neoepitope.allele_mhc_i)
+        if neoepitope.wild_type_peptide:
+            wt_epitope = self.prime.run_peptide(
+                peptide=neoepitope.wild_type_peptide, allele=neoepitope.allele_mhc_i)
         return mutated_epitope, wt_epitope
 
     def _run_mixmhc2pred(self, neoepitope: PredictedEpitope) -> Tuple[PredictedEpitope, PredictedEpitope]:
+        wt_epitope = None
         mutated_epitope = self.mixmhc2pred.run_peptide(
             isoform=neoepitope.isoform_mhc_i_i, peptide=neoepitope.mutated_peptide)
-        wt_epitope = self.mixmhc2pred.run_peptide(
-            peptide=neoepitope.wild_type_peptide, isoform=neoepitope.isoform_mhc_i_i)
+
+        if neoepitope.wild_type_peptide:
+            wt_epitope = self.mixmhc2pred.run_peptide(
+                peptide=neoepitope.wild_type_peptide, isoform=neoepitope.isoform_mhc_i_i)
         return mutated_epitope, wt_epitope

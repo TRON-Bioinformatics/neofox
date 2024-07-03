@@ -47,7 +47,8 @@ class TestDissimilarity(TestCase):
             PredictedEpitope(mutated_peptide="DDDDDD", affinity_mutated=600))
         self.assertTrue(result < 0.000001)
 
-    def test_missing_aminoacid_change(self):
+    def test_blosum_nonexisting_aminoacid_change(self):
+        # Amino acid U does not exist in BLOSUM62 matrix
         result = DissimilarityCalculator(proteome_blastp_runner=self.proteome_blastp_runner).calculate_dissimilarity(
             PredictedEpitope(mutated_peptide="DDUDDD", affinity_mutated=600))
         self.assertIsNone(result)

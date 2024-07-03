@@ -2,7 +2,7 @@ from math import ceil, floor
 
 from Bio import SeqIO
 from Bio.Align import substitution_matrices
-from Bio.Alphabet.IUPAC import ExtendedIUPACProtein
+from Bio.Data.IUPACData import protein_letters
 
 
 class PyHex:
@@ -19,7 +19,7 @@ class PyHex:
         with open(fasta_file, "r") as handle:
             for record in SeqIO.parse(handle, "fasta"):
                 # include only records that do not contain non-standard amino acids
-                if not any([aa not in ExtendedIUPACProtein.letters for aa in record.seq]):
+                if not any([aa not in protein_letters for aa in record.seq]):
                     sequences.append(record)
         return sequences
 

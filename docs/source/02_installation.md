@@ -1,8 +1,9 @@
 # Installation
 
 This guide contains two alternatives to install NeoFox:
+- A set of detailed step by step installation instructions without docker with bioconda or PyPI
 - Building a docker image that automates the installation into a container (**NOTE**: the docker recipe is not supported in neofox-v1.1.0. Please use an older version (<v1.1.0) for building the docker image at the moment.)
-- A set of detailed step by step installation instructions without docker
+
 
 The first approach has the lowest entry barrier to use NeoFox as a command line tool.
 While the second provides access to the command line tool and allows the integration of the NeoFox API.
@@ -20,7 +21,7 @@ the sites indicated below.
 - NetMHCpan-4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
 - NetMHCIIpan-4.3: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.3.Linux.tar.gz`)
 
-Please also check the licences of the other third party dependencies ( e.g. listed in the docker recipe `Dockerfile`). 
+**NOTE: Please also check the licences of the other third party dependencies ( e.g. listed in the docker recipe `Dockerfile`).** 
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
@@ -35,7 +36,7 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 These installation instructions were tested on Ubuntu 18.04.
 
-Python 3.7 or 3.8 should be preinstalled.
+Python (>=3.9,<3.12) should be preinstalled.
 
 The libz compression development library is required. This can be installed in Ubuntu as follows:
 ```
@@ -56,7 +57,7 @@ conda install bioconda::neofox
 
 ### Install third-party dependencies
 
-**NOTE**: Please, check the licences of third-party dependencies. 
+**NOTE: Please, check the licences of third-party dependencies.**
 
 
 #### Install BLASTP

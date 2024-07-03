@@ -31,7 +31,6 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.MHC_predictors.netmhcpan.combine_netmhcpan_pred_multiple_binders import BestAndMultipleBinder
 from neofox.model.factories import AnnotationFactory
 from neofox.model.mhc_parser import MhcParser
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.expression import Expression
 from neofox.model.neoantigen import Patient, Neoantigen, Annotations, PredictedEpitope
@@ -45,10 +44,10 @@ from neofox.references.references import (
 
 class NeoepitopeAnnotator(AbstractAnnotator):
     def __init__(self, references: ReferenceFolder, configuration: DependenciesConfiguration,
-                 tcell_predictor: TcellPrediction, self_similarity: SelfSimilarityCalculator):
+                 self_similarity: SelfSimilarityCalculator):
         """class to annotate neoantigens"""
 
-        super().__init__(references, configuration, tcell_predictor, self_similarity)
+        super().__init__(references, configuration, self_similarity)
         self.proteome_db = references.proteome_db
         self.available_alleles = references.get_available_alleles()
 

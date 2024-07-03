@@ -2,7 +2,6 @@ from neofox.annotator.neoepitope_annotator import NeoepitopeAnnotator
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.factories import MhcFactory
 from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Mhc2Isoform, Patient
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.tests.integration_tests.integration_test_tools import get_hla_one_test, get_hla_two_test, \
     BaseIntegrationTest
@@ -15,7 +14,6 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
         self.annotator = NeoepitopeAnnotator(
             references=self.references,
             configuration=self.configuration,
-            tcell_predictor=TcellPrediction(),
             self_similarity=SelfSimilarityCalculator()
         )
         self.patient = Patient(
@@ -45,6 +43,16 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
         annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
 
+    def test_neoepitope_mhci_without_predicted_wild_type(self):
+
+        neoepitope = PredictedEpitope(
+            mutated_peptide="ASMMKVVQV",
+            allele_mhc_i=self._get_test_mhci_allele('HLA-A*01:01')
+        )
+
+        annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
+        self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
+
     def test_neoepitope_mhci_9mer_with_frequencies_and_gene(self):
         """
         this checks fields that are only annotated when expression, vaf and/or gene are provided
@@ -62,9 +70,8 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
         annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
         self.assert_float_annotation(annotated_neoepitope, annotation_name="Priority_score_fromDNA")
-        self.assert_float_annotation(annotated_neoepitope, annotation_name="Tcell_predictor")
 
-    def test_neoepitope_mhci_10mer_no_tcell_predictor(self):
+    def test_neoepitope_mhci_10mer(self):
         """
         this checks fields that are only annotated when expression, vaf and/or gene are provided
         """
@@ -77,9 +84,6 @@ class NeoepitopeAnnotatorTest(BaseIntegrationTest):
 
         annotated_neoepitope = self.annotator.get_annotated_neoepitope(neoepitope=neoepitope)
         self.assert_neoepitope_mhci(original_neoepitope=neoepitope, annotated_neoepitope=annotated_neoepitope)
-        annotation_value = EpitopeHelper.get_annotation_by_name(
-            annotated_neoepitope.neofox_annotations.annotations, "Tcell_predictor")
-        self.assertEqual(annotation_value, "NA")
 
     def test_neoepitope_mhci_without_dna_vaf(self):
         """
