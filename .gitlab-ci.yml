@@ -18,7 +18,7 @@
 ## along with this program. If not, see <http://www.gnu.org/licenses/>.##
 
 # this image contains multiple Python interpreters
-image: python:3.8.14-buster
+image: python:3.11.9-bookworm
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.

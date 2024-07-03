@@ -7,7 +7,6 @@ from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.helpers.runner import Runner
 from neofox.model.factories import AnnotationFactory
 from neofox.model.neoantigen import PredictedEpitope, Neoantigen, Patient
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.differential_binding.amplitude import Amplitude
 from neofox.published_features.differential_binding.differential_binding import DifferentialBinding
 from neofox.published_features.dissimilarity_garnish.dissimilaritycalculator import DissimilarityCalculator
@@ -25,13 +24,11 @@ class AbstractAnnotator(ABC):
             self,
             references: ReferenceFolder,
             configuration: DependenciesConfiguration,
-            tcell_predictor: TcellPrediction,
             self_similarity: SelfSimilarityCalculator
     ):
         """class to annotate neoantigens"""
         self.runner = Runner()
         self.configuration = configuration
-        self.tcell_predictor = tcell_predictor
         self.self_similarity = self_similarity
         self.organism = references.organism
 
@@ -84,9 +81,6 @@ class AbstractAnnotator(ABC):
             self.uniprot.get_annotations_epitope(epitope=epitope) +
             self.dissimilarity_calculator.get_annotations_epitope(epitope=epitope)
         )
-
-        epitope.neofox_annotations.annotations.extend(self.tcell_predictor.get_annotations_epitope_mhci(
-            epitope=epitope, gene=gene))
 
         num_mismatches = EpitopeHelper.number_of_mismatches(
             epitope_wild_type=epitope.wild_type_peptide, epitope_mutation=epitope.mutated_peptide, )

@@ -160,50 +160,67 @@ class PriorityScore:
 
     def get_annotations_epitope_mhci(self, epitope: PredictedEpitope, vaf_tumor, transcript_exp, vaf_rna, gene_exp) -> \
             List[Annotation]:
+
+        priority_score_dna = None
+        priority_score_rna = None
+        priority_score_imputed_dna = None
+        priority_score_imputed_rna = None
+
+        if epitope.mutated_peptide and epitope.rank_wild_type: 
+            priority_score_dna = self.calc_priority_score(
+                    vaf=vaf_tumor,
+                    transcript_gene_expr=transcript_exp,
+                    no_mismatch=EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches'),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome')))
+
+        if epitope.mutated_peptide and epitope.rank_wild_type: 
+            priority_score_imputed_dna = priority_score_rna = self.calc_priority_score(
+                    vaf=vaf_tumor,
+                    transcript_gene_expr=gene_exp,
+                    no_mismatch=EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches'),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome')))
+
+        if epitope.mutated_peptide and epitope.rank_wild_type: 
+            priority_score_rna = self.calc_priority_score(
+                    vaf=vaf_rna,
+                    transcript_gene_expr=transcript_exp,
+                    no_mismatch=EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches'),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome')))
+
+        if epitope.mutated_peptide and epitope.rank_wild_type: 
+            priority_score_imputed_rna = self.calc_priority_score(
+                    vaf=vaf_rna,
+                    transcript_gene_expr=gene_exp,
+                    no_mismatch=EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='number_of_mismatches'),
+                    score_mut=epitope.rank_mutated,
+                    score_wt=epitope.rank_wild_type,
+                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
+                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome')))
+
         return [
             AnnotationFactory.build_annotation(
-                value=self.calc_priority_score(
-                    vaf=vaf_tumor,
-                    transcript_gene_expr=transcript_exp,
-                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
-                    score_mut=epitope.rank_mutated,
-                    score_wt=epitope.rank_wild_type,
-                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                value=priority_score_dna,
                 name='Priority_score_fromDNA'),
             AnnotationFactory.build_annotation(
-                value=self.calc_priority_score(
-                    vaf=vaf_tumor,
-                    transcript_gene_expr=gene_exp,
-                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
-                    score_mut=epitope.rank_mutated,
-                    score_wt=epitope.rank_wild_type,
-                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                value=priority_score_imputed_dna,
                 name='Priority_score_imputed_fromDNA'),
             AnnotationFactory.build_annotation(
-                value=self.calc_priority_score(
-                    vaf=vaf_rna,
-                    transcript_gene_expr=transcript_exp,
-                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
-                    score_mut=epitope.rank_mutated,
-                    score_wt=epitope.rank_wild_type,
-                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                value=priority_score_rna,
                 name='Priority_score_fromRNA'),
             AnnotationFactory.build_annotation(
-                value=self.calc_priority_score(
-                    vaf=vaf_rna,
-                    transcript_gene_expr=gene_exp,
-                    no_mismatch=int(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='number_of_mismatches')),
-                    score_mut=epitope.rank_mutated,
-                    score_wt=epitope.rank_wild_type,
-                    mut_not_in_prot=bool(EpitopeHelper.get_annotation_by_name(
-                        epitope.neofox_annotations.annotations, name='mutation_not_found_in_proteome'))),
+                value=priority_score_imputed_rna,
                 name='Priority_score_imputed_fromRNA'),
-
             ]

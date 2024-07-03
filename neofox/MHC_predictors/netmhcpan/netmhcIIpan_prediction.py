@@ -152,6 +152,12 @@ class NetMhcIIPanPredictor:
                     # NOTE: netmhcpan in peptide mode should return only one epitope
                     p.rank_wild_type = wt_prediction.rank_mutated
                     p.affinity_wild_type = wt_prediction.affinity_mutated
+                else:
+                    p.rank_wild_type = None
+                    p.affinity_wild_type = None
+            else:
+                p.rank_wild_type = None
+                p.affinity_wild_type = None
         return predictions
 
     def get_wt_predictions(self, neoantigen: Neoantigen, patient_mhc2_isoforms):

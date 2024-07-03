@@ -68,10 +68,14 @@ class EpitopeHelper(object):
         This function calculates the number of mismatches between the wt and the mutated epitope
         """
         # TODO: this is not efficient, it can be done with zip or using some library implementing Levenhstein distance
-        p1 = 0
-        for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
-            if aa_mut != aa_wt:
-                p1 += 1
+        
+        p1 = None 
+        if epitope_wild_type and epitope_mutation: 
+            p1 = 0
+            for aa_mut, aa_wt in zip(epitope_mutation, epitope_wild_type):
+                if aa_mut != aa_wt:
+                    p1 += 1
+            p1 = int(p1)
         return p1
 
     @staticmethod

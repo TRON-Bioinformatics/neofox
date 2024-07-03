@@ -168,7 +168,7 @@ where:
 - `identifier`: the patient identifier
 - `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
 - `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.
-- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation. The supported tumor types are listed under "Input data" in the documentation.
+- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation. The supported tumor types are listed under "Input data" in the [documentation](https://neofox.readthedocs.io/en/latest/03_01_input_data.html).
 
 
 ## 5 Output data

@@ -102,8 +102,8 @@ mamba create -p /path/to/env/poetry conda-forge::poetry
 The required python version for the neofox package can also be installed via mamba (currently python3.7):
 
 ```
-# installs python v3.7.12
-mamba create -p /path/to/env/python3.7 conda-forge::python=3.7
+# installs python v3.11
+mamba create -p /path/to/env/python3.11 conda-forge::python=3.11
 ```
 
 Go to your local neofox repository and set the python executable for poetry. This generates the python venv `/path/to/neofox/addannot/.venv`.
@@ -116,7 +116,7 @@ cd /path/to/neofox/addannot
 # environments are installed in the current project
 poetry config virtualenvs.in-project true
 
-poetry env use /path/to/env/python3.7/bin/python3.7
+poetry env use /path/to/env/python3.11/bin/python3.11
 ```
 
 Get information on the currently used python environment variable by running the following command. This will also show the location of the virtual environment in which the package is or will be installed.
