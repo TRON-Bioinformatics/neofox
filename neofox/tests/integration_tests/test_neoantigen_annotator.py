@@ -73,7 +73,7 @@ class NeoantigenAnnotatorTest(TestCase):
 
     def test_neoantigen_annotation_without_predicted_wild_type_and_with_all_epitopes(self):
         neoantigen = NeoantigenFactory.build_neoantigen(
-            mutated_xmer="ALSIEFQEPVPASMMKVVQVYADTYT",
+            mutated_xmer="ELSIEFQEPVPASMMKVVQVYADTQE",
             patient_identifier="123",
             gene="BRCA2"
         )
@@ -82,7 +82,15 @@ class NeoantigenAnnotatorTest(TestCase):
         self._assert_neoantigen(annotated_neoantigen, neoantigen)
         # wild type xmer is still empty!
         self.assertIsNone(annotated_neoantigen.wild_type_xmer)
-        self._assert_epitopes(annotated_neoantigen, with_all_epitopes=True)
+        count_none = 0
+        count_valid = 0
+        for e in annotated_neoantigen.neoepitopes_mhc_i:
+            if e.wild_type_peptide:
+                count_valid = count_valid +1
+            else:
+                count_none = count_none + 1 
+        self.assertGreater(count_none,0)
+        self.assertGreater(count_valid,0)
 
 
     def test_neoantigen_annotation_with_vaf_and_without_tx_expression(self):

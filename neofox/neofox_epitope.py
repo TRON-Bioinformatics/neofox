@@ -71,11 +71,12 @@ class NeoFoxEpitope:
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
-        # validates patients
-        self.patients = {}
-        for patient in patients:
-            ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
-            self.patients[patient.identifier] = patient
+        # validates optional patient object
+        if patients:
+            self.patients = {}
+            for patient in patients:
+                ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
+                self.patients[patient.identifier] = patient
 
         if neoepitopes is None or len(neoepitopes) == 0:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
