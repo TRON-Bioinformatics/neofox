@@ -8,6 +8,8 @@ This guide contains two alternatives to install NeoFox:
 The first approach has the lowest entry barrier to use NeoFox as a command line tool.
 While the second provides access to the command line tool and allows the integration of the NeoFox API.
 
+**NOTE: Please, check the licences of third-party dependencies.**
+
 ## Build and run the docker image
 
 Clone the repository: `git clone git@github.com:TRON-Bioinformatics/neofox.git`
@@ -170,10 +172,10 @@ export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 ```
 
 Furthermore, a list of available MHC alleles is required. Optionally, you can provide the URL to the IPD-IMGT/HLA database CSV table, see releases here https://www.ebi.ac.uk/ipd/imgt/hla/docs/release.html. 
-If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt
 
 ```
-export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt
 ```
 
 Run the following to configure the NeoFox reference folder:
