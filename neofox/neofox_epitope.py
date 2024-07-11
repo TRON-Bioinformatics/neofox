@@ -27,7 +27,6 @@ from dask.distributed import Client
 
 from neofox.annotator.neoepitope_annotator import NeoepitopeAnnotator
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
 from neofox.exceptions import NeofoxConfigurationException, NeofoxDataValidationException
@@ -46,9 +45,10 @@ class NeoFoxEpitope:
             log_file_name=None,
             reference_folder: ReferenceFolder = None,
             configuration: DependenciesConfiguration = None,
-            verbose=True,
+            verbose=False,
             configuration_file=None):
 
+        self.verbose = verbose
         initialise_logs(logfile=log_file_name, verbose=verbose)
         logger.info("Loading reference data...")
 
@@ -68,15 +68,15 @@ class NeoFoxEpitope:
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
-        # validates patients
-        self.patients = {}
-        for patient in patients:
-            ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
-            self.patients[patient.identifier] = patient
+        # validates optional patient object
+        if patients:
+            self.patients = {}
+            for patient in patients:
+                ModelValidator.validate_patient(patient, organism=self.reference_folder.organism)
+                self.patients[patient.identifier] = patient
 
         if neoepitopes is None or len(neoepitopes) == 0:
             raise NeofoxConfigurationException("Missing input data to run Neofox")
@@ -135,9 +135,6 @@ class NeoFoxEpitope:
         futures = []
         start = time.time()
         # NOTE: sets those heavy resources distributed to all workers in the cluster
-        future_tcell_predictor = dask_client.scatter(
-            self.tcell_predictor, broadcast=True
-        )
         future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
         future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
@@ -150,9 +147,9 @@ class NeoFoxEpitope:
                     neoepitope,
                     future_reference_folder,
                     future_configuration,
-                    future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
+                    self.verbose,
                 )
             )
         annotated_neoantigens = dask_client.gather(futures)
@@ -164,7 +161,6 @@ class NeoFoxEpitope:
         )
 
         # close distributed resources
-        del future_tcell_predictor
         del future_self_similarity
         del future_reference_folder
         del future_configuration
@@ -176,26 +172,25 @@ class NeoFoxEpitope:
         neoepitope: PredictedEpitope,
         reference_folder: ReferenceFolder,
         configuration: DependenciesConfiguration,
-        tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
+        verbose = False
     ):
         # the logs need to be initialised inside every dask job
-        initialise_logs(log_file_name)
-        logger.info("Starting neoepitope annotation with peptide={}".format(neoepitope.mutated_peptide))
+        initialise_logs(log_file_name, verbose=verbose)
+        logger.debug("Starting neoepitope annotation with peptide={}".format(neoepitope.mutated_peptide))
         start = time.time()
         try:
             annotated_neoantigen = NeoepitopeAnnotator(
                 reference_folder,
                 configuration,
-                tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
             ).get_annotated_neoepitope(neoepitope)
         except Exception as e:
             logger.error("Error processing neoantigen {}".format(neoepitope.to_dict()))
             raise e
         end = time.time()
-        logger.info(
+        logger.debug(
             "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
                 neoepitope.mutated_peptide, int(end - start))
         )
@@ -221,8 +216,7 @@ class NeoFoxEpitope:
 def initialise_logs(logfile, verbose=False):
     if logfile is not None:
         logzero.logfile(logfile)
-    # TODO: this does not work
     if verbose:
-        logzero.loglevel(logging.INFO)
+        logzero.loglevel(logging.DEBUG)
     else:
-        logzero.loglevel(logging.WARN)
+        logzero.loglevel(logging.INFO)

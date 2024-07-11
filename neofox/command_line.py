@@ -20,11 +20,11 @@ from argparse import ArgumentParser
 from typing import Tuple, List, Dict
 import dotenv
 from logzero import logger
-import orjson as json
+import json
 import neofox
 import neofox.neofox
 from neofox.model.neoantigen import Neoantigen, Patient, PredictedEpitope
-from neofox.model.validation import ModelValidator
+from neofox.model.validation import ModelValidator, InputValidator
 from neofox.neofox import NeoFox
 import os
 from neofox.model.conversion import ModelConverter
@@ -33,7 +33,7 @@ from neofox.references.installer import NeofoxReferenceInstaller
 from neofox.references.references import ReferenceFolder, ORGANISM_HOMO_SAPIENS, ORGANISM_MUS_MUSCULUS, MhcDatabase
 
 epilog = "NeoFox (NEOantigen Feature toolbOX) {}. Copyright (c) 2020-2021 " \
-         "TRON – Translational Oncology at the University Medical Center of the " \
+         "TRON - Translational Oncology at the University Medical Center of the " \
          "Johannes Gutenberg University Mainz gGmbH, all rights reserved".format(neofox.VERSION)
 
 
@@ -45,12 +45,7 @@ def neofox_configure():
         help="the folder with the references required for Neofox",
         required=True,
     )
-    parser.add_argument(
-        "--install-r-dependencies",
-        dest="install_r_dependencies",
-        action="store_true",
-        help="install the R dependencies automatically",
-    )
+
     parser.add_argument(
         "--install-mouse-mixmhc2pred",
         dest="install_mouse_mixmhc2pred",
@@ -60,7 +55,6 @@ def neofox_configure():
 
     args = parser.parse_args()
     reference_folder = args.reference_folder
-    install_r_dependencies = args.install_r_dependencies
     install_mouse_mixmhc2pred = args.install_mouse_mixmhc2pred
 
     # makes sure that the output folder exists
@@ -68,7 +62,7 @@ def neofox_configure():
 
     logger.info("Starting the installation of references")
     NeofoxReferenceInstaller(
-        reference_folder=reference_folder, install_r_dependencies=install_r_dependencies,
+        reference_folder=reference_folder,
         install_mouse_mixmhc2pred=install_mouse_mixmhc2pred
     ).install()
     logger.info("Finished the installation succesfully!")
@@ -172,6 +166,15 @@ def neofox_cli():
             dotenv.load_dotenv(config, override=True)
         reference_folder = ReferenceFolder(organism=organism)
 
+        if organism=='human':
+            logger.info('Organism is human.')
+            logger.info('PRIME, MixMHCpred and MixMHC2pred will be run.')
+        else:
+            logger.info('Organism is mouse.')
+            logger.info('MixMHC2pred will be run.')
+
+        logger.info('Number of CPUs being used:  {}'.format(num_cpus))
+
         # reads the input data
         neoantigens, patients = _read_data(
             input_file,
@@ -187,7 +190,8 @@ def neofox_cli():
             reference_folder=reference_folder,
             rank_mhci_threshold=rank_mhci_threshold,
             rank_mhcii_threshold=rank_mhcii_threshold,
-            with_all_neoepitopes=with_all_neoepitopes
+            with_all_neoepitopes=with_all_neoepitopes,
+            verbose=args.verbose
         ).get_annotations()
 
         _write_results(
@@ -204,22 +208,19 @@ def neofox_cli():
 
 
 def _read_data(input_file, patients_data, mhc_database: MhcDatabase) -> Tuple[List[Neoantigen], List[Patient]]:
-    # parse patient data
     logger.info("Parsing patients data from: {}".format(patients_data))
     patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
     logger.info("Loaded {} patients".format(len(patients)))
 
-    # parse the neoantigen candidate data
-    if input_file.endswith('.txt') or input_file.endswith('.tsv'):
-        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
-        neoantigens = ModelConverter.parse_candidate_file(input_file)
-        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
-    elif input_file.endswith('.json')  :
+
+    if input_file.endswith('.json')  :
         logger.info("Parsing candidate neoantigens from: {}".format(input_file))
         neoantigens = ModelConverter.parse_neoantigens_json_file(input_file)
         logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
     else:
-        raise ValueError('Not supported input file extension: {}'.format(input_file))
+        logger.info("Parsing candidate neoantigens from: {}".format(input_file))
+        neoantigens = ModelConverter.parse_candidate_file(input_file)
+        logger.info("Loaded {} candidate neoantigens".format(len(neoantigens)))
 
     neoantigens_patient_ids = set(neoantigen.patient_identifier for neoantigen in neoantigens)
     patient_ids = set(patient.identifier for patient in patients)
@@ -262,7 +263,7 @@ def _write_results(neoantigens, output_folder, output_prefix, with_all_neoepitop
         )
 
     output_features = os.path.join(output_folder, "{}_neoantigen_candidates_annotated.json".format(output_prefix))
-    with open(output_features, "wb") as f:
+    with open(output_features, "w") as f:
         f.write(json.dumps(ModelConverter.objects2json(neoantigens)))
 
 
@@ -353,7 +354,8 @@ def neofox_epitope_cli():
             patients=patients,
             log_file_name=log_file_name,
             num_cpus=num_cpus,
-            reference_folder=reference_folder
+            reference_folder=reference_folder, 
+            verbose = args.verbose
         ).get_annotations()
 
         _write_results_epitopes(
@@ -371,25 +373,27 @@ def neofox_epitope_cli():
 def _read_data_epitopes(
     input_file, patients_data, mhc_database: MhcDatabase, organism: str) -> Tuple[List[PredictedEpitope], List[Patient]]:
 
-    # parse patient data
-    patients = []
-    if patients_data is not None:
-        logger.info("Parsing patients data from: {}".format(patients_data))
+     # parse optional patient data
+    patients = None 
+    logger.info("Parsing patients data from: {}".format(patients_data))
+    if patients_data: 
         patients = ModelConverter.parse_patients_file(patients_data, mhc_database)
         logger.info("Loaded {} patients".format(len(patients)))
 
+
     # parse the neoantigen candidate data
-    if input_file.endswith('.txt') or input_file.endswith('.tsv'):
+    if input_file.endswith('.json'):
+        # TODO: add support for input in JSON format
+        #    logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
+        #    neoepitopes = ModelConverter.parse_neoepitopes_json_file(input_file)
+        #    logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
+        raise ValueError('Not supported input file extension: {}'.format(input_file))
+    else:
         logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
         neoepitopes = ModelConverter.parse_candidate_neoepitopes_file(input_file, mhc_database, organism)
         logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
-    # TODO: add support for input in JSON format
-    #elif input_file.endswith('.json')  :
-    #    logger.info("Parsing candidate neoepitopes from: {}".format(input_file))
-    #    neoepitopes = ModelConverter.parse_neoepitopes_json_file(input_file)
-    #    logger.info("Loaded {} candidate neoepitopes".format(len(neoepitopes)))
-    else:
-        raise ValueError('Not supported input file extension: {}'.format(input_file))
+    
+
 
     return neoepitopes, patients
 
@@ -422,5 +426,5 @@ def _write_results_epitopes(neoepitopes: List[PredictedEpitope], output_folder, 
 
     if neoepitopes:
         output_features = os.path.join(output_folder, "{}_neoepitope_candidates_annotated.json".format(output_prefix))
-        with open(output_features, "wb") as f:
+        with open(output_features, "w") as f:
             f.write(json.dumps(ModelConverter.objects2json(neoepitopes)))

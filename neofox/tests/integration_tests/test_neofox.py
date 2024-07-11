@@ -20,7 +20,7 @@ import unittest
 from unittest import TestCase
 from datetime import datetime
 import pkg_resources
-import orjson as json
+import json
 from neofox.exceptions import NeofoxConfigurationException
 
 from neofox import NEOFOX_MIXMHCPRED_ENV, NEOFOX_MIXMHC2PRED_ENV, NEOFOX_PRIME_ENV
@@ -135,7 +135,7 @@ class TestNeofox(TestCase):
         ModelConverter.annotations2neoantigens_table(neoantigens=annotations).to_csv(
             output_file, sep="\t", index=False)
 
-        with open(output_json_neoantigens, "wb") as f:
+        with open(output_json_neoantigens, "w") as f:
             f.write(json.dumps(ModelConverter.objects2json(annotations)))
 
         # regression test
@@ -171,7 +171,7 @@ class TestNeofox(TestCase):
         ModelConverter.annotations2neoantigens_table(neoantigens=annotations).to_csv(
             output_file, sep="\t", index=False)
 
-        with open(output_json_neoantigens, "wb") as f:
+        with open(output_json_neoantigens, "w") as f:
             f.write(json.dumps(ModelConverter.objects2json(annotations)))
 
         # regression test
@@ -204,7 +204,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 104)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 103)
 
     def test_neofox_without_mixmhcpreds(self):
         """
@@ -328,7 +328,7 @@ class TestNeofox(TestCase):
         ).get_annotations()
         self.assertEqual(5, len(annotations))
         self.assertIsInstance(annotations[0], Neoantigen)
-        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 79)
+        self.assertEqual(len(annotations[0].neofox_annotations.annotations), 78)
 
     def test_neofox_without_mhc1(self):
         neoantigens, patients = self._get_test_data()
@@ -724,7 +724,7 @@ class NeofoxChecker:
         return is_equal
 
     def _is_float(self, s1):
-        return isinstance(s1, float) or isinstance(s1, np.float)
+        return isinstance(s1, float)
 
     def _check_columns(self, new_df, previous_df):
         shared_columns = set(previous_df.columns).intersection(set(new_df.columns))

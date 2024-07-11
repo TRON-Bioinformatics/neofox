@@ -102,3 +102,9 @@ class TestDifferentialBinding(TestCase):
             score_mutation=1030, score_wild_type=1030
         )
         self.assertIsNotNone(result)
+
+        result = diffbdg_calculator.dai(
+            score_mutation=50, score_wild_type=None
+        )
+        self.assertIsNone(None)
+

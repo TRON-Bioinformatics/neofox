@@ -93,3 +93,9 @@ class FakeH2Database(H2Database):
     def __init__(self):
         super().__init__(database_filename=pkg_resources.resource_filename(
             neofox.references.__name__, "h2_database_allele_list.csv"))
+
+class FakePredictedEpitope(PredictedEpitope):
+
+    def __init__(self, mutated_epitope, allele, affinity):
+        self.mutated_peptide = mutated_epitope
+        self.affinity_mutated = affinity

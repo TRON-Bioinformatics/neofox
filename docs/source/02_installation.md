@@ -1,11 +1,10 @@
 # Installation
 
 This guide contains two alternatives to install NeoFox:
-- Building a docker image that automates the installation into a container (**NOTE**: the docker recipe is not supported in neofox-v1.1.0. Please use an older version (<v1.1.0) for building the docker image at the moment.)
-- A set of detailed step by step installation instructions without docker
+- A set of detailed step by step installation instructions without docker with [bioconda or PyPI](##step-by-step-guide-without-docker)
+- Building a [docker image](##build-and-run-the-docker-image) that automates the installation into a container (NOTE: the docker recipe is currently not supported. Therefore, please install NeoFox without docker for now. The docker recipe will be updated soon.)
 
-The first approach has the lowest entry barrier to use NeoFox as a command line tool.
-While the second provides access to the command line tool and allows the integration of the NeoFox API.
+> NOTE: NeoFox relies on several third-parties dependencies. Please, check the licences of third-party dependencies.
 
 ## Build and run the docker image
 
@@ -18,9 +17,9 @@ distribute the software or provide a direct URL to download it. Please make sure
 the sites indicated below.
 
 - NetMHCpan-4.1: https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 (`netMHCpan-4.1b.Linux.tar.gz`)
-- NetMHCIIpan-4.0: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.0.Linux.tar.gz`)
+- NetMHCIIpan-4.3: https://services.healthtech.dtu.dk/software.php (`netMHCIIpan-4.3.Linux.tar.gz`)
 
-Please also check the licences of the other third party dependencies ( e.g. listed in the docker recipe `Dockerfile`). 
+**NOTE: Please also check the licences of the other third party dependencies ( e.g. listed in the docker recipe `Dockerfile`).** 
 
 Store these in the root folder of the repository, next to the `Dockerfile`. Do not rename the installer files.
 
@@ -35,7 +34,7 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 These installation instructions were tested on Ubuntu 18.04.
 
-Python 3.7 or 3.8 should be preinstalled.
+Python (>=3.9,<3.12) should be preinstalled.
 
 The libz compression development library is required. This can be installed in Ubuntu as follows:
 ```
@@ -56,18 +55,8 @@ conda install bioconda::neofox
 
 ### Install third-party dependencies
 
-**NOTE**: Please, check the licences of third-party dependencies. 
+**NOTE: Please, check the licences of third-party dependencies.**
 
-#### Install R
-
-R 3.6.0 is required.
-
-Optionally set the environment variable pointing to `Rscript`, otherwise neofox will look for it in the path.
-```
-export NEOFOX_RSCRIPT=`which Rscript`
-```
-
-**NOTE**: when installing from conda this dependency is already installed.
 
 #### Install BLASTP
 
@@ -103,26 +92,23 @@ export NEOFOX_NETMHCPAN=/path/to/netMHCpan-4.1/netMHCpan
 Configure NetMHCpan as explained in the file `netMHCpan-4.1/netMHCpan-4.1.readme`
 
 
-#### Install NetMHCIIpan-4.0
+#### Install NetMHCIIpan-4.3
 
-NetMHCIIpan-4.0 can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
+NetMHCIIpan-4.3 can be downloaded by academic users from https://services.healthtech.dtu.dk/software.php
 
 ```
-tar -xvf netMHCIIpan-4.0.Linux.tar.gz
-cd netMHCIIpan-4.0
-# download the data
-wget http://www.cbs.dtu.dk/services/NetMHCIIpan-4.0/data.Linux.tar.gz
-tar -xvf data.Linux.tar.gz
+tar -xvf netMHCIIpan-4.3.Linux.tar.gz
+cd netMHCIIpan-4.3
 # install tcsh shell interpreter if not available yet
 sudo apt-get install tcsh
 ```
 
 Optionally set the environment variable pointing to `netMHCIIpan`, otherwise neofox will look for it in the path.
 ```
-export NEOFOX_NETMHC2PAN=/path/to/netMHCIIpan-4.0/netMHCIIpan
+export NEOFOX_NETMHC2PAN=/path/to/netMHCIIpan-4.3/netMHCIIpan
 ```
 
-Configure NetMHCIIpan-4.0 as explained in the file `netMHCIIpan-4.0/netMHCIIpan-4.0.readme`
+Configure NetMHCIIpan-4.3 as explained in the file `netMHCIIpan-4.3/netMHCIIpan-4.3.readme`
          
 
 #### Install MixMHCpred-2.2 (recommended but optional)
@@ -172,29 +158,27 @@ Configure PRIME as explained in the file `PRIME-master/README`
 
 ### Configuration of the reference folder 
 
-To configure the reference folder, set the environment variables for `makeblastdb`, NetMHCpan, NetMHCIIpan and Rscript,
+To configure the reference folder, set the environment variables for `makeblastdb`, NetMHCpan, and NetMHCIIpan,
  or alternatively rely on these being fetched from the path:
 
 ```
 export NEOFOX_MAKEBLASTDB=`pwd`/ncbi-blast-2.10.1+/bin/makeblastdb
-export NEOFOX_RSCRIPT=`which Rscript`
 export NEOFOX_NETMHCPAN=`pwd`/netMHCpan-4.1/netMHCpan
 export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 ```
 
 Furthermore, a list of available MHC alleles is required. Optionally, you can provide the URL to the IPD-IMGT/HLA database CSV table, see releases here https://www.ebi.ac.uk/ipd/imgt/hla/docs/release.html. 
-If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt
 
 ```
-export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt
 ```
 
 Run the following to configure the NeoFox reference folder:
 ```
-neofox-configure --reference-folder /your/neofox/folder [--install-r-dependencies --install_mouse_mixmhc2pred]
+neofox-configure --reference-folder /your/neofox/folder [--install_mouse_mixmhc2pred]
 ```
 
-**NOTE**: when installing from conda `--install-r-dependencies` is not needed. 
 
 The above command will download and transform several resources and store in the annotations metadata their version, MD5 checksum and 
 download timestamp. 
@@ -204,16 +188,7 @@ To run NeoFox on data from mouse with MixMHC2pred, mouse-specific PMWs are requi
 
 Depending on your use case please check the licences of these third-party resources (see urls in neofox/references/installer.py). 
 
-Unless indicated to the installer by flag `--install-r-dependencies` you will need to install manually some R packages. These packages are the following:
-```
-lattice
-ggplot2
-caret
-Peptides
-doParallel
-gbm
-Biostrings
-```
+
 
 Add the reference folder to the Path
 ```
@@ -236,4 +211,3 @@ The resulting output files can be compared to the following test output files:
 
 * [test_neoantigen_candidates_annotated.tsv](_static/test_neoantigen_candidates_annotated.tsv)
 * [test_neoantigen_candidates_annotated.json](_static/test_neoantigen_candidates_annotated.json)
-

@@ -44,10 +44,10 @@ class TestPrime(TestCase):
         self.prime.run(neoantigen=neoantigen, mhc=self.test_mhc_one, uniprot=self.uniprot)
         best_result = EpitopeHelper.select_best_by_affinity(
             predictions=self.prime.results, maximum=True)
-        self.assertEquals("LVTDQTRL", best_result.mutated_peptide)
+        self.assertEqual("LVTDQTRL", best_result.mutated_peptide)
         self.assertAlmostEqual(0.001858 , best_result.affinity_mutated, delta=0.00001)
-        self.assertEquals(18.992, best_result.rank_mutated)
-        self.assertEquals("HLA-C*05:01", best_result.allele_mhc_i.name)
+        self.assertEqual(18.992, best_result.rank_mutated)
+        self.assertEqual("HLA-C*05:01", best_result.allele_mhc_i.name)
 
     def test_prime_too_small_epitope(self):
         neoantigen = get_neoantigen(mutated_xmer="NLVP", wild_type_xmer="NLNP")

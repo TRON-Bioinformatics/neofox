@@ -19,7 +19,8 @@ neofox --input-file neoantigens_candidates.tsv \
     [--num-cpus] \
     [--config] \
     [--patient-id] \
-    [--with-all-neoepitopes]
+    [--with-all-neoepitopes] \
+    [--verbose]
 ````
 
 where:
@@ -35,7 +36,8 @@ where:
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
-- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
+- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file and it contains only candidates from one patient)
+- `--verbose`: get detailed logs
 
 **PLEASE NOTE THE FOLLOWING HINTS**:
 - If a tumor type has been provided in the patient file, imputated gene expression from TCGA will be annoated and expression-dependent features will be determined with imputated gene expression aswell.  
@@ -53,7 +55,6 @@ neofox --input-file neoantigens_candidates.tsv \
 The optional **config** file with the paths to the dependencies can look like this:  
 ````commandline
 NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
-NEOFOX_RSCRIPT=`which Rscript`
 NEOFOX_BLASTP=path/to/blast/bin/blastp
 NEOFOX_NETMHCPAN=path/to/netMHCpan/netMHCpan
 NEOFOX_NETMHC2PAN=path/to/netMHCIIpan/netMHCIIpan
@@ -75,22 +76,29 @@ neofox-epitope --input-file neoepitope_candidates.tsv \
     [--organism human|mouse]  \
     [--num-cpus] \
     [--config] \
+    [--verbose]
 ````
 
 where:
 - `--input-file`: tab-separated values table with neoepitope candidates represented by mutated peptide sequences 
  as described [here](03_01_input_data.md#file-with-neoepitope-candidates) (extensions .txt and .tsv)
-- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
+- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information) (*only required if alleleMhcI and isoformMhcII are not provided*)
 - `--output-prefix`: prefix for the output files (*optional*)
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
+- `--verbose`: get detailed logs
+
+**NOTE**
+The neoepitope can be run in two ways: 
+  1.  Annotate neoepitope candidate with a given MHC allele. This requires MHC-I or MHC-II allele in in the input file but no patient-data file. 
+  2.  Annotate neoepitope candidate with all MHC alleles given in the patient data. This requires no MHC-I or MHC-II allele in in the input file but a patient-data file similar to the neoantigen mode. 
+
 
 ## Running from docker
 
-**NOTE: The provided docker recipe is not adapted to Neofox-v1.1.0. Please, use a previous version at the moment if running from docker is required.
-The docker recipe will be updated soon.**
+**NOTE: The provided docker recipe is not adapted in the current NeoFox version. Please, use NeoFox without docker for now. The docker recipe will be updated soon.**
 
 In order to run the command line in a docker image, all of the above applies but
 some additional steps are required.

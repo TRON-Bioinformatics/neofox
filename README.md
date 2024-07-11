@@ -8,7 +8,7 @@
 
 NeoFox annotates neoantigen candidate sequences with published neoantigen features. 
 
-For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)
+**For a detailed documentation, please check out [https://neofox.readthedocs.io](https://neofox.readthedocs.io/)**
 
 If you use NeoFox, please cite the following publication:  
 Franziska Lang, Pablo Riesgo-Ferreiro, Martin Löwer, Ugur Sahin, Barbara Schrörs, **NeoFox: annotating neoantigen candidates with neoantigen features**, Bioinformatics, Volume 37, Issue 22, 15 November 2021, Pages 4246–4247, https://doi.org/10.1093/bioinformatics/btab344   
@@ -28,7 +28,7 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 | Name                                                    | Reference                                                                | DOI                                                                                       |
 |---------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | MHC I binding affinity/rank score (netMHCpan-v4.1)      | Reynisson et al, 2020, Nucleic Acids Research                             | https://doi.org/10.4049/jimmunol.1700893                                                  |
-| MHC II binding affinity/rank score (netMHCIIpan-v4.0)   | Reynisson et al, 2020, Nucleic Acids Research                                           | https://doi.org/10.1111/imm.12889                                                         |
+| MHC II binding affinity/rank score (netMHCIIpan-v4.3)   | Nilsson et al, 2023, Science Adv.                                           | https://doi.org/10.1126/sciadv.adj6367                                                         |
 | MixMHCpred score v2.2  §                              | Bassani-Sternberg et al., 2017, PLoS Comp Bio; Gfeller, 2018, J Immunol. | https://doi.org/10.1371/journal.pcbi.1005725 ,   https://doi.org/10.4049/jimmunol.1800914 |
 | MixMHC2pred score v2.0.2  §                              | Racle et al, 2019, Nat. Biotech. 2019                                    | https://doi.org/10.1038/s41587-019-0289-6                                                 |
 | Differential Agretopicity Index (DAI)                   | Duan et al, 2014, JEM; Ghorani et al., 2018, Ann Oncol.                  | https://doi.org/10.1084/jem.20141308                                                      |
@@ -41,7 +41,6 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 | Recognition potential   §                                | Łuksza et al, 2017, Nature; Balachandran et al, 2017, Nature             | https://doi.org/10.1038/nature24473 , https://doi.org/10.1038/nature24462                 |
 | Vaxrank                                                 | Rubinsteyn, 2017, Front Immunol                                          | https://doi.org/10.3389/fimmu.2017.01807                                                  |
 | Priority score                                          | Bjerregaard et al, 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
-| Tcell predictor                                         | Besser et al, 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | PRIME  §                                                 | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 | HEX §                                                   | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             |
 
@@ -52,10 +51,9 @@ NeoFox covers the following neoantigen features and prediction algorithms:
 NeoFox depends on the following tools:  
 
 - Python >=3.7, <=3.8
-- R 3.6.0
 - BLAST 2.10.1
 - netMHCpan 4.1
-- netMHCIIpan 4.0
+- netMHCIIpan 4.3
 - MixMHCpred 2.2 (optional)
 - MixMHC2pred 2.0.2 (optional)
 - PRIME 2.0 (optional)
@@ -76,30 +74,41 @@ conda install bioconda::neofox
 NeoFox can be used from the command line as shown below or programmatically (see [https://neofox.readthedocs.io](https://neofox.readthedocs.io/) for more information).
 
 ````commandline
-neofox --candidate-file/--json-file neoantigens_candidates.tab/neoantigens_candidates.json --patient-data/--patient-data-json patient_data.txt/patient_data.json --output-folder /path/to/out --output-prefix out_prefix [--patient-id] [--with-table] [--with-json] [--num-cpus] [--affinity-threshold]
+neofox --input-file neoantigens_candidates.tsv \
+    --patient-data patient_data.txt \
+    --output-folder /path/to/out \
+    [--output-prefix out_prefix]  \
+    [--organism human|mouse]  \
+    [--rank-mhci-threshold 2.0] \
+    [--rank-mhcii-threshold 5.0] \
+    [--num-cpus] \
+    [--config] \
+    [--patient-id] \
+    [--with-all-neoepitopes] \
+    [--verbose]
 ````
-- `--candidate-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences as described [here](#41-neoantigen-candidates-in-tabular-format)
-- `--json-file`: JSON file neoantigens in NeoFox model format as  described [here](#42-neoantigen-candidates-in-json-format)
-- `--patient-id`: patient identifier (*optional*, this will be used if the column `patientIdentifier` is missing in the candidate input file)
-- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](#43-patient-data-format)
+- `--input-file`: tab-separated values table with neoantigen candidates represented by long mutated peptide sequences 
+ as described [here](03_01_input_data.md#tabular-file-format) (extensions .txt and .tsv) or JSON file neoantigens in 
+ NeoFox model format as  described [here](03_01_input_data.md#json-file-format) (extension .json)
+- `--patient-data`: a table of tab separated values containing metadata on the patient as  described [here](03_01_input_data.md#file-with-patient-information)
 - `--output-folder`: path to the folder to which the output files should be written 
 - `--output-prefix`: prefix for the output files (*optional*)
-- `--with-table`: output file in tab-separated format (*default*)
-- `--with-json`: output file in JSON format (*optional*)
+- `--with-all-neoepitopes`: output annotations for all MHC-I and MHC-II neoepitopes on all HLA alleles (*optional*)
+- `--rank-mhci-threshold`: MHC-I epitopes with a netMHCpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
+- `--rank-mhcii-threshold`: MHC-II epitopes with a netMHCIIpan predicted rank greater than or equal than this threshold will be filtered out (*optional*)
+- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
-- `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
-- `--affinity-threshold`: a affinity value (*optional*) neoantigen candidates with a best predicted affinity greater than or equal than this threshold will be not annotated with features that specifically model
-                        neoepitope recognition. A threshold that is commonly used is 500 nM. 
+- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
+- `--verbose`: get detailed logs
                         
                         
 The optional config file with the paths to the dependencies can look like this:  
 ````commandline
 NEOFOX_REFERENCE_FOLDER=path/to/reference/folder
-NEOFOX_RSCRIPT=`which Rscript`
 NEOFOX_BLASTP=path/to/ncbi-blast-2.10.1+/bin/blastp
 NEOFOX_NETMHCPAN=path/to/netMHCpan-4.1/netMHCpan
-NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.0/netMHCIIpan
+NEOFOX_NETMHC2PAN=path/to/netMHCIIpan-4.3/netMHCIIpan
 NEOFOX_MIXMHCPRED=path/to/MixMHCpred-2.2/MixMHCpred
 NEOFOX_MIXMHC2PRED=path/to/MixMHC2pred-2.0.1/MixMHC2pred_unix
 NEOFOX_MAKEBLASTDB=path/to/ncbi-blast-2.8.1+/bin/makeblastdb
@@ -158,9 +167,9 @@ where:
 - `identifier`: the patient identifier
 - `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
 - `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.
-- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation and at the moment the following tumor types are supported:
+- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for expression imputation. The supported tumor types are listed under "Input data" in the [documentation](https://neofox.readthedocs.io/en/latest/03_01_input_data.html).
 
 
 ## 5 Output data
 
-The output data is returned by default in a short wide tab separated values file (`--with-table`). Optionally, it can be provided in JSON format (`--with-json`).  
+The output data is returned by default in tsv and json format. With the command line flag `--with-all-neoepitopes`, two additional files are generated containing the epitope candidates for MHCI and MHCII with NetMHCpan predictions below the given thresholds.

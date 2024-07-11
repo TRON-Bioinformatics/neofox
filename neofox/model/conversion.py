@@ -19,12 +19,14 @@
 from typing import List
 import pandas as pd
 import betterproto
+import os
 from betterproto import Casing
 from neofox import NOT_AVAILABLE_VALUE, MHC_II, MHC_I
 from collections import defaultdict
-import orjson as json
+import json
 import numpy as np
 from neofox.model.mhc_parser import MhcParser
+from neofox.model.validation import InputValidator
 from neofox.model.neoantigen import (
     Neoantigen,
     Patient,
@@ -37,7 +39,7 @@ from neofox.model.factories import (
     NeoepitopeFactory,
 )
 from neofox.references.references import MhcDatabase
-
+from logzero import logger
 
 class ModelConverter(object):
 
@@ -47,6 +49,9 @@ class ModelConverter(object):
         :param candidate_file: the path to an neoantigen candidate input file
         :return neoantigens in model objects
         """
+
+        InputValidator.validate_input_file(candidate_file)
+
         data = pd.read_csv(
             candidate_file, sep="\t",
             # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
@@ -60,15 +65,21 @@ class ModelConverter(object):
                 "rnaVariantAlleleFrequency": float
             }
         )
-
+        # there is a limitation here
+        # It could be a data has more than one type of separators due to human mistakes
+        if data.shape[1] == 1:
+            logger.fatal('Input data has an unsupported delimiter in NeoFox. NeoFox supports only the tab delimiter.')
         # NOTE: this is the support for the NeoFox format
-        data = data.replace({np.nan: None})
-        neoantigens = ModelConverter._neoantigens_csv2objects(data)
-
-        return neoantigens
+        else:
+            data = data.replace({np.nan: None})
+            neoantigens = ModelConverter._neoantigens_csv2objects(data)
+            return neoantigens
 
     @staticmethod
     def parse_candidate_neoepitopes_file(candidate_file: str, mhc_database: MhcDatabase, organism: str) -> List[PredictedEpitope]:
+        
+        InputValidator.validate_input_file(candidate_file, epitope_mode = True)
+        
         data = pd.read_csv(
             candidate_file, sep="\t",
             # NOTE: forces the types of every column to avoid pandas setting the wrong type for corner cases
@@ -84,11 +95,13 @@ class ModelConverter(object):
                 "isoformMhcII": str,
             }
         )
-
+        if data.shape[1] == 1:
+            logger.fatal('Input data has an unsupported delimiter in NeoFox. NeoFox supports only the tab delimiter.')
         # NOTE: this is the support for the NeoFox format
-        data = data.replace({np.nan: None})
-        neoepitopes = ModelConverter._neoepitopes_csv2objects(data, mhc_database, organism)
-        return neoepitopes
+        else:
+            data = data.replace({np.nan: None})
+            neoepitopes = ModelConverter._neoepitopes_csv2objects(data, mhc_database, organism)
+            return neoepitopes
 
 
     @staticmethod
@@ -98,6 +111,9 @@ class ModelConverter(object):
         :return: the parsed CSV into model objects
         """
         split_comma_separated_list = lambda x: x.split(",")
+
+        InputValidator.validate_patient_file(patients_file)
+
         df = pd.read_csv(
             patients_file,
             sep="\t",
@@ -110,18 +126,21 @@ class ModelConverter(object):
                 "identifier": str
             }
         )
-
         patients = []
-        for _, row in df.iterrows():
-            patient_dict = row.to_dict()
-            patient = PatientFactory.build_patient(
-                identifier=patient_dict.get("identifier"),
-                tumor_type=patient_dict.get("tumorType"),
-                mhc_alleles=patient_dict.get("mhcIAlleles", []),
-                mhc2_alleles=patient_dict.get("mhcIIAlleles", []),
-                mhc_database=mhc_database
-            )
-            patients.append(patient)
+
+        if df.shape[1] == 1:
+            logger.fatal('The patient data has an unsupported delimiter in NeoFox. NeoFox supports only the tab delimiter.')
+        else:
+            for _, row in df.iterrows():
+                patient_dict = row.to_dict()
+                patient = PatientFactory.build_patient(
+                    identifier=patient_dict.get("identifier"),
+                    tumor_type=patient_dict.get("tumorType"),
+                    mhc_alleles=patient_dict.get("mhcIAlleles", []),
+                    mhc2_alleles=patient_dict.get("mhcIIAlleles", []),
+                    mhc_database=mhc_database
+                )
+                patients.append(patient)
         return patients
 
     @staticmethod

@@ -17,10 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 from math import exp, log
-import orjson as json
+import json
 import subprocess
-from Bio import pairwise2
-from Bio.SubsMat import MatrixInfo as matlist
+from Bio.Align import PairwiseAligner
+from Bio.Align import substitution_matrices
 from neofox.helpers.runner import Runner
 from neofox.references.references import DependenciesConfiguration
 
@@ -63,9 +63,9 @@ class BlastpRunner(object):
                 if "-" not in query and "-" not in target:
                     al = BlastpRunner.align(query, target)
                     if al and len(al) > 0:
-                        local_alignments.append(al[0])
+                        local_alignments.append(al)
             similarity_score = self.computeR(alignments=local_alignments, a=a)
-        except SystemError:
+        except (SystemError, ValueError):
             # NOTE: some rarer aminoacids substitutions may not be present in the BLOSUM matrix and thus cause this to
             # fail, an example is U>Y
             similarity_score = None
@@ -112,12 +112,11 @@ class BlastpRunner(object):
         """
         Smith-Waterman alignment with default parameters.
         """
-        matrix = matlist.blosum62
-        gap_open = -11
-        gap_extend = -1
-        aln = pairwise2.align.localds(
-            seq1.upper(), seq2.upper(), matrix, gap_open, gap_extend
-        )
+        aligner = PairwiseAligner()
+        aligner.open_gap_score = -11
+        aligner.extend_gap_score = -1
+        aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
+        aln = aligner.align(seq1.upper(), seq2.upper())
         return aln
 
     @staticmethod
@@ -126,7 +125,7 @@ class BlastpRunner(object):
         Compute TCR-recognition probabilities for each neoantigen.
         """
         # energies of all bound states of neoantigen i
-        bindingEnergies = [-k * (a - el[2]) for el in alignments]
+        bindingEnergies = [-k * (a - el.score) for el in alignments]
         # partition function, over all bound states and an unbound state
         lZ = BlastpRunner.logSum(bindingEnergies + [0])
         lGb = BlastpRunner.logSum(bindingEnergies)

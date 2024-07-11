@@ -2,12 +2,12 @@
 
 ## General information
 
-NeoFox requires two input files: a candidate file with neoantigen or neoepitope candidates and a file with patient data. 
-The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain 
+NeoFox requires two input files: a candidate file with neoantigen or neoepitope candidates and a file with patient data.
+Both the input files must be tab-separated. The file with neoantigen candidates can be provided either in tabular format or in JSON format and this file may contain 
 additional user-specific input that will be kept during the annotation process. The patient file requires a tabular format.
 
 Alternatively, NeoFox may annotate a set of neoepitope candidates for which it will require a file with neoepitope
-candidates and optionally a file with patient data. Both files are required in tabular format.
+candidates and optionally a file with patient data. 
 
 ## Candidate file 
 
@@ -26,13 +26,13 @@ This is an dummy example of a table with neoantigen candidates in tabular format
 | BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA | Ptx               | 7.942         | 0.85                      | 0.34                      | some_value            | some_value            |
 
 where:
-- `gene`: the HGNC gene symbol. (This field is not required for neoantigen candidates derived from other sources than SNVs)      
-- `mutatedXmer`: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neopeptides
-- `wildTypeXmer`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs.  
-- `patientIdentifier`: the patient identifier
-- `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
-- `rnaVariantAlleleFrequency`: the variant allele frequency (VAF) calculated from the RNA (**optional**)
-- `dnaVariantAlleleFrequency`: the VAF calculated from the DNA. (**optional**)
+- **gene**: the HGNC gene symbol. (This field is not required for neoantigen candidates derived from other sources than SNVs)      
+- **mutatedXmer**: the neoantigen candidate sequence, i.e. the mutated amino acid sequence. In case of SNVs, the mutation should be located in the middle. We advise that the point mutation is flanked by 13 amino acid on both sites (IUPAC 1 respecting casing, eg: A) to cover both MHC I and MHC II neopeptides
+- **wildTypeXmer**: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs.  
+- **patientIdentifier**: the patient identifier
+- **rnaExpression**: RNA expression.  (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared. (*optional*)
+- **rnaVariantAlleleFrequency**: the variant allele frequency (VAF) calculated from the RNA (*optional*)
+- **dnaVariantAlleleFrequency**: the VAF calculated from the DNA. (*optional*)
 
 **NOTE:** 
 
@@ -52,20 +52,20 @@ This is an dummy example of a table with neoepitope candidates in tabular format
 | BRCA2 | AAAAAAAAAAAAAKAAAAAAAAAAAAA | AAAAAAAAAAAAACAAAAAAAAAAAAA |          |              | Ptx               | 7.942         | 0.85                      | 0.34                      |
 
 where:
-- `mutatedPeptide`: the neoepitope candidate sequence, i.e. the mutated amino acid sequence. MHC-I neoepitopes should have a length between 8 and 14 amino acids, MHC-II neoepitopes should have a length between 9 and 20000 amino acids. 
-- `wildTypePeptide`: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoepitope candidates derived from other sources than SNVs.  
-- `alleleMhcI`: the MHC-I allele to which this neoepitope is linked (**optional**)
-- `isoformMhcII`: the MHC-II isoform to which this neoepitope is linked (**optional**)
-- `patientIdentifier`: the patient identifier (**only required if alleleMhcI and isoformMhcII are not provided**)
-- `gene`: the HGNC gene symbol. (This field is optional)      
-- `rnaExpression`: RNA expression. (**optional**) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
-- `rnaVariantAlleleFrequency`: the variant allele frequency (VAF) calculated from the RNA (**optional**)
-- `dnaVariantAlleleFrequency`: the VAF calculated from the DNA. (**optional**)
+- **mutatedPeptide**: the neoepitope candidate sequence, i.e. the mutated amino acid sequence. MHC-I neoepitopes should have a length between 8 and 14 amino acids, MHC-II neoepitopes should have a length between 9 and 20000 amino acids. 
+- **wildTypePeptide**: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoepitope candidates derived from other sources than SNVs.  
+- **alleleMhcI**: the MHC-I allele to which this neoepitope is linked (*optional*)
+- **isoformMhcII**: the MHC-II isoform to which this neoepitope is linked (*optional*)
+- **patientIdentifier**: the patient identifier (*only required if alleleMhcI and isoformMhcII are not provided*)
+- **gene**: the HGNC gene symbol. (This field is optional)      
+- **rnaExpression**: RNA expression. (*optional*) (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared.
+- **rnaVariantAlleleFrequency**: the variant allele frequency (VAF) calculated from the RNA (*optional*)
+- **dnaVariantAlleleFrequency**: the VAF calculated from the DNA. (*optional*)
 
 **NOTE:** 
 
 - Neoepitopes with a value for `alleleMhcI` are considered MHC-I neoepitopes, likewise neoepitopes with a value for `isoformMhcII` are considered MHC-II neoepitopes. Both fields cannot be provided for the same neoepitope.
-- If none of `alleleMhcI` and `isoformMhcII` are provided then the `patientIdentifier` is required and one neoepitope sharing the same sequence will be annotated for each MHC-I allele and MHC-II isoform according to the patient HLA type.
+- If none of `alleleMhcI` and `isoformMhcII` are provided then the `patientIdentifier` is required and one neoepitope sharing the same sequence will be annotated for each MHC-I allele and MHC-II isoform according to the patient HLA type provided in the patient data.  
 - Neofox annotates gene expression in TCGA cohort indicated in the `tumorType` in the patient data (see below) which might be helpful if rnaExpression is unknown. Please, not that this does not work for mouse data.
 
 
@@ -100,10 +100,10 @@ This is an dummy example of a patient file in tabular format:
 | Pty        | HLA-A\*02:01,HLA-A\*30:01,HLA-B\*07:34,HLA-B\*44:03,HLA-C\*07:02,HLA-C*07:02 | HLA-DRB1\*04:02,HLA-DRB1\*08:01,HLA-DQA1\*03:01,HLA-DQA1\*04:01,HLA-DQB1\*03:02,HLA-DQB1\*14:01,HLA-DPA1\*01:03,HLA-DPA1\*02:01,HLA-DPB1\*02:01,HLA-DPB1*04:01 | HNSC      |
 
 where:
-- `identifier`: the patient identifier
-- `mhcIAlleles`: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
-- `mhcIIAlleles`: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.  
-- `tumorType`: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is required for imputation with gene expression and at the moment the following tumor types are supported:
+- **identifier**: the patient identifier
+- **mhcIAlleles**: comma separated MHC I alleles of the patient for HLA-A, HLA-B and HLA-C. If homozygous, the allele should be added twice.
+- **mhcIIAlleles**: comma separated  MHC II alleles of the patient for HLA-DRB1, HLA-DQA1, HLA-DQB1, HLA-DPA1 and HLA-DPB1. If homozygous, the allele should be added twice.  
+- **tumorType**: tumour entity in TCGA study abbreviation format (https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/tcga-study-abbreviations). This field is *optional* and only required for imputation with gene expression and at the moment the following tumor types are supported:
 
 | Study Name                                                         | Abbreviation |
 |--------------------------------------------------------------------|-------------------|

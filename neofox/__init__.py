@@ -17,14 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.#
 
+import platform
+from packaging import version
 
-VERSION = "1.1.1"
+if version.parse(platform.python_version())<version.parse("3.8"):
+    import importlib_metadata
+    VERSION = importlib_metadata.version('neofox')
+else:
+    import importlib.metadata
+    VERSION = importlib.metadata.version('neofox')
 
 REFERENCE_FOLDER_ENV = "NEOFOX_REFERENCE_FOLDER"
 NEOFOX_BLASTP_ENV = "NEOFOX_BLASTP"
 NEOFOX_MIXMHC2PRED_ENV = "NEOFOX_MIXMHC2PRED"
 NEOFOX_MIXMHCPRED_ENV = "NEOFOX_MIXMHCPRED"
-NEOFOX_RSCRIPT_ENV = "NEOFOX_RSCRIPT"
 NEOFOX_NETMHC2PAN_ENV = "NEOFOX_NETMHC2PAN"
 NEOFOX_NETMHCPAN_ENV = "NEOFOX_NETMHCPAN"
 NEOFOX_MAKEBLASTDB_ENV = "NEOFOX_MAKEBLASTDB"

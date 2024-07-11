@@ -5,8 +5,7 @@ import os
 from shutil import copyfile
 import pandas as pd
 from Bio import SeqIO
-from Bio.Alphabet import _verify_alphabet, IUPAC
-from Bio.Seq import Seq
+from Bio.Data.IUPACData import protein_letters
 from datetime import datetime
 import hashlib
 import xmltodict
@@ -46,11 +45,10 @@ MIXMHC2PRED_PWM_MOUSE_URL = "http://ec2-18-188-210-66.us-east-2.compute.amazonaw
 
 
 class NeofoxReferenceInstaller(object):
-    def __init__(self, reference_folder, install_r_dependencies=False, install_mouse_mixmhc2pred=False):
+    def __init__(self, reference_folder, install_mouse_mixmhc2pred=False):
         self.config = DependenciesConfigurationForInstaller()
         self.runner = Runner()
         self.reference_folder = reference_folder
-        self.install_r_dependencies = install_r_dependencies
         self.install_mouse_mixmhc2pred = install_mouse_mixmhc2pred
 
     def install(self):
@@ -65,10 +63,7 @@ class NeofoxReferenceInstaller(object):
         proteome_resources = self._set_proteome()
         hla_resource = self._set_ipd_imgt_hla_database()
         self._set_h2_resource()
-        if self.install_r_dependencies:
-            self._install_r_dependencies()
-        else:
-            logger.warning("R dependencies will need to be installed manually")
+
         mixmhc2pred_resources = []
         if self.install_mouse_mixmhc2pred:
             mixmhc2pred_resources = self._set_mixmhc2pred_pwms()
@@ -96,7 +91,7 @@ class NeofoxReferenceInstaller(object):
 
         resources_version = [
             Resource(name="netMHCpan", version="4.1"),
-            Resource(name="netMHCIIpan", version="4.0"),
+            Resource(name="netMHCIIpan", version="4.3"),
             Resource(name="mixMHCpred", version="2.2"),
             Resource(name="mixMHC2pred", version="2.0.2"),
             iedb_resource,
@@ -347,16 +342,6 @@ class NeofoxReferenceInstaller(object):
         target_file = os.path.join(self.reference_folder, H2_DATABASE_AVAILABLE_ALLELES_FILE)
         copyfile(source_file, target_file)
 
-    def _install_r_dependencies(self):
-        logger.info("Installing R dependencies...")
-        cmd = "{rscript} {dependencies_file}".format(
-            rscript=self.config.rscript,
-            dependencies_file=os.path.join(
-                os.path.abspath(os.path.dirname(__file__)), "install_r_dependencies.R"
-            ),
-        )
-        self._run_command(cmd)
-
     def _set_mixmhc2pred_pwms(self):
         # Downloads PWMs of other species than human from http://mixmhc2pred.gfellerlab.org/PWMdef
         # Currently only mouse is supported and downloaded
@@ -421,7 +406,7 @@ class IedbFastaBuilder:
         filtered_iedb.loc[:, "seq"] = filtered_iedb.loc[:, "Epitope:Name"].transform(
             lambda x: x.strip())
         filtered_iedb.loc[:, "valid_peptide"] = filtered_iedb.loc[:, "seq"].transform(
-            lambda x: _verify_alphabet(Seq(x, IUPAC.protein)))
+            lambda x: all(aa in protein_letters for aa in x))
         filtered_iedb = filtered_iedb[filtered_iedb.valid_peptide]
 
         # build fasta header: 449|FL-160-2 protein - Trypanosoma cruzi|JH0823|Trypanosoma cruzi|5693

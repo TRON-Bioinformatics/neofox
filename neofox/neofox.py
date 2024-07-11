@@ -28,7 +28,6 @@ from dask.distributed import Client
 import neofox
 from neofox.expression_imputation.expression_imputation import ExpressionAnnotator
 from neofox.model.factories import NeoantigenFactory
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.published_features.expression import Expression
 from neofox.references.references import ReferenceFolder, DependenciesConfiguration, ORGANISM_HOMO_SAPIENS
@@ -50,13 +49,14 @@ class NeoFox:
             log_file_name=None,
             reference_folder: ReferenceFolder = None,
             configuration: DependenciesConfiguration = None,
-            verbose=True,
+            verbose = False,
             configuration_file=None,
             rank_mhci_threshold=neofox.RANK_MHCI_THRESHOLD_DEFAULT,
             rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
             with_all_neoepitopes=False):
 
-        initialise_logs(logfile=log_file_name, verbose=verbose)
+        self.verbose = verbose
+        initialise_logs(logfile=log_file_name, verbose=self.verbose)
         logger.info("Loading reference data...")
 
         self.rank_mhci_threshold = rank_mhci_threshold
@@ -71,14 +71,13 @@ class NeoFox:
         # NOTE: uses the reference folder and config passed as a parameter if exists, this is here to make it
         # testable with fake objects
         self.reference_folder = (
-            reference_folder if reference_folder else ReferenceFolder(verbose=verbose)
+            reference_folder if reference_folder else ReferenceFolder(verbose=self.verbose)
         )
         # NOTE: makes this call to force the loading of the available alleles here
         self.reference_folder.get_available_alleles()
         self.configuration = (
             configuration if configuration else DependenciesConfiguration()
         )
-        self.tcell_predictor = TcellPrediction()
         self.self_similarity = SelfSimilarityCalculator()
         self.num_cpus = num_cpus
 
@@ -113,7 +112,8 @@ class NeoFox:
             self.neoantigens = self._conditional_expression_imputation()
 
         self.with_all_neoepitopes = with_all_neoepitopes
-
+        if with_all_neoepitopes:
+            logger.info("Prediction of all neoepitopes will be performed")
         logger.info("Reference data loaded")
 
     def _conditional_expression_imputation(self) -> List[Neoantigen]:
@@ -192,9 +192,6 @@ class NeoFox:
         futures = []
         start = time.time()
         # NOTE: sets those heavy resources to be used by all workers in the cluster
-        future_tcell_predictor = dask_client.scatter(
-            self.tcell_predictor, broadcast=True
-        )
         future_self_similarity = dask_client.scatter(self.self_similarity, broadcast=True)
         future_reference_folder = dask_client.scatter(self.reference_folder, broadcast=True)
         future_configuration = dask_client.scatter(self.configuration, broadcast=True)
@@ -209,12 +206,12 @@ class NeoFox:
                     patient,
                     future_reference_folder,
                     future_configuration,
-                    future_tcell_predictor,
                     future_self_similarity,
                     self.log_file_name,
                     self.rank_mhci_threshold,
                     self.rank_mhcii_threshold,
-                    self.with_all_neoepitopes
+                    self.with_all_neoepitopes,
+                    self.verbose
                 )
             )
         annotated_neoantigens = dask_client.gather(futures)
@@ -232,22 +229,21 @@ class NeoFox:
         patient: Patient,
         reference_folder: ReferenceFolder,
         configuration: DependenciesConfiguration,
-        tcell_predictor: TcellPrediction,
         self_similarity: SelfSimilarityCalculator,
         log_file_name: str,
         rank_mhci_threshold = neofox.RANK_MHCI_THRESHOLD_DEFAULT,
         rank_mhcii_threshold=neofox.RANK_MHCII_THRESHOLD_DEFAULT,
-        with_all_neoepitopes=False
+        with_all_neoepitopes=False,
+        verbose = False
     ):
         # the logs need to be initialised inside every dask job
-        initialise_logs(log_file_name)
-        logger.info("Starting neoantigen annotation with peptide={}".format(neoantigen.mutated_xmer))
+        initialise_logs(log_file_name, verbose)
+        logger.debug("Starting neoantigen annotation with peptide={}".format(neoantigen.mutated_xmer))
         start = time.time()
         try:
             annotated_neoantigen = NeoantigenAnnotator(
                 reference_folder,
                 configuration,
-                tcell_predictor=tcell_predictor,
                 self_similarity=self_similarity,
                 rank_mhci_threshold=rank_mhci_threshold,
                 rank_mhcii_threshold=rank_mhcii_threshold
@@ -257,7 +253,7 @@ class NeoFox:
             logger.error("Error processing patient {}".format(patient.to_dict()))
             raise e
         end = time.time()
-        logger.info(
+        logger.debug(
             "Elapsed time for annotating neoantigen for peptide={}: {} seconds".format(
                 neoantigen.mutated_xmer, int(end - start))
         )
@@ -267,8 +263,7 @@ class NeoFox:
 def initialise_logs(logfile, verbose=False):
     if logfile is not None:
         logzero.logfile(logfile)
-    # TODO: this does not work
     if verbose:
-        logzero.loglevel(logging.INFO)
+        logzero.loglevel(logging.DEBUG)
     else:
-        logzero.loglevel(logging.WARN)
+        logzero.loglevel(logging.INFO)

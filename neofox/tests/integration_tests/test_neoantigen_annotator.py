@@ -3,7 +3,6 @@ from unittest import TestCase
 from neofox.annotator.neoantigen_annotator import NeoantigenAnnotator
 from neofox.model.factories import MhcFactory, NeoantigenFactory
 from neofox.model.neoantigen import PredictedEpitope, MhcAllele, Neoantigen, Mhc2Isoform, Patient
-from neofox.published_features.Tcell_predictor.tcellpredictor_wrapper import TcellPrediction
 from neofox.published_features.self_similarity.self_similarity import SelfSimilarityCalculator
 from neofox.tests.integration_tests import integration_test_tools
 from neofox.tests.integration_tests.integration_test_tools import get_hla_one_test, get_hla_two_test
@@ -16,7 +15,6 @@ class NeoantigenAnnotatorTest(TestCase):
         self.annotator = NeoantigenAnnotator(
             references=self.references,
             configuration=self.configuration,
-            tcell_predictor=TcellPrediction(),
             self_similarity=SelfSimilarityCalculator()
         )
         self.patient = Patient(
@@ -72,6 +70,28 @@ class NeoantigenAnnotatorTest(TestCase):
         # wild type xmer is still empty!
         self.assertIsNone(annotated_neoantigen.wild_type_xmer)
         self._assert_epitopes(annotated_neoantigen, with_all_epitopes=True)
+
+    def test_neoantigen_annotation_without_predicted_wild_type_and_with_all_epitopes(self):
+        neoantigen = NeoantigenFactory.build_neoantigen(
+            mutated_xmer="ELSIEFQEPVPASMMKVVQVYADTQE",
+            patient_identifier="123",
+            gene="BRCA2"
+        )
+        annotated_neoantigen = self.annotator.get_annotated_neoantigen(
+            neoantigen=neoantigen, patient=self.patient, with_all_neoepitopes=True)
+        self._assert_neoantigen(annotated_neoantigen, neoantigen)
+        # wild type xmer is still empty!
+        self.assertIsNone(annotated_neoantigen.wild_type_xmer)
+        count_none = 0
+        count_valid = 0
+        for e in annotated_neoantigen.neoepitopes_mhc_i:
+            if e.wild_type_peptide:
+                count_valid = count_valid +1
+            else:
+                count_none = count_none + 1 
+        self.assertGreater(count_none,0)
+        self.assertGreater(count_valid,0)
+
 
     def test_neoantigen_annotation_with_vaf_and_without_tx_expression(self):
         neoantigen = NeoantigenFactory.build_neoantigen(

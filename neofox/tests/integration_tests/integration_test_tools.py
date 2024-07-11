@@ -21,7 +21,7 @@ import tempfile
 from unittest import TestCase
 
 import dotenv
-from Bio.Alphabet.IUPAC import IUPACData
+from Bio.Data import IUPACData
 
 from neofox.helpers.epitope_helper import EpitopeHelper
 from neofox.model.factories import MhcFactory
@@ -204,7 +204,6 @@ class BaseIntegrationTest(TestCase):
 
         # others to comes
         self.assert_annotation(annotated_neoepitope, annotation_name="Priority_score_fromDNA")
-        self.assert_annotation(annotated_neoepitope, annotation_name="Tcell_predictor")
 
     def assert_neoepitope_mhcii(self, original_neoepitope: PredictedEpitope, annotated_neoepitope: PredictedEpitope):
         self.assertIsNotNone(annotated_neoepitope)
