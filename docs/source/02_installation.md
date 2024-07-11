@@ -2,7 +2,7 @@
 
 This guide contains two alternatives to install NeoFox:
 - A set of detailed step by step installation instructions without docker with [bioconda or PyPI](##step-by-step-guide-without-docker)
-- Building a [docker image](##build-and-run-the-docker-image) that automates the installation into a container (**NOTE**: the docker recipe is not supported in neofox-v1.1.0. Therefore, we recommend instalation via PyPI or bioconda at the moment. Please use an older version (<v1.1.0) for building the docker image for now.)
+- Building a [docker image](##build-and-run-the-docker-image) that automates the installation into a container (**NOTE**: the docker recipe is currently not supported.)
 
 **NOTE: NeoFox relies on several third-parties dependencies. Please, check the licences of third-party dependencies.**
 
