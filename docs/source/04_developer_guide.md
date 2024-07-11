@@ -1,6 +1,6 @@
 # Developer guide
 
-> Information: The build system changed in version 1.1.1 to poetry (https://python-poetry.org/).
+> Information: The build system changed in NeoFox v1.2.0 to poetry (https://python-poetry.org/).
 
 ## Installation of neofox via poetry
 

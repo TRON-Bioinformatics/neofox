@@ -36,7 +36,7 @@ where:
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
-- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
+- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file and it contains only candidates from one patient)
 - `--verbose`: get detailed logs
 
 **PLEASE NOTE THE FOLLOWING HINTS**:
