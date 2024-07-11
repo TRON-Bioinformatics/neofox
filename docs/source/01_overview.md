@@ -22,7 +22,7 @@ in the last years.
 NeoFox supports annotation of neoantigen candidates derived from SNVs (single nucleotide variant) and alternative mutation classes such as INDELs or fusion genes. Furthermore, NeoFox supports both human and mouse derived neoantigen candidates.  
   
 NeoFox covers neoepitope prediction by MHC binding and ligand prediction, similarity/foreignness of a neoepitope candidate sequence, combinatorial features and machine learning approaches. 
-A list of implemented features and their references are given in Table 1. Please not that some features are currently not available for mouse.    
+A list of implemented features and their references are given in Table 1. Please note that some features are currently not available for mouse.    
 
 **Table 1**: Neoantigen features and prioritization algorithms (*§ currently not supported for mouse*)
 
@@ -42,7 +42,6 @@ A list of implemented features and their references are given in Table 1. Please
 | Recognition potential §                                  | Łuksza et al., 2017, Nature; Balachandran et al, 2017, Nature             | https://doi.org/10.1038/nature24473 , https://doi.org/10.1038/nature24462                 |
 | Vaxrank                                                 | Rubinsteyn, 2017, Front Immunol                                          | https://doi.org/10.3389/fimmu.2017.01807                                                  |
 | Priority score                                          | Bjerregaard et al., 2017, Cancer Immunol Immunother.                      | https://doi.org/10.1007/s00262-017-2001-3                                                 |
-| Tcell predictor                                         | Besser et al., 2019, Journal for ImmunoTherapy of Cancer                  | https://doi.org/10.1186/s40425-019-0595-z                                                 |
 | PRIME v2.0 §                                                  | Schmidt et al., 2021, Cell Reports Medicine                            | https://doi.org/10.1016/j.xcrm.2021.100194                                             |
 | HEX §                                                  | Chiaro et al., 2021, Cancer Immunology Research                            | https://doi.org/10.1158/2326-6066.CIR-20-0814                                             | 
 

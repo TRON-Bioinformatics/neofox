@@ -7,7 +7,7 @@ Both the input files must be tab-separated. The file with neoantigen candidates 
 additional user-specific input that will be kept during the annotation process. The patient file requires a tabular format.
 
 Alternatively, NeoFox may annotate a set of neoepitope candidates for which it will require a file with neoepitope
-candidates and optionally a file with patient data. Both files are required in tabular format.
+candidates and optionally a file with patient data. 
 
 ## Candidate file 
 
@@ -31,8 +31,8 @@ where:
 - **wildTypeXmer**: the equivalent non-mutated amino acid sequence (IUPAC 1 respecting casing, eg: A). This field shall be empty, specially in the case of neoantigen candidates derived from other sources than SNVs.  
 - **patientIdentifier**: the patient identifier
 - **rnaExpression**: RNA expression.  (see *NOTE*) This value can be in any format chosen by the user (e.g. TPM, RPKM) but it is recommended to be consistent for data that should be compared. (*optional*)
-- `rnaVariantAlleleFrequency`: the variant allele frequency (VAF) calculated from the RNA (*optional*)
-- `dnaVariantAlleleFrequency`: the VAF calculated from the DNA. (*optional*)
+- **rnaVariantAlleleFrequency**: the variant allele frequency (VAF) calculated from the RNA (*optional*)
+- **dnaVariantAlleleFrequency**: the VAF calculated from the DNA. (*optional*)
 
 **NOTE:** 
 

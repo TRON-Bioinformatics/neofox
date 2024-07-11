@@ -1,12 +1,10 @@
 # Installation
 
 This guide contains two alternatives to install NeoFox:
-- A set of detailed step by step installation instructions without docker with bioconda or PyPI
-- Building a docker image that automates the installation into a container (**NOTE**: the docker recipe is not supported in neofox-v1.1.0. Please use an older version (<v1.1.0) for building the docker image at the moment.)
+- A set of detailed step by step installation instructions without docker with [bioconda or PyPI](##step-by-step-guide-without-docker)
+- Building a [docker image](##build-and-run-the-docker-image) that automates the installation into a container (NOTE: the docker recipe is currently not supported. Therefore, please install NeoFox without docker for now. The docker recipe will be updated soon.)
 
-
-The first approach has the lowest entry barrier to use NeoFox as a command line tool.
-While the second provides access to the command line tool and allows the integration of the NeoFox API.
+> NOTE: NeoFox relies on several third-parties dependencies. Please, check the licences of third-party dependencies.
 
 ## Build and run the docker image
 
@@ -170,10 +168,10 @@ export NEOFOX_NETMHC2PAN=`pwd`/netMHCIIpan-4.0/netMHCIIpan
 ```
 
 Furthermore, a list of available MHC alleles is required. Optionally, you can provide the URL to the IPD-IMGT/HLA database CSV table, see releases here https://www.ebi.ac.uk/ipd/imgt/hla/docs/release.html. 
-If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+If not provided the default value is the latest version at the time of this writing https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt
 
 ```
-export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.3430.txt
+export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Latest/Allelelist.txt
 ```
 
 Run the following to configure the NeoFox reference folder:

@@ -1,10 +1,10 @@
 # Developer guide
 
-> Information: The build system changed in version 1.1.1 to poetry (https://python-poetry.org/).
+> Information: The build system changed in NeoFox v1.2.0 to poetry (https://python-poetry.org/).
 
 ## Installation of neofox via poetry
 
-Setup poetry once as described under [Setup poetry](#setup-poetry)) .
+Setup poetry once as described under [Setup poetry](#setup-poetry) .
 
 Go to your local repository, add poetry to you path and install neofox into a virtual environment managed by poetry. If a `poetry.lock` file is given in the path, herein defined package versions are used. Otherwise the dependencies listed in pyproject.toml are used to generate the environment:
 

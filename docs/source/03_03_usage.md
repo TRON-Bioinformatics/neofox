@@ -36,7 +36,7 @@ where:
 - `--organism`: the organism to which the data corresponds. Possible values: [human, mouse]. Default value: human
 - `--num-cpus`: number of CPUs to use (*optional*)
 - `--config`: a config file with the paths to dependencies as shown below  (*optional*)
-- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file)
+- `--patient-id`: patient identifier (*optional*, this is only relevant if the column `patientIdentifier` is missing in the candidate input file and it contains only candidates from one patient)
 - `--verbose`: get detailed logs
 
 **PLEASE NOTE THE FOLLOWING HINTS**:
@@ -98,7 +98,7 @@ The neoepitope can be run in two ways:
 
 ## Running from docker
 
-**NOTE: The provided docker recipe is not adapted in the current NeoFox version. Please, use a previous version (< Neofox-v1.1.0) at the moment if running from docker is required. The docker recipe will be updated soon.**
+**NOTE: The provided docker recipe is not adapted in the current NeoFox version. Please, use NeoFox without docker for now. The docker recipe will be updated soon.**
 
 In order to run the command line in a docker image, all of the above applies but
 some additional steps are required.
