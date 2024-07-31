@@ -24,4 +24,4 @@ jobs:
       run: |
         poetry install
         poetry build
-        twine upload dist/*.whl
+        twine upload dist/*
