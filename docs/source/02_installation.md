@@ -34,7 +34,7 @@ See the usage guide [here](03_03_usage.md) for further details.
 
 These installation instructions were tested on Ubuntu 18.04.
 
-Python (>=3.9,<3.12) should be preinstalled.
+Python (3.11) should be preinstalled.
 
 The libz compression development library is required. This can be installed in Ubuntu as follows:
 ```

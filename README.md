@@ -1,6 +1,5 @@
 # <img src="docs/figures/neofox_logo_small.png" width="10%">  NeoFox - NEOantigen Feature tOolboX   
 
-[![DOI](https://zenodo.org/badge/294667387.svg)](https://zenodo.org/badge/latestdoi/294667387)
 [![PyPI version](https://badge.fury.io/py/neofox.svg)](https://badge.fury.io/py/neofox)
 [![Anaconda-Server Badge](https://anaconda.org/bioconda/neofox/badges/version.svg)](https://anaconda.org/bioconda/neofox)
 [![Documentation Status](https://readthedocs.org/projects/neofox/badge/?version=latest)](https://neofox.readthedocs.io/en/latest/?badge=latest)
@@ -50,7 +49,7 @@ NeoFox covers the following neoantigen features and prediction algorithms:
  
 NeoFox depends on the following tools:  
 
-- Python >=3.7, <=3.8
+- Python 3.11
 - BLAST 2.10.1
 - netMHCpan 4.1
 - netMHCIIpan 4.3
