@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "neofox"
-version = "1.2.2"
+version = "1.2.3"
 description = "NEOantigen Feature tOolboX"
 authors = [
     "TRON - Translational Oncology at the University Medical Center", 
@@ -26,6 +26,7 @@ logzero = ">=1.5.0"
 python-dotenv = "~0.12.0"
 betterproto = "~1.2.5"
 pysam = ">0.20"
+tornado = "6.4.2"
 dask = ">=2024.0.0,<=2024.6.2"
 distributed = ">=2024.0.0,<=2024.6.2"
 faker = "~13.13.0"

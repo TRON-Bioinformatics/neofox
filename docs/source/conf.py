@@ -24,7 +24,7 @@ author = "Franziska Lang & Pablo Riesgo Ferreiro"
 # The full version, including alpha/beta/rc tags
 # TODO: it would be great to have a common versioning, but right now it would require importing neofox here which does
 # TODO: not work in readthedocs environment
-release = "1.2.1"
+release = "1.2.3"
 
 
 # -- General configuration ---------------------------------------------------
