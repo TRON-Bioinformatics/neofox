@@ -176,7 +176,7 @@ export NEOFOX_HLA_DATABASE=https://raw.githubusercontent.com/ANHIG/IMGTHLA/Lates
 
 Run the following to configure the NeoFox reference folder:
 ```
-neofox-configure --reference-folder /your/neofox/folder [--install_mouse_mixmhc2pred]
+neofox-configure --reference-folder /your/neofox/folder [--install-mouse-mixmhc2pred]
 ```
 
 
@@ -184,7 +184,7 @@ The above command will download and transform several resources and store in the
 download timestamp. 
 
 
-To run NeoFox on data from mouse with MixMHC2pred, mouse-specific PMWs are required. For such use cases the reference folder needs to be configured with `--install_mouse_mixmhc2pred` (see also )
+To run NeoFox on data from mouse with MixMHC2pred, mouse-specific PMWs are required. For such use cases the reference folder needs to be configured with `--install-mouse-mixmhc2pred` (see also )
 
 Depending on your use case please check the licences of these third-party resources (see urls in neofox/references/installer.py). 
 
